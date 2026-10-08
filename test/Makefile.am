@@ -44,3 +44,9 @@ EXTRA_PROGRAMS += dsd_test_dop_capacity
 dsd_test_dop_capacity_SOURCES = ../tests/dsd/test_dop_capacity.c
 dsd_test_dop_capacity_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_dop_capacity_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P03 public seek contract probe: build on demand, not part of check_PROGRAMS.
+EXTRA_PROGRAMS += dsd_test_seek_contract
+dsd_test_seek_contract_SOURCES = ../tests/dsd/test_seek_contract.c
+dsd_test_seek_contract_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_seek_contract_LDADD = $(top_builddir)/src/libsox_ng.la

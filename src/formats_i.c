@@ -396,12 +396,25 @@ int lsx_seeki(sox_format_t * ft, off_t offset, int whence)
     return ft->sox_errno;
 }
 
-int lsx_offset_seek(sox_format_t * ft, off_t byte_offset, off_t to_sample)
+int lsx_offset_seek(sox_format_t * ft, off_t byte_offset, sox_uint64_t to_sample)
 {
-  double wide_sample = to_sample - (to_sample % ft->signal.channels);
-  double to_d = wide_sample * ft->encoding.bits_per_sample / 8;
-  off_t to = to_d;
-  return (to != to_d)? SOX_EOF : lsx_seeki(ft, (byte_offset + to), SEEK_SET);
+  sox_uint64_t bytes_per_sample, bytes, absolute;
+  off_t target;
+
+  if (!ft->signal.channels || byte_offset < 0 ||
+      !ft->encoding.bits_per_sample || (ft->encoding.bits_per_sample & 7))
+    return SOX_EOF;
+  bytes_per_sample = ft->encoding.bits_per_sample / 8;
+  if (to_sample > UINT64_MAX / bytes_per_sample)
+    return SOX_EOF;
+  bytes = to_sample * bytes_per_sample;
+  if (bytes > UINT64_MAX - (sox_uint64_t)byte_offset)
+    return SOX_EOF;
+  absolute = (sox_uint64_t)byte_offset + bytes;
+  target = (off_t)absolute;
+  if (target < 0 || (sox_uint64_t)target != absolute)
+    return SOX_EOF;
+  return lsx_seeki(ft, target, SEEK_SET);
 }
 
 /* Read and write known datatypes in "machine format".  Swap if indicated.

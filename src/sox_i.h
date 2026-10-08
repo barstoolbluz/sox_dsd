@@ -213,7 +213,7 @@ off_t lsx_tell(sox_format_t * ft);
 void lsx_clearerr(sox_format_t * ft);
 void lsx_rewind(sox_format_t * ft);
 
-int lsx_offset_seek(sox_format_t * ft, off_t byte_offset, off_t to_sample);
+int lsx_offset_seek(sox_format_t * ft, off_t byte_offset, sox_uint64_t to_sample);
 
 void lsx_fail_errno(sox_format_t *, int, const char *, ...)
 #ifdef __GNUC__

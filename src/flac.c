@@ -265,7 +265,8 @@ static size_t read_samples(sox_format_t * const ft, sox_sample_t * sampleBuffer,
   size_t prev_requested;
 
   if (p->seek_pending) {
-    p->seek_pending = sox_false; 
+    p->seek_pending = sox_false;
+    p->eof = sox_false;
 
     /* discard leftover decoded data */
     free(p->leftover_buf);
@@ -277,6 +278,8 @@ static size_t read_samples(sox_format_t * const ft, sox_sample_t * sampleBuffer,
 
     /* calls decoder_write_callback */
     if (!FLAC__stream_decoder_seek_absolute(p->decoder, (FLAC__uint64)(p->seek_offset / ft->signal.channels))) {
+      lsx_fail_errno(ft, SOX_EOF, "FLAC decoder seek failed");
+      p->eof = sox_true;
       p->req_buffer = NULL;
       return 0;
     }
@@ -587,9 +590,11 @@ static int stop_write(sox_format_t * const ft)
 static int seek(sox_format_t * ft, sox_uint64_t offset)
 {
   priv_t * p = (priv_t *)ft->priv;
+  if (ft->mode != 'r')
+    return SOX_EOF;
   p->seek_offset = offset;
   p->seek_pending = sox_true;
-  return ft->mode == 'r' ? SOX_SUCCESS : SOX_EOF;
+  return SOX_SUCCESS;
 }
 
 

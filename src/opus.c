@@ -408,7 +408,15 @@ static int seek(sox_format_t * ft, sox_uint64_t offset)
 {
   priv_t * vb = (priv_t *) ft->priv;
 
-  return op_pcm_seek(vb->of, (opus_int64)(offset / ft->signal.channels))? SOX_EOF:SOX_SUCCESS;
+  sox_uint64_t frame = offset / ft->signal.channels;
+  if (frame > INT64_MAX || op_pcm_seek(vb->of, (opus_int64)frame))
+    return SOX_EOF;
+
+  /* op_pcm_seek moved the decoder, so discard any samples and EOF state
+   * retained from its previous position.  A failed seek leaves both intact. */
+  vb->start = vb->end = 0;
+  vb->eof = 0;
+  return SOX_SUCCESS;
 }
 
 LSX_FORMAT_HANDLER(opus)

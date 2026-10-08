@@ -418,7 +418,12 @@ static int seek_vorbis(sox_format_t * ft, sox_uint64_t offset)
 {
   priv_t * vb = (priv_t *) ft->priv;
 
-  return ov_pcm_seek(vb->vf, (ogg_int64_t)(offset / ft->signal.channels))? SOX_EOF:SOX_SUCCESS;
+  sox_uint64_t frame = offset / ft->signal.channels;
+  if (frame > INT64_MAX || ov_pcm_seek(vb->vf, (ogg_int64_t)frame))
+    return SOX_EOF;
+  vb->start = vb->end = 0;
+  vb->eof = 0;
+  return SOX_SUCCESS;
 }
 
 LSX_FORMAT_HANDLER(vorbis)

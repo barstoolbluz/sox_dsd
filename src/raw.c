@@ -21,7 +21,7 @@ typedef sox_int16_t sox_int13_t;
 
 int lsx_rawseek(sox_format_t * ft, sox_uint64_t offset)
 {
-  return lsx_offset_seek(ft, (off_t)ft->data_start, (off_t)offset);
+  return lsx_offset_seek(ft, (off_t)ft->data_start, offset);
 }
 
 /* Works nicely for starting read and write; lsx_rawstart{read,write}

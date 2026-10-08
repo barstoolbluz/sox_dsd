@@ -67,7 +67,7 @@ static int seek(sox_format_t * ft, sox_uint64_t offset)
 {
   priv_t * p = (priv_t *)ft->priv;
   if (ft->encoding.encoding == SOX_ENCODING_ALAW)
-    return lsx_offset_seek(ft, (off_t)p->data_start, (off_t)offset);
+    return lsx_offset_seek(ft, (off_t)p->data_start, offset);
   return SOX_EOF;
 }
 

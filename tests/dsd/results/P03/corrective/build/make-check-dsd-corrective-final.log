@@ -1,0 +1,143 @@
+Making all in libdolbyb
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/libdolbyb'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/libdolbyb'
+Making all in libebur128
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/libebur128'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/libebur128'
+Making all in lpc10
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/lpc10'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/lpc10'
+Making all in libgsm
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/libgsm'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/libgsm'
+Making all in src
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/src'
+make  all-am
+make[2]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/src'
+make[2]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/src'
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/src'
+Making all in test
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/test'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/test'
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng'
+make -C test dsd_test_io
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/test'
+make[1]: 'dsd_test_io' is up to date.
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/test'
+make -C test dsd_test_dff_writer
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/test'
+make[1]: 'dsd_test_dff_writer' is up to date.
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/test'
+python3 ./tests/dsd/run.py --phase P03 --results /mnt/data/p03_corrective/buildroot/sox_ng/tests/dsd/results/P03/corrective/check-dsd --sox /mnt/data/p03_corrective/buildroot/sox_ng/src/sox_ng --probe /mnt/data/p03_corrective/buildroot/sox_ng/test/dsd_test_io --writer-unit /mnt/data/p03_corrective/buildroot/sox_ng/test/dsd_test_dff_writer
+PASS  unit_exact_integer_counts
+PASS  unit_explicit_xfail_classifier
+PASS  unit_P01_xfail_mutation_transition
+PASS  unit_dff_chunk_spans
+PASS  unit_hand_derived_bit_order_dsd_dop
+PASS  unit_reproducible_fixture_generator
+PASS  unit_independent_chunk_and_bit_oracles
+PASS  dsf_normal_mono_96
+PASS  dsf_normal_stereo_96
+PASS  dsf_fourchannel_type4_audio
+PASS  dsf_sixchannel_audio
+PASS  dff_normal_stereo_128
+PASS  dff_manf_core_corrected_control
+PASS  dsf_rewind_core_corrected_control
+PASS  dsf_small_capacity_one_frame
+PASS  dff_small_capacity_one_frame
+PASS  dsf_one_frame_first_bit
+PASS  dsf_empty_file
+PASS  dff_single_byte_cluster
+PASS  dsf_msb_first_8bit_storage
+PASS  dsf_rewind_generic_core_position
+PASS  dsf_multichannel_public_seek_offset16
+PASS  dff_multichannel_public_seek_offset16
+PASS  dff_trailing_manf_generic_counter
+PASS  wsd_normal_mono_16
+PASS  wsd_small_capacity_one_frame
+PASS  wav_rewind_after_manual_core_position_correction
+PASS  dff_writer_cmpr_name_length
+PASS  dff_writer_frm8_parent_size
+PASS  dff_writer_completed_tail_audio_count
+PASS  dff_writer_odd_payload_external_pad
+PASS  dff_writer_uninitialized_first_cluster_1ch
+PASS  dff_writer_uninitialized_first_cluster_4ch
+XFAIL dsf_type5_channel_identity_loss
+PASS  dop_cli_hand_vector_transport_markers
+PASS  integration_xfail_audio_mutation_rejection
+{"verdict": "pass", "counts": {"pass": 35, "xfail": 1, "xpass": 0, "fail": 0, "skip": 0}, "result_path": "/mnt/data/p03_corrective/buildroot/sox_ng/tests/dsd/results/P03/corrective/check-dsd/run.json"}
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/test'
+make[1]: 'dsd_test_dop_capacity' is up to date.
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/test'
+P02 DoP capacity: 29 independent assertions PASS
+P02 streaming/extent/forward-only/CLI: 706/706 PASS, 0 FAIL; /mnt/data/p03_corrective/buildroot/sox_ng/tests/dsd/results/P03/corrective/check-dsd/streaming/streaming.json
+make[1]: Entering directory '/mnt/data/p03_corrective/buildroot/sox_ng/test'
+make[1]: 'dsd_test_seek_contract' is up to date.
+make[1]: Leaving directory '/mnt/data/p03_corrective/buildroot/sox_ng/test'
+PASS dsf-lsb-1ch
+PASS dsf-msb-1ch
+PASS dff-1ch
+PASS wsd-1ch
+PASS wav-pcm-1ch
+PASS raw-pcm-1ch
+PASS smp-mono
+PASS prc-alaw-mono
+PASS dsf-0-frames
+PASS dsf-1-frames
+PASS dsf-7-frames
+PASS dsf-9-frames
+PASS dsf-32769-frames
+PASS dff-0-frames
+PASS dff-8-frames
+PASS dsf-lsb-2ch
+PASS dsf-msb-2ch
+PASS dff-2ch
+PASS wsd-2ch
+PASS wav-pcm-2ch
+PASS raw-pcm-2ch
+PASS msu-stereo
+PASS dsf-lsb-3ch
+PASS dsf-msb-3ch
+PASS dff-3ch
+PASS wsd-3ch
+PASS wav-pcm-3ch
+PASS raw-pcm-3ch
+PASS dsf-lsb-4ch
+PASS dsf-msb-4ch
+PASS dff-4ch
+PASS wsd-4ch
+PASS wav-pcm-4ch
+PASS raw-pcm-4ch
+PASS dsf-lsb-5ch
+PASS dsf-msb-5ch
+PASS dff-5ch
+PASS wsd-5ch
+PASS wav-pcm-5ch
+PASS raw-pcm-5ch
+PASS dsf-lsb-6ch
+PASS dsf-msb-6ch
+PASS dff-6ch
+PASS wsd-6ch
+PASS wav-pcm-6ch
+PASS raw-pcm-6ch
+PASS dff-empty-1ch-no-manf
+PASS dff-empty-1ch-manf
+PASS dff-eight-1ch-manf-control
+PASS dff-empty-2ch-no-manf
+PASS dff-empty-2ch-manf
+PASS dff-eight-2ch-manf-control
+PASS dff-empty-6ch-no-manf
+PASS dff-empty-6ch-manf
+PASS dff-eight-6ch-manf-control
+PASS wav-gsm-unsupported-without-movement
+PASS cli-wav-optimized-trim-1ch
+PASS cli-wav-optimized-trim-2ch
+PASS cli-wav-optimized-trim-6ch
+{"fail": 0, "pass": 59, "unrun_optional": ["flac", "vorbis", "opus", "wavpack"]}

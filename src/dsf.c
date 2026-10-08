@@ -269,31 +269,40 @@ static size_t dsf_read(sox_format_t *ft, sox_sample_t *buf, size_t len)
 
 static int dsf_seek(sox_format_t * ft, sox_uint64_t offset)
 {
-	struct dsf *dsf = ft->priv;
-	uint64_t byte_offset;
-	uint64_t block_num;
-	unsigned block_start;
-        off_t data_offs;
-	int err;
+  struct dsf *dsf = ft->priv;
+  uint64_t frame, byte_offset, block_num, block_stride, physical;
+  unsigned block_start;
+  off_t target;
 
-	if (offset > dsf->scount)
-		return SOX_EOF;
+  if (!dsf->chan_num || ft->data_start < 0 ||
+      offset % dsf->chan_num)
+    return SOX_EOF;
+  frame = offset / dsf->chan_num;
+  if (frame > dsf->scount)
+    return SOX_EOF;
 
-	byte_offset = offset / 8;
-	block_num = byte_offset / dsf->block_size;
-	block_start = byte_offset % dsf->block_size;
-	data_offs = dsf->chan_num * dsf->block_size * block_num;
+  /* No block exists at the end of an empty or block-aligned stream.
+   * The logical EOF can be committed without moving the underlying file. */
+  if (frame != dsf->scount) {
+    byte_offset = frame / 8;
+    block_num = byte_offset / dsf->block_size;
+    block_start = byte_offset % dsf->block_size;
+    block_stride = (uint64_t)dsf->chan_num * dsf->block_size;
+    if (block_num > (UINT64_MAX - (uint64_t)ft->data_start) / block_stride)
+      return SOX_EOF;
+    physical = (uint64_t)ft->data_start + block_num * block_stride;
+    target = (off_t)physical;
+    if (target < 0 || (uint64_t)target != physical ||
+        lsx_seeki(ft, target, SEEK_SET) != SOX_SUCCESS)
+      return SOX_EOF;
+  } else
+    block_start = 0;
 
-	err = lsx_seeki(ft, ft->data_start + data_offs, SEEK_SET);
-	if (err != SOX_SUCCESS)
-		return err;
-
-	dsf->block_pos = dsf->block_size;
-	dsf->block_start = block_start;;
-	dsf->bit_pos = offset % 8;
-	dsf->read_samp = offset;
-
-	return SOX_SUCCESS;
+  dsf->block_pos = dsf->block_size;
+  dsf->block_start = block_start;
+  dsf->bit_pos = frame % 8;
+  dsf->read_samp = frame;
+  return SOX_SUCCESS;
 }
 
 static int dsf_stopread(sox_format_t *ft)
