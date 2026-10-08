@@ -219,19 +219,26 @@ win64.exe: winexe-prepare
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.
 .PHONY: check-dsd
-DSD_PHASE ?= P02
+DSD_PHASE ?= P03
 DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
 check-dsd: all
 	$(MAKE) -C test dsd_test_io$(EXEEXT)
 	$(MAKE) -C test dsd_test_dff_writer$(EXEEXT)
 	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox_ng --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
-	@if test "$(DSD_PHASE)" = "P02"; then \
+	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03"; then \
 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_streaming.py \
 	    --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/streaming; \
+	fi
+	@if test "$(DSD_PHASE)" = "P03"; then \
+	  $(MAKE) -C test dsd_test_seek_contract$(EXEEXT) && \
+	  python3 $(srcdir)/tests/dsd/test_seek.py \
+	    --probe $(abs_builddir)/test/dsd_test_seek_contract$(EXEEXT) \
+	    --sox $(abs_builddir)/src/sox_ng \
+	    --results $(DSD_RESULTS)/seek; \
 	fi
 # P00 distributable design/test inputs (generated raw runs live in the continuation archive).
 EXTRA_DIST += \
@@ -270,4 +277,7 @@ EXTRA_DIST += \
   tests/dsd/BENCHMARKING.md tests/dsd/benchprep.sh \
   tests/dsd/test_streaming.py tests/dsd/test_dop_capacity.c \
   tests/dsd/bench_read_p02.py docs/dsd/handoffs/P02.md \
-  docs/dsd/handoffs/P02_CHECKPOINT.md
+  docs/dsd/handoffs/P02_CHECKPOINT.md \
+  docs/dsd/SEEK_CONTRACT.md docs/dsd/handoffs/P03.md \
+  docs/dsd/handoffs/P03_CHECKPOINT.md \
+  tests/dsd/test_seek.py tests/dsd/test_seek_contract.c

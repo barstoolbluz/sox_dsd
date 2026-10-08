@@ -1170,8 +1170,9 @@ typedef int (LSX_API * sox_format_handler_stopwrite)(
 
 /**
 Client API:
-Callback to reposition reader,
-used by sox_format_handler.seek.
+Callback to reposition reader. The offset counts interleaved samples
+and is normalized down to a complete channel frame by sox_seek before
+calling the handler. Handlers must land exactly at that target or fail.
 @returns SOX_SUCCESS if successful.
 */
 typedef int (LSX_API * sox_format_handler_seek)(
@@ -2050,7 +2051,10 @@ sox_close(
 
 /**
 Client API:
-Sets the location at which next samples will be decoded. Returns SOX_SUCCESS if successful.
+Sets the location at which next samples will be decoded. SOX_SEEK_SET
+uses interleaved sample offsets; unaligned offsets round down to the preceding
+complete channel frame. A known logical end is a valid target. The logical
+read position changes only on successful seeks. Returns SOX_SUCCESS if successful.
 @returns SOX_SUCCESS if successful.
 */
 int

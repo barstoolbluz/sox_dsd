@@ -1419,8 +1419,14 @@ size_t sox_read(sox_format_t * ft, sox_sample_t * buf, size_t len)
     lsx_warn("attempt to read from output file `%s'", ft->filename);
     return 0;
   }
-  if (ft->signal.length != SOX_UNSPEC)
-    len = min(len, ft->signal.length - ft->olength);
+  /* Length is an interleaved sample count; 0 and -1 mean unknown.
+   * A position at/past a known end has no remaining samples. */
+  if (ft->signal.length != SOX_UNSPEC &&
+      ft->signal.length != SOX_UNKNOWN_LEN)
+    len = ft->olength >= ft->signal.length ? 0 :
+      min(len, ft->signal.length - ft->olength);
+  if (!len)
+    return 0;
   actual = ft->handler.read? (*ft->handler.read)(ft, buf, len) : 0;
   actual = actual > len? 0 : actual;
   ft->olength += actual;
@@ -1509,16 +1515,24 @@ int sox_close(sox_format_t * ft)
 
 int sox_seek(sox_format_t * ft, sox_uint64_t offset, int whence)
 {
-    /* FIXME: Implement SOX_SEEK_CUR and SOX_SEEK_END. */
-    if (whence != SOX_SEEK_SET)
-        return SOX_EOF; /* FIXME: return SOX_EINVAL */
+  sox_uint64_t target;
+  int rc;
 
-    /* If file is a seekable file and this handler supports seeking,
-     * then invoke handler's function.
-     */
-    if (ft->seekable && ft->handler.seek)
-      return (*ft->handler.seek)(ft, offset);
-    return SOX_EOF; /* FIXME: return SOX_EBADF */
+  /* SEEK_CUR/END are intentionally unsupported. Public offsets count
+   * interleaved samples; round to the preceding complete channel frame. */
+  if (whence != SOX_SEEK_SET || !ft->signal.channels ||
+      !ft->seekable || !ft->handler.seek)
+    return SOX_EOF;
+  target = offset - offset % ft->signal.channels;
+  if (ft->signal.length != SOX_UNSPEC &&
+      ft->signal.length != SOX_UNKNOWN_LEN &&
+      target > ft->signal.length)
+    return SOX_EOF;
+
+  rc = (*ft->handler.seek)(ft, target);
+  if (rc == SOX_SUCCESS)
+    ft->olength = target;
+  return rc;
 }
 
 static int strcaseends(char const * str, char const * end)

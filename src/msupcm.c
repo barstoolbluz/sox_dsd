@@ -188,10 +188,8 @@ static int stopwrite_msupcm(sox_format_t * ft)
 
 static int seek_msupcm(sox_format_t * ft, uint64_t offset)
 {
-  /* Seek relative to current position. */
-  ft->sox_errno = lsx_seeki(ft, (off_t)(offset + 8), SEEK_SET);
-
-  return ft->sox_errno;
+  /* Each interleaved MSU PCM sample occupies two bytes after the header. */
+  return lsx_offset_seek(ft, (off_t)8, offset);
 }
 
 LSX_FORMAT_HANDLER(pcm)

@@ -213,6 +213,11 @@ static size_t dff_read(sox_format_t *ft, sox_sample_t *buf, size_t len)
 	size_t nc = ft->signal.channels;
 	size_t frames = len / nc, done = 0;
 
+	/* A zero-length DSD chunk may be followed by non-audio metadata.
+	 * The generic reader uses length == 0 for unknown-length formats. */
+	if (!dff->data_size)
+		return 0;
+
 	while (frames) {
 		unsigned i, j, bits;
 		if (!dff->cluster_valid) {
@@ -243,19 +248,30 @@ static size_t dff_read(sox_format_t *ft, sox_sample_t *buf, size_t len)
 
 static int dff_seek(sox_format_t * ft, sox_uint64_t offset)
 {
-	struct dsdiff *dff = ft->priv;
-	uint64_t byte_offset = offset / 8;
-	uint64_t data_offset = byte_offset * ft->signal.channels;
-	int err;
+  struct dsdiff *dff = ft->priv;
+  uint64_t frame, byte_offset, data_offset, physical;
+  off_t target;
 
-	err = lsx_seeki(ft, ft->data_start + data_offset, SEEK_SET);
-	if (err != SOX_SUCCESS)
-		return err;
+  if (!ft->signal.channels || ft->data_start < 0 ||
+      offset % ft->signal.channels || offset > ft->signal.length)
+    return SOX_EOF;
+  frame = offset / ft->signal.channels;
+  byte_offset = frame / 8;
+  if (byte_offset > UINT64_MAX / ft->signal.channels)
+    return SOX_EOF;
+  data_offset = byte_offset * ft->signal.channels;
+  if (data_offset > dff->data_size ||
+      data_offset > UINT64_MAX - (uint64_t)ft->data_start)
+    return SOX_EOF;
+  physical = (uint64_t)ft->data_start + data_offset;
+  target = (off_t)physical;
+  if (target < 0 || (uint64_t)target != physical ||
+      lsx_seeki(ft, target, SEEK_SET) != SOX_SUCCESS)
+    return SOX_EOF;
 
-	dff->bit_pos = offset % 8;
-	dff->cluster_valid = sox_false;
-
-	return SOX_SUCCESS;
+  dff->bit_pos = frame % 8;
+  dff->cluster_valid = sox_false;
+  return SOX_SUCCESS;
 }
 
 static int dff_stopread(sox_format_t *ft)

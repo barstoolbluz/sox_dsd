@@ -184,28 +184,12 @@ static int writetrailer(sox_format_t * ft, struct smptrailer *trailer)
 
 static int sox_smpseek(sox_format_t * ft, sox_uint64_t offset)
 {
-    uint64_t new_offset;
-    size_t channel_block, alignment;
     priv_t * smp = (priv_t *) ft->priv;
+    int rc = lsx_offset_seek(ft, (off_t)smp->dataStart, offset);
 
-    new_offset = offset * (ft->encoding.bits_per_sample >> 3);
-    /* Make sure request aligns to a channel block (ie left+right) */
-    channel_block = ft->signal.channels * (ft->encoding.bits_per_sample >> 3);
-    alignment = new_offset % channel_block;
-    /* Most common mistaken is to compute something like
-     * "skip everthing upto and including this sample" so
-     * advance to next sample block in this case.
-     */
-    if (alignment != 0)
-        new_offset += (channel_block - alignment);
-    new_offset += smp->dataStart;
-
-    ft->sox_errno = lsx_seeki(ft, (off_t)new_offset, SEEK_SET);
-
-    if( ft->sox_errno == SOX_SUCCESS )
-        smp->NoOfSamps = ft->signal.length - (new_offset / (ft->encoding.bits_per_sample >> 3));
-
-    return(ft->sox_errno);
+    if (rc == SOX_SUCCESS)
+        smp->NoOfSamps = ft->signal.length - offset;
+    return rc;
 }
 /*
  * Do anything required before you start reading samples.

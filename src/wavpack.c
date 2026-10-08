@@ -225,7 +225,11 @@ static int seek(sox_format_t * ft, sox_uint64_t offset)
 {
   priv_t * p = (priv_t *)ft->priv;
 
-  return WavpackSeekSample(p->codec, (uint32_t) (offset / ft->signal.channels))? SOX_SUCCESS : SOX_EOF;
+  sox_uint64_t frame = offset / ft->signal.channels;
+  if (frame > UINT32_MAX)
+    return SOX_EOF;
+  return WavpackSeekSample(p->codec, (uint32_t)frame) ?
+    SOX_SUCCESS : SOX_EOF;
 }
 
 LSX_FORMAT_HANDLER(wavpack)

@@ -1405,6 +1405,16 @@ static void adjust_volume(int delta)
 }
 #endif
 
+/* Convert CLI frame positions to the public interleaved-sample offset. */
+static sox_bool seek_offset_for_frames(sox_format_t const *ft,
+    uint64_t frames, uint64_t *samples)
+{
+  if (!ft->signal.channels || frames > UINT64_MAX / ft->signal.channels)
+    return sox_false;
+  *samples = frames * ft->signal.channels;
+  return sox_true;
+}
+
 static int update_status(sox_bool all_done, void * client_data)
 {
   char key[2];
@@ -1424,32 +1434,33 @@ static int update_status(sox_bool all_done, void * client_data)
     else switch (ch) {
 
     case '>':
-    if (files[current_input]->ft->handler.seek &&
-        files[current_input]->ft->seekable) {
-        uint64_t jump = files[current_input]->ft->signal.rate*30; /* 30 sec. */
-        if (input_wide_samples == 0 ||
-                  read_wide_samples+jump < input_wide_samples) {
-          read_wide_samples += jump;
-          if (sox_seek(files[current_input]->ft, read_wide_samples,
-                   SOX_SEEK_SET) != SOX_SUCCESS)
-            lsx_warn("seeking failed");
-        }
-      } else /* FIXME: Seek forward by discarding samples */
-        lsx_warn("this file type is not seekable");
-      break;
-
     case '<':
     if (files[current_input]->ft->handler.seek &&
         files[current_input]->ft->seekable) {
-        uint64_t jump = files[current_input]->ft->signal.rate*30; /* 30 sec. */
-        read_wide_samples = jump < read_wide_samples ?
-            read_wide_samples-jump : 0;
-        if (sox_seek(files[current_input]->ft, read_wide_samples,
-                 SOX_SEEK_SET) != SOX_SUCCESS)
-          lsx_warn("seeking failed");
+      sox_format_t *ft = files[current_input]->ft;
+      double seconds = ft->signal.rate * 30; /* 30 seconds in frames. */
+      uint64_t jump, candidate, offset;
+      if (!(seconds >= 0 && seconds < (double)UINT64_MAX)) {
+        lsx_warn("seeking failed: invalid sample rate");
+        break;
+      }
+      jump = (uint64_t)seconds;
+      if (ch == '>') {
+        if (jump > UINT64_MAX - read_wide_samples)
+          break;
+        candidate = read_wide_samples + jump;
+        if (input_wide_samples && candidate >= input_wide_samples)
+          break;
       } else
-        lsx_warn("this file type is not seekable");
-      break;
+        candidate = jump < read_wide_samples ? read_wide_samples - jump : 0;
+      if (!seek_offset_for_frames(ft, candidate, &offset) ||
+          sox_seek(ft, offset, SOX_SEEK_SET) != SOX_SUCCESS)
+        lsx_warn("seeking failed");
+      else
+        read_wide_samples = ft->olength / ft->signal.channels;
+    } else /* FIXME: Seek forward by discarding samples */
+      lsx_warn("this file type is not seekable");
+    break;
 
     case 'R':
       /* Not very useful, eh!  Sample though of the place you
@@ -1499,7 +1510,7 @@ static void optimize_trim(void)
     if (files[0]->ft->handler.seek && files[0]->ft->seekable){
       uint64_t offset = sox_trim_get_start(&effects_chain->effects[1][0]);
       if (offset && sox_seek(files[0]->ft, offset, SOX_SEEK_SET) == SOX_SUCCESS) {
-        read_wide_samples = offset / files[0]->ft->signal.channels;
+        read_wide_samples = files[0]->ft->olength / files[0]->ft->signal.channels;
         /* Assuming a failed seek stayed where it was.  If the seek worked then
          * reset the start location of trim so that it thinks user didn't
          * request a skip.  */
