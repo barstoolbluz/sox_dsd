@@ -1,0 +1,15 @@
+Clean-archive replay of the P00 authoritative tree, 2026-10-08 UTC.
+autoreconf exit 0
+configure exit 0
+make exit 0
+check exit 0
+check-dsd exit 0
+run-dsd exit 0
+measure exit 0
+source manifest checksum verification: exit 0
+bench first invocation: interrupted by external execution-window termination
+bench first attempt: 13 successful benchmark cases persisted, 14 not yet run
+bench resumed: timeout 45s python3 tests/dsd/bench.py --phase P00 --results tests/dsd/results/P00/bench --resume
+bench resumed: exit 0; exactly 14 remaining cases executed; final 27/27 successful
+The interruption was external to SoX, not a passing or failed benchmark process.
+Test logs above are full captured stdout/stderr, not inferred statuses.

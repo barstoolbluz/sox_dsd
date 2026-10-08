@@ -1,0 +1,252 @@
+{
+  "archive_git_metadata_present": false,
+  "binaries": {
+    "src/.libs/libsox_ng.a": "fba01374b3e5d6fdc325a63ff261b3d477f5da6bb71605641b1bbf1233b2cfba",
+    "src/sox_ng": "9f6bdd98df934bc7161e62b0287f67033b732ac537f66501d9df5984804d1b01",
+    "test/dsd_test_io": "7b467f234b7d81fd515584c3404946bc3dff1ea9a3ad75548ce88fe1f0b0abd9"
+  },
+  "bundle_validation": "to be recorded in delivery root P00_SHA256SUMS.txt",
+  "capture_utc": "2026-10-08T03:36:58Z",
+  "clean_archive_replay": {
+    "bench_first_invocation": "external execution interruption after 13 saved successful cases",
+    "bench_resume": "14 missing cases executed, 27/27 successful, exit 0",
+    "command_status": {
+      "autoreconf": 0,
+      "bench-resume": 0,
+      "check": 0,
+      "check-dsd": 0,
+      "configure": 0,
+      "make": 0,
+      "measure": 0,
+      "run-dsd": 0
+    },
+    "evidence_directory": "tests/dsd/results/P00/build/replay",
+    "source_manifest": "pass_sha256sum_c"
+  },
+  "compiler": {
+    "autoconf": {
+      "argv": [
+        "autoconf",
+        "--version"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "autoconf (GNU Autoconf) 2.72\nCopyright (C) 2023 Free Software Foundation, Inc.\nLicense GPLv3+/Autoconf: GNU GPL version 3 or later\n<https://gnu.org/licenses/gpl.html>, <https://gnu.org/licenses/exceptions.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by David J. MacKenzie and Akim Demaille.\n"
+    },
+    "automake": {
+      "argv": [
+        "automake",
+        "--version"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "automake (GNU automake) 1.17\nFeatures: subsecond-mtime\n\nCopyright (C) 2024 Free Software Foundation, Inc.\nLicense GPLv2+: GNU GPL version 2 or later\n  <https://gnu.org/licenses/gpl-2.0.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by Tom Tromey <tromey@redhat.com>\n       and Alexandre Duret-Lutz <adl@gnu.org>.\n"
+    },
+    "autoreconf": {
+      "argv": [
+        "autoreconf",
+        "--version"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "autoreconf (GNU Autoconf) 2.72\nCopyright (C) 2023 Free Software Foundation, Inc.\nLicense GPLv3+/Autoconf: GNU GPL version 3 or later\n<https://gnu.org/licenses/gpl.html>, <https://gnu.org/licenses/exceptions.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by David J. MacKenzie and Akim Demaille.\n"
+    },
+    "cc": {
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "cc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+    },
+    "gcc": {
+      "argv": [
+        "gcc",
+        "--version"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "gcc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+    },
+    "libtoolize": {
+      "argv": [
+        "libtoolize",
+        "--version"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "libtoolize (GNU libtool) 2.5.4 Debian-2.5.4-4\nCopyright (C) 2026 Free Software Foundation, Inc.\nLicense GPLv2+: GNU GPL version 2 or later <https://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by Gary V. Vaughan <gary@gnu.org>, 2003\n"
+    },
+    "python3": {
+      "argv": [
+        "python3",
+        "--version"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "Python 3.13.5\n"
+    }
+  },
+  "configured_libraries": {
+    "libs": "-lm",
+    "openmp": true,
+    "other_optional": "see gate-configure.log; main dependency resolution belongs to autotools/libtool",
+    "png": "-lpng -lz"
+  },
+  "design_sha256": "a3cecb47019006375d0c760a57df97849900144dca36301585f63509dea347bb",
+  "host": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "cpu_count": 5,
+    "host": "f48c142d4fd2",
+    "machine": "x86_64",
+    "os_release": "6.18.44",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "processor": ""
+  },
+  "input_archive_sha256": "3fd6547e0118c61e9877644658ecf5d928865e9cfa4195b7ac4e4af655ed7cfa",
+  "logs": [
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/autoreconf.log",
+      "command": "autoreconf -fi",
+      "exit_code": 0,
+      "kind": "pristine_baseline",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/autoreconf.log",
+      "phase": "autoreconf"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/configure.log",
+      "command": "./configure --disable-shared --without-libltdl CFLAGS=-O2 -g",
+      "exit_code": 0,
+      "kind": "pristine_baseline",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/configure.log",
+      "phase": "configure"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/make.log",
+      "command": "make -j2",
+      "exit_code": 0,
+      "kind": "pristine_baseline",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/make.log",
+      "phase": "make"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/check.log",
+      "command": "make check",
+      "exit_code": 0,
+      "kind": "pristine_baseline",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/check.log",
+      "phase": "check"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/gate-autoreconf.log",
+      "command": "autoreconf -fi",
+      "exit_code": 0,
+      "kind": "phase_validation",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/gate-autoreconf.log",
+      "phase": "autoreconf"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/gate-configure.log",
+      "command": "./configure --disable-shared --without-libltdl CFLAGS=-O2\\ -g",
+      "exit_code": 0,
+      "kind": "phase_validation",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/gate-configure.log",
+      "phase": "configure"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/gate-make.log",
+      "command": "make -j2",
+      "exit_code": 0,
+      "kind": "phase_validation",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/gate-make.log",
+      "phase": "make"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/gate-check.log",
+      "command": "make check",
+      "exit_code": 0,
+      "kind": "phase_validation",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/gate-check.log",
+      "phase": "check"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/gate-check-dsd.log",
+      "command": "make check-dsd",
+      "exit_code": 0,
+      "kind": "phase_validation",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/gate-check-dsd.log",
+      "phase": "check-dsd"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/gate-run-dsd.log",
+      "command": "python3 tests/dsd/run.py --phase P00 --results tests/dsd/results/P00",
+      "exit_code": 0,
+      "kind": "phase_validation",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/gate-run-dsd.log",
+      "phase": "run-dsd"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/gate-measure.log",
+      "command": "python3 tests/dsd/measure.py --phase P00 --results tests/dsd/results/P00/numeric",
+      "exit_code": 0,
+      "kind": "phase_validation",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/gate-measure.log",
+      "phase": "measure"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/gate-bench.log",
+      "command": "python3 tests/dsd/bench.py --phase P00 --results tests/dsd/results/P00/bench",
+      "exit_code": 0,
+      "kind": "phase_validation",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/gate-bench.log",
+      "phase": "bench"
+    },
+    {
+      "bundled_output_file": "tests/dsd/results/P00/build/distdir.log",
+      "command": "make distdir",
+      "exit_code": 2,
+      "kind": "optional_packaging_check",
+      "limitation": "legacy man-page tools tbl, nroff, pdfroff missing from executor; not required P00 gate",
+      "output_file": "/mnt/data/p00-work/sox_ng/tests/dsd/results/P00/build/distdir.log",
+      "phase": "distdir"
+    }
+  ],
+  "modified_original_c_h_files": [],
+  "original_source_commit_claim": "16aa7e17531dd3612f29247da98c8ea570cd905a",
+  "plan_sha256": "01479e30d989bf81d3bc0ba036863a6b40202538764fd38214eae030a0b84130",
+  "required_gate_success": true,
+  "schema": "dsd-build-provenance/1",
+  "source_distribution_check": "blocked_missing_host_man_page_tools",
+  "source_prebuild_hash_manifest_sha256": "95bb8222c423cb66c295612c144d60222a52070fac7fd20af80d15330f45ac9a",
+  "sow_sha256": "5fd628961c92e4e83986ecb65d1a30065471f945a8dddd4913c8c49390656a8c",
+  "tool_executables": {
+    "autoreconf": {
+      "path": "/usr/bin/autoreconf",
+      "sha256": "c1ac902cf4d48afd60caad93af8188d1e1ca6ae0a027702de504c393c57ca1b5"
+    },
+    "gcc": {
+      "path": "/usr/bin/gcc",
+      "sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f"
+    },
+    "libtoolize": {
+      "path": "/usr/bin/libtoolize",
+      "sha256": "0b977fb33a47231b681c2cc27ded46daae3ecb9336f0f3df1e66784040dcef36"
+    },
+    "make": {
+      "path": "/usr/bin/make",
+      "sha256": "8a229baf64671988cfb5af43ba3070c6ce7214cf32bcf96155115559d1466fa7"
+    },
+    "python3": {
+      "path": "/opt/pyvenv/bin/python3",
+      "sha256": "17b78e0a93175e86f9ac03141924fd7a7f0c0c52e66b34bfa0de20ffef989df1"
+    }
+  },
+  "verified_original_c_h_files": 230
+}

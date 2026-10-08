@@ -1,0 +1,169 @@
+{
+  "assertion_coverage": "incomplete",
+  "gate_command": "make check",
+  "gate_exit": 0,
+  "gate_log": "tests/dsd/results/P00/build/corrective-check.log",
+  "optional_tools": {
+    "bc": null,
+    "wine": null
+  },
+  "provenance_limit": "Source commit is declared in supplied docs; the archive has no Git metadata to authenticate it.",
+  "qualification": "nonzero skipped/unrun cases are not passing tests, notwithstanding exit code zero",
+  "regression_cases": {
+    "ok_executed": 73,
+    "unexpected": 0,
+    "void_not_executed": 8
+  },
+  "schema": "dsd-generic-coverage-reconciliation/1",
+  "skipped_format_groups": [
+    {
+      "log_line": 170,
+      "name": "wv",
+      "preflight": "format not available on configured executable",
+      "probe_command": [
+        "src/sox_ng",
+        "--help-format",
+        "wv"
+      ],
+      "probe_exit": 1,
+      "probe_first_line": "Cannot find a format called `wv'",
+      "status": "unrun"
+    },
+    {
+      "log_line": 170,
+      "name": "w64",
+      "preflight": "format not available on configured executable",
+      "probe_command": [
+        "src/sox_ng",
+        "--help-format",
+        "w64"
+      ],
+      "probe_exit": 1,
+      "probe_first_line": "Cannot find a format called `w64'",
+      "status": "unrun"
+    },
+    {
+      "log_line": 170,
+      "name": "paf",
+      "preflight": "format not available on configured executable",
+      "probe_command": [
+        "src/sox_ng",
+        "--help-format",
+        "paf"
+      ],
+      "probe_exit": 1,
+      "probe_first_line": "Cannot find a format called `paf'",
+      "status": "unrun"
+    },
+    {
+      "log_line": 170,
+      "name": "mat5",
+      "preflight": "format not available on configured executable",
+      "probe_command": [
+        "src/sox_ng",
+        "--help-format",
+        "mat5"
+      ],
+      "probe_exit": 1,
+      "probe_first_line": "Cannot find a format called `mat5'",
+      "status": "unrun"
+    },
+    {
+      "log_line": 170,
+      "name": "mat4",
+      "preflight": "format not available on configured executable",
+      "probe_command": [
+        "src/sox_ng",
+        "--help-format",
+        "mat4"
+      ],
+      "probe_exit": 1,
+      "probe_first_line": "Cannot find a format called `mat4'",
+      "status": "unrun"
+    },
+    {
+      "log_line": 170,
+      "name": "flac",
+      "preflight": "format not available on configured executable",
+      "probe_command": [
+        "src/sox_ng",
+        "--help-format",
+        "flac"
+      ],
+      "probe_exit": 1,
+      "probe_first_line": "Cannot find a format called `flac'",
+      "status": "unrun"
+    },
+    {
+      "log_line": 170,
+      "name": "caf",
+      "preflight": "format not available on configured executable",
+      "probe_command": [
+        "src/sox_ng",
+        "--help-format",
+        "caf"
+      ],
+      "probe_exit": 1,
+      "probe_first_line": "Cannot find a format called `caf'",
+      "status": "unrun"
+    }
+  ],
+  "void_regressions": [
+    {
+      "log_line": 186,
+      "name": "BUG-305",
+      "preflight_blocker": "AMR format absent from configured SoX",
+      "preflight_source": "test/BUG-305/run",
+      "status": "unrun"
+    },
+    {
+      "log_line": 188,
+      "name": "BUG-327",
+      "preflight_blocker": "MP3 decoding format absent from configured SoX",
+      "preflight_source": "test/BUG-327/run",
+      "status": "unrun"
+    },
+    {
+      "log_line": 191,
+      "name": "BUG-334",
+      "preflight_blocker": "FLAC writable format absent from configured SoX",
+      "preflight_source": "test/BUG-334/run",
+      "status": "unrun"
+    },
+    {
+      "log_line": 203,
+      "name": "BUG-libsndfile-float-level",
+      "preflight_blocker": "w64 and caf read/write float formats unavailable",
+      "preflight_source": "test/BUG-libsndfile-float-level/run",
+      "status": "unrun"
+    },
+    {
+      "log_line": 238,
+      "name": "ebu-r-128",
+      "preflight_blocker": "bc executable absent (EBUR128 effect itself is configured)",
+      "preflight_source": "test/ebu-r-128/run",
+      "status": "unrun"
+    },
+    {
+      "log_line": 240,
+      "name": "equiv-chorus-flanger",
+      "preflight_blocker": "bc executable absent",
+      "preflight_source": "test/equiv-chorus-flanger/run",
+      "status": "unrun"
+    },
+    {
+      "log_line": 241,
+      "name": "ffmpeg-command-execution",
+      "preflight_blocker": "Wine absent and required Windows SoX binary not built",
+      "preflight_source": "test/ffmpeg-command-execution/run",
+      "status": "unrun"
+    },
+    {
+      "log_line": 254,
+      "name": "playlist-with-pipe",
+      "preflight_blocker": "Wine absent and required Windows SoX binary not built",
+      "preflight_source": "test/playlist-with-pipe/run",
+      "status": "unrun"
+    }
+  ]
+}

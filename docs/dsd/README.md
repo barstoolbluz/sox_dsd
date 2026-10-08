@@ -39,6 +39,20 @@ reproductions into named expected-failure tests with independently checked
 fixtures; later phases remove only the matching expected failure once the
 defect is fixed.
 
+## Phase results
+
+Test infrastructure and recorded phase results live outside this directory, under
+`tests/dsd/` — the harness (`run.py`, `measure.py`, `bench.py`, `test_io.c`), the
+independent fixture oracle in `tests/dsd/reference/`, and per-phase output in
+`tests/dsd/results/`. Run the DSD gate with `make check-dsd`.
+
+`tests/dsd/results/P00/P00_SHA256SUMS.txt` is the delivery manifest for the P00
+bundle, covering 857 files. Its paths are repository-root-relative, so verify with
+`sha256sum -c tests/dsd/results/P00/P00_SHA256SUMS.txt` from the repository root.
+It was delivered at the repository root and relocated here; the prose pointer in
+`tests/dsd/results/P00/build/provenance.json` still says "delivery root" and was
+deliberately left as recorded evidence.
+
 ## Paths later phases create
 
 | Path | Created by |

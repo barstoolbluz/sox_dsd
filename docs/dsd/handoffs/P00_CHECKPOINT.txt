@@ -1,0 +1,18 @@
+P00 checkpoint 0: extracted design baseline, before baseline build
+Input archive SHA-256: 3fd6547e0118c61e9877644658ecf5d928865e9cfa4195b7ac4e4af655ed7cfa
+Commands to resume: see docs/dsd/sows/P00.md; no production edits.
+Checkpoint 1: independent fixture generator/verifier and 19 strict P00 xfails implemented.
+P00 runner: 14 pass, 19 xfail, 0 unexpected, 0 skipped.
+Numerical scaffold: 4 mathematical self-checks pass; analysis-v1 coefficients not generated.
+Next: execute make check-dsd, measure.py, bench.py; write BASELINE and final handoff.
+Checkpoint 2: bench 27/27 P00 development cases pass; --resume tested both complete and partial cases.
+Source integrity: all 230 original src C/H file hashes unchanged after build.
+Next: rerun listed clean/reconfigure build/check gates, then finish BASELINE and handoff.
+Checkpoint 2 archive location: /mnt/data/sox_ng_p00_checkpoint_prebench.tar.gz
+Checkpoint 2 archive SHA-256: 92a285805fbe8f5666ed6a9b92dc3f09bfbd981549d22e0f58e6f20a0f02a3a4
+Checkpoint 2 archival day: 2026-10-08 (UTC); preceding final validation and final handoff.
+Resume if interrupted: extract the checkpoint tar, then consult docs/dsd/sows/P00.md;
+confirm baseline source hashes and resume remaining gates. Checkpoint tar contains
+only the staged P00 working subset, not a complete source continuation tree.
+The finished, manifest-verified continuation source bundle supersedes this
+checkpoint and is authoritative for P01 and any later session.

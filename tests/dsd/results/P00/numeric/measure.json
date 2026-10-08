@@ -1,0 +1,117 @@
+{
+  "executed_command": [
+    "tests/dsd/measure.py",
+    "--phase",
+    "P00",
+    "--results",
+    "tests/dsd/results/P00/numeric"
+  ],
+  "filters_evidence": {
+    "path": "docs/dsd/evidence/filter_feasibility.json",
+    "sha256": "f76de1ae45d507121b4e00b72cc0c09732e05a92e12761f70c463da9934b5f29",
+    "status": "prior_design_evidence_only"
+  },
+  "independent_analysis": {
+    "reason": "P00 does not generate/certify analysis-v1 coefficients; P09 qualification gate",
+    "status": "unrun"
+  },
+  "phase": "P00",
+  "procedures": {
+    "band_dbfs": "10*log10(P/0.5); sine with peak=1 has 0 dBFS",
+    "coherent_window": "rectangular only for explicitly coherent aligned cycles",
+    "decimate_to_hz": 88200,
+    "fir": {
+      "coefficients_sha256": null,
+      "design": "symmetric binary64 at native DSD rate",
+      "maximum_passband_error_db": 1e-05,
+      "minimum_stopband_rejection_db": 180,
+      "passband_end_hz": 20000,
+      "stopband_start_hz": 24000
+    },
+    "full_scale": "separate explicit case",
+    "fundamental": "least squares with DC, sine, cosine at known frequency",
+    "id": "analysis-v1",
+    "independent_reference_required": true,
+    "measurement_trim": "max(250ms, twice FIR impulse support) each end",
+    "minimum_retained_seconds": 1.0,
+    "native_rates_hz": [
+      2822400,
+      5644800,
+      11289600
+    ],
+    "phase_P00_quality_claims": [],
+    "snr": "10*log10(P_fundamental/P_residual), separately reported",
+    "source_peaks_dbfs": [
+      -0.1,
+      -6,
+      -20,
+      -60,
+      -90,
+      -120
+    ],
+    "state": "specification-only; coefficient generation and certification unrun in P00",
+    "thdn": "20Hz..20kHz residual power after fundamental/DC removal, harmonics included",
+    "tone_frequencies_hz": [
+      997,
+      1000
+    ],
+    "window_default": "periodic BH4 0.35875 - 0.48829 cos + 0.14128 cos(2x) - 0.01168 cos(3x)"
+  },
+  "python": "3.13.5",
+  "quality_measurements": [],
+  "schema": "dsd-numerical-results/1",
+  "source_fixture_catalog": "/mnt/data/p00-finalfix/sox_ng/tests/dsd/fixtures/manifest.json",
+  "summary": {
+    "failed": 0,
+    "passed": 4,
+    "unrun_gates": [
+      "analysis-v1 coefficient generation/certification",
+      "independent DSD quality measurements"
+    ]
+  },
+  "unit_tests": [
+    {
+      "detail": {
+        "quarter_sine_power_dbfs": -6.020599913279624,
+        "sine_power_dbfs": 0.0
+      },
+      "name": "normalized_power_dbfs_and_snr",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "fit_amplitude": 0.25000000000000006,
+        "phase": 0.3000000000000113,
+        "residual_peak": 4.260480856999038e-14
+      },
+      "name": "independent_analytic_tone_fit",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "enbw_bins": 2.0043529382170475
+      },
+      "name": "window_coefficients_enbw",
+      "status": "pass"
+    },
+    {
+      "detail": [
+        {
+          "rate_hz": 88200,
+          "sha256": "572f00c737633b562dba5a9fe6b4de6af0720fc3754befd81ed5c1d41e532aa1"
+        },
+        {
+          "rate_hz": 352800,
+          "sha256": "1358b8cb0e6810062d66fb5d904cba7ad82349503d20f695b438311de808bf59"
+        },
+        {
+          "rate_hz": 705600,
+          "sha256": "b45c9046079ebe7b9d17b786470d92db84b58a85eaaaa39bcbae6fa474e52909"
+        }
+      ],
+      "name": "synthetic_pcm_sources",
+      "status": "pass"
+    }
+  ],
+  "utc_timestamp": "2026-10-08T04:45:51Z"
+}

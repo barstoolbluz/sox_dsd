@@ -1,0 +1,13 @@
+Corrective complete archive, fresh-extraction replay.
+Source SHA-256 manifest: all 795 staged files matched (pre-replay archive).
+Executed from a fresh extraction with configured local toolchain:
+autoreconf -fi 0
+./configure --disable-shared --without-libltdl CFLAGS='-O2 -g' 0
+make -j2 0
+make check 0 (coverage incomplete: 7 skipped format groups, 8 VOID regression cases)
+make check-dsd 0 (16 PASS, 19 named XFAIL, zero other/skip)
+python3 tests/dsd/run.py --phase P00 --results tests/dsd/results/P00 0
+python3 tests/dsd/measure.py --phase P00 --results tests/dsd/results/P00/numeric: initial attempt interrupted by the execution window with no exit recorded; independent rerun exit 0 (4 scaffold tests)
+python3 tests/dsd/bench.py --phase P00 --results tests/dsd/results/P00/bench 0 (27/27 development-only)
+The initial interrupted measure.log is empty; measure-resumed.log and .exit are authoritative evidence of completed numerical scaffold run.
+No production code modified.

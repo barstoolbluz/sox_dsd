@@ -1,0 +1,41 @@
+{
+  "band_dbfs": "10*log10(P/0.5); sine with peak=1 has 0 dBFS",
+  "coherent_window": "rectangular only for explicitly coherent aligned cycles",
+  "decimate_to_hz": 88200,
+  "fir": {
+    "coefficients_sha256": null,
+    "design": "symmetric binary64 at native DSD rate",
+    "maximum_passband_error_db": 1e-05,
+    "minimum_stopband_rejection_db": 180,
+    "passband_end_hz": 20000,
+    "stopband_start_hz": 24000
+  },
+  "full_scale": "separate explicit case",
+  "fundamental": "least squares with DC, sine, cosine at known frequency",
+  "id": "analysis-v1",
+  "independent_reference_required": true,
+  "measurement_trim": "max(250ms, twice FIR impulse support) each end",
+  "minimum_retained_seconds": 1.0,
+  "native_rates_hz": [
+    2822400,
+    5644800,
+    11289600
+  ],
+  "phase_P00_quality_claims": [],
+  "snr": "10*log10(P_fundamental/P_residual), separately reported",
+  "source_peaks_dbfs": [
+    -0.1,
+    -6,
+    -20,
+    -60,
+    -90,
+    -120
+  ],
+  "state": "specification-only; coefficient generation and certification unrun in P00",
+  "thdn": "20Hz..20kHz residual power after fundamental/DC removal, harmonics included",
+  "tone_frequencies_hz": [
+    997,
+    1000
+  ],
+  "window_default": "periodic BH4 0.35875 - 0.48829 cos + 0.14128 cos(2x) - 0.01168 cos(3x)"
+}
