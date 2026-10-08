@@ -1,9 +1,18 @@
 # Benchmarking the DSD paths
 
-The design's throughput gates reject a repeatable regression beyond **2%** on
-an unchanged path. A result only counts against that rule if the host can
-resolve an effect that small. This document records how to get there, and how
-to report an honest verdict when you cannot.
+`DSD_DESIGN.md` section 10 states the rule precisely: **no more than 5%
+median regression** on unchanged native repacking or legacy paths, **valid
+only when measurement noise is under 2%**, otherwise rerun on a controlled
+host. Two different numbers doing two different jobs:
+
+- **5%** is the regression gate - how much slower the candidate may be.
+- **2%** is the admissibility precondition - how steady the measurement must
+  be before the 5% comparison means anything.
+
+Do not collapse them into a single "2% tolerance". A 3% regression measured at
+0.5% noise passes; a 1% regression measured at 15% noise is inconclusive, not
+a pass. `bench_dff.py` implements exactly this, with `regression_limit=.05`
+and `noise_limit=.02`.
 
 ## Why P01's gate came back inconclusive
 
@@ -56,15 +65,15 @@ sudo tests/dsd/benchprep.sh restore           # put the machine back
 ```
 
 Run `noise` first and believe its verdict. If the host cannot hold its own
-spread under 2% on a fixed workload, it cannot adjudicate a 2% gate, and the
-right output is an inconclusive gate rather than a number.
+spread under 2% on a fixed workload, the design's precondition is unmet and
+the right output is an inconclusive gate rather than a number.
 
 A prepared workstation does better than the P01 result suggests. On a
 Threadripper 7970X with the governor fixed, boost off and the bench core's SMT
 sibling offlined, the bench core holds a flat 3969 MHz under load and `noise`
-reports **0.02%** spread over nine runs. That is two orders of magnitude inside
-the 2% gate, so an ordinary desktop is adequate once prepared; P01's 12-20%
-was an unprepared host, not an inherent limit.
+reports **0.02%** spread over nine runs, against a 2% noise precondition. An
+ordinary desktop is therefore adequate once prepared; P01's 12-20% was an
+unprepared host, not an inherent limit.
 
 The `performance` governor with boost disabled leaves the machine hotter and
 idling higher than normal. Always `restore` when finished.
@@ -121,14 +130,17 @@ Machine preparation is necessary but not sufficient. These matter as much:
 
 ## Reporting a verdict
 
-Decide from an interval, not a point estimate. Compute per-pair ratios, then a
-Hodges-Lehmann estimate with a confidence interval, and compare the interval's
-bound to the 2% rule:
+Decide from an interval, not a point estimate, and check the two conditions in
+order. `bench_dff.py` already reports `measurement_noise`, `regression_percent`
+and a paired bootstrap 95% interval per channel count.
 
-- CI entirely within ±2% → the gate **passes**, and say at what confidence.
-- CI excludes -2% on the slow side → the gate **fails**.
-- CI spans the threshold → **inconclusive**. Name the host, the observed
-  spread, and what would be needed to close it.
+1. **Is the measurement admissible?** If noise is at or above 2%, the result is
+   `inconclusive-noise` whatever the median says. Name the host and the
+   observed spread, and stop.
+2. **Does it clear the gate?** With noise under 2%, compare the regression
+   against 5%: interval entirely under 5% slower → **pass**; interval entirely
+   above → **fail**; interval straddling 5% → inconclusive, and gather more
+   pairs or a quieter host.
 
 This is what makes a quiet host worth the trouble: it narrows the interval
 until it falls on one side of the rule. Reporting a bare median invites a
