@@ -258,4 +258,5 @@ EXTRA_DIST += \
   tests/dsd/reference/verify.py tests/dsd/run.py tests/dsd/test_io.c \
   tests/dsd/test_dff_writer.c tests/dsd/reference/writer.py \
   tests/dsd/fixtures/p01_writer_vectors.json tests/dsd/bench_dff.py \
-  docs/dsd/handoffs/P01.md docs/dsd/handoffs/P01_CHECKPOINT.md
+  docs/dsd/handoffs/P01.md docs/dsd/handoffs/P01_CHECKPOINT.md \
+  tests/dsd/BENCHMARKING.md tests/dsd/benchprep.sh
