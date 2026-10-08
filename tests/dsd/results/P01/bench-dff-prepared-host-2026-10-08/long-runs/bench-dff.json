@@ -1,0 +1,4633 @@
+{
+  "cases": [
+    {
+      "channels": 1,
+      "expected_audio_sha256": "bc539bcae214a02e45fd8c6bdf8e883f8044a84c123f95a3a2231bbc5132608c",
+      "pair_orders": [
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ]
+      ],
+      "pairs": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257200183.3982583,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257200183.3982583,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010973553606024034,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.9569056030595675
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 258189926.4352803,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 258189926.4352803,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010931487680281293,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9494040179997683
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257331119.32193512,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257331119.32193512,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010967970012476513,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.9559098850004375
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 257022503.3362112,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257022503.3362112,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01098113964094427,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9582584149902686
+            }
+          }
+        },
+        {
+          "index": 2,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257715539.3799057,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257715539.3799057,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01095160969645459,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.9529923620866612
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 255728009.33602527,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 255728009.33602527,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.011036726119004747,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9681711100274697
+            }
+          }
+        },
+        {
+          "index": 3,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257416492.8897488,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257416492.8897488,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010964332426084411,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.9552611969411373
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 256031543.20151386,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 256031543.20151386,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.011023641715031118,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.965837778057903
+            }
+          }
+        },
+        {
+          "index": 4,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257715150.64289507,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257715150.64289507,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010951626215840449,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.95299530797638
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 257115501.60898167,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257115501.60898167,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010977167779997465,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9575501159997657
+            }
+          }
+        },
+        {
+          "index": 5,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257929530.33812898,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257929530.33812898,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010942523705215201,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.9513720640679821
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 256371255.0674004,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 256371255.0674004,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.011009034531808126,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9632328900042921
+            }
+          }
+        },
+        {
+          "index": 6,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 256873159.8255197,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 256873159.8255197,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01098752396675895,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.9593969270354137
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 258092855.56461254,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 258092855.56461254,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01093559910376296,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9501372050726786
+            }
+          }
+        },
+        {
+          "index": 7,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257349093.54032263,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257349093.54032263,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01096720396863482,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.9557732769753784
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 257710825.10297465,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257710825.10297465,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.0109518100330952,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9530280879698694
+            }
+          }
+        },
+        {
+          "index": 8,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257103931.36994377,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257103931.36994377,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010977661776547798,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.9576382100349292
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 258103527.4577426,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 258103527.4577426,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010935146945878493,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.950056572095491
+            }
+          }
+        },
+        {
+          "index": 9,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257683469.08607045,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257683469.08607045,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010952972691691265,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.9532354240072891
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 257785787.4070437,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257785787.4070437,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010948625323332628,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9524601610610262
+            }
+          }
+        },
+        {
+          "index": 10,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 243108467.8130326,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 243108467.8130326,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.011609632627731514,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 2.0703370990231633
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 258050101.66934982,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 258050101.66934982,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010937410920366375,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9504603049717844
+            }
+          }
+        },
+        {
+          "index": 11,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 131802630.58494993,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 131802630.58494993,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.021413836639481154,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 3.818713463959284
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 130753136.75110409,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 130753136.75110409,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02158571541861054,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 3.849364478024654
+            }
+          }
+        },
+        {
+          "index": 12,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 130816449.00886261,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 130816449.00886261,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02157526841145785,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 3.847501471056603
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 130819056.48505741,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 130819056.48505741,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02157483837473162,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 3.8474247829290107
+            }
+          }
+        },
+        {
+          "index": 13,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 131405624.23401415,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 131405624.23401415,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02147853272226552,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 3.8302506679901853
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 130619907.49457553,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 130619907.49457553,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.021607732344453012,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 3.8532907399348915
+            }
+          }
+        },
+        {
+          "index": 14,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 154146957.2281986,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 154146957.2281986,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.018309800275990717,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 3.2651729820063338
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 130723128.70297581,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 130723128.70297581,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.021590670511053567,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 3.8502481159521267
+            }
+          }
+        }
+      ],
+      "source_bytes": 62914652,
+      "source_sha256": "956124dfc1a1ea4e07276638ab76219f4c1aa443017f7833e00e93a841f3e2ae",
+      "summary": {
+        "measurement_noise": 0.006148578620497744,
+        "median_wall_ratio": 1.0006913015776469,
+        "paired_bootstrap_95pct_interval": [
+          0.9961666086253365,
+          1.006078198081602
+        ],
+        "paired_median_ratio": 1.001200735273052,
+        "regression_percent": 0.06913015776468523,
+        "status": "pass",
+        "variants": {
+          "baseline": {
+            "max_seconds": 3.847501471056603,
+            "median_seconds": 1.9569056030595675,
+            "min_seconds": 1.9513720640679821,
+            "robust_relative_sigma": 0.00296253609845551
+          },
+          "candidate": {
+            "max_seconds": 3.8532907399348915,
+            "median_seconds": 1.9582584149902686,
+            "min_seconds": 1.9494040179997683,
+            "robust_relative_sigma": 0.006148578620497744
+          }
+        }
+      },
+      "warmups": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257902582.88086346,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257902582.88086346,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010943667056269035,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.9515759570058435
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 258505124.8834175,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 258505124.8834175,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010918158784174459,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9470270859310403
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 257755748.6627747,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 257755748.6627747,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "8c2231426d64785fabb94648163b3f97056f6378b51af5ca6c422731375bca2c",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010949901271426477,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.952687699929811
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 258111771.86488968,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-c7efi34h/input-1.dsf",
+                "/dev/shm/dsd-p01-paired-c7efi34h/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 258111771.86488968,
+              "native_bytes_correct": true,
+              "output_bytes": 62914686,
+              "output_sha256": "0437b5779cd5fef654bb515066e7ba471feec77208b777e1e44d01baaa75974e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.010934797663848528,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.9499942848924547
+            }
+          }
+        }
+      ]
+    },
+    {
+      "channels": 2,
+      "expected_audio_sha256": "cda6dc18cbadd9b7a03b6828f87f8dcdfe9c89d99bb2599008b2dfae6d02452a",
+      "pair_orders": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ]
+      ],
+      "pairs": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193735641.4035043,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96867820.70175216,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029136610894653362,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.195910017937422
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 192253106.91681284,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96126553.45840642,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02936129402809851,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.235977592994459
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193353517.84476486,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96676758.92238243,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029194193428288,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.206178668071516
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 190485772.24956468,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95242886.12478234,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029633709296694736,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.284557203995064
+            }
+          }
+        },
+        {
+          "index": 2,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193420538.2930567,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96710269.14652835,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02918407760528208,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.204374720924534
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 191619327.04896587,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95809663.52448294,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029458406346232206,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.2532955600181594
+            }
+          }
+        },
+        {
+          "index": 3,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 192960764.66065043,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96480382.33032522,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02925361541724403,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.216775346896611
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 191971932.05969176,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95985966.02984588,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029404298531749976,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.243646553950384
+            }
+          }
+        },
+        {
+          "index": 4,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193318236.1773093,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96659118.08865465,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029199521533098686,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.207128825015388
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 191383006.56387746,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95691503.28193873,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029494781701613352,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.259782349923626
+            }
+          }
+        },
+        {
+          "index": 5,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193748075.57506096,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96874037.78753048,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.0291347409941789,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.1955765599850565
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 192195587.58833498,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96097793.79416749,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029370081128452522,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.237544590025209
+            }
+          }
+        },
+        {
+          "index": 6,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193236070.68621385,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96618035.34310693,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029211937398407887,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.209342936985195
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 191986133.5821129,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95993066.79105645,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029402123448596388,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.243258672999218
+            }
+          }
+        },
+        {
+          "index": 7,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193532363.68342322,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96766181.84171161,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029167214684742152,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.20136756892316
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 191767050.29937333,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95883525.14968666,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029435713753680485,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.249248806969263
+            }
+          }
+        },
+        {
+          "index": 8,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193170012.7795303,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96585006.38976514,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02922192693771031,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.2111243640538305
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 190963720.41363934,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95481860.20681967,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029559541402801596,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.271330898976885
+            }
+          }
+        },
+        {
+          "index": 9,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193020807.55333734,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96510403.77666867,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029244515508723982,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.215152567019686
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 191635128.56454626,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95817564.28227313,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029455977316281693,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.252862392924726
+            }
+          }
+        },
+        {
+          "index": 10,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193177214.51349378,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96588607.25674689,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029220837531052094,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.210930090979673
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 191115825.246499,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95557912.6232495,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029536015621518533,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.267135564005002
+            }
+          }
+        },
+        {
+          "index": 11,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 192687979.67717305,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96343989.83858652,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029295029246023677,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.2241606439929456
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 188978466.24311954,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 94489233.12155977,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029870069919701873,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.326707217027433
+            }
+          }
+        },
+        {
+          "index": 12,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193891104.90610558,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96945552.45305279,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029113248917393978,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.1917438940145075
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 190796686.53311595,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95398343.26655798,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02958541944605653,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.275945711066015
+            }
+          }
+        },
+        {
+          "index": 13,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193483125.9829637,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96741562.99148186,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029174637174804733,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.202691216021776
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 192009102.20130265,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96004551.10065132,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02939860629149749,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.242631461005658
+            }
+          }
+        },
+        {
+          "index": 14,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 266322678.63496915,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 133161339.31748457,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.021195341038668936,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 3.7797493069665506
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 192035050.44065198,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96017525.22032599,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029394633880883706,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.241923063993454
+            }
+          }
+        }
+      ],
+      "source_bytes": 125829212,
+      "source_sha256": "75469f9b12dd0631a5a2d3f6faec4391c0731714d0b873d7f8430ca5a5539d20",
+      "summary": {
+        "measurement_noise": 0.003087583085243087,
+        "median_wall_ratio": 1.0089669847751312,
+        "paired_bootstrap_95pct_interval": [
+          1.0077113681566299,
+          1.0115534634595091
+        ],
+        "paired_median_ratio": 1.0093999455682805,
+        "regression_percent": 0.8966984775131248,
+        "status": "pass",
+        "variants": {
+          "baseline": {
+            "max_seconds": 5.2241606439929456,
+            "median_seconds": 5.206178668071516,
+            "min_seconds": 3.7797493069665506,
+            "robust_relative_sigma": 0.0014084205193241688
+          },
+          "candidate": {
+            "max_seconds": 5.326707217027433,
+            "median_seconds": 5.252862392924726,
+            "min_seconds": 5.235977592994459,
+            "robust_relative_sigma": 0.003087583085243087
+          }
+        }
+      },
+      "warmups": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 194479479.78990793,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 97239739.89495397,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02902517019326645,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.176036881050095
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 192832413.4689506,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96416206.7344753,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.02927308691756281,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.220247684977949
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 193544825.80503842,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 96772412.90251921,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "989198b166cd1de7fe45f4ef5aa08a0d72025b9723f3fdeb64c5b2f1ab0db464",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029165336642407173,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 5.201032659038901
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 191484643.71506748,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-2.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 95742321.85753374,
+              "native_bytes_correct": true,
+              "output_bytes": 125829250,
+              "output_sha256": "6ddcf2cc4774cde2182f080d29f8ebb12d7d432b583d36a32c5317cb32bd7826",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.029479126317824015,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 5.256990537047386
+            }
+          }
+        }
+      ]
+    },
+    {
+      "channels": 6,
+      "expected_audio_sha256": "39f55be152ab5ec91d44bbd71143b2c2f56d30bce827ed43a8a274b3eca95457",
+      "pair_orders": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ]
+      ],
+      "pairs": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 265628299.55424574,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44271383.25904096,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06375224337323182,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.368889854988083
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 255243872.09341142,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42540645.3489019,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06634596106504187,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.831425590091385
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 266348125.23230663,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44391354.20538444,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06357994817958623,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.338164582033642
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 253972761.78004125,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42328793.63000687,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06667801649795191,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.890640786965378
+            }
+          }
+        },
+        {
+          "index": 2,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 266361132.33690155,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44393522.05615026,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06357684340589476,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.33761091006454
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 255311010.8448549,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42551835.14080915,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06632851416772834,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.828314297948964
+            }
+          }
+        },
+        {
+          "index": 3,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 263049291.76360282,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 43841548.62726714,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06437728794654429,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.480353586026467
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 255540648.19908658,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42590108.03318109,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06626890915141903,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.817684979992919
+            }
+          }
+        },
+        {
+          "index": 4,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 265769083.44578472,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44294847.24096412,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06371847236871897,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.362867497024126
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 255125076.95017204,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42520846.15836201,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06637685406090998,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.836934714927338
+            }
+          }
+        },
+        {
+          "index": 5,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 260392864.67552495,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 43398810.77925416,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06503404008824099,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.597471704008058
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 255237734.81048548,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42539622.46841425,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06634755637748402,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.831710080965422
+            }
+          }
+        },
+        {
+          "index": 6,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 264899358.26186782,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44149893.04364464,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06392767468790694,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.400174390058964
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 253373091.16696277,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42228848.52782713,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06683582665390819,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.91878295398783
+            }
+          }
+        },
+        {
+          "index": 7,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 265536507.46531287,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44256084.57755214,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.0637742815918152,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.372819914016873
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 255334715.52229428,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42555785.92038238,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06632235638369899,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.827216184930876
+            }
+          }
+        },
+        {
+          "index": 8,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 265874410.73978254,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44312401.78996376,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06369323002120009,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.358366048079915
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 253648532.31370482,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42274755.385617465,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06676324852160409,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.905840149964206
+            }
+          }
+        },
+        {
+          "index": 9,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 266096014.51305225,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44349335.752175376,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06364018653563619,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.34890684299171
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 252392983.59184238,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42065497.26530706,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06709536754549994,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.965066686971113
+            }
+          }
+        },
+        {
+          "index": 10,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 265126940.51420638,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44187823.4190344,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.0638727998262123,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.39038859703578
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 253342097.12352479,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42223682.853920795,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06684400339412644,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.9202411059523
+            }
+          }
+        },
+        {
+          "index": 11,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 264166154.55809575,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44027692.42634929,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06410510850009654,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.431816029013135
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 253475896.72942,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42245982.78823667,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06680871916621367,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.91394889599178
+            }
+          }
+        },
+        {
+          "index": 12,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 264804714.11575308,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44134119.01929218,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06395052314891014,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.404248939012177
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 255390595.6132195,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42565099.268869914,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06630784488887986,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.824628360918723
+            }
+          }
+        },
+        {
+          "index": 13,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 264497270.79085395,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44082878.465142325,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06402485722958762,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.41750487999525
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 254296277.02958658,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42382712.838264436,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06659318884967291,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.875513535924256
+            }
+          }
+        },
+        {
+          "index": 14,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 307005961.69884294,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 51167660.283140495,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.05515984089133675,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 9.836613150080666
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 254300727.1951414,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42383454.532523565,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06659202349431403,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.875305718975142
+            }
+          }
+        }
+      ],
+      "source_bytes": 377487452,
+      "source_sha256": "55728e0c349cfabd6e287b7a7927a9d0065c6f272c1a9d8cf8973aaab723f330",
+      "summary": {
+        "measurement_noise": 0.00544279822707489,
+        "median_wall_ratio": 1.0441830442016373,
+        "paired_bootstrap_95pct_interval": [
+          1.0401146012848648,
+          1.0482000755713308
+        ],
+        "paired_median_ratio": 1.042174652369757,
+        "regression_percent": 4.418304420163732,
+        "status": "pass",
+        "variants": {
+          "baseline": {
+            "max_seconds": 11.597471704008058,
+            "median_seconds": 11.372819914016873,
+            "min_seconds": 9.836613150080666,
+            "robust_relative_sigma": 0.004097196017375496
+          },
+          "candidate": {
+            "max_seconds": 11.965066686971113,
+            "median_seconds": 11.875305718975142,
+            "min_seconds": 11.817684979992919,
+            "robust_relative_sigma": 0.00544279822707489
+          }
+        }
+      },
+      "warmups": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 267466162.50281048,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44577693.75046841,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06331417717118537,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.29076983698178
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 257261831.21739164,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42876971.86956528,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.0658255440376232,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.73862001101952
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 265250964.42007735,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 44208494.07001289,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "43997fac44ee0dd8b2e5cb4a4da55d5b8e3632eaa49bd01fcf4f591f3b06ee0d",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.063842934697802,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 11.385062771034427
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 255019494.6555442,
+              "command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "cwd": "/var/tmp/sox-ng-bench/bm-cand",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "8",
+                "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng",
+                "-D",
+                "/dev/shm/dsd-p01-paired-wcboycgf/input-6.dsf",
+                "/dev/shm/dsd-p01-paired-wcboycgf/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 42503249.10925736,
+              "native_bytes_correct": true,
+              "output_bytes": 377487506,
+              "output_sha256": "c6fd075000f3039998caff52db08e59bf2ff4e3b22f2d11cbce1aaa714bf961f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.06640433517787869,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 11.841835401952267
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "config": {
+    "benchmark_source_sha256": "82b2e12940051e3e3c9073d53ea825d19b0464ec9bc315b660a2819def8f1e87",
+    "binaries": {
+      "baseline": "/var/tmp/sox-ng-bench/bm-base/src/sox_ng",
+      "candidate": "/var/tmp/sox-ng-bench/bm-cand/src/sox_ng"
+    },
+    "binary_sha256": {
+      "baseline": "201d86969dd71b206b795ee6a96d364a4269b448efec6694ac3c544d47ccf1af",
+      "candidate": "56e12bae78ae29dd5a7b56248c10f91b35a2c82533056669eed45b92b5c8e1a8"
+    },
+    "context": {
+      "affinity": [
+        8
+      ],
+      "architecture": "x86_64",
+      "build_flags": "CFLAGS=-O2 -g; static; libltdl disabled; configured optional codecs listed in build/configure.log",
+      "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+      "cpu_flags": [
+        "fpu",
+        "vme",
+        "de",
+        "pse",
+        "tsc",
+        "msr",
+        "pae",
+        "mce",
+        "cx8",
+        "apic",
+        "sep",
+        "mtrr",
+        "pge",
+        "mca",
+        "cmov",
+        "pat",
+        "pse36",
+        "clflush",
+        "mmx",
+        "fxsr",
+        "sse",
+        "sse2",
+        "ht",
+        "syscall",
+        "nx",
+        "mmxext",
+        "fxsr_opt",
+        "pdpe1gb",
+        "rdtscp",
+        "lm",
+        "constant_tsc",
+        "rep_good",
+        "amd_lbr_v2",
+        "nopl",
+        "xtopology",
+        "nonstop_tsc",
+        "cpuid",
+        "extd_apicid",
+        "aperfmperf",
+        "rapl",
+        "pni",
+        "pclmulqdq",
+        "monitor",
+        "ssse3",
+        "fma",
+        "cx16",
+        "pcid",
+        "sse4_1",
+        "sse4_2",
+        "x2apic",
+        "movbe",
+        "popcnt",
+        "aes",
+        "xsave",
+        "avx",
+        "f16c",
+        "rdrand",
+        "lahf_lm",
+        "cmp_legacy",
+        "svm",
+        "extapic",
+        "cr8_legacy",
+        "abm",
+        "sse4a",
+        "misalignsse",
+        "3dnowprefetch",
+        "osvw",
+        "ibs",
+        "skinit",
+        "wdt",
+        "tce",
+        "topoext",
+        "perfctr_core",
+        "perfctr_nb",
+        "bpext",
+        "perfctr_llc",
+        "mwaitx",
+        "cpb",
+        "cat_l3",
+        "cdp_l3",
+        "hw_pstate",
+        "ssbd",
+        "mba",
+        "perfmon_v2",
+        "ibrs",
+        "ibpb",
+        "stibp",
+        "ibrs_enhanced",
+        "vmmcall",
+        "fsgsbase",
+        "bmi1",
+        "avx2",
+        "smep",
+        "bmi2",
+        "erms",
+        "invpcid",
+        "cqm",
+        "rdt_a",
+        "avx512f",
+        "avx512dq",
+        "rdseed",
+        "adx",
+        "smap",
+        "avx512ifma",
+        "clflushopt",
+        "clwb",
+        "avx512cd",
+        "sha_ni",
+        "avx512bw",
+        "avx512vl",
+        "xsaveopt",
+        "xsavec",
+        "xgetbv1",
+        "xsaves",
+        "cqm_llc",
+        "cqm_occup_llc",
+        "cqm_mbm_total",
+        "cqm_mbm_local",
+        "user_shstk",
+        "avx512_bf16",
+        "clzero",
+        "irperf",
+        "xsaveerptr",
+        "rdpru",
+        "wbnoinvd",
+        "amd_ppin",
+        "cppc",
+        "arat",
+        "npt",
+        "lbrv",
+        "svm_lock",
+        "nrip_save",
+        "tsc_scale",
+        "vmcb_clean",
+        "flushbyasid",
+        "decodeassists",
+        "pausefilter",
+        "pfthreshold",
+        "avic",
+        "vgif",
+        "x2avic",
+        "v_spec_ctrl",
+        "vnmi",
+        "avx512vbmi",
+        "umip",
+        "pku",
+        "ospke",
+        "avx512_vbmi2",
+        "gfni",
+        "vaes",
+        "vpclmulqdq",
+        "avx512_vnni",
+        "avx512_bitalg",
+        "avx512_vpopcntdq",
+        "la57",
+        "rdpid",
+        "overflow_recov",
+        "succor",
+        "smca",
+        "fsrm",
+        "flush_l1d",
+        "debug_swap"
+      ],
+      "cpu_microcode": "0xa10810c",
+      "cpu_model": "AMD Ryzen Threadripper 7970X 32-Cores",
+      "governor": "performance",
+      "hostname": "ethos",
+      "input_rate_hz": 2822400,
+      "io_included": true,
+      "kernel": "legacy (no P00 ISA dispatch change)",
+      "measurement_limit": "virtualized or shared host timings are nonportable; default short-profile startup dominates",
+      "omp_num_threads": 1,
+      "os": "Linux-6.12.85+deb13-amd64-x86_64-with-glibc2.42",
+      "rate_scope": "DFF packing is rate independent; three native rates also run in bench.py",
+      "storage_directory": "/dev/shm",
+      "thread_count": 1
+    },
+    "cpu": 8,
+    "frames": 503316480,
+    "noise_limit": 0.02,
+    "regression_limit": 0.05,
+    "repetitions": 15,
+    "seed": 1566834982,
+    "vectors_sha256": "9ed63c4f4017dc3e7359ad0a1a50078721d8338d08a98c21a691eaf556edca3c",
+    "warmups": 2
+  },
+  "config_sha256": "e7ab56c9ce2f2f496b2cc91914b3588b7a3fb37898a81dcedf9a7d02b14667a2",
+  "schema": "dsd-p01-native-dff-benchmark/1",
+  "status": "pass"
+}
