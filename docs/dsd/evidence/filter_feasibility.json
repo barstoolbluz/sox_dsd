@@ -1,0 +1,170 @@
+{
+  "method": "Kaiser-windowed sinc, candidate binary64 coefficients; dense-grid feasibility only",
+  "filters": {
+    "halfband": {
+      "taps": 57,
+      "pass_cycles_per_input": 0.1,
+      "stop_cycles_per_input": 0.4,
+      "max_abs_pass_error_db": 2.99582985210606e-09,
+      "max_stop_db": -189.245944060772,
+      "dc_gain": 1.0,
+      "beta": 19.979260000000004
+    },
+    "master64_256": {
+      "taps": 117,
+      "pass_cycles_per_input": 0.11337868480725624,
+      "stop_cycles_per_input": 0.22675736961451248,
+      "max_abs_pass_error_db": 4.219508370693058e-09,
+      "max_stop_db": -188.73253277213922,
+      "dc_gain": 0.9999999999999998,
+      "beta": 19.979260000000004
+    },
+    "master128": {
+      "taps": 153,
+      "pass_cycles_per_input": 0.08503401360544217,
+      "stop_cycles_per_input": 0.17006802721088435,
+      "max_abs_pass_error_db": 5.0767636631439956e-09,
+      "max_stop_db": -188.8762334498183,
+      "dc_gain": 0.9999999999999999,
+      "beta": 19.979260000000004
+    },
+    "wide": {
+      "taps": 257,
+      "pass_cycles_per_input": 0.2,
+      "stop_cycles_per_input": 0.25,
+      "max_abs_pass_error_db": 3.255876182608034e-09,
+      "max_stop_db": -188.00631686071497,
+      "dc_gain": 1.0000000000000004,
+      "beta": 19.979260000000004
+    }
+  },
+  "profiles": {
+    "master64": {
+      "source_hz": 2822400,
+      "intermediate_hz": 88200,
+      "factor": 32,
+      "pass_hz": 20000,
+      "stop_hz": 40000,
+      "taps": [
+        57,
+        57,
+        57,
+        57,
+        117
+      ],
+      "aggregate_ripple_db": 5.463624841321382e-09,
+      "aggregate_stop_db": -188.73261846187643,
+      "coherent_alias_sum_db": -186.9045337865188,
+      "delay_input_frames": 1348,
+      "delay_seconds": 0.00047760770975056687,
+      "output_phase": 4,
+      "discard_output_frames": 42
+    },
+    "wide64": {
+      "source_hz": 2822400,
+      "intermediate_hz": 88200,
+      "factor": 32,
+      "pass_hz": 35280.0,
+      "stop_hz": 44100.0,
+      "taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ],
+      "aggregate_ripple_db": 7.17996765217759e-09,
+      "aggregate_stop_db": -187.41040765141628,
+      "coherent_alias_sum_db": -182.44216612288176,
+      "delay_input_frames": 2468,
+      "delay_seconds": 0.0008744331065759637,
+      "output_phase": 4,
+      "discard_output_frames": 77
+    },
+    "master128": {
+      "source_hz": 5644800,
+      "intermediate_hz": 176400,
+      "factor": 32,
+      "pass_hz": 30000,
+      "stop_hz": 60000,
+      "taps": [
+        57,
+        57,
+        57,
+        57,
+        153
+      ],
+      "aggregate_ripple_db": 6.8421579549518465e-09,
+      "aggregate_stop_db": -188.87661404536445,
+      "coherent_alias_sum_db": -190.73750044199898,
+      "delay_input_frames": 1636,
+      "delay_seconds": 0.00028982426303854873,
+      "output_phase": 4,
+      "discard_output_frames": 51
+    },
+    "wide128": {
+      "source_hz": 5644800,
+      "intermediate_hz": 176400,
+      "factor": 32,
+      "pass_hz": 70560.0,
+      "stop_hz": 88200.0,
+      "taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ],
+      "aggregate_ripple_db": 7.17996765217759e-09,
+      "aggregate_stop_db": -187.41040765141628,
+      "coherent_alias_sum_db": -182.44216612288176,
+      "delay_input_frames": 2468,
+      "delay_seconds": 0.0004372165532879819,
+      "output_phase": 4,
+      "discard_output_frames": 77
+    },
+    "master256": {
+      "source_hz": 11289600,
+      "intermediate_hz": 176400,
+      "factor": 64,
+      "pass_hz": 40000,
+      "stop_hz": 80000,
+      "taps": [
+        57,
+        57,
+        57,
+        57,
+        57,
+        117
+      ],
+      "aggregate_ripple_db": 5.517706254266437e-09,
+      "aggregate_stop_db": -188.7326184616015,
+      "coherent_alias_sum_db": -186.7884224301917,
+      "delay_input_frames": 2724,
+      "delay_seconds": 0.0002412840136054422,
+      "output_phase": 36,
+      "discard_output_frames": 42
+    },
+    "wide256": {
+      "source_hz": 11289600,
+      "intermediate_hz": 352800,
+      "factor": 32,
+      "pass_hz": 141120.0,
+      "stop_hz": 176400.0,
+      "taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ],
+      "aggregate_ripple_db": 7.17996765217759e-09,
+      "aggregate_stop_db": -187.41040765141628,
+      "coherent_alias_sum_db": -182.44216612288176,
+      "delay_input_frames": 2468,
+      "delay_seconds": 0.00021860827664399094,
+      "output_phase": 4,
+      "discard_output_frames": 77
+    }
+  }
+}

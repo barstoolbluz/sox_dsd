@@ -1,0 +1,74 @@
+{
+  "design_revision": "1.0",
+  "design_date": "2026-10-07",
+  "purpose": "Design-time evidence, not qualification of the proposed implementation",
+  "source_commit": "16aa7e17531dd3612f29247da98c8ea570cd905a",
+  "source_archive_sha256": "c50f7f53fb53dd54467028abe310d29001262b7d37cc58c0f0937bae105604e0",
+  "handoff_sha256": "5ff94e9815fd1eae76a4cb4193dca7133cadf2a074d5d866b7badc994e7c4c77",
+  "build_commands": [
+    {
+      "command": "autoreconf -fi",
+      "exit_code": 0,
+      "log": "autoreconf.log"
+    },
+    {
+      "command": "./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'",
+      "exit_code": 0,
+      "log": "configure.log"
+    },
+    {
+      "command": "make -j3",
+      "exit_code": 0,
+      "log": "build.log"
+    },
+    {
+      "command": "make check",
+      "exit_code": 0,
+      "log": "make-check.log"
+    }
+  ],
+  "runtime_metadata": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "gcc": {
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "gcc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "stderr": ""
+    },
+    "lscpu": {
+      "command": [
+        "lscpu"
+      ],
+      "exit_code": 0,
+      "stdout": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           46 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  5\nOn-line CPU(s) list:                     0-4\nVendor ID:                               AuthenticAMD\nModel name:                              AMD EPYC 9V74 80-Core Processor\nCPU family:                              25\nModel:                                   17\nThread(s) per core:                      1\nCore(s) per socket:                      5\nSocket(s):                               1\nStepping:                                1\nBogoMIPS:                                5192.28\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves avx512_bf16 clzero xsaveerptr arat npt nrip_save tsc_scale vmcb_clean flushbyasid pausefilter pfthreshold v_vmsave_vmload avx512vbmi umip avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq rdpid fsrm arch_capabilities\nHypervisor vendor:                       KVM\nVirtualization type:                     full\nL1d cache:                               96 KiB (3 instances)\nL1i cache:                               96 KiB (3 instances)\nL2 cache:                                3 MiB (3 instances)\nL3 cache:                                32 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-4\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Not affected\nVulnerability Spec rstack overflow:      Vulnerable\nVulnerability Spec store bypass:         Vulnerable\nVulnerability Spectre v1:                Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers\nVulnerability Spectre v2:                Vulnerable; STIBP: disabled; PBRSB-eIBRS: Not affected; BHI: Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Vulnerable\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Not affected",
+      "stderr": ""
+    },
+    "git_head": {
+      "command": [
+        "git",
+        "-c",
+        "safe.directory=/mnt/data/dsd_design_work/sox_ng",
+        "-C",
+        "/mnt/data/dsd_design_work/sox_ng",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "16aa7e17531dd3612f29247da98c8ea570cd905a",
+      "stderr": ""
+    },
+    "numpy": "2.3.5",
+    "scipy": "1.17.0"
+  },
+  "limits": [
+    "The generic suite has VOID cases and missing optional codec dependencies.",
+    "No new production decoder, encoder, runtime dispatcher or high-rate extension was implemented in this design task.",
+    "Filter coefficients are feasibility candidates; independent high-precision certification is P06 work.",
+    "192 SDM probes are 0.125 second each and bypass the proposed PCM interpolation/prefilter.",
+    "No full physical cross-ISA benchmark matrix, licensed Saracon differential test or hardware DAC qualification was performed."
+  ]
+}

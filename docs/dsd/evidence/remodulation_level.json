@@ -1,0 +1,123 @@
+{
+  "scope": "baseline ordering and explicit-staging level experiment; source/analysis are sox_ng, so this is not an independent audio-quality oracle",
+  "commands": [
+    {
+      "command": [
+        "/mnt/data/dsd_design_work/sox_ng/src/sox_ng",
+        "-n",
+        "-r",
+        "2822400",
+        "-c",
+        "1",
+        "$TMP/a.dsf",
+        "synth",
+        "0.5",
+        "sine",
+        "1000",
+        "gain",
+        "-1"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/mnt/data/dsd_design_work/sox_ng/src/sox_ng",
+        "$TMP/a.dsf",
+        "$TMP/raw_order.dsf",
+        "gain",
+        "-3"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/mnt/data/dsd_design_work/sox_ng/src/sox_ng",
+        "$TMP/a.dsf",
+        "$TMP/staged.dsf",
+        "rate",
+        "-v",
+        "88200",
+        "gain",
+        "-3",
+        "rate",
+        "-v",
+        "2822400"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/mnt/data/dsd_design_work/sox_ng/src/sox_ng",
+        "-D",
+        "$TMP/a.dsf",
+        "-t",
+        "raw",
+        "-e",
+        "floating-point",
+        "-b",
+        "64",
+        "-r",
+        "88200",
+        "$TMP/a.raw",
+        "rate",
+        "-v"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/mnt/data/dsd_design_work/sox_ng/src/sox_ng",
+        "-D",
+        "$TMP/raw_order.dsf",
+        "-t",
+        "raw",
+        "-e",
+        "floating-point",
+        "-b",
+        "64",
+        "-r",
+        "88200",
+        "$TMP/raw_order.raw",
+        "rate",
+        "-v"
+      ],
+      "exit": 0,
+      "stderr": "sox_ng WARN rate: rate clipped 10256 samples; decrease volume?"
+    },
+    {
+      "command": [
+        "/mnt/data/dsd_design_work/sox_ng/src/sox_ng",
+        "-D",
+        "$TMP/staged.dsf",
+        "-t",
+        "raw",
+        "-e",
+        "floating-point",
+        "-b",
+        "64",
+        "-r",
+        "88200",
+        "$TMP/staged.raw",
+        "rate",
+        "-v"
+      ],
+      "exit": 0,
+      "stderr": ""
+    }
+  ],
+  "reconstructed_sine_peaks": {
+    "a": 0.4456247470800901,
+    "raw_order": 0.0013439965387484736,
+    "staged": 0.1577393873742622
+  },
+  "measured_gain_db": {
+    "raw_order": -50.411423008891276,
+    "staged": -9.020583018389857
+  },
+  "requested_gain_db": -3,
+  "interpretation": "Raw-order result illustrates the known domain-boundary problem. Explicit staging still applies ordinary PCM-to-DSD half scaling, so a new automatic remodulation planner must preserve the DSD level reference to avoid an extra 6.0206 dB loss."
+}
