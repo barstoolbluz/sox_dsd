@@ -29,12 +29,18 @@ In descending order of impact:
 
 | Source | Why it hurts | Fix |
 | --- | --- | --- |
+| The measuring tool | An interpreted probe has more variance than the effect | Compile the probe; see below |
 | Governor / EPP | 10x frequency window under `powersave` | `performance` governor and EPP |
 | Opportunistic boost | Clock depends on thermals and active-core count | `boost = 0`, so the clock is flat rather than merely high |
 | SMT sibling | A thread on the same physical core takes half its resources | Offline the bench core's sibling |
-| Scheduler interference | Other work migrates onto the bench core | `taskset`, plus `isolcpus` for a real result |
+| Scheduler interference | Other work migrates onto the bench core | `taskset`, plus `isolcpus` if `noise` says you need it |
 | Cross-CCD placement | Separate L3 instances (4 on a 7970X) vary | Keep the pinned core inside one CCD |
 | Filesystem | Page cache and writeback dominate short runs | Write to `/dev/shm` |
+
+Verify a fix rather than assuming it. Comparing frequencies across cores is
+not a check: idle cores are *supposed* to clock down, so a busy-versus-idle
+spread looks alarming and means nothing. Sample the bench core under load,
+which `benchprep.sh status` does.
 
 ## Preparing a host
 
@@ -53,11 +59,42 @@ Run `noise` first and believe its verdict. If the host cannot hold its own
 spread under 2% on a fixed workload, it cannot adjudicate a 2% gate, and the
 right output is an inconclusive gate rather than a number.
 
+A prepared workstation does better than the P01 result suggests. On a
+Threadripper 7970X with the governor fixed, boost off and the bench core's SMT
+sibling offlined, the bench core holds a flat 3969 MHz under load and `noise`
+reports **0.02%** spread over nine runs. That is two orders of magnitude inside
+the 2% gate, so an ordinary desktop is adequate once prepared; P01's 12-20%
+was an unprepared host, not an inherent limit.
+
 The `performance` governor with boost disabled leaves the machine hotter and
 idling higher than normal. Always `restore` when finished.
 
-For a result you intend to put in a release record, dedicate a core at boot
-so nothing can share it:
+### Measure the host with a compiled probe, never an interpreted one
+
+An interpreted probe measures its own runtime rather than the machine. The
+first version of `noise` used a Python accumulator loop and reported 11.5%
+spread on a host where a compiled probe reported 0.02%: the accumulator
+outgrew 64 bits, so CPython switched to arbitrary-precision integers and
+allocated on every iteration. Masking it to 32 bits still left 4.71%, from
+ordinary interpreter allocation. The lesson generalises beyond this script -
+a measurement tool with more variance than the effect under test produces
+confident nonsense.
+
+### What does not help
+
+- **`nice`.** Renicing changes priority *among competing runnable tasks*. A
+  pinned benchmark on an otherwise idle core has nothing to compete with, so
+  there is nothing for `nice` to arbitrate, and negative values need root
+  anyway. At 0.02% spread there is no headroom left for it to recover.
+- **`chrt -f`.** Real-time priority does preempt a normal task that wanders
+  onto the bench core, which makes it cheap insurance for a long unattended
+  run. It is not a fix for a noisy host, and it cannot stop interrupts or
+  kernel work, which ignore scheduling priority entirely.
+- **`isolcpus`,** on this evidence, is worth less than expected. It removes
+  timer ticks and stray kernel work from the core and is still the right
+  answer for a release-record measurement, but a prepared core already
+  measures at 0.02%. Reach for it when `noise` says you need it, not
+  reflexively:
 
 ```
 isolcpus=8 nohz_full=8 rcu_nocbs=8

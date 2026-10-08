@@ -167,43 +167,82 @@ cmd_status() {
 	else
 		note "prepared: no"
 	fi
-	echo "live frequency spread (MHz), online cpus:"
-	lo=; hi=
-	for d in "$CPUDIR"/cpu[0-9]*; do
-		c=${d#"$CPUDIR"/cpu}
-		[ "$(get "$d/online")" = 0 ] && continue
-		f=$(get "$d/cpufreq/scaling_cur_freq"); [ -n "$f" ] || continue
-		f=$((f / 1000))
-		[ -z "$lo" ] && lo=$f && hi=$f
-		[ "$f" -lt "$lo" ] && lo=$f
-		[ "$f" -gt "$hi" ] && hi=$f
+	# Only the bench core's clock under load matters. Comparing busy against
+	# idle cores says nothing: idle cores are supposed to clock down.
+	[ -r "$CPUDIR/cpu$CPU/cpufreq/scaling_cur_freq" ] || return 0
+	echo "cpu$CPU clock under load (MHz):"
+	( while :; do :; done ) & spin=$!
+	taskset -pc "$CPU" "$spin" >/dev/null 2>&1 || true
+	lo=; hi=; n=0
+	while [ "$n" -lt 6 ]; do
+		f=$(get "$CPUDIR/cpu$CPU/cpufreq/scaling_cur_freq")
+		if [ -n "$f" ]; then
+			f=$((f / 1000))
+			[ -z "$lo" ] && lo=$f && hi=$f
+			[ "$f" -lt "$lo" ] && lo=$f
+			[ "$f" -gt "$hi" ] && hi=$f
+		fi
+		n=$((n + 1))
+		sleep 0.3
 	done
+	kill "$spin" 2>/dev/null || true
+	wait "$spin" 2>/dev/null || true
 	if [ -n "$lo" ]; then
 		note "min $lo, max $hi"
-		[ "$hi" -gt $((lo * 105 / 100)) ] &&
-			note "WARNING: cores differ by more than 5%; clocks are not pinned"
+		if [ "$hi" -gt $((lo * 102 / 100)) ]; then
+			note "WARNING: the bench core's clock varies by more than 2%"
+			note "         run 'prepare' before trusting a benchmark"
+		else
+			note "clock is flat; run 'noise' to confirm timing repeatability"
+		fi
 	fi
 }
 
 # Time a fixed CPU-bound workload repeatedly and report the host's own spread.
 # This measures the machine, not sox_ng: if the floor here exceeds the gate's
 # tolerance, no sox_ng comparison on this host can resolve the gate.
+#
+# The probe is compiled C on purpose. An interpreted probe measures its own
+# runtime, not the host: a Python accumulator loop reported 11.5% spread on a
+# host where this probe reports 0.02%, because the accumulator outgrew 64 bits
+# and every iteration then allocated a bignum.
 cmd_noise() {
-	command -v python3 >/dev/null 2>&1 || die "noise needs python3"
+	command -v python3 >/dev/null 2>&1 || die "noise needs python3 for the summary"
 	[ "$(get "$CPUDIR/cpu$CPU/online")" = 0 ] &&
 		die "cpu$CPU is offline (is it the sibling you offlined?)"
+	cc=${CC:-}
+	[ -n "$cc" ] || for c in cc gcc clang; do
+		command -v "$c" >/dev/null 2>&1 && { cc=$c; break; }
+	done
+	[ -n "$cc" ] || die "noise needs a C compiler (set CC=); an interpreted
+probe cannot measure a 2% effect and would report misleading numbers"
+
+	dir=$(mktemp -d); trap 'rm -rf "$dir"' EXIT
+	cat > "$dir/probe.c" <<'PROBE'
+/* Fixed work, no allocation and no library calls inside the loop. */
+#include <stdio.h>
+#include <time.h>
+int main(void) {
+	struct timespec a, b;
+	unsigned long long x = 0, i;
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &a);
+	for (i = 0; i < 1200000000ULL; i++)
+		x = x * 6364136223846793005ULL + i;
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &b);
+	fprintf(stderr, "%.6f\n", (double)(b.tv_sec - a.tv_sec) +
+		(double)(b.tv_nsec - a.tv_nsec) / 1e9);
+	return x == 42;
+}
+PROBE
+	$cc -O2 -o "$dir/probe" "$dir/probe.c" ||
+		die "could not compile the probe with $cc"
+
 	pin=; command -v taskset >/dev/null 2>&1 && pin="taskset -c $CPU"
-	echo "measuring host repeatability on cpu$CPU, $RUNS runs"
+	echo "measuring host repeatability on cpu$CPU, $RUNS runs ($cc -O2 probe)"
 	i=0
 	: > /tmp/benchprep-times.$$
 	while [ "$i" -lt "$RUNS" ]; do
-		$pin python3 -c '
-import time
-t=time.process_time()
-x=0
-for i in range(8_000_000): x+=i*i
-print("%.6f"%(time.process_time()-t))
-' >> /tmp/benchprep-times.$$
+		$pin "$dir/probe" 2>> /tmp/benchprep-times.$$ >/dev/null || true
 		i=$((i + 1))
 	done
 	# The timings arrive as a file argument: a heredoc already occupies stdin.
