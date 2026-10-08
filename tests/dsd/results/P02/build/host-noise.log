@@ -1,0 +1,16 @@
+Host timing preconditions, read-only (no prepare/clock modification)
+2026-10-08T17:45:08Z
+host:
+  AMD EPYC 9V74 80-Core Processor
+  governor:   driver: 
+  energy preference: 
+  boost: 
+  smt: notsupported
+  isolation: none
+  prepared: no
+measuring host repeatability on cpu0, 9 runs (cc -O2 probe)
+  min 1.3833s  median 1.4282s  max 1.4897s
+  spread 7.4%  (gate tolerance 2.0%)
+  VERDICT: too noisy - a 2.0% effect cannot be resolved here.
+  Report the gate inconclusive, or prepare the host further
+  (see tests/dsd/BENCHMARKING.md: isolcpus, boost, SMT).

@@ -27,166 +27,218 @@ struct dsdiff {
 	uint64_t data_size;
 	uint8_t *buf;
 	uint32_t bit_pos;
+	sox_bool cluster_valid;
 	int write_error;
 };
 
 #define ID(a, b, c, d) ((a) << 24 | (b) << 16 | (c) << 8 | (d))
 
+/* All DFF sizes are payload sizes; physical child spans include the
+ * 12-byte header and an external pad for odd payloads. */
+static int dff_span(uint64_t payload, uint64_t *span)
+{
+	if (payload > UINT64_MAX - 12 - (payload & 1))
+		return SOX_EHDR;
+	*span = 12 + payload + (payload & 1);
+	return SOX_SUCCESS;
+}
+
+/* Unknown metadata can be skipped on regular files or forward-only input.
+ * Unlike a blind seek past EOF, the extent check verifies a real file's
+ * physical bytes; pipes consume and verify each skipped byte. */
+static int dff_skip(sox_format_t *ft, uint64_t bytes)
+{
+	if (ft->seekable) {
+		off_t pos = lsx_tell(ft);
+		uint64_t physical = lsx_filelength(ft);
+		if (pos < 0 || bytes > INT64_MAX ||
+		    bytes > (uint64_t)INT64_MAX - (uint64_t)pos ||
+		    (physical && ((uint64_t)pos > physical ||
+		                  bytes > physical - (uint64_t)pos)))
+			return SOX_EHDR;
+		return lsx_seeki(ft, (off_t)bytes, SEEK_CUR);
+	}
+	while (bytes) {
+		uint8_t trash[4096];
+		size_t count = (size_t)min(bytes, sizeof(trash));
+		if (lsx_read_b_buf(ft, trash, count) != count)
+			return SOX_EHDR;
+		bytes -= count;
+	}
+	return SOX_SUCCESS;
+}
+
+/* Parse exactly the PROP/SND payload. Never interpret children as FRM8
+ * siblings or accept required fields from outside PROP. */
+static int dff_read_prop(sox_format_t *ft, uint64_t bytes,
+	uint32_t *rate, uint16_t *channels)
+{
+	uint32_t type, id;
+	uint64_t size, span, left;
+	sox_bool seen_fs = sox_false, seen_chnl = sox_false;
+	sox_bool seen_cmpr = sox_false;
+
+	if (bytes < 4 || lsx_readdw(ft, &type) ||
+	    type != ID('S', 'N', 'D', ' '))
+		return SOX_EHDR;
+	left = bytes - 4;
+	while (left) {
+		uint64_t consumed = 0;
+		if (left < 12 || lsx_readdw(ft, &id) ||
+		    lsx_readqw(ft, &size) || dff_span(size, &span) ||
+		    span > left)
+			return SOX_EHDR;
+
+		switch (id) {
+		case ID('F', 'S', ' ', ' '):
+			if (seen_fs || size != 4 || lsx_readdw(ft, rate) || !*rate)
+				return SOX_EHDR;
+			seen_fs = sox_true;
+			consumed = 4;
+			break;
+		case ID('C', 'H', 'N', 'L'):
+			if (seen_chnl || size < 2 || lsx_readw(ft, channels) ||
+			    !*channels || size < 2 + 4 * (uint64_t)*channels)
+				return SOX_EHDR;
+			seen_chnl = sox_true;
+			consumed = 2;
+			break;
+		case ID('C', 'M', 'P', 'R'):
+			if (seen_cmpr || size < 5 || lsx_readdw(ft, &type) ||
+			    type != ID('D', 'S', 'D', ' '))
+				return SOX_EHDR;
+			{
+				uint8_t name_len;
+				if (lsx_readb(ft, &name_len) || name_len > size - 5)
+					return SOX_EHDR;
+			}
+			seen_cmpr = sox_true;
+			consumed = 5;
+			break;
+		}
+		if (dff_skip(ft, size - consumed + (size & 1)))
+			return SOX_EHDR;
+		left -= span;
+	}
+	return seen_fs && seen_chnl && seen_cmpr ? SOX_SUCCESS : SOX_EHDR;
+}
+
 static int dff_startread(sox_format_t *ft)
 {
 	struct dsdiff *dff = ft->priv;
-	uint32_t ckid;
-	uint32_t cktype;
-	uint64_t cksize;
-	uint64_t f8size;
-	uint32_t fver;
-	uint64_t spos, epos;
-	uint32_t sample_rate;
-	uint16_t num_channels;
+	uint32_t id, type, version;
+	uint64_t frame_size, chunk_size, span, remaining;
+	uint32_t rate = 0;
+	uint16_t channels = 0;
+	sox_bool seen_version = sox_false, seen_prop = sox_false;
 
-	if (lsx_readdw(ft, &ckid) || ckid != ID('F', 'R', 'M', '8')) {
-		lsx_fail_errno(ft, SOX_EHDR, "FRM8 tag not found");
+	if (lsx_readdw(ft, &id) || id != ID('F', 'R', 'M', '8') ||
+	    lsx_readqw(ft, &frame_size) || frame_size < 4 ||
+	    frame_size > UINT64_MAX - 12 ||
+	    lsx_readdw(ft, &type) || type != ID('D', 'S', 'D', ' ')) {
+		lsx_fail_errno(ft, SOX_EHDR, "invalid DSDIFF FRM8 header");
 		return SOX_EHDR;
 	}
+	remaining = frame_size - 4;
+	while (remaining) {
+		uint64_t consumed = 0;
+		if (remaining < 12 || lsx_readdw(ft, &id) ||
+		    lsx_readqw(ft, &chunk_size) ||
+		    dff_span(chunk_size, &span) || span > remaining)
+			break;
+		remaining -= span;
 
-	if (lsx_readqw(ft, &f8size)) {
-		lsx_fail_errno(ft, SOX_EHDR, "error reading chunk size");
-		return SOX_EHDR;
-	}
-
-	if (lsx_readdw(ft, &cktype) || cktype != ID('D', 'S', 'D', ' ')) {
-		lsx_fail_errno(ft, SOX_EHDR, "DSD tag not found");
-		return SOX_EHDR;
-	}
-
-	do {
-		if (lsx_readdw(ft, &ckid) || lsx_readqw(ft, &cksize)) {
-			lsx_fail_errno(ft, SOX_EHDR, "read error");
-			return SOX_EHDR;
-		}
-
-		spos = lsx_tell(ft);
-
-		switch (ckid) {
+		switch (id) {
 		case ID('F', 'V', 'E', 'R'):
-			if (cksize != 4)
-				return SOX_EHDR;
-			if (lsx_readdw(ft, &fver))
-				return SOX_EHDR;
-			if (fver >> 24 != 1) {
-				lsx_fail_errno(ft, SOX_EHDR, "unknown version");
-				return SOX_EHDR;
-			}
+			if (seen_version || chunk_size != 4 ||
+			    lsx_readdw(ft, &version) || version >> 24 != 1)
+				goto invalid;
+			seen_version = sox_true;
+			consumed = 4;
 			break;
-
 		case ID('P', 'R', 'O', 'P'):
-			if (cksize < 4)
-				return SOX_EHDR;
-			if (lsx_readdw(ft, &cktype))
-				return SOX_EHDR;
-			if (cktype == ID('S', 'N', 'D', ' '))
-				cksize = 4;
+			if (seen_prop || dff_read_prop(ft, chunk_size, &rate, &channels))
+				goto invalid;
+			seen_prop = sox_true;
+			consumed = chunk_size;
 			break;
-
-		case ID('F', 'S', ' ', ' '):
-			if (cksize < 4)
-				return SOX_EHDR;
-			if (lsx_readdw(ft, &sample_rate))
-				return SOX_EHDR;
-			break;
-
-		case ID('C', 'H', 'N', 'L'):
-			if (cksize < 4)
-				return SOX_EHDR;
-			if (lsx_readw(ft, &num_channels))
-				return SOX_EHDR;
-			break;
-
-		case ID('C', 'M', 'P', 'R'):
-			if (cksize < 4)
-				return SOX_EHDR;
-			if (lsx_readdw(ft, &cktype))
-				return SOX_EHDR;
-			if (cktype != ID('D', 'S', 'D', ' ')) {
-				lsx_fail_errno(ft, SOX_EHDR,
-					       "unsupported compression");
-				return SOX_EHDR;
-			}
-			break;
-
 		case ID('D', 'S', 'D', ' '):
-			if (cksize < 8)
-				return SOX_EHDR;
-			dff->data_size = cksize;
-			cksize = 0;
+			if (!seen_version || !seen_prop || !channels ||
+			    chunk_size % channels || chunk_size > UINT64_MAX / 8)
+				goto invalid;
+			{
+				uint64_t physical = lsx_filelength(ft);
+				off_t start = lsx_tell(ft);
+				/* The only tolerated missing byte is the legacy odd
+				 * audio pad at the physical end of the file. */
+				if (start < 0 ||
+				    (physical && ((uint64_t)start > physical ||
+				                  chunk_size > physical - (uint64_t)start)) ||
+				    (physical && (physical < 12 || frame_size > physical - 12) &&
+				     !(chunk_size & 1 && remaining == 0 &&
+				       physical >= 12 && frame_size - (physical - 12) == 1)))
+					goto invalid;
+				if (physical && frame_size > physical - 12)
+					lsx_warn("legacy DSDIFF audio chunk is missing its required external pad byte at EOF");
+			}
+			dff->data_size = chunk_size;
+			dff->buf = lsx_malloc(channels);
+			if (!dff->buf)
+				return SOX_ENOMEM;
+			dff->bit_pos = 0;
+			dff->cluster_valid = sox_false;
+			ft->data_start = lsx_tell(ft);
+			ft->signal.rate = rate;
+			ft->signal.channels = channels;
+			ft->signal.precision = 1;
+			ft->signal.length = chunk_size * 8;
+			ft->encoding.encoding = SOX_ENCODING_DSD;
+			ft->encoding.bits_per_sample = 1;
+			return SOX_SUCCESS;
+		default:
+			/* Unknown top-level chunks are legal if their span fits. */
 			break;
 		}
-
-		cksize += cksize & 1;
-		epos = lsx_tell(ft);
-		if (epos != spos + cksize)
-			lsx_seeki(ft, (off_t)(spos + cksize - epos), SEEK_CUR);
-	} while (cksize && epos < f8size);
-
-	if (!sample_rate || !num_channels || !dff->data_size) {
-		lsx_fail_errno(ft, SOX_EHDR, "invalid file header");
-		return SOX_EHDR;
+		if (dff_skip(ft, chunk_size - consumed + (chunk_size & 1)))
+			goto invalid;
 	}
-
-	if (ckid != ID('D', 'S', 'D', ' ')) {
-		lsx_fail_errno(ft, SOX_EHDR, "unsupported data type");
-		return SOX_EHDR;
-	}
-
-	dff->buf = lsx_malloc(num_channels);
-	if (!dff->buf)
-		return SOX_ENOMEM;
-
-	ft->data_start = lsx_tell(ft);
-
-	ft->signal.rate = sample_rate;
-	ft->signal.channels = num_channels;
-	ft->signal.precision = 1;
-	ft->signal.length = dff->data_size * 8;
-
-	ft->encoding.encoding = SOX_ENCODING_DSD;
-	ft->encoding.bits_per_sample = 1;
-
-	return SOX_SUCCESS;
+invalid:
+	lsx_fail_errno(ft, SOX_EHDR, "invalid DSDIFF chunk layout");
+	return SOX_EHDR;
 }
 
 static size_t dff_read(sox_format_t *ft, sox_sample_t *buf, size_t len)
 {
 	struct dsdiff *dff = ft->priv;
 	size_t nc = ft->signal.channels;
-	size_t rsamp = 0;
-	unsigned i, j;
+	size_t frames = len / nc, done = 0;
 
-	len /= nc;
-
-	while (len >= 8) {
-		unsigned bits = 8 - dff->bit_pos;
-
-		if (lsx_read_b_buf(ft, dff->buf, nc) < nc)
-			return rsamp * nc;
-
-		for (i = 0; i < nc; i++) {
+	while (frames) {
+		unsigned i, j, bits;
+		if (!dff->cluster_valid) {
+			if (lsx_read_b_buf(ft, dff->buf, nc) != nc)
+				break;
+			dff->cluster_valid = sox_true;
+		}
+		bits = min(frames, 8 - dff->bit_pos);
+		for (i = 0; i < nc; ++i) {
 			unsigned d = dff->buf[i] << dff->bit_pos;
-
-			for (j = 0; j < 8; j++) {
+			for (j = 0; j < bits; ++j) {
 				buf[i + j * nc] = d & 128 ?
 					SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
 				d <<= 1;
 			}
 		}
-
-		dff->bit_pos = 0;
 		buf += bits * nc;
-		rsamp += bits;
-		len -= bits;
+		frames -= bits;
+		done += bits;
+		dff->bit_pos += bits;
+		if (dff->bit_pos == 8) {
+			dff->bit_pos = 0;
+			dff->cluster_valid = sox_false;
+		}
 	}
-
-	return rsamp * nc;
+	return done * nc;
 }
 
 static int dff_seek(sox_format_t * ft, sox_uint64_t offset)
@@ -201,6 +253,7 @@ static int dff_seek(sox_format_t * ft, sox_uint64_t offset)
 		return err;
 
 	dff->bit_pos = offset % 8;
+	dff->cluster_valid = sox_false;
 
 	return SOX_SUCCESS;
 }
@@ -543,7 +596,7 @@ static int wsd_startread(sox_format_t *ft)
 
 	file_sz = (uint64_t)file_sz_h << 32 | file_sz_l;
 
-	if (file_sz <= data_sp) {
+	if (file_sz < data_sp) {
 		lsx_fail_errno(ft, SOX_EHDR, "invalid file size");
 		return SOX_EHDR;
 	}
@@ -570,13 +623,26 @@ static int wsd_startread(sox_format_t *ft)
 		return SOX_EHDR;
 	}
 
-	if (lsx_seeki(ft, data_sp, SEEK_SET))
-		return SOX_EOF;
+	if (!ch_n || !fs || (file_sz - data_sp) % ch_n ||
+	    file_sz - data_sp > UINT64_MAX / 8 ||
+	    (lsx_filelength(ft) && file_sz > lsx_filelength(ft))) {
+		lsx_fail_errno(ft, SOX_EHDR, "invalid WSD audio extent");
+		return SOX_EHDR;
+	}
+	{
+		off_t pos = lsx_tell(ft);
+		if (pos < 0 || (uint64_t)pos > data_sp ||
+		    dff_skip(ft, data_sp - (uint64_t)pos))
+			return SOX_EOF;
+	}
 
 	dff->buf = lsx_malloc(ch_n);
 	if (!dff->buf)
 		return SOX_ENOMEM;
 
+	dff->data_size = file_sz - data_sp;
+	dff->bit_pos = 0;
+	dff->cluster_valid = sox_false;
 	ft->data_start = data_sp;
 
 	ft->signal.rate = fs;

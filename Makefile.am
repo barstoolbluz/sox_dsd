@@ -219,12 +219,20 @@ win64.exe: winexe-prepare
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.
 .PHONY: check-dsd
-DSD_PHASE ?= P01
+DSD_PHASE ?= P02
 DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
 check-dsd: all
 	$(MAKE) -C test dsd_test_io$(EXEEXT)
 	$(MAKE) -C test dsd_test_dff_writer$(EXEEXT)
 	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox_ng --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
+	@if test "$(DSD_PHASE)" = "P02"; then \
+	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
+	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
+	  python3 $(srcdir)/tests/dsd/test_streaming.py \
+	    --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) \
+	    --sox $(abs_builddir)/src/sox_ng \
+	    --results $(DSD_RESULTS)/streaming; \
+	fi
 # P00 distributable design/test inputs (generated raw runs live in the continuation archive).
 EXTRA_DIST += \
   docs/dsd/BASELINE.md docs/dsd/DSD_DESIGN.md docs/dsd/DSD_HANDOFF.md \
@@ -259,4 +267,7 @@ EXTRA_DIST += \
   tests/dsd/test_dff_writer.c tests/dsd/reference/writer.py \
   tests/dsd/fixtures/p01_writer_vectors.json tests/dsd/bench_dff.py \
   docs/dsd/handoffs/P01.md docs/dsd/handoffs/P01_CHECKPOINT.md \
-  tests/dsd/BENCHMARKING.md tests/dsd/benchprep.sh
+  tests/dsd/BENCHMARKING.md tests/dsd/benchprep.sh \
+  tests/dsd/test_streaming.py tests/dsd/test_dop_capacity.c \
+  tests/dsd/bench_read_p02.py docs/dsd/handoffs/P02.md \
+  docs/dsd/handoffs/P02_CHECKPOINT.md

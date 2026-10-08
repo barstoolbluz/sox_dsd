@@ -1,0 +1,20 @@
+{
+  "fixture_origin": "tests/dsd/reference/fixtures.py make_dff, MSB chronological 10010110",
+  "command_template": "src/sox_ng -V3 --no-show-progress INPUT.dff -n",
+  "compliant_and_legacy": {
+    "valid": {
+      "file_length_bytes": 128,
+      "sha256": "5b30c1621c11a24c216d3905c44792aff7beaba44837ea61800d52f655c2f228",
+      "cli_exit": 0,
+      "cli_stderr": "sox_ng:      SoX_ng v14.8.0+git\nsox_ng INFO formats: detected file format type `dff'\n\nInput File     : '/mnt/data/P02_warning_fix/valid.dff'\nChannels       : 1\nSample Rate    : 2.8224e+06\nPrecision      : 1-bit\nDuration       : 00:00:00.00 = 8 samples ~ 0.000212585 CDDA sectors\nFile Size      : 128\nBit Rate       : 5.64M\nSample Encoding: 1-bit Direct Stream Digital\nEndian Type    : big\nReverse Nibbles: no\nReverse Bits   : no\n\n",
+      "cli_warning_phrase_count": 0
+    },
+    "legacy": {
+      "file_length_bytes": 127,
+      "sha256": "e665497e3f7f820976d33d1bd90ea57b868b94f1e3136ecb9e4338de4f56e695",
+      "cli_exit": 0,
+      "cli_stderr": "sox_ng:      SoX_ng v14.8.0+git\nsox_ng INFO formats: detected file format type `dff'\nsox_ng WARN dsdiff: legacy DSDIFF audio chunk is missing its required external pad byte at EOF\n\nInput File     : '/mnt/data/P02_warning_fix/legacy.dff'\nChannels       : 1\nSample Rate    : 2.8224e+06\nPrecision      : 1-bit\nDuration       : 00:00:00.00 = 8 samples ~ 0.000212585 CDDA sectors\nFile Size      : 127\nBit Rate       : 2.82M\nSample Encoding: 1-bit Direct Stream Digital\nEndian Type    : big\nReverse Nibbles: no\nReverse Bits   : no\n\n",
+      "cli_warning_phrase_count": 1
+    }
+  }
+}
