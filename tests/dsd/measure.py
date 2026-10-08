@@ -15,7 +15,7 @@ import sys
 import time
 import wave
 
-from reference import metrology
+from reference import metrology, writer
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 
@@ -76,17 +76,31 @@ def main() -> int:
     ap.add_argument('--phase', default='P00')
     ap.add_argument('--results', type=pathlib.Path, default=ROOT/'tests/dsd/results/P00/numeric')
     ap.add_argument('--prepare-analysis-v1', action='store_true', help='emit the immutable-design request, never claim generated coefficients')
+    ap.add_argument('--sox', type=pathlib.Path, default=ROOT/'src/sox_ng')
     args = ap.parse_args()
     if args.phase not in ['P' + str(i).zfill(2) for i in range(19)]:
         ap.error('unknown phase')
     args.results.mkdir(parents=True, exist_ok=True)
     passed = self_checks()
+    native_commands = []
+    if int(args.phase[1:]) >= 1:
+        from run import Runner
+        observer = Runner(args)
+        try:
+            native = writer.cross_format(observer)
+            passed.append(dict(name='P01_native_program_bits_and_completed_frame_counts',
+                               status='pass', detail=native))
+        except Exception as exc:
+            passed.append(dict(name='P01_native_program_bits_and_completed_frame_counts',
+                               status='fail', error=f'{type(exc).__name__}: {exc}'))
+        native_commands = observer.commands
     result = dict(schema='dsd-numerical-results/1', phase=args.phase,
                   executed_command=sys.argv, utc_timestamp=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   python=platform.python_version(),
                   procedures=metrology.ANALYSIS_V1,
                   source_fixture_catalog=str(ROOT/'tests/dsd/fixtures/manifest.json'),
                   unit_tests=passed,
+                  native_commands=native_commands,
                   independent_analysis=dict(status='unrun', reason='P00 does not generate/certify analysis-v1 coefficients; P09 qualification gate'),
                   filters_evidence=dict(status='prior_design_evidence_only',
                        path='docs/dsd/evidence/filter_feasibility.json',

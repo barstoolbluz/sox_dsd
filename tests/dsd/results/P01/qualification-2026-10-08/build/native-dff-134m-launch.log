@@ -1,0 +1,50 @@
+{"command": ["python3", "tests/dsd/bench_dff.py", "--baseline-sox", "/mnt/data/p01_work/p00_baseline/src/sox_ng", "--sox", "/mnt/data/p01_work/p01_candidate_build/src/sox_ng", "--results", "/mnt/data/p01_work/sox_ng/tests/dsd/results/P01/qualification-2026-10-08/native-dff-134m", "--frames", "134217728", "--repetitions", "15", "--warmups", "2", "--cpu", "4", "--working-directory", "/dev/shm"], "cwd": "/mnt/data/p01_work/p01_candidate_build", "start_utc": "2026-10-08T15:31:11.004438+00:00", "exit": 2, "env": {"OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "LC_ALL": "C"}, "wall_seconds": 206.76361020000002, "end_utc": "2026-10-08T15:34:37.768321+00:00"}
+1ch paired repetition 1/15
+1ch paired repetition 2/15
+1ch paired repetition 3/15
+1ch paired repetition 4/15
+1ch paired repetition 5/15
+1ch paired repetition 6/15
+1ch paired repetition 7/15
+1ch paired repetition 8/15
+1ch paired repetition 9/15
+1ch paired repetition 10/15
+1ch paired repetition 11/15
+1ch paired repetition 12/15
+1ch paired repetition 13/15
+1ch paired repetition 14/15
+1ch paired repetition 15/15
+{"channels": 1, "summary": {"variants": {"baseline": {"median_seconds": 0.9063269880000462, "min_seconds": 0.8585933110000497, "max_seconds": 1.4086029700000608, "robust_relative_sigma": 0.047968509279513426}, "candidate": {"median_seconds": 0.8918603350000467, "min_seconds": 0.8604096830000572, "max_seconds": 1.0845644209999818, "robust_relative_sigma": 0.026982922533000362}}, "median_wall_ratio": 0.9840381526849129, "regression_percent": -1.5961847315087097, "paired_median_ratio": 0.9832840822165443, "paired_bootstrap_95pct_interval": [0.9480347146780332, 1.0427571593321714], "measurement_noise": 0.047968509279513426, "status": "inconclusive-noise"}}
+2ch paired repetition 1/15
+2ch paired repetition 2/15
+2ch paired repetition 3/15
+2ch paired repetition 4/15
+2ch paired repetition 5/15
+2ch paired repetition 6/15
+2ch paired repetition 7/15
+2ch paired repetition 8/15
+2ch paired repetition 9/15
+2ch paired repetition 10/15
+2ch paired repetition 11/15
+2ch paired repetition 12/15
+2ch paired repetition 13/15
+2ch paired repetition 14/15
+2ch paired repetition 15/15
+{"channels": 2, "summary": {"variants": {"baseline": {"median_seconds": 1.239938584000015, "min_seconds": 1.182482776000029, "max_seconds": 2.323608523999951, "robust_relative_sigma": 0.048548061116003}, "candidate": {"median_seconds": 1.2204439339999453, "min_seconds": 1.1705809029999727, "max_seconds": 1.7153313189999153, "robust_relative_sigma": 0.042874596155453255}}, "median_wall_ratio": 0.9842777293556102, "regression_percent": -1.5722270644389802, "paired_median_ratio": 0.9674817097467013, "paired_bootstrap_95pct_interval": [0.8478709794487519, 0.9947888801046098], "measurement_noise": 0.048548061116003, "status": "inconclusive-noise"}}
+6ch paired repetition 1/15
+6ch paired repetition 2/15
+6ch paired repetition 3/15
+6ch paired repetition 4/15
+6ch paired repetition 5/15
+6ch paired repetition 6/15
+6ch paired repetition 7/15
+6ch paired repetition 8/15
+6ch paired repetition 9/15
+6ch paired repetition 10/15
+6ch paired repetition 11/15
+6ch paired repetition 12/15
+6ch paired repetition 13/15
+6ch paired repetition 14/15
+6ch paired repetition 15/15
+{"channels": 6, "summary": {"variants": {"baseline": {"median_seconds": 2.8845234149999897, "min_seconds": 2.565869722000002, "max_seconds": 3.762290822000068, "robust_relative_sigma": 0.13109261435977532}, "candidate": {"median_seconds": 2.9418588159999217, "min_seconds": 2.5018503039999587, "max_seconds": 4.628518317000044, "robust_relative_sigma": 0.17632255287875684}}, "median_wall_ratio": 1.0198769060780644, "regression_percent": 1.987690607806436, "paired_median_ratio": 1.0023738690386226, "paired_bootstrap_95pct_interval": [0.9486935697774865, 1.1519928229175975], "measurement_noise": 0.17632255287875684, "status": "inconclusive-noise"}}
+

@@ -27,6 +27,7 @@ struct dsdiff {
 	uint64_t data_size;
 	uint8_t *buf;
 	uint32_t bit_pos;
+	int write_error;
 };
 
 #define ID(a, b, c, d) ((a) << 24 | (b) << 16 | (c) << 8 | (d))
@@ -216,25 +217,51 @@ static int dff_stopread(sox_format_t *ft)
 #define DFF_MAX_CHANNELS	1000
 #define DFF_CMPR_NAME		"not compressed"
 
-static int dff_writeheader(sox_format_t *ft)
+/* Chunk sizes exclude their headers and external even-byte padding. */
+static int dff_chunk_span(uint64_t size, uint64_t *span)
+{
+	if (size > UINT64_MAX - 12 - (size & 1))
+		return SOX_EOF;
+	*span = 12 + size + (size & 1);
+	return SOX_SUCCESS;
+}
+
+static int dff_write_data_size(sox_format_t *ft, uint64_t size)
+{
+	sox_bool seekable = ft->seekable;
+	int err;
+
+	/* A sparse zero write would skip over the old unknown-length sentinel
+	 * when finalizing an empty file. This field must be overwritten. */
+	ft->seekable = sox_false;
+	err = lsx_writeqw(ft, size);
+	ft->seekable = seekable;
+	return err;
+}
+
+static int dff_writeheader(sox_format_t *ft, sox_bool final)
 {
 	struct dsdiff *dff = ft->priv;
-	unsigned chnl_size = 2 + 4 * ft->signal.channels;
-	unsigned cmpr_size = 4 + 1 + sizeof(DFF_CMPR_NAME);
-	unsigned prop_size =
-		4 +			/* SND */
-		12 + 4 +		/* FS */
-		12 + chnl_size +
-		12 + cmpr_size;
-	uint64_t frm8_size =
-		4 +			/* DSD */
-		12 + 4 +		/* FVER */
-		12 + prop_size +
-		12 + dff->data_size;
+	uint64_t chnl_size = 2 + 4 * (uint64_t)ft->signal.channels;
+	uint64_t cmpr_size = 4 + 1 + sizeof(DFF_CMPR_NAME) - 1;
+	uint64_t chnl_span, cmpr_span, prop_size, prop_span;
+	uint64_t audio_span, frm8_size, frm8_span;
+
+	if (dff_chunk_span(chnl_size, &chnl_span) ||
+	    dff_chunk_span(cmpr_size, &cmpr_span))
+		return SOX_EOF;
+	prop_size = 4 + 16 + chnl_span + cmpr_span; /* SND, FS, CHNL, CMPR */
+	if (dff_chunk_span(prop_size, &prop_span) ||
+	    dff_chunk_span(dff->data_size, &audio_span) ||
+	    audio_span > UINT64_MAX - 4 - 16 - prop_span ||
+	    dff_chunk_span(frm8_size = 4 + 16 + prop_span + audio_span,
+			   &frm8_span)) {
+		lsx_fail_errno(ft, SOX_EOF, "DSDIFF file size overflow");
+		return SOX_EOF;
+	}
 
 	if (lsx_writedw(ft, ID('F', 'R', 'M', '8')) ||
-	    lsx_writeqw(ft, dff->data_size ?
-			frm8_size + dff->data_size : SOX_UNKNOWN_LEN) ||
+	    lsx_writeqw(ft, final ? frm8_size : SOX_UNKNOWN_LEN) ||
             lsx_writedw(ft, ID('D', 'S', 'D', ' ')))
 		return SOX_EOF;
 
@@ -276,13 +303,13 @@ static int dff_writeheader(sox_format_t *ft)
 	if (lsx_writedw(ft, ID('C', 'M', 'P', 'R')) ||
 	    lsx_writeqw(ft, cmpr_size) ||
 	    lsx_writedw(ft, ID('D', 'S', 'D', ' ')) ||
-	    lsx_writeb(ft, sizeof(DFF_CMPR_NAME)) ||
+	    lsx_writeb(ft, sizeof(DFF_CMPR_NAME) - 1) ||
 	    lsx_writes(ft, DFF_CMPR_NAME) ||
-	    lsx_writeb(ft, 0))
+	    lsx_writeb(ft, 0)) /* external pad for the odd CMPR payload */
 		return SOX_EOF;
 
 	if (lsx_writedw(ft, ID('D', 'S', 'D', ' ')) ||
-	    lsx_writeqw(ft, dff->data_size ? dff->data_size : SOX_UNKNOWN_LEN))
+	    dff_write_data_size(ft, final ? dff->data_size : SOX_UNKNOWN_LEN))
 		return SOX_EOF;
 
 	return SOX_SUCCESS;
@@ -291,6 +318,7 @@ static int dff_writeheader(sox_format_t *ft)
 static int dff_startwrite(sox_format_t *ft)
 {
 	struct dsdiff *dff = ft->priv;
+	int err;
 
 	if (ft->signal.channels > DFF_MAX_CHANNELS) {
 		lsx_fail_errno(ft, SOX_EOF, "too many channels");
@@ -298,11 +326,18 @@ static int dff_startwrite(sox_format_t *ft)
 	}
 
 	dff->data_size = 0;
-	dff->buf = lsx_malloc(ft->signal.channels);
+	dff->bit_pos = 0;
+	dff->write_error = SOX_SUCCESS;
+	dff->buf = lsx_calloc(ft->signal.channels, 1);
 	if (!dff->buf)
 		return SOX_ENOMEM;
 
-	return dff_writeheader(ft);
+	err = dff_writeheader(ft, sox_false);
+	if (err) {
+		free(dff->buf);
+		dff->buf = NULL;
+	}
+	return err;
 }
 
 static int dff_write_buf(sox_format_t *ft)
@@ -310,9 +345,14 @@ static int dff_write_buf(sox_format_t *ft)
 	struct dsdiff *dff = ft->priv;
 	size_t wlen = ft->signal.channels;
 
+	if (dff->data_size > UINT64_MAX - wlen) {
+		lsx_fail_errno(ft, SOX_EOF, "DSDIFF audio size overflow");
+		return dff->write_error = SOX_EOF;
+	}
 	if (lsx_write_b_buf(ft, dff->buf, wlen) < wlen)
-		return SOX_EOF;
+		return dff->write_error = SOX_EOF;
 
+	dff->data_size += wlen;
 	memset(dff->buf, 0, wlen);
 
 	return SOX_SUCCESS;
@@ -341,6 +381,9 @@ static size_t dff_write(sox_format_t *ft, const sox_sample_t *buf, size_t len)
 	unsigned nchan = ft->signal.channels;
 	size_t wsamp = 0;
 
+	if (dff->write_error)
+		return 0;
+
 	len /= nchan;
 
 	if (dff->bit_pos) {
@@ -349,31 +392,26 @@ static size_t dff_write(sox_format_t *ft, const sox_sample_t *buf, size_t len)
 		dff_write_bits(dff, buf, nchan, dff->bit_pos, pre);
 
 		dff->bit_pos += pre;
-		buf += pre * nchan;
-		wsamp += pre;
-		len -= pre;
-
 		if (dff->bit_pos == 8) {
-			dff->bit_pos = 0;
-
 			if (dff_write_buf(ft))
 				return 0;
 
-			dff->data_size += ft->signal.channels;
+			dff->bit_pos = 0;
 		}
+		buf += pre * nchan;
+		wsamp += pre;
+		len -= pre;
 	}
 
 	while (len >= 8) {
 		dff_write_bits(dff, buf, nchan, 0, 8);
 
-		buf += 8 * nchan;
-		wsamp += 8;
-		len -= 8;
-
 		if (dff_write_buf(ft))
 			return wsamp * nchan;
 
-		dff->data_size += ft->signal.channels;
+		buf += 8 * nchan;
+		wsamp += 8;
+		len -= 8;
 	}
 
 	if (len) {
@@ -390,9 +428,9 @@ static int dff_stopwrite(sox_format_t *ft)
 {
 	struct dsdiff *dff = ft->priv;
 	unsigned i;
-	int err = SOX_SUCCESS;
+	int err = dff->write_error;
 
-	if (dff->bit_pos) {
+	if (!err && dff->bit_pos) {
 		unsigned silence = 0x69 & (0xff >> dff->bit_pos);
 		for (i = 0; i < ft->signal.channels; i++)
 			dff->buf[i] |= silence;
@@ -401,9 +439,13 @@ static int dff_stopwrite(sox_format_t *ft)
 	}
 
 	free(dff->buf);
+	dff->buf = NULL;
 
 	if (err)
 		return err;
+
+	if ((dff->data_size & 1) && lsx_writeb(ft, 0))
+		return SOX_EOF;
 
 	if (lsx_seeki(ft, 0, SEEK_SET)) {
 		lsx_fail_errno(ft, SOX_EOF,
@@ -411,7 +453,13 @@ static int dff_stopwrite(sox_format_t *ft)
 		return SOX_EOF;
 	}
 
-	return dff_writeheader(ft);
+	if (dff_writeheader(ft, sox_true))
+		return SOX_EOF;
+	if (lsx_flush(ft)) {
+		lsx_fail_errno(ft, SOX_EOF, "error flushing DSDIFF output");
+		return SOX_EOF;
+	}
+	return SOX_SUCCESS;
 }
 
 LSX_FORMAT_HANDLER(dsdiff)

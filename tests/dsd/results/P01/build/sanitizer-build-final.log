@@ -1,0 +1,1 @@
+libtool: link: cc -DHAVE_CONFIG_H -Isrc -I. -O1 -g -fopenmp -fsanitize=address,undefined -fno-omit-frame-pointer tests/dsd/test_dff_writer.c -o /workspace/scratch/2e3e4f6fb7d1/dff-writer-sanitized-final  src/.libs/libsox_ng.a -lm -fopenmp

@@ -1,0 +1,27 @@
+{
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "configured_benchmark_cpu": 4,
+  "cpu_governor": null,
+  "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+  "cpu_quota": "400000 100000",
+  "flags": "CFLAGS=-O2 -g, --disable-shared, --without-libltdl",
+  "fs": {
+    "df": "Filesystem      Size  Used Avail Use% Mounted on\nshm             3.0G  130M  2.8G   5% /dev/shm\n",
+    "tmpfs_device": "/dev/shm"
+  },
+  "kernel": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "limits": {
+    "median_max_regression": 0.05,
+    "relative_noise_strict_upper_bound": 0.02
+  },
+  "memory_limit": "4294967296",
+  "process_cpu_allowed": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "process_oversubscription": "One pinned DFF process at a time; 4 CPU quota across 5 visible CPUs",
+  "time_utc": "2026-10-08T15:31:59.809775+00:00"
+}

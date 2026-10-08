@@ -1,0 +1,25 @@
+{
+  "command": [
+    "python3",
+    "tests/dsd/bench_dff.py",
+    "--baseline-sox",
+    "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+    "--results",
+    "tests/dsd/results/P01/bench-dff-resume-probe",
+    "--frames",
+    "268435456",
+    "--cpu",
+    "8",
+    "--working-directory",
+    "/dev/shm",
+    "--resume"
+  ],
+  "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+  "start_utc": "2026-10-08T13:49:52.823547+00:00",
+  "exit": 2,
+  "env": {
+    "LC_ALL": "C.UTF-8"
+  },
+  "wall_seconds": 3.5060443580000538,
+  "end_utc": "2026-10-08T13:49:56.329800+00:00"
+}

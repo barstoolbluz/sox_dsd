@@ -108,6 +108,50 @@ static int read_all(const char *file, size_t cap, size_t initial,
   return sox_close(f) == SOX_SUCCESS ? 0 : 10;
 }
 
+/* P01: write independently supplied interleaved 0/1 bytes in whole-frame
+ * calls. No expected payload or completion pattern exists in this observer. */
+static int write_bits(const char *file, const char *source, unsigned channels,
+                      size_t call_frames)
+{
+  uint8_t bits[BUF_SAMPLES];
+  sox_sample_t buffer[BUF_SAMPLES];
+  sox_signalinfo_t signal = {2822400, 0, 1, 0, NULL};
+  sox_encodinginfo_t enc;
+  sox_format_t *f;
+  FILE *input;
+  size_t count, pos = 0, i;
+  int status;
+  if (!channels || channels > 6 || !call_frames ||
+      call_frames > BUF_SAMPLES / channels) return 4;
+  input = fopen(source, "rb");
+  if (!input) return 4;
+  count = fread(bits, 1, sizeof(bits), input);
+  status = ferror(input) || fgetc(input) != EOF || count % channels;
+  fclose(input);
+  if (status) return 4;
+  for (i = 0; i < count; ++i) {
+    if (bits[i] > 1) return 4;
+    buffer[i] = bits[i] ? SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
+  }
+  signal.channels = channels;
+  signal.length = count;
+  sox_init_encodinginfo(&enc);
+  enc.encoding = SOX_ENCODING_DSD;
+  enc.bits_per_sample = 1;
+  f = sox_open_write(file, &signal, &enc, "dff", NULL, NULL);
+  if (!f) return 5;
+  while (pos < count) {
+    size_t n = count - pos;
+    if (n > call_frames * channels) n = call_frames * channels;
+    if (sox_write(f, buffer + pos, n) != n) { sox_close(f); return 6; }
+    pos += n;
+  }
+  status = sox_close(f);
+  printf("{\"write_ok\":%s,\"samples\":%zu,\"channels\":%u}\n",
+         status == SOX_SUCCESS ? "true" : "false", count, channels);
+  return status == SOX_SUCCESS ? 0 : 7;
+}
+
 int main(int argc, char **argv)
 {
   uint64_t a, b, c, offset = 0;
@@ -123,8 +167,12 @@ int main(int argc, char **argv)
     if (a > BUF_SAMPLES || b > BUF_SAMPLES || c > 1) return 3;
     rc = read_all(argv[2], (size_t)a, (size_t)b,
                   strcmp(argv[5], "-") != 0, offset, (int)c);
+  } else if (!strcmp(argv[1], "write-bits") && argc == 6) {
+    if (parse_u64(argv[4], &a) || parse_u64(argv[5], &b) ||
+        a > 6 || b > BUF_SAMPLES) return 3;
+    rc = write_bits(argv[2], argv[3], (unsigned)a, (size_t)b);
   } else {
-    fputs("usage: dsd_test_io write PATH CHANNELS FRAMES | read PATH CAP INITIAL OFFSET|- FIX_CORE\n", stderr);
+    fputs("usage: dsd_test_io write PATH CHANNELS FRAMES | read PATH CAP INITIAL OFFSET|- FIX_CORE | write-bits PATH INPUT CHANNELS CALL_FRAMES\n", stderr);
     rc = 2;
   }
   if (sox_quit() != SOX_SUCCESS && rc == 0) rc = 11;

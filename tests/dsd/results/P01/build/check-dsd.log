@@ -1,0 +1,80 @@
+Making all in libdolbyb
+make[1]: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/libdolbyb'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/libdolbyb'
+Making all in libebur128
+make[1]: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/libebur128'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/libebur128'
+Making all in lpc10
+make[1]: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/lpc10'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/lpc10'
+Making all in libgsm
+make[1]: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/libgsm'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/libgsm'
+Making all in src
+make[1]: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src'
+make  all-am
+make[2]: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src'
+make[2]: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src'
+make[1]: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src'
+Making all in test
+make[1]: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test'
+make[1]: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng'
+make -C test dsd_test_io
+make[1]: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test'
+  CCLD     dsd_test_io
+make[1]: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test'
+make -C test dsd_test_dff_writer
+make[1]: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test'
+  CC       dsd_test_dff_writer-test_dff_writer.o
+../tests/dsd/test_dff_writer.c: In function ‘setup’:
+../tests/dsd/test_dff_writer.c:69:30: warning: implicit conversion from ‘enum sox_bool’ to ‘sox_option_t’ [-Wenum-conversion]
+   69 |   ft->encoding.reverse_bytes = MACHINE_IS_BIGENDIAN ? sox_false : sox_true;
+      |                              ^
+  CCLD     dsd_test_dff_writer
+make[1]: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test'
+python3 ./tests/dsd/run.py --phase P01 --results /workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/results/P01 --sox /workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng --probe /workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io --writer-unit /workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_dff_writer
+PASS  unit_exact_integer_counts
+PASS  unit_explicit_xfail_classifier
+PASS  unit_P01_xfail_mutation_transition
+PASS  unit_dff_chunk_spans
+PASS  unit_hand_derived_bit_order_dsd_dop
+PASS  unit_reproducible_fixture_generator
+PASS  unit_independent_chunk_and_bit_oracles
+PASS  dsf_normal_mono_96
+PASS  dsf_normal_stereo_96
+PASS  dsf_fourchannel_type4_audio
+PASS  dsf_sixchannel_audio
+PASS  dff_normal_stereo_128
+PASS  dff_manf_core_corrected_control
+PASS  dsf_rewind_core_corrected_control
+XFAIL dsf_small_capacity_one_frame
+XFAIL dff_small_capacity_one_frame
+XFAIL dsf_one_frame_first_bit
+XFAIL dsf_empty_file
+XFAIL dff_single_byte_cluster
+XFAIL dsf_msb_first_8bit_storage
+XFAIL dsf_rewind_generic_core_position
+XFAIL dsf_multichannel_public_seek_offset16
+XFAIL dff_multichannel_public_seek_offset16
+XFAIL dff_trailing_manf_generic_counter
+PASS  wsd_normal_mono_16
+XFAIL wsd_small_capacity_one_frame
+XFAIL wav_rewind_after_manual_core_position_correction
+PASS  dff_writer_cmpr_name_length
+PASS  dff_writer_frm8_parent_size
+PASS  dff_writer_completed_tail_audio_count
+PASS  dff_writer_odd_payload_external_pad
+PASS  dff_writer_uninitialized_first_cluster_1ch
+PASS  dff_writer_uninitialized_first_cluster_4ch
+XFAIL dsf_type5_channel_identity_loss
+PASS  dop_cli_hand_vector_transport_markers
+PASS  integration_xfail_audio_mutation_rejection
+{"verdict": "pass", "counts": {"pass": 23, "xfail": 13, "xpass": 0, "fail": 0, "skip": 0}, "result_path": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/results/P01/run.json"}

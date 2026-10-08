@@ -1,0 +1,1 @@
+./libtool --mode=link --tag=CC cc -DHAVE_CONFIG_H -Isrc -I. -O1 -g -fopenmp -fsanitize=address,undefined -fno-omit-frame-pointer tests/dsd/test_dff_writer.c src/libsox_ng.la -o /workspace/scratch/2e3e4f6fb7d1/dff-writer-sanitized-final

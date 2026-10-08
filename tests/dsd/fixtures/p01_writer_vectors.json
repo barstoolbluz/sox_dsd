@@ -1,0 +1,25 @@
+{
+  "schema": "dsd-p01-writer-vectors/1",
+  "provenance": "Hand-selected source bytes and hand-derived chunk sizes; no SoX output supplies truth.",
+  "source_words_msb": ["960f53", "53f096", "0000ff", "ff9600", "a53cc3", "3ca55a"],
+  "frames": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 23, 24],
+  "call_frames": [1, 9],
+  "allocator_perturbations": [85, 170],
+  "zero_source_tail_hex_for_residual_1_to_7": ["69", "29", "09", "09", "01", "01", "01"],
+  "one_source_tail_hex_for_residual_1_to_7": ["e9", "e9", "e9", "f9", "f9", "fd", "ff"],
+  "mono_nine_frame_source_bits": "100101100",
+  "mono_nine_frame_expected_audio_hex": "9669",
+  "expected_structure": {
+    "top_level_tags": ["FVER", "PROP", "DSD "],
+    "property_tags": ["FS  ", "CHNL", "CMPR"],
+    "fver_payload_hex": "01050000",
+    "cmpr_name_count": 14,
+    "cmpr_payload_bytes": 19,
+    "cmpr_external_pad_bytes": 1,
+    "prop_payload_bytes": "66 + 4 * channels",
+    "audio_payload_start": "122 + 4 * channels",
+    "audio_payload_bytes": "channels * ceil(frames / 8)",
+    "completed_frames": "8 * ceil(frames / 8)",
+    "audio_external_pad_bytes": "audio_payload_bytes % 2"
+  }
+}

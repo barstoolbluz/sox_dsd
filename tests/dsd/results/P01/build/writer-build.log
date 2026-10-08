@@ -1,0 +1,10 @@
+make: Entering directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test'
+  CC       dsd_test_io-test_io.o
+  CCLD     dsd_test_io
+  CC       dsd_test_dff_writer-test_dff_writer.o
+../tests/dsd/test_dff_writer.c: In function ‘setup’:
+../tests/dsd/test_dff_writer.c:69:30: warning: implicit conversion from ‘enum sox_bool’ to ‘sox_option_t’ [-Wenum-conversion]
+   69 |   ft->encoding.reverse_bytes = MACHINE_IS_BIGENDIAN ? sox_false : sox_true;
+      |                              ^
+  CCLD     dsd_test_dff_writer
+make: Leaving directory '/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test'

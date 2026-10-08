@@ -1,0 +1,1640 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_dff_writer"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"checks\":954,\"tail_cases\":42,\"io_failure_cases\":10,\"arithmetic\":\"pass\",\"tails\":\"pass\",\"errors\":\"pass\"}\n",
+      "wall_seconds": 0.002204774000006182
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_96.dsf",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":96,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":96,\"read_calls\":2,\"head_bits\":\"110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001\"}\n",
+      "wall_seconds": 0.0014542019999908007
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/stereo_96.dsf",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":192,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":192,\"read_calls\":2,\"head_bits\":\"101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110\"}\n",
+      "wall_seconds": 0.0011593980000270676
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/type4_quad_96.dsf",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":384,\"channels\":4,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":384,\"read_calls\":2,\"head_bits\":\"100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010\"}\n",
+      "wall_seconds": 0.0009979449999946155
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/six_96.dsf",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":576,\"channels\":6,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":576,\"read_calls\":2,\"head_bits\":\"100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001\"}\n",
+      "wall_seconds": 0.0010548900000912909
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/stereo_128.dff",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":256,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":256,\"read_calls\":2,\"head_bits\":\"1010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010\"}\n",
+      "wall_seconds": 0.0008951600000273174
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_128_manf.dff",
+        "128",
+        "0",
+        "8",
+        "1"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":128,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":120,\"read_calls\":2,\"head_bits\":\"100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011\"}\n",
+      "wall_seconds": 0.0009770429999207408
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_96.dsf",
+        "96",
+        "8",
+        "0",
+        "1"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":96,\"channels\":1,\"rate\":2822400,\"first_read\":8,\"seek_rc\":0,\"olength_after_seek\":8,\"remaining_returned\":96,\"read_calls\":2,\"head_bits\":\"110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001\"}\n",
+      "wall_seconds": 0.0009266469999147375
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_96.dsf",
+        "1",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":96,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":0,\"read_calls\":1,\"head_bits\":\"\"}\n",
+      "wall_seconds": 0.000835800000004383
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_128_manf.dff",
+        "1",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":128,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":0,\"read_calls\":1,\"head_bits\":\"\"}\n",
+      "wall_seconds": 0.0009558709999737403
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/one.dsf",
+        "16",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":1,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":1,\"read_calls\":2,\"head_bits\":\"0\"}\n",
+      "wall_seconds": 0.0009255549999807045
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/empty.dsf",
+        "16",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "formats: can't open input file `/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/empty.dsf': invalid data chunk size\n",
+      "stdout": "{\"open\":false}\n",
+      "wall_seconds": 0.0009818300000006275
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/one_cluster.dff",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "formats: can't open input file `/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/one_cluster.dff': \n",
+      "stdout": "{\"open\":false}\n",
+      "wall_seconds": 0.0019491079999625072
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/msb_stereo_96.dsf",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "formats: can't open input file `/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/msb_stereo_96.dsf': unsupported bit depth 8\n",
+      "stdout": "{\"open\":false}\n",
+      "wall_seconds": 0.0008915739999793004
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_96.dsf",
+        "96",
+        "8",
+        "0",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":96,\"channels\":1,\"rate\":2822400,\"first_read\":8,\"seek_rc\":0,\"olength_after_seek\":8,\"remaining_returned\":88,\"read_calls\":2,\"head_bits\":\"1100110110011011001101100110110011011001101100110110011011001101100110110011011001101100\"}\n",
+      "wall_seconds": 0.0009103720000211979
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/stereo_96.dsf",
+        "4096",
+        "0",
+        "16",
+        "1"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":192,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":160,\"read_calls\":2,\"head_bits\":\"0101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110\"}\n",
+      "wall_seconds": 0.000816570000097272
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/stereo_128.dff",
+        "4096",
+        "0",
+        "16",
+        "1"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":256,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":224,\"read_calls\":2,\"head_bits\":\"01011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010\"}\n",
+      "wall_seconds": 0.0008152890000019397
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_128_manf.dff",
+        "128",
+        "0",
+        "8",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":128,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":128,\"read_calls\":2,\"head_bits\":\"10011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101101001101\"}\n",
+      "wall_seconds": 0.0008315930000435401
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_16.wsd",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":16,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":16,\"read_calls\":2,\"head_bits\":\"1100110110011011\"}\n",
+      "wall_seconds": 0.0008218589999842152
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_16.wsd",
+        "1",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":16,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":0,\"read_calls\":1,\"head_bits\":\"\"}\n",
+      "wall_seconds": 0.0008309629999985191
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/tmp/dsd-wav-seek-w6k7e2xi/mono.wav",
+        "8192",
+        "8",
+        "0",
+        "1"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":441,\"channels\":1,\"rate\":44100,\"first_read\":8,\"seek_rc\":0,\"olength_after_seek\":8,\"remaining_returned\":433,\"read_calls\":2,\"head_bits\":\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"}\n",
+      "wall_seconds": 0.001001229000053172
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "write",
+        "/tmp/dsd-writer-probe-abid1rgj/output.dff",
+        "1",
+        "16"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"frames\":16,\"channels\":1}\n",
+      "wall_seconds": 0.0008545580000145492
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-xft34p3g/out.dff",
+        "/tmp/dsd-p01-vectors-xft34p3g/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":1}\n",
+      "wall_seconds": 0.0010373139999728664
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "write",
+        "/tmp/dsd-writer-probe-20l9spjp/output.dff",
+        "1",
+        "16"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"frames\":16,\"channels\":1}\n",
+      "wall_seconds": 0.0008479690000058326
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "write",
+        "/tmp/dsd-writer-probe-5puamjyz/output.dff",
+        "1",
+        "9"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"frames\":9,\"channels\":1}\n",
+      "wall_seconds": 0.0008260249999239022
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "write",
+        "/tmp/dsd-writer-probe-8npl50j4/output.dff",
+        "1",
+        "8"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"frames\":8,\"channels\":1}\n",
+      "wall_seconds": 0.0010439139999789404
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "write",
+        "/tmp/dsd-writer-probe-24zyfm31/output.dff",
+        "1",
+        "16"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"frames\":16,\"channels\":1}\n",
+      "wall_seconds": 0.0009142889999793624
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "write",
+        "/tmp/dsd-writer-probe-5vl9aj_t/output.dff",
+        "4",
+        "16"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"frames\":16,\"channels\":4}\n",
+      "wall_seconds": 0.0008978240000487858
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+        "-D",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/type5_quad_96.dsf",
+        "/tmp/dsd-type5-m1jrnjd7/out.dsf"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0012084210000011808
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+        "-D",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_32_dop.dsf",
+        "-r",
+        "176400",
+        "-b",
+        "24",
+        "-e",
+        "signed-integer",
+        "/tmp/dsd-dop-cli-0d71vxyv/transport.wav",
+        "dop"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0015968269999575568
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_96.dsf",
+        "96",
+        "8",
+        "0",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":96,\"channels\":1,\"rate\":2822400,\"first_read\":8,\"seek_rc\":0,\"olength_after_seek\":8,\"remaining_returned\":88,\"read_calls\":2,\"head_bits\":\"1100110110011011001101100110110011011001101100110110011011001101100110110011011001101100\"}\n",
+      "wall_seconds": 0.0008993459999828701
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/stereo_96.dsf",
+        "4096",
+        "0",
+        "16",
+        "1"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":192,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":160,\"read_calls\":2,\"head_bits\":\"0101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110\"}\n",
+      "wall_seconds": 0.000978013999997529
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/stereo_128.dff",
+        "4096",
+        "0",
+        "16",
+        "1"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":256,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":224,\"read_calls\":2,\"head_bits\":\"01011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010\"}\n",
+      "wall_seconds": 0.00092525500008378
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/mono_128_manf.dff",
+        "128",
+        "0",
+        "8",
+        "0"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":128,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":128,\"read_calls\":2,\"head_bits\":\"10011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101101001101\"}\n",
+      "wall_seconds": 0.0008258450000084849
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/test/dsd_test_io",
+        "read",
+        "/tmp/dsd-wav-seek-d0yrkif3/mono.wav",
+        "8192",
+        "8",
+        "0",
+        "1"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":441,\"channels\":1,\"rate\":44100,\"first_read\":8,\"seek_rc\":0,\"olength_after_seek\":8,\"remaining_returned\":433,\"read_calls\":2,\"head_bits\":\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"}\n",
+      "wall_seconds": 0.0009467879999647266
+    },
+    {
+      "command": [
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+        "-D",
+        "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/type5_quad_96.dsf",
+        "/tmp/dsd-type5-on_d94tz/out.dsf"
+      ],
+      "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0009794970000029934
+    }
+  ],
+  "counts": {
+    "fail": 1,
+    "pass": 22,
+    "skip": 0,
+    "xfail": 13,
+    "xpass": 0
+  },
+  "executed_command": [
+    "tests/dsd/run.py",
+    "--phase",
+    "P01",
+    "--results",
+    "tests/dsd/results/P01"
+  ],
+  "fixture_manifest_sha256": "20513691a51abe18effba30c22bb09761973487a1abc4c50691fa2a4588e7e94",
+  "metadata": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "architecture": "x86_64",
+    "build_configuration": "configure --disable-shared --without-libltdl CFLAGS=-O2 -g",
+    "cpu_features": [
+      "fpu",
+      "vme",
+      "de",
+      "pse",
+      "tsc",
+      "msr",
+      "pae",
+      "mce",
+      "cx8",
+      "apic",
+      "sep",
+      "mtrr",
+      "pge",
+      "mca",
+      "cmov",
+      "pat",
+      "pse36",
+      "clflush",
+      "mmx",
+      "fxsr",
+      "sse",
+      "sse2",
+      "ht",
+      "syscall",
+      "nx",
+      "mmxext",
+      "fxsr_opt",
+      "pdpe1gb",
+      "rdtscp",
+      "lm",
+      "constant_tsc",
+      "rep_good",
+      "nopl",
+      "xtopology",
+      "nonstop_tsc",
+      "cpuid",
+      "extd_apicid",
+      "tsc_known_freq",
+      "pni",
+      "pclmulqdq",
+      "ssse3",
+      "fma",
+      "cx16",
+      "pcid",
+      "sse4_1",
+      "sse4_2",
+      "x2apic",
+      "movbe",
+      "popcnt",
+      "tsc_deadline_timer",
+      "aes",
+      "xsave",
+      "avx",
+      "f16c",
+      "rdrand",
+      "hypervisor",
+      "lahf_lm",
+      "cmp_legacy",
+      "cr8_legacy",
+      "abm",
+      "sse4a",
+      "misalignsse",
+      "3dnowprefetch",
+      "osvw",
+      "topoext",
+      "vmmcall",
+      "fsgsbase",
+      "tsc_adjust",
+      "bmi1",
+      "avx2",
+      "smep",
+      "bmi2",
+      "erms",
+      "invpcid",
+      "avx512f",
+      "avx512dq",
+      "rdseed",
+      "adx",
+      "smap",
+      "avx512ifma",
+      "clflushopt",
+      "clwb",
+      "avx512cd",
+      "sha_ni",
+      "avx512bw",
+      "avx512vl",
+      "xsaveopt",
+      "xsavec",
+      "xgetbv1",
+      "xsaves",
+      "avx512_bf16",
+      "clzero",
+      "xsaveerptr",
+      "arat",
+      "npt",
+      "nrip_save",
+      "tsc_scale",
+      "vmcb_clean",
+      "flushbyasid",
+      "pausefilter",
+      "pfthreshold",
+      "v_vmsave_vmload",
+      "avx512vbmi",
+      "umip",
+      "avx512_vbmi2",
+      "gfni",
+      "vaes",
+      "vpclmulqdq",
+      "avx512_vnni",
+      "avx512_bitalg",
+      "avx512_vpopcntdq",
+      "rdpid",
+      "fsrm",
+      "arch_capabilities"
+    ],
+    "cpu_microcode": "0x1000065",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "design_sha256": "a3cecb47019006375d0c760a57df97849900144dca36301585f63509dea347bb",
+    "hostname": "b69550d19b5a",
+    "input_archive_sha256": "3fd6547e0118c61e9877644658ecf5d928865e9cfa4195b7ac4e4af655ed7cfa",
+    "os": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "prebuild_source_hash_manifest_sha256": "95bb8222c423cb66c295612c144d60222a52070fac7fd20af80d15330f45ac9a",
+    "python": "3.12.14",
+    "repository_git_metadata": "not present in supplied tar; source C/H hashes retained",
+    "seed": 1566834982,
+    "source_baseline_claim": "16aa7e17531dd3612f29247da98c8ea570cd905a"
+  },
+  "phase": "P01",
+  "schema": "dsd-tests/1",
+  "selected_count": 36,
+  "tests": [
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_exact_integer_counts",
+      "observed": {
+        "partial_frames_for_49_samples_at_6ch": [
+          8,
+          1
+        ],
+        "samples_per_8_frames_at_6ch": 48
+      },
+      "status": "pass",
+      "wall_seconds": 1.1937999943256727e-05
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_explicit_xfail_classifier",
+      "observed": {
+        "new failure": "error",
+        "phase fix gate": "hard pass required",
+        "xfail": "named baseline only",
+        "xpass": "error"
+      },
+      "status": "pass",
+      "wall_seconds": 1.0375999977441097e-05
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_P01_xfail_mutation_transition",
+      "observed": {
+        "P01_writer": "hard pass, no baseline mutation check",
+        "P03_reader": "baseline mutation check remains",
+        "P04_type5": "baseline mutation check remains"
+      },
+      "status": "pass",
+      "wall_seconds": 8.17199997982243e-06
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_dff_chunk_spans",
+      "observed": {
+        "physical_spans_0_1_2_3_19": [
+          12,
+          14,
+          14,
+          16,
+          32
+        ],
+        "production_writer_units": {
+          "arithmetic": "pass",
+          "checks": 954,
+          "errors": "pass",
+          "io_failure_cases": 10,
+          "tail_cases": 42,
+          "tails": "pass"
+        }
+      },
+      "status": "pass",
+      "wall_seconds": 0.0022810190000654984
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_hand_derived_bit_order_dsd_dop",
+      "observed": {
+        "dff_byte": "69",
+        "dop_pcm24le": "696905",
+        "dsf_lsb_byte": "96",
+        "dsf_msb_byte": "69"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0001626460000352381
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_reproducible_fixture_generator",
+      "observed": {
+        "byte_identical_regenerated_fixtures": 33,
+        "seed": 1566834982
+      },
+      "status": "pass",
+      "wall_seconds": 0.047757062999949085
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_independent_chunk_and_bit_oracles",
+      "observed": {
+        "examples": [
+          "block_minus_1.dsf",
+          "block_plus_1.dsf",
+          "dop_stereo_1.pcm24le",
+          "dop_stereo_15.pcm24le",
+          "dop_stereo_16.pcm24le",
+          "dop_stereo_17.pcm24le",
+          "dop_stereo_32.pcm24le",
+          "dop_stereo_33.pcm24le",
+          "empty.dsf",
+          "five_16.dff",
+          "five_96.dsf",
+          "four_16.dff",
+          "mono_128_manf.dff",
+          "mono_16.dff",
+          "mono_32_dop.dsf",
+          "mono_9.dff",
+          "mono_96.dsf",
+          "msb_stereo_96.dsf",
+          "nine.dsf",
+          "one.dsf",
+          "one_cluster.dff",
+          "seven.dsf",
+          "six_16.dff",
+          "six_96.dsf",
+          "stereo_128.dff",
+          "stereo_96.dsf",
+          "type4_quad_96.dsf",
+          "type5_quad_96.dsf"
+        ],
+        "independent_fixture_decodes": 28
+      },
+      "status": "pass",
+      "wall_seconds": 0.04607240399991497
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_normal_mono_96",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "expected_samples": 96,
+        "first_read": 0,
+        "head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "length": 96,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "mono_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 96,
+        "seek_rc": 0
+      },
+      "status": "pass",
+      "wall_seconds": 0.001639901999965332
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_normal_stereo_96",
+      "observed": {
+        "channels": 2,
+        "correct": true,
+        "expected_head_bits": "101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "expected_samples": 192,
+        "first_read": 0,
+        "head_bits": "101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "length": 192,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "stereo_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 192,
+        "seek_rc": 0
+      },
+      "status": "pass",
+      "wall_seconds": 0.001343866000070193
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_fourchannel_type4_audio",
+      "observed": {
+        "channels": 4,
+        "correct": true,
+        "expected_head_bits": "100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010",
+        "expected_samples": 384,
+        "first_read": 0,
+        "head_bits": "100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010",
+        "length": 384,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "type4_quad_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 384,
+        "seek_rc": 0
+      },
+      "status": "pass",
+      "wall_seconds": 0.001200338999979067
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_sixchannel_audio",
+      "observed": {
+        "channels": 6,
+        "correct": true,
+        "expected_head_bits": "100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001",
+        "expected_samples": 576,
+        "first_read": 0,
+        "head_bits": "100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001",
+        "length": 576,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "six_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 576,
+        "seek_rc": 0
+      },
+      "status": "pass",
+      "wall_seconds": 0.0012949719999824083
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dff_normal_stereo_128",
+      "observed": {
+        "channels": 2,
+        "correct": true,
+        "expected_head_bits": "1010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010",
+        "expected_samples": 256,
+        "first_read": 0,
+        "head_bits": "1010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010",
+        "length": 256,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "stereo_128.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 256,
+        "seek_rc": 0
+      },
+      "status": "pass",
+      "wall_seconds": 0.001068571000018892
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dff_manf_core_corrected_control",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011",
+        "expected_samples": 120,
+        "first_read": 0,
+        "head_bits": "100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011",
+        "length": 128,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "mono_128_manf.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 120,
+        "seek_rc": 0
+      },
+      "status": "pass",
+      "wall_seconds": 0.0011288420000710175
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_rewind_core_corrected_control",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "expected_samples": 96,
+        "first_read": 8,
+        "head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "length": 96,
+        "olength_after_seek": 8,
+        "open": true,
+        "oracle_filenames": [
+          "mono_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 96,
+        "seek_rc": 0
+      },
+      "status": "pass",
+      "wall_seconds": 0.0010661869999921691
+    },
+    {
+      "defect_id": "C3-DSF-SMALL-READ",
+      "expected_resolution_phase": "P02",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dsf_small_capacity_one_frame",
+      "observed": {
+        "channels": 1,
+        "correct": false,
+        "expected_head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "expected_samples": 96,
+        "first_read": 0,
+        "head_bits": "",
+        "length": 96,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "mono_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 1,
+        "remaining_returned": 0,
+        "seek_rc": 0
+      },
+      "status": "xfail",
+      "wall_seconds": 0.0010992469999564491
+    },
+    {
+      "defect_id": "C3-DFF-SMALL-READ",
+      "expected_resolution_phase": "P02",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dff_small_capacity_one_frame",
+      "observed": {
+        "channels": 1,
+        "correct": false,
+        "expected_head_bits": "11001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011",
+        "expected_samples": 128,
+        "first_read": 0,
+        "head_bits": "",
+        "length": 128,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "mono_128_manf.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 1,
+        "remaining_returned": 0,
+        "seek_rc": 0
+      },
+      "status": "xfail",
+      "wall_seconds": 0.0011034329999120018
+    },
+    {
+      "defect_id": "C3-DSF-TINY",
+      "expected_resolution_phase": "P02",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dsf_one_frame_first_bit",
+      "observed": {
+        "channels": 1,
+        "correct": false,
+        "expected_head_bits": "1",
+        "expected_samples": 1,
+        "first_read": 0,
+        "head_bits": "0",
+        "length": 1,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "one.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 1,
+        "seek_rc": 0
+      },
+      "status": "xfail",
+      "wall_seconds": 0.001025156000082461
+    },
+    {
+      "defect_id": "C3-DSF-EMPTY",
+      "expected_resolution_phase": "P02",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dsf_empty_file",
+      "observed": {
+        "correct": false,
+        "expected_head_bits": "",
+        "expected_samples": 0,
+        "open": false,
+        "oracle_filenames": [
+          "empty.dsf",
+          "fixtures/manifest.json"
+        ]
+      },
+      "status": "xfail",
+      "wall_seconds": 0.0010887319999710598
+    },
+    {
+      "defect_id": "C3-DFF-MINIMUM",
+      "expected_resolution_phase": "P02",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dff_single_byte_cluster",
+      "observed": {
+        "correct": false,
+        "expected_head_bits": "11001101",
+        "expected_samples": 8,
+        "open": false,
+        "oracle_filenames": [
+          "one_cluster.dff",
+          "fixtures/manifest.json"
+        ]
+      },
+      "status": "xfail",
+      "wall_seconds": 0.0020990350000147373
+    },
+    {
+      "defect_id": "C4-DSF-MSB",
+      "expected_resolution_phase": "P02",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dsf_msb_first_8bit_storage",
+      "observed": {
+        "correct": false,
+        "expected_head_bits": "101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "expected_samples": 192,
+        "open": false,
+        "oracle_filenames": [
+          "msb_stereo_96.dsf",
+          "fixtures/manifest.json"
+        ]
+      },
+      "status": "xfail",
+      "wall_seconds": 0.001061749999962558
+    },
+    {
+      "defect_id": "C2-CORE-OLENGTH",
+      "expected_resolution_phase": "P03",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dsf_rewind_generic_core_position",
+      "observed": {
+        "channels": 1,
+        "correct": false,
+        "expected_head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "expected_samples": 96,
+        "first_read": 8,
+        "head_bits": "1100110110011011001101100110110011011001101100110110011011001101100110110011011001101100",
+        "length": 96,
+        "olength_after_seek": 8,
+        "open": true,
+        "oracle_filenames": [
+          "mono_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 88,
+        "seek_rc": 0
+      },
+      "status": "xfail",
+      "wall_seconds": 0.0010624409999309137
+    },
+    {
+      "defect_id": "C2-DSF-SEEK-UNITS",
+      "expected_resolution_phase": "P03",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dsf_multichannel_public_seek_offset16",
+      "observed": {
+        "channels": 2,
+        "correct": false,
+        "expected_head_bits": "10010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "expected_samples": 176,
+        "first_read": 0,
+        "head_bits": "0101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "length": 192,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "stereo_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 160,
+        "seek_rc": 0
+      },
+      "status": "xfail",
+      "wall_seconds": 0.0010364720000097805
+    },
+    {
+      "defect_id": "C2-DFF-SEEK-UNITS",
+      "expected_resolution_phase": "P03",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dff_multichannel_public_seek_offset16",
+      "observed": {
+        "channels": 2,
+        "correct": false,
+        "expected_head_bits": "100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010",
+        "expected_samples": 240,
+        "first_read": 0,
+        "head_bits": "01011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010",
+        "length": 256,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "stereo_128.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 224,
+        "seek_rc": 0
+      },
+      "status": "xfail",
+      "wall_seconds": 0.000995630000033998
+    },
+    {
+      "defect_id": "C2-DFF-MANF-CORE-OLENGTH",
+      "expected_resolution_phase": "P03",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dff_trailing_manf_generic_counter",
+      "observed": {
+        "channels": 1,
+        "correct": false,
+        "expected_head_bits": "100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011",
+        "expected_samples": 120,
+        "first_read": 0,
+        "head_bits": "10011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101101001101",
+        "length": 128,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "mono_128_manf.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 128,
+        "seek_rc": 0
+      },
+      "status": "xfail",
+      "wall_seconds": 0.0009776140000212763
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "wsd_normal_mono_16",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "1100110110011011",
+        "expected_samples": 16,
+        "first_read": 0,
+        "head_bits": "1100110110011011",
+        "length": 16,
+        "olength_after_seek": 0,
+        "open": true,
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 16,
+        "seek_rc": 0
+      },
+      "status": "pass",
+      "wall_seconds": 0.0008866460000263032
+    },
+    {
+      "defect_id": "C3-WSD-SMALL-READ",
+      "expected_resolution_phase": "P02",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "wsd_small_capacity_one_frame",
+      "observed": {
+        "channels": 1,
+        "correct": false,
+        "expected_head_bits": "1100110110011011",
+        "expected_samples": 16,
+        "first_read": 0,
+        "head_bits": "",
+        "length": 16,
+        "olength_after_seek": 0,
+        "open": true,
+        "rate": 2822400,
+        "read_calls": 1,
+        "remaining_returned": 0,
+        "seek_rc": 0
+      },
+      "status": "xfail",
+      "wall_seconds": 0.0008999570000014501
+    },
+    {
+      "defect_id": "D2-WAV-PRIVATE-REMAINING",
+      "expected_resolution_phase": "P03",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "wav_rewind_after_manual_core_position_correction",
+      "observed": {
+        "channels": 1,
+        "correct": false,
+        "expected_samples": 441,
+        "first_read": 8,
+        "head_bits": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "length": 441,
+        "olength_after_seek": 8,
+        "open": true,
+        "rate": 44100,
+        "read_calls": 2,
+        "remaining_returned": 433,
+        "seek_rc": 0
+      },
+      "status": "xfail",
+      "wall_seconds": 0.001331156999981431
+    },
+    {
+      "defect_id": "C1-DFF-CMPR-SIZE",
+      "expected_resolution_phase": "P01",
+      "message": "StructureError: chunk exceeds enclosing span",
+      "mode": "integration",
+      "name": "dff_writer_cmpr_name_length",
+      "status": "fail",
+      "wall_seconds": 0.0027877629999011333
+    },
+    {
+      "defect_id": "C1-DFF-FRM8-DOUBLECOUNT",
+      "expected_resolution_phase": "P01",
+      "message": "",
+      "mode": "integration",
+      "name": "dff_writer_frm8_parent_size",
+      "observed": {
+        "audio_hex": "0000",
+        "audio_start": 126,
+        "channels": 1,
+        "cmpr_declared": 19,
+        "cmpr_name_count": 14,
+        "correct": true,
+        "correct_audio_count": true,
+        "correct_cmpr": true,
+        "correct_frm8": true,
+        "correct_odd_padding": true,
+        "dsd_declared": 2,
+        "dsd_observed_bytes": 2,
+        "expected_audio_bytes": 2,
+        "expected_complete_file_bytes": 128,
+        "frm8_declared": 116,
+        "logical_frames": 16,
+        "physical_bytes": 128
+      },
+      "status": "pass",
+      "wall_seconds": 0.001031405000048835
+    },
+    {
+      "defect_id": "C1-DFF-TAIL-COUNT",
+      "expected_resolution_phase": "P01",
+      "message": "",
+      "mode": "integration",
+      "name": "dff_writer_completed_tail_audio_count",
+      "observed": {
+        "audio_hex": "0069",
+        "audio_start": 126,
+        "channels": 1,
+        "cmpr_declared": 19,
+        "cmpr_name_count": 14,
+        "correct": true,
+        "correct_audio_count": true,
+        "correct_cmpr": true,
+        "correct_frm8": true,
+        "correct_odd_padding": true,
+        "dsd_declared": 2,
+        "dsd_observed_bytes": 2,
+        "expected_audio_bytes": 2,
+        "expected_complete_file_bytes": 128,
+        "frm8_declared": 116,
+        "logical_frames": 9,
+        "physical_bytes": 128
+      },
+      "status": "pass",
+      "wall_seconds": 0.0009950999999546184
+    },
+    {
+      "defect_id": "C1-DFF-ODD-PADDING",
+      "expected_resolution_phase": "P01",
+      "message": "",
+      "mode": "integration",
+      "name": "dff_writer_odd_payload_external_pad",
+      "observed": {
+        "audio_hex": "0000",
+        "audio_start": 126,
+        "channels": 1,
+        "cmpr_declared": 19,
+        "cmpr_name_count": 14,
+        "correct": true,
+        "correct_audio_count": true,
+        "correct_cmpr": true,
+        "correct_frm8": true,
+        "correct_odd_padding": true,
+        "dsd_declared": 1,
+        "dsd_observed_bytes": 2,
+        "expected_audio_bytes": 1,
+        "expected_complete_file_bytes": 128,
+        "frm8_declared": 116,
+        "logical_frames": 8,
+        "physical_bytes": 128
+      },
+      "status": "pass",
+      "wall_seconds": 0.0013377969999055495
+    },
+    {
+      "defect_id": "D1-DFF-FIRST-CLUSTER",
+      "expected_resolution_phase": "P01",
+      "message": "",
+      "mode": "integration",
+      "name": "dff_writer_uninitialized_first_cluster_1ch",
+      "observed": {
+        "audio_hex": "0000",
+        "audio_start": 126,
+        "channels": 1,
+        "cmpr_declared": 19,
+        "cmpr_name_count": 14,
+        "correct": true,
+        "correct_audio_count": true,
+        "correct_cmpr": true,
+        "correct_frm8": true,
+        "correct_odd_padding": true,
+        "dsd_declared": 2,
+        "dsd_observed_bytes": 2,
+        "expected_audio_bytes": 2,
+        "expected_complete_file_bytes": 128,
+        "expected_first_cluster_hex": "00",
+        "frm8_declared": 116,
+        "logical_frames": 16,
+        "observed_first_cluster_hex": "00",
+        "physical_bytes": 128
+      },
+      "status": "pass",
+      "wall_seconds": 0.0010840250000683227
+    },
+    {
+      "defect_id": "D1-DFF-FIRST-CLUSTER",
+      "expected_resolution_phase": "P01",
+      "message": "",
+      "mode": "integration",
+      "name": "dff_writer_uninitialized_first_cluster_4ch",
+      "observed": {
+        "audio_hex": "0000000000000000",
+        "audio_start": 138,
+        "channels": 4,
+        "cmpr_declared": 19,
+        "cmpr_name_count": 14,
+        "correct": true,
+        "correct_audio_count": true,
+        "correct_cmpr": true,
+        "correct_frm8": true,
+        "correct_odd_padding": true,
+        "dsd_declared": 8,
+        "dsd_observed_bytes": 8,
+        "expected_audio_bytes": 8,
+        "expected_complete_file_bytes": 146,
+        "expected_first_cluster_hex": "00000000",
+        "frm8_declared": 134,
+        "logical_frames": 16,
+        "observed_first_cluster_hex": "00000000",
+        "physical_bytes": 146
+      },
+      "status": "pass",
+      "wall_seconds": 0.001072606999969139
+    },
+    {
+      "defect_id": "C5-DSF-TYPE5-LOSS",
+      "expected_resolution_phase": "P04",
+      "message": "only the named baseline fingerprint matches",
+      "mode": "integration",
+      "name": "dsf_type5_channel_identity_loss",
+      "observed": {
+        "audio_matches_oracle": true,
+        "command": [
+          "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+          "-D",
+          "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/tests/dsd/fixtures/type5_quad_96.dsf",
+          "/tmp/dsd-type5-m1jrnjd7/out.dsf"
+        ],
+        "correct": false,
+        "expected_type": 5,
+        "observed_type": 4,
+        "output_sha256": "21eefe416e846f339cbf76c7700e3f8dc77ee1673a6e252aaa24d4c3471f409e"
+      },
+      "status": "xfail",
+      "wall_seconds": 0.0015522300000156974
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dop_cli_hand_vector_transport_markers",
+      "observed": {
+        "correct": true,
+        "expected_hex": "6969056969fa",
+        "marker_count": 2,
+        "output_hex": "6969056969fa"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0018360179999490356
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "integration_xfail_audio_mutation_rejection",
+      "observed": {
+        "changed_audio": "fail",
+        "early_correction": "xpass",
+        "mutations": "first and last reader bits; deterministic writer tail",
+        "phase_correction": "pass",
+        "real_baseline_fingerprints_checked": [
+          "dsf_rewind_generic_core_position",
+          "dsf_multichannel_public_seek_offset16",
+          "dff_multichannel_public_seek_offset16",
+          "dff_trailing_manf_generic_counter",
+          "wav_rewind_after_manual_core_position_correction",
+          "dsf_type5_channel_identity_loss"
+        ],
+        "unchanged_baseline": "xfail"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0068907380000382545
+    }
+  ],
+  "utc_timestamp": "2026-10-08T13:32:49Z",
+  "verdict": "fail"
+}

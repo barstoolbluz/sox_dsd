@@ -1,0 +1,4584 @@
+{
+  "cases": [
+    {
+      "channels": 1,
+      "expected_audio_sha256": "4621cb29fad6747e5e9af0f7a4d61de3833d6f925e137edb90396bae6f28059a",
+      "pair_orders": [
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ]
+      ],
+      "pairs": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 198976554.13730732,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 198976554.13730732,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01418458577814325,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.337270209000053
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 195852881.75513667,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 195852881.75513667,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.014410816806508268,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.3426493570000275
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 214389700.09337237,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 214389700.09337237,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013164811550045409,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.3130227990000094
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 201844010.23914978,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 201844010.23914978,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013983075329587194,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.332478847999937
+            }
+          }
+        },
+        {
+          "index": 2,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 213629778.089884,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 213629778.089884,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013211641304109225,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.3141362809999464
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 220447903.91640595,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 220447903.91640595,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.012803024886416051,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.3044205129999682
+            }
+          }
+        },
+        {
+          "index": 3,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 219834661.42272842,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 219834661.42272842,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.012838739722544025,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.3052697130001434
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 221713331.97355124,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 221713331.97355124,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.012729951667212738,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.3026830339999833
+            }
+          }
+        },
+        {
+          "index": 4,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 218746178.35546163,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 218746178.35546163,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.012902625413704882,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.30678873800002293
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 205071998.26624125,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 205071998.26624125,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013762971170426345,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.3272453800000221
+            }
+          }
+        },
+        {
+          "index": 5,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 218147217.11475873,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 218147217.11475873,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.012938051822660866,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.30763107999996464
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 223465451.73461777,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 223465451.73461777,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.012630140265940592,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.30030979499997557
+            }
+          }
+        },
+        {
+          "index": 6,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 185147142.71297124,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 185147142.71297124,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.015244091583824724,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.3624623260000135
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 191943266.52483803,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 191943266.52483803,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01470434494056489,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.3496286439999494
+            }
+          }
+        },
+        {
+          "index": 7,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 212415982.25659886,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 212415982.25659886,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013287135789012975,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.3159313310000016
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 196963101.00480565,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 196963101.00480565,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.014329587550163201,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.3407179499999984
+            }
+          }
+        },
+        {
+          "index": 8,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 214330977.68298048,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 214330977.68298048,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013168418445674455,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.3131085609998081
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 211666756.91537118,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 211666756.91537118,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013334167543033008,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.31704961600007664
+            }
+          }
+        },
+        {
+          "index": 9,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 222578971.50853857,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 222578971.50853857,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.012680443174263329,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.3015058589999171
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 221979273.20854473,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 221979273.20854473,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.012714700607873494,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.3023204060000353
+            }
+          }
+        },
+        {
+          "index": 10,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 216720249.99510795,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 216720249.99510795,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013023240791129164,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.30965663799997856
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 221161308.85516924,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 221161308.85516924,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.012761725885101766,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.30343853699991996
+            }
+          }
+        },
+        {
+          "index": 11,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 216345432.31987956,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 216345432.31987956,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013045803508469336,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.31019311699992613
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 211072796.48126888,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 211072796.48126888,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013371689990616421,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.3179417960000137
+            }
+          }
+        },
+        {
+          "index": 12,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 221567299.44628212,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 221567299.44628212,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.012738341835882133,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.3028825290000441
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 215005563.0547465,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 215005563.0547465,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013127102200985083,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.31212617500000306
+            }
+          }
+        },
+        {
+          "index": 13,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 215009460.59255826,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 215009460.59255826,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013126864242259702,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.312120516999812
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 205287098.89821136,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 205287098.89821136,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.013748550274946631,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.3269024910000553
+            }
+          }
+        },
+        {
+          "index": 14,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 197491889.99712244,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 197491889.99712244,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.014291219756118207,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.3398056699998051
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 190015086.62083778,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 190015086.62083778,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.014853557421111028,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.35317650399997547
+            }
+          }
+        }
+      ],
+      "source_bytes": 8388700,
+      "source_sha256": "0562982fde570da265b1f0abece964ff93d6c470f5a42f2e8c60e79d0f8a4002",
+      "summary": {
+        "measurement_noise": 0.06778798373236,
+        "median_wall_ratio": 1.0186507412462258,
+        "paired_bootstrap_95pct_interval": [
+          0.9799193679805468,
+          1.0393484723200117
+        ],
+        "paired_median_ratio": 1.0159490754191505,
+        "regression_percent": 1.8650741246225788,
+        "status": "inconclusive-noise",
+        "variants": {
+          "baseline": {
+            "max_seconds": 0.3624623260000135,
+            "median_seconds": 0.312120516999812,
+            "min_seconds": 0.3015058589999171,
+            "robust_relative_sigma": 0.021325221936556452
+          },
+          "candidate": {
+            "max_seconds": 0.35317650399997547,
+            "median_seconds": 0.3179417960000137,
+            "min_seconds": 0.30030979499997557,
+            "robust_relative_sigma": 0.06778798373236
+          }
+        }
+      },
+      "warmups": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 196969338.71306613,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 196969338.71306613,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.014329133754728768,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.34070715999996537
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 198200869.74236143,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 198200869.74236143,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.014240098964594852,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.3385901589999776
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 183866942.2143728,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 183866942.2143728,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "c127447b428035f34f8849392535c019cb9f42f50257745410c255727293f100",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.015350230802823314,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.3649860230000286
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 201348525.70036086,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-1.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-1.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 201348525.70036086,
+              "native_bytes_correct": true,
+              "output_bytes": 8388734,
+              "output_sha256": "f49e26f4c10af7347b4d49621a40070811f1231251ce93bcbd056c3875deb64f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.014017485304065186,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.33329702199989697
+            }
+          }
+        }
+      ]
+    },
+    {
+      "channels": 2,
+      "expected_audio_sha256": "7038fa25be27b6a0859d8f109336870532b1e03e707e45beab49f4ca9ae06fe1",
+      "pair_orders": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ]
+      ],
+      "pairs": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 324296305.3346634,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 162148152.6673317,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.017406303763389308,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.4138737499999934
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 311451001.544556,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 155725500.772278,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.018124199222369356,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.4309433179998905
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 328116954.69435364,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 164058477.34717682,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.017203621816063188,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.40905453400000624
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 323577137.48477244,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 161788568.74238622,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.0174449902235928,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.414793606999865
+            }
+          }
+        },
+        {
+          "index": 2,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 295481840.84199035,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 147740920.42099518,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01910371203832648,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.45423342300000513
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 293081210.04890215,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 146540605.02445108,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.019260190713209266,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.4579540529998667
+            }
+          }
+        },
+        {
+          "index": 3,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 299195162.5346955,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 149597581.26734775,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01886661519584366,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.4485959159999311
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 288152442.47898215,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 144076221.23949108,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.019589630930897738,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.4657872299999326
+            }
+          }
+        },
+        {
+          "index": 4,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 294232994.6535927,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 147116497.32679635,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.019184796071717768,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.45616137699994397
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 305878236.6915067,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 152939118.34575334,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01845440218649181,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.43879463100006433
+            }
+          }
+        },
+        {
+          "index": 5,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 288989572.92601687,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 144494786.46300843,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01953288467416471,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.4644379609999305
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 281898382.04545045,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 140949191.02272522,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.020024236957450467,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.4761209589998998
+            }
+          }
+        },
+        {
+          "index": 6,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 315721409.53391635,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 157860704.76695818,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01787905358820339,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.4251144330000898
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 294324437.16567755,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 147162218.58283877,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01917883562220998,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.4560196539998742
+            }
+          }
+        },
+        {
+          "index": 7,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 325371783.494203,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 162685891.7471015,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01734876927365944,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.4125057389999256
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 300932473.05600107,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 150466236.52800053,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.018757696511368348,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.4460061310001038
+            }
+          }
+        },
+        {
+          "index": 8,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 308041019.9983433,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 154020509.99917164,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.018324832192901968,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.4357138150000992
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 312960639.0142881,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 156480319.50714406,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01803677298774396,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.4288645639999231
+            }
+          }
+        },
+        {
+          "index": 9,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 331720536.7371291,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 165860268.36856455,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01701673359003758,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.4046108490001643
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 302471530.8106534,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 151235765.4053267,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.018662252228734987,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.44373672999995506
+            }
+          }
+        },
+        {
+          "index": 10,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 327395889.747562,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 163697944.873781,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.017241511505695483,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.4099554459999126
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 317323905.79299045,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 158661952.89649522,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.017788763774017214,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.42296759100008785
+            }
+          }
+        },
+        {
+          "index": 11,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 320393813.6783319,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 160196906.83916596,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.017618317704683435,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.41891485500013914
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 327620745.11706024,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 163810372.55853012,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01722967816944281,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.40967408200003774
+            }
+          }
+        },
+        {
+          "index": 12,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 322362174.73590386,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 161181087.36795193,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.017510739293853314,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.416356937999808
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 319729478.45982474,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 159864739.22991237,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01765492511729503,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.41978527799983567
+            }
+          }
+        },
+        {
+          "index": 13,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 332267733.18679786,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 166133866.59339893,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.016988709514042837,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.4039445139999316
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 333090372.4443985,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 166545186.22219926,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01694675219393279,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.40294688500011944
+            }
+          }
+        },
+        {
+          "index": 14,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 334474653.3348141,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 167237326.66740704,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.016876615144734066,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.40127922000010585
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 325296429.32908124,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 162648214.66454062,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.017352788075916822,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.4126012949998312
+            }
+          }
+        }
+      ],
+      "source_bytes": 16777308,
+      "source_sha256": "94f329ae84ff83e1c00ca9ccd4bc33940e5d7d74f63ed6131edb46783e948159",
+      "summary": {
+        "measurement_noise": 0.055560813983067434,
+        "median_wall_ratio": 1.0350333540018715,
+        "paired_bootstrap_95pct_interval": [
+          1.0081910088766444,
+          1.0383224933327395
+        ],
+        "paired_median_ratio": 1.0251551315375167,
+        "regression_percent": 3.5033354001871464,
+        "status": "inconclusive-noise",
+        "variants": {
+          "baseline": {
+            "max_seconds": 0.4644379609999305,
+            "median_seconds": 0.416356937999808,
+            "min_seconds": 0.40127922000010585,
+            "robust_relative_sigma": 0.0418264953972732
+          },
+          "candidate": {
+            "max_seconds": 0.4761209589998998,
+            "median_seconds": 0.4309433179998905,
+            "min_seconds": 0.40294688500011944,
+            "robust_relative_sigma": 0.055560813983067434
+          }
+        }
+      },
+      "warmups": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 308066587.93684804,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 154033293.96842402,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.018323311326307,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.43567765299985695
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 317194788.62317723,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 158597394.31158862,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.017796004860300335,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.4231397639998704
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 323538907.35724753,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 161769453.67862377,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "62bd98d830fa872608b100c19871c759a3bced730ca8d6a2414683362e06c59e",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.01744705156516797,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.4148426199999449
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 312507617.09467304,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-2.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-2.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 156253808.54733652,
+              "native_bytes_correct": true,
+              "output_bytes": 16777346,
+              "output_sha256": "f1c40835051dac6571ed7f45d6499a4f12debe9d0beab1b961898e88f3066d5f",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.018062919721697306,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.42948626099996545
+            }
+          }
+        }
+      ]
+    },
+    {
+      "channels": 6,
+      "expected_audio_sha256": "09f1f033cdd9918f2183548498e245dac8bb2982428c15392f011049cd60ee0d",
+      "pair_orders": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ]
+      ],
+      "pairs": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 451754911.91621494,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 75292485.31936915,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03748581266813265,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.8913089229999969
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 446140249.2904561,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 74356708.21507601,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03795757057771085,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.9025260209998578
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 451189071.40928054,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 75198178.56821342,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03753282398242874,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.892426721999982
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 449491513.5785838,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 74915252.2630973,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03767457112855901,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.8957970769999974
+            }
+          }
+        },
+        {
+          "index": 2,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 402062896.9660792,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 67010482.827679865,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.042118783224677166,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.0014681459999792
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 420841264.2009807,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 70140210.70016345,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.0402394000791535,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.956781613999965
+            }
+          }
+        },
+        {
+          "index": 3,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 423147373.2490938,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 70524562.20818229,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.04002009954586494,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.9515672540001106
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 442195357.6911743,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 73699226.2818624,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03829619580001753,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.9105775919999815
+            }
+          }
+        },
+        {
+          "index": 4,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 447487823.1151924,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 74581303.85253207,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.037843264386751244,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.8998081360000469
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 432400288.07930154,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 72066714.67988358,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03916371118812543,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.9312047079999957
+            }
+          }
+        },
+        {
+          "index": 5,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 448458309.9205025,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 74743051.65341708,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03776136961984701,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.8978609050000159
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 449639406.67604524,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 74939901.1126742,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.037662179401016876,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.8955024360000152
+            }
+          }
+        },
+        {
+          "index": 6,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 438558237.68324685,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 73093039.61387448,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.038613799821566784,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.9181293369999821
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 448161007.8564523,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 74693501.30940871,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.037786419842719014,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.8984565299999758
+            }
+          }
+        },
+        {
+          "index": 7,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 433900467.5973755,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 72316744.59956259,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03902830548621061,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.9279851350001991
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 441739053.2086868,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 73623175.53478114,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03833575473346214,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.911518193999882
+            }
+          }
+        },
+        {
+          "index": 8,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 445822474.21700853,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 74303745.70283476,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.037984626122183805,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.9031693269998868
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 413712974.6049153,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 68952162.43415256,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.040932726405721,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.9732669960001203
+            }
+          }
+        },
+        {
+          "index": 9,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 414303047.20169914,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 69050507.86694986,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.040874427823736625,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.9718808170000557
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 417300873.65047103,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 69550145.60841183,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.04058079210776865,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.9648989719999008
+            }
+          }
+        },
+        {
+          "index": 10,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 460340686.95957714,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 76723447.8265962,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.036786667960738005,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.8746851959999731
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 440852937.146036,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 73475489.52433935,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03841280974473885,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.9133503489999839
+            }
+          }
+        },
+        {
+          "index": 11,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 457512414.1969203,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 76252069.03282005,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03701407759552329,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.8800923680000778
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 441847720.8567286,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 73641286.80945477,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03832632647094963,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.9112940160000562
+            }
+          }
+        },
+        {
+          "index": 12,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 441615313.27510834,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 73602552.21251805,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03834649635315196,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.9117736000000605
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 450366872.67556024,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 75061145.44592671,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03760134465351623,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.8940559540001232
+            }
+          }
+        },
+        {
+          "index": 13,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 408447151.0190092,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 68074525.16983485,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.04146044343252592,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.9858146470000975
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 391979489.9806962,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 65329914.9967827,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.04320226040610943,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 1.027230235999923
+            }
+          }
+        },
+        {
+          "index": 14,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 365781735.1070596,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 60963622.51784326,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.046296461454106014,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 1.1008017770000151
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 425887905.4020934,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 70981317.56701556,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.039762575516230574,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.9454440450001584
+            }
+          }
+        }
+      ],
+      "source_bytes": 50331740,
+      "source_sha256": "b0cb37818b6aa61c4496265c14d9776ff698ac32c18f64291495901148606e5d",
+      "summary": {
+        "measurement_noise": 0.03327682455413524,
+        "median_wall_ratio": 0.999719880022652,
+        "paired_bootstrap_95pct_interval": [
+          0.980567932653527,
+          1.035452696937801
+        ],
+        "paired_median_ratio": 0.9973732356683904,
+        "regression_percent": -0.028011997734800342,
+        "status": "inconclusive-noise",
+        "variants": {
+          "baseline": {
+            "max_seconds": 1.1008017770000151,
+            "median_seconds": 0.9117736000000605,
+            "min_seconds": 0.8746851959999731,
+            "robust_relative_sigma": 0.03327682455413524
+          },
+          "candidate": {
+            "max_seconds": 1.027230235999923,
+            "median_seconds": 0.911518193999882,
+            "min_seconds": 0.8940559540001232,
+            "robust_relative_sigma": 0.026049905494925907
+          }
+        }
+      },
+      "warmups": [
+        {
+          "index": 0,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 451156820.5267846,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 75192803.42113076,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.037535507011125034,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.892490516999942
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 445902004.1722062,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 74317000.6953677,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.03797785128021084,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.9030082399999628
+            }
+          }
+        },
+        {
+          "index": 1,
+          "samples": {
+            "baseline": {
+              "aggregate_native_bits_per_second": 449935134.0915714,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/baseline-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 74989189.0152619,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "8f9efe43d2d6d78abfe590ae7911977aecadefc73ab9eb71a51bf99481a2267a",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.037637425301740246,
+              "stderr": "",
+              "stdout": "",
+              "variant": "baseline",
+              "wall_seconds": 0.8949138519999451
+            },
+            "candidate": {
+              "aggregate_native_bits_per_second": 449449544.24654186,
+              "command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+              "env_overrides": {
+                "LC_ALL": "C",
+                "OMP_NUM_THREADS": "1"
+              },
+              "error": null,
+              "executed_command": [
+                "taskset",
+                "-c",
+                "0",
+                "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng",
+                "-D",
+                "/tmp/dsd-p01-paired-xhac0_u_/input-6.dsf",
+                "/tmp/dsd-p01-paired-xhac0_u_/candidate-6.dff"
+              ],
+              "exit": 0,
+              "frames_per_second_per_channel": 74908257.37442364,
+              "native_bytes_correct": true,
+              "output_bytes": 50331794,
+              "output_sha256": "ae543681f87f3116a7df51117b4eac708b4fc188ba566e0d554c021460ce6cb1",
+              "process_time": null,
+              "rtf_wall_seconds_per_audio_second": 0.037678089157680346,
+              "stderr": "",
+              "stdout": "",
+              "variant": "candidate",
+              "wall_seconds": 0.8958807260000867
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "config": {
+    "benchmark_source_sha256": "8a101071bb8c03662f100387225a3553132230a8e83b71f34418b036418da322",
+    "binaries": {
+      "baseline": "/workspace/scratch/2e3e4f6fb7d1/baseline/sox_ng/src/sox_ng",
+      "candidate": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng/src/sox_ng"
+    },
+    "binary_sha256": {
+      "baseline": "7aa53e7dabf91f3c63fb8c267b8793045afb959b5bc2fb7b681f916593409fa1",
+      "candidate": "0eb2d461e8e0b5c548998a3196640dbd81d4ce9af9f8228615b9e81d915513a1"
+    },
+    "context": {
+      "affinity": [
+        0
+      ],
+      "architecture": "x86_64",
+      "build_flags": "CFLAGS=-O2 -g; static; libltdl disabled; configured optional codecs listed in build/configure.log",
+      "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "cpu_flags": [
+        "fpu",
+        "vme",
+        "de",
+        "pse",
+        "tsc",
+        "msr",
+        "pae",
+        "mce",
+        "cx8",
+        "apic",
+        "sep",
+        "mtrr",
+        "pge",
+        "mca",
+        "cmov",
+        "pat",
+        "pse36",
+        "clflush",
+        "mmx",
+        "fxsr",
+        "sse",
+        "sse2",
+        "ht",
+        "syscall",
+        "nx",
+        "mmxext",
+        "fxsr_opt",
+        "pdpe1gb",
+        "rdtscp",
+        "lm",
+        "constant_tsc",
+        "rep_good",
+        "nopl",
+        "xtopology",
+        "nonstop_tsc",
+        "cpuid",
+        "extd_apicid",
+        "tsc_known_freq",
+        "pni",
+        "pclmulqdq",
+        "ssse3",
+        "fma",
+        "cx16",
+        "pcid",
+        "sse4_1",
+        "sse4_2",
+        "x2apic",
+        "movbe",
+        "popcnt",
+        "tsc_deadline_timer",
+        "aes",
+        "xsave",
+        "avx",
+        "f16c",
+        "rdrand",
+        "hypervisor",
+        "lahf_lm",
+        "cmp_legacy",
+        "cr8_legacy",
+        "abm",
+        "sse4a",
+        "misalignsse",
+        "3dnowprefetch",
+        "osvw",
+        "topoext",
+        "vmmcall",
+        "fsgsbase",
+        "tsc_adjust",
+        "bmi1",
+        "avx2",
+        "smep",
+        "bmi2",
+        "erms",
+        "invpcid",
+        "avx512f",
+        "avx512dq",
+        "rdseed",
+        "adx",
+        "smap",
+        "avx512ifma",
+        "clflushopt",
+        "clwb",
+        "avx512cd",
+        "sha_ni",
+        "avx512bw",
+        "avx512vl",
+        "xsaveopt",
+        "xsavec",
+        "xgetbv1",
+        "xsaves",
+        "avx512_bf16",
+        "clzero",
+        "xsaveerptr",
+        "arat",
+        "npt",
+        "nrip_save",
+        "tsc_scale",
+        "vmcb_clean",
+        "flushbyasid",
+        "pausefilter",
+        "pfthreshold",
+        "v_vmsave_vmload",
+        "avx512vbmi",
+        "umip",
+        "avx512_vbmi2",
+        "gfni",
+        "vaes",
+        "vpclmulqdq",
+        "avx512_vnni",
+        "avx512_bitalg",
+        "avx512_vpopcntdq",
+        "rdpid",
+        "fsrm",
+        "arch_capabilities"
+      ],
+      "cpu_microcode": "0x1000065",
+      "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+      "governor": null,
+      "hostname": "b69550d19b5a",
+      "input_rate_hz": 2822400,
+      "io_included": true,
+      "kernel": "legacy (no P00 ISA dispatch change)",
+      "measurement_limit": "virtualized or shared host timings are nonportable; default short-profile startup dominates",
+      "omp_num_threads": 1,
+      "os": "Linux-6.18.44-x86_64-with-glibc2.39",
+      "rate_scope": "DFF packing is rate independent; three native rates also run in bench.py",
+      "thread_count": 1
+    },
+    "cpu": 0,
+    "frames": 67108864,
+    "noise_limit": 0.02,
+    "regression_limit": 0.05,
+    "repetitions": 15,
+    "seed": 1566834982,
+    "vectors_sha256": "9ed63c4f4017dc3e7359ad0a1a50078721d8338d08a98c21a691eaf556edca3c",
+    "warmups": 2
+  },
+  "config_sha256": "1ba5379027eb841130b6645493930ac2e75dcae51c3aa4a2fe34f961ce85929d",
+  "schema": "dsd-p01-native-dff-benchmark/1",
+  "status": "incomplete"
+}

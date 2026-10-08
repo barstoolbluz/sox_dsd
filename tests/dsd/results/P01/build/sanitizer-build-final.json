@@ -1,0 +1,28 @@
+{
+  "command": [
+    "./libtool",
+    "--mode=link",
+    "--tag=CC",
+    "cc",
+    "-DHAVE_CONFIG_H",
+    "-Isrc",
+    "-I.",
+    "-O1",
+    "-g",
+    "-fopenmp",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "tests/dsd/test_dff_writer.c",
+    "src/libsox_ng.la",
+    "-o",
+    "/workspace/scratch/2e3e4f6fb7d1/dff-writer-sanitized-final"
+  ],
+  "cwd": "/workspace/scratch/2e3e4f6fb7d1/work/sox_ng",
+  "start_utc": "2026-10-08T13:53:56.302367+00:00",
+  "exit": 0,
+  "env": {
+    "LC_ALL": "C.UTF-8"
+  },
+  "wall_seconds": 0.5246881310004028,
+  "end_utc": "2026-10-08T13:53:56.827390+00:00"
+}
