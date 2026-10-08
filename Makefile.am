@@ -215,3 +215,43 @@ win32.exe: winexe-prepare
 win64.exe: winexe-prepare
 	cd mxe && make MXE_TARGETS=x86_64-w64-mingw32.static sox_ng
 	cp mxe/usr/x86_64-w64-mingw32.static/bin/sox_ng.exe win64.exe
+
+# P00 and subsequent DSD phases use one runner and one named make target.
+# The original 'make check' target is unchanged.
+.PHONY: check-dsd
+DSD_PHASE ?= P00
+DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
+check-dsd: all
+	$(MAKE) -C test dsd_test_io$(EXEEXT)
+	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox_ng --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT)
+# P00 distributable design/test inputs (generated raw runs live in the continuation archive).
+EXTRA_DIST += \
+  docs/dsd/BASELINE.md docs/dsd/DSD_DESIGN.md docs/dsd/DSD_HANDOFF.md \
+  docs/dsd/IMPLEMENTATION_PLAN.md docs/dsd/README.md docs/dsd/evidence/README.md \
+  docs/dsd/evidence/autoreconf.log docs/dsd/evidence/build.log docs/dsd/evidence/candidate_filter_coefficients.npz \
+  docs/dsd/evidence/configure.log docs/dsd/evidence/environment.json docs/dsd/evidence/filter_feasibility.json \
+  docs/dsd/evidence/make-check.log docs/dsd/evidence/probe_filters.py docs/dsd/evidence/probe_io.c \
+  docs/dsd/evidence/probe_remodulation.py docs/dsd/evidence/probe_sdm.c docs/dsd/evidence/remodulation_level.json \
+  docs/dsd/evidence/replay_sdm_probe.py docs/dsd/evidence/reproduce.py docs/dsd/evidence/reproductions.json \
+  docs/dsd/evidence/sdm_short_stress.json docs/dsd/handoffs/P00.md docs/dsd/handoffs/P00_CHECKPOINT.txt \
+  docs/dsd/phase_manifest.json docs/dsd/sows/P00.md docs/dsd/sows/P01.md \
+  docs/dsd/sows/P02.md docs/dsd/sows/P03.md docs/dsd/sows/P04.md \
+  docs/dsd/sows/P05.md docs/dsd/sows/P06.md docs/dsd/sows/P07.md \
+  docs/dsd/sows/P08.md docs/dsd/sows/P09.md docs/dsd/sows/P10.md \
+  docs/dsd/sows/P11.md docs/dsd/sows/P12.md docs/dsd/sows/P13.md \
+  docs/dsd/sows/P14.md docs/dsd/sows/P15.md docs/dsd/sows/P16.md \
+  docs/dsd/sows/P17.md docs/dsd/sows/P18.md tests/dsd/README.md \
+  tests/dsd/bench.py tests/dsd/fixtures/block_minus_1.dsf tests/dsd/fixtures/block_plus_1.dsf \
+  tests/dsd/fixtures/dop_stereo_1.pcm24le tests/dsd/fixtures/dop_stereo_15.pcm24le tests/dsd/fixtures/dop_stereo_16.pcm24le \
+  tests/dsd/fixtures/dop_stereo_17.pcm24le tests/dsd/fixtures/dop_stereo_32.pcm24le tests/dsd/fixtures/dop_stereo_33.pcm24le \
+  tests/dsd/fixtures/empty.dsf tests/dsd/fixtures/five_16.dff tests/dsd/fixtures/five_96.dsf \
+  tests/dsd/fixtures/four_16.dff tests/dsd/fixtures/manifest.json tests/dsd/fixtures/mono_128_manf.dff \
+  tests/dsd/fixtures/mono_16.dff tests/dsd/fixtures/mono_16.wsd tests/dsd/fixtures/mono_32_dop.dsf \
+  tests/dsd/fixtures/mono_9.dff tests/dsd/fixtures/mono_96.dsf tests/dsd/fixtures/msb_stereo_96.dsf \
+  tests/dsd/fixtures/nine.dsf tests/dsd/fixtures/one.dsf tests/dsd/fixtures/one_cluster.dff \
+  tests/dsd/fixtures/pcm_sine_352800.wav tests/dsd/fixtures/pcm_sine_705600.wav tests/dsd/fixtures/pcm_sine_88200.wav \
+  tests/dsd/fixtures/seven.dsf tests/dsd/fixtures/six_16.dff tests/dsd/fixtures/six_96.dsf \
+  tests/dsd/fixtures/stereo_128.dff tests/dsd/fixtures/stereo_32.wsd tests/dsd/fixtures/stereo_96.dsf \
+  tests/dsd/fixtures/type4_quad_96.dsf tests/dsd/fixtures/type5_quad_96.dsf tests/dsd/measure.py \
+  tests/dsd/reference/__init__.py tests/dsd/reference/fixtures.py tests/dsd/reference/metrology.py \
+  tests/dsd/reference/verify.py tests/dsd/run.py tests/dsd/test_io.c

@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+"""DSD numerical contract entry point, initially P00 measurement scaffolding.
+
+Do not certify a DSD algorithm from legacy design-time filter feasibility.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import math
+import pathlib
+import platform
+import sys
+import time
+import wave
+
+from reference import metrology
+
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+
+
+def self_checks() -> list[dict]:
+    import numpy as np
+    tests = []
+    def test(name, fn):
+        try:
+            detail = fn()
+            tests.append(dict(name=name, status='pass', detail=detail))
+        except Exception as exc:
+            tests.append(dict(name=name, status='fail', error=f'{type(exc).__name__}: {exc}'))
+
+    def units():
+        assert abs(metrology.band_dbfs(.5)) < 1e-12
+        assert abs(metrology.band_dbfs(.125) + 6.02059991328) < 1e-10
+        assert abs(metrology.snr_db(.5, .005) - 20) < 1e-12
+        assert metrology.band_dbfs(0) == -math.inf
+        return dict(sine_power_dbfs=metrology.band_dbfs(.5), quarter_sine_power_dbfs=metrology.band_dbfs(.125))
+    test('normalized_power_dbfs_and_snr', units)
+
+    def fit():
+        rate, n, hz = 88200, 8820, 1000
+        y = .17 + .25 * np.sin(2 * np.pi * hz * np.arange(n) / rate + .3)
+        r = metrology.tone_fit(y, rate, hz)
+        assert abs(r['peak_amplitude'] - .25) < 2e-12
+        assert abs(r['dc'] - .17) < 2e-12
+        assert abs(r['phase_rad'] - .3) < 2e-12
+        assert float(np.max(np.abs(r['residual']))) < 2e-12
+        return dict(fit_amplitude=r['peak_amplitude'], phase=r['phase_rad'], residual_peak=float(np.max(np.abs(r['residual']))))
+    test('independent_analytic_tone_fit', fit)
+
+    def window():
+        w, enbw = metrology.blackman_harris4(4096)
+        assert abs(enbw - 2.0043529382) < .00002
+        assert abs(float(np.mean(w)) - .35875) < 1e-10
+        noise = np.zeros(4096)
+        assert metrology.baseband_residual_power(noise, 88200)['power'] == 0
+        return dict(enbw_bins=enbw)
+    test('window_coefficients_enbw', window)
+
+    def source():
+        rows = []
+        for rate in (88200, 352800, 705600):
+            path = ROOT / 'tests/dsd/fixtures' / f'pcm_sine_{rate}.wav'
+            with wave.open(str(path), 'rb') as f:
+                assert f.getframerate() == rate and f.getnchannels() == 1
+                assert f.getsampwidth() == 2 and f.getnframes() == 4096
+            rows.append(dict(rate_hz=rate, sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
+        return rows
+    test('synthetic_pcm_sources', source)
+    return tests
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('--phase', default='P00')
+    ap.add_argument('--results', type=pathlib.Path, default=ROOT/'tests/dsd/results/P00/numeric')
+    ap.add_argument('--prepare-analysis-v1', action='store_true', help='emit the immutable-design request, never claim generated coefficients')
+    args = ap.parse_args()
+    if args.phase not in ['P' + str(i).zfill(2) for i in range(19)]:
+        ap.error('unknown phase')
+    args.results.mkdir(parents=True, exist_ok=True)
+    passed = self_checks()
+    result = dict(schema='dsd-numerical-results/1', phase=args.phase,
+                  executed_command=sys.argv, utc_timestamp=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+                  python=platform.python_version(),
+                  procedures=metrology.ANALYSIS_V1,
+                  source_fixture_catalog=str(ROOT/'tests/dsd/fixtures/manifest.json'),
+                  unit_tests=passed,
+                  independent_analysis=dict(status='unrun', reason='P00 does not generate/certify analysis-v1 coefficients; P09 qualification gate'),
+                  filters_evidence=dict(status='prior_design_evidence_only',
+                       path='docs/dsd/evidence/filter_feasibility.json',
+                       sha256=hashlib.sha256((ROOT/'docs/dsd/evidence/filter_feasibility.json').read_bytes()).hexdigest()),
+                  quality_measurements=[],
+                  summary=dict(passed=sum(x['status']=='pass' for x in passed),
+                               failed=sum(x['status']=='fail' for x in passed),
+                               unrun_gates=['analysis-v1 coefficient generation/certification',
+                                            'independent DSD quality measurements']))
+    report_path=args.results/'measure.json'
+    if report_path.exists():
+        old=report_path.read_bytes()
+        try:
+            previous=json.loads(old)
+            if previous.get('summary',{}).get('failed',0):
+                backup=report_path.with_name('measure-failed-'+hashlib.sha256(old).hexdigest()[:16]+'.json')
+                if not backup.exists():backup.write_bytes(old)
+        except ValueError:
+            pass
+    temp=report_path.with_suffix('.json.tmp')
+    temp.write_text(json.dumps(result, indent=2, sort_keys=True, allow_nan=False) + '\n')
+    temp.replace(report_path)
+    if args.prepare_analysis_v1:
+        (args.results/'analysis-v1-request.json').write_text(
+            json.dumps(metrology.ANALYSIS_V1, indent=2, sort_keys=True) + '\n')
+    print(json.dumps({'schema':result['schema'], 'summary':result['summary'],
+                      'result_path':str(args.results/'measure.json')}))
+    return int(result['summary']['failed'] != 0)
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
