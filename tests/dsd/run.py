@@ -24,7 +24,7 @@ import time
 import wave
 from dataclasses import dataclass
 
-from reference import fixtures, verify
+from reference import fixtures, verify, writer
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SRC = ROOT/'tests/dsd/fixtures'
@@ -68,7 +68,7 @@ def stable_writer_audio_tail(observed: dict, *, uninitialized_bytes: int, tail: 
             and audio[uninitialized_bytes * 2:] == tail.hex())
 
 
-def metadata():
+def metadata(phase='P00'):
     cpu = ''
     p = pathlib.Path('/proc/cpuinfo')
     if p.is_file():
@@ -85,8 +85,9 @@ def metadata():
                 cpu_features=features, affinity=sorted(os.sched_getaffinity(0)) if hasattr(os,'sched_getaffinity') else None,
                 python=platform.python_version(), seed=fixtures.SEED,
                 build_configuration='configure --disable-shared --without-libltdl CFLAGS=-O2 -g',
-                input_archive_sha256=(ROOT/'tests/dsd/results/P00/build/input_archive.sha256').read_text().split()[0]
-                    if (ROOT/'tests/dsd/results/P00/build/input_archive.sha256').exists() else None,
+                input_archive_sha256=(ROOT/f'tests/dsd/results/{phase}/build/input_archive.sha256').read_text().split()[0]
+                    if (ROOT/f'tests/dsd/results/{phase}/build/input_archive.sha256').exists() else None,
+                dsdiff_source_sha256=sha((ROOT/'src/dsdiff.c').read_bytes()),
                 design_sha256=sha((ROOT/'docs/dsd/DSD_DESIGN.md').read_bytes()),
                 prebuild_source_hash_manifest_sha256=sha((ROOT/'tests/dsd/results/P00/build/source_prebuild.sha256').read_bytes())
                     if (ROOT/'tests/dsd/results/P00/build/source_prebuild.sha256').exists() else None,
@@ -254,7 +255,12 @@ class Runner:
                 try: fixtures.span(invalid)
                 except ValueError: continue
                 raise CaseMismatch('chunk span overflow not rejected')
-            return {'physical_spans_0_1_2_3_19': [12,14,14,16,32]}
+            result = {'physical_spans_0_1_2_3_19': [12,14,14,16,32]}
+            if self.phase >= 1:
+                unit = self.invoke([self.args.writer_unit])
+                require(unit['exit'] == 0, 'production DFF arithmetic/tail/error unit test: ' + unit['stderr'])
+                result['production_writer_units'] = json.loads(unit['stdout'])
+            return result
         self.add('unit_dff_chunk_spans', 'unit', spans)
 
         def hand_bits():
@@ -452,8 +458,13 @@ class Runner:
                         correct_audio_count=struct.unpack_from('>Q',raw,audio+4)[0]==n,
                         correct_odd_padding=len(raw)>=audio+12+n+(n&1))
 
-        self.add('dff_writer_cmpr_name_length', 'integration',
-                 lambda: {'correct': (r:=writer_run(16))['correct_cmpr'], **r},
+        def cmpr_case():
+            r = writer_run(16)
+            r['correct'] = r['correct_cmpr']
+            if self.phase >= 1:
+                r['writer_vectors'] = writer.run_vectors(self)
+            return r
+        self.add('dff_writer_cmpr_name_length', 'integration', cmpr_case,
                  defect='C1-DFF-CMPR-SIZE', fixed_in='P01',
                  fingerprint=lambda a: a['cmpr_declared']==20 and a['cmpr_name_count']==15
                                        and stable_writer_audio_tail(a, uninitialized_bytes=1, tail=b'\x00'))
@@ -620,7 +631,7 @@ class Runner:
         counts={k:sum(x['status']==k for x in self.records) for k in ('pass','xfail','xpass','fail','skip')}
         report=dict(schema='dsd-tests/1',phase=self.args.phase,executed_command=sys.argv,utc_timestamp=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),
                     fixture_manifest_sha256=sha((SRC/'manifest.json').read_bytes()),
-                    metadata=metadata(), tests=self.records, counts=counts,
+                    metadata=metadata(self.args.phase), tests=self.records, counts=counts,
                     selected_count=len(self.records),commands=self.commands,
                     verdict='pass' if not counts['fail'] and not counts['xpass'] and self.records else 'fail')
         report_path=self.args.results/'run.json'
@@ -647,6 +658,7 @@ def main():
     ap.add_argument('--results',type=pathlib.Path,default=ROOT/'tests/dsd/results/P00')
     ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox_ng')
     ap.add_argument('--probe',type=pathlib.Path,default=ROOT/'test/dsd_test_io')
+    ap.add_argument('--writer-unit',type=pathlib.Path,default=ROOT/'test/dsd_test_dff_writer')
     ap.add_argument('--mode',choices=('unit','integration','all'),default='all')
     ap.add_argument('--only',default='*',help='glob-select named tests, no automatic skip')
     args=ap.parse_args()

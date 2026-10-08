@@ -11,9 +11,9 @@ From the repository root after the configured static build:
 ```sh
 make check
 make check-dsd
-python3 tests/dsd/run.py --phase P00 --results tests/dsd/results/P00
-python3 tests/dsd/measure.py --phase P00 --results tests/dsd/results/P00/numeric
-python3 tests/dsd/bench.py --phase P00 --results tests/dsd/results/P00/bench
+python3 tests/dsd/run.py --phase P01 --results tests/dsd/results/P01
+python3 tests/dsd/measure.py --phase P01 --results tests/dsd/results/P01/numeric
+python3 tests/dsd/bench.py --phase P01 --results tests/dsd/results/P01/bench
 ```
 
 `make check-dsd DSD_PHASE=Pxx` selects the future phase's required expected-
@@ -40,6 +40,21 @@ line-by-line evidence, prerequisites and reproducible reconciliation script
 are under `results/P00/build/corrective-generic-coverage.*` and
 `corrective-coverage-reconcile.py`. Run missing checks on hosts with the
 appropriate format/tool/Windows support, not by changing production handlers.
+
+P01 makes `make check-dsd` default to P01. Repaired writer cases are hard
+passes; thirteen P02-P04 cases remain named expected failures. Running P00
+against repaired production intentionally reports six XPASS results. Retain
+the original archive/production for a P00 replay; never replace its evidence.
+The existing span unit invokes `test/dsd_test_dff_writer`, which includes the
+actual production source in a test-only translation unit and wraps only I/O
+to exercise arithmetic boundaries, tail completion and failure propagation.
+The existing CMPR regression also checks 508 independently derived vectors
+under two allocator perturbations, 1/9-frame write calls and 1..6 channels.
+The fixture catalog `fixtures/p01_writer_vectors.json` pins hand-selected
+bytes, residual tails and chunk structures; `reference/writer.py` applies
+the independent walker to the entire physical file and original program bits.
+`measure.py` adds native DSF-DFF-DSF count/chronology acceptance for P01,
+without claiming DSP quality qualification.
 
 ## Reference separation and count semantics
 
@@ -83,3 +98,27 @@ matrix, a controlled physical machine and bandwidth-matched comparisons.
 All paths are local; no licensed recordings, external data downloads or network
 access are required for ordinary P00 tests. A skipped/unrun qualification gate
 is documented as such and never counted as a passing test.
+
+P01's development benchmark retains the 27 P00 workloads and adds nine
+DSF-to-DFF native writes. A separate repeated comparison uses an unmodified
+same-flags binary at 1/2/6 channels:
+
+```sh
+python3 tests/dsd/bench_dff.py --baseline-sox /absolute/baseline/src/sox_ng \
+  --results tests/dsd/results/P01/bench-dff-new --frames 268435456 \
+  --cpu 8 --working-directory /dev/shm
+```
+
+Select an available CPU and storage directory on your host. Two warmups and
+15 randomized baseline/candidate pairs run per channel count. Every sample
+includes its command, exit, binary/input/output hashes, wall/CPU time and RSS.
+Robust dispersion and a paired bootstrap interval are reported. Median
+regression above 5% fails on a host with less than 2% timing noise; noisier
+measurements return exit 2 and remain inconclusive. `--resume` validates the
+source, binaries, host and configuration and preserves partial pairs/warmups.
+An existing result requires `--resume` or a new directory. Store the original
+writer from `results/P01/baseline/dsdiff.c` in a separate copy of the complete
+tree when rebuilding a comparison baseline. Do not benchmark a repaired
+writer against itself. Matching `src/soxconfig.h` and optional link flags are
+required; initial P01 comparison runs with a configuration difference are
+retained as diagnostics, not qualification.

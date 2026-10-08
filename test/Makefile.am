@@ -32,3 +32,9 @@ EXTRA_PROGRAMS += dsd_test_io
 dsd_test_io_SOURCES = ../tests/dsd/test_io.c
 dsd_test_io_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_io_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P01 unit tests exercise the actual private writer, with failing I/O wrappers.
+EXTRA_PROGRAMS += dsd_test_dff_writer
+dsd_test_dff_writer_SOURCES = ../tests/dsd/test_dff_writer.c
+dsd_test_dff_writer_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_dff_writer_LDADD = $(top_builddir)/src/libsox_ng.la

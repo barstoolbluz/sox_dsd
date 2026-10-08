@@ -102,6 +102,7 @@ def main():
     args.results.mkdir(parents=True,exist_ok=True)
     digest = hashlib.sha256(args.sox.read_bytes()).hexdigest()
     matrix = (352800,705600) if args.profile == 'development' else (88200,176400,352800,705600)
+    native_targets = ['native-dsf'] + (['native-dff'] if int(args.phase[1:]) >= 1 else [])
     context=host_info()
     host_hash=hashlib.sha256(json.dumps({k: context.get(k) for k in ('architecture','os','hostname','cpu_model','cpu_microcode','cpu_flags','affinity','governor')},sort_keys=True).encode()).hexdigest()
     config = dict(phase=args.phase, profile=args.profile, duration=args.duration,
@@ -117,7 +118,7 @@ def main():
                 distinction='host-specific P00 baseline; no speedup or numerical quality acceptance')
     for rate in fixtures.RATES:
         for ch in (1,2,6):
-            for dest in (['native-dsf']+[f'pcm-{r}' for r in matrix]):
+            for dest in (native_targets+[f'pcm-{r}' for r in matrix]):
                 report['planned_cases'].append(f'{rate}Hz_{ch}ch_{dest}')
     if args.resume and outfile.exists():
         previous=json.loads(outfile.read_text())
@@ -149,12 +150,13 @@ def main():
                 source=working/f'in-{rate}-{ch}.dsf'
                 source.write_bytes(fixtures.make_dsf(timeline,rate))
                 audio_seconds=frames/rate
-                for target in ['native-dsf']+[f'pcm-{r}' for r in matrix]:
+                for target in native_targets+[f'pcm-{r}' for r in matrix]:
                     ident=f'{rate}Hz_{ch}ch_{target}'
                     if args.resume and ident in done and len(done[ident]['runs'])==args.repetitions and all(r['exit']==0 for r in done[ident]['runs']):
                         continue
-                    output=working/(ident+('.dsf' if target=='native-dsf' else '.wav'))
-                    if target == 'native-dsf':
+                    suffix = {'native-dsf': '.dsf', 'native-dff': '.dff'}.get(target, '.wav')
+                    output=working/(ident+suffix)
+                    if target in native_targets:
                         command=[args.sox,'-D',source,output]
                         output_rate=rate
                         workload='native dsd to dsd transcode'

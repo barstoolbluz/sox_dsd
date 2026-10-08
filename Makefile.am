@@ -219,11 +219,12 @@ win64.exe: winexe-prepare
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.
 .PHONY: check-dsd
-DSD_PHASE ?= P00
+DSD_PHASE ?= P01
 DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
 check-dsd: all
 	$(MAKE) -C test dsd_test_io$(EXEEXT)
-	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox_ng --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT)
+	$(MAKE) -C test dsd_test_dff_writer$(EXEEXT)
+	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox_ng --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
 # P00 distributable design/test inputs (generated raw runs live in the continuation archive).
 EXTRA_DIST += \
   docs/dsd/BASELINE.md docs/dsd/DSD_DESIGN.md docs/dsd/DSD_HANDOFF.md \
@@ -254,4 +255,7 @@ EXTRA_DIST += \
   tests/dsd/fixtures/stereo_128.dff tests/dsd/fixtures/stereo_32.wsd tests/dsd/fixtures/stereo_96.dsf \
   tests/dsd/fixtures/type4_quad_96.dsf tests/dsd/fixtures/type5_quad_96.dsf tests/dsd/measure.py \
   tests/dsd/reference/__init__.py tests/dsd/reference/fixtures.py tests/dsd/reference/metrology.py \
-  tests/dsd/reference/verify.py tests/dsd/run.py tests/dsd/test_io.c
+  tests/dsd/reference/verify.py tests/dsd/run.py tests/dsd/test_io.c \
+  tests/dsd/test_dff_writer.c tests/dsd/reference/writer.py \
+  tests/dsd/fixtures/p01_writer_vectors.json tests/dsd/bench_dff.py \
+  docs/dsd/handoffs/P01.md docs/dsd/handoffs/P01_CHECKPOINT.md
