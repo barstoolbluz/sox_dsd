@@ -76,7 +76,9 @@ static int dop_flow(sox_effect_t *eff, const sox_sample_t *ibuf,
   size_t olen = *osamp / channels;
   unsigned i;
 
-  if (p->pos) {
+  /* A partial transport word may finish only when one full output
+   * channel frame fits. Otherwise retain it for the next call. */
+  if (p->pos && olen) {
     size_t n = min(16 - p->pos, ilen);
     for (i = 0; i < channels; i++)
         p->buf[i] |= dop_load_bits(in + i, channels, p->pos, n);
@@ -132,7 +134,7 @@ static int dop_drain(sox_effect_t *eff, sox_sample_t *obuf, size_t *osamp)
   dop_t *p = eff->priv;
   unsigned i;
 
-  if (p->pos) {
+  if (p->pos && *osamp >= eff->in_signal.channels) {
     unsigned silence = (0xffff00 >> p->pos) & 0x696900;
     for (i = 0; i < eff->in_signal.channels; i++)
       *obuf++ = p->buf[i] | p->marker << 24 | silence;

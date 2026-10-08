@@ -50,6 +50,27 @@ struct dsf {
 #define DATA_TAG TAG('d', 'a', 't', 'a')
 
 #define HEADER_SIZE (28 + 52 + 12)
+#define DSF_MAX_BLOCK_SIZE 65536U
+
+/* Normalize MSB-first storage only when a block is loaded, not per DSD bit. */
+static uint8_t const dsf_reverse_byte[256] = {
+  0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0, 0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
+  0x08, 0x88, 0x48, 0xc8, 0x28, 0xa8, 0x68, 0xe8, 0x18, 0x98, 0x58, 0xd8, 0x38, 0xb8, 0x78, 0xf8,
+  0x04, 0x84, 0x44, 0xc4, 0x24, 0xa4, 0x64, 0xe4, 0x14, 0x94, 0x54, 0xd4, 0x34, 0xb4, 0x74, 0xf4,
+  0x0c, 0x8c, 0x4c, 0xcc, 0x2c, 0xac, 0x6c, 0xec, 0x1c, 0x9c, 0x5c, 0xdc, 0x3c, 0xbc, 0x7c, 0xfc,
+  0x02, 0x82, 0x42, 0xc2, 0x22, 0xa2, 0x62, 0xe2, 0x12, 0x92, 0x52, 0xd2, 0x32, 0xb2, 0x72, 0xf2,
+  0x0a, 0x8a, 0x4a, 0xca, 0x2a, 0xaa, 0x6a, 0xea, 0x1a, 0x9a, 0x5a, 0xda, 0x3a, 0xba, 0x7a, 0xfa,
+  0x06, 0x86, 0x46, 0xc6, 0x26, 0xa6, 0x66, 0xe6, 0x16, 0x96, 0x56, 0xd6, 0x36, 0xb6, 0x76, 0xf6,
+  0x0e, 0x8e, 0x4e, 0xce, 0x2e, 0xae, 0x6e, 0xee, 0x1e, 0x9e, 0x5e, 0xde, 0x3e, 0xbe, 0x7e, 0xfe,
+  0x01, 0x81, 0x41, 0xc1, 0x21, 0xa1, 0x61, 0xe1, 0x11, 0x91, 0x51, 0xd1, 0x31, 0xb1, 0x71, 0xf1,
+  0x09, 0x89, 0x49, 0xc9, 0x29, 0xa9, 0x69, 0xe9, 0x19, 0x99, 0x59, 0xd9, 0x39, 0xb9, 0x79, 0xf9,
+  0x05, 0x85, 0x45, 0xc5, 0x25, 0xa5, 0x65, 0xe5, 0x15, 0x95, 0x55, 0xd5, 0x35, 0xb5, 0x75, 0xf5,
+  0x0d, 0x8d, 0x4d, 0xcd, 0x2d, 0xad, 0x6d, 0xed, 0x1d, 0x9d, 0x5d, 0xdd, 0x3d, 0xbd, 0x7d, 0xfd,
+  0x03, 0x83, 0x43, 0xc3, 0x23, 0xa3, 0x63, 0xe3, 0x13, 0x93, 0x53, 0xd3, 0x33, 0xb3, 0x73, 0xf3,
+  0x0b, 0x8b, 0x4b, 0xcb, 0x2b, 0xab, 0x6b, 0xeb, 0x1b, 0x9b, 0x5b, 0xdb, 0x3b, 0xbb, 0x7b, 0xfb,
+  0x07, 0x87, 0x47, 0xc7, 0x27, 0xa7, 0x67, 0xe7, 0x17, 0x97, 0x57, 0xd7, 0x37, 0xb7, 0x77, 0xf7,
+  0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef, 0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff
+};
 
 static int dsf_startread(sox_format_t *ft)
 {
@@ -57,6 +78,8 @@ static int dsf_startread(sox_format_t *ft)
 	uint32_t magic;
 	uint64_t csize;
 	uint32_t v;
+	uint64_t bytes_per_block, blocks, required_bytes, data_bytes;
+	uint64_t physical_size;
 
 	if (lsx_readdw(ft, &magic) || magic != DSF_TAG) {
 		lsx_fail_errno(ft, SOX_EHDR, "DSF signature not found");
@@ -68,8 +91,9 @@ static int dsf_startread(sox_format_t *ft)
 		return SOX_EHDR;
 	}
 
-	lsx_readqw(ft, &dsf->file_size);
-	lsx_readqw(ft, &dsf->metadata);
+	if (lsx_readqw(ft, &dsf->file_size) ||
+	    lsx_readqw(ft, &dsf->metadata))
+		return SOX_EHDR;
 
 	if (lsx_readdw(ft, &magic) || magic != FMT_TAG) {
 		lsx_fail_errno(ft, SOX_EHDR, "fmt chunk not found");
@@ -99,11 +123,11 @@ static int dsf_startread(sox_format_t *ft)
 		return SOX_EHDR;
 	}
 
-	if (lsx_readqw(ft, &csize) ||
-	    csize < 12 + dsf->block_size * dsf->chan_num) {
+	if (lsx_readqw(ft, &csize) || csize < 12) {
 		lsx_fail_errno(ft, SOX_EHDR, "invalid data chunk size");
 		return SOX_EHDR;
 	}
+	data_bytes = csize - 12;
 
 	if (dsf->version != 1) {
 		lsx_fail_errno(ft, SOX_EHDR, "unknown format version %d",
@@ -123,22 +147,56 @@ static int dsf_startread(sox_format_t *ft)
 		return SOX_EHDR;
 	}
 
-	if (dsf->bps != 1) {
-		lsx_fail_errno(ft, SOX_EFMT, "unsupported bit depth %d",
+	if (dsf->bps != 1 && dsf->bps != 8) {
+		lsx_fail_errno(ft, SOX_EFMT, "unsupported DSD bit order %d",
 			       dsf->bps);
 		return SOX_EFMT;
 	}
 
-	dsf->block = lsx_calloc(dsf->chan_num, (size_t)dsf->block_size);
-	if (!dsf->block)
-		return SOX_ENOMEM;
+	/* Required padded channel blocks, not simply one block per file.
+	 * A zero-frame file has no required audio block. */
+	if (!dsf->block_size || dsf->block_size > DSF_MAX_BLOCK_SIZE ||
+	    !dsf->sfreq || dsf->scount > UINT64_MAX / dsf->chan_num) {
+		lsx_fail_errno(ft, SOX_EHDR, "invalid DSF format dimensions");
+		return SOX_EHDR;
+	}
+	bytes_per_block = (uint64_t)dsf->block_size * 8;
+	blocks = dsf->scount / bytes_per_block +
+		(dsf->scount % bytes_per_block != 0);
+	if (blocks > UINT64_MAX / ((uint64_t)dsf->block_size * dsf->chan_num)) {
+		lsx_fail_errno(ft, SOX_EHDR, "DSF block count overflow");
+		return SOX_EHDR;
+	}
+	required_bytes = blocks * dsf->block_size * dsf->chan_num;
+	physical_size = lsx_filelength(ft);
+	if (data_bytes < required_bytes ||
+	    data_bytes > UINT64_MAX - HEADER_SIZE ||
+	    dsf->file_size < HEADER_SIZE + data_bytes ||
+	    (dsf->metadata && dsf->metadata >= dsf->file_size) ||
+	    (physical_size &&
+	     (physical_size < HEADER_SIZE + data_bytes ||
+	      dsf->file_size > physical_size))) {
+		lsx_fail_errno(ft, SOX_EHDR, "invalid DSF data extent");
+		return SOX_EHDR;
+	}
+	if (dsf->block_size != 4096)
+		lsx_warn("nonstandard DSF block size %u", dsf->block_size);
+	if (dsf->scount) {
+		dsf->block = lsx_malloc((size_t)dsf->block_size * dsf->chan_num);
+		if (!dsf->block)
+			return SOX_ENOMEM;
+	}
 
 	ft->data_start = lsx_tell(ft);
 
 	if (dsf->metadata && ft->seekable) {
 		if (!lsx_seeki(ft, dsf->metadata, SEEK_SET))
 			lsx_id3_read_tag(ft, sox_false);
-		lsx_seeki(ft, ft->data_start, SEEK_SET);
+		if (lsx_seeki(ft, ft->data_start, SEEK_SET)) {
+			free(dsf->block);
+			dsf->block = NULL;
+			return SOX_EOF;
+		}
 	}
 
 	dsf->block_pos = dsf->block_size;
@@ -175,39 +233,38 @@ static void dsf_read_bits(struct dsf *dsf, sox_sample_t *buf,
 static size_t dsf_read(sox_format_t *ft, sox_sample_t *buf, size_t len)
 {
 	struct dsf *dsf = ft->priv;
-	uint64_t samp_left = dsf->scount - dsf->read_samp;
-	size_t rsamp = 0;
+	uint64_t left = dsf->scount - dsf->read_samp;
+	size_t frames = min(len / dsf->chan_num, left);
+	size_t done = 0;
 
-	len /= dsf->chan_num;
-	len = min(len, samp_left);
+	while (frames) {
+		unsigned bits;
 
-	while (len >= 8) {
-		unsigned bits = 8 - dsf->bit_pos;
-
-		if (dsf->block_pos >= dsf->block_size) {
-			size_t rlen = dsf->chan_num * dsf->block_size;
-			if (lsx_read_b_buf(ft, dsf->block, rlen) < rlen)
-				return rsamp * dsf->chan_num;
+		if (dsf->block_pos == dsf->block_size) {
+			size_t i, n = (size_t)dsf->chan_num * dsf->block_size;
+			if (lsx_read_b_buf(ft, dsf->block, n) != n)
+				break;
+			if (dsf->bps == 8)
+				for (i = 0; i < n; ++i)
+					dsf->block[i] = dsf_reverse_byte[dsf->block[i]];
 			dsf->block_pos = dsf->block_start;
 			dsf->block_start = 0;
 		}
 
+		bits = min(frames, 8 - dsf->bit_pos);
 		dsf_read_bits(dsf, buf, dsf->bit_pos, bits);
 		buf += bits * dsf->chan_num;
-		dsf->block_pos++;
-		dsf->bit_pos = 0;
-		rsamp += bits;
-		len -= bits;
+		frames -= bits;
+		done += bits;
+		dsf->bit_pos += bits;
+		if (dsf->bit_pos == 8) {
+			dsf->bit_pos = 0;
+			++dsf->block_pos;
+		}
 	}
 
-	if (len && samp_left < 8) {
-		dsf_read_bits(dsf, buf, 0, len);
-		rsamp += len;
-	}
-
-	dsf->read_samp += rsamp;
-
-	return rsamp * dsf->chan_num;
+	dsf->read_samp += done;
+	return done * dsf->chan_num;
 }
 
 static int dsf_seek(sox_format_t * ft, sox_uint64_t offset)

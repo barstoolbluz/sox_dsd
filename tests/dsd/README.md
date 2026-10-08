@@ -122,3 +122,35 @@ tree when rebuilding a comparison baseline. Do not benchmark a repaired
 writer against itself. Matching `src/soxconfig.h` and optional link flags are
 required; initial P01 comparison runs with a configuration difference are
 retained as diagnostics, not qualification.
+
+## P02 streaming readers
+
+P02 retains all 36 original runner classifications and adds a separate
+705-case test (`tests/dsd/test_streaming.py`) covering capacities 0 and
+1..17 frames, 1..6 channels, DSF bit order, partial bytes, multi-block
+loading, parser extents, forward-only streams and `--buffer 32` transcodes.
+`tests/dsd/test_dop_capacity.c` calls the production DoP effect with explicit
+output backpressure and verifies fixed marker/padding words. Plain
+`make check-dsd` now defaults to P02 and runs these additional checks after
+`run.py`; the P02 runner itself continues to report 30 pass / 6 expected
+failures. The scripts can also be run independently:
+
+```sh
+make -C test dsd_test_dop_capacity
+test/dsd_test_dop_capacity
+python3 tests/dsd/test_streaming.py --results tests/dsd/results/P02/streaming
+```
+
+The P02 native read/repack performance sample is a separately executable
+**development-only** comparison against an unchanged P01 SoX binary:
+
+```sh
+python3 tests/dsd/bench_read_p02.py --baseline-sox /absolute/path/to/p01/src/sox_ng \
+  --results tests/dsd/results/P02/bench-read
+```
+
+It exercises 32-sample reads and large-buffer reads/transcodes, saves input and
+output SHA-256 plus per-run CPU/wall timing, and verifies matching large-buffer
+repack outputs. Do not infer formal throughput qualification from those short
+runs; the controlled-host noise precondition and longer repeats remain
+mandatory as stated in `BENCHMARKING.md`.

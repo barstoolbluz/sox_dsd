@@ -12,6 +12,9 @@
 #define BUF_SAMPLES 8192U
 #define HEAD_SAMPLES 8192U
 #define MAX_READ_SAMPLES 10000000ULL
+#define TAIL_SAMPLES 128U
+#define FNV_OFFSET UINT64_C(14695981039346656037)
+#define FNV_PRIME UINT64_C(1099511628211)
 
 static int parse_u64(const char *text, uint64_t *out)
 {
@@ -60,19 +63,26 @@ static int write_all(const char *file, uint64_t channels, uint64_t frames)
 }
 
 static int read_all(const char *file, size_t cap, size_t initial,
-                    int do_seek, uint64_t seek_offset, int fix_core)
+                    int do_seek, uint64_t seek_offset, int fix_core,
+                    int zero_first)
 {
   sox_sample_t buf[BUF_SAMPLES];
   sox_format_t *f;
   size_t n, first = 0, nbits = 0, calls = 0;
   uint64_t total = 0, pos = 0;
   char head[HEAD_SAMPLES + 1];
+  char tail[TAIL_SAMPLES + 1];
+  uint64_t checksum = FNV_OFFSET;
+  size_t tail_write = 0;
   int seek_rc = 0;
   if (cap > BUF_SAMPLES || initial > BUF_SAMPLES) return 4;
   f = sox_open_read(file, NULL, NULL, NULL);
   if (!f) {
     puts("{\"open\":false}");
     return 0;
+  }
+  if (zero_first && sox_read(f, buf, 0) != 0) {
+    sox_close(f); return 12;
   }
   if (initial) first = sox_read(f, buf, initial);
   if (do_seek) {
@@ -85,26 +95,39 @@ static int read_all(const char *file, size_t cap, size_t initial,
   if (cap == 0) {
     n = sox_read(f, buf, 0);
     calls++;
-    total += n;
+    if (n) { sox_close(f); return 12; }
   } else {
     while (total < MAX_READ_SAMPLES) {
       n = sox_read(f, buf, cap);
       calls++;
       if (!n) break;
       if (total + n > MAX_READ_SAMPLES) { sox_close(f); return 8; }
-      for (size_t i = 0; i < n && nbits < HEAD_SAMPLES; ++i)
-        head[nbits++] = buf[i] > 0 ? '1' : '0';
+      for (size_t i = 0; i < n; ++i) {
+        unsigned bit = buf[i] > 0;
+        if (nbits < HEAD_SAMPLES) head[nbits++] = bit ? '1' : '0';
+        tail[tail_write++ % TAIL_SAMPLES] = bit ? '1' : '0';
+        checksum = (checksum ^ bit) * FNV_PRIME;
+      }
       total += n;
     }
     if (total == MAX_READ_SAMPLES) { sox_close(f); return 9; }
   }
   head[nbits] = 0;
+  {
+    char ordered_tail[TAIL_SAMPLES + 1];
+    size_t kept = total < TAIL_SAMPLES ? (size_t)total : TAIL_SAMPLES;
+    for (size_t i = 0; i < kept; ++i)
+      ordered_tail[i] = tail[(tail_write - kept + i) % TAIL_SAMPLES];
+    ordered_tail[kept] = 0;
+    memcpy(tail, ordered_tail, kept + 1);
+  }
   printf("{\"open\":true,\"length\":%" PRIu64 ",\"channels\":%u,"
          "\"rate\":%.0f,\"first_read\":%zu,\"seek_rc\":%d,"
          "\"olength_after_seek\":%" PRIu64 ",\"remaining_returned\":%" PRIu64 ","
-         "\"read_calls\":%zu,\"head_bits\":\"%s\"}\n",
+         "\"read_calls\":%zu,\"head_bits\":\"%s\","
+         "\"tail_bits\":\"%s\",\"fnv64\":\"%016" PRIx64 "\"}\n",
          (uint64_t)f->signal.length, f->signal.channels, f->signal.rate,
-         first, seek_rc, pos, total, calls, head);
+         first, seek_rc, pos, total, calls, head, tail, checksum);
   return sox_close(f) == SOX_SUCCESS ? 0 : 10;
 }
 
@@ -160,13 +183,15 @@ int main(int argc, char **argv)
   if (!strcmp(argv[1], "write") && argc == 5) {
     if (parse_u64(argv[3], &a) || parse_u64(argv[4], &b)) return 3;
     rc = write_all(argv[2], a, b);
-  } else if (!strcmp(argv[1], "read") && argc == 7) {
+  } else if ((!strcmp(argv[1], "read") ||
+              !strcmp(argv[1], "read-zero-first")) && argc == 7) {
     if (parse_u64(argv[3], &a) || parse_u64(argv[4], &b) ||
         parse_u64(argv[6], &c)) return 3;
     if (strcmp(argv[5], "-") && parse_u64(argv[5], &offset)) return 3;
     if (a > BUF_SAMPLES || b > BUF_SAMPLES || c > 1) return 3;
     rc = read_all(argv[2], (size_t)a, (size_t)b,
-                  strcmp(argv[5], "-") != 0, offset, (int)c);
+                  strcmp(argv[5], "-") != 0, offset, (int)c,
+                  !strcmp(argv[1], "read-zero-first"));
   } else if (!strcmp(argv[1], "write-bits") && argc == 6) {
     if (parse_u64(argv[4], &a) || parse_u64(argv[5], &b) ||
         a > 6 || b > BUF_SAMPLES) return 3;

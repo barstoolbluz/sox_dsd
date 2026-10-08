@@ -38,3 +38,9 @@ EXTRA_PROGRAMS += dsd_test_dff_writer
 dsd_test_dff_writer_SOURCES = ../tests/dsd/test_dff_writer.c
 dsd_test_dff_writer_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_dff_writer_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P02 direct effect contract probe, including zero-capacity backpressure.
+EXTRA_PROGRAMS += dsd_test_dop_capacity
+dsd_test_dop_capacity_SOURCES = ../tests/dsd/test_dop_capacity.c
+dsd_test_dop_capacity_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_dop_capacity_LDADD = $(top_builddir)/src/libsox_ng.la
