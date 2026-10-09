@@ -388,3 +388,4 @@ EXTRA_DIST += src/rate_internal.h src/dsd_public.c src/dsdpcm.c \
   docs/dsd/handoffs/P06_READ_HOTFIX_CHECKPOINT.md \
   docs/dsd/handoffs/P07.md \
   docs/dsd/handoffs/P06_READ_HOTFIX.md
+EXTRA_DIST += docs/dsd/briefs/P08.md
