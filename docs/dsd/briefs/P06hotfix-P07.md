@@ -17,8 +17,8 @@ interval beyond the threshold, measured on a prepared host at 0.43% noise:
 dff-6ch-repack-small   +5.65%   95% CI [+5.50%, +5.89%]
 ```
 
-That is DFF, six channels, repack, with `--buffer 32`. Every DSF workload is
-unchanged within half a percent, and the large-buffer DFF workloads are
+That is DFF, six channels, repack, with `--buffer 32`. All eight DSF workloads
+land between -0.84% and +0.10%, and the large-buffer DFF workloads are
 unchanged or faster, so it is specific to small-capacity DFF repack.
 
 **Outcome wanted:** that workload comes back inside the 5% gate with its whole
@@ -93,9 +93,9 @@ Situational notes, possibly wrong or incomplete — trust the tree over them:
 - `-t null` workloads need `--null-extra-arg=--dsd-layout-loss
   --null-extra-arg=warn` on both arms from P04 onward, or they exit 2 and drop
   out of the gate.
-- Unattributed and recorded as such: P06 also made `dff-6ch-null-large` 11.12%
-  faster and `dff-6ch-repack-large` 5.62% faster, on paths its decode work
-  should not touch. Linker layout or instruction-cache effects are likelier
+- Unattributed and recorded as such: in the same 40-pair run P06 also made
+  `dff-6ch-null-large` 11.16% faster and `dff-6ch-repack-large` 5.69% faster,
+  on paths its decode work should not touch. Linker layout or instruction-cache effects are likelier
   than real improvement. The slowdown may share that cause; profiling would
   settle it, reading the diff did not.
 - P01 through P05 throughput gates are certified green on a prepared host, and
