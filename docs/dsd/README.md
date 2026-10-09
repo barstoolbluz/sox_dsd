@@ -22,6 +22,7 @@ extension as present merely because the type system can represent its rates.
 | `phase_manifest.json` | The same 19 phases in machine-readable form: id, title, dependencies, files read/changed, steps and test gates. |
 | `evidence/` | Probes, logs and results from the design session, with `evidence/README.md` explaining what was actually observed versus what remains future qualification work. |
 | `briefs/` | The instructions actually dispatched for each round, including corrective ones. These are ours, not part of the approved design package: where a brief and `DSD_DESIGN.md` disagree, the design wins. |
+| `OPTIMIZATION_BACKLOG.md` | Work deliberately deferred rather than forgotten, with the evidence already gathered. Nothing in it blocks a gate. |
 | `handoffs/` | One `Pxx.md` per completed phase: objective, files changed, commands and exit codes, evidence paths, passed/failed/skipped gates, deviations, next permitted phase. Empty until P00 lands. |
 | `DSD_HANDOFF.md` | The combined deliverable as received, sha256 `e1d4218f…`. Frozen for provenance — the files above are split from it byte-for-byte, so make edits there, not here. |
 

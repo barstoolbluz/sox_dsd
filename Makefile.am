@@ -398,3 +398,4 @@ EXTRA_DIST += src/rate_internal.h src/dsd_public.c src/dsdpcm.c \
 # P08 automatic graph and pre-combiner domain boundaries.
 EXTRA_DIST += tests/dsd/test_p08.py tests/dsd/bench_p08_adapter.py docs/dsd/handoffs/P08.md
 EXTRA_DIST += docs/dsd/briefs/P09.md
+EXTRA_DIST += docs/dsd/OPTIMIZATION_BACKLOG.md
