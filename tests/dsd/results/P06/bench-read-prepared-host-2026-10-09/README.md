@@ -15,8 +15,9 @@ precondition.
 Baseline `149ea582` (P05) against candidate `d6c8b5e6` (P06), built
 identically, 40 randomised AB/BA pairs per workload after 3 discarded warmups,
 pinned to CPU 8, tmpfs, on a host prepared with
-`tests/dsd/benchprep.sh prepare --cpu 8`. `bench-read.json` is the 15-pair run
-at 4x fixtures; `bench-read-40-pairs.json` is the accepted 40-pair run.
+`tests/dsd/benchprep.sh prepare --cpu 8`. Three runs are kept, named for what distinguishes them:
+`bench-read-15-pairs-default-fixtures.json`, `bench-read.json` at 15 pairs with
+4x fixtures, and `bench-read-40-pairs.json`, the accepted one.
 
 ## Why this needed three attempts
 
