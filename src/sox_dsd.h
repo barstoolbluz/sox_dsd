@@ -92,6 +92,47 @@ sox_format_t *SOX_DSD_CALL sox_open_write_dsd(
     const sox_oob_t *oob, sox_bool (*overwrite_permitted)(const char *),
     const sox_dsd_layout_t *layout);
 
+/* P07: additive binary64 reconstruction ABI.  API samples retain values
+ * beyond +/-1.0; only the SoX graph adapter clips to signed int32. */
+typedef struct sox_dsd_decoder sox_dsd_decoder_t;
+typedef enum {
+  SOX_DSD_DECODE_MASTERING = 0, SOX_DSD_DECODE_WIDEBAND = 1
+} sox_dsd_decode_profile_t;
+typedef enum {
+  SOX_DSD_LEVEL_PRESERVE = 0, SOX_DSD_LEVEL_SACD = 1
+} sox_dsd_decode_level_t;
+typedef enum {
+  SOX_DSD_BANDWIDTH_ADAPT = 0, SOX_DSD_BANDWIDTH_STRICT = 1
+} sox_dsd_decode_bandwidth_t;
+typedef struct sox_dsd_decode_options {
+  size_t size;
+  unsigned version;                   /* 1 */
+  uint32_t native_hz, output_hz;
+  unsigned channels;
+  sox_dsd_decode_profile_t profile;
+  sox_dsd_decode_level_t level;
+  sox_dsd_decode_bandwidth_t bandwidth;
+} sox_dsd_decode_options_t;
+typedef struct sox_dsd_report {
+  size_t size;
+  unsigned version;                   /* 1 */
+  uint64_t native_frames, intermediate_frames, output_frames;
+  uint32_t native_hz, intermediate_hz, output_hz;
+  unsigned channels;
+  double applied_gain, effective_passband_hz;
+  sox_dsd_status_t status;
+} sox_dsd_report_t;
+void SOX_DSD_CALL sox_dsd_decode_options_init(sox_dsd_decode_options_t *);
+sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_create(
+    const sox_dsd_decode_options_t *, sox_dsd_decoder_t **);
+sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_process(
+    sox_dsd_decoder_t *, const sox_sample_t *, size_t *, double *, size_t *);
+sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_finish(
+    sox_dsd_decoder_t *, double *, size_t *);
+sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_report(
+    const sox_dsd_decoder_t *, sox_dsd_report_t *);
+void SOX_DSD_CALL sox_dsd_decoder_destroy(sox_dsd_decoder_t *);
+
 #if defined(__cplusplus)
 }
 #endif

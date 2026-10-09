@@ -262,12 +262,25 @@ static unsigned dff_read_fragment(sox_format_t *ft, sox_sample_t *buf,
             return 0;
         dff->cluster_valid = sox_true;
     }
-    for (i = 0; i < nc; ++i) {
-        unsigned d = dff->buf[i] << dff->bit_pos;
+    /* Six-channel, sub-byte reads are the hot path with --buffer 32.
+     * Write interleaved destination frames in address order.  The saved
+     * channel-byte cluster still owns bits across partial read calls. */
+    if (nc == 6) {
+        sox_sample_t *dst = buf;
         for (j = 0; j < bits; ++j) {
-            buf[i + j * nc] = d & 128 ?
-                SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
-            d <<= 1;
+            const unsigned mask = 0x80u >> (dff->bit_pos + j);
+            for (i = 0; i < 6; ++i)
+                *dst++ = (dff->buf[i] & mask) ?
+                    SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
+        }
+    } else {
+        for (i = 0; i < nc; ++i) {
+            unsigned d = dff->buf[i] << dff->bit_pos;
+            for (j = 0; j < bits; ++j) {
+                buf[i + j * nc] = d & 128 ?
+                    SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
+                d <<= 1;
+            }
         }
     }
     dff->bit_pos += bits;

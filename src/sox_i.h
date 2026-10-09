@@ -253,6 +253,9 @@ int lsx_rawstart(sox_format_t * ft, sox_bool default_rate, sox_bool default_chan
 
 char * lsx_cat_comments(sox_comments_t comments);
 
+/* Private fatal DSP status; ordinary SOX_EOF may still mean normal trim. */
+#define LSX_EFF_FATAL (-0x5D50)
+
 /*--------------------------------- Effects ----------------------------------*/
 
 int lsx_flow_copy(sox_effect_t * effp, const sox_sample_t * ibuf,

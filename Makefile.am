@@ -219,13 +219,17 @@ win64.exe: winexe-prepare
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.
 .PHONY: check-dsd
-DSD_PHASE ?= P06
+DSD_PHASE ?= P07
 DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
 check-dsd: all
+	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07"; then \
+	  python3 -c 'import mpmath, numpy, scipy' || { \
+	    echo "UNRUN: required P06/P07 numerical gate (mpmath/numpy/scipy not installed)" >&2; exit 2; }; \
+	fi
 	$(MAKE) -C test dsd_test_io$(EXEEXT)
 	$(MAKE) -C test dsd_test_dff_writer$(EXEEXT)
 	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox_ng --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
-	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06"; then \
+	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07"; then \
 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_streaming.py \
@@ -233,28 +237,28 @@ check-dsd: all
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/streaming; \
 	fi
-	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06"; then \
+	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07"; then \
 	  $(MAKE) -C test dsd_test_seek_contract$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_seek.py \
 	    --probe $(abs_builddir)/test/dsd_test_seek_contract$(EXEEXT) \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/seek; \
 	fi
-	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06"; then \
+	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07"; then \
 	  $(MAKE) -C test dsd_test_layout$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_layout.py \
 	    --unit $(abs_builddir)/test/dsd_test_layout$(EXEEXT) \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/layout; \
 	fi
-	@if test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06"; then \
+	@if test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07"; then \
 	  $(MAKE) -C test dsd_test_plan$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_plan$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_plan.py \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/plan; \
 	fi
-	@if test "$(DSD_PHASE)" = "P06"; then \
+	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07"; then \
 	  $(MAKE) -C test dsd_test_decode$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_decode$(EXEEXT) && \
 	  $(MAKE) -C test dsd_test_decode_faults$(EXEEXT) && \
@@ -262,6 +266,29 @@ check-dsd: all
 	  python3 $(srcdir)/tests/dsd/test_decode.py \
 	    --unit $(abs_builddir)/test/dsd_test_decode$(EXEEXT) \
 	    --results $(DSD_RESULTS)/scalar; \
+	fi
+
+	@if test "$(DSD_PHASE)" = "P07"; then \
+	  $(MAKE) -C test dsd_test_p07$(EXEEXT) && \
+	  $(abs_builddir)/test/dsd_test_p07$(EXEEXT) && \
+	  python3 $(srcdir)/tests/dsd/test_p07.py \
+	    --sox $(abs_builddir)/src/sox_ng \
+	    --results $(DSD_RESULTS)/integration && \
+	  python3 $(srcdir)/tests/dsd/test_p07_output_failures.py \
+	    --sox $(abs_builddir)/src/sox_ng \
+	    --results $(DSD_RESULTS)/output-errors && \
+	  $(MAKE) -C test dsd_test_p07_reference$(EXEEXT) && \
+	  python3 $(srcdir)/tests/dsd/test_p07_reference.py \
+	    --unit $(abs_builddir)/test/dsd_test_p07_reference$(EXEEXT) \
+	    --results $(DSD_RESULTS)/numeric && \
+	  python3 $(srcdir)/tests/dsd/test_p07_composite.py \
+	    --unit $(abs_builddir)/test/dsd_test_p07_reference$(EXEEXT) \
+	    --results $(DSD_RESULTS)/numeric && \
+	  python3 $(srcdir)/tests/dsd/test_p07_impulse.py \
+	    --unit $(abs_builddir)/test/dsd_test_p07_reference$(EXEEXT) \
+	    --results $(DSD_RESULTS)/numeric && \
+	  python3 $(srcdir)/tests/dsd/test_p07_public_rate.py \
+	    --sox $(abs_builddir)/src/sox_ng; \
 	fi
 
 # P00 distributable design/test inputs (generated raw runs live in the continuation archive).
@@ -352,4 +379,12 @@ EXTRA_DIST += src/dsd_coeffs.h src/dsd_decode.h src/dsd_kernels.h \
   tests/dsd/bench_decode.py tests/dsd/test_decode_faults.c tests/dsd/reference/p06_coefficients.json \
   docs/dsd/handoffs/P06.md
 EXTRA_DIST += docs/dsd/briefs/P07.md
-EXTRA_DIST += docs/dsd/briefs/P06hotfix-P07.md
+
+# P07 public decoder and explicit conversion integration evidence.
+EXTRA_DIST += src/rate_internal.h src/dsd_public.c src/dsdpcm.c \
+  tests/dsd/test_p07.c tests/dsd/test_p07.py tests/dsd/test_p07_output_failures.py tests/dsd/bench_p06_hotfix.py \
+  tests/dsd/test_p07_reference.c tests/dsd/test_p07_reference.py \
+  tests/dsd/test_p07_composite.py tests/dsd/test_p07_impulse.py tests/dsd/test_p07_public_rate.py tests/dsd/bench_p07.py \
+  docs/dsd/handoffs/P06_READ_HOTFIX_CHECKPOINT.md \
+  docs/dsd/handoffs/P07.md \
+  docs/dsd/handoffs/P06_READ_HOTFIX.md

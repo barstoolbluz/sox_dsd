@@ -329,6 +329,9 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
     if (spec->effect_count && is(spec->effects[0].name,"dsdpcm")) {
       lsx_dsd_effect_spec const *e=&spec->effects[0];
       if (!decoder_selection(spec,e,&decoder,&level,error,n)) return 0;
+      if (level==LSX_DSD_LEVEL_SACD &&
+          (spec->policy.guarded || spec->policy.normalizing))
+        return fail(error,n,"sacd reconstruction cannot be combined with automatic guard or normalization");
       if (e->dsd.pinned_native_hz) for (i=0;i<spec->input_count;i++)
         if (p->inputs[i].native_domain==LSX_DSD_NATIVE &&
             p->inputs[i].native_rate!=e->dsd.pinned_native_hz)
@@ -435,6 +438,9 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
       if (e->dsd.pinned_native_hz && e->dsd.pinned_native_hz!=(uint32_t)rate)
         return fail(error,n,"versioned decoder ID is for a different native DSD clock");
       if (!decoder_selection(spec,e,&decoder,&level,error,n)) return 0;
+      if (level==LSX_DSD_LEVEL_SACD &&
+          (spec->policy.guarded || spec->policy.normalizing))
+        return fail(error,n,"sacd reconstruction cannot be combined with automatic guard or normalization");
       if (!e->dsd.rate_hz) {
         double pass,stop,intermediate;
         if (!lsx_dsd_profile_edges((uint32_t)rate,decoder,&pass,&stop,&intermediate) &&
@@ -718,7 +724,30 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   p->dsd_amplitude_per_pcm_unit=ref;
   if (p->encode_count && !p->modulator_input_scale)
     p->modulator_input_scale=ref;
-  if (p->needs_unimplemented_dsp) p->executable=0;
+  /* P07 enables exactly the implemented explicit graph boundary, never
+   * implicit decoders, legacy profiles, composite encoders, or multi-input
+   * pre-combiner reconstruction.  Keep P05's other future plans unrun. */
+  if (p->needs_unimplemented_dsp) {
+    int explicit_p07=0, unsafe=0;
+    for (i=0;i<spec->effect_count;i++)
+      if (is(spec->effects[i].name,"dsdpcm")) {
+        ++explicit_p07;
+        if ((spec->effects[i].dsd.profile_specified &&
+             spec->effects[i].dsd.profile==LSX_DSD_PROFILE_LEGACY) ||
+            (!spec->effects[i].dsd.profile_specified &&
+             spec->policy.decode==LSX_DSD_PROFILE_LEGACY)) unsafe=1;
+      }
+    for (i=0;i<p->step_count;i++)
+      if (is(p->steps[i].name,"implicit_dsdpcm") ||
+          is(p->steps[i].name,"input_dsdpcm")) unsafe=1;
+    if (explicit_p07==1 && !unsafe && spec->input_count==1 &&
+        !p->input_decode_count && p->graph_decode_count==1 &&
+        !p->encode_count && !p->dop_count &&
+        spec->policy.mode!=LSX_DSD_MODE_NATIVE) {
+      p->needs_unimplemented_dsp=0;
+      p->unavailable_reason=NULL;
+    } else p->executable=0;
+  }
   else if (norm_sdm_unavailable) {
     p->executable=0;
     p->unavailable_reason="automatic normalization before low-level sdm is not supported by the current effects pipeline";

@@ -2038,6 +2038,7 @@ static size_t write_samples_wav(sox_format_t * ft, const sox_sample_t *buf, size
 static int stopwrite_wav(sox_format_t * ft)
 {
         priv_t *   wav = (priv_t *) ft->priv;
+        int pad_result = SOX_SUCCESS;
 
         ft->sox_errno = SOX_SUCCESS;
 
@@ -2059,11 +2060,12 @@ static int stopwrite_wav(sox_format_t * ft)
         /* Add a pad byte if the number of data bytes is odd.
            See wavwritehdr() above for the calculation. */
         if (wav->formatTag != WAVE_FORMAT_GSM610)
-          lsx_padbytes(ft, (size_t)((wav->numSamples + wav->samplesPerBlock - 1)/wav->samplesPerBlock*wav->blockAlign) % 2);
+          pad_result = lsx_padbytes(ft, (size_t)((wav->numSamples + wav->samplesPerBlock - 1)/wav->samplesPerBlock*wav->blockAlign) % 2);
 
         free(wav->packet);
         free(wav->samples);
         free(wav->lsx_ms_adpcm_i_coefs);
+        if (pad_result != SOX_SUCCESS) return SOX_EOF;
 
         /* All samples are already written out. */
         /* If file header needs fixing up, for example it needs the */
@@ -2089,14 +2091,20 @@ static int stopwrite_wav(sox_format_t * ft)
         { off_t o = ftell(ft->fp);
           int result;
 
+          if (o < 0) {
+                lsx_fail_errno(ft, errno, "can't tell output position to rewrite header");
+                return SOX_EOF;
+          }
           if (lsx_seeki(ft, (off_t)0, SEEK_SET) != 0)
           {
                 lsx_fail_errno(ft,SOX_EOF,"can't rewind output file to rewrite header");
                 return SOX_EOF;
           }
           result = wavwritehdr(ft, 1);
-
-          fseek(ft->fp, o, SEEK_SET);
+          if (fseek(ft->fp, o, SEEK_SET) != 0) {
+                lsx_fail_errno(ft, errno, "can't restore output position after rewriting header");
+                result = SOX_EOF;
+          }
 
           return result;
         }

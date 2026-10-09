@@ -12,7 +12,11 @@ import json
 import pathlib
 import sys
 
-import mpmath as mp
+try:
+    import mpmath as mp
+except ImportError as error:
+    print(f"UNRUN required DSD coefficient generation (missing {error.name})", file=sys.stderr)
+    raise SystemExit(2) from None
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 HEADER = ROOT / 'src/dsd_coeffs.h'

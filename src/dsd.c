@@ -158,6 +158,8 @@ static int dsd_getopts(sox_effect_t *eff, int argc, char **argv)
   opt->profile=LSX_DSD_PROFILE_MASTERING;
   opt->level=LSX_DSD_LEVEL_PRESERVE;
   opt->reference=LSX_DSD_REF_AUTO;
+  opt->clip=LSX_DSD_CLIP_WARN;
+  opt->bandwidth=LSX_DSD_BANDWIDTH_ADAPT;
   for (i=1;i<argc;++i) {
     if (!strcmp(argv[i],"-p") && i+1<argc) {
       if (seen_profile++ || !parse_profile(argv[++i],is_encode,&profile,&opt->pinned_native_hz)) goto invalid;
@@ -211,11 +213,21 @@ lsx_dsd_effect_options lsx_dsd_effect_get_options(sox_effect_t const *effect)
   return defaults;
 }
 
+/* CLI policy is injected after option parsing, before effects are cloned. */
+void lsx_dsd_effect_apply_policy(sox_effect_t *effect, const lsx_dsd_policy *policy)
+{
+  lsx_dsd_effect_options *opt;
+  if (!effect || !policy || strcmp(effect->handler.name,"dsdpcm")) return;
+  opt=effect->priv;
+  opt->clip=policy->clip;
+  opt->bandwidth=policy->bandwidth;
+}
+
 const sox_effect_handler_t *lsx_dsdpcm_effect_fn(void)
 {
   static sox_effect_handler_t h={"dsdpcm", "[-p mastering|wideband|legacy] [-l preserve|sacd] [rate]",
-    SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, dsd_unavailable,
-    NULL, NULL, NULL, NULL, sizeof(lsx_dsd_effect_options), NULL, NULL, NULL};
+    SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, lsx_dsdpcm_start,
+    lsx_dsdpcm_flow, lsx_dsdpcm_drain, lsx_dsdpcm_stop, NULL, sizeof(lsx_dsdpcm_private), NULL, NULL, NULL};
   return &h;
 }
 const sox_effect_handler_t *lsx_pcmdsd_effect_fn(void)
