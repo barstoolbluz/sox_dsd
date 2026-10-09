@@ -154,3 +154,14 @@ output SHA-256 plus per-run CPU/wall timing, and verifies matching large-buffer
 repack outputs. Do not infer formal throughput qualification from those short
 runs; the controlled-host noise precondition and longer repeats remain
 mandatory as stated in `BENCHMARKING.md`.
+
+## P04 channel-identity evidence
+
+`make check-dsd DSD_PHASE=P04` retains all P00-P03 acceptance suites and
+builds `test/dsd_test_layout` for the independent P04 ownership and
+integration matrix. Run `python3 tests/dsd/test_layout.py` separately to
+regenerate the hand-constructed DFF/WSD fixture hashes and `layout.json`.
+The output and native bit chronology assertions do not derive their truth
+from the production DSDIFF writer. `docs/dsd/LAYOUT_CONTRACT.md` specifies
+ownership, the WAV canonical mask/sample order, and explicit metadata-loss
+behavior, including ordinary PCM compatibility.

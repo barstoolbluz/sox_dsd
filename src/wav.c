@@ -49,6 +49,7 @@
  * logic.
  */
 #include "wav-size.h"
+#include "dsd_layout_i.h"
 #define MS_UNSPEC LSX_WAV_MS_UNSPEC
 
 #include "wav-formats.h"
@@ -58,6 +59,9 @@ static const size_t pad_nsamps = sox_false;
 
 /* Private data for .wav file */
 typedef struct {
+    lsx_dsd_layout_state_t metadata;
+    uint32_t originalSpeakerMask;
+    sox_bool hadSpeakerMask;
     /* samples/channel reading: starts at total count and decremented  */
     /* writing: starts at 0 and counts samples written */
     uint64_t  numSamples;
@@ -939,6 +943,8 @@ static int startread_wav(sox_format_t * ft)
         if (lsx_readb(ft, &dummyByte))
           read_error();
       len -= 22;
+      wav->originalSpeakerMask = speakerPositionMask;
+      wav->hadSpeakerMask = sox_true;
       if (numberOfValidBits > wBitsPerSample)
       {
         lsx_fail_errno(ft,SOX_EHDR,"number of valid bits exceeds the number of bits per sample");
@@ -1017,6 +1023,10 @@ static int startread_wav(sox_format_t * ft)
         lsx_fail_errno(ft, SOX_EHDR, "channel count is zero");
         return SOX_EOF;
     }
+    if (!wav->metadata.layout)
+        wav->metadata.layout = lsx_dsd_layout_from_wav(ft->signal.channels,
+            wav->hadSpeakerMask ? wav->originalSpeakerMask : 0);
+    if (!wav->metadata.layout) return SOX_ENOMEM;
 
     if (ft->signal.rate == 0 || ft->signal.rate == dwSamplesPerSecond)
         ft->signal.rate = dwSamplesPerSecond;
@@ -1827,7 +1837,10 @@ static int wavwritehdr(sox_format_t * ft, int second_header)
     if (wFormatTag == WAVE_FORMAT_GSM610)
         if (dwDataLength & 1) dwDataLength++; /* round up to even */
 
-    if (wFormatTag == WAVE_FORMAT_PCM && (wBitsPerSample > 16 || wChannels > 2)
+    if (((wFormatTag == WAVE_FORMAT_PCM &&
+          (wBitsPerSample > 16 || wChannels > 2)) ||
+         (wav->metadata.layout &&
+          (wFormatTag == WAVE_FORMAT_PCM || wFormatTag == WAVE_FORMAT_IEEE_FLOAT)))
         && strcmp(ft->filetype, "wavpcm")) {
       isExtensible = sox_true;
       wFmtSize += 2 + 22;
@@ -1894,7 +1907,12 @@ static int wavwritehdr(sox_format_t * ft, int second_header)
       /* if not amb, assume most likely channel masks from number of channels; not
        * ideal solution, but will make files playable in many/most situations
        */
-      if (strcmp(ft->filetype, "amb")) {
+      if (wav->metadata.layout) {
+        if (sox_dsd_layout_wav_mask(wav->metadata.layout,
+              &dwChannelMask, NULL, 0) != SOX_DSD_OK)
+          dwChannelMask = 0; /* Unknown identity is not an angle guess. */
+      }
+      else if (strcmp(ft->filetype, "amb")) {
         if      (wChannels == 1) dwChannelMask = 0x4;     /* 1 channel (mono) = FC */
         else if (wChannels == 2) dwChannelMask = 0x3;     /* 2 channels (stereo) = FL, FR */
         else if (wChannels == 4) dwChannelMask = 0x33;    /* 4 channels (quad) = FL, FR, BL, BR */

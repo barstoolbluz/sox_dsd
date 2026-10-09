@@ -23,6 +23,8 @@
 
 #include "soxconfig.h"
 #include "sox_ng.h"
+#include "sox_dsd.h"
+#include "dsd_layout_query.h"
 #include "util.h"
 #include "softvol.h"
 #include "win32-unicode.h"
@@ -210,6 +212,13 @@ static sox_bool very_first_effchain = sox_true;
 static char *effects_filename = NULL;
 static char * play_rate_arg = NULL;
 static char *norm_level = NULL;
+static char *dsd_layout_assignment = NULL;
+static sox_bool dsd_layout_loss_warn = sox_false;
+/* The only inserted routing is an explicitly planned mask-order permutation;
+ * the matching layout is installed before the writer serializes its header. */
+static unsigned *dsd_output_permutation = NULL;
+static unsigned dsd_output_permutation_count = 0;
+
 
 /* Flowing */
 
@@ -1143,6 +1152,25 @@ static void add_effects(sox_effects_chain_t *chain)
     free(user_efftab[i]);
   }
 
+  /* An output WAV mask describes the wire-order samples, not just labels.
+   * Insert the matching pure remix before the output effect.  All role
+   * work happened before the output header was opened. */
+  if (dsd_output_permutation_count) {
+    unsigned j, count=dsd_output_permutation_count;
+    char **args=lsx_calloc(count+1,sizeof(*args));
+    args[0]="-m";
+    for (j=0;j<count;++j) {
+      args[j+1]=lsx_malloc(24);
+      snprintf(args[j+1],24,"%u",dsd_output_permutation[j]+1);
+    }
+    auto_effect(chain,"remix",(int)count+1,args,&signal,&guard);
+    for (j=0;j<count;++j)free(args[j+1]);
+    free(args);
+    free(dsd_output_permutation);
+    dsd_output_permutation=NULL;
+    dsd_output_permutation_count=0;
+  }
+
   if (!save_output_eff)
   {
     /* Last `effect' in the chain is the output file */
@@ -1612,6 +1640,219 @@ static char *fndup_with_count(const char *filename, size_t count)
     return expand_fn;
 }
 
+/* A role list is an output assignment, not a claim about WSD/DSDIFF IDs.
+ * Reject extra, missing or unknown spellings before opening the output. */
+static sox_dsd_layout_t *dsd_assign_roles(sox_dsd_layout_t *layout,
+    unsigned channels, char const *csv)
+{
+  static struct { char const *name; sox_dsd_role_t role; } const roles[] = {
+    {"unknown", SOX_DSD_ROLE_UNKNOWN}, {"MONO", SOX_DSD_ROLE_MONO},
+    {"FL", SOX_DSD_ROLE_FL}, {"FR", SOX_DSD_ROLE_FR},
+    {"FC", SOX_DSD_ROLE_FC}, {"LFE", SOX_DSD_ROLE_LFE},
+    {"BL", SOX_DSD_ROLE_BL}, {"BR", SOX_DSD_ROLE_BR},
+    {"SL", SOX_DSD_ROLE_SL}, {"SR", SOX_DSD_ROLE_SR}
+  };
+  size_t len;
+  unsigned i, j;
+  char *text, *part, *next;
+  sox_dsd_layout_t *result;
+  if (!csv || !(len = strlen(csv)) || len > 65535) return NULL;
+  text = lsx_strdup(csv);
+  result = layout && sox_dsd_layout_channels(layout) == channels ?
+      sox_dsd_layout_copy(layout) : sox_dsd_layout_new(channels);
+  if (!result) { free(text); return NULL; }
+  part = text;
+  for (i=0;i<channels;++i) {
+    next = strchr(part, ',');
+    if (next) *next++=0;
+    for (j=0;j<sizeof(roles)/sizeof(roles[0]);++j)
+      if (!strcasecmp(part,roles[j].name))break;
+    if (!*part || j==sizeof(roles)/sizeof(roles[0]) ||
+        sox_dsd_layout_set_role(result,i,roles[j].role)!=SOX_DSD_OK)break;
+    if (i+1==channels && next)break;
+    if (i+1<channels && !next)break;
+    part=next;
+  }
+  free(text);
+  if (i != channels) { sox_dsd_layout_free(result);return NULL; }
+  return result;
+}
+
+static sox_dsd_layout_t *dsd_default_layout(unsigned channels)
+{
+  sox_dsd_layout_t *p = sox_dsd_layout_new(channels);
+  if (!p)return NULL;
+  if (channels == 1)sox_dsd_layout_set_dsf_type(p,1);
+  else if (channels == 2)sox_dsd_layout_set_dsf_type(p,2);
+  return p;
+}
+
+/* An output plan consumes a private snapshot, never borrowed handler memory.
+ * Results are checked against the chosen file handler before opening it. */
+static sox_dsd_layout_t *dsd_plan_output(char const *path,
+    char const *type)
+{
+  sox_format_handler_t const *handler=sox_write_handler(path,type,NULL);
+  sox_dsd_layout_t *layout=NULL, *replacement;
+  char const *kind;
+  sox_bool native_input, native_output, wav_output, has_identity;
+  unsigned i, channels;
+  if (!handler)return NULL; /* The normal open path reports unsupported type. */
+  kind = handler->names[0];
+  native_output = !strcmp(kind,"dsf") || !strcmp(kind,"dff");
+  wav_output = !strcmp(kind,"wav") && (!type || strcmp(type,"wavpcm")) &&
+      (!ofile->encoding.encoding || ofile->encoding.encoding==SOX_ENCODING_SIGN2 ||
+       ofile->encoding.encoding==SOX_ENCODING_UNSIGNED ||
+       ofile->encoding.encoding==SOX_ENCODING_FLOAT);
+  native_input = files[0]->ft->encoding.encoding == SOX_ENCODING_DSD;
+  /* P04 is a DSD provenance bridge, not a change of policy for ordinary
+   * PCM-to-PCM processing, including a WAV source with an extensible mask. */
+  if (!native_input && !native_output && !dsd_layout_assignment)
+    return NULL;
+  if (sox_dsd_get_layout(files[0]->ft,&layout) != SOX_DSD_OK)
+    layout = NULL;
+  if (!layout && native_output)
+    layout=dsd_default_layout(combiner_signal.channels);
+  /* Ordinary mono/stereo PCM WAV has no mask but its reader correctly
+   * supplies an unknown-role layout.  Assign the conventional PCM roles only
+   * when encoding to DSD; a nonzero, unrepresentable extensible mask is not
+   * an absent assignment and must not be guessed. */
+  if (native_output && !native_input && layout &&
+      (combiner_signal.channels == 1 || combiner_signal.channels == 2) &&
+      sox_dsd_layout_channels(layout) == combiner_signal.channels &&
+      lsx_dsd_layout_wav_without_assignment(layout)) {
+    replacement = dsd_default_layout(combiner_signal.channels);
+    sox_dsd_layout_free(layout);
+    layout = replacement;
+  }
+  if (!layout && !dsd_layout_assignment)return NULL;
+
+  /* The combiner's parallel arithmetic changes identity.  Serial files
+   * retain identity only when all ordered input role/ID vectors agree. */
+  if (layout && input_count > 1) {
+    sox_bool consistent = is_serial(combine_method);
+    for (i=1;consistent && i<input_count;++i) {
+      sox_dsd_layout_t *other=NULL;
+      unsigned j;
+      if (sox_dsd_get_layout(files[i]->ft,&other)!=SOX_DSD_OK ||
+          sox_dsd_layout_channels(other)!=sox_dsd_layout_channels(layout))
+        consistent=sox_false;
+      else for (j=0;j<sox_dsd_layout_channels(layout);++j) {
+        sox_dsd_channel_info_t a={0}, b={0};
+        a.size=b.size=sizeof(a);
+        a.version=b.version=1;
+        sox_dsd_layout_channel(layout,j,&a);
+        sox_dsd_layout_channel(other,j,&b);
+        if (a.role!=b.role || a.dff_id_valid!=b.dff_id_valid ||
+            (a.dff_id_valid && memcmp(a.dff_id,b.dff_id,4))) {
+          consistent=sox_false;break;
+        }
+      }
+      sox_dsd_layout_free(other);
+    }
+    if (!consistent) sox_dsd_layout_invalidate(layout);
+  }
+
+  channels=sox_dsd_layout_channels(layout);
+  for (i=0;layout && i<nuser_effects[current_eff_chain];++i) {
+    sox_effect_t *effect=user_efftab[i];
+    if (effect->handler.flags & SOX_EFF_CHAN) {
+      /* channels N returns SOX_EFF_NULL for input N: there is no map or mix.
+       * The effect has not started yet, so the planned channel count is its
+       * input count; getopts already records the requested output count. */
+      if (!strcmp(effect->handler.name,"channels") &&
+          effect->out_signal.channels == channels)
+        continue;
+      unsigned *map = lsx_malloc((size_t)channels*sizeof(*map));
+      if (lsx_remix_pure_map(effect,channels,map,channels)) {
+        unsigned count=effect->out_signal.channels;
+        replacement=sox_dsd_layout_map(layout,map,count);
+        sox_dsd_layout_free(layout);
+        layout=replacement;
+        if (layout) channels=sox_dsd_layout_channels(layout);
+      } else {
+        /* Unknown channel transformation: all derived identities are stale. */
+        sox_dsd_layout_invalidate(layout);
+      }
+      free(map);
+    }
+  }
+
+  if (layout && sox_dsd_layout_channels(layout)!=ofile->signal.channels) {
+    /* Implicit "channels" effect has no known one-to-one map. */
+    sox_dsd_layout_free(layout);
+    layout=sox_dsd_layout_new(ofile->signal.channels);
+  }
+  if (dsd_layout_assignment) {
+    replacement=dsd_assign_roles(layout,ofile->signal.channels,
+        dsd_layout_assignment);
+    if (!replacement) {
+      lsx_fail("--dsd-layout requires exactly %u comma-separated known roles",
+          ofile->signal.channels);
+      sox_dsd_layout_free(layout);
+      exit(2);
+    }
+    sox_dsd_layout_free(layout);
+    layout=replacement;
+  }
+  if (!layout)return NULL;
+  channels=sox_dsd_layout_channels(layout);
+  has_identity=sox_false;
+  for (i=0;i<channels;++i) {
+    sox_dsd_channel_info_t info={0};
+    info.size=sizeof(info);info.version=1;
+    if (sox_dsd_layout_channel(layout,i,&info)==SOX_DSD_OK &&
+        (info.role!=SOX_DSD_ROLE_UNKNOWN || info.dff_id_valid))
+      has_identity=sox_true;
+  }
+  if (!native_output && !wav_output) {
+    if (has_identity && !dsd_layout_loss_warn) {
+      lsx_fail("destination `%s' cannot carry named channel identity; use --dsd-layout-loss warn to allow loss",kind);
+      sox_dsd_layout_free(layout);
+      exit(2);
+    }
+    if (has_identity)
+      lsx_warn("discarding DSD channel layout for `%s' (--dsd-layout-loss warn)",kind);
+    sox_dsd_layout_free(layout);
+    return NULL;
+  }
+  if (!native_output && !native_input && !has_identity) {
+    /* Do not rewrite ordinary PCM files simply for an unknown layout. */
+    sox_dsd_layout_free(layout);
+    return NULL;
+  }
+  if (wav_output) {
+    uint32_t mask;
+    unsigned *order=lsx_malloc(channels*sizeof(*order));
+    sox_dsd_status_t status=sox_dsd_layout_wav_mask(layout,&mask,order,channels);
+    if (status!=SOX_DSD_OK) {
+      if (has_identity && !dsd_layout_loss_warn) {
+        lsx_fail("WAV cannot represent this speaker assignment without losing identity");
+        free(order);
+        sox_dsd_layout_free(layout);
+        exit(2);
+      }
+      if (has_identity)
+        lsx_warn("writing WAV with unspecified channel mask (--dsd-layout-loss warn)");
+    } else {
+      for (i=0;i<channels;++i)if(order[i]!=i)break;
+      if (i<channels) {
+        replacement=sox_dsd_layout_map(layout,order,channels);
+        if (!replacement) {
+          free(order);sox_dsd_layout_free(layout);exit(2);
+        }
+        sox_dsd_layout_free(layout);
+        layout=replacement;
+        dsd_output_permutation=order;
+        dsd_output_permutation_count=channels;
+        order=NULL;
+      }
+    }
+    free(order);
+  }
+  return layout;
+}
+
 static void open_output_file(void)
 {
   double factor;
@@ -1650,8 +1891,15 @@ static void open_output_file(void)
     expand_fn = fndup_with_count(ofile->filename, ++output_count);
   else
     expand_fn = lsx_strdup(ofile->filename);
-  ofile->ft = sox_open_write(expand_fn, &ofile->signal, &ofile->encoding,
-      ofile->filetype, &oob, overwrite_permitted);
+  {
+    sox_dsd_layout_t *layout=dsd_plan_output(expand_fn,ofile->filetype);
+    ofile->ft = layout ?
+        sox_open_write_dsd(expand_fn, &ofile->signal, &ofile->encoding,
+            ofile->filetype, &oob, overwrite_permitted, layout) :
+        sox_open_write(expand_fn, &ofile->signal, &ofile->encoding,
+            ofile->filetype, &oob, overwrite_permitted);
+    sox_dsd_layout_free(layout);
+  }
   sox_delete_comments(&oob.comments);
   free(expand_fn);
 
@@ -2068,6 +2316,8 @@ static void usage(void)
 "--combine merge, -M      Merge multiple input files",
 "-D, --no-dither          Don't dither automatically",
 "--dft-min NUM            Minimum size (log2) for DFT processing (default 10)",
+"--dsd-layout ROLES       Comma-separated output role assignment: FL,FR,FC,LFE,BL,BR,SL,SR,MONO",
+"--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
 "--effects-file FILENAME  File containing effects and options",
 "-G, --guard              Use temporary files to guard against clipping",
 "-h, --help               Display version number and usage information",
@@ -2367,6 +2617,8 @@ static lsx_option_t const long_options[] = {
   {"no-clobber"      , lsx_option_arg_none    , NULL, 0},
   {"multi-threaded"  , lsx_option_arg_none    , NULL, 0},
   {"dft-min"         , lsx_option_arg_required, NULL, 0}, /* 25 */
+  {"dsd-layout"      , lsx_option_arg_required, NULL, 0}, /* 26 */
+  {"dsd-layout-loss" , lsx_option_arg_required, NULL, 0}, /* 27 */
 
   /*
    * These instead are indexed by their letters, which limits the
@@ -2591,6 +2843,15 @@ static char parse_gopts_and_fopts(file_t * f)
           exit(1);
         }
         sox_globals.log2_dft_min_size = i;
+        break;
+      case 26:
+        free(dsd_layout_assignment);
+        dsd_layout_assignment=lsx_strdup(optstate.arg);
+        break;
+      case 27:
+        if (!strcmp(optstate.arg,"error"))dsd_layout_loss_warn=sox_false;
+        else if (!strcmp(optstate.arg,"warn"))dsd_layout_loss_warn=sox_true;
+        else {lsx_fail("--dsd-layout-loss must be error or warn");exit(1);}
         break;
       default:
         lsx_fail("internal error processing long option");

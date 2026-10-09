@@ -1,0 +1,243 @@
+Making all in libdolbyb
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/libdolbyb'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/libdolbyb'
+Making all in libebur128
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/libebur128'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/libebur128'
+Making all in lpc10
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/lpc10'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/lpc10'
+Making all in libgsm
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/libgsm'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/libgsm'
+Making all in src
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/src'
+  CC       libsox_ng_la-dsd_layout.lo
+  CC       libsox_ng_la-formats.lo
+In file included from dsd_layout_i.h:5,
+                 from dsd_layout.c:4:
+sox_dsd.h:55:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   55 | LSX_API sox_dsd_layout_t *sox_dsd_layout_new(unsigned channels);
+      | ^~~~~~~
+sox_dsd.h:56:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   56 | LSX_API sox_dsd_layout_t *sox_dsd_layout_copy(const sox_dsd_layout_t *src);
+      | ^~~~~~~
+sox_dsd.h:57:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   57 | LSX_API void sox_dsd_layout_free(sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:58:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   58 | LSX_API unsigned sox_dsd_layout_channels(const sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:60:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   60 |     const sox_dsd_layout_t *layout, unsigned index, sox_dsd_channel_info_t *out);
+      |     ^~~~~
+sox_dsd.h:62:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   62 |     sox_dsd_layout_t *layout, unsigned index, sox_dsd_role_t role);
+      |     ^~~~~~~~~~~~~~~~
+sox_dsd.h:64:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   64 |     sox_dsd_layout_t *layout, unsigned index, const unsigned char id[4]);
+      |     ^~~~~~~~~~~~~~~~
+sox_dsd.h:65:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   65 | LSX_API sox_dsd_status_t sox_dsd_layout_set_dsf_type(sox_dsd_layout_t *layout, unsigned type);
+      | ^~~~~~~
+sox_dsd.h:66:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   66 | LSX_API unsigned sox_dsd_layout_dsf_type(const sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:67:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   67 | LSX_API sox_dsd_status_t sox_dsd_layout_set_dff_lsco(sox_dsd_layout_t *layout, unsigned value);
+      | ^~~~~~~
+sox_dsd.h:68:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   68 | LSX_API sox_bool sox_dsd_layout_dff_lsco(const sox_dsd_layout_t *layout, unsigned *value);
+      | ^~~~~~~
+sox_dsd.h:69:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   69 | LSX_API sox_bool sox_dsd_layout_wsd_assignment(const sox_dsd_layout_t *layout, uint32_t *value);
+      | ^~~~~~~
+sox_dsd.h:73:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   73 |     const sox_dsd_layout_t *src, const unsigned *source_indexes, unsigned count);
+      |     ^~~~~
+sox_dsd.h:74:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   74 | LSX_API void sox_dsd_layout_invalidate(sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:78:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   78 |     const sox_dsd_layout_t *layout, uint32_t *mask, unsigned *source_indexes, size_t capacity);
+      |     ^~~~~
+sox_dsd.h:79:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   79 | LSX_API sox_dsd_status_t sox_dsd_get_layout(const sox_format_t *ft, sox_dsd_layout_t **owned_copy);
+      | ^~~~~~~
+sox_dsd.h:80:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   80 | LSX_API sox_dsd_status_t sox_dsd_get_stream_info(const sox_format_t *ft, sox_dsd_stream_info_t *out);
+      | ^~~~~~~
+sox_dsd.h:86:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   86 |     const sox_dsd_layout_t *layout);
+      |     ^~~~~
+dsd_layout.c: In function 'sox_dsd_layout_new':
+dsd_layout.c:28:21: warning: comparison is always false due to limited range of data type [-Wtype-limits]
+   28 |       (size_t)count > (SIZE_MAX - sizeof(*p)) / sizeof(p->channel[0]))
+      |                     ^
+In file included from dsd_layout_i.h:5,
+                 from formats.c:30:
+sox_dsd.h:55:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   55 | LSX_API sox_dsd_layout_t *sox_dsd_layout_new(unsigned channels);
+      | ^~~~~~~
+sox_dsd.h:56:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   56 | LSX_API sox_dsd_layout_t *sox_dsd_layout_copy(const sox_dsd_layout_t *src);
+      | ^~~~~~~
+sox_dsd.h:57:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   57 | LSX_API void sox_dsd_layout_free(sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:58:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   58 | LSX_API unsigned sox_dsd_layout_channels(const sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:60:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   60 |     const sox_dsd_layout_t *layout, unsigned index, sox_dsd_channel_info_t *out);
+      |     ^~~~~
+sox_dsd.h:62:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   62 |     sox_dsd_layout_t *layout, unsigned index, sox_dsd_role_t role);
+      |     ^~~~~~~~~~~~~~~~
+sox_dsd.h:64:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   64 |     sox_dsd_layout_t *layout, unsigned index, const unsigned char id[4]);
+      |     ^~~~~~~~~~~~~~~~
+sox_dsd.h:65:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   65 | LSX_API sox_dsd_status_t sox_dsd_layout_set_dsf_type(sox_dsd_layout_t *layout, unsigned type);
+      | ^~~~~~~
+sox_dsd.h:66:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   66 | LSX_API unsigned sox_dsd_layout_dsf_type(const sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:67:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   67 | LSX_API sox_dsd_status_t sox_dsd_layout_set_dff_lsco(sox_dsd_layout_t *layout, unsigned value);
+      | ^~~~~~~
+sox_dsd.h:68:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   68 | LSX_API sox_bool sox_dsd_layout_dff_lsco(const sox_dsd_layout_t *layout, unsigned *value);
+      | ^~~~~~~
+sox_dsd.h:69:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   69 | LSX_API sox_bool sox_dsd_layout_wsd_assignment(const sox_dsd_layout_t *layout, uint32_t *value);
+      | ^~~~~~~
+sox_dsd.h:73:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   73 |     const sox_dsd_layout_t *src, const unsigned *source_indexes, unsigned count);
+      |     ^~~~~
+sox_dsd.h:74:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   74 | LSX_API void sox_dsd_layout_invalidate(sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:78:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   78 |     const sox_dsd_layout_t *layout, uint32_t *mask, unsigned *source_indexes, size_t capacity);
+      |     ^~~~~
+sox_dsd.h:79:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   79 | LSX_API sox_dsd_status_t sox_dsd_get_layout(const sox_format_t *ft, sox_dsd_layout_t **owned_copy);
+      | ^~~~~~~
+sox_dsd.h:80:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   80 | LSX_API sox_dsd_status_t sox_dsd_get_stream_info(const sox_format_t *ft, sox_dsd_stream_info_t *out);
+      | ^~~~~~~
+sox_dsd.h:86:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   86 |     const sox_dsd_layout_t *layout);
+      |     ^~~~~
+  CC       libsox_ng_la-dsf.lo
+In file included from dsd_layout_i.h:5,
+                 from dsf.c:25:
+sox_dsd.h:55:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   55 | LSX_API sox_dsd_layout_t *sox_dsd_layout_new(unsigned channels);
+      | ^~~~~~~
+sox_dsd.h:56:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   56 | LSX_API sox_dsd_layout_t *sox_dsd_layout_copy(const sox_dsd_layout_t *src);
+      | ^~~~~~~
+sox_dsd.h:57:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   57 | LSX_API void sox_dsd_layout_free(sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:58:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   58 | LSX_API unsigned sox_dsd_layout_channels(const sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:60:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   60 |     const sox_dsd_layout_t *layout, unsigned index, sox_dsd_channel_info_t *out);
+      |     ^~~~~
+sox_dsd.h:62:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   62 |     sox_dsd_layout_t *layout, unsigned index, sox_dsd_role_t role);
+      |     ^~~~~~~~~~~~~~~~
+sox_dsd.h:64:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   64 |     sox_dsd_layout_t *layout, unsigned index, const unsigned char id[4]);
+      |     ^~~~~~~~~~~~~~~~
+sox_dsd.h:65:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   65 | LSX_API sox_dsd_status_t sox_dsd_layout_set_dsf_type(sox_dsd_layout_t *layout, unsigned type);
+      | ^~~~~~~
+sox_dsd.h:66:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   66 | LSX_API unsigned sox_dsd_layout_dsf_type(const sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:67:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   67 | LSX_API sox_dsd_status_t sox_dsd_layout_set_dff_lsco(sox_dsd_layout_t *layout, unsigned value);
+      | ^~~~~~~
+sox_dsd.h:68:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   68 | LSX_API sox_bool sox_dsd_layout_dff_lsco(const sox_dsd_layout_t *layout, unsigned *value);
+      | ^~~~~~~
+sox_dsd.h:69:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   69 | LSX_API sox_bool sox_dsd_layout_wsd_assignment(const sox_dsd_layout_t *layout, uint32_t *value);
+      | ^~~~~~~
+sox_dsd.h:73:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   73 |     const sox_dsd_layout_t *src, const unsigned *source_indexes, unsigned count);
+      |     ^~~~~
+sox_dsd.h:74:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   74 | LSX_API void sox_dsd_layout_invalidate(sox_dsd_layout_t *layout);
+      | ^~~~~~~
+sox_dsd.h:78:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   78 |     const sox_dsd_layout_t *layout, uint32_t *mask, unsigned *source_indexes, size_t capacity);
+      |     ^~~~~
+sox_dsd.h:79:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   79 | LSX_API sox_dsd_status_t sox_dsd_get_layout(const sox_format_t *ft, sox_dsd_layout_t **owned_copy);
+      | ^~~~~~~
+sox_dsd.h:80:1: warning: 'cdecl' attribute ignored [-Wattributes]
+   80 | LSX_API sox_dsd_status_t sox_dsd_get_stream_info(const sox_format_t *ft, sox_dsd_stream_info_t *out);
+      | ^~~~~~~
+sox_dsd.h:86:5: warning: 'cdecl' attribute ignored [-Wattributes]
+   86 |     const sox_dsd_layout_t *layout);
+      |     ^~~~~
+dsf.c:31:18: error: duplicate member 'metadata'
+   31 |         uint64_t metadata;
+      |                  ^~~~~~~~
+dsf.c: In function 'dsf_startread':
+dsf.c:97:28: error: passing argument 2 of 'lsx_readqw' from incompatible pointer type [-Wincompatible-pointer-types]
+   97 |             lsx_readqw(ft, &dsf->metadata))
+      |                            ^~~~~~~~~~~~~~
+      |                            |
+      |                            lsx_dsd_layout_state_t *
+In file included from dsf.c:24:
+sox_i.h:188:46: note: expected 'uint64_t *' {aka 'long unsigned int *'} but argument is of type 'lsx_dsd_layout_state_t *'
+  188 | int lsx_readqw(sox_format_t * ft, uint64_t * udw);
+      |                                   ~~~~~~~~~~~^~~
+dsf.c:177:14: error: used struct type value where scalar is required
+  177 |             (dsf->metadata && dsf->metadata >= dsf->file_size) ||
+      |              ^~~
+dsf.c:177:45: error: invalid operands to binary >= (have 'lsx_dsd_layout_state_t' and 'uint64_t' {aka 'long unsigned int'})
+  177 |             (dsf->metadata && dsf->metadata >= dsf->file_size) ||
+      |                               ~~~~~~~~~~~~~ ^~ ~~~~~~~~~~~~~~
+      |                                  |                |
+      |                                  |                uint64_t {aka long unsigned int}
+      |                                  lsx_dsd_layout_state_t
+dsf.c:194:13: error: used struct type value where scalar is required
+  194 |         if (dsf->metadata && ft->seekable) {
+      |             ^~~
+dsf.c:195:39: error: incompatible type for argument 2 of 'lsx_seeki'
+  195 |                 if (!lsx_seeki(ft, dsf->metadata, SEEK_SET))
+      |                                    ~~~^~~~~~~~~~
+      |                                       |
+      |                                       lsx_dsd_layout_state_t
+sox_i.h:209:40: note: expected 'off_t' {aka 'long int'} but argument is of type 'lsx_dsd_layout_state_t'
+  209 | int lsx_seeki(sox_format_t * ft, off_t offset, int whence);
+      |                                  ~~~~~~^~~~~~
+dsf.c: In function 'dsf_seek':
+dsf.c:281:40: warning: comparison of unsigned expression in '< 0' is always false [-Wtype-limits]
+  281 |   if (!dsf->chan_num || ft->data_start < 0 ||
+      |                                        ^
+dsf.c: In function 'dsf_writeheader':
+dsf.c:329:32: error: incompatible type for argument 2 of 'lsx_writeqw'
+  329 |             lsx_writeqw(ft, dsf->metadata) ||
+      |                             ~~~^~~~~~~~~~
+      |                                |
+      |                                lsx_dsd_layout_state_t
+sox_i.h:199:45: note: expected 'uint64_t' {aka 'long unsigned int'} but argument is of type 'lsx_dsd_layout_state_t'
+  199 | int lsx_writeqw(sox_format_t * ft, uint64_t uqw);
+      |                                    ~~~~~~~~~^~~
+make[1]: *** [Makefile:2580: libsox_ng_la-dsf.lo] Error 1
+make[1]: *** Waiting for unfinished jobs....
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/src'
+make: *** [Makefile:766: all-recursive] Error 1

@@ -1,0 +1,61 @@
+Making all in libdolbyb
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/libdolbyb'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/libdolbyb'
+Making all in libebur128
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/libebur128'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/libebur128'
+Making all in lpc10
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/lpc10'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/lpc10'
+Making all in libgsm
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/libgsm'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/libgsm'
+Making all in src
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/src'
+ cd .. && /bin/bash /mnt/data/p04-work/sox_ng/missing automake-1.17 --foreign src/Makefile
+ cd .. && /bin/bash ./config.status src/Makefile depfiles
+config.status: creating src/Makefile
+config.status: executing depfiles commands
+  CC       sox_ng.o
+  CC       libsox_ng_la-dsd_layout.lo
+sox_ng.c: In function 'dsd_plan_output':
+sox_ng.c:1722:9: warning: missing initializer for field 'role' of 'sox_dsd_channel_info_t' [-Wmissing-field-initializers]
+ 1722 |         sox_dsd_channel_info_t a={sizeof(a),1}, b={sizeof(b),1};
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+In file included from sox_ng.c:26:
+sox_dsd.h:34:18: note: 'role' declared here
+   34 |   sox_dsd_role_t role;
+      |                  ^~~~
+sox_ng.c:1722:9: warning: missing initializer for field 'role' of 'sox_dsd_channel_info_t' [-Wmissing-field-initializers]
+ 1722 |         sox_dsd_channel_info_t a={sizeof(a),1}, b={sizeof(b),1};
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+sox_dsd.h:34:18: note: 'role' declared here
+   34 |   sox_dsd_role_t role;
+      |                  ^~~~
+sox_ng.c:1775:5: warning: missing initializer for field 'role' of 'sox_dsd_channel_info_t' [-Wmissing-field-initializers]
+ 1775 |     sox_dsd_channel_info_t info={sizeof(info),1};
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+sox_dsd.h:34:18: note: 'role' declared here
+   34 |   sox_dsd_role_t role;
+      |                  ^~~~
+  CC       libsox_ng_la-remix.lo
+  CC       libsox_ng_la-dsf.lo
+  CC       libsox_ng_la-dsdiff.lo
+  CCLD     libsox_ng.la
+copying selected object files to avoid basename conflicts...
+  CCLD     sox_ng
+make  all-am
+make[2]: Entering directory '/mnt/data/p04-work/sox_ng/src'
+make[2]: Leaving directory '/mnt/data/p04-work/sox_ng/src'
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/src'
+Making all in test
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng/test'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng/test'
+make[1]: Entering directory '/mnt/data/p04-work/sox_ng'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/mnt/data/p04-work/sox_ng'

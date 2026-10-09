@@ -1,0 +1,11 @@
+make: Entering directory '/mnt/data/p04-work/sox_ng/test'
+  CC       dsd_test_io-test_io.o
+  CCLD     dsd_test_io
+  CC       dsd_test_dff_writer-test_dff_writer.o
+In file included from ../tests/dsd/test_dff_writer.c:45:
+../tests/dsd/../../src/dsdiff.c: In function 'dff_seek':
+../tests/dsd/../../src/dsdiff.c:255:46: warning: comparison of unsigned expression in '< 0' is always false [-Wtype-limits]
+  255 |   if (!ft->signal.channels || ft->data_start < 0 ||
+      |                                              ^
+  CCLD     dsd_test_dff_writer
+make: Leaving directory '/mnt/data/p04-work/sox_ng/test'

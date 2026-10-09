@@ -604,7 +604,11 @@ void lsx_plot_fir(double * h, int num_points, sox_rate_t rate, sox_plot_t type, 
 #endif
 
 #if defined lrint32
+/* GCC has not implemented this C pragma and reports -Wunknown-pragmas.
+ * Its ignored behavior is unchanged; retain it for compilers that honor it. */
+#if !defined(__GNUC__) || defined(__clang__)
 #pragma STDC FENV_ACCESS ON
+#endif
 
 static void rint_clip(sox_sample_t * const dest, double const * const src,
     size_t i, size_t const n, sox_uint64_t * const clips)
@@ -649,7 +653,9 @@ void lsx_load_samples(double * const dest, sox_sample_t const * const src,
     dest[i] = src[i];
 }
 
+#if !defined(__GNUC__) || defined(__clang__)
 #pragma STDC FENV_ACCESS OFF
+#endif
 #else
 
 void lsx_save_samples(sox_sample_t * const dest, double const * const src,

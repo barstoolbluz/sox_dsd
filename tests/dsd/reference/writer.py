@@ -127,7 +127,15 @@ def cross_format(runner):
                 p = runner.invoke([runner.args.sox, '-D', source, dff], env={'MALLOC_PERTURB_': '85'})
                 verify.check(p['exit'] == 0, 'DSF to DFF native command')
                 written = check_output(dff.read_bytes(), words[:nch], frames)
-                p = runner.invoke([runner.args.sox, '-D', dff, back])
+                args = [runner.args.sox, '-D', dff]
+                if nch == 6 and int(runner.args.phase[1:]) >= 4:
+                    # P04 rejects a false DFF surround-angle claim.  Retain
+                    # the P01 numerical bit oracle, but make the previously
+                    # implicit side/back assignment explicit at the bridge.
+                    refused = runner.invoke([runner.args.sox, '-D', dff, back])
+                    verify.check(refused['exit'] != 0, 'unassigned DFF surrounds must not become DSF backs')
+                    args += ['--dsd-layout', 'FL,FR,FC,LFE,BL,BR']
+                p = runner.invoke([*args, back])
                 verify.check(p['exit'] == 0, 'DFF to DSF native command')
                 returned = verify.decode_dsf(back.read_bytes())
                 verify.check(returned['timeline'] == written['timeline'], 'completed round-trip chronology')

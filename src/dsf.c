@@ -22,9 +22,11 @@
  */
 
 #include "sox_i.h"
+#include "dsd_layout_i.h"
 #include "id3.h"
 
 struct dsf {
+	lsx_dsd_layout_state_t layout_state;
 	uint64_t file_size;
 	uint64_t metadata;
 	uint32_t version;
@@ -202,6 +204,9 @@ static int dsf_startread(sox_format_t *ft)
 	dsf->block_pos = dsf->block_size;
 	dsf->block_start = 0;
 
+	dsf->layout_state.layout = lsx_dsd_layout_from_dsf(dsf->chan_type, dsf->chan_num);
+	if (!dsf->layout_state.layout) return SOX_ENOMEM;
+	dsf->layout_state.layout->physical_bit_order = dsf->bps;
 	ft->signal.rate = dsf->sfreq;
 	ft->signal.channels = dsf->chan_num;
 	ft->signal.precision = 1;
@@ -274,8 +279,7 @@ static int dsf_seek(sox_format_t * ft, sox_uint64_t offset)
   unsigned block_start;
   off_t target;
 
-  if (!dsf->chan_num || ft->data_start < 0 ||
-      offset % dsf->chan_num)
+  if (!dsf->chan_num || offset % dsf->chan_num)
     return SOX_EOF;
   frame = offset / dsf->chan_num;
   if (frame > dsf->scount)
@@ -347,7 +351,13 @@ static int dsf_startwrite(sox_format_t *ft)
 
 	dsf->version = 1;
 	dsf->format_id = 0;
-	dsf->chan_type = ft->signal.channels + (ft->signal.channels > 4);
+	dsf->chan_type = dsf->layout_state.layout ?
+		lsx_dsd_layout_resolve_dsf(dsf->layout_state.layout) :
+		ft->signal.channels + (ft->signal.channels > 4);
+	if (!dsf->chan_type || dsf->chan_type > 7) {
+		lsx_fail_errno(ft, SOX_EFMT, "DSF cannot encode this channel layout");
+		return SOX_EFMT;
+	}
 	dsf->chan_num = ft->signal.channels;
 	dsf->sfreq = ft->signal.rate;
 	dsf->bps = ft->encoding.bits_per_sample;

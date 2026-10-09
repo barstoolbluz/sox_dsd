@@ -761,6 +761,22 @@ file back to 16 bits.  See the
 effect for how to determine the actual bit-depth of the audio within a
 file.
 .TP
+\fB\-\-dsd\-layout \fIrole,role,...\fR
+Assign output channel identities in chronological sample order. Accepted roles
+are \fBMONO\fR, \fBFL\fR, \fBFR\fR, \fBFC\fR, \fBLFE\fR,
+\fBBL\fR, \fBBR\fR, \fBSL\fR, \fBSR\fR, and \fBunknown\fR.
+An explicit assignment is required when a source does not identify speakers
+well enough for a DSF output (for example, ambiguous DFF surround IDs).
+The assignment names samples; it does not interchange or mix them.
+.TP
+\fB\-\-dsd\-layout\-loss error\fR|\fBwarn\fR
+The default, \fBerror\fR, refuses to discard known DSD channel identity
+when writing a format that cannot represent it. Choose \fBwarn\fR to
+permit intentional metadata loss with a diagnostic. An unknown WAV layout
+has an unspecified speaker mask. DSF still rejects any assignment that
+cannot be encoded without a false channel type. This does not change the
+normal policy for ordinary PCM-to-PCM conversions.
+.TP
 \fB\-\-effects\-file \fIfilename\fR
 Read a file to obtain all effects and their arguments.
 The file is parsed as if the values were specified on the

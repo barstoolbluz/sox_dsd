@@ -27,6 +27,7 @@
  */
 
 #include "sox_i.h"
+#include "dsd_layout_i.h"
 
 #include <ctype.h>
 #include <fcntl.h>
@@ -986,6 +987,10 @@ static sox_format_t * open_read(
 error:
   if (ft->fp && ft->fp != stdin)
     xfclose(ft->fp, ft->io_type);
+  {
+    lsx_dsd_layout_state_t *state = lsx_dsd_layout_state(ft);
+    if (state) sox_dsd_layout_free(state->layout);
+  }
   free(ft->priv);
   free(ft->filename);
   free(ft->filetype);
@@ -1264,7 +1269,8 @@ static sox_format_t * open_write(
     sox_encodinginfo_t const * encoding,
     char               const * filetype,
     sox_oob_t          const * oob,
-    sox_bool           (*overwrite_permitted)(const char *filename))
+    sox_bool           (*overwrite_permitted)(const char *filename),
+    sox_dsd_layout_t const * layout)
 {
   sox_format_t * ft = lsx_calloc(sizeof(*ft), 1);
   sox_format_handler_t const * handler;
@@ -1278,6 +1284,41 @@ static sox_format_t * open_write(
     goto error;
 
   ft->handler = *handler;
+  /* Reject incompatible metadata before truncating a destination file. */
+  if (layout) {
+    unsigned i, type;
+    uint32_t mask;
+    unsigned *order = NULL;
+    const char *kind = ft->handler.names[0];
+    if (!signal || signal->channels != layout->channels ||
+        (strcmp(kind,"dsf") && strcmp(kind,"dff") && strcmp(kind,"wav")) ||
+        (!strcmp(kind,"wav") &&
+         ((!strcmp(filetype,"wavpcm")) ||
+          (encoding && encoding->encoding &&
+           encoding->encoding!=SOX_ENCODING_SIGN2 &&
+           encoding->encoding!=SOX_ENCODING_UNSIGNED &&
+           encoding->encoding!=SOX_ENCODING_FLOAT)))) {
+      lsx_fail("unsupported destination for DSD layout metadata");
+      goto error;
+    }
+    if (!strcmp(kind,"dsf")) {
+      type = lsx_dsd_layout_resolve_dsf(layout);
+      if (!type) { lsx_fail("DSF cannot encode this channel identity"); goto error; }
+    } else if (!strcmp(kind,"wav") &&
+               sox_dsd_layout_wav_mask(layout,&mask,NULL,0)==SOX_DSD_OK) {
+      order = malloc(layout->channels * sizeof(*order));
+      if (!order) goto error;
+      if (sox_dsd_layout_wav_mask(layout,&mask,order,layout->channels)!=SOX_DSD_OK) {
+        free(order); goto error;
+      }
+      for (i=0;i<layout->channels;i++) if (order[i]!=i) break;
+      free(order);
+      if (i!=layout->channels) {
+        lsx_fail("WAV requires actual audio channels in ascending speaker-mask order");
+        goto error;
+      }
+    }
+  }
 
   if (!(ft->handler.flags & SOX_FILE_NOSTDIO)) {
     if (!strcmp(path, "-")) { /* Use stdout if the filename is "-" */
@@ -1339,6 +1380,18 @@ static sox_format_t * open_write(
 
   set_output_format(ft);
 
+  /* WAVE_FORMAT_EXTENSIBLE encodes role assignments only for uncompressed
+   * PCM or IEEE float.  wavpcm expressly disables that container extension.
+   * Reject before the first header byte, not after the writer has run. */
+  if (layout && !strcmp(ft->handler.names[0], "wav") &&
+      (!strcmp(ft->filetype, "wavpcm") ||
+       (ft->encoding.encoding != SOX_ENCODING_SIGN2 &&
+        ft->encoding.encoding != SOX_ENCODING_UNSIGNED &&
+        ft->encoding.encoding != SOX_ENCODING_FLOAT))) {
+    lsx_fail("this WAV encoding cannot carry DSD speaker metadata");
+    goto error;
+  }
+
   /* FIXME: doesn't cover the situation where
    * codec changes audio length due to block alignment (e.g. 8svx, gsm): */
   if (signal->rate && signal->channels)
@@ -1349,6 +1402,10 @@ static sox_format_t * open_write(
     lsx_warn("can't seek in output file `%s'; length in file header will be unspecified", ft->filename);
 
   ft->priv = lsx_calloc(1, ft->handler.priv_size);
+  if (layout) {
+    lsx_dsd_layout_state_t *state = lsx_dsd_layout_state(ft);
+    if (!state || !(state->layout=sox_dsd_layout_copy(layout))) goto error;
+  }
   /* Read and write starters can change their formats. */
   if (ft->handler.startwrite && (ft->handler.startwrite)(ft) != SOX_SUCCESS){
     lsx_fail("can't open output file `%s': %s", ft->filename, ft->sox_errstr);
@@ -1371,6 +1428,10 @@ static sox_format_t * open_write(
 error:
   if (ft->fp && ft->fp != stdout)
     xfclose(ft->fp, ft->io_type);
+  {
+    lsx_dsd_layout_state_t *state = lsx_dsd_layout_state(ft);
+    if (state) sox_dsd_layout_free(state->layout);
+  }
   free(ft->priv);
   free(ft->filename);
   free(ft->filetype);
@@ -1387,7 +1448,17 @@ sox_format_t * sox_open_write(
     sox_oob_t          const * oob,
     sox_bool           (*overwrite_permitted)(const char *filename))
 {
-  return open_write(path, NULL, (size_t)0, NULL, NULL, signal, encoding, filetype, oob, overwrite_permitted);
+  return open_write(path, NULL, (size_t)0, NULL, NULL, signal, encoding, filetype, oob, overwrite_permitted, NULL);
+}
+
+sox_format_t * sox_open_write_dsd(
+    const char *path, const sox_signalinfo_t *signal,
+    const sox_encodinginfo_t *encoding, const char *filetype,
+    const sox_oob_t *oob, sox_bool (*overwrite_permitted)(const char *),
+    const sox_dsd_layout_t *layout)
+{
+  return open_write(path, NULL, (size_t)0, NULL, NULL, signal, encoding,
+                    filetype, oob, overwrite_permitted, layout);
 }
 
 sox_format_t * sox_open_mem_write(
@@ -1398,7 +1469,7 @@ sox_format_t * sox_open_mem_write(
     char               const * filetype,
     sox_oob_t          const * oob)
 {
-  return open_write("", buffer, buffer_size, NULL, NULL, signal, encoding, filetype, oob, NULL);
+  return open_write("", buffer, buffer_size, NULL, NULL, signal, encoding, filetype, oob, NULL, NULL);
 }
 
 sox_format_t * sox_open_memstream_write(
@@ -1409,7 +1480,7 @@ sox_format_t * sox_open_memstream_write(
     char               const * filetype,
     sox_oob_t          const * oob)
 {
-  return open_write("", NULL, (size_t)0, buffer_ptr, buffer_size_ptr, signal, encoding, filetype, oob, NULL);
+  return open_write("", NULL, (size_t)0, buffer_ptr, buffer_size_ptr, signal, encoding, filetype, oob, NULL, NULL);
 }
 
 size_t sox_read(sox_format_t * ft, sox_sample_t * buf, size_t len)
@@ -1504,6 +1575,10 @@ int sox_close(sox_format_t * ft)
 
   if (ft->fp && ft->fp != stdin && ft->fp != stdout)
     xfclose(ft->fp, ft->io_type);
+  {
+    lsx_dsd_layout_state_t *state = lsx_dsd_layout_state(ft);
+    if (state) sox_dsd_layout_free(state->layout);
+  }
   free(ft->priv);
   free(ft->filename);
   free(ft->filetype);

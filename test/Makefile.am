@@ -50,3 +50,9 @@ EXTRA_PROGRAMS += dsd_test_seek_contract
 dsd_test_seek_contract_SOURCES = ../tests/dsd/test_seek_contract.c
 dsd_test_seek_contract_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_seek_contract_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P04 layout API contract probe, built by check-dsd without redefining check-am.
+EXTRA_PROGRAMS += dsd_test_layout
+dsd_test_layout_SOURCES = ../tests/dsd/test_layout.c
+dsd_test_layout_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_layout_LDADD = $(top_builddir)/src/libsox_ng.la
