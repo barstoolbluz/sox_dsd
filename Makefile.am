@@ -351,3 +351,4 @@ EXTRA_DIST += src/dsd_coeffs.h src/dsd_decode.h src/dsd_kernels.h \
   tests/dsd/test_decode.c tests/dsd/test_decode.py \
   tests/dsd/bench_decode.py tests/dsd/test_decode_faults.c tests/dsd/reference/p06_coefficients.json \
   docs/dsd/handoffs/P06.md
+EXTRA_DIST += docs/dsd/briefs/P07.md
