@@ -24,6 +24,7 @@
 #include "soxconfig.h"
 #include "sox_ng.h"
 #include "sox_dsd.h"
+#include "dsd.h"
 #include "dsd_layout_query.h"
 #include "util.h"
 #include "softvol.h"
@@ -214,6 +215,24 @@ static char * play_rate_arg = NULL;
 static char *norm_level = NULL;
 static char *dsd_layout_assignment = NULL;
 static sox_bool dsd_layout_loss_warn = sox_false;
+static lsx_dsd_policy dsd_policy = {
+  .mode=LSX_DSD_MODE_LEGACY,
+  .decode=LSX_DSD_PROFILE_MASTERING,
+  .encode=LSX_DSD_ENCODE_MASTERING,
+  .level=LSX_DSD_LEVEL_PRESERVE,
+  .clip=LSX_DSD_CLIP_WARN,
+  .bandwidth=LSX_DSD_BANDWIDTH_ADAPT
+};
+static sox_bool dsd_mode_explicit = sox_false, dsd_plan_only = sox_false;
+static sox_bool dsd_new_policy_explicit = sox_false;
+static char *dsd_report_path = NULL;
+/* Planning is opt-in in P05.  The prior implicit effects graph is untouched. */
+static sox_bool dsd_preflight_enabled(void)
+{
+  return dsd_plan_only || dsd_mode_explicit || dsd_new_policy_explicit ||
+      dsd_report_path != NULL;
+}
+
 /* The only inserted routing is an explicitly planned mask-order permutation;
  * the matching layout is installed before the writer serializes its header. */
 static unsigned *dsd_output_permutation = NULL;
@@ -2004,21 +2023,33 @@ static void calculate_combiner_signal_parameters(void)
         total_length = SOX_UNKNOWN_LEN;
     }
 
-    /* Check for invalid/unusual rate or channel combinations: */
-    if (min_rate != max_rate)
+    /* Legacy SoX rejects differing clocks before the combiner.  Opt-in DSD
+   * planning must accept this metadata long enough to place per-input
+   * reconstruction at a common PCM rate; P05 blocks execution of that graph
+   * until the composite decoder is implemented.  Other invocations retain
+   * the original rate check. */
+  if (min_rate != max_rate) {
+    sox_bool has_native=sox_false;
+    sox_bool opt_in=(dsd_plan_only || dsd_new_policy_explicit ||
+        (dsd_mode_explicit && dsd_policy.mode==LSX_DSD_MODE_AUTO));
+    for (i=0;i<input_count;i++)
+      if (files[i]->ft->encoding.encoding==SOX_ENCODING_DSD) has_native=sox_true;
+    if (!is_parallel(combine_method) || !has_native || !opt_in ||
+        (dsd_mode_explicit && dsd_policy.mode!=LSX_DSD_MODE_AUTO))
       lsx_fail("input files must have the same sample-rate");
-      /* Don't exit quite yet; give the user any other message 1st */
-    if (min_channels != max_channels) {
-      if (combine_method == sox_concatenate) {
-        lsx_fail("input files must have the same number of channels");
-        exit(1);
-      } else if (combine_method != sox_merge)
-        lsx_warn("input files don't have the same number of channels");
-    }
-    if (min_rate != max_rate)
+    else min_rate=max_rate; /* only the preflight can authorize this request */
+  }
+  if (min_channels != max_channels) {
+    if (combine_method == sox_concatenate) {
+      lsx_fail("input files must have the same number of channels");
       exit(1);
+    } else if (combine_method != sox_merge)
+      lsx_warn("input files don't have the same number of channels");
+  }
+  if (min_rate != max_rate)
+    exit(1);
 
-    /* Store the calculated # of combined channels: */
+  /* Store the calculated # of combined channels: */
     combiner_signal.channels =
       combine_method == sox_merge? total_channels : max_channels;
 
@@ -2101,6 +2132,302 @@ static void set_combiner_and_output_encoding_parameters(void)
   }
 }
 
+/* A sequence can restart the processing chain on a change of input domain,
+ * rate or channel layout. Certify every segment before creating the first
+ * output: a later failure must not leave an incomplete audio file. */
+static void dsd_free_sequence(lsx_dsd_plan *series, size_t count)
+{
+  size_t i;
+  for (i=0;i<count;i++) lsx_dsd_plan_free(&series[i]);
+  free(series);
+}
+
+/* P05 preflight snapshots metadata before open_output_file().  Effect getopts
+ * has already run, but no effect start() has run.  In native-only mode the
+ * existing (unmodified) flow graph remains responsible for sample I/O.
+ */
+static void preflight_dsd(void)
+{
+  lsx_dsd_plan_spec spec;
+  lsx_dsd_plan plan;
+  lsx_dsd_plan *series=NULL, *active=&plan;
+  size_t segments=0;
+  lsx_dsd_input_spec *input;
+  lsx_dsd_effect_spec *effect;
+  sox_format_handler_t const *handler;
+  sox_encodinginfo_t test_enc;
+  char error[256];
+  size_t i;
+  int has_new_effect=0, has_dsd_input=0;
+  char const *kind;
+  FILE *report=NULL;
+
+  for (i=0;i<nuser_effects[current_eff_chain];i++) {
+    char const *name=user_efftab[i]->handler.name;
+    if (!strcmp(name,"dsdpcm") || !strcmp(name,"pcmdsd") || !strcmp(name,"dsdstat"))
+      has_new_effect=1;
+  }
+  if (!dsd_preflight_enabled() && !has_new_effect) return;
+  if (!dsd_mode_explicit && (dsd_new_policy_explicit || dsd_plan_only || has_new_effect || dsd_report_path))
+    dsd_policy.mode=LSX_DSD_MODE_AUTO;
+  dsd_policy.kernel_fir=getenv("SOX_DSD_KERNEL_FIR");
+  dsd_policy.kernel_sdm=getenv("SOX_DSD_KERNEL_SDM");
+  dsd_policy.layout_loss_warn=dsd_layout_loss_warn;
+  dsd_policy.guarded=is_guarded;
+  dsd_policy.normalizing=do_guarded_norm;
+  dsd_policy.dither_disabled=no_dither;
+  memset(&spec,0,sizeof(spec));
+  memset(&plan,0,sizeof(plan));
+  spec.policy=dsd_policy;
+  spec.combine=(lsx_dsd_combine)combine_method;
+  input=lsx_calloc(input_count,sizeof(*input));
+  effect=lsx_calloc(nuser_effects[current_eff_chain]+1,sizeof(*effect));
+  spec.inputs=input;spec.input_count=input_count;
+  spec.effects=effect;spec.effect_count=nuser_effects[current_eff_chain];
+  spec.requested_output_rate=ofile_signal_options.rate;
+  spec.requested_output_channels=ofile_signal_options.channels;
+  spec.requested_encoding=ofile_encoding_options;
+  spec.output_path=ofile->filename;
+  spec.output_type=ofile->filetype;
+  handler=sox_write_handler(ofile->filename,ofile->filetype,NULL);
+  if (!handler) {lsx_fail("P05: cannot resolve output handler before header open");exit(2);}
+  kind=handler->names[0];
+  spec.output_native_capable=!strcmp(kind,"dsf") || !strcmp(kind,"dff") || !strcmp(kind,"wsd");
+  spec.output_is_null=!strcmp(kind,"null");
+  sox_init_encodinginfo(&test_enc);
+  /* Prefer signed 24-bit.  For a PCM-only codec, select another ordinary
+   * lossless PCM precision instead of treating every other output as invalid. */
+  {
+    static struct {sox_encoding_t e; unsigned bits;} const choices[]={
+      {SOX_ENCODING_SIGN2,24},{SOX_ENCODING_SIGN2,32},
+      {SOX_ENCODING_FLOAT,32},{SOX_ENCODING_SIGN2,16},
+      {SOX_ENCODING_FLOAT,64},{SOX_ENCODING_UNSIGNED,16},
+      {SOX_ENCODING_SIGN2,8},{SOX_ENCODING_UNSIGNED,8}
+    };
+    size_t k;
+    for (k=0;k<sizeof(choices)/sizeof(choices[0]);k++) {
+      test_enc.encoding=choices[k].e;
+      test_enc.bits_per_sample=choices[k].bits;
+      if (sox_format_supports_encoding(ofile->filename,ofile->filetype,&test_enc)) {
+        spec.output_pcm_capable=1;
+        spec.fallback_encoding=choices[k].e;
+        spec.fallback_bits=choices[k].bits;
+        break;
+      }
+    }
+  }
+  spec.output_dop_capable=spec.output_pcm_capable &&
+      spec.fallback_encoding==SOX_ENCODING_SIGN2 &&
+      spec.fallback_bits==24 && !spec.output_is_null;
+  for (i=0;i<input_count;i++) {
+    file_t const *f=files[i];
+    sox_dsd_layout_t *layout=NULL;
+    input[i].native_signal=f->ft->signal;
+    input[i].encoding=f->ft->encoding.encoding;
+    input[i].input_volume=f->volume==HUGE_VAL?1:f->volume;
+    if (f->replay_gain!=HUGE_VAL)
+      input[i].input_volume*=pow(10.,f->replay_gain/20.);
+    input[i].layout_known=1;
+    if (input[i].encoding==SOX_ENCODING_DSD) {
+      has_dsd_input=1;
+      input[i].layout_known=sox_dsd_get_layout(f->ft,&layout)==SOX_DSD_OK;
+      sox_dsd_layout_free(layout);
+    }
+  }
+  /* Compatible native concatenation must not silently relabel the next
+   * file.  Compare ordered role/ID identities, not just channel counts. */
+  if (spec.combine==LSX_DSD_COMBINE_CONCAT && has_dsd_input && input_count>1) {
+    sox_dsd_layout_t *first=NULL;
+    size_t j;
+    if (sox_dsd_get_layout(files[0]->ft,&first)!=SOX_DSD_OK || !first) {
+      lsx_fail("P05 native concatenation lacks the initial channel identity");exit(2);
+    }
+    for (i=1;i<input_count;i++) {
+      sox_dsd_layout_t *other=NULL;
+      sox_bool match=sox_dsd_get_layout(files[i]->ft,&other)==SOX_DSD_OK &&
+          other && sox_dsd_layout_channels(other)==sox_dsd_layout_channels(first);
+      for (j=0;match && j<sox_dsd_layout_channels(first);j++) {
+        sox_dsd_channel_info_t a={0},b={0};
+        a.version=b.version=1;a.size=b.size=sizeof(a);
+        if (sox_dsd_layout_channel(first,(unsigned)j,&a)!=SOX_DSD_OK ||
+            sox_dsd_layout_channel(other,(unsigned)j,&b)!=SOX_DSD_OK ||
+            a.role!=b.role || a.dff_id_valid!=b.dff_id_valid ||
+            (a.dff_id_valid && memcmp(a.dff_id,b.dff_id,4)))
+          match=sox_false;
+      }
+      sox_dsd_layout_free(other);
+      if (!match) {
+        lsx_fail("P05 native concatenation requires identical ordered channel identities");
+        sox_dsd_layout_free(first);free(input);free(effect);exit(2);
+      }
+    }
+    sox_dsd_layout_free(first);
+  }
+  /* New DSD policy never changes unrelated PCM-only execution. */
+  if (!has_dsd_input && !spec.output_native_capable && !has_new_effect &&
+      !dsd_plan_only && !dsd_report_path) {
+    free(input);free(effect);return;
+  }
+  for (i=0;i<spec.effect_count;i++) {
+    sox_effect_t *e=user_efftab[i];
+    effect[i].name=e->handler.name;
+    effect[i].flags=e->handler.flags;
+    effect[i].out_rate=e->out_signal.rate;
+    effect[i].out_channels=e->out_signal.channels;
+    effect[i].dsd=lsx_dsd_effect_get_options(e);
+    effect[i].dither_precision_one=lsx_dither_explicit_one_bit(e);
+    if (!strcmp(e->handler.name,"sdm"))
+      effect[i].sdm_filter_name=lsx_sdm_effect_filter_name(e);
+    if (!strcmp(e->handler.name,"remix") && e->out_signal.channels &&
+        e->out_signal.channels <= 32) {
+      unsigned count=e->out_signal.channels, *map=lsx_calloc(count,sizeof(*map));
+      effect[i].native_permutation=lsx_remix_pure_map(e,
+          (i?effect[i-1].out_channels:input[0].native_signal.channels),map,count);
+      free(map);
+    }
+  }
+  /* Legacy remains the default.  A legacy-only explicit request is not a
+   * claim that the new reconstruction graph runs in legacy mode. */
+  if (spec.policy.mode==LSX_DSD_MODE_LEGACY && !dsd_plan_only && !has_new_effect &&
+      !dsd_report_path) {
+    if (dsd_mode_explicit && has_dsd_input &&
+        (spec.effect_count || is_parallel(combine_method)))
+      lsx_warn("P05: legacy mode can process raw DSD pulses as PCM; domain planning is disabled");
+    free(input);free(effect);
+    return;
+  }
+  if (spec.combine==LSX_DSD_COMBINE_SEQUENCE && input_count>1 &&
+      (current_input==0 || dsd_plan_only)) {
+    lsx_dsd_plan_spec part=spec;
+    segments=input_count;
+    series=lsx_calloc(segments,sizeof(*series));
+    for (i=0;i<segments;i++) {
+      part.inputs=&input[i];part.input_count=1;
+      if (!lsx_dsd_plan_build(&part,&series[i],error,sizeof(error))) {
+        lsx_fail("P05 preflight segment %lu: %s",(unsigned long)i,error);
+        dsd_free_sequence(series,segments);free(input);free(effect);exit(2);
+      }
+      if (i && output_method!=sox_multiple &&
+          (series[i].output_rate!=series[0].output_rate ||
+           series[i].output_channels!=series[0].output_channels ||
+           series[i].output_bits!=series[0].output_bits ||
+           series[i].output_encoding!=series[0].output_encoding)) {
+        lsx_fail("P05 sequence segments disagree on the single output header; select a compatible destination or separate outputs");
+        dsd_free_sequence(series,segments);free(input);free(effect);exit(2);
+      }
+      if (!series[i].executable && !dsd_plan_only) {
+        lsx_fail("P05 preflight segment %lu: %s; no output created",(unsigned long)i,
+            series[i].unavailable_reason?series[i].unavailable_reason:"unimplemented DSP");
+        dsd_free_sequence(series,segments);free(input);free(effect);exit(2);
+      }
+    }
+    active=&series[0];
+  } else {
+    if (spec.combine==LSX_DSD_COMBINE_SEQUENCE && input_count>1) {
+      spec.inputs=&input[current_input];spec.input_count=1;
+    }
+    if (!lsx_dsd_plan_build(&spec,&plan,error,sizeof(error))) {
+      lsx_fail("P05 preflight: %s",error);
+      lsx_dsd_plan_free(&plan);free(input);free(effect);exit(2);
+    }
+  }
+  /* Verify format negotiation against the actual selected output handler.
+   * A handler adjustment after opening is not an acceptable DSD plan. */
+  if (!spec.output_is_null &&
+      (has_dsd_input || spec.output_native_capable || has_new_effect)) {
+    sox_encodinginfo_t resolved=ofile->encoding;
+    unsigned wanted=active->output_channels;
+    size_t k;
+    sox_bool rate_ok=handler->write_rates==NULL;
+    resolved.encoding=active->output_encoding;
+    resolved.bits_per_sample=active->output_bits;
+    if (handler->write_formats && !sox_format_supports_encoding(
+          ofile->filename,ofile->filetype,&resolved)) {
+      lsx_fail("P05 preflight: selected endpoint encoding/precision is unsupported by %s",kind);
+      if (series) dsd_free_sequence(series,segments);
+      else lsx_dsd_plan_free(&plan);
+      free(input);free(effect);exit(2);
+    }
+    if (handler->write_rates) for (k=0;handler->write_rates[k];k++)
+      if (handler->write_rates[k]==active->output_rate) rate_ok=sox_true;
+    if (!rate_ok || ((handler->flags & SOX_FILE_CHANS) &&
+        !((wanted==1 && (handler->flags & SOX_FILE_MONO)) ||
+          (wanted==2 && (handler->flags & SOX_FILE_STEREO)) ||
+          (wanted==4 && (handler->flags & SOX_FILE_QUAD))))) {
+      lsx_fail("P05 preflight: output handler would coerce a planned rate or channel count");
+      if (series) dsd_free_sequence(series,segments);
+      else lsx_dsd_plan_free(&plan);
+      free(input);free(effect);exit(2);
+    }
+  }
+  /* Reuse P04's established layout contract.  This call only constructs
+   * metadata and does not open a file or start an effect.  Its temporary
+   * WAV permutation is recomputed by the actual output open path. */
+  {
+    sox_signalinfo_t saved_signal=ofile->signal;
+    sox_encodinginfo_t saved_encoding=ofile->encoding;
+    sox_dsd_layout_t *layout;
+    ofile->signal.channels=active->output_channels;
+    ofile->signal.rate=active->output_rate;
+    ofile->encoding.encoding=active->output_encoding;
+    ofile->encoding.bits_per_sample=active->output_bits;
+    layout=dsd_plan_output(ofile->filename,ofile->filetype);
+    sox_dsd_layout_free(layout);
+    free(dsd_output_permutation);
+    dsd_output_permutation=NULL;
+    dsd_output_permutation_count=0;
+    ofile->signal=saved_signal;
+    ofile->encoding=saved_encoding;
+  }
+
+  /* The plan is published before starting any DSP or opening the audio header.
+   * Sequence reporting contains all independently validated segments. */
+  if (dsd_plan_only || dsd_report_path) {
+    if (dsd_report_path) {
+      report=lsx_fopen(dsd_report_path,"w");
+      if (!report) {lsx_fail("cannot open --dsd-report destination");exit(2);}
+    } else report=stdout;
+    if (series) {
+      fputs("{\n  \"schema\": \"sox.dsd.sequence.v1\",\n  \"segments\": [\n",report);
+      for (i=0;i<segments;i++) {
+        lsx_dsd_plan_spec part=spec;
+        part.inputs=&input[i];part.input_count=1;
+        lsx_dsd_plan_json(report,&part,&series[i]);
+        fputs(i+1<segments?",\n":"\n",report);
+      }
+      fputs("  ]\n}\n",report);
+    } else lsx_dsd_plan_json(report,&spec,active);
+    if (report!=stdout && fclose(report)) {lsx_fail("cannot write --dsd-report");exit(2);}
+  }
+  if (dsd_plan_only) {
+    if (series) dsd_free_sequence(series,segments);
+    else lsx_dsd_plan_free(&plan);
+    free(input);free(effect);
+    success=1;exit(0);
+  }
+  if (!active->executable) {
+    lsx_fail("P05 preflight: %s; plan with --dsd-plan (no output created)",
+        active->unavailable_reason?active->unavailable_reason:"DSP is not yet implemented");
+    if (series) dsd_free_sequence(series,segments);
+    else lsx_dsd_plan_free(&plan);
+    free(input);free(effect);exit(2);
+  }
+  if (has_dsd_input || active->output_domain==LSX_DOP_TRANSPORT) {
+    if (active->output_domain==LSX_PCM_AUDIO &&
+        !ofile_encoding_options.encoding && !ofile_encoding_options.bits_per_sample &&
+        active->output_bits!=24 && !spec.output_is_null)
+      lsx_warn("P05: signed 24-bit unavailable; selecting %u-bit PCM encoding %u",
+          active->output_bits,(unsigned)active->output_encoding);
+    ofile->signal.rate=active->output_rate;
+    ofile->signal.channels=active->output_channels;
+    if (active->output_bits) ofile->encoding.bits_per_sample=active->output_bits;
+    ofile->encoding.encoding=active->output_encoding;
+  }
+  if (series) dsd_free_sequence(series,segments);
+  else lsx_dsd_plan_free(&plan);
+  free(input);free(effect);
+}
+
 static int process(void)
 {         /* Input(s) -> Balancing -> Combiner -> Effects -> Output */
   int flow_status;
@@ -2110,6 +2437,7 @@ static int process(void)
   calculate_combiner_signal_parameters();
   set_combiner_and_output_encoding_parameters();
   calculate_output_signal_parameters();
+  preflight_dsd();
   open_output_file();
 
   if (!effects_chain)
@@ -2318,6 +2646,14 @@ static void usage(void)
 "--dft-min NUM            Minimum size (log2) for DFT processing (default 10)",
 "--dsd-layout ROLES       Comma-separated output role assignment: FL,FR,FC,LFE,BL,BR,SL,SR,MONO",
 "--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
+"--dsd-mode auto|native|legacy  Opt in to preflight; legacy is P05 default",
+"--dsd-decode mastering|wideband|legacy  Select reconstruction policy",
+"--dsd-encode mastering|legacy|experimental  Select modulation policy",
+"--dsd-level preserve|sacd  Decoder level convention",
+"--dsd-clip warn|error    Graph-boundary clipping policy",
+"--dsd-bandwidth adapt|strict  PCM reconstruction passband policy",
+"--dsd-report PATH       Write preflight plan JSON (P05; not a DSP report)",
+"--dsd-plan              Print preflight JSON and exit before output open",
 "--effects-file FILENAME  File containing effects and options",
 "-G, --guard              Use temporary files to guard against clipping",
 "-h, --help               Display version number and usage information",
@@ -2619,6 +2955,14 @@ static lsx_option_t const long_options[] = {
   {"dft-min"         , lsx_option_arg_required, NULL, 0}, /* 25 */
   {"dsd-layout"      , lsx_option_arg_required, NULL, 0}, /* 26 */
   {"dsd-layout-loss" , lsx_option_arg_required, NULL, 0}, /* 27 */
+  {"dsd-mode"        , lsx_option_arg_required, NULL, 0}, /* 28 */
+  {"dsd-decode"      , lsx_option_arg_required, NULL, 0}, /* 29 */
+  {"dsd-encode"      , lsx_option_arg_required, NULL, 0}, /* 30 */
+  {"dsd-level"       , lsx_option_arg_required, NULL, 0}, /* 31 */
+  {"dsd-clip"        , lsx_option_arg_required, NULL, 0}, /* 32 */
+  {"dsd-bandwidth"   , lsx_option_arg_required, NULL, 0}, /* 33 */
+  {"dsd-report"      , lsx_option_arg_required, NULL, 0}, /* 34 */
+  {"dsd-plan"        , lsx_option_arg_none    , NULL, 0}, /* 35 */
 
   /*
    * These instead are indexed by their letters, which limits the
@@ -2853,6 +3197,47 @@ static char parse_gopts_and_fopts(file_t * f)
         else if (!strcmp(optstate.arg,"warn"))dsd_layout_loss_warn=sox_true;
         else {lsx_fail("--dsd-layout-loss must be error or warn");exit(1);}
         break;
+      case 28:
+        if (!strcmp(optstate.arg,"auto"))dsd_policy.mode=LSX_DSD_MODE_AUTO;
+        else if (!strcmp(optstate.arg,"native"))dsd_policy.mode=LSX_DSD_MODE_NATIVE;
+        else if (!strcmp(optstate.arg,"legacy"))dsd_policy.mode=LSX_DSD_MODE_LEGACY;
+        else {lsx_fail("--dsd-mode must be auto, native or legacy");exit(1);}
+        dsd_mode_explicit=sox_true;
+        break;
+      case 29:
+        if (!strcmp(optstate.arg,"mastering"))dsd_policy.decode=LSX_DSD_PROFILE_MASTERING;
+        else if (!strcmp(optstate.arg,"wideband"))dsd_policy.decode=LSX_DSD_PROFILE_WIDEBAND;
+        else if (!strcmp(optstate.arg,"legacy"))dsd_policy.decode=LSX_DSD_PROFILE_LEGACY;
+        else {lsx_fail("--dsd-decode must be mastering, wideband or legacy");exit(1);}
+        dsd_policy.decode_specified=1;
+        dsd_new_policy_explicit=sox_true;break;
+      case 30:
+        if (!strcmp(optstate.arg,"mastering"))dsd_policy.encode=LSX_DSD_ENCODE_MASTERING;
+        else if (!strcmp(optstate.arg,"legacy"))dsd_policy.encode=LSX_DSD_ENCODE_LEGACY;
+        else if (!strcmp(optstate.arg,"experimental"))dsd_policy.encode=LSX_DSD_ENCODE_EXPERIMENTAL;
+        else {lsx_fail("--dsd-encode must be mastering, legacy or experimental");exit(1);}
+        dsd_policy.encode_specified=1;
+        dsd_new_policy_explicit=sox_true;break;
+      case 31:
+        if (!strcmp(optstate.arg,"preserve"))dsd_policy.level=LSX_DSD_LEVEL_PRESERVE;
+        else if (!strcmp(optstate.arg,"sacd"))dsd_policy.level=LSX_DSD_LEVEL_SACD;
+        else {lsx_fail("--dsd-level must be preserve or sacd");exit(1);}
+        dsd_policy.level_specified=1;
+        dsd_new_policy_explicit=sox_true;break;
+      case 32:
+        if (!strcmp(optstate.arg,"warn"))dsd_policy.clip=LSX_DSD_CLIP_WARN;
+        else if (!strcmp(optstate.arg,"error"))dsd_policy.clip=LSX_DSD_CLIP_ERROR;
+        else {lsx_fail("--dsd-clip must be warn or error");exit(1);}
+        dsd_new_policy_explicit=sox_true;break;
+      case 33:
+        if (!strcmp(optstate.arg,"adapt"))dsd_policy.bandwidth=LSX_DSD_BANDWIDTH_ADAPT;
+        else if (!strcmp(optstate.arg,"strict"))dsd_policy.bandwidth=LSX_DSD_BANDWIDTH_STRICT;
+        else {lsx_fail("--dsd-bandwidth must be adapt or strict");exit(1);}
+        dsd_new_policy_explicit=sox_true;break;
+      case 34:
+        free(dsd_report_path);dsd_report_path=lsx_strdup(optstate.arg);
+        dsd_new_policy_explicit=sox_true;break;
+      case 35:dsd_plan_only=sox_true;break;
       default:
         lsx_fail("internal error processing long option");
         exit(1);

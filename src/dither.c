@@ -1662,3 +1662,12 @@ sox_effect_handler_t const * lsx_dither_effect_fn(void)
   };
   return &handler;
 }
+
+/* P05 preflight only needs the parsed -p option.  No start, allocation,
+ * or mutable noise-shaper state is consulted. */
+int lsx_dither_explicit_one_bit(sox_effect_t const *effect)
+{
+  return effect && effect->handler.name &&
+      !strcmp(effect->handler.name,"dither") &&
+      ((priv_t const *)effect->priv)->precision == 1;
+}

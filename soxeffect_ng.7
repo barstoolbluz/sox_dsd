@@ -3633,6 +3633,25 @@ See
 for a volume-changing effect with different capabilities and
 .B compand
 for a dynamic range compression/expansion/limiting effect.
+.SS P05 DSD conversion-planning effects
+.TP
+.B dsdpcm [-p mastering|wideband|legacy] [-l preserve|sacd] [rate]
+Declares native DSD to reconstructed PCM conversion.  With no rate, selects
+the profile intermediate PCM clock.  Versioned profile IDs such as
+.B decode.mastering.v1.dsd128
+may be selected with -p.  P05 validates and reports this boundary but does not
+yet execute the composite reconstruction DSP.
+.TP
+.B pcmdsd [-p mastering|legacy|experimental] [--reference auto|pcm|dsd] rate
+Declares one composite PCM-to-native-DSD modulator at the supplied exact DSD
+clock.  The reference specifies PCM full scale or the in-process reconstructed
+DSD calibration.  Mastering versioned IDs such as
+.B encode.mastering.v1.dsd128
+are accepted.  The composite DSP is scheduled for a later phase.
+.TP
+.B dsdstat
+Declares a native DSD statistics pass-through, scheduled for P14.  P05
+rejects execution before output opening instead of claiming to process samples.
 .SH REFERENCES
 .TP
 [1]
