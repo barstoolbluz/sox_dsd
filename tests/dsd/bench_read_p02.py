@@ -91,8 +91,15 @@ def summarize(baseline, candidate, seed):
     draws.sort()
     lo, hi = draws[100], draws[3899]
     noise = max(robust_sigma(b), robust_sigma(c))
+    # Decide from the interval, not the point estimate, as
+    # tests/dsd/BENCHMARKING.md states: entirely inside the limit passes,
+    # entirely beyond it fails, and an interval straddling the limit is
+    # inconclusive however comfortable its median looks.
+    limit = 1 + REGRESSION_LIMIT
     status = ('inconclusive-noise' if noise >= NOISE_LIMIT else
-              'fail-regression' if ratio > 1 + REGRESSION_LIMIT else 'pass')
+              'pass' if hi <= limit else
+              'fail-regression' if lo > limit else
+              'inconclusive-interval')
     return {'samples': n,
             'baseline_median_cpu_seconds': statistics.median(b),
             'candidate_median_cpu_seconds': statistics.median(c),
@@ -101,11 +108,17 @@ def summarize(baseline, candidate, seed):
             'measurement_noise': noise, 'status': status}
 
 
-def run(sox, source, target, cap, output, cpu=None):
+def run(sox, source, target, cap, output, cpu=None, null_extra=()):
     args = []
     if cpu is not None:
         args += ['taskset', '-c', str(cpu)]
-    args += [str(sox), '--buffer', str(cap), str(source)]
+    args += [str(sox), '--buffer', str(cap)]
+    # Options needed only to make a null destination acceptable. From P04 a
+    # named channel layout must be explicitly discardable, so without
+    # --dsd-layout-loss warn every -t null run exits 2. Applied to both arms
+    # or neither: an asymmetric command line is not a comparison.
+    args += [str(a) for a in null_extra] if output == 'null' else []
+    args += [str(source)]
     if output == 'null':
         args += ['-t', 'null', '-']
     else:
@@ -139,6 +152,12 @@ def main():
                    help='pin every run to this CPU; required for a verdict')
     p.add_argument('--working-directory', type=Path, default=None,
                    help='source/output parent; /dev/shm isolates disk latency')
+    p.add_argument('--null-extra-arg', action='append', default=[],
+                   metavar='ARG',
+                   help='extra argument for -t null runs only, repeatable; '
+                        'both binaries must accept it or the comparison is '
+                        'invalid. From P04 onward -t null needs '
+                        '--dsd-layout-loss warn')
     args = p.parse_args()
     if args.pairs < 15 or args.warmups < 1:
         p.error('a verdict needs at least 15 pairs and 1 warmup')
@@ -185,7 +204,8 @@ def main():
                             target = td/f'output-{fmt}-{channels}-{size}-{operation}-{name}.dff'
                             if target.exists():
                                 target.unlink()
-                            result = run(sox, source, target, cap, operation, args.cpu)
+                            result = run(sox, source, target, cap, operation,
+                                         args.cpu, args.null_extra_arg)
                             result.update(source_format=fmt, channels=channels,
                                           operation=operation, size=size, frames=frames,
                                           buffer_samples=cap, variant=name,
@@ -236,11 +256,12 @@ def main():
             s['status'] = 'not-comparable'
     gating = [s['status'] for s in summaries.values()
               if s['status'] != 'not-comparable']
+    inconclusive = {'inconclusive-noise', 'inconclusive-interval'}
     if errors or not gating:
         verdict = 'failed' if errors else 'no-comparable-workload'
     elif 'fail-regression' in gating:
         verdict = 'fail'
-    elif 'inconclusive-noise' in gating:
+    elif inconclusive & set(gating):
         verdict = 'incomplete'
     else:
         verdict = 'pass'
@@ -249,6 +270,7 @@ def main():
             'candidate_sha256':checksum(args.sox),
             'pinned_cpu':args.cpu, 'working_directory':str(args.working_directory),
             'pairs':args.pairs, 'warmups':args.warmups,
+            'null_extra_args':args.null_extra_arg,
             'regression_limit':REGRESSION_LIMIT, 'noise_limit':NOISE_LIMIT,
             'host_unqualified':verdict != 'pass' and any(
                 s['status'] == 'inconclusive-noise' for s in summaries.values()),
