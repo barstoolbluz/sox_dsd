@@ -62,22 +62,38 @@ int lsx_dsd_count_convert(uint64_t frames, uint32_t input_hz,
   return 1;
 }
 
+/* P06 coefficients are versioned by these immutable rate/profile choices.
+ * These values are derived from the actual emitted bank lengths in the
+ * separate P06 coefficient manifest, not the earlier feasibility probe. */
+static const lsx_dsd_frontend_profile dsd_frontends[] = {
+  { 2822400,  88200, LSX_DSD_PROFILE_MASTERING,  20000,  40000, 5, LSX_DSD_BANK_MASTER64_256, 1348},
+  { 5644800, 176400, LSX_DSD_PROFILE_MASTERING,  30000,  60000, 5, LSX_DSD_BANK_MASTER128, 1636},
+  {11289600, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 6, LSX_DSD_BANK_MASTER64_256, 2724},
+  { 2822400,  88200, LSX_DSD_PROFILE_WIDEBAND,  35280,  44100, 5, LSX_DSD_BANK_WIDEBAND, 2468},
+  { 5644800, 176400, LSX_DSD_PROFILE_WIDEBAND,  70560,  88200, 5, LSX_DSD_BANK_WIDEBAND, 2468},
+  {11289600, 352800, LSX_DSD_PROFILE_WIDEBAND, 141120, 176400, 5, LSX_DSD_BANK_WIDEBAND, 2468}
+};
+
+const lsx_dsd_frontend_profile *lsx_dsd_frontend_profile_find(
+    uint32_t rate, lsx_dsd_decode profile)
+{
+  size_t i;
+  for (i = 0; i < sizeof(dsd_frontends)/sizeof(dsd_frontends[0]); ++i)
+    if (dsd_frontends[i].native_hz == rate && dsd_frontends[i].kind == profile)
+      return &dsd_frontends[i];
+  return NULL;
+}
+
 int lsx_dsd_profile_edges(uint32_t rate, lsx_dsd_decode profile,
     double *pass, double *stop, double *intermediate)
 {
+  const lsx_dsd_frontend_profile *desc;
   if (!pass || !stop || !intermediate) return 0;
-  if (profile == LSX_DSD_PROFILE_LEGACY) return 0; /* No certified edge. */
-  switch (rate) {
-    case 2822400: *intermediate = 88200; *pass=20000; *stop=40000; break;
-    case 5644800: *intermediate = 176400; *pass=30000; *stop=60000; break;
-    case 11289600: *intermediate = 176400; *pass=40000; *stop=80000; break;
-    default: return 0;
-  }
-  if (profile == LSX_DSD_PROFILE_WIDEBAND) {
-    *intermediate = rate / 32;
-    *pass = .4 * *intermediate;
-    *stop = .5 * *intermediate;
-  }
+  desc = lsx_dsd_frontend_profile_find(rate, profile);
+  if (!desc) return 0;
+  *pass = desc->pass_hz;
+  *stop = desc->stop_hz;
+  *intermediate = desc->intermediate_hz;
   return 1;
 }
 

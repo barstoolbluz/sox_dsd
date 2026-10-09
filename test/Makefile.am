@@ -62,3 +62,15 @@ EXTRA_PROGRAMS += dsd_test_plan
 dsd_test_plan_SOURCES = ../tests/dsd/test_plan.c
 dsd_test_plan_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_plan_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P06 private intermediate scalar decoder; opt-in test binary, not check-am.
+EXTRA_PROGRAMS += dsd_test_decode
+dsd_test_decode_SOURCES = ../tests/dsd/test_decode.c
+dsd_test_decode_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_decode_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# Include production decoder source with deterministic calloc failure injection.
+EXTRA_PROGRAMS += dsd_test_decode_faults
+dsd_test_decode_faults_SOURCES = ../tests/dsd/test_decode_faults.c
+dsd_test_decode_faults_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_decode_faults_LDADD = $(top_builddir)/src/libsox_ng.la

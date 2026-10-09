@@ -219,13 +219,13 @@ win64.exe: winexe-prepare
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.
 .PHONY: check-dsd
-DSD_PHASE ?= P05
+DSD_PHASE ?= P06
 DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
 check-dsd: all
 	$(MAKE) -C test dsd_test_io$(EXEEXT)
 	$(MAKE) -C test dsd_test_dff_writer$(EXEEXT)
 	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox_ng --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
-	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05"; then \
+	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06"; then \
 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_streaming.py \
@@ -233,26 +233,35 @@ check-dsd: all
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/streaming; \
 	fi
-	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05"; then \
+	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06"; then \
 	  $(MAKE) -C test dsd_test_seek_contract$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_seek.py \
 	    --probe $(abs_builddir)/test/dsd_test_seek_contract$(EXEEXT) \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/seek; \
 	fi
-	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05"; then \
+	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06"; then \
 	  $(MAKE) -C test dsd_test_layout$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_layout.py \
 	    --unit $(abs_builddir)/test/dsd_test_layout$(EXEEXT) \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/layout; \
 	fi
-	@if test "$(DSD_PHASE)" = "P05"; then \
+	@if test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06"; then \
 	  $(MAKE) -C test dsd_test_plan$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_plan$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_plan.py \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/plan; \
+	fi
+	@if test "$(DSD_PHASE)" = "P06"; then \
+	  $(MAKE) -C test dsd_test_decode$(EXEEXT) && \
+	  $(abs_builddir)/test/dsd_test_decode$(EXEEXT) && \
+	  $(MAKE) -C test dsd_test_decode_faults$(EXEEXT) && \
+	  $(abs_builddir)/test/dsd_test_decode_faults$(EXEEXT) && \
+	  python3 $(srcdir)/tests/dsd/test_decode.py \
+	    --unit $(abs_builddir)/test/dsd_test_decode$(EXEEXT) \
+	    --results $(DSD_RESULTS)/scalar; \
 	fi
 
 # P00 distributable design/test inputs (generated raw runs live in the continuation archive).
@@ -335,4 +344,10 @@ EXTRA_DIST += docs/dsd/briefs/P00a-corrective.md \
 EXTRA_DIST += tests/dsd/bench_hotfix_dff.py \
   tests/dsd/check_hotfix_equivalence.py \
   docs/dsd/handoffs/P02_DFF_READ_HOTFIX.md
-EXTRA_DIST += docs/dsd/briefs/P06.md
+
+# P06 private scalar reconstruction certification, fixtures and benchmarks.
+EXTRA_DIST += src/dsd_coeffs.h src/dsd_decode.h src/dsd_kernels.h \
+  tests/dsd/generate_coeffs.py tests/dsd/certify_filters.py \
+  tests/dsd/test_decode.c tests/dsd/test_decode.py \
+  tests/dsd/bench_decode.py tests/dsd/test_decode_faults.c tests/dsd/reference/p06_coefficients.json \
+  docs/dsd/handoffs/P06.md

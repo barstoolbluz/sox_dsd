@@ -1,0 +1,290 @@
+/* P06: bounded scalar cascade of factor-two FIR decimators.
+ *
+ * Each ring has a mirrored halo: a write to p and p+L makes the L oldest-
+ * to-newest samples contiguous at ring+p+1, including wrap.  No block memmove
+ * or file-sized allocation is needed.  The native index selected by the stage
+ * phases is G mod D; discard G / D causal outputs and the first returned
+ * intermediate sample is centered at native time zero.  At EOF, append only
+ * numeric +0.0 to the first stage until ceil(N/D) centered samples exist.
+ * Rounding mode is inherited.  No modification to the caller FP environment.
+ */
+#include "dsd_decode.h"
+#include "dsd_coeffs.h"
+#include "dsd_kernels.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define LSX_DSD_MAX_STAGES 6
+#define LSX_DSD_ALIGN 64
+
+typedef struct {
+  const double *h;
+  double *ring;
+  size_t taps, head;
+  uint64_t samples;
+  unsigned phase, halfband;
+} stage_state;
+
+typedef struct {
+  const double *coeff;
+  size_t taps;
+  int halfband;
+} bank;
+
+struct lsx_dsd_reconstruction {
+  lsx_dsd_reconstruction_info info;
+  stage_state *stages; /* stage count x channels, private mutable histories */
+  double *histories;   /* single aligned allocation, each ring has a halo */
+  void *histories_raw;
+  double *frame;       /* per-channel scratch, owned by this context */
+  uint64_t real_frames, emitted, raw_outputs, wanted;
+  unsigned finish_started, done;
+  sox_dsd_status_t error;
+};
+
+static const bank hb = {lsx_dsd_coeff_halfband, 57, 1};
+static const bank m64 = {lsx_dsd_coeff_master64_256, 117, 0};
+static const bank m128 = {lsx_dsd_coeff_master128, 153, 0};
+static const bank wide = {lsx_dsd_coeff_wideband, 257, 0};
+
+/* Every individual channel/stage ring begins on a 64-byte boundary. The
+ * mirrored halo occupies 2*L elements; only the end padding is unused. */
+static size_t ring_stride(size_t taps)
+{
+  return (2 * taps + 7) & ~(size_t)7;
+}
+
+/* Portable C99 64-byte alignment; allocation is freed by its original base. */
+static double *allocate_aligned(size_t bytes, void **raw)
+{
+  uintptr_t start, aligned;
+  void *allocation;
+  if (bytes > SIZE_MAX - (LSX_DSD_ALIGN - 1)) return NULL;
+  allocation = calloc(1, bytes + LSX_DSD_ALIGN - 1);
+  if (!allocation) return NULL;
+  start = (uintptr_t)allocation;
+  aligned = (start + LSX_DSD_ALIGN - 1) & ~(uintptr_t)(LSX_DSD_ALIGN - 1);
+  *raw = allocation;
+  return (double *)aligned;
+}
+
+sox_dsd_status_t lsx_dsd_reconstruction_create(
+    uint32_t rate, lsx_dsd_decode profile, unsigned channels,
+    lsx_dsd_reconstruction **out)
+{
+  lsx_dsd_reconstruction *ctx;
+  const bank *last;
+  const lsx_dsd_frontend_profile *desc;
+  size_t elements = 0, offset = 0, c;
+  uint64_t G = 0;
+  unsigned depth, j;
+  if (!out) return SOX_DSD_BAD_ARGUMENT;
+  *out = NULL;
+  desc = lsx_dsd_frontend_profile_find(rate,profile);
+  if (!channels) return SOX_DSD_BAD_ARGUMENT;
+  if (!desc) return SOX_DSD_UNSUPPORTED;
+  depth = desc->stages;
+  switch (desc->last_bank) {
+    case LSX_DSD_BANK_MASTER64_256: last = &m64; break;
+    case LSX_DSD_BANK_MASTER128: last = &m128; break;
+    case LSX_DSD_BANK_WIDEBAND: last = &wide; break;
+    default: return SOX_DSD_UNSUPPORTED;
+  }
+  ctx = calloc(1, sizeof(*ctx));
+  if (!ctx) return SOX_DSD_NUMERIC_ERROR; /* allocation failure */
+  ctx->info.native_hz = rate;
+  ctx->info.intermediate_hz = desc->intermediate_hz;
+  ctx->info.factor = rate / desc->intermediate_hz;
+  ctx->info.channels = channels;
+  ctx->info.stages = depth;
+  for (j = 0; j < depth; ++j) {
+    const bank *b = (j == depth - 1) ? last : &hb;
+    ctx->info.taps[j] = (unsigned)b->taps;
+    G += ((uint64_t)(b->taps / 2)) << j;
+    if (channels > (SIZE_MAX - elements) / ring_stride(b->taps))
+      goto invalid_size;
+    elements += (size_t)channels * ring_stride(b->taps);
+  }
+  if (elements > SIZE_MAX / sizeof(double)) goto invalid_size;
+  if (G != desc->delay_native_frames) goto invalid_size;
+  ctx->info.delay_native_frames = G;
+  ctx->info.discard_frames = G / ctx->info.factor;
+  for (j = 0; j < depth; ++j)
+    ctx->info.phases[j] = (unsigned)((G >> j) & 1u);
+  ctx->stages = calloc((size_t)channels * depth, sizeof(*ctx->stages));
+  ctx->frame = calloc(channels, sizeof(*ctx->frame));
+  ctx->histories = allocate_aligned(elements * sizeof(double), &ctx->histories_raw);
+  if (!ctx->stages || !ctx->frame || !ctx->histories) goto no_memory;
+  for (c = 0; c < channels; ++c) {
+    for (j = 0; j < depth; ++j) {
+      const bank *b = j == depth - 1 ? last : &hb;
+      stage_state *st = &ctx->stages[c*depth+j];
+      st->h = b->coeff;
+      st->taps = b->taps;
+      st->ring = ctx->histories + offset;
+      st->phase = ctx->info.phases[j];
+      st->halfband = (unsigned)b->halfband;
+      offset += ring_stride(b->taps);
+    }
+  }
+  ctx->info.allocated_bytes = sizeof(*ctx) + channels * depth * sizeof(stage_state)
+      + channels * sizeof(double) + elements * sizeof(double) + LSX_DSD_ALIGN - 1;
+  *out = ctx;
+  return SOX_DSD_OK;
+invalid_size:
+  lsx_dsd_reconstruction_destroy(ctx);
+  return SOX_DSD_BAD_ARGUMENT;
+no_memory:
+  lsx_dsd_reconstruction_destroy(ctx);
+  return SOX_DSD_NUMERIC_ERROR;
+}
+
+/* Feed one sample through a mono cascade.  Stage phases are common to all
+ * channels, hence their output flags must agree for each interleaved frame. */
+static int feed(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j,
+                double x, double *result)
+{
+  stage_state *st = &ctx->stages[(size_t)channel * ctx->info.stages + j];
+  const size_t head = st->head, L = st->taps;
+  st->ring[head] = x;
+  st->ring[head + L] = x; /* mirrored halo */
+  st->head = head + 1 == L ? 0 : head + 1;
+  if ((st->samples++ & 1u) != st->phase) return 0;
+  x = lsx_dsd_fir_scalar(st->h, L, st->ring + head + 1, st->halfband);
+  if (j + 1 == ctx->info.stages) {
+    *result = x;
+    return 1;
+  }
+  return feed(ctx, channel, j + 1, x, result);
+}
+
+static int accept_frame(lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
+                        int pad, double *pcm, size_t destination)
+{
+  unsigned c;
+  int produced = 0;
+  for (c = 0; c < ctx->info.channels; ++c) {
+    int got;
+    double x = pad ? 0.0 : (bits[c] == SOX_SAMPLE_MAX ? 1.0 : -1.0);
+    got = feed(ctx, c, 0, x, &ctx->frame[c]);
+    if (!c) produced = got;
+    /* Each channel shares stage clocks; no channel-specific phase drift. */
+  }
+  if (produced) {
+    uint64_t index = ctx->raw_outputs++;
+    if (index >= ctx->info.discard_frames) {
+      for (c = 0; c < ctx->info.channels; ++c)
+        pcm[destination * ctx->info.channels + c] = ctx->frame[c];
+      ++ctx->emitted;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+sox_dsd_status_t lsx_dsd_reconstruction_process(
+    lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
+    size_t *input_frames, double *pcm, size_t *output_frames)
+{
+  size_t avail, limit, consumed = 0, produced = 0;
+  if (!ctx) return SOX_DSD_BAD_ARGUMENT;
+  if (!input_frames || !output_frames) {
+    ctx->error = SOX_DSD_BAD_ARGUMENT;
+    return ctx->error;
+  }
+  avail = *input_frames;
+  limit = *output_frames;
+  *input_frames = *output_frames = 0;
+  if (ctx->error) return ctx->error;
+  if (ctx->finish_started) return SOX_DSD_BAD_ARGUMENT;
+  if (!limit) return SOX_DSD_NEED_OUTPUT; /* no validation/state mutation */
+  if ((avail && !bits) || !pcm) {
+    ctx->error = SOX_DSD_BAD_ARGUMENT;
+    return ctx->error;
+  }
+  /* Reserve integer headroom for the longest finite tail, even for unknown EOF. */
+  if (ctx->real_frames > UINT64_MAX - ctx->info.delay_native_frames - ctx->info.factor ||
+      avail > UINT64_MAX - ctx->info.delay_native_frames - ctx->info.factor - ctx->real_frames ||
+      (ctx->info.channels && avail > SIZE_MAX / ctx->info.channels) ||
+      (ctx->info.channels && limit > SIZE_MAX / ctx->info.channels)) {
+    ctx->error = SOX_DSD_NUMERIC_ERROR;
+    return ctx->error;
+  }
+  while (consumed < avail && produced < limit) {
+    unsigned c;
+    const sox_sample_t *frame = bits + consumed * ctx->info.channels;
+    for (c = 0; c < ctx->info.channels; ++c) {
+      if (frame[c] != SOX_SAMPLE_MAX && frame[c] != -SOX_SAMPLE_MAX) {
+        ctx->error = SOX_DSD_BAD_ARGUMENT;
+        *input_frames = consumed;
+        *output_frames = produced;
+        return SOX_DSD_BAD_ARGUMENT;
+      }
+    }
+    produced += accept_frame(ctx, frame, 0, pcm, produced);
+    ++consumed;
+    ++ctx->real_frames;
+  }
+  *input_frames = consumed;
+  *output_frames = produced;
+  if (consumed < avail) return SOX_DSD_NEED_OUTPUT;
+  return SOX_DSD_NEED_INPUT;
+}
+
+sox_dsd_status_t lsx_dsd_reconstruction_finish(
+    lsx_dsd_reconstruction *ctx, double *pcm, size_t *output_frames)
+{
+  size_t capacity, produced = 0;
+  if (!ctx) return SOX_DSD_BAD_ARGUMENT;
+  if (!output_frames) {
+    ctx->error = SOX_DSD_BAD_ARGUMENT;
+    return ctx->error;
+  }
+  capacity = *output_frames;
+  *output_frames = 0;
+  if (ctx->error) return ctx->error;
+  if (ctx->done) return SOX_DSD_DONE;
+  if (capacity && !pcm) {
+    ctx->error = SOX_DSD_BAD_ARGUMENT;
+    return ctx->error;
+  }
+  if (!capacity) return SOX_DSD_NEED_OUTPUT;
+  if (!ctx->finish_started) {
+    const uint64_t D = ctx->info.factor;
+    uint64_t wanted = ctx->real_frames / D + (ctx->real_frames % D != 0);
+    /* Index arithmetic for lookahead cannot wrap at the uint64 limit. */
+    if (wanted && (wanted - 1 > (UINT64_MAX - ctx->info.delay_native_frames) / D ||
+                   ctx->real_frames > UINT64_MAX - ctx->info.delay_native_frames - D)) {
+      ctx->error = SOX_DSD_NUMERIC_ERROR;
+      return SOX_DSD_NUMERIC_ERROR;
+    }
+    ctx->wanted = wanted;
+    ctx->finish_started = 1;
+  }
+  while (produced < capacity && ctx->emitted < ctx->wanted)
+    produced += accept_frame(ctx, NULL, 1, pcm, produced);
+  *output_frames = produced;
+  if (ctx->emitted == ctx->wanted) {
+    ctx->done = 1;
+    return SOX_DSD_DONE;
+  }
+  return SOX_DSD_NEED_OUTPUT;
+}
+
+sox_dsd_status_t lsx_dsd_reconstruction_info_get(
+    const lsx_dsd_reconstruction *ctx, lsx_dsd_reconstruction_info *out)
+{
+  if (!ctx || !out) return SOX_DSD_BAD_ARGUMENT;
+  *out = ctx->info;
+  return SOX_DSD_OK;
+}
+
+void lsx_dsd_reconstruction_destroy(lsx_dsd_reconstruction *ctx)
+{
+  if (!ctx) return;
+  free(ctx->histories_raw);
+  free(ctx->stages);
+  free(ctx->frame);
+  free(ctx);
+}
