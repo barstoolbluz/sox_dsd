@@ -128,6 +128,32 @@ Machine preparation is necessary but not sufficient. These matter as much:
 - **Verify correctness every run.** Hash the output. A faster binary that
   writes different bytes is not faster. P01 checked this in all 90 runs.
 
+### Two options that exist because a verdict can lie
+
+`bench_read_p02.py` grew two flags from boundaries where the harness reported
+something other than what it meant. Both default to the safe reading.
+
+`--null-extra-arg=ARG` supplies an argument used only for `-t null` runs,
+repeatably. From P04 a named channel layout must be explicitly discardable, so
+`-t null` exits 2 without `--dsd-layout-loss warn`. The harness probes both
+binaries first and uses the one invocation they share; where none exists,
+because one arm does not recognise the option at all, it records those
+workloads as `unavailable` with that reason instead of counting failures. A
+version-boundary impossibility is not a regression, and must not be reported as
+one.
+
+`--require-comparable WORKLOAD`, or `--require-comparable-preset p01p02`,
+asserts that a workload's two arms must keep producing identical bytes. Use it
+for a hotfix round, where recovering throughput by changing what is decoded
+would drop the workload from the gate and read as a pass by exclusion. Do not
+leave it on generally: an assertion about one comparison becomes a false
+accusation against any phase that legitimately changes an output, which is what
+happened to P04 for writing channel identity into DFF headers.
+
+The general rule both encode: a workload that cannot be compared and a workload
+that compares badly are different findings, and a harness that conflates them
+will mislead whoever reads it, including its author.
+
 ## Reporting a verdict
 
 Decide from an interval, not a point estimate, and check the two conditions in

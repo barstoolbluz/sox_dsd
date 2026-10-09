@@ -58,10 +58,17 @@ def dff_bytes(channels, frames):
 REGRESSION_LIMIT = .05
 NOISE_LIMIT = .02
 
-# These workloads produced identical DFF outputs under the P01 and P02 arms
-# in the prepared-host record. Later optimizations must not silently remove
-# them from the performance gate by changing the decoded output.
-REQUIRED_COMPARABLE_REPACK = frozenset({
+# The workloads that produced identical outputs under the P01 and P02 arms in
+# the prepared-host record. A hotfix round for that comparison must not buy
+# throughput by changing what they decode, which would drop them from the gate
+# and read as a pass by exclusion.
+#
+# This is an assertion about one comparison, not an invariant of the codebase:
+# a phase that legitimately changes an output, as P04 does by writing channel
+# identity into DFF headers, must not be reported as violating it. Select it
+# with --require-comparable-preset p01p02, or name workloads individually with
+# --require-comparable.
+PRESET_COMPARABLE = frozenset({
     'dff-2ch-repack-large', 'dff-2ch-repack-small', 'dff-6ch-repack-large',
     'dsf-2ch-repack-large', 'dsf-2ch-repack-small', 'dsf-6ch-repack-large',
 })
@@ -108,6 +115,28 @@ def summarize(baseline, candidate, seed):
             'measurement_noise': noise, 'status': status}
 
 
+def null_invocation(baseline, candidate, source, extra, cpu):
+    """Pick the one -t null invocation both binaries accept, or report none.
+
+    Option support is not symmetric across every phase boundary. P04 refuses a
+    null destination carrying a named channel layout unless the loss is made
+    explicit, while its predecessor does not recognise that option at all, so
+    no single command line runs on both. That is a property of the boundary,
+    not a failure of either binary, and must be reported as such rather than
+    counted as errors.
+    """
+    def works(sox, args):
+        with tempfile.TemporaryDirectory(dir='/dev/shm' if Path('/dev/shm').is_dir()
+                                         else None) as td:
+            return run(sox, source, Path(td)/'o.dff', 32, 'null', cpu, args)['exit'] == 0
+    for label, args in (('with-extra-args', tuple(extra)), ('plain', ())):
+        if (not args) or extra:
+            if works(baseline, args) and works(candidate, args):
+                return label, list(args), None
+    return None, [], ('no -t null invocation is accepted by both binaries: '
+                     'option support differs across this boundary')
+
+
 def run(sox, source, target, cap, output, cpu=None, null_extra=()):
     args = []
     if cpu is not None:
@@ -152,6 +181,14 @@ def main():
                    help='pin every run to this CPU; required for a verdict')
     p.add_argument('--working-directory', type=Path, default=None,
                    help='source/output parent; /dev/shm isolates disk latency')
+    p.add_argument('--require-comparable', action='append', default=[],
+                   metavar='WORKLOAD',
+                   help='this workload must stay comparable; if its two arms '
+                        'stop agreeing that is an error rather than a silent '
+                        'exclusion from the gate. Repeatable')
+    p.add_argument('--require-comparable-preset', choices=('p01p02',),
+                   help='shorthand for the six workloads that agreed between '
+                        'the P01 and P02 arms')
     p.add_argument('--null-extra-arg', action='append', default=[],
                    metavar='ARG',
                    help='extra argument for -t null runs only, repeatable; '
@@ -161,6 +198,9 @@ def main():
     args = p.parse_args()
     if args.pairs < 15 or args.warmups < 1:
         p.error('a verdict needs at least 15 pairs and 1 warmup')
+    required = set(args.require_comparable)
+    if args.require_comparable_preset == 'p01p02':
+        required |= PRESET_COMPARABLE
     if args.working_directory is None and Path('/dev/shm').is_dir():
         args.working_directory = Path('/dev/shm')
     args.baseline_sox = args.baseline_sox.resolve()
@@ -170,9 +210,16 @@ def main():
     errors = []
     rng = random.Random(0x502)
     summaries = {}
+    null_mode, null_args, null_reason = None, [], None
     with tempfile.TemporaryDirectory(prefix='sox-ng-p02-bench-',
                                      dir=args.working_directory) as tmp:
         td = Path(tmp)
+        probe = td/'null-capability.dsf'
+        probe.write_bytes(dsf_bytes(2, 32768)[0])
+        null_mode, null_args, null_reason = null_invocation(
+            args.baseline_sox, args.sox, probe, args.null_extra_arg, args.cpu)
+        print(f'-t null invocation: {null_mode or "unavailable"}'
+              + (f' ({null_reason})' if null_reason else ''), flush=True)
         for fmt in ('dsf','dff'):
             for channels in (2,6):
                 for operation in ('null', 'repack'):
@@ -180,6 +227,13 @@ def main():
                                               ('large',args.large_frames,65536)):
                         if frames % (4096 * 8):
                             raise ValueError('frame lengths must be multiples of DSF blocks')
+                        key0 = f'{fmt}-{channels}ch-{operation}-{size}'
+                        if operation == 'null' and null_mode is None:
+                            summaries[key0] = {'status': 'not-comparable',
+                                               'unavailable': True,
+                                               'reason': null_reason}
+                            print(f'{key0}: skipped, {null_reason}', flush=True)
+                            continue
                         source = td/f'{fmt}-{channels}-{size}.{fmt}'
                         source.write_bytes(dsf_bytes(channels, frames)[0] if fmt == 'dsf'
                                            else dff_bytes(channels, frames))
@@ -205,7 +259,7 @@ def main():
                             if target.exists():
                                 target.unlink()
                             result = run(sox, source, target, cap, operation,
-                                         args.cpu, args.null_extra_arg)
+                                         args.cpu, null_args)
                             result.update(source_format=fmt, channels=channels,
                                           operation=operation, size=size, frames=frames,
                                           buffer_samples=cap, variant=name,
@@ -251,8 +305,8 @@ def main():
             s['arms_agree'] = None
             s['comparability_from'] = key.replace('-null-', '-repack-')
         if not comparable:
-            if key in REQUIRED_COMPARABLE_REPACK:
-                errors.append(f'{key}: formerly comparable output changed')
+            if key in required:
+                errors.append(f'{key}: required-comparable output changed')
             s['status'] = 'not-comparable'
     gating = [s['status'] for s in summaries.values()
               if s['status'] != 'not-comparable']
@@ -271,6 +325,8 @@ def main():
             'pinned_cpu':args.cpu, 'working_directory':str(args.working_directory),
             'pairs':args.pairs, 'warmups':args.warmups,
             'null_extra_args':args.null_extra_arg,
+            'null_invocation':null_mode, 'null_unavailable_reason':null_reason,
+            'required_comparable':sorted(required),
             'regression_limit':REGRESSION_LIMIT, 'noise_limit':NOISE_LIMIT,
             'host_unqualified':verdict != 'pass' and any(
                 s['status'] == 'inconclusive-noise' for s in summaries.values()),

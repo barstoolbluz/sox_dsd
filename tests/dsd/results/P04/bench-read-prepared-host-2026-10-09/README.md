@@ -40,3 +40,28 @@ percentage.
 
 Figures are from one AMD Ryzen Threadripper 7970X and are not a property of the
 code alone.
+
+## Reclassified, 2026-10-09
+
+`bench-read-reclassified.json` supersedes the run above. It records
+**PASS with zero errors**, worst +0.31%, after two harness corrections that
+changed only how this boundary is reported, not what it measures.
+
+| Class | Count | Why |
+| --- | --- | --- |
+| gating | 4 | all pass, -0.38% to +0.31% |
+| unavailable | 8 | no `-t null` invocation both binaries accept |
+| not comparable | 4 | P04 deliberately changes these outputs |
+
+The original run recorded `failed` with 139 errors, for two reasons that were
+both bookkeeping. The eight `-t null` workloads cannot run symmetrically here:
+P03 rejects `--dsd-layout-loss` as an invalid option while P04 requires it, so
+the harness now probes both binaries, picks the invocation they share, and
+records these as unavailable with that reason rather than as errors. And the
+six workloads pinned byte-identical for the P01-to-P02 hotfix comparison were
+being asserted on every boundary, so three of them were reported as violations
+when P04 legitimately writes channel identity into DFF headers; that assertion
+is now opt-in via `--require-comparable-preset p01p02`.
+
+Neither correction touched a measurement. The four comparable workloads passed
+in the original run too, at worst +0.70% on shorter fixtures.

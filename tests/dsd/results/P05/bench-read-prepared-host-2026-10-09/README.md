@@ -25,3 +25,15 @@ only would not be a comparison.
 
 Figures are from one AMD Ryzen Threadripper 7970X and are not a property of the
 code alone.
+
+## Re-measured, 2026-10-09
+
+`bench-read-reclassified.json` supersedes the run above and records **PASS with
+zero errors**, 16 of 16 workloads gating, worst +2.10%.
+
+The earlier run was `incomplete` solely because `dsf-2ch-repack-small` sat at
+2.30% noise against the 2% admissibility precondition, on a -0.02% point
+estimate. Forty pairs with larger fixtures brought it inside the precondition,
+which is the same remedy that resolved marginal workloads for P01, the P02
+hotfix and P06. No code and no verdict changed; an inconclusive measurement
+became a conclusive one.
