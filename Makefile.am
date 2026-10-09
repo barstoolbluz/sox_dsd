@@ -335,3 +335,4 @@ EXTRA_DIST += docs/dsd/briefs/P00a-corrective.md \
 EXTRA_DIST += tests/dsd/bench_hotfix_dff.py \
   tests/dsd/check_hotfix_equivalence.py \
   docs/dsd/handoffs/P02_DFF_READ_HOTFIX.md
+EXTRA_DIST += docs/dsd/briefs/P06.md
