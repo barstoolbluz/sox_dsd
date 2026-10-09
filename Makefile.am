@@ -330,3 +330,8 @@ EXTRA_DIST += docs/dsd/briefs/P00a-corrective.md \
   docs/dsd/briefs/P04.md \
   docs/dsd/briefs/P05.md \
   docs/dsd/briefs/hotfix-p02-dff-read.md
+
+# P02 DFF read hotfix: equivalence check, targeted bench and handoff.
+EXTRA_DIST += tests/dsd/bench_hotfix_dff.py \
+  tests/dsd/check_hotfix_equivalence.py \
+  docs/dsd/handoffs/P02_DFF_READ_HOTFIX.md
