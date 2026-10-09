@@ -257,6 +257,7 @@ static int flow_effect(sox_effects_chain_t * chain, size_t n)
     effstatus = effp->handler.flow(effp, effp1->obuf + effp1->obeg,
                     il_change ? chain->il_buf : effp->obuf + effp->oend,
                     &idone, &obeg);
+    if (effstatus == LSX_EFF_FATAL) return LSX_EFF_FATAL;
     if (obeg % effp->out_signal.channels != 0) {
       lsx_fail("multi-channel effect flowed asymmetrically!");
       effstatus = SOX_EOF;
@@ -269,20 +270,20 @@ static int flow_effect(sox_effects_chain_t * chain, size_t n)
     size_t flow_offs = sox_globals.bufsiz/effp->flows;
     size_t idone_min = SOX_SIZE_MAX, idone_max = 0;
     size_t odone_min = SOX_SIZE_MAX, odone_max = 0;
+    int statuses = 0; /* parallel-safe reduction: EOF=1, fatal=2 */
 
 #ifdef HAVE_OPENMP_3_1
     #pragma omp parallel for \
         if(sox_globals.use_threads) \
         schedule(static) default(none) \
-        shared(effp,effp1,idone,obeg,obuf,flow_offs,chain,n,effstatus) \
-        reduction(min:idone_min,odone_min) reduction(max:idone_max,odone_max)
+        shared(effp,effp1,idone,obeg,obuf,flow_offs,chain,n) \
+        reduction(|:statuses) reduction(min:idone_min,odone_min) reduction(max:idone_max,odone_max)
 #elif defined HAVE_OPENMP
     #pragma omp parallel for \
         if(sox_globals.use_threads) \
         schedule(static) default(none) \
-        shared(effp,effp1,idone,obeg,obuf,flow_offs,chain,n,effstatus) \
-        firstprivate(idone_min,odone_min,idone_max,odone_max) \
-        lastprivate(idone_min,odone_min,idone_max,odone_max)
+        shared(effp,effp1,idone,obeg,obuf,flow_offs,chain,n) \
+        reduction(|:statuses) reduction(min:idone_min,odone_min) reduction(max:idone_max,odone_max)
 #endif
     for (f = 0; f < effp->flows; ++f) {
       size_t idonec = idone / effp->flows;
@@ -294,9 +295,12 @@ static int flow_effect(sox_effects_chain_t * chain, size_t n)
       idone_min = min(idonec, idone_min); idone_max = max(idonec, idone_max);
       odone_min = min(odonec, odone_min); odone_max = max(odonec, odone_max);
 
-      if (eff_status_c != SOX_SUCCESS)
-        effstatus = SOX_EOF;
+      if (eff_status_c == LSX_EFF_FATAL) statuses |= 2;
+      else if (eff_status_c != SOX_SUCCESS) statuses |= 1;
     }
+    /* Fail the entire block before interleaving or publishing output. */
+    if (statuses & 2) return LSX_EFF_FATAL;
+    if (statuses & 1) effstatus = SOX_EOF;
 
     if (idone_min != idone_max || odone_min != odone_max) {
       lsx_fail("flowed asymmetrically!");
@@ -352,6 +356,7 @@ static int drain_effect(sox_effects_chain_t * chain, size_t n)
     effstatus = effp->handler.drain(effp,
                     il_change ? chain->il_buf : effp->obuf + effp->oend,
                     &obeg);
+    if (effstatus == LSX_EFF_FATAL) return LSX_EFF_FATAL;
     if (obeg % effp->out_signal.channels != 0) {
       lsx_fail("multi-channel effect drained asymmetrically!");
       effstatus = SOX_EOF;
@@ -363,6 +368,7 @@ static int drain_effect(sox_effects_chain_t * chain, size_t n)
     sox_sample_t *obuf = il_change ? chain->il_buf : effp->obuf;
     size_t flow_offs = sox_globals.bufsiz/effp->flows;
     size_t odone_last = 0; /* Initialized to prevent warning */
+    int fatal = 0;
 
     for (f = 0; f < effp->flows; ++f) {
       size_t odonec = obeg / effp->flows;
@@ -375,9 +381,10 @@ static int drain_effect(sox_effects_chain_t * chain, size_t n)
       }
       odone_last = odonec;
 
-      if (eff_status_c != SOX_SUCCESS)
-        effstatus = SOX_EOF;
+      if (eff_status_c == LSX_EFF_FATAL) fatal = 1;
+      else if (eff_status_c != SOX_SUCCESS) effstatus = SOX_EOF;
     }
+    if (fatal) return LSX_EFF_FATAL;
 
     obeg = effp->flows * odone_last;
 
@@ -441,16 +448,27 @@ int sox_flow_effects(sox_effects_chain_t * chain, int (* callback)(sox_bool all_
 #define have_imin (e > 0 && e < chain->length && chain->effects[e - 1]->oend - chain->effects[e - 1]->obeg >= chain->effects[e]->imin)
     size_t osize = chain->effects[e]->oend - chain->effects[e]->obeg;
     if (e == source_e && (draining || !have_imin)) {
-      if (drain_effect(chain, e) == SOX_EOF) {
+      int status = drain_effect(chain, e);
+      if (status == LSX_EFF_FATAL) {
+        flow_status = LSX_EFF_FATAL;
+        break;
+      }
+      if (status == SOX_EOF) {
         ++source_e;
         draining = sox_false;
       }
-    } else if (have_imin && flow_effect(chain, e) == SOX_EOF) {
-      flow_status = SOX_EOF;
-      if (e == chain->length - 1)
+    } else if (have_imin) {
+      int status = flow_effect(chain, e);
+      if (status == LSX_EFF_FATAL) {
+        flow_status = LSX_EFF_FATAL;
         break;
-      source_e = e;
-      draining = sox_true;
+      }
+      if (status == SOX_EOF) {
+        flow_status = SOX_EOF;
+        if (e == chain->length - 1) break;
+        source_e = e;
+        draining = sox_true;
+      }
     }
     if (e < chain->length && chain->effects[e]->oend - chain->effects[e]->obeg > osize) /* False for output */
       ++e;

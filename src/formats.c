@@ -1531,8 +1531,11 @@ int sox_close(sox_format_t * ft)
       /* Really write out a final zero byte if we're writing a sparse file.
        * See lsx_writebuf() */
       if (ft->last_byte_was_zero) {
-        if (lsx_seeki(ft, (off_t)-1, SEEK_CUR) == SOX_SUCCESS)
-          putc('\0', (FILE *)ft->fp);
+        if (lsx_seeki(ft, (off_t)-1, SEEK_CUR) != SOX_SUCCESS ||
+            putc('\0', (FILE *)ft->fp) == EOF) {
+          lsx_fail("writing final sparse byte failed");
+          result = SOX_EOF;
+        }
         ft->last_byte_was_zero = sox_false;
       }
       /* If the handler wrote a header before calling the rawwrite functions,
@@ -1544,37 +1547,50 @@ int sox_close(sox_format_t * ft)
 
       if (ft->olength != ft->signal.length && ft->seekable) {
         off_t o = ftell(ft->fp);
-        result = lsx_seeki(ft, (off_t)0, 0);
-        if (result == SOX_SUCCESS) {
-          if (ft->handler.stopwrite) {
-            result = (*ft->handler.stopwrite)(ft);
-          } else if (ft->handler.startwrite) {
-            result = (*ft->handler.startwrite)(ft);
-          } else
-            result = SOX_SUCCESS;
+        int header_result = o < 0 ? SOX_EOF : lsx_seeki(ft, (off_t)0, 0);
+        if (header_result == SOX_SUCCESS) {
+          if (ft->handler.stopwrite)
+            header_result = (*ft->handler.stopwrite)(ft);
+          else if (ft->handler.startwrite)
+            header_result = (*ft->handler.startwrite)(ft);
         }
-        fseek(ft->fp, o, SEEK_SET);
+        if (header_result != SOX_SUCCESS) result = SOX_EOF;
+        if (o < 0 || fseek(ft->fp, o, SEEK_SET) != 0) {
+          lsx_fail("restoring output position failed: %s", strerror(errno));
+          result = SOX_EOF;
+        }
       }
     } else {
       result = ft->handler.stopwrite? (*ft->handler.stopwrite)(ft) : SOX_SUCCESS;
 
-      if (ft->fp == stdout) {
-        fflush(stdout);
+      if (ft->fp == stdout)
         sox_globals.stdout_in_use_by = NULL;
-      }
 
       /* Really write out a final zero byte if we're writing a sparse file.
        * See lsx_writebuf() */
       if (ft->last_byte_was_zero) {
-        if (lsx_seeki(ft, (off_t)-1, SEEK_CUR) == SOX_SUCCESS)
-          putc('\0', (FILE *)ft->fp);
+        if (lsx_seeki(ft, (off_t)-1, SEEK_CUR) != SOX_SUCCESS ||
+            putc('\0', (FILE *)ft->fp) == EOF) {
+          lsx_fail("writing final sparse byte failed");
+          result = SOX_EOF;
+        }
         ft->last_byte_was_zero = sox_false;
       }
     }
+    /* Do not rely on fclose alone: a late buffered-write failure must stay
+     * latched even if a subsequent seek or close succeeds.  Once per close,
+     * never in the decoding or per-sample writer path. */
+    if (ft->fp && fflush(ft->fp) == EOF) {
+      lsx_fail("output stream finalization failed: %s", strerror(errno));
+      result = SOX_EOF;
+    }
   }
 
-  if (ft->fp && ft->fp != stdin && ft->fp != stdout)
-    xfclose(ft->fp, ft->io_type);
+  if (ft->fp && ft->fp != stdin && ft->fp != stdout &&
+      xfclose(ft->fp, ft->io_type) != 0 && result == SOX_SUCCESS) {
+    lsx_fail("closing output or input stream failed: %s", strerror(errno));
+    result = SOX_EOF;
+  }
   {
     lsx_dsd_layout_state_t *state = lsx_dsd_layout_state(ft);
     if (state) sox_dsd_layout_free(state->layout);

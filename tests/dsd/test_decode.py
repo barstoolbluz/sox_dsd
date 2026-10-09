@@ -16,9 +16,13 @@ import subprocess
 import sys
 import time
 
-import mpmath as mp
-import numpy as np
-from certify_filters import load_coefficients
+try:
+    import mpmath as mp
+    import numpy as np
+    from certify_filters import load_coefficients
+except ImportError as error:
+    print(f"UNRUN required P06/P07 numerical oracle (missing {error.name})", file=sys.stderr)
+    raise SystemExit(2) from None
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 mp.mp.dps = 75

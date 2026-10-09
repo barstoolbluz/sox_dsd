@@ -1,0 +1,104 @@
+{
+  "all_command_exit_zero": true,
+  "commands": [
+    {
+      "command": "autoreconf -fi",
+      "exit_code": 0,
+      "log": "autoreconf.log",
+      "name": "autoreconf"
+    },
+    {
+      "command": "./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'",
+      "exit_code": 0,
+      "log": "configure.log",
+      "name": "configure"
+    },
+    {
+      "command": "make -j2",
+      "exit_code": 0,
+      "log": "compile.log",
+      "name": "compile"
+    },
+    {
+      "command": "make check",
+      "exit_code": 0,
+      "log": "generic_check.log",
+      "name": "generic_check"
+    },
+    {
+      "command": "make check-dsd",
+      "exit_code": 0,
+      "log": "dsd_check.log",
+      "name": "dsd_check"
+    },
+    {
+      "command": "python3 tests/dsd/run.py --phase P07 --results tests/dsd/results/P07",
+      "exit_code": 0,
+      "log": "p07_runner.log",
+      "name": "p07_runner"
+    },
+    {
+      "command": "python3 tests/dsd/measure.py --phase P07 --results tests/dsd/results/P07/numeric",
+      "exit_code": 0,
+      "log": "p07_measure.log",
+      "name": "p07_measure"
+    },
+    {
+      "command": "python3 tests/dsd/bench.py --phase P07 --results tests/dsd/results/P07/bench",
+      "exit_code": 0,
+      "log": "p07_bench.log",
+      "name": "p07_bench"
+    }
+  ],
+  "host": {
+    "architecture": "x86_64",
+    "baseline_p05_149ea582_available": false,
+    "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "dev_full_available": false,
+    "kernel": "6.18.44",
+    "noise_admissibility_max": 0.02,
+    "os": "Linux",
+    "performance_certification": "unqualified",
+    "prepared_host": false
+  },
+  "negative_numerical_controls": [
+    {
+      "command": "python3 -S tests/dsd/test_decode.py --help",
+      "diagnostic": "UNRUN required P06/P07 numerical oracle (missing mpmath)",
+      "exit_code": 2,
+      "script": "test_decode.py"
+    },
+    {
+      "command": "python3 -S tests/dsd/certify_filters.py --help",
+      "diagnostic": "UNRUN required DSD filter certification (missing mpmath)",
+      "exit_code": 2,
+      "script": "certify_filters.py"
+    },
+    {
+      "command": "python3 -S tests/dsd/generate_coeffs.py --help",
+      "diagnostic": "UNRUN required DSD coefficient generation (missing mpmath)",
+      "exit_code": 2,
+      "script": "generate_coeffs.py"
+    },
+    {
+      "command": "python3 -S tests/dsd/test_p07_reference.py --help",
+      "diagnostic": "UNRUN required P07 independent SRC reference (missing numpy)",
+      "exit_code": 2,
+      "script": "test_p07_reference.py"
+    },
+    {
+      "command": "python3 -S tests/dsd/test_p07_composite.py --help",
+      "diagnostic": "UNRUN required P07 composite reference (missing numpy)",
+      "exit_code": 2,
+      "script": "test_p07_composite.py"
+    },
+    {
+      "command": "python3 -S tests/dsd/test_p07_impulse.py --help",
+      "diagnostic": "UNRUN required P07 impulse/phase SRC reference (missing numpy)",
+      "exit_code": 2,
+      "script": "test_p07_impulse.py"
+    }
+  ],
+  "note": "Negative controls simulate missing dependencies; real build/check runs have all numerical dependencies installed.",
+  "schema": "sox.dsd.p07.build-status.v1"
+}

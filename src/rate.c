@@ -27,6 +27,8 @@
 #include "sox_i.h"
 #include "fft4g.h"
 #include "dft_filter.h"
+#include "rate_internal.h"
+#include "dsd.h"
 
 typedef double raw_coef_t;
 
@@ -499,7 +501,8 @@ static int rate_init(
   sox_bool use_hi_prec_clock,/* Increase irrational ratio accuracy.   false   */
   int interpolator,          /* Force a particular coef interpolator.   -1    */
   int max_coefs_size,        /* k bytes of coefs to try to keep below.  400   */
-  sox_bool noSmallIntOpt)    /* Disable small integer optimizations.  false   */
+  sox_bool noSmallIntOpt,    /* Disable small integer optimizations.  false   */
+  sox_bool disable_lpc)     /* Private P07: zero boundary, never LPC.        */
 {
   double factor = (outrate != 0) ? (double)inrate / (double)outrate : 0;
   double att = (bits + 1) * linear_to_dB(2.), attArb = att;    /* pass + stop */
@@ -559,7 +562,8 @@ static int rate_init(
     return SOX_EOF;
   }
 
-  calc_optimal_lpc_buffer_sizes((size_t)inrate, (size_t)outrate, &p->lpc_length, &p->lpc_trim, &p->lpc_inratio);
+  if (!disable_lpc)
+    calc_optimal_lpc_buffer_sizes((size_t)inrate, (size_t)outrate, &p->lpc_length, &p->lpc_trim, &p->lpc_inratio);
   if (p->lpc_length > 0) {
     p->lpc_buffer = (sox_sample_t *)malloc(p->lpc_length * 2 * sizeof(sox_sample_t));
     if (!p->lpc_buffer) return SOX_ENOMEM;
@@ -883,7 +887,7 @@ static int start_rate(sox_effect_t * effp)
   err = rate_init(&p->rate, p->shared_ptr, effp->in_signal.rate, out_rate,
       p->bit_depth, p->phase, p->bw_0dB_pc, p->anti_aliasing_pc, p->rolloff,
       !p->given_0dB_pt, p->use_hi_prec_clock, p->coef_interp,
-      p->max_coefs_size, p->noIOpt);
+      p->max_coefs_size, p->noIOpt, sox_false);
 
   if (err)
     return err;
@@ -1101,4 +1105,162 @@ sox_effect_handler_t const * lsx_rate_effect_fn(void)
   };
 
   return &handler;
+}
+
+/* P07: private double-domain SRC.  The public rate handler above remains
+ * unchanged, including its historical LPC end extension.  Here both ends
+ * of the finite intermediate sequence use numeric zero extension. */
+struct lsx_rate_f64 {
+  rate_t rate;
+  rate_shared_t shared;
+  uint32_t input_hz, output_hz;
+  uint64_t accepted, delivered, final_frames;
+  unsigned identity, finishing, done;
+  sox_dsd_status_t error;
+};
+
+sox_dsd_status_t lsx_rate_f64_create(
+    const lsx_rate_f64_config *cfg, lsx_rate_f64_t **out)
+{
+  lsx_rate_f64_t *ctx;
+  int err;
+  double bits;
+  if (!out) return SOX_DSD_BAD_ARGUMENT;
+  *out = NULL;
+  if (!cfg || !cfg->input_hz || !cfg->output_hz ||
+      cfg->phase_percent != 50 || cfg->bandwidth_0db_pct != 95. ||
+      cfg->rejection_db != 180.)
+    return SOX_DSD_BAD_ARGUMENT;
+  ctx = calloc(1, sizeof(*ctx));
+  if (!ctx) return SOX_DSD_NUMERIC_ERROR;
+  ctx->input_hz = cfg->input_hz;
+  ctx->output_hz = cfg->output_hz;
+  ctx->identity = cfg->input_hz == cfg->output_hz;
+  if (!ctx->identity) {
+    /* rate_init expects required effective bits, which its own code maps
+     * to rejection = (bits+1) * 20 log10(2). -B is 0 dB bandwidth. */
+    bits = cfg->rejection_db / (20. * log10(2.)) - 1.;
+    err = rate_init(&ctx->rate, &ctx->shared, cfg->input_hz, cfg->output_hz,
+        bits, 50., cfg->bandwidth_0db_pct, 100., rolloff_none,
+        sox_false, sox_false, -1, 400, sox_false, sox_true);
+    if (err || !ctx->rate.num_stages) {
+      rate_close(&ctx->rate);
+      free(ctx);
+      return SOX_DSD_NUMERIC_ERROR;
+    }
+  }
+  *out = ctx;
+  return SOX_DSD_OK;
+}
+
+static size_t lsx_rate_f64_available(lsx_rate_f64_t *ctx, double *output,
+    size_t limit, uint64_t allowed)
+{
+  size_t n;
+  if (ctx->delivered >= allowed || !limit) return 0;
+  n = (size_t)min((uint64_t)limit, allowed - ctx->delivered);
+  if (ctx->identity) return 0;
+  rate_output(&ctx->rate, output, &n);
+  ctx->delivered += n;
+  return n;
+}
+
+sox_dsd_status_t lsx_rate_f64_process(lsx_rate_f64_t *ctx,
+    const double *input, size_t *input_frames, double *output, size_t *output_frames)
+{
+  size_t avail, cap, used = 0, produced = 0;
+  uint64_t allowed;
+  if (!ctx) return SOX_DSD_BAD_ARGUMENT;
+  if (!input_frames || !output_frames) return ctx->error = SOX_DSD_BAD_ARGUMENT;
+  avail = *input_frames;
+  cap = *output_frames;
+  *input_frames = *output_frames = 0;
+  if (ctx->error) return ctx->error;
+  if (ctx->finishing) return ctx->error = SOX_DSD_BAD_ARGUMENT;
+  if (!cap) return SOX_DSD_NEED_OUTPUT;
+  if ((!input && avail) || !output) return ctx->error = SOX_DSD_BAD_ARGUMENT;
+  if (ctx->accepted > UINT64_MAX - avail)
+    return ctx->error = SOX_DSD_NUMERIC_ERROR;
+  if (ctx->identity) {
+    produced = min(avail, cap);
+    if (produced) memcpy(output, input, produced * sizeof(*output));
+    ctx->accepted += produced;
+    ctx->delivered += produced;
+    *input_frames = *output_frames = produced;
+    return produced < avail ? SOX_DSD_NEED_OUTPUT : SOX_DSD_NEED_INPUT;
+  }
+  while (produced < cap) {
+    if (!lsx_dsd_count_convert(ctx->accepted, ctx->input_hz,
+                               ctx->output_hz, &allowed))
+      return ctx->error = SOX_DSD_NUMERIC_ERROR;
+    produced += lsx_rate_f64_available(ctx, output + produced,
+                                       cap - produced, allowed);
+    if (used == avail) break;
+    /* A bounded batch limits intermediate queues and keeps calls independent
+     * of caller chunk size.  Only committed input contributes to the
+     * conservative pre-EOF output-count holdback. */
+    {
+      size_t take = min(avail - used, (size_t)128);
+      if (ctx->rate.samples_in > INT64_MAX - (int64_t)take)
+        return ctx->error = SOX_DSD_NUMERIC_ERROR;
+      rate_input(&ctx->rate, input + used, take);
+      ctx->accepted += take;
+      used += take;
+      rate_process(&ctx->rate);
+    }
+  }
+  *input_frames = used;
+  *output_frames = produced;
+  return used < avail ? SOX_DSD_NEED_OUTPUT : SOX_DSD_NEED_INPUT;
+}
+
+sox_dsd_status_t lsx_rate_f64_finish(lsx_rate_f64_t *ctx,
+    uint64_t final_frames, double *output, size_t *output_frames)
+{
+  size_t cap, produced = 0;
+  if (!ctx) return SOX_DSD_BAD_ARGUMENT;
+  if (!output_frames) return ctx->error = SOX_DSD_BAD_ARGUMENT;
+  cap = *output_frames;
+  *output_frames = 0;
+  if (ctx->error) return ctx->error;
+  if (ctx->done) return SOX_DSD_DONE;
+  if (!cap) return SOX_DSD_NEED_OUTPUT;
+  if (!output) return ctx->error = SOX_DSD_BAD_ARGUMENT;
+  if (ctx->finishing && ctx->final_frames != final_frames)
+    return ctx->error = SOX_DSD_BAD_ARGUMENT;
+  ctx->finishing = 1;
+  ctx->final_frames = final_frames;
+  if (ctx->identity || ctx->delivered >= final_frames) {
+    ctx->done = 1;  /* caller's shorter finite native timebase wins */
+    return SOX_DSD_DONE;
+  }
+  while (produced < cap && ctx->delivered < final_frames) {
+    size_t got = lsx_rate_f64_available(ctx, output + produced,
+                                        cap - produced, final_frames);
+    produced += got;
+    if (got) continue;
+    /* No LPC; append numeric zeros until the backend's centered filters
+     * have enough lookahead.  Bound support work to prevent a silent loop. */
+    if (ctx->rate.samples_in > INT64_MAX - 128 ||
+        ctx->rate.samples_in - (int64_t)ctx->accepted > 65536)
+      return ctx->error = SOX_DSD_NUMERIC_ERROR;
+    {
+      double zeros[128] = {0};
+      rate_input(&ctx->rate, zeros, 128);
+      rate_process(&ctx->rate);
+    }
+  }
+  *output_frames = produced;
+  if (ctx->delivered == final_frames) {
+    ctx->done = 1;
+    return SOX_DSD_DONE;
+  }
+  return SOX_DSD_NEED_OUTPUT;
+}
+
+void lsx_rate_f64_destroy(lsx_rate_f64_t *ctx)
+{
+  if (!ctx) return;
+  if (!ctx->identity) rate_close(&ctx->rate);
+  free(ctx);
 }

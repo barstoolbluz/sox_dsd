@@ -17,9 +17,13 @@ import re
 import sys
 import time
 
-import mpmath as mp
-import numpy as np
-from scipy import optimize, signal
+try:
+    import mpmath as mp
+    import numpy as np
+    from scipy import optimize, signal
+except ImportError as error:
+    print(f"UNRUN required DSD filter certification (missing {error.name})", file=sys.stderr)
+    raise SystemExit(2) from None
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 mp.mp.dps = 75

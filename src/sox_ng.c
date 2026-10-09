@@ -257,6 +257,25 @@ static int success = 0;
 static int cleanup_called = 0;
 static sox_sample_t omax[2], omin[2];
 
+/* A failed finalization can no longer inspect ft after sox_close frees it.
+ * Use the same regular-file-only policy as cleanup(), before closing. */
+static int close_output_checked(void)
+{
+  sox_format_t *ft = ofile->ft;
+  struct stat st;
+  char *regular_path = ft->io_type == lsx_io_file &&
+      !lsx_stat(ft->filename, &st) && IS_REGULAR_FILE(st) ?
+      lsx_strdup(ft->filename) : NULL;
+  int result = sox_close(ft);
+  ofile->ft = NULL; /* sox_close frees the handle, even on failure. */
+  if (result != SOX_SUCCESS) {
+    lsx_fail("P07: output finalization failed");
+    if (regular_path) lsx_unlink(regular_path);
+  }
+  free(regular_path);
+  return result;
+}
+
 #ifdef HAVE_TERMIOS_H
 #include <termios.h>
 static struct termios original_termios;
@@ -724,10 +743,16 @@ static int output_flow(sox_effect_t UNUSED *effp, sox_sample_t const * ibuf,
   output_samples += len / ofile->ft->signal.channels;
   output_eof = (len != *isamp) ? sox_true: sox_false;
   if (len != *isamp) {
+    /* A short write proves failure even if the format cleared sox_errno.
+     * Ordinary EOF, trim and intentional effect termination still use EOF. */
     if (ofile->ft->sox_errno)
-      lsx_fail("`%s' %s: %s", ofile->ft->filename,
-          ofile->ft->sox_errstr, sox_strerror(ofile->ft->sox_errno));
-    return SOX_EOF;
+      lsx_fail("`%s' output write failed (%zu of %zu samples): %s: %s",
+          ofile->ft->filename, len, *isamp, ofile->ft->sox_errstr,
+          sox_strerror(ofile->ft->sox_errno));
+    else
+      lsx_fail("`%s' output write failed (%zu of %zu samples)",
+          ofile->ft->filename, len, *isamp);
+    return LSX_EFF_FATAL;
   }
   return SOX_SUCCESS;
 }
@@ -2184,6 +2209,8 @@ static void preflight_dsd(void)
   effect=lsx_calloc(nuser_effects[current_eff_chain]+1,sizeof(*effect));
   spec.inputs=input;spec.input_count=input_count;
   spec.effects=effect;spec.effect_count=nuser_effects[current_eff_chain];
+  for (i=0;i<spec.effect_count;i++)
+    lsx_dsd_effect_apply_policy(user_efftab[i],&spec.policy);
   spec.requested_output_rate=ofile_signal_options.rate;
   spec.requested_output_channels=ofile_signal_options.channels;
   spec.requested_encoding=ofile_encoding_options;
@@ -2513,8 +2540,9 @@ static int process(void)
    *    effect chains.
    * For case #2, something else must decide when to stop processing.
    */
-  if ((input_eof && current_input < input_count) ||
-      (!output_eof && current_eff_chain < eff_chain_count))
+  if (flow_status != LSX_EFF_FATAL &&
+      ((input_eof && current_input < input_count) ||
+      (!output_eof && current_eff_chain < eff_chain_count)))
     flow_status = SOX_SUCCESS;
 
   return flow_status;
@@ -3976,19 +4004,35 @@ int main(int argc, char **argv)
     read_user_effects(effects_filename);
   }
 
-  while (process() != SOX_EOF && !user_abort && current_input < input_count)
   {
-    if (advance_eff_chain() == SOX_EOF)
-      break;
-
-    if (!save_output_eff)
+    int status;
+    int finalization_failed = 0;
+    /* Inspect fatal flow status before the final-input EOF condition: the
+     * last output block can fail after the input counter has advanced. */
+    while ((status=process()) != SOX_EOF && !user_abort)
     {
-      sox_close(ofile->ft);
-      ofile->ft = NULL;
+      if (status == LSX_EFF_FATAL) {finalization_failed = 1;break;}
+      if (current_input >= input_count) break;
+      if (advance_eff_chain() == SOX_EOF)
+        break;
+
+      if (!save_output_eff)
+      {
+        if (close_output_checked() != SOX_SUCCESS) {
+          finalization_failed = 1;
+          break;
+        }
+      }
+    }
+    if (user_abort) finalization_failed = 1;
+    sox_delete_effects_chain(effects_chain);
+    effects_chain = NULL;
+    if (finalization_failed) {
+      delete_eff_chains();
+      cleanup(); /* On failure, cleanup removes a partial regular output. */
+      return 2;
     }
   }
-
-  sox_delete_effects_chain(effects_chain);
   delete_eff_chains();
 
   for (i = 0; i < file_count; ++i)
@@ -4006,6 +4050,13 @@ int main(int argc, char **argv)
     if (files[i]->volume_clips > 0)
       lsx_warn("`%s' balancing clipped %" PRIu64 " samples; decrease volume?",
           files[i]->filename, files[i]->volume_clips);
+
+  /* The output file must be closed *after* collecting its clip statistics,
+   * but before announcing completion.  A failed close is a failed command. */
+  if (ofile->ft && close_output_checked() != SOX_SUCCESS) {
+    cleanup();
+    return 2;
+  }
 
   if (show_progress) {
     if (user_abort)

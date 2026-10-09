@@ -1,0 +1,213 @@
+{
+  "baseline": "P06-hotfix",
+  "baseline_exclusion": "P06 has no executable dsdpcm or matched staged composite",
+  "direct_control": {
+    "reason": "no independent bandwidth-matched direct DSD decoder available",
+    "status": "unrun"
+  },
+  "host_qualification": "unprepared, timing noise above 2% admissibility limit",
+  "measurements": [
+    {
+      "cases": [
+        {
+          "buffer_samples": 4096,
+          "median_cpu_seconds": 0.15,
+          "median_max_rss_kib": 2376,
+          "repetitions": [
+            {
+              "cpu_seconds": 0.12,
+              "exit_code": 0,
+              "max_rss_kib": 2376,
+              "pcm_sha256": "d1eeaac312562fa2068abe344a46a541bf7e2dd78887af79cd0b6e897e5d3fda",
+              "wall_seconds": 0.13
+            },
+            {
+              "cpu_seconds": 0.15,
+              "exit_code": 0,
+              "max_rss_kib": 2376,
+              "pcm_sha256": "d1eeaac312562fa2068abe344a46a541bf7e2dd78887af79cd0b6e897e5d3fda",
+              "wall_seconds": 0.15
+            },
+            {
+              "cpu_seconds": 0.19,
+              "exit_code": 0,
+              "max_rss_kib": 2392,
+              "pcm_sha256": "d1eeaac312562fa2068abe344a46a541bf7e2dd78887af79cd0b6e897e5d3fda",
+              "wall_seconds": 0.19
+            },
+            {
+              "cpu_seconds": 0.16,
+              "exit_code": 0,
+              "max_rss_kib": 2396,
+              "pcm_sha256": "d1eeaac312562fa2068abe344a46a541bf7e2dd78887af79cd0b6e897e5d3fda",
+              "wall_seconds": 0.17
+            },
+            {
+              "cpu_seconds": 0.1,
+              "exit_code": 0,
+              "max_rss_kib": 2364,
+              "pcm_sha256": "d1eeaac312562fa2068abe344a46a541bf7e2dd78887af79cd0b6e897e5d3fda",
+              "wall_seconds": 0.1
+            }
+          ],
+          "status": "measured"
+        },
+        {
+          "buffer_samples": 32,
+          "median_cpu_seconds": 0.08,
+          "median_max_rss_kib": 2392,
+          "repetitions": [
+            {
+              "cpu_seconds": 0.06,
+              "exit_code": 0,
+              "max_rss_kib": 2388,
+              "pcm_sha256": "d1eeaac312562fa2068abe344a46a541bf7e2dd78887af79cd0b6e897e5d3fda",
+              "wall_seconds": 0.07
+            },
+            {
+              "cpu_seconds": 0.09,
+              "exit_code": 0,
+              "max_rss_kib": 2392,
+              "pcm_sha256": "d1eeaac312562fa2068abe344a46a541bf7e2dd78887af79cd0b6e897e5d3fda",
+              "wall_seconds": 0.09
+            },
+            {
+              "cpu_seconds": 0.08,
+              "exit_code": 0,
+              "max_rss_kib": 2396,
+              "pcm_sha256": "d1eeaac312562fa2068abe344a46a541bf7e2dd78887af79cd0b6e897e5d3fda",
+              "wall_seconds": 0.09
+            },
+            {
+              "cpu_seconds": 0.07,
+              "exit_code": 0,
+              "max_rss_kib": 2380,
+              "pcm_sha256": "d1eeaac312562fa2068abe344a46a541bf7e2dd78887af79cd0b6e897e5d3fda",
+              "wall_seconds": 0.07
+            },
+            {
+              "cpu_seconds": 0.08,
+              "exit_code": 0,
+              "max_rss_kib": 2392,
+              "pcm_sha256": "d1eeaac312562fa2068abe344a46a541bf7e2dd78887af79cd0b6e897e5d3fda",
+              "wall_seconds": 0.08
+            }
+          ],
+          "status": "measured"
+        }
+      ],
+      "channels": 1,
+      "name": "master64_to_705600",
+      "native_frames": 1048576,
+      "native_hz": 2822400,
+      "output_equivalent_across_buffers": true,
+      "output_hz": 705600,
+      "profile": "mastering",
+      "source_sha256": "94896faf479900b580c208378c051abc538b7ed8751f97e16d560cdef7c11201"
+    },
+    {
+      "cases": [
+        {
+          "buffer_samples": 4096,
+          "median_cpu_seconds": 0.08,
+          "median_max_rss_kib": 2264,
+          "repetitions": [
+            {
+              "cpu_seconds": 0.07,
+              "exit_code": 0,
+              "max_rss_kib": 2268,
+              "pcm_sha256": "87db3aae94baa7804c721b706c31cd00f894dc9aa5c5316ef4f0eec0a46e2d88",
+              "wall_seconds": 0.07
+            },
+            {
+              "cpu_seconds": 0.08,
+              "exit_code": 0,
+              "max_rss_kib": 2264,
+              "pcm_sha256": "87db3aae94baa7804c721b706c31cd00f894dc9aa5c5316ef4f0eec0a46e2d88",
+              "wall_seconds": 0.08
+            },
+            {
+              "cpu_seconds": 0.1,
+              "exit_code": 0,
+              "max_rss_kib": 2192,
+              "pcm_sha256": "87db3aae94baa7804c721b706c31cd00f894dc9aa5c5316ef4f0eec0a46e2d88",
+              "wall_seconds": 0.1
+            },
+            {
+              "cpu_seconds": 0.06,
+              "exit_code": 0,
+              "max_rss_kib": 2268,
+              "pcm_sha256": "87db3aae94baa7804c721b706c31cd00f894dc9aa5c5316ef4f0eec0a46e2d88",
+              "wall_seconds": 0.06
+            },
+            {
+              "cpu_seconds": 0.14,
+              "exit_code": 0,
+              "max_rss_kib": 2244,
+              "pcm_sha256": "87db3aae94baa7804c721b706c31cd00f894dc9aa5c5316ef4f0eec0a46e2d88",
+              "wall_seconds": 0.14
+            }
+          ],
+          "status": "measured"
+        },
+        {
+          "buffer_samples": 32,
+          "median_cpu_seconds": 0.07,
+          "median_max_rss_kib": 2140,
+          "repetitions": [
+            {
+              "cpu_seconds": 0.06,
+              "exit_code": 0,
+              "max_rss_kib": 2268,
+              "pcm_sha256": "87db3aae94baa7804c721b706c31cd00f894dc9aa5c5316ef4f0eec0a46e2d88",
+              "wall_seconds": 0.07
+            },
+            {
+              "cpu_seconds": 0.1,
+              "exit_code": 0,
+              "max_rss_kib": 2116,
+              "pcm_sha256": "87db3aae94baa7804c721b706c31cd00f894dc9aa5c5316ef4f0eec0a46e2d88",
+              "wall_seconds": 0.1
+            },
+            {
+              "cpu_seconds": 0.06,
+              "exit_code": 0,
+              "max_rss_kib": 2132,
+              "pcm_sha256": "87db3aae94baa7804c721b706c31cd00f894dc9aa5c5316ef4f0eec0a46e2d88",
+              "wall_seconds": 0.06
+            },
+            {
+              "cpu_seconds": 0.07,
+              "exit_code": 0,
+              "max_rss_kib": 2140,
+              "pcm_sha256": "87db3aae94baa7804c721b706c31cd00f894dc9aa5c5316ef4f0eec0a46e2d88",
+              "wall_seconds": 0.07
+            },
+            {
+              "cpu_seconds": 0.07,
+              "exit_code": 0,
+              "max_rss_kib": 2216,
+              "pcm_sha256": "87db3aae94baa7804c721b706c31cd00f894dc9aa5c5316ef4f0eec0a46e2d88",
+              "wall_seconds": 0.07
+            }
+          ],
+          "status": "measured"
+        }
+      ],
+      "channels": 1,
+      "name": "wide256_to_705600",
+      "native_frames": 1048576,
+      "native_hz": 11289600,
+      "output_equivalent_across_buffers": true,
+      "output_hz": 705600,
+      "profile": "wideband",
+      "source_sha256": "518346c100b6db3e3837940a0b0e0a79d5c13849bff4b4eb072b41d67b5353e9"
+    }
+  ],
+  "schema": "sox.dsd.p07.explicit-decode-benchmark.v1",
+  "staged_control": {
+    "reason": "no independent bandwidth-matched staged CLI decoder available",
+    "status": "unrun"
+  },
+  "status": "absolute-throughput-measured-not-gate-certified"
+}

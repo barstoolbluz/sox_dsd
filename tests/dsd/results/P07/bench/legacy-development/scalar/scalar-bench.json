@@ -1,0 +1,3864 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench-kernels",
+        "1000000"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"bank\":\"halfband\",\"taps\":57,\"iterations\":1000000,\"cpu_seconds\":0.027335000,\"ns_per_output\":27.335,\"checksum\":-1.110223024625157e-10}\n{\"bank\":\"master64_256\",\"taps\":117,\"iterations\":1000000,\"cpu_seconds\":0.053312000,\"ns_per_output\":53.312,\"checksum\":-3.332256692800684e-05}\n{\"bank\":\"master128\",\"taps\":153,\"iterations\":1000000,\"cpu_seconds\":0.072242000,\"ns_per_output\":72.242,\"checksum\":-3.000727444302242e-05}\n{\"bank\":\"wideband\",\"taps\":257,\"iterations\":1000000,\"cpu_seconds\":0.112291000,\"ns_per_output\":112.291,\"checksum\":-1.965516638335885e-05}",
+      "values": [
+        {
+          "bank": "halfband",
+          "checksum": -1.110223024625157e-10,
+          "cpu_seconds": 0.027335,
+          "iterations": 1000000,
+          "ns_per_output": 27.335,
+          "taps": 57
+        },
+        {
+          "bank": "master64_256",
+          "checksum": -3.332256692800684e-05,
+          "cpu_seconds": 0.053312,
+          "iterations": 1000000,
+          "ns_per_output": 53.312,
+          "taps": 117
+        },
+        {
+          "bank": "master128",
+          "checksum": -3.000727444302242e-05,
+          "cpu_seconds": 0.072242,
+          "iterations": 1000000,
+          "ns_per_output": 72.242,
+          "taps": 153
+        },
+        {
+          "bank": "wideband",
+          "checksum": -1.965516638335885e-05,
+          "cpu_seconds": 0.112291,
+          "iterations": 1000000,
+          "ns_per_output": 112.291,
+          "taps": 257
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "1",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":1,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.013869000,\"frames_per_cpu_second\":12210253.082,\"owned_bytes\":6247,\"checksum\":-0.1099302824875534,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.1099302824875534,
+          "cpu_seconds": 0.013869,
+          "frames": 169344,
+          "frames_per_cpu_second": 12210253.082,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 6247,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "1",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":1,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.015932000,\"frames_per_cpu_second\":10629173.989,\"owned_bytes\":6247,\"checksum\":-0.1099302824875534,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.1099302824875534,
+          "cpu_seconds": 0.015932,
+          "frames": 169344,
+          "frames_per_cpu_second": 10629173.989,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 6247,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "1",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":1,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.011648000,\"frames_per_cpu_second\":14538461.538,\"owned_bytes\":6247,\"checksum\":-0.1099302824875534,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.1099302824875534,
+          "cpu_seconds": 0.011648,
+          "frames": 169344,
+          "frames_per_cpu_second": 14538461.538,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 6247,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "1",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":1,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.014910000,\"frames_per_cpu_second\":11357746.479,\"owned_bytes\":6247,\"checksum\":-0.1099302824875534,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.1099302824875534,
+          "cpu_seconds": 0.01491,
+          "frames": 169344,
+          "frames_per_cpu_second": 11357746.479,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 6247,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "2",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":2,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.023736000,\"frames_per_cpu_second\":7134479.272,\"owned_bytes\":12255,\"checksum\":-0.02750672388575542,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.02750672388575542,
+          "cpu_seconds": 0.023736,
+          "frames": 169344,
+          "frames_per_cpu_second": 7134479.272,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 12255,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "2",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":2,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.019516000,\"frames_per_cpu_second\":8677187.948,\"owned_bytes\":12255,\"checksum\":-0.02750672388575542,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.02750672388575542,
+          "cpu_seconds": 0.019516,
+          "frames": 169344,
+          "frames_per_cpu_second": 8677187.948,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 12255,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "2",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":2,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.023296000,\"frames_per_cpu_second\":7269230.769,\"owned_bytes\":12255,\"checksum\":-0.02750672388575542,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.02750672388575542,
+          "cpu_seconds": 0.023296,
+          "frames": 169344,
+          "frames_per_cpu_second": 7269230.769,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 12255,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "2",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":2,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.013384000,\"frames_per_cpu_second\":12652719.665,\"owned_bytes\":12255,\"checksum\":-0.02750672388575542,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.02750672388575542,
+          "cpu_seconds": 0.013384,
+          "frames": 169344,
+          "frames_per_cpu_second": 12652719.665,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 12255,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "6",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":6,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.072247000,\"frames_per_cpu_second\":2343958.919,\"owned_bytes\":36287,\"checksum\":5.0733108213547,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 5.0733108213547,
+          "cpu_seconds": 0.072247,
+          "frames": 169344,
+          "frames_per_cpu_second": 2343958.919,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 36287,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "6",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":6,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.046245000,\"frames_per_cpu_second\":3661887.772,\"owned_bytes\":36287,\"checksum\":5.0733108213547,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 5.0733108213547,
+          "cpu_seconds": 0.046245,
+          "frames": 169344,
+          "frames_per_cpu_second": 3661887.772,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 36287,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "6",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":6,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.079613000,\"frames_per_cpu_second\":2127089.797,\"owned_bytes\":36287,\"checksum\":5.0733108213547,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 5.0733108213547,
+          "cpu_seconds": 0.079613,
+          "frames": 169344,
+          "frames_per_cpu_second": 2127089.797,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 36287,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master64",
+        "6",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":6,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.056259000,\"frames_per_cpu_second\":3010078.387,\"owned_bytes\":36287,\"checksum\":5.0733108213547,\"stage_taps\":[57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 5.0733108213547,
+          "cpu_seconds": 0.056259,
+          "frames": 169344,
+          "frames_per_cpu_second": 3010078.387,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 36287,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "1",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":1,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.012506000,\"frames_per_cpu_second\":13541020.310,\"owned_bytes\":8487,\"checksum\":-0.1283738425261341,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.1283738425261341,
+          "cpu_seconds": 0.012506,
+          "frames": 169344,
+          "frames_per_cpu_second": 13541020.31,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 8487,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "1",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":1,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.008495000,\"frames_per_cpu_second\":19934549.735,\"owned_bytes\":8487,\"checksum\":-0.1283738425261341,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.1283738425261341,
+          "cpu_seconds": 0.008495,
+          "frames": 169344,
+          "frames_per_cpu_second": 19934549.735,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 8487,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "1",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":1,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.011404000,\"frames_per_cpu_second\":14849526.482,\"owned_bytes\":8487,\"checksum\":-0.1283738425261341,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.1283738425261341,
+          "cpu_seconds": 0.011404,
+          "frames": 169344,
+          "frames_per_cpu_second": 14849526.482,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 8487,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "1",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":1,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.011725000,\"frames_per_cpu_second\":14442985.075,\"owned_bytes\":8487,\"checksum\":-0.1283738425261341,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.1283738425261341,
+          "cpu_seconds": 0.011725,
+          "frames": 169344,
+          "frames_per_cpu_second": 14442985.075,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 8487,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "2",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":2,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.022844000,\"frames_per_cpu_second\":7413062.511,\"owned_bytes\":16735,\"checksum\":-0.02899768078487029,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.02899768078487029,
+          "cpu_seconds": 0.022844,
+          "frames": 169344,
+          "frames_per_cpu_second": 7413062.511,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 16735,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "2",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":2,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.020021000,\"frames_per_cpu_second\":8458318.765,\"owned_bytes\":16735,\"checksum\":-0.02899768078487029,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.02899768078487029,
+          "cpu_seconds": 0.020021,
+          "frames": 169344,
+          "frames_per_cpu_second": 8458318.765,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 16735,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "2",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":2,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.026635000,\"frames_per_cpu_second\":6357950.066,\"owned_bytes\":16735,\"checksum\":-0.02899768078487029,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.02899768078487029,
+          "cpu_seconds": 0.026635,
+          "frames": 169344,
+          "frames_per_cpu_second": 6357950.066,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 16735,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "2",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":2,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.016161000,\"frames_per_cpu_second\":10478559.495,\"owned_bytes\":16735,\"checksum\":-0.02899768078487029,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.02899768078487029,
+          "cpu_seconds": 0.016161,
+          "frames": 169344,
+          "frames_per_cpu_second": 10478559.495,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 16735,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "6",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":6,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.042991000,\"frames_per_cpu_second\":3939057.012,\"owned_bytes\":49727,\"checksum\":5.084563107831369,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 5.084563107831369,
+          "cpu_seconds": 0.042991,
+          "frames": 169344,
+          "frames_per_cpu_second": 3939057.012,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 49727,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "6",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":6,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.079201000,\"frames_per_cpu_second\":2138154.821,\"owned_bytes\":49727,\"checksum\":5.084563107831369,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 5.084563107831369,
+          "cpu_seconds": 0.079201,
+          "frames": 169344,
+          "frames_per_cpu_second": 2138154.821,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 49727,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "6",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":6,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.049686000,\"frames_per_cpu_second\":3408284.024,\"owned_bytes\":49727,\"checksum\":5.084563107831369,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 5.084563107831369,
+          "cpu_seconds": 0.049686,
+          "frames": 169344,
+          "frames_per_cpu_second": 3408284.024,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 49727,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide64",
+        "6",
+        "169344"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide64\",\"native_hz\":2822400,\"intermediate_hz\":88200,\"channels\":6,\"frames\":169344,\"output_frames\":5292,\"cpu_seconds\":0.047580000,\"frames_per_cpu_second\":3559142.497,\"owned_bytes\":49727,\"checksum\":5.084563107831369,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 5.084563107831369,
+          "cpu_seconds": 0.04758,
+          "frames": 169344,
+          "frames_per_cpu_second": 3559142.497,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 49727,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "1",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":1,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.015194000,\"frames_per_cpu_second\":22290904.304,\"owned_bytes\":6823,\"checksum\":0.005109202433966356,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": 0.005109202433966356,
+          "cpu_seconds": 0.015194,
+          "frames": 338688,
+          "frames_per_cpu_second": 22290904.304,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 6823,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "1",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":1,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.024849000,\"frames_per_cpu_second\":13629844.259,\"owned_bytes\":6823,\"checksum\":0.005109202433966356,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": 0.005109202433966356,
+          "cpu_seconds": 0.024849,
+          "frames": 338688,
+          "frames_per_cpu_second": 13629844.259,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 6823,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "1",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":1,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.013911000,\"frames_per_cpu_second\":24346775.933,\"owned_bytes\":6823,\"checksum\":0.005109202433966356,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": 0.005109202433966356,
+          "cpu_seconds": 0.013911,
+          "frames": 338688,
+          "frames_per_cpu_second": 24346775.933,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 6823,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "1",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":1,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.032850000,\"frames_per_cpu_second\":10310136.986,\"owned_bytes\":6823,\"checksum\":0.005109202433966356,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": 0.005109202433966356,
+          "cpu_seconds": 0.03285,
+          "frames": 338688,
+          "frames_per_cpu_second": 10310136.986,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 6823,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "2",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":2,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.026942000,\"frames_per_cpu_second\":12571004.380,\"owned_bytes\":13407,\"checksum\":-0.00180798336306047,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.00180798336306047,
+          "cpu_seconds": 0.026942,
+          "frames": 338688,
+          "frames_per_cpu_second": 12571004.38,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 13407,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "2",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":2,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.025291000,\"frames_per_cpu_second\":13391641.295,\"owned_bytes\":13407,\"checksum\":-0.00180798336306047,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.00180798336306047,
+          "cpu_seconds": 0.025291,
+          "frames": 338688,
+          "frames_per_cpu_second": 13391641.295,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 13407,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "2",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":2,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.037040000,\"frames_per_cpu_second\":9143844.492,\"owned_bytes\":13407,\"checksum\":-0.00180798336306047,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.00180798336306047,
+          "cpu_seconds": 0.03704,
+          "frames": 338688,
+          "frames_per_cpu_second": 9143844.492,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 13407,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "2",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":2,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.034270000,\"frames_per_cpu_second\":9882929.676,\"owned_bytes\":13407,\"checksum\":-0.00180798336306047,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.00180798336306047,
+          "cpu_seconds": 0.03427,
+          "frames": 338688,
+          "frames_per_cpu_second": 9882929.676,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 13407,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "6",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":6,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.079097000,\"frames_per_cpu_second\":4281932.311,\"owned_bytes\":39743,\"checksum\":10.50532061719116,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.50532061719116,
+          "cpu_seconds": 0.079097,
+          "frames": 338688,
+          "frames_per_cpu_second": 4281932.311,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 39743,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "6",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":6,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.089550000,\"frames_per_cpu_second\":3782110.553,\"owned_bytes\":39743,\"checksum\":10.50532061719116,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.50532061719116,
+          "cpu_seconds": 0.08955,
+          "frames": 338688,
+          "frames_per_cpu_second": 3782110.553,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 39743,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "6",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":6,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.083152000,\"frames_per_cpu_second\":4073119.107,\"owned_bytes\":39743,\"checksum\":10.50532061719116,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.50532061719116,
+          "cpu_seconds": 0.083152,
+          "frames": 338688,
+          "frames_per_cpu_second": 4073119.107,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 39743,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master128",
+        "6",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":6,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.141598000,\"frames_per_cpu_second\":2391898.191,\"owned_bytes\":39743,\"checksum\":10.50532061719116,\"stage_taps\":[57,57,57,57,153]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.50532061719116,
+          "cpu_seconds": 0.141598,
+          "frames": 338688,
+          "frames_per_cpu_second": 2391898.191,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 39743,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "1",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":1,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.016609000,\"frames_per_cpu_second\":20391835.752,\"owned_bytes\":8487,\"checksum\":-0.009417184042161759,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.009417184042161759,
+          "cpu_seconds": 0.016609,
+          "frames": 338688,
+          "frames_per_cpu_second": 20391835.752,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 8487,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "1",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":1,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.029435000,\"frames_per_cpu_second\":11506302.021,\"owned_bytes\":8487,\"checksum\":-0.009417184042161759,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.009417184042161759,
+          "cpu_seconds": 0.029435,
+          "frames": 338688,
+          "frames_per_cpu_second": 11506302.021,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 8487,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "1",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":1,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.027800000,\"frames_per_cpu_second\":12183021.583,\"owned_bytes\":8487,\"checksum\":-0.009417184042161759,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.009417184042161759,
+          "cpu_seconds": 0.0278,
+          "frames": 338688,
+          "frames_per_cpu_second": 12183021.583,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 8487,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "1",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":1,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.018823000,\"frames_per_cpu_second\":17993306.062,\"owned_bytes\":8487,\"checksum\":-0.009417184042161759,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.009417184042161759,
+          "cpu_seconds": 0.018823,
+          "frames": 338688,
+          "frames_per_cpu_second": 17993306.062,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 8487,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "2",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":2,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.062471000,\"frames_per_cpu_second\":5421523.587,\"owned_bytes\":16735,\"checksum\":-0.001653336338229117,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.001653336338229117,
+          "cpu_seconds": 0.062471,
+          "frames": 338688,
+          "frames_per_cpu_second": 5421523.587,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 16735,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "2",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":2,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.045203000,\"frames_per_cpu_second\":7492600.049,\"owned_bytes\":16735,\"checksum\":-0.001653336338229117,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.001653336338229117,
+          "cpu_seconds": 0.045203,
+          "frames": 338688,
+          "frames_per_cpu_second": 7492600.049,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 16735,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "2",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":2,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.032685000,\"frames_per_cpu_second\":10362184.488,\"owned_bytes\":16735,\"checksum\":-0.001653336338229117,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.001653336338229117,
+          "cpu_seconds": 0.032685,
+          "frames": 338688,
+          "frames_per_cpu_second": 10362184.488,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 16735,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "2",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":2,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.054084000,\"frames_per_cpu_second\":6262258.709,\"owned_bytes\":16735,\"checksum\":-0.001653336338229117,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": -0.001653336338229117,
+          "cpu_seconds": 0.054084,
+          "frames": 338688,
+          "frames_per_cpu_second": 6262258.709,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 16735,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "6",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":6,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.098006000,\"frames_per_cpu_second\":3455788.421,\"owned_bytes\":49727,\"checksum\":10.46988848566699,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.46988848566699,
+          "cpu_seconds": 0.098006,
+          "frames": 338688,
+          "frames_per_cpu_second": 3455788.421,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 49727,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "6",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":6,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.120979000,\"frames_per_cpu_second\":2799560.254,\"owned_bytes\":49727,\"checksum\":10.46988848566699,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.46988848566699,
+          "cpu_seconds": 0.120979,
+          "frames": 338688,
+          "frames_per_cpu_second": 2799560.254,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 49727,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "6",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":6,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.127510000,\"frames_per_cpu_second\":2656168.144,\"owned_bytes\":49727,\"checksum\":10.46988848566699,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.46988848566699,
+          "cpu_seconds": 0.12751,
+          "frames": 338688,
+          "frames_per_cpu_second": 2656168.144,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 49727,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide128",
+        "6",
+        "338688"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide128\",\"native_hz\":5644800,\"intermediate_hz\":176400,\"channels\":6,\"frames\":338688,\"output_frames\":10584,\"cpu_seconds\":0.090207000,\"frames_per_cpu_second\":3754564.502,\"owned_bytes\":49727,\"checksum\":10.46988848566699,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.46988848566699,
+          "cpu_seconds": 0.090207,
+          "frames": 338688,
+          "frames_per_cpu_second": 3754564.502,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 49727,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "1",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":1,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.046587000,\"frames_per_cpu_second\":14540021.895,\"owned_bytes\":7255,\"checksum\":-0.02029963617343684,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.02029963617343684,
+          "cpu_seconds": 0.046587,
+          "frames": 677376,
+          "frames_per_cpu_second": 14540021.895,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 7255,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "1",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":1,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.033193000,\"frames_per_cpu_second\":20407194.288,\"owned_bytes\":7255,\"checksum\":-0.02029963617343684,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.02029963617343684,
+          "cpu_seconds": 0.033193,
+          "frames": 677376,
+          "frames_per_cpu_second": 20407194.288,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 7255,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "1",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":1,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.070054000,\"frames_per_cpu_second\":9669340.794,\"owned_bytes\":7255,\"checksum\":-0.02029963617343684,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.02029963617343684,
+          "cpu_seconds": 0.070054,
+          "frames": 677376,
+          "frames_per_cpu_second": 9669340.794,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 7255,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "1",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":1,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.039678000,\"frames_per_cpu_second\":17071828.217,\"owned_bytes\":7255,\"checksum\":-0.02029963617343684,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.02029963617343684,
+          "cpu_seconds": 0.039678,
+          "frames": 677376,
+          "frames_per_cpu_second": 17071828.217,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 7255,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "2",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":2,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.077329000,\"frames_per_cpu_second\":8759663.257,\"owned_bytes\":14271,\"checksum\":0.00903090051828663,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": 0.00903090051828663,
+          "cpu_seconds": 0.077329,
+          "frames": 677376,
+          "frames_per_cpu_second": 8759663.257,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 14271,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "2",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":2,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.052738000,\"frames_per_cpu_second\":12844173.082,\"owned_bytes\":14271,\"checksum\":0.00903090051828663,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": 0.00903090051828663,
+          "cpu_seconds": 0.052738,
+          "frames": 677376,
+          "frames_per_cpu_second": 12844173.082,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 14271,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "2",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":2,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.090782000,\"frames_per_cpu_second\":7461567.271,\"owned_bytes\":14271,\"checksum\":0.00903090051828663,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": 0.00903090051828663,
+          "cpu_seconds": 0.090782,
+          "frames": 677376,
+          "frames_per_cpu_second": 7461567.271,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 14271,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "2",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":2,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.075153000,\"frames_per_cpu_second\":9013292.883,\"owned_bytes\":14271,\"checksum\":0.00903090051828663,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": 0.00903090051828663,
+          "cpu_seconds": 0.075153,
+          "frames": 677376,
+          "frames_per_cpu_second": 9013292.883,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 14271,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "6",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":6,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.227830000,\"frames_per_cpu_second\":2973164.201,\"owned_bytes\":42335,\"checksum\":10.33726451091067,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.33726451091067,
+          "cpu_seconds": 0.22783,
+          "frames": 677376,
+          "frames_per_cpu_second": 2973164.201,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 42335,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "6",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":6,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.157625000,\"frames_per_cpu_second\":4297389.374,\"owned_bytes\":42335,\"checksum\":10.33726451091067,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.33726451091067,
+          "cpu_seconds": 0.157625,
+          "frames": 677376,
+          "frames_per_cpu_second": 4297389.374,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 42335,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "6",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":6,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.173374000,\"frames_per_cpu_second\":3907021.814,\"owned_bytes\":42335,\"checksum\":10.33726451091067,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.33726451091067,
+          "cpu_seconds": 0.173374,
+          "frames": 677376,
+          "frames_per_cpu_second": 3907021.814,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 42335,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "master256",
+        "6",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"master256\",\"native_hz\":11289600,\"intermediate_hz\":176400,\"channels\":6,\"frames\":677376,\"output_frames\":10584,\"cpu_seconds\":0.242503000,\"frames_per_cpu_second\":2793268.537,\"owned_bytes\":42335,\"checksum\":10.33726451091067,\"stage_taps\":[57,57,57,57,57,117]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 10.33726451091067,
+          "cpu_seconds": 0.242503,
+          "frames": 677376,
+          "frames_per_cpu_second": 2793268.537,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 42335,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "1",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":1,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.033819000,\"frames_per_cpu_second\":20029450.900,\"owned_bytes\":8487,\"checksum\":-0.02961011618052049,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.02961011618052049,
+          "cpu_seconds": 0.033819,
+          "frames": 677376,
+          "frames_per_cpu_second": 20029450.9,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 8487,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "1",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":1,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.054967000,\"frames_per_cpu_second\":12323321.265,\"owned_bytes\":8487,\"checksum\":-0.02961011618052049,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.02961011618052049,
+          "cpu_seconds": 0.054967,
+          "frames": 677376,
+          "frames_per_cpu_second": 12323321.265,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 8487,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "1",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":1,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.061251000,\"frames_per_cpu_second\":11059019.445,\"owned_bytes\":8487,\"checksum\":-0.02961011618052049,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.02961011618052049,
+          "cpu_seconds": 0.061251,
+          "frames": 677376,
+          "frames_per_cpu_second": 11059019.445,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 8487,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "1",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":1,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.029563000,\"frames_per_cpu_second\":22912965.531,\"owned_bytes\":8487,\"checksum\":-0.02961011618052049,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 1,
+          "checksum": -0.02961011618052049,
+          "cpu_seconds": 0.029563,
+          "frames": 677376,
+          "frames_per_cpu_second": 22912965.531,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 8487,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "2",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":2,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.098899000,\"frames_per_cpu_second\":6849169.355,\"owned_bytes\":16735,\"checksum\":0.01435883332189028,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": 0.01435883332189028,
+          "cpu_seconds": 0.098899,
+          "frames": 677376,
+          "frames_per_cpu_second": 6849169.355,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 16735,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "2",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":2,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.063874000,\"frames_per_cpu_second\":10604878.354,\"owned_bytes\":16735,\"checksum\":0.01435883332189028,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": 0.01435883332189028,
+          "cpu_seconds": 0.063874,
+          "frames": 677376,
+          "frames_per_cpu_second": 10604878.354,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 16735,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "2",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":2,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.083219000,\"frames_per_cpu_second\":8139679.640,\"owned_bytes\":16735,\"checksum\":0.01435883332189028,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": 0.01435883332189028,
+          "cpu_seconds": 0.083219,
+          "frames": 677376,
+          "frames_per_cpu_second": 8139679.64,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 16735,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "2",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":2,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.053301000,\"frames_per_cpu_second\":12708504.531,\"owned_bytes\":16735,\"checksum\":0.01435883332189028,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 2,
+          "checksum": 0.01435883332189028,
+          "cpu_seconds": 0.053301,
+          "frames": 677376,
+          "frames_per_cpu_second": 12708504.531,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 16735,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "6",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":6,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.247941000,\"frames_per_cpu_second\":2732004.791,\"owned_bytes\":49727,\"checksum\":20.63708826769637,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 20.63708826769637,
+          "cpu_seconds": 0.247941,
+          "frames": 677376,
+          "frames_per_cpu_second": 2732004.791,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 49727,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "6",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":6,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.255386000,\"frames_per_cpu_second\":2652361.523,\"owned_bytes\":49727,\"checksum\":20.63708826769637,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 20.63708826769637,
+          "cpu_seconds": 0.255386,
+          "frames": 677376,
+          "frames_per_cpu_second": 2652361.523,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 49727,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "6",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":6,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.180890000,\"frames_per_cpu_second\":3744684.615,\"owned_bytes\":49727,\"checksum\":20.63708826769637,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 20.63708826769637,
+          "cpu_seconds": 0.18089,
+          "frames": 677376,
+          "frames_per_cpu_second": 3744684.615,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 49727,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "test/dsd_test_decode",
+        "--bench",
+        "wide256",
+        "6",
+        "677376"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"profile\":\"wide256\",\"native_hz\":11289600,\"intermediate_hz\":352800,\"channels\":6,\"frames\":677376,\"output_frames\":21168,\"cpu_seconds\":0.267554000,\"frames_per_cpu_second\":2531735.650,\"owned_bytes\":49727,\"checksum\":20.63708826769637,\"stage_taps\":[57,57,57,57,257]}",
+      "values": [
+        {
+          "channels": 6,
+          "checksum": 20.63708826769637,
+          "cpu_seconds": 0.267554,
+          "frames": 677376,
+          "frames_per_cpu_second": 2531735.65,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 49727,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ]
+    }
+  ],
+  "cpu": "x86_64",
+  "frontend_cases": [
+    {
+      "channels": 1,
+      "development_samples": [
+        {
+          "channels": 1,
+          "checksum": -0.1099302824875534,
+          "cpu_seconds": 0.015932,
+          "frames": 169344,
+          "frames_per_cpu_second": 10629173.989,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 6247,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": -0.1099302824875534,
+          "cpu_seconds": 0.011648,
+          "frames": 169344,
+          "frames_per_cpu_second": 14538461.538,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 6247,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": -0.1099302824875534,
+          "cpu_seconds": 0.01491,
+          "frames": 169344,
+          "frames_per_cpu_second": 11357746.479,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 6247,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ],
+      "frames": 169344,
+      "frames_per_cpu_second_max": 14538461.538,
+      "frames_per_cpu_second_median": 11357746.479,
+      "frames_per_cpu_second_min": 10629173.989,
+      "intermediate_hz": 88200,
+      "owned_bytes": 6247,
+      "profile": "master64",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        117
+      ]
+    },
+    {
+      "channels": 2,
+      "development_samples": [
+        {
+          "channels": 2,
+          "checksum": -0.02750672388575542,
+          "cpu_seconds": 0.019516,
+          "frames": 169344,
+          "frames_per_cpu_second": 8677187.948,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 12255,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": -0.02750672388575542,
+          "cpu_seconds": 0.023296,
+          "frames": 169344,
+          "frames_per_cpu_second": 7269230.769,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 12255,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": -0.02750672388575542,
+          "cpu_seconds": 0.013384,
+          "frames": 169344,
+          "frames_per_cpu_second": 12652719.665,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 12255,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ],
+      "frames": 169344,
+      "frames_per_cpu_second_max": 12652719.665,
+      "frames_per_cpu_second_median": 8677187.948,
+      "frames_per_cpu_second_min": 7269230.769,
+      "intermediate_hz": 88200,
+      "owned_bytes": 12255,
+      "profile": "master64",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        117
+      ]
+    },
+    {
+      "channels": 6,
+      "development_samples": [
+        {
+          "channels": 6,
+          "checksum": 5.0733108213547,
+          "cpu_seconds": 0.046245,
+          "frames": 169344,
+          "frames_per_cpu_second": 3661887.772,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 36287,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 5.0733108213547,
+          "cpu_seconds": 0.079613,
+          "frames": 169344,
+          "frames_per_cpu_second": 2127089.797,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 36287,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 5.0733108213547,
+          "cpu_seconds": 0.056259,
+          "frames": 169344,
+          "frames_per_cpu_second": 3010078.387,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 36287,
+          "profile": "master64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ],
+      "frames": 169344,
+      "frames_per_cpu_second_max": 3661887.772,
+      "frames_per_cpu_second_median": 3010078.387,
+      "frames_per_cpu_second_min": 2127089.797,
+      "intermediate_hz": 88200,
+      "owned_bytes": 36287,
+      "profile": "master64",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        117
+      ]
+    },
+    {
+      "channels": 1,
+      "development_samples": [
+        {
+          "channels": 1,
+          "checksum": -0.1283738425261341,
+          "cpu_seconds": 0.008495,
+          "frames": 169344,
+          "frames_per_cpu_second": 19934549.735,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 8487,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": -0.1283738425261341,
+          "cpu_seconds": 0.011404,
+          "frames": 169344,
+          "frames_per_cpu_second": 14849526.482,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 8487,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": -0.1283738425261341,
+          "cpu_seconds": 0.011725,
+          "frames": 169344,
+          "frames_per_cpu_second": 14442985.075,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 8487,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ],
+      "frames": 169344,
+      "frames_per_cpu_second_max": 19934549.735,
+      "frames_per_cpu_second_median": 14849526.482,
+      "frames_per_cpu_second_min": 14442985.075,
+      "intermediate_hz": 88200,
+      "owned_bytes": 8487,
+      "profile": "wide64",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ]
+    },
+    {
+      "channels": 2,
+      "development_samples": [
+        {
+          "channels": 2,
+          "checksum": -0.02899768078487029,
+          "cpu_seconds": 0.020021,
+          "frames": 169344,
+          "frames_per_cpu_second": 8458318.765,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 16735,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": -0.02899768078487029,
+          "cpu_seconds": 0.026635,
+          "frames": 169344,
+          "frames_per_cpu_second": 6357950.066,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 16735,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": -0.02899768078487029,
+          "cpu_seconds": 0.016161,
+          "frames": 169344,
+          "frames_per_cpu_second": 10478559.495,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 16735,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ],
+      "frames": 169344,
+      "frames_per_cpu_second_max": 10478559.495,
+      "frames_per_cpu_second_median": 8458318.765,
+      "frames_per_cpu_second_min": 6357950.066,
+      "intermediate_hz": 88200,
+      "owned_bytes": 16735,
+      "profile": "wide64",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ]
+    },
+    {
+      "channels": 6,
+      "development_samples": [
+        {
+          "channels": 6,
+          "checksum": 5.084563107831369,
+          "cpu_seconds": 0.079201,
+          "frames": 169344,
+          "frames_per_cpu_second": 2138154.821,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 49727,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 5.084563107831369,
+          "cpu_seconds": 0.049686,
+          "frames": 169344,
+          "frames_per_cpu_second": 3408284.024,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 49727,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 5.084563107831369,
+          "cpu_seconds": 0.04758,
+          "frames": 169344,
+          "frames_per_cpu_second": 3559142.497,
+          "intermediate_hz": 88200,
+          "native_hz": 2822400,
+          "output_frames": 5292,
+          "owned_bytes": 49727,
+          "profile": "wide64",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ],
+      "frames": 169344,
+      "frames_per_cpu_second_max": 3559142.497,
+      "frames_per_cpu_second_median": 3408284.024,
+      "frames_per_cpu_second_min": 2138154.821,
+      "intermediate_hz": 88200,
+      "owned_bytes": 49727,
+      "profile": "wide64",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ]
+    },
+    {
+      "channels": 1,
+      "development_samples": [
+        {
+          "channels": 1,
+          "checksum": 0.005109202433966356,
+          "cpu_seconds": 0.024849,
+          "frames": 338688,
+          "frames_per_cpu_second": 13629844.259,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 6823,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": 0.005109202433966356,
+          "cpu_seconds": 0.013911,
+          "frames": 338688,
+          "frames_per_cpu_second": 24346775.933,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 6823,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": 0.005109202433966356,
+          "cpu_seconds": 0.03285,
+          "frames": 338688,
+          "frames_per_cpu_second": 10310136.986,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 6823,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ],
+      "frames": 338688,
+      "frames_per_cpu_second_max": 24346775.933,
+      "frames_per_cpu_second_median": 13629844.259,
+      "frames_per_cpu_second_min": 10310136.986,
+      "intermediate_hz": 176400,
+      "owned_bytes": 6823,
+      "profile": "master128",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        153
+      ]
+    },
+    {
+      "channels": 2,
+      "development_samples": [
+        {
+          "channels": 2,
+          "checksum": -0.00180798336306047,
+          "cpu_seconds": 0.025291,
+          "frames": 338688,
+          "frames_per_cpu_second": 13391641.295,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 13407,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": -0.00180798336306047,
+          "cpu_seconds": 0.03704,
+          "frames": 338688,
+          "frames_per_cpu_second": 9143844.492,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 13407,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": -0.00180798336306047,
+          "cpu_seconds": 0.03427,
+          "frames": 338688,
+          "frames_per_cpu_second": 9882929.676,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 13407,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ],
+      "frames": 338688,
+      "frames_per_cpu_second_max": 13391641.295,
+      "frames_per_cpu_second_median": 9882929.676,
+      "frames_per_cpu_second_min": 9143844.492,
+      "intermediate_hz": 176400,
+      "owned_bytes": 13407,
+      "profile": "master128",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        153
+      ]
+    },
+    {
+      "channels": 6,
+      "development_samples": [
+        {
+          "channels": 6,
+          "checksum": 10.50532061719116,
+          "cpu_seconds": 0.08955,
+          "frames": 338688,
+          "frames_per_cpu_second": 3782110.553,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 39743,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 10.50532061719116,
+          "cpu_seconds": 0.083152,
+          "frames": 338688,
+          "frames_per_cpu_second": 4073119.107,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 39743,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 10.50532061719116,
+          "cpu_seconds": 0.141598,
+          "frames": 338688,
+          "frames_per_cpu_second": 2391898.191,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 39743,
+          "profile": "master128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            153
+          ]
+        }
+      ],
+      "frames": 338688,
+      "frames_per_cpu_second_max": 4073119.107,
+      "frames_per_cpu_second_median": 3782110.553,
+      "frames_per_cpu_second_min": 2391898.191,
+      "intermediate_hz": 176400,
+      "owned_bytes": 39743,
+      "profile": "master128",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        153
+      ]
+    },
+    {
+      "channels": 1,
+      "development_samples": [
+        {
+          "channels": 1,
+          "checksum": -0.009417184042161759,
+          "cpu_seconds": 0.029435,
+          "frames": 338688,
+          "frames_per_cpu_second": 11506302.021,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 8487,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": -0.009417184042161759,
+          "cpu_seconds": 0.0278,
+          "frames": 338688,
+          "frames_per_cpu_second": 12183021.583,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 8487,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": -0.009417184042161759,
+          "cpu_seconds": 0.018823,
+          "frames": 338688,
+          "frames_per_cpu_second": 17993306.062,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 8487,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ],
+      "frames": 338688,
+      "frames_per_cpu_second_max": 17993306.062,
+      "frames_per_cpu_second_median": 12183021.583,
+      "frames_per_cpu_second_min": 11506302.021,
+      "intermediate_hz": 176400,
+      "owned_bytes": 8487,
+      "profile": "wide128",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ]
+    },
+    {
+      "channels": 2,
+      "development_samples": [
+        {
+          "channels": 2,
+          "checksum": -0.001653336338229117,
+          "cpu_seconds": 0.045203,
+          "frames": 338688,
+          "frames_per_cpu_second": 7492600.049,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 16735,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": -0.001653336338229117,
+          "cpu_seconds": 0.032685,
+          "frames": 338688,
+          "frames_per_cpu_second": 10362184.488,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 16735,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": -0.001653336338229117,
+          "cpu_seconds": 0.054084,
+          "frames": 338688,
+          "frames_per_cpu_second": 6262258.709,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 16735,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ],
+      "frames": 338688,
+      "frames_per_cpu_second_max": 10362184.488,
+      "frames_per_cpu_second_median": 7492600.049,
+      "frames_per_cpu_second_min": 6262258.709,
+      "intermediate_hz": 176400,
+      "owned_bytes": 16735,
+      "profile": "wide128",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ]
+    },
+    {
+      "channels": 6,
+      "development_samples": [
+        {
+          "channels": 6,
+          "checksum": 10.46988848566699,
+          "cpu_seconds": 0.120979,
+          "frames": 338688,
+          "frames_per_cpu_second": 2799560.254,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 49727,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 10.46988848566699,
+          "cpu_seconds": 0.12751,
+          "frames": 338688,
+          "frames_per_cpu_second": 2656168.144,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 49727,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 10.46988848566699,
+          "cpu_seconds": 0.090207,
+          "frames": 338688,
+          "frames_per_cpu_second": 3754564.502,
+          "intermediate_hz": 176400,
+          "native_hz": 5644800,
+          "output_frames": 10584,
+          "owned_bytes": 49727,
+          "profile": "wide128",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ],
+      "frames": 338688,
+      "frames_per_cpu_second_max": 3754564.502,
+      "frames_per_cpu_second_median": 2799560.254,
+      "frames_per_cpu_second_min": 2656168.144,
+      "intermediate_hz": 176400,
+      "owned_bytes": 49727,
+      "profile": "wide128",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ]
+    },
+    {
+      "channels": 1,
+      "development_samples": [
+        {
+          "channels": 1,
+          "checksum": -0.02029963617343684,
+          "cpu_seconds": 0.033193,
+          "frames": 677376,
+          "frames_per_cpu_second": 20407194.288,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 7255,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": -0.02029963617343684,
+          "cpu_seconds": 0.070054,
+          "frames": 677376,
+          "frames_per_cpu_second": 9669340.794,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 7255,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": -0.02029963617343684,
+          "cpu_seconds": 0.039678,
+          "frames": 677376,
+          "frames_per_cpu_second": 17071828.217,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 7255,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ],
+      "frames": 677376,
+      "frames_per_cpu_second_max": 20407194.288,
+      "frames_per_cpu_second_median": 17071828.217,
+      "frames_per_cpu_second_min": 9669340.794,
+      "intermediate_hz": 176400,
+      "owned_bytes": 7255,
+      "profile": "master256",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        57,
+        117
+      ]
+    },
+    {
+      "channels": 2,
+      "development_samples": [
+        {
+          "channels": 2,
+          "checksum": 0.00903090051828663,
+          "cpu_seconds": 0.052738,
+          "frames": 677376,
+          "frames_per_cpu_second": 12844173.082,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 14271,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": 0.00903090051828663,
+          "cpu_seconds": 0.090782,
+          "frames": 677376,
+          "frames_per_cpu_second": 7461567.271,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 14271,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": 0.00903090051828663,
+          "cpu_seconds": 0.075153,
+          "frames": 677376,
+          "frames_per_cpu_second": 9013292.883,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 14271,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ],
+      "frames": 677376,
+      "frames_per_cpu_second_max": 12844173.082,
+      "frames_per_cpu_second_median": 9013292.883,
+      "frames_per_cpu_second_min": 7461567.271,
+      "intermediate_hz": 176400,
+      "owned_bytes": 14271,
+      "profile": "master256",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        57,
+        117
+      ]
+    },
+    {
+      "channels": 6,
+      "development_samples": [
+        {
+          "channels": 6,
+          "checksum": 10.33726451091067,
+          "cpu_seconds": 0.157625,
+          "frames": 677376,
+          "frames_per_cpu_second": 4297389.374,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 42335,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 10.33726451091067,
+          "cpu_seconds": 0.173374,
+          "frames": 677376,
+          "frames_per_cpu_second": 3907021.814,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 42335,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 10.33726451091067,
+          "cpu_seconds": 0.242503,
+          "frames": 677376,
+          "frames_per_cpu_second": 2793268.537,
+          "intermediate_hz": 176400,
+          "native_hz": 11289600,
+          "output_frames": 10584,
+          "owned_bytes": 42335,
+          "profile": "master256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            57,
+            117
+          ]
+        }
+      ],
+      "frames": 677376,
+      "frames_per_cpu_second_max": 4297389.374,
+      "frames_per_cpu_second_median": 3907021.814,
+      "frames_per_cpu_second_min": 2793268.537,
+      "intermediate_hz": 176400,
+      "owned_bytes": 42335,
+      "profile": "master256",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        57,
+        117
+      ]
+    },
+    {
+      "channels": 1,
+      "development_samples": [
+        {
+          "channels": 1,
+          "checksum": -0.02961011618052049,
+          "cpu_seconds": 0.054967,
+          "frames": 677376,
+          "frames_per_cpu_second": 12323321.265,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 8487,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": -0.02961011618052049,
+          "cpu_seconds": 0.061251,
+          "frames": 677376,
+          "frames_per_cpu_second": 11059019.445,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 8487,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 1,
+          "checksum": -0.02961011618052049,
+          "cpu_seconds": 0.029563,
+          "frames": 677376,
+          "frames_per_cpu_second": 22912965.531,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 8487,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ],
+      "frames": 677376,
+      "frames_per_cpu_second_max": 22912965.531,
+      "frames_per_cpu_second_median": 12323321.265,
+      "frames_per_cpu_second_min": 11059019.445,
+      "intermediate_hz": 352800,
+      "owned_bytes": 8487,
+      "profile": "wide256",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ]
+    },
+    {
+      "channels": 2,
+      "development_samples": [
+        {
+          "channels": 2,
+          "checksum": 0.01435883332189028,
+          "cpu_seconds": 0.063874,
+          "frames": 677376,
+          "frames_per_cpu_second": 10604878.354,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 16735,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": 0.01435883332189028,
+          "cpu_seconds": 0.083219,
+          "frames": 677376,
+          "frames_per_cpu_second": 8139679.64,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 16735,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 2,
+          "checksum": 0.01435883332189028,
+          "cpu_seconds": 0.053301,
+          "frames": 677376,
+          "frames_per_cpu_second": 12708504.531,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 16735,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ],
+      "frames": 677376,
+      "frames_per_cpu_second_max": 12708504.531,
+      "frames_per_cpu_second_median": 10604878.354,
+      "frames_per_cpu_second_min": 8139679.64,
+      "intermediate_hz": 352800,
+      "owned_bytes": 16735,
+      "profile": "wide256",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ]
+    },
+    {
+      "channels": 6,
+      "development_samples": [
+        {
+          "channels": 6,
+          "checksum": 20.63708826769637,
+          "cpu_seconds": 0.255386,
+          "frames": 677376,
+          "frames_per_cpu_second": 2652361.523,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 49727,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 20.63708826769637,
+          "cpu_seconds": 0.18089,
+          "frames": 677376,
+          "frames_per_cpu_second": 3744684.615,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 49727,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        },
+        {
+          "channels": 6,
+          "checksum": 20.63708826769637,
+          "cpu_seconds": 0.267554,
+          "frames": 677376,
+          "frames_per_cpu_second": 2531735.65,
+          "intermediate_hz": 352800,
+          "native_hz": 11289600,
+          "output_frames": 21168,
+          "owned_bytes": 49727,
+          "profile": "wide256",
+          "stage_taps": [
+            57,
+            57,
+            57,
+            57,
+            257
+          ]
+        }
+      ],
+      "frames": 677376,
+      "frames_per_cpu_second_max": 3744684.615,
+      "frames_per_cpu_second_median": 2652361.523,
+      "frames_per_cpu_second_min": 2531735.65,
+      "intermediate_hz": 352800,
+      "owned_bytes": 49727,
+      "profile": "wide256",
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        257
+      ]
+    }
+  ],
+  "kernel_calls": [
+    {
+      "bank": "halfband",
+      "checksum": -1.110223024625157e-10,
+      "cpu_seconds": 0.027335,
+      "iterations": 1000000,
+      "ns_per_output": 27.335,
+      "taps": 57
+    },
+    {
+      "bank": "master64_256",
+      "checksum": -3.332256692800684e-05,
+      "cpu_seconds": 0.053312,
+      "iterations": 1000000,
+      "ns_per_output": 53.312,
+      "taps": 117
+    },
+    {
+      "bank": "master128",
+      "checksum": -3.000727444302242e-05,
+      "cpu_seconds": 0.072242,
+      "iterations": 1000000,
+      "ns_per_output": 72.242,
+      "taps": 153
+    },
+    {
+      "bank": "wideband",
+      "checksum": -1.965516638335885e-05,
+      "cpu_seconds": 0.112291,
+      "iterations": 1000000,
+      "ns_per_output": 112.291,
+      "taps": 257
+    }
+  ],
+  "limitations": "development performance/memory observation only; not an admissible 5% regression qualification; no SIMD",
+  "method": "compiled C99 scalar measured with C clock() CPU seconds",
+  "profile_seconds": 0.06,
+  "repetitions": 3,
+  "schema": "sox-ng/p06-bench/1",
+  "summary": {
+    "failed": 0,
+    "frontend_cases": 18,
+    "kernel_banks": 4,
+    "status": "pass-development-only"
+  }
+}

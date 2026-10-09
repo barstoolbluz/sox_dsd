@@ -74,3 +74,15 @@ EXTRA_PROGRAMS += dsd_test_decode_faults
 dsd_test_decode_faults_SOURCES = ../tests/dsd/test_decode_faults.c
 dsd_test_decode_faults_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_decode_faults_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P07 final SRC + public binary64 decoder contract (opt-in, not generic).
+EXTRA_PROGRAMS += dsd_test_p07
+dsd_test_p07_SOURCES = ../tests/dsd/test_p07.c
+dsd_test_p07_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p07_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P07 double SRC numerical exporter for an independent SciPy windowed-sinc test.
+EXTRA_PROGRAMS += dsd_test_p07_reference
+dsd_test_p07_reference_SOURCES = ../tests/dsd/test_p07_reference.c
+dsd_test_p07_reference_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p07_reference_LDADD = $(top_builddir)/src/libsox_ng.la

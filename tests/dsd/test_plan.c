@@ -218,7 +218,8 @@ static void graph(void)
   CHECK(!build(&spec,&plan));lsx_dsd_plan_free(&plan);
   spec.effect_count=1;
   eff[0]=effect("dsdpcm");
-  CHECK(build(&spec,&plan));CHECK(!plan.executable && plan.graph_decode_count==1);
+  /* P07 makes exactly this explicit single-input reconstruction executable. */
+  CHECK(build(&spec,&plan));CHECK(plan.executable && !plan.needs_unimplemented_dsp && plan.graph_decode_count==1);
   lsx_dsd_plan_free(&plan);
   eff[1]=effect("dsdpcm");spec.effect_count=2;
   CHECK(!build(&spec,&plan));lsx_dsd_plan_free(&plan);

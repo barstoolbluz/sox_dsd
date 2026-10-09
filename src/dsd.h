@@ -1,8 +1,12 @@
 /* Private DSD capability and CLI preflight contract.  Not an installed ABI. */
 #ifndef LSX_DSD_H
 #define LSX_DSD_H
+#ifndef LSX_EFF_FATAL
+#define LSX_EFF_FATAL (-0x5D50)
+#endif
 
 #include "sox_ng.h"
+#include "sox_dsd.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -47,6 +51,8 @@ typedef struct {
   lsx_dsd_reference reference;
   int profile_specified, level_specified, reference_specified;
   uint32_t pinned_native_hz; /* Versioned profile ID, or 0 for alias. */
+  lsx_dsd_clip clip;
+  lsx_dsd_bandwidth bandwidth;
 } lsx_dsd_effect_options;
 
 typedef struct {
@@ -174,7 +180,21 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *, lsx_dsd_plan *, char *error, s
 void lsx_dsd_plan_free(lsx_dsd_plan *);
 void lsx_dsd_plan_json(FILE *, lsx_dsd_plan_spec const *, lsx_dsd_plan const *);
 
-/* These effects parse and identify future DSP, but do not implement it. */
+/* Per-channel adapter owns its decoder only after start, since effects.c
+ * copies the pre-start private struct to every channel before start(). */
+typedef struct {
+  lsx_dsd_effect_options options; /* Must remain first for P05 parser. */
+  sox_dsd_decoder_t *decoder;
+  uint64_t graph_clips;
+  double max_preclip;
+} lsx_dsdpcm_private;
+int lsx_dsdpcm_start(sox_effect_t *);
+int lsx_dsdpcm_flow(sox_effect_t *, const sox_sample_t *, sox_sample_t *,
+    size_t *, size_t *);
+int lsx_dsdpcm_drain(sox_effect_t *, sox_sample_t *, size_t *);
+int lsx_dsdpcm_stop(sox_effect_t *);
+void lsx_dsd_effect_apply_policy(sox_effect_t *, const lsx_dsd_policy *);
+/* P07 implements explicit reconstruction only; other composites remain future DSP. */
 const sox_effect_handler_t *lsx_dsdpcm_effect_fn(void);
 const sox_effect_handler_t *lsx_pcmdsd_effect_fn(void);
 const sox_effect_handler_t *lsx_dsdstat_effect_fn(void);
