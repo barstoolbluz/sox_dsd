@@ -253,74 +253,74 @@ invalid:
 static unsigned dff_read_fragment(sox_format_t *ft, sox_sample_t *buf,
                                   unsigned frames)
 {
-	struct dsdiff *dff = ft->priv;
-	size_t nc = ft->signal.channels;
-	unsigned i, j, bits = min(frames, 8 - dff->bit_pos);
+    struct dsdiff *dff = ft->priv;
+    size_t nc = ft->signal.channels;
+    unsigned i, j, bits = min(frames, 8 - dff->bit_pos);
 
-	if (!dff->cluster_valid) {
-		if (lsx_read_b_buf(ft, dff->buf, nc) != nc)
-			return 0;
-		dff->cluster_valid = sox_true;
-	}
-	for (i = 0; i < nc; ++i) {
-		unsigned d = dff->buf[i] << dff->bit_pos;
-		for (j = 0; j < bits; ++j) {
-			buf[i + j * nc] = d & 128 ?
-				SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
-			d <<= 1;
-		}
-	}
-	dff->bit_pos += bits;
-	if (dff->bit_pos == 8) {
-		dff->bit_pos = 0;
-		dff->cluster_valid = sox_false;
-	}
-	return bits;
+    if (!dff->cluster_valid) {
+        if (lsx_read_b_buf(ft, dff->buf, nc) != nc)
+            return 0;
+        dff->cluster_valid = sox_true;
+    }
+    for (i = 0; i < nc; ++i) {
+        unsigned d = dff->buf[i] << dff->bit_pos;
+        for (j = 0; j < bits; ++j) {
+            buf[i + j * nc] = d & 128 ?
+                SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
+            d <<= 1;
+        }
+    }
+    dff->bit_pos += bits;
+    if (dff->bit_pos == 8) {
+        dff->bit_pos = 0;
+        dff->cluster_valid = sox_false;
+    }
+    return bits;
 }
 
 static size_t dff_read(sox_format_t *ft, sox_sample_t *buf, size_t len)
 {
-	struct dsdiff *dff = ft->priv;
-	size_t nc = ft->signal.channels;
-	size_t frames = len / nc, done = 0;
+    struct dsdiff *dff = ft->priv;
+    size_t nc = ft->signal.channels;
+    size_t frames = len / nc, done = 0;
 
-	/* The generic reader uses length == 0 for unknown-length formats. */
-	if (!dff->data_size || !frames)
-		return 0;
+    /* The generic reader uses length == 0 for unknown-length formats. */
+    if (!dff->data_size || !frames)
+        return 0;
 
-	/* A prior small read, or a non-byte-aligned seek, may have left a
-	 * cluster partially consumed. Finish it before taking the fast path. */
-	if (dff->cluster_valid || dff->bit_pos) {
-		unsigned bits = dff_read_fragment(ft, buf, (unsigned)min(frames, 8));
-		if (!bits)
-			return 0;
-		buf += bits * nc;
-		frames -= bits;
-		done += bits;
-	}
+    /* A prior small read, or a non-byte-aligned seek, may have left a
+     * cluster partially consumed. Finish it before taking the fast path. */
+    if (dff->cluster_valid || dff->bit_pos) {
+        unsigned bits = dff_read_fragment(ft, buf, (unsigned)min(frames, 8));
+        if (!bits)
+            return 0;
+        buf += bits * nc;
+        frames -= bits;
+        done += bits;
+    }
 
-	/* Aligned full clusters need no per-cluster retained-state bookkeeping.
-	 * The expansion order is the same as P01's eight-frame reader. */
-	while (frames >= 8) {
-		unsigned i, j;
-		if (lsx_read_b_buf(ft, dff->buf, nc) != nc)
-			return done * nc;
-		for (i = 0; i < nc; ++i) {
-			unsigned d = dff->buf[i];
-			for (j = 0; j < 8; ++j) {
-				buf[i + j * nc] = d & 128 ?
-					SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
-				d <<= 1;
-			}
-		}
-		buf += 8 * nc;
-		frames -= 8;
-		done += 8;
-	}
+    /* Aligned full clusters need no per-cluster retained-state bookkeeping.
+     * The expansion order is the same as P01's eight-frame reader. */
+    while (frames >= 8) {
+        unsigned i, j;
+        if (lsx_read_b_buf(ft, dff->buf, nc) != nc)
+            return done * nc;
+        for (i = 0; i < nc; ++i) {
+            unsigned d = dff->buf[i];
+            for (j = 0; j < 8; ++j) {
+                buf[i + j * nc] = d & 128 ?
+                    SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
+                d <<= 1;
+            }
+        }
+        buf += 8 * nc;
+        frames -= 8;
+        done += 8;
+    }
 
-	if (frames)
-		done += dff_read_fragment(ft, buf, (unsigned)frames);
-	return done * nc;
+    if (frames)
+        done += dff_read_fragment(ft, buf, (unsigned)frames);
+    return done * nc;
 }
 
 static int dff_seek(sox_format_t * ft, sox_uint64_t offset)
