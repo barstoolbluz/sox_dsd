@@ -163,6 +163,21 @@ static sox_option_t show_progress = sox_option_default;
 
 /* Input & output files */
 
+/* P08: a decoder is owned by one physical input, not by the combiner or
+ * a graph effect.  Reader metadata remains native throughout its lifetime. */
+typedef struct {
+  sox_dsd_decoder_t *decoder;
+  sox_sample_t *native;
+  double *pcm;
+  size_t pending, cursor;
+  unsigned channels;
+  uint64_t native_seen, native_expected;
+  sox_bool native_length_known;
+  uint64_t clips;
+  double peak;
+  sox_bool eof, done, failed;
+} dsd_input_adapter_t;
+
 typedef struct {
   char * filename;
 
@@ -178,6 +193,12 @@ typedef struct {
   sox_format_t * ft;  /* libSoX file descriptor */
   uint64_t volume_clips;
   rg_mode replay_gain_mode;
+  dsd_input_adapter_t *dsd_adapter;
+  uint32_t dsd_target_hz;
+  lsx_dsd_decode dsd_profile;
+  lsx_dsd_level dsd_level;
+  lsx_dsd_bandwidth dsd_bandwidth;
+  lsx_dsd_clip dsd_clip;
 } file_t;
 
 static file_t * * files = NULL; /* Array tracking input and output files */
@@ -237,6 +258,12 @@ static sox_bool dsd_preflight_enabled(void)
  * the matching layout is installed before the writer serializes its header. */
 static unsigned *dsd_output_permutation = NULL;
 static unsigned dsd_output_permutation_count = 0;
+/* One authoritative resolved plan lives until the next effects-chain build.
+ * The planner owns no effect instances and its names are static handlers. */
+static lsx_dsd_plan dsd_runtime_plan;
+static sox_bool dsd_runtime_active = sox_false;
+static size_t *dsd_decode_before;
+static sox_bool dsd_consume_leading;
 
 
 /* Flowing */
@@ -259,6 +286,7 @@ static sox_sample_t omax[2], omin[2];
 
 /* A failed finalization can no longer inspect ft after sox_close frees it.
  * Use the same regular-file-only policy as cleanup(), before closing. */
+static void dsd_adapter_destroy(file_t *f);
 static int close_output_checked(void)
 {
   sox_format_t *ft = ofile->ft;
@@ -295,8 +323,12 @@ static void cleanup(void)
     if (env_opts && *env_opts)
       lsx_report("used "SOX_OPTS"=%s", env_opts);
   }
+  lsx_dsd_plan_free(&dsd_runtime_plan);
+  free(dsd_decode_before);
+  dsd_decode_before=NULL;
   /* Close the input and output files before exiting. */
   for (i = 0; i < input_count; i++) {
+    dsd_adapter_destroy(files[i]);
     if (files[i]->ft) {
       sox_close(files[i]->ft);
     }
@@ -539,14 +571,156 @@ static void report_file_info(file_t * f)
     display_file_info(f->ft, f, sox_true);
 }
 
+/* A bounded native-frame queue prevents read-ahead from changing the finite
+ * decoder's EOF contract.  One interleaved double-to-int32 quantization is
+ * performed after the file-specific gain, never on native pulse values. */
+#define DSD_ADAPTER_NATIVE_FRAMES 512
+#define DSD_ADAPTER_PCM_FRAMES 256
+
+static void dsd_adapter_destroy(file_t *f)
+{
+  dsd_input_adapter_t *a=f->dsd_adapter;
+  if (!a) return;
+  if (a->clips)
+    lsx_warn("P08: '%s' adapter clipped %" PRIu64
+        " graph samples (max magnitude %.9g)",f->filename,a->clips,a->peak);
+  sox_dsd_decoder_destroy(a->decoder);
+  free(a->native);
+  free(a->pcm);
+  free(a);
+  f->dsd_adapter=NULL;
+}
+
+static void dsd_adapter_start(file_t *f)
+{
+  dsd_input_adapter_t *a;
+  sox_dsd_decode_options_t opt;
+  sox_dsd_status_t rc;
+  uint32_t native_hz;
+  if (!f->dsd_target_hz) return;
+  dsd_adapter_destroy(f);
+  if (!lsx_dsd_integer_rate(f->ft->signal.rate,&native_hz)) {
+    lsx_fail("P08: noninteger native rate in input adapter");exit(2);
+  }
+  a=lsx_calloc(1,sizeof(*a));
+  a->channels=f->ft->signal.channels;
+  /* Format readers use zero for an unknown length.  Only a declared,
+   * positive native length can diagnose an unexpected physical EOF. */
+  a->native_length_known=f->ft->signal.length!=SOX_UNSPEC &&
+      f->ft->signal.length!=SOX_UNKNOWN_LEN;
+  if (a->native_length_known) {
+    a->native_expected=f->ft->signal.length/a->channels;
+    if (a->native_expected*a->channels!=f->ft->signal.length) {
+      lsx_fail("P08: incomplete channel frame count in '%s'",f->filename);
+      free(a);exit(2);
+    }
+  }
+  a->native=lsx_malloc(DSD_ADAPTER_NATIVE_FRAMES*a->channels*sizeof(*a->native));
+  a->pcm=lsx_malloc(DSD_ADAPTER_PCM_FRAMES*a->channels*sizeof(*a->pcm));
+  sox_dsd_decode_options_init(&opt);
+  opt.native_hz=native_hz;
+  opt.output_hz=f->dsd_target_hz;
+  opt.channels=a->channels;
+  opt.profile=(sox_dsd_decode_profile_t)f->dsd_profile;
+  opt.level=(sox_dsd_decode_level_t)f->dsd_level;
+  opt.bandwidth=(sox_dsd_decode_bandwidth_t)f->dsd_bandwidth;
+  rc=sox_dsd_decoder_create(&opt,&a->decoder);
+  if (rc!=SOX_DSD_OK) {
+    lsx_fail("P08: unable to create input decoder for '%s' (%d)",f->filename,(int)rc);
+    free(a->native);free(a->pcm);free(a);exit(2);
+  }
+  f->dsd_adapter=a;
+}
+
+static size_t dsd_adapter_read(file_t *f,sox_sample_t *out,size_t frames)
+{
+  dsd_input_adapter_t *a=f->dsd_adapter;
+  size_t total=0;
+  SOX_SAMPLE_LOCALS;
+  while (total<frames && !a->done && !a->failed) {
+    size_t made=DSD_ADAPTER_PCM_FRAMES, used=0, j;
+    sox_dsd_status_t rc;
+    if (made>frames-total) made=frames-total;
+    if (!a->eof && a->cursor==a->pending) {
+      size_t samples=sox_read(f->ft,a->native,
+          DSD_ADAPTER_NATIVE_FRAMES*a->channels);
+      if (samples%a->channels || (!samples && f->ft->sox_errno)) {
+        lsx_fail("P08: input read failed for '%s': %s",f->filename,
+            f->ft->sox_errno?sox_strerror(f->ft->sox_errno):"incomplete channel frame");
+        a->failed=sox_true;break;
+      }
+      a->cursor=0;
+      a->pending=samples/a->channels;
+      if (a->native_length_known &&
+          (a->native_seen>a->native_expected ||
+           a->pending>a->native_expected-a->native_seen)) {
+        lsx_fail("P08: native input exceeded its declared length in '%s'",f->filename);
+        a->failed=sox_true;break;
+      }
+      a->native_seen+=a->pending;
+      if (!samples) {
+        if (a->native_length_known && a->native_seen!=a->native_expected) {
+          lsx_fail("P08: premature native EOF in '%s' (read %" PRIu64
+              " of %" PRIu64 " frames)",f->filename,a->native_seen,a->native_expected);
+          a->failed=sox_true;break;
+        }
+        a->eof=sox_true;
+      }
+    }
+    if (a->eof && a->cursor==a->pending) {
+      rc=sox_dsd_decoder_finish(a->decoder,a->pcm,&made);
+      if (rc!=SOX_DSD_NEED_OUTPUT && rc!=SOX_DSD_DONE) {
+        lsx_fail("P08: input decoder finalization failed for '%s' (%d)",
+            f->filename,(int)rc);
+        a->failed=sox_true;break;
+      }
+      if (rc==SOX_DSD_DONE) a->done=sox_true;
+    } else {
+      used=a->pending-a->cursor;
+      rc=sox_dsd_decoder_process(a->decoder,
+          a->native+a->cursor*a->channels,&used,a->pcm,&made);
+      if ((rc!=SOX_DSD_NEED_INPUT && rc!=SOX_DSD_NEED_OUTPUT) ||
+          (!made && !used)) {
+        lsx_fail("P08: input decoder stalled for '%s' (%d)",f->filename,(int)rc);
+        a->failed=sox_true;break;
+      }
+      a->cursor+=used;
+    }
+    for (j=0;j<made*a->channels;j++) {
+      double sample=a->pcm[j]*f->volume;
+      double magnitude=fabs(sample);
+      if (!isfinite(sample)) {
+        lsx_fail("P08: nonfinite sample in input adapter for '%s'",f->filename);
+        a->failed=sox_true;break;
+      }
+      if (magnitude>a->peak) a->peak=magnitude;
+      if (sample>=1. || sample< -1.) {
+        ++a->clips;
+        if (f->dsd_clip==LSX_DSD_CLIP_ERROR) {
+          lsx_fail("P08: --dsd-clip error in input adapter '%s' (magnitude %.9g)",
+              f->filename,magnitude);
+          a->failed=sox_true;break;
+        }
+      }
+      out[total*a->channels+j]=SOX_FLOAT_64BIT_TO_SAMPLE(sample,f->volume_clips);
+    }
+    if (a->failed) break;
+    total+=made;
+  }
+  return total;
+}
+
 static void progress_to_next_input_file(file_t * f, sox_effect_t * effp)
 {
-  if (user_skip) {
-    user_skip = sox_false;
-    fprintf(stderr, "\nSkipped (Ctrl-C twice to quit).\n");
-  }
+  uint64_t native_frames;
   read_wide_samples = 0;
-  input_wide_samples = f->ft->signal.length / f->ft->signal.channels;
+  native_frames = f->ft->signal.length / f->ft->signal.channels;
+  input_wide_samples = native_frames;
+  if (f->dsd_target_hz && f->ft->signal.length != SOX_UNKNOWN_LEN &&
+      !lsx_dsd_count_convert(native_frames,(uint32_t)f->ft->signal.rate,
+          f->dsd_target_hz,&input_wide_samples)) {
+    lsx_fail("P08: effective input length overflow");exit(2);
+  }
   if (show_progress && (sox_globals.verbosity < 3 ||
                         (is_serial(combine_method) && input_count > 1)))
     display_file_info(f->ft, f, sox_false);
@@ -557,27 +731,29 @@ static void progress_to_next_input_file(file_t * f, sox_effect_t * effp)
   if (effp && f->volume != floor(f->volume))
     effp->out_signal.precision = SOX_SAMPLE_PRECISION;
   f->ft->sox_errno = errno = 0;
+  dsd_adapter_start(f);
 }
 
-/* Read up to max `wide' samples.  A wide sample contains one sample per channel
- * from the input audio. */
-static size_t sox_read_wide(sox_format_t * ft, sox_sample_t * buf, size_t max)
+/* Lengths and return values here are *effective* wide frames, while native
+ * reader metadata and its sample counter retain the original clock. */
+static size_t sox_read_wide(file_t *f, sox_sample_t *buf, size_t max)
 {
-  size_t len = max / combiner_signal.channels;
-  len = sox_read(ft, buf, len * ft->signal.channels) / ft->signal.channels;
+  sox_format_t *ft=f->ft;
+  size_t len=max/combiner_signal.channels;
+  if (f->dsd_adapter) return dsd_adapter_read(f,buf,len);
+  len=sox_read(ft,buf,len*ft->signal.channels)/ft->signal.channels;
   if (!len && ft->sox_errno)
-    lsx_fail("`%s' %s: %s",
-        ft->filename, ft->sox_errstr, sox_strerror(ft->sox_errno));
+    lsx_fail("`%s' %s: %s",ft->filename,ft->sox_errstr,sox_strerror(ft->sox_errno));
   return len;
 }
 
-static void balance_input(sox_sample_t * buf, size_t ws, file_t * f)
+static void balance_input(sox_sample_t *buf,size_t ws,file_t *f)
 {
-  size_t s = ws * f->ft->signal.channels;
-
-  if (f->volume != 1) while (s--) {
-    double d = f->volume * *buf;
-    *buf++ = SOX_ROUND_CLIP_COUNT(d, f->volume_clips);
+  size_t s=ws*f->ft->signal.channels;
+  if (f->dsd_adapter) return; /* binary64 decoder already consumed file gain */
+  if (f->volume!=1) while (s--) {
+    double d=f->volume**buf;
+    *buf++=SOX_ROUND_CLIP_COUNT(d,f->volume_clips);
   }
 }
 
@@ -612,7 +788,12 @@ static int combiner_start(sox_effect_t *effp)
 
 static sox_bool can_segue(size_t i)
 {
+  /* A sequence reconstructs each native input with a fresh finite-file
+   * filter.  Graph decoding needs the same restart even when the adjacent
+   * native signals happen to have equal rates and channel counts. */
   return
+    !(dsd_runtime_active && dsd_runtime_plan.graph_decode_count) &&
+    !files[i]->dsd_target_hz && !files[i-1]->dsd_target_hz &&
     files[i]->ft->signal.channels == files[i - 1]->ft->signal.channels &&
     files[i]->ft->signal.rate     == files[i - 1]->ft->signal.rate;
 }
@@ -626,7 +807,9 @@ static int combiner_drain(sox_effect_t *effp, sox_sample_t * obuf, size_t * osam
   if (is_serial(combine_method)) {
     while (sox_true) {
       if (!user_skip)
-        olen = sox_read_wide(files[current_input]->ft, obuf, *osamp);
+        olen = sox_read_wide(files[current_input], obuf, *osamp);
+      if (files[current_input]->dsd_adapter &&
+          files[current_input]->dsd_adapter->failed) return LSX_EFF_FATAL;
       if (olen == 0) {   /* If EOF, go to the next input file. */
         if (++current_input < input_count) {
           if (combine_method == sox_sequence && !can_segue(current_input))
@@ -635,13 +818,17 @@ static int combiner_drain(sox_effect_t *effp, sox_sample_t * obuf, size_t * osam
           continue;
         }
       }
+      if (files[current_input]->dsd_adapter &&
+          files[current_input]->dsd_adapter->failed) return LSX_EFF_FATAL;
       balance_input(obuf, olen, files[current_input]);
       break;
     } /* while */
   } /* is_serial */ else { /* else is_parallel() */
     sox_sample_t * p = obuf;
     for (i = 0; i < input_count; ++i) {
-      z->ilen[i] = sox_read_wide(files[i]->ft, z->ibuf[i], *osamp);
+      z->ilen[i] = sox_read_wide(files[i], z->ibuf[i], *osamp);
+      if (files[i]->dsd_adapter && files[i]->dsd_adapter->failed)
+        return LSX_EFF_FATAL;
       balance_input(z->ibuf[i], z->ilen[i], files[i]);
       olen = max(olen, z->ilen[i]);
     }
@@ -697,6 +884,7 @@ static int combiner_stop(sox_effect_t *effp)
     free(z->ibuf);
   }
   free(z->ilen);
+  for (i=0;i<input_count;i++) dsd_adapter_destroy(files[i]);
 
   return SOX_SUCCESS;
 }
@@ -1141,6 +1329,51 @@ static void create_user_effects(void)
  * chain from a previous run.  Also, it use a pre-existing
  * output effect if its been saved into save_output_eff.
  */
+/* Build each implicit graph boundary from the resolved step's rate and
+ * global decoder policy.  This is only used for actual implicit_dsdpcm nodes. */
+static void dsd_insert_boundary(sox_effects_chain_t *chain,
+    sox_signalinfo_t *signal,int *guard,size_t index)
+{
+  size_t n, count;
+  if (!dsd_runtime_active || !dsd_decode_before) return;
+  /* An effect split by the automatic dither/rate section is visited twice.
+   * Consume each boundary exactly once, before the earliest such operation. */
+  count=dsd_decode_before[index];
+  dsd_decode_before[index]=0;
+  for (n=0;n<count;n++) {
+    sox_effect_t *e=sox_create_effect(sox_find_effect("dsdpcm"));
+    char rate[32];
+    char *argv[5];
+    double destination=0;
+    size_t k;
+    for (k=0;k<dsd_runtime_plan.step_count;k++)
+      if (!strcmp(dsd_runtime_plan.steps[k].name,"implicit_dsdpcm") &&
+          dsd_runtime_plan.steps[k].rate_before==signal->rate) {
+        destination=dsd_runtime_plan.steps[k].rate_after;
+        break;
+      }
+    if (!destination) {
+      lsx_fail("P08: missing planned implicit reconstruction at %.0f Hz",signal->rate);
+      exit(2);
+    }
+    snprintf(rate,sizeof(rate),"%.0f",destination);
+    argv[0]="-p";
+    argv[1]=dsd_policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":"mastering";
+    argv[2]="-l";
+    argv[3]=dsd_policy.level==LSX_DSD_LEVEL_SACD?"sacd":"preserve";
+    argv[4]=rate;
+    if (sox_effect_options(e,5,argv)!=SOX_SUCCESS) exit(2);
+    lsx_dsd_effect_apply_policy(e,&dsd_policy);
+    if (add_effect(chain,e,signal,&ofile->ft->signal,guard)!=SOX_SUCCESS) exit(2);
+    free(e);
+  }
+  /* Guard headroom belongs to PCM, not to the native input of dsdpcm.
+   * Restore the ordinary -G insertion policy only after reconstruction. */
+  if (count && is_guarded && *guard < 0 &&
+      dsd_runtime_plan.combiner_domain==LSX_DSD_NATIVE)
+    *guard=0;
+}
+
 static void add_effects(sox_effects_chain_t *chain)
 {
   sox_signalinfo_t signal = combiner_signal;
@@ -1148,6 +1381,13 @@ static void add_effects(sox_effects_chain_t *chain)
   size_t i;
   sox_effect_t * effp;
   char * rate_arg = is_player ? (play_rate_arg ? play_rate_arg : "-l") : NULL;
+
+  /* The resolved combiner is still native DSD.  Do not insert a generic
+   * guarded gain until a planned decoder has switched it to PCM.  Pure
+   * native repacking and terminal DoP never reach that point. */
+  if (dsd_runtime_active &&
+      dsd_runtime_plan.combiner_domain==LSX_DSD_NATIVE)
+    guard=-1;
 
   /* 1st `effect' in the chain is the input combiner_signal.
    * add it only if its not there from a previous run.  */
@@ -1160,11 +1400,25 @@ static void add_effects(sox_effects_chain_t *chain)
   /* Add user specified effects; stop before `dither' */
   for (i = 0; i < nuser_effects[current_eff_chain] &&
       strcmp(user_efftab[i]->handler.name, "dither"); i++) {
+    dsd_insert_boundary(chain,&signal,&guard,i);
+    if (i==0 && dsd_consume_leading) {
+      free(user_efftab[i]);
+      continue;
+    }
     if (add_effect(chain, user_efftab[i], &signal, &ofile->ft->signal,
           &guard) != SOX_SUCCESS)
       exit(2); /* Effects chain should have displayed an error message */
+    /* An explicitly requested dsdpcm is also a domain boundary.  It must
+     * execute before automatic gain, just like an implicit decoder. */
+    if (dsd_runtime_active && is_guarded && guard < 0 &&
+        !strcmp(user_efftab[i]->handler.name,"dsdpcm"))
+      guard=0;
     free(user_efftab[i]);
   }
+
+  /* A pending decoder precedes every automatic operation, even when the
+   * first explicit effect is dither (which splits the two user loops). */
+  dsd_insert_boundary(chain,&signal,&guard,i);
 
   /* Add auto effects if still needed at this point */
   if (signal.channels < ofile->ft->signal.channels &&
@@ -1175,7 +1429,8 @@ static void add_effects(sox_effects_chain_t *chain)
   if (signal.rate != ofile->ft->signal.rate)
     auto_effect(chain, "rate", rate_arg != NULL, &rate_arg, &signal, &guard);
 
-  if (is_guarded && (do_guarded_norm || !(signal.mult && *signal.mult == 1))) {
+  if (is_guarded && guard >= 0 &&
+      (do_guarded_norm || !(signal.mult && *signal.mult == 1))) {
     char *args[2];
     int no_guard = -1;
     args[0] = do_guarded_norm? "-nh" : guard? "-rh" : "-h";
@@ -1184,12 +1439,18 @@ static void add_effects(sox_effects_chain_t *chain)
     guard = 1;
   }
 
-  if (i == nuser_effects[current_eff_chain] && !no_dither && signal.precision >
-      ofile->ft->signal.precision && ofile->ft->signal.precision < 24)
+  /* A null sink has no output precision.  Its fabricated one-bit default
+   * cannot request low-level sigma-delta modulation of decoded PCM. */
+  if (i == nuser_effects[current_eff_chain] && !no_dither &&
+      !(dsd_runtime_active &&
+        !strcmp(ofile->ft->handler.names[0],"null")) &&
+      signal.precision > ofile->ft->signal.precision &&
+      ofile->ft->signal.precision < 24)
     auto_effect(chain, "dither", 0, NULL, &signal, &guard);
 
   /* Add user specified effects from `dither' onwards */
   for (; i < nuser_effects[current_eff_chain]; i++, guard = 2) {
+    dsd_insert_boundary(chain,&signal,&guard,i);
     if (add_effect(chain, user_efftab[i], &signal, &ofile->ft->signal,
           &guard) != SOX_SUCCESS)
       exit(2); /* Effects chain should have displayed an error message */
@@ -1257,9 +1518,18 @@ static int advance_eff_chain(void)
    * This is only used with sox_sequence combine mode even though
    * we do not specifically check for that method.
    */
-  if (input_eof)
+  if (input_eof) {
+    /* P08 sequence boundaries reset the reconstructed DSD filter, not the
+     * already-open output stream.  Preserve the output effect and writer
+     * only when each segment's preflight certified the same output header.
+     * Other sequence and newfile behavior remains unchanged. */
+    if (combine_method==sox_sequence && current_input<input_count &&
+        output_method==sox_single && dsd_runtime_active &&
+        (dsd_runtime_plan.graph_decode_count ||
+         dsd_runtime_plan.input_decode_count))
+      save_output_eff=sox_pop_effect_last(effects_chain);
     sox_delete_effects(effects_chain);
-  else
+  } else
   {
     /* If user requested to restart this effect chain then
      * do not advance to next.  Usually, this is because
@@ -1507,7 +1777,9 @@ static int update_status(sox_bool all_done, void * client_data)
 
     case '>':
     case '<':
-    if (files[current_input]->ft->handler.seek &&
+    if (!files[current_input]->dsd_target_hz &&
+        (!dsd_runtime_active || dsd_runtime_plan.trim_native_seek) &&
+        files[current_input]->ft->handler.seek &&
         files[current_input]->ft->seekable) {
       sox_format_t *ft = files[current_input]->ft;
       double seconds = ft->signal.rate * 30; /* 30 seconds in frames. */
@@ -1577,7 +1849,8 @@ static void optimize_trim(void)
    * within the file and possible samples still buffered in the input effect
    * would have to be taken into account).  This hack is a huge time savings
    * when trimming gigs of audio data into managable chunks.  */
-  if (input_count == 1 && very_first_effchain && effects_chain->length > 1 &&
+  if ((!dsd_runtime_active || dsd_runtime_plan.trim_native_seek) &&
+      input_count == 1 && very_first_effchain && effects_chain->length > 1 &&
       strcmp(effects_chain->effects[1][0].handler.name, "trim") == 0) {
     if (files[0]->ft->handler.seek && files[0]->ft->seekable){
       uint64_t offset = sox_trim_get_start(&effects_chain->effects[1][0]);
@@ -2187,6 +2460,11 @@ static void preflight_dsd(void)
   char const *kind;
   FILE *report=NULL;
 
+  lsx_dsd_plan_free(&dsd_runtime_plan);
+  dsd_runtime_active=sox_false;
+  free(dsd_decode_before);
+  dsd_decode_before=NULL;
+  dsd_consume_leading=sox_false;
   for (i=0;i<nuser_effects[current_eff_chain];i++) {
     char const *name=user_efftab[i]->handler.name;
     if (!strcmp(name,"dsdpcm") || !strcmp(name,"pcmdsd") || !strcmp(name,"dsdstat"))
@@ -2450,6 +2728,54 @@ static void preflight_dsd(void)
     if (active->output_bits) ofile->encoding.bits_per_sample=active->output_bits;
     ofile->encoding.encoding=active->output_encoding;
   }
+  /* Transfer the executable plan, not a second independently guessed graph.
+   * Keep the source format's native signal/encoding untouched. */
+  if (dsd_policy.mode==LSX_DSD_MODE_AUTO) {
+    size_t k=0,j;
+    dsd_runtime_plan=*active;
+    memset(active,0,sizeof(*active));
+    dsd_runtime_active=sox_true;
+    dsd_decode_before=lsx_calloc(spec.effect_count+1,sizeof(*dsd_decode_before));
+    dsd_consume_leading=dsd_runtime_plan.input_decode_count && spec.effect_count &&
+        !strcmp(effect[0].name,"dsdpcm");
+    if (dsd_consume_leading) k=1;
+    for (j=0;j<dsd_runtime_plan.step_count;j++) {
+      char const *name=dsd_runtime_plan.steps[j].name;
+      if (!strcmp(name,"implicit_dsdpcm")) ++dsd_decode_before[k];
+      else if (k<spec.effect_count && !strcmp(name,effect[k].name)) ++k;
+    }
+    for (j=0;j<input_count;j++) {
+      lsx_dsd_plan_input const *in;
+      size_t index=spec.combine==LSX_DSD_COMBINE_SEQUENCE && input_count>1?
+          current_input:j;
+      if (spec.combine==LSX_DSD_COMBINE_SEQUENCE && input_count>1 && j!=current_input)
+        continue;
+      in=&dsd_runtime_plan.inputs[spec.combine==LSX_DSD_COMBINE_SEQUENCE &&
+          input_count>1?0:index];
+      files[j]->dsd_target_hz=in->decoder_before_combiner?
+          (uint32_t)in->effective_rate:0;
+      files[j]->dsd_profile=spec.policy.decode;
+      files[j]->dsd_level=spec.policy.level;
+      files[j]->dsd_bandwidth=spec.policy.bandwidth;
+      files[j]->dsd_clip=spec.policy.clip;
+      if (dsd_consume_leading && in->decoder_before_combiner) {
+        files[j]->dsd_profile=effect[0].dsd.profile_specified?
+            effect[0].dsd.profile:spec.policy.decode;
+        files[j]->dsd_level=effect[0].dsd.level_specified?
+            effect[0].dsd.level:spec.policy.level;
+      }
+    }
+    if (dsd_runtime_plan.input_decode_count) {
+      combiner_signal.rate=dsd_runtime_plan.combiner_rate;
+      combiner_signal.channels=dsd_runtime_plan.combiner_channels;
+      combiner_signal.precision=SOX_SAMPLE_PRECISION;
+      combiner_signal.length=SOX_UNKNOWN_LEN;
+      combiner_encoding.encoding=SOX_ENCODING_SIGN2;
+      combiner_encoding.bits_per_sample=32;
+    }
+    if (dsd_runtime_plan.input_decode_count || dsd_runtime_plan.graph_decode_count)
+      ofile->signal.length=SOX_UNKNOWN_LEN;
+  }
   if (series) dsd_free_sequence(series,segments);
   else lsx_dsd_plan_free(&plan);
   free(input);free(effect);
@@ -2466,6 +2792,14 @@ static int process(void)
   calculate_output_signal_parameters();
   preflight_dsd();
   open_output_file();
+  if (dsd_runtime_active &&
+      (ofile->ft->signal.rate!=dsd_runtime_plan.output_rate ||
+       ofile->ft->signal.channels!=dsd_runtime_plan.output_channels ||
+       ofile->ft->encoding.encoding!=dsd_runtime_plan.output_encoding ||
+       ofile->ft->encoding.bits_per_sample!=dsd_runtime_plan.output_bits)) {
+    lsx_fail("P08: output handler disagrees with preflight domain/rate/channel/encoding");
+    exit(2);
+  }
 
   if (!effects_chain)
     effects_chain = sox_create_effects_chain(&combiner_encoding,
@@ -2674,7 +3008,7 @@ static void usage(void)
 "--dft-min NUM            Minimum size (log2) for DFT processing (default 10)",
 "--dsd-layout ROLES       Comma-separated output role assignment: FL,FR,FC,LFE,BL,BR,SL,SR,MONO",
 "--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
-"--dsd-mode auto|native|legacy  Opt in to preflight; legacy is P05 default",
+"--dsd-mode auto|native|legacy  Opt in to P08 domain routing; default remains legacy",
 "--dsd-decode mastering|wideband|legacy  Select reconstruction policy",
 "--dsd-encode mastering|legacy|experimental  Select modulation policy",
 "--dsd-level preserve|sacd  Decoder level convention",

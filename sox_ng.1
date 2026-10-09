@@ -1384,7 +1384,7 @@ The compression factor is interpreted differently for different
 compressed file formats; for details, see the description
 of the file formats that use this option in
 .BR soxformat_ng (7)
-.SS DSD domain planning (P05, opt-in)
+.SS DSD domain routing and reconstruction (P08, opt-in)
 DSD processing has three distinct domains: native one-bit pulses, reconstructed
 PCM audio, and DoP transport in lossless 24-bit PCM words.  The default CLI
 behavior remains the prior legacy policy until the planned release migration.
@@ -1404,10 +1404,10 @@ Select the composite PCM-to-DSD modulator profile.
 .TP
 .B \-\-dsd-level preserve|sacd
 Preserve native full-scale reference, or apply the SACD 6.0206 dB decoder
-reference adjustment.  Per-input gains are planned ahead of the combiner.
+reference adjustment.  Input gains are applied after binary64 DSD reconstruction and before the combiner.
 .TP
 .B \-\-dsd-clip warn|error
-Choose the future reconstruction/modulator clipping policy.
+Choose the active decoder clipping policy (modulator promotion remains unavailable).
 .TP
 .B \-\-dsd-bandwidth adapt|strict
 Adapt the reported effective passband to the output PCM rate, or reject
@@ -1427,23 +1427,37 @@ Sequence mode prints a list of separately checked segment plans.
 .B \-\-dsd-report PATH
 Write the deterministic resolved plan as JSON before audio output opening.
 .PP
-The P05 implementation parses the composite
-.BR dsdpcm ,
-.BR pcmdsd ,
-and
-.B dsdstat
-preflight effects, but does not yet implement their audio DSP.  A valid plan
-can report
-.B executable: false
-and an unavailable reason.  Such an invocation fails before audio output
-creation.  Native repacking and supported terminal DoP remain executable.
+P08 executes planned native DSD repacking without DSP.  Native input
+converted to PCM is reconstructed at the planned output rate.  Unknown and
+nonlinear effects operate only on PCM after reconstruction.  Input gains and
+parallel combinations use a separate binary64 decoder for each native input,
+with one quantization after input gain; the combiner then receives PCM.
+For a DSD sequence whose decoder is part of the graph, each input starts
+an independent decoder and compatible segments share one output writer.
+The existing native concatenation path remains continuous.
 .PP
-SOX_DSD_KERNEL_FIR and SOX_DSD_KERNEL_SDM accept
-.B auto
-or
-.B scalar
-in this phase.  Forced SIMD tiers will be enabled only when implemented and
-qualified.
+The composite decoder
+.B dsdpcm
+is executable as an explicit effect, and auto mode inserts it where planned.
+The composite encoder
+.B pcmdsd
+is not executable yet: processed DSD-to-DSD and automatic modulator
+promotion report an unavailable plan before any output is created.
+Legacy reconstruction in auto mode is also unavailable.  Native-only mode
+refuses generic DSP rather than operating on one-bit pulse values.
+The historical CLI default remains legacy until release qualification.
+.PP
+Examples (input paths and output formats must have compatible channel layouts):
+.XE
+   sox_ng --dsd-mode auto in.dsf -r 88200 out.wav overdrive 10
+   sox_ng --dsd-mode auto -m a.dsf b.dsf mix.wav
+   sox_ng --dsd-mode auto -v 0.5 in.dsf reduced.wav
+   sox_ng --dsd-mode native in.dsf out.dff
+.XX
+.PP
+The reconstruction filter can be forced to an available P06 tier with
+.BR SOX_DSD_KERNEL_FIR ;
+unsupported forced tiers fail instead of silently falling back.
 .SH EFFECTS
 In addition to converting, playing and recording audio files, SoX can
 be used to invoke a number of audio effects.  Multiple effects may

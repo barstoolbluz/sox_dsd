@@ -1,0 +1,366 @@
+{
+  "banks": {
+    "halfband": {
+      "dense_grid_stop_max_db": -189.24593067603365,
+      "hp_stop_peak_amplitude": "-3.4490817016114588252e-10",
+      "pass_extrema_checked": 8,
+      "pass_grid_peak_gain_db": 2.995833709415925e-09,
+      "pass_ripple_db": 2.995833709415925e-09,
+      "passes": true,
+      "sha256": "140a07d78b4d31f55680554298b8f1a2d4e444643123af570e3f2f552361f125",
+      "stop_extrema_checked": 8,
+      "stop_max_db": -189.24593035945554,
+      "stop_peak_cycles_per_input": 0.4201881888615484,
+      "taps": 57
+    },
+    "master128": {
+      "dense_grid_stop_max_db": -188.8767047327696,
+      "hp_stop_peak_amplitude": "3.5990546686948395869e-10",
+      "pass_extrema_checked": 18,
+      "pass_grid_peak_gain_db": 5.076759805834132e-09,
+      "pass_ripple_db": 5.076765591798927e-09,
+      "passes": true,
+      "sha256": "306a836d730b97b8f8f8e82d01ea2fc87eeec7efc70939c76558ab8e8fc44673",
+      "stop_extrema_checked": 57,
+      "stop_max_db": -188.87623112955816,
+      "stop_peak_cycles_per_input": 0.17142384883354886,
+      "taps": 153
+    },
+    "master64_256": {
+      "dense_grid_stop_max_db": -188.73254613161592,
+      "hp_stop_peak_amplitude": "-3.6590906351602114769e-10",
+      "pass_extrema_checked": 20,
+      "pass_grid_peak_gain_db": 2.01855532526892e-09,
+      "pass_ripple_db": 4.219506442038124e-09,
+      "passes": true,
+      "sha256": "76749b06a43bb529207e68abc8d71631d21013f547de74ecd7837638d6506139",
+      "stop_extrema_checked": 38,
+      "stop_max_db": -188.73253665933896,
+      "stop_peak_cycles_per_input": 0.2306580718711003,
+      "taps": 117
+    },
+    "wideband": {
+      "dense_grid_stop_max_db": -188.0089964334104,
+      "hp_stop_peak_amplitude": "-3.9781842121184339896e-10",
+      "pass_extrema_checked": 59,
+      "pass_grid_peak_gain_db": 3.2558028937206035e-09,
+      "pass_ripple_db": 3.255874253953102e-09,
+      "passes": true,
+      "sha256": "658f940a7fbc529a6f927e05c36b9d3c4b5858f001d2b21759e7a6e36ed658d0",
+      "stop_extrema_checked": 72,
+      "stop_max_db": -188.00630220978104,
+      "stop_peak_cycles_per_input": 0.2501475741954503,
+      "taps": 257
+    }
+  },
+  "coherent_images": "sum(abs(H_eq(f+k*R)),k=1..D-1)",
+  "elapsed_seconds": 9.874256083000091,
+  "input": "src/dsd_coeffs.h, parsed C99 hex, not feasibility NPZ",
+  "limitations": "dense searches and local extrema refinements are independent high-precision numerical evidence, not an interval-arithmetic exhaustive mathematical proof",
+  "method": "derivative-root bracketing for banks, adaptive local optimization for composite extrema, 75-digit verification at peaks, all coherent images",
+  "numeric_precision": "IEEE binary64 hex source; 75-digit mpmath extrema checks",
+  "profiles": {
+    "master128": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 2.9048629069394473e-10,
+          "grid_points": 2049,
+          "localized_extrema": 13,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 6.858665312511287e-09,
+          "grid_points": 8193,
+          "localized_extrema": 8,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.4233954573231837e-10,
+          "grid_points": 8193,
+          "localized_extrema": 997,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -190.7374871805479,
+      "delay_native_frames": 1636,
+      "discard_frames": 51,
+      "factor": 32,
+      "high_precision_alias_db": -190.73748570427355,
+      "high_precision_ripple_db": 6.8586653125112875e-09,
+      "high_precision_stop_db": -188.87623112695252,
+      "incoherent_flat_image_sum_db": -198.76290831026563,
+      "intermediate_hz": 176400,
+      "native_hz": 5644800,
+      "pass_hz": 30000,
+      "pass_ripple_db": 6.858665312511287e-09,
+      "passes": true,
+      "phase_native_frames": 4,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master128"
+      ],
+      "stop_hz": 60000,
+      "stop_max_db": -188.87622912494336,
+      "synthetic_f4_noise_weighted_image_db": -189.6781172823745,
+      "worst_alias_base_hz": 30000.0,
+      "worst_pass_hz": 30000.0,
+      "worst_stop_hz": 60478.33170053898
+    },
+    "master256": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 4.5769608927375604e-10,
+          "grid_points": 2049,
+          "localized_extrema": 15,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 5.5178065443228946e-09,
+          "grid_points": 8193,
+          "localized_extrema": 16,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.6559548442350175e-10,
+          "grid_points": 8193,
+          "localized_extrema": 1323,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -186.78839967476995,
+      "delay_native_frames": 2724,
+      "discard_frames": 42,
+      "factor": 64,
+      "high_precision_alias_db": -186.78840328940242,
+      "high_precision_ripple_db": 5.517808472977826e-09,
+      "high_precision_stop_db": -188.73253715683182,
+      "incoherent_flat_image_sum_db": -193.73853721767142,
+      "intermediate_hz": 176400,
+      "native_hz": 11289600,
+      "pass_hz": 40000,
+      "pass_ripple_db": 5.5178123302876895e-09,
+      "passes": true,
+      "phase_native_frames": 36,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master64_256"
+      ],
+      "stop_hz": 80000,
+      "stop_max_db": -188.7325359197671,
+      "synthetic_f4_noise_weighted_image_db": -182.64476700146122,
+      "worst_alias_base_hz": 35011.6236406063,
+      "worst_pass_hz": 35438.755095955814,
+      "worst_stop_hz": 81376.02387652722
+    },
+    "master64": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 4.516196783035258e-10,
+          "grid_points": 2049,
+          "localized_extrema": 15,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 5.463723202722909e-09,
+          "grid_points": 8193,
+          "localized_extrema": 16,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.645057033694343e-10,
+          "grid_points": 8193,
+          "localized_extrema": 714,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -186.9045029719705,
+      "delay_native_frames": 1348,
+      "discard_frames": 42,
+      "factor": 32,
+      "high_precision_alias_db": -186.90450671198266,
+      "high_precision_ripple_db": 5.4637289886877036e-09,
+      "high_precision_stop_db": -188.73253672597332,
+      "incoherent_flat_image_sum_db": -193.71311824781822,
+      "intermediate_hz": 88200,
+      "native_hz": 2822400,
+      "pass_hz": 20000,
+      "pass_ripple_db": 5.463730917342636e-09,
+      "passes": true,
+      "phase_native_frames": 4,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master64_256"
+      ],
+      "stop_hz": 40000,
+      "stop_max_db": -188.7325352611849,
+      "synthetic_f4_noise_weighted_image_db": -183.2455846358809,
+      "worst_alias_base_hz": 17503.500193711112,
+      "worst_pass_hz": 17719.152174515068,
+      "worst_stop_hz": 40688.11007369058
+    },
+    "wide128": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 7.548514610851028e-10,
+          "grid_points": 2049,
+          "localized_extrema": 53,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 7.179959937557864e-09,
+          "grid_points": 8193,
+          "localized_extrema": 38,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 4.256015314074285e-10,
+          "grid_points": 8193,
+          "localized_extrema": 1193,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -182.4421031662018,
+      "delay_native_frames": 2468,
+      "discard_frames": 77,
+      "factor": 32,
+      "high_precision_alias_db": -182.44210513980033,
+      "high_precision_ripple_db": 7.1804729597696456e-09,
+      "high_precision_stop_db": -187.41038191530947,
+      "incoherent_flat_image_sum_db": -188.96387488416462,
+      "intermediate_hz": 176400,
+      "native_hz": 5644800,
+      "pass_hz": 70560,
+      "pass_ripple_db": 7.18047681707951e-09,
+      "passes": true,
+      "phase_native_frames": 4,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "wideband"
+      ],
+      "stop_hz": 88200,
+      "stop_max_db": -187.41038074828143,
+      "synthetic_f4_noise_weighted_image_db": -178.29442130686402,
+      "worst_alias_base_hz": 66653.78183655697,
+      "worst_pass_hz": 70509.52191262472,
+      "worst_stop_hz": 278238.41997440223
+    },
+    "wide256": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 7.548514610851028e-10,
+          "grid_points": 2049,
+          "localized_extrema": 53,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 7.179959937557864e-09,
+          "grid_points": 8193,
+          "localized_extrema": 38,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 4.256015314074285e-10,
+          "grid_points": 8193,
+          "localized_extrema": 1193,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -182.4421031662018,
+      "delay_native_frames": 2468,
+      "discard_frames": 77,
+      "factor": 32,
+      "high_precision_alias_db": -182.44210513980033,
+      "high_precision_ripple_db": 7.1804729597696456e-09,
+      "high_precision_stop_db": -187.41038191530947,
+      "incoherent_flat_image_sum_db": -188.96387488416462,
+      "intermediate_hz": 352800,
+      "native_hz": 11289600,
+      "pass_hz": 141120,
+      "pass_ripple_db": 7.18047681707951e-09,
+      "passes": true,
+      "phase_native_frames": 4,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "wideband"
+      ],
+      "stop_hz": 176400,
+      "stop_max_db": -187.41038074828143,
+      "synthetic_f4_noise_weighted_image_db": -178.29442130686402,
+      "worst_alias_base_hz": 133307.56367311394,
+      "worst_pass_hz": 141019.04382524945,
+      "worst_stop_hz": 556476.8399488045
+    },
+    "wide64": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 7.548514610851028e-10,
+          "grid_points": 2049,
+          "localized_extrema": 53,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 7.179959937557864e-09,
+          "grid_points": 8193,
+          "localized_extrema": 38,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 4.256015314074285e-10,
+          "grid_points": 8193,
+          "localized_extrema": 1193,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -182.4421031662018,
+      "delay_native_frames": 2468,
+      "discard_frames": 77,
+      "factor": 32,
+      "high_precision_alias_db": -182.44210513980033,
+      "high_precision_ripple_db": 7.1804729597696456e-09,
+      "high_precision_stop_db": -187.41038191530947,
+      "incoherent_flat_image_sum_db": -188.96387488416462,
+      "intermediate_hz": 88200,
+      "native_hz": 2822400,
+      "pass_hz": 35280,
+      "pass_ripple_db": 7.18047681707951e-09,
+      "passes": true,
+      "phase_native_frames": 4,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "wideband"
+      ],
+      "stop_hz": 44100,
+      "stop_max_db": -187.41038074828143,
+      "synthetic_f4_noise_weighted_image_db": -178.29442130686402,
+      "worst_alias_base_hz": 33326.890918278485,
+      "worst_pass_hz": 35254.76095631236,
+      "worst_stop_hz": 139119.20998720112
+    }
+  },
+  "schema": "sox-ng/p06-certificate/1",
+  "summary": {
+    "banks_passed": 4,
+    "failed": 0,
+    "profiles_passed": 6
+  },
+  "synthetic_noise_psd": "f^4 weighting normalized to unity at native Nyquist; illustration, not measured recording noise"
+}
