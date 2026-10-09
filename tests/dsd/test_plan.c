@@ -149,7 +149,7 @@ static void graph(void)
   spec.output_native_capable=0;spec.output_pcm_capable=1;
   spec.effect_count=0;
   CHECK(build(&spec,&plan));
-  CHECK(!plan.executable && plan.graph_decode_count==1);
+  CHECK(plan.executable && !plan.needs_unimplemented_dsp && plan.graph_decode_count==1);
   CHECK(plan.output_domain==LSX_PCM_AUDIO && plan.output_rate==88200);
   CHECK(plan.output_bits==24 && plan.decoder_pass_hz==20000);
   lsx_dsd_plan_free(&plan);

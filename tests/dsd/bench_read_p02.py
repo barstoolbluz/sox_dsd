@@ -115,7 +115,7 @@ def summarize(baseline, candidate, seed):
             'measurement_noise': noise, 'status': status}
 
 
-def null_invocation(baseline, candidate, source, extra, cpu):
+def null_invocation(baseline, candidate, source, extra, cpu, both=()):
     """Pick the one -t null invocation both binaries accept, or report none.
 
     Option support is not symmetric across every phase boundary. P04 refuses a
@@ -128,7 +128,8 @@ def null_invocation(baseline, candidate, source, extra, cpu):
     def works(sox, args):
         with tempfile.TemporaryDirectory(dir='/dev/shm' if Path('/dev/shm').is_dir()
                                          else None) as td:
-            return run(sox, source, Path(td)/'o.dff', 32, 'null', cpu, args)['exit'] == 0
+            return run(sox, source, Path(td)/'o.dff', 32, 'null', cpu,
+                       args, both)['exit'] == 0
     for label, args in (('with-extra-args', tuple(extra)), ('plain', ())):
         if (not args) or extra:
             if works(baseline, args) and works(candidate, args):
@@ -137,11 +138,12 @@ def null_invocation(baseline, candidate, source, extra, cpu):
                      'option support differs across this boundary')
 
 
-def run(sox, source, target, cap, output, cpu=None, null_extra=()):
+def run(sox, source, target, cap, output, cpu=None, null_extra=(),
+        both_extra=()):
     args = []
     if cpu is not None:
         args += ['taskset', '-c', str(cpu)]
-    args += [str(sox), '--buffer', str(cap)]
+    args += [str(sox), '--buffer', str(cap), *map(str, both_extra)]
     # Options needed only to make a null destination acceptable. From P04 a
     # named channel layout must be explicitly discardable, so without
     # --dsd-layout-loss warn every -t null run exits 2. Applied to both arms
@@ -181,6 +183,12 @@ def main():
                    help='pin every run to this CPU; required for a verdict')
     p.add_argument('--working-directory', type=Path, default=None,
                    help='source/output parent; /dev/shm isolates disk latency')
+    p.add_argument('--operation', choices=('all','null','repack'), default='all',
+                   help='measure both workload types or just one; P08 uses '
+                        'repack for auto-mode comparability')
+    p.add_argument('--both-arg', action='append', default=[], metavar='ARG',
+                   help='identical extra option applied to both arms, for '
+                        'example --dsd-mode=auto. Repeatable')
     p.add_argument('--require-comparable', action='append', default=[],
                    metavar='WORKLOAD',
                    help='this workload must stay comparable; if its two arms '
@@ -217,7 +225,8 @@ def main():
         probe = td/'null-capability.dsf'
         probe.write_bytes(dsf_bytes(2, 32768)[0])
         null_mode, null_args, null_reason = null_invocation(
-            args.baseline_sox, args.sox, probe, args.null_extra_arg, args.cpu)
+            args.baseline_sox, args.sox, probe, args.null_extra_arg, args.cpu,
+            args.both_arg)
         print(f'-t null invocation: {null_mode or "unavailable"}'
               + (f' ({null_reason})' if null_reason else ''), flush=True)
         for fmt in ('dsf','dff'):
@@ -227,6 +236,8 @@ def main():
                                               ('large',args.large_frames,65536)):
                         if frames % (4096 * 8):
                             raise ValueError('frame lengths must be multiples of DSF blocks')
+                        if args.operation != 'all' and operation != args.operation:
+                            continue
                         key0 = f'{fmt}-{channels}ch-{operation}-{size}'
                         if operation == 'null' and null_mode is None:
                             summaries[key0] = {'status': 'not-comparable',
@@ -259,7 +270,7 @@ def main():
                             if target.exists():
                                 target.unlink()
                             result = run(sox, source, target, cap, operation,
-                                         args.cpu, null_args)
+                                         args.cpu, null_args, args.both_arg)
                             result.update(source_format=fmt, channels=channels,
                                           operation=operation, size=size, frames=frames,
                                           buffer_samples=cap, variant=name,
@@ -327,6 +338,8 @@ def main():
             'null_extra_args':args.null_extra_arg,
             'null_invocation':null_mode, 'null_unavailable_reason':null_reason,
             'required_comparable':sorted(required),
+            'both_extra_args':args.both_arg,
+            'selected_operation':args.operation,
             'regression_limit':REGRESSION_LIMIT, 'noise_limit':NOISE_LIMIT,
             'host_unqualified':verdict != 'pass' and any(
                 s['status'] == 'inconclusive-noise' for s in summaries.values()),

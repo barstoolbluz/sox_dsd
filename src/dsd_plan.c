@@ -724,31 +724,22 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   p->dsd_amplitude_per_pcm_unit=ref;
   if (p->encode_count && !p->modulator_input_scale)
     p->modulator_input_scale=ref;
-  /* P07 enables exactly the implemented explicit graph boundary, never
-   * implicit decoders, legacy profiles, composite encoders, or multi-input
-   * pre-combiner reconstruction.  Keep P05's other future plans unrun. */
+  /* P08 activates the existing P07 decoder at either graph boundary.  The
+   * private composite encoder, legacy decoder and diagnostic pass-through
+   * remain unavailable; none may be mistaken for a mastering implementation. */
   if (p->needs_unimplemented_dsp) {
-    int explicit_p07=0, unsafe=0;
-    for (i=0;i<spec->effect_count;i++)
-      if (is(spec->effects[i].name,"dsdpcm")) {
-        ++explicit_p07;
-        if ((spec->effects[i].dsd.profile_specified &&
-             spec->effects[i].dsd.profile==LSX_DSD_PROFILE_LEGACY) ||
-            (!spec->effects[i].dsd.profile_specified &&
-             spec->policy.decode==LSX_DSD_PROFILE_LEGACY)) unsafe=1;
-      }
-    for (i=0;i<p->step_count;i++)
-      if (is(p->steps[i].name,"implicit_dsdpcm") ||
-          is(p->steps[i].name,"input_dsdpcm")) unsafe=1;
-    if (explicit_p07==1 && !unsafe && spec->input_count==1 &&
-        !p->input_decode_count && p->graph_decode_count==1 &&
-        !p->encode_count && !p->dop_count &&
-        spec->policy.mode!=LSX_DSD_MODE_NATIVE) {
+    int unsupported_encoder=p->encoder_id &&
+        strcmp(p->encoder_id,"encode.legacy.sdm") &&
+        strcmp(p->encoder_id,"encode.legacy.dither-p1");
+    int unsupported_decoder=p->decoder_id &&
+        !strcmp(p->decoder_id,"decode.legacy.generic");
+    if (!unsupported_encoder && !unsupported_decoder && !p->dop_count &&
+        p->executable) {
       p->needs_unimplemented_dsp=0;
       p->unavailable_reason=NULL;
     } else p->executable=0;
   }
-  else if (norm_sdm_unavailable) {
+  if (norm_sdm_unavailable) {
     p->executable=0;
     p->unavailable_reason="automatic normalization before low-level sdm is not supported by the current effects pipeline";
   }

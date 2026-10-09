@@ -168,10 +168,10 @@ def main() -> int:
         run('pcm_only_plan',[w88,'@OUT@'],inspect=expect(
             executable=True,output__domain='PCM_AUDIO',graph_decoder_count=0))
 
-        # Native-to-PCM is a planned composite DSP boundary, not a fake runnable pipeline.
+        # P08 activates the existing binary64 decoder for planned graph boundaries.
         for name,src,expected in (('master64',ds,88200),('master128',ds128,176400),
                                   ('master256',ds256,176400)):
-            run(name,[src,'@OUT@'],inspect=expect(executable=False,needs_unimplemented_dsp=True,
+            run(name,[src,'@OUT@'],inspect=expect(executable=True,needs_unimplemented_dsp=False,
                 decoder__intermediate_hz=expected,output__bits_per_sample=24,
                 graph_decoder_count=1))
         run('wideband256',['--dsd-decode','wideband',ds256,'@OUT@'],
@@ -210,7 +210,7 @@ def main() -> int:
         run('duplicate_decode',[ds,'@OUT@','dsdpcm','dsdpcm'],ok=False,error='duplicates')
         run('decode_after_pcm',[ds,'@OUT@','gain','-3','dsdpcm'],ok=False,error='duplicates')
         run('leading_rate',[ds,'@OUT@','rate','-v','176400'],inspect=rate_stages)
-        run('preflight_reject_dsp',['--dsd-mode','auto',ds,'@OUT@'],ok=False,error='P05 preflight',plan=False)
+        run('preflight_execute_decode',['--dsd-mode','auto',ds,'@OUT@'],plan=False)
         run('overdrive',[ds,'@OUT@','overdrive'],inspect=expect(graph_decoder_count=1))
         run('native_mode_reject',['--dsd-mode','native',ds,'@OUT@','gain','-3'],
             ok=False,error='native mode')
