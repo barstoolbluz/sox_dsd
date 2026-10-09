@@ -26,6 +26,15 @@ of the correctness P02 established — the small-capacity repairs stay repaired,
 the cost turns out to be irreducible, say so with evidence and propose the
 deviation the design would require, rather than relaxing the threshold.
 
+Decoded output must stay byte-identical to the attached tree on every workload
+that currently agrees between the arms. Be aware that our own harness will not
+catch you if it does not: a workload whose two arms stop agreeing is
+reclassified `not-comparable` and drops out of the gating set, so recovering the
+5% by changing what is decoded would read as a pass without being one. The six
+workloads that currently agree are `dff-2ch-repack-large`,
+`dff-2ch-repack-small`, `dff-6ch-repack-large`, `dsf-2ch-repack-large`,
+`dsf-2ch-repack-small` and `dsf-6ch-repack-large`.
+
 Evidence, method and host preparation are already in the tree:
 `tests/dsd/results/P02/bench-read-prepared-host-2026-10-09/`,
 `tests/dsd/BENCHMARKING.md`, and `tests/dsd/benchprep.sh`. Reproduce with
