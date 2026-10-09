@@ -321,3 +321,12 @@ EXTRA_DIST += \
 # P05 preflight fixture generators, numeric/unit tests and human handoff.
 EXTRA_DIST += docs/dsd/sows/P05.md docs/dsd/handoffs/P05.md \
   tests/dsd/test_plan.c tests/dsd/test_plan.py tests/dsd/bench_plan.py
+
+# Round briefs: the instructions dispatched per phase and correction.
+EXTRA_DIST += docs/dsd/briefs/P00a-corrective.md \
+  docs/dsd/briefs/P01.md \
+  docs/dsd/briefs/P02.md \
+  docs/dsd/briefs/P03.md \
+  docs/dsd/briefs/P04.md \
+  docs/dsd/briefs/P05.md \
+  docs/dsd/briefs/hotfix-p02-dff-read.md
