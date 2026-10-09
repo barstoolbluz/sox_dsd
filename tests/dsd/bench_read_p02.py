@@ -58,6 +58,14 @@ def dff_bytes(channels, frames):
 REGRESSION_LIMIT = .05
 NOISE_LIMIT = .02
 
+# These workloads produced identical DFF outputs under the P01 and P02 arms
+# in the prepared-host record. Later optimizations must not silently remove
+# them from the performance gate by changing the decoded output.
+REQUIRED_COMPARABLE_REPACK = frozenset({
+    'dff-2ch-repack-large', 'dff-2ch-repack-small', 'dff-6ch-repack-large',
+    'dsf-2ch-repack-large', 'dsf-2ch-repack-small', 'dsf-6ch-repack-large',
+})
+
 
 def summarize(baseline, candidate, seed):
     """Paired median ratio with a bootstrap interval, and a robust noise estimate.
@@ -223,6 +231,8 @@ def main():
             s['arms_agree'] = None
             s['comparability_from'] = key.replace('-null-', '-repack-')
         if not comparable:
+            if key in REQUIRED_COMPARABLE_REPACK:
+                errors.append(f'{key}: formerly comparable output changed')
             s['status'] = 'not-comparable'
     gating = [s['status'] for s in summaries.values()
               if s['status'] != 'not-comparable']

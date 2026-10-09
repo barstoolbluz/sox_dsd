@@ -1,0 +1,62 @@
+{
+  "host": "unprepared, noise probe 25.6% (inadmissible)",
+  "metric": "pinned CPU seconds; matched P05 source builds; 25 pairs, two warmups",
+  "cases": {
+    "dff-2ch-null-large": {
+      "samples": 25,
+      "baseline_median_cpu_seconds": 0.06573600000000002,
+      "candidate_median_cpu_seconds": 0.06033699999999964,
+      "median_ratio": 0.9178684434708474,
+      "regression_percent": -8.21315565291526,
+      "paired_bootstrap_95pct_interval": [
+        0.8990540984095755,
+        0.9412958864382234
+      ],
+      "measurement_noise": 0.032127521700340896,
+      "status": "inconclusive-noise"
+    },
+    "dff-2ch-repack-large": {
+      "samples": 25,
+      "baseline_median_cpu_seconds": 0.14114399999999971,
+      "candidate_median_cpu_seconds": 0.13434000000000168,
+      "median_ratio": 0.9517939125999119,
+      "regression_percent": -4.820608740008813,
+      "paired_bootstrap_95pct_interval": [
+        0.9394005212858376,
+        0.983305063336841
+      ],
+      "measurement_noise": 0.05802190496591192,
+      "status": "inconclusive-noise",
+      "all_output_hashes_identical": true,
+      "output_sha256": "70a7038b86f6ee996a50ccc884c9d26f8a68dcdf7754855453fd64fe0dda6240"
+    },
+    "dff-6ch-null-large": {
+      "samples": 25,
+      "baseline_median_cpu_seconds": 0.13269399999999898,
+      "candidate_median_cpu_seconds": 0.12157200000000046,
+      "median_ratio": 0.9161830979547032,
+      "regression_percent": -8.38169020452968,
+      "paired_bootstrap_95pct_interval": [
+        0.8708143725654416,
+        0.9358448761812972
+      ],
+      "measurement_noise": 0.08157350224497024,
+      "status": "inconclusive-noise"
+    },
+    "dff-6ch-repack-large": {
+      "samples": 25,
+      "baseline_median_cpu_seconds": 0.2620190000000022,
+      "candidate_median_cpu_seconds": 0.2509760000000014,
+      "median_ratio": 0.9578542014128719,
+      "regression_percent": -4.214579858712808,
+      "paired_bootstrap_95pct_interval": [
+        0.9449961773845676,
+        0.9935905593798824
+      ],
+      "measurement_noise": 0.028263270274398188,
+      "status": "inconclusive-noise",
+      "all_output_hashes_identical": true,
+      "output_sha256": "75461bde45d52151f250d37e662906ffb5aad1f9644bfc51b79cf53bc7a812af"
+    }
+  }
+}
