@@ -16,6 +16,7 @@ import os
 import pathlib
 import platform
 import re
+import sys
 import statistics
 import subprocess
 import tempfile
@@ -240,6 +241,19 @@ def main():
     report['summary']=dict(successful_cases=len(report['planned_cases'])-len(missing),
                            planned_cases=len(report['planned_cases']),failed_or_incomplete=missing,
                            status='pass-development-only' if not missing else 'incomplete')
+    if int(args.phase[1:]) >= 6:
+        scalar_command = [sys.executable, str(ROOT/'tests/dsd/bench_decode.py'),
+            '--unit', str(ROOT/'test/dsd_test_decode'), '--results',
+            str(args.results/'scalar')]
+        scalar = subprocess.run(scalar_command, cwd=ROOT, capture_output=True,
+                                text=True,timeout=300)
+        report['p06_scalar_benchmark'] = dict(exit=scalar.returncode,
+            stdout=scalar.stdout,stderr=scalar.stderr,
+            evidence='scalar/scalar-bench.json',
+            status='pass-development-only' if scalar.returncode==0 else 'fail')
+        if scalar.returncode:
+            report['summary']['status']='incomplete'
+            missing.append('P06 scalar benchmark failed')
     atomic_json(outfile,report)
     print(json.dumps(dict(summary=report['summary'], path=str(outfile))))
     return int(bool(missing))

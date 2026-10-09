@@ -1,0 +1,207 @@
+Making all in libdolbyb
+make[1]: Entering directory '<source-root>/libdolbyb'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '<source-root>/libdolbyb'
+Making all in libebur128
+make[1]: Entering directory '<source-root>/libebur128'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '<source-root>/libebur128'
+Making all in lpc10
+make[1]: Entering directory '<source-root>/lpc10'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '<source-root>/lpc10'
+Making all in libgsm
+make[1]: Entering directory '<source-root>/libgsm'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '<source-root>/libgsm'
+Making all in src
+make[1]: Entering directory '<source-root>/src'
+make  all-am
+make[2]: Entering directory '<source-root>/src'
+make[2]: Leaving directory '<source-root>/src'
+make[1]: Leaving directory '<source-root>/src'
+Making all in test
+make[1]: Entering directory '<source-root>/test'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '<source-root>/test'
+make[1]: Entering directory '<source-root>'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '<source-root>'
+make -C test dsd_test_io
+make[1]: Entering directory '<source-root>/test'
+  CCLD     dsd_test_io
+make[1]: Leaving directory '<source-root>/test'
+make -C test dsd_test_dff_writer
+make[1]: Entering directory '<source-root>/test'
+  CCLD     dsd_test_dff_writer
+make[1]: Leaving directory '<source-root>/test'
+python3 ./tests/dsd/run.py --phase P06 --results <source-root>/tests/dsd/results/P06 --sox <source-root>/src/sox_ng --probe <source-root>/test/dsd_test_io --writer-unit <source-root>/test/dsd_test_dff_writer
+PASS  unit_exact_integer_counts
+PASS  unit_explicit_xfail_classifier
+PASS  unit_P01_xfail_mutation_transition
+PASS  unit_dff_chunk_spans
+PASS  unit_hand_derived_bit_order_dsd_dop
+PASS  unit_reproducible_fixture_generator
+PASS  unit_independent_chunk_and_bit_oracles
+PASS  dsf_normal_mono_96
+PASS  dsf_normal_stereo_96
+PASS  dsf_fourchannel_type4_audio
+PASS  dsf_sixchannel_audio
+PASS  dff_normal_stereo_128
+PASS  dff_manf_core_corrected_control
+PASS  dsf_rewind_core_corrected_control
+PASS  dsf_small_capacity_one_frame
+PASS  dff_small_capacity_one_frame
+PASS  dsf_one_frame_first_bit
+PASS  dsf_empty_file
+PASS  dff_single_byte_cluster
+PASS  dsf_msb_first_8bit_storage
+PASS  dsf_rewind_generic_core_position
+PASS  dsf_multichannel_public_seek_offset16
+PASS  dff_multichannel_public_seek_offset16
+PASS  dff_trailing_manf_generic_counter
+PASS  wsd_normal_mono_16
+PASS  wsd_small_capacity_one_frame
+PASS  wav_rewind_after_manual_core_position_correction
+PASS  dff_writer_cmpr_name_length
+PASS  dff_writer_frm8_parent_size
+PASS  dff_writer_completed_tail_audio_count
+PASS  dff_writer_odd_payload_external_pad
+PASS  dff_writer_uninitialized_first_cluster_1ch
+PASS  dff_writer_uninitialized_first_cluster_4ch
+PASS  dsf_type5_channel_identity_loss
+PASS  dop_cli_hand_vector_transport_markers
+PASS  integration_xfail_audio_mutation_rejection
+{"verdict": "pass", "counts": {"pass": 36, "xfail": 0, "xpass": 0, "fail": 0, "skip": 0}, "result_path": "<source-root>/tests/dsd/results/P06/run.json"}
+make[1]: Entering directory '<source-root>/test'
+  CCLD     dsd_test_dop_capacity
+make[1]: Leaving directory '<source-root>/test'
+P02 DoP capacity: 29 independent assertions PASS
+P02 streaming/extent/forward-only/CLI: 706/706 PASS, 0 FAIL; <source-root>/tests/dsd/results/P06/streaming/streaming.json
+make[1]: Entering directory '<source-root>/test'
+  CCLD     dsd_test_seek_contract
+make[1]: Leaving directory '<source-root>/test'
+PASS dsf-lsb-1ch
+PASS dsf-msb-1ch
+PASS dff-1ch
+PASS wsd-1ch
+PASS wav-pcm-1ch
+PASS raw-pcm-1ch
+PASS smp-mono
+PASS prc-alaw-mono
+PASS dsf-0-frames
+PASS dsf-1-frames
+PASS dsf-7-frames
+PASS dsf-9-frames
+PASS dsf-32769-frames
+PASS dff-0-frames
+PASS dff-8-frames
+PASS dsf-lsb-2ch
+PASS dsf-msb-2ch
+PASS dff-2ch
+PASS wsd-2ch
+PASS wav-pcm-2ch
+PASS raw-pcm-2ch
+PASS msu-stereo
+PASS dsf-lsb-3ch
+PASS dsf-msb-3ch
+PASS dff-3ch
+PASS wsd-3ch
+PASS wav-pcm-3ch
+PASS raw-pcm-3ch
+PASS dsf-lsb-4ch
+PASS dsf-msb-4ch
+PASS dff-4ch
+PASS wsd-4ch
+PASS wav-pcm-4ch
+PASS raw-pcm-4ch
+PASS dsf-lsb-5ch
+PASS dsf-msb-5ch
+PASS dff-5ch
+PASS wsd-5ch
+PASS wav-pcm-5ch
+PASS raw-pcm-5ch
+PASS dsf-lsb-6ch
+PASS dsf-msb-6ch
+PASS dff-6ch
+PASS wsd-6ch
+PASS wav-pcm-6ch
+PASS raw-pcm-6ch
+PASS dff-empty-1ch-no-manf
+PASS dff-empty-1ch-manf
+PASS dff-eight-1ch-manf-control
+PASS dff-empty-2ch-no-manf
+PASS dff-empty-2ch-manf
+PASS dff-eight-2ch-manf-control
+PASS dff-empty-6ch-no-manf
+PASS dff-empty-6ch-manf
+PASS dff-eight-6ch-manf-control
+PASS wav-gsm-unsupported-without-movement
+PASS cli-wav-optimized-trim-1ch
+PASS cli-wav-optimized-trim-2ch
+PASS cli-wav-optimized-trim-6ch
+{"fail": 0, "pass": 59, "unrun_optional": ["flac", "vorbis", "opus", "wavpack"]}
+make[1]: Entering directory '<source-root>/test'
+  CCLD     dsd_test_layout
+make[1]: Leaving directory '<source-root>/test'
+PASS public_layout_ownership_type4_type5_and_mappings
+PASS copy_owned_original_CHNL_LSCO_swap_lsco
+PASS copy_owned_original_CHNL_LSCO_context
+PASS copy_owned_original_CHNL_LSCO_ambiguous
+PASS copy_owned_original_CHNL_LSCO_type5_standard
+PASS copy_owned_original_CHNL_LSCO_stereo_lsco0
+PASS copy_owned_original_CHNL_LSCO_five_lsco3
+PASS copy_owned_original_CHNL_LSCO_six_lsco4
+PASS library_clone_dsf_type4
+PASS library_clone_dsf_type5
+PASS library_clone_dsf_msb_bps8
+PASS stream_info_original_dsf_type_bit_order_and_roles
+PASS wsd_ch_asn_opaque_provenance_no_speaker_guess
+PASS LSCO_known_consistent_and_inconsistent_keeps_explicit_CHNL
+PASS dff_standard_to_native_dsf5
+PASS dff_context_to_dsf_unrepresentable_rejected
+PASS dff_context_explicit_assignment_native_dsf5
+PASS dsf_to_dff_standard_IDs_and_bit_sequences
+PASS wav_float_mask_order_with_explicit_input_swap
+PASS wav_pcm16_mask_order_with_explicit_input_swap
+PASS wav_ambiguous_side_vs_back_reject
+PASS wav_ambiguous_side_vs_back_unspecified_mask_override
+PASS wav_ambiguous_explicit_side_assignment
+PASS wav_remix_and_mask_order_compose_to_canonical_samples
+PASS WAV_extensible_FC_maps_to_FC_and_DSF_Type5
+PASS channels_noop_native_mono_96.dsf
+PASS channels_noop_native_stereo_96.dsf
+PASS channels_noop_native_type4_quad_96.dsf
+PASS channels_noop_native_type5_quad_96.dsf
+PASS channels_noop_DFF_stereo_CHNL_LSCO
+PASS channels_noop_DFF_quad_CHNL_LSCO
+PASS channels_reduction_clears_DFF_roles
+PASS channels_expansion_clears_DFF_roles
+PASS channels_noop_stereo_WAV_mask_and_samples
+PASS conventional_PCM_mono_WAV_to_DSF_and_DFF
+PASS conventional_PCM_stereo_WAV_to_DSF_and_DFF
+PASS PCM_explicit_assignment_overrides_conventional_stereo
+PASS WAV_extensible_side_roles_not_replaced_with_stereo
+PASS WAV_explicit_unsupported_mask_not_guessed
+PASS unknown_four_channel_PCM_requires_assignment_for_DSF
+PASS ordinary_PCM_to_PCM_no_mask_or_sample_change
+PASS PCM_WAV_channel_mask_does_not_change_ordinary_PCM_policy
+PASS remix_pure_permutation_retains_DFF_channel_IDs
+PASS remix_mixing_invalidates_original_channel_IDs
+PASS metadata_loss_default_reject_explicit_warn
+PASS DSDIFF_surround_ambiguous_DSF_rejected
+{"fail": 0, "pass_": 46}
+make[1]: Entering directory '<source-root>/test'
+  CCLD     dsd_test_plan
+make[1]: Leaving directory '<source-root>/test'
+P05 plan unit: 168 assertions, 0 failed
+P05 CLI plan: 155 pass, 0 fail, 155 total
+make[1]: Entering directory '<source-root>/test'
+make[1]: 'dsd_test_decode' is up to date.
+make[1]: Leaving directory '<source-root>/test'
+P06 scalar unit PASS (93640 assertions; 6 profiles, 1/2/5/6 channels, lengths 0..33 and ring wrap)
+make[1]: Entering directory '<source-root>/test'
+make[1]: 'dsd_test_decode_faults' is up to date.
+make[1]: Leaving directory '<source-root>/test'
+P06 allocation cleanup/alignment PASS (52 assertions; 4 injected failures)
+P06 scalar oracle PASS: 1056 vectors, 58408 frame/channel samples, 5656 high-precision checks; largest bound fraction 0.000045; 9.1s

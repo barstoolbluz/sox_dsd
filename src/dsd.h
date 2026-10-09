@@ -148,6 +148,22 @@ lsx_dsd_rate const *lsx_dsd_rate_find(uint64_t hz);
 int lsx_dsd_integer_rate(double value, uint32_t *out);
 int lsx_dsd_checked_interleaved(uint64_t frames, unsigned channels, uint64_t *out);
 int lsx_dsd_count_convert(uint64_t frames, uint32_t input_hz, uint32_t output_hz, uint64_t *out);
+/* Certified P06 front-end profiles. Private immutable metadata; P07 may
+ * compose these with a separate final-rate adapter. Bank codes are immutable
+ * internal identities, never user-selectable kernel implementations. */
+typedef enum {LSX_DSD_BANK_MASTER64_256, LSX_DSD_BANK_MASTER128,
+              LSX_DSD_BANK_WIDEBAND} lsx_dsd_last_bank;
+typedef struct {
+  uint32_t native_hz, intermediate_hz;
+  lsx_dsd_decode kind;
+  double pass_hz, stop_hz;
+  unsigned stages;
+  lsx_dsd_last_bank last_bank;
+  uint64_t delay_native_frames;
+} lsx_dsd_frontend_profile;
+const lsx_dsd_frontend_profile *lsx_dsd_frontend_profile_find(
+    uint32_t native_hz, lsx_dsd_decode profile);
+
 int lsx_dsd_profile_edges(uint32_t native_hz, lsx_dsd_decode profile,
     double *pass, double *stop, double *intermediate);
 double lsx_dsd_effective_bandwidth(double pass, double intermediate, double output);

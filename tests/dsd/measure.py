@@ -11,6 +11,7 @@ import json
 import math
 import pathlib
 import platform
+import subprocess
 import sys
 import time
 import wave
@@ -94,6 +95,27 @@ def main() -> int:
             passed.append(dict(name='P01_native_program_bits_and_completed_frame_counts',
                                status='fail', error=f'{type(exc).__name__}: {exc}'))
         native_commands = observer.commands
+    p06_results = []
+    if int(args.phase[1:]) >= 6:
+        p06_steps = [
+            ('P06_independent_coefficients_and_composites',
+             [sys.executable, str(ROOT/'tests/dsd/certify_filters.py'),
+              '--results', str(args.results)], 'filter-certificate.json'),
+            ('P06_high_precision_finite_stream_oracle',
+             [sys.executable, str(ROOT/'tests/dsd/test_decode.py'),
+              '--unit', str(ROOT/'test/dsd_test_decode'),
+              '--results', str(args.results/'scalar')], 'scalar/oracle.json'),
+        ]
+        for name, command, evidence in p06_steps:
+            try:
+                proc = subprocess.run(command, capture_output=True, text=True,
+                                      cwd=ROOT, timeout=300)
+                detail = dict(exit=proc.returncode,stdout=proc.stdout,
+                              stderr=proc.stderr,evidence=evidence)
+                p06_results.append(dict(name=name, status='pass' if proc.returncode==0 else 'fail',detail=detail))
+            except (subprocess.TimeoutExpired,OSError) as exc:
+                p06_results.append(dict(name=name,status='fail',error=str(exc)))
+        passed.extend(p06_results)
     result = dict(schema='dsd-numerical-results/1', phase=args.phase,
                   executed_command=sys.argv, utc_timestamp=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   python=platform.python_version(),
@@ -102,13 +124,18 @@ def main() -> int:
                   unit_tests=passed,
                   native_commands=native_commands,
                   independent_analysis=dict(status='unrun', reason='P00 does not generate/certify analysis-v1 coefficients; P09 qualification gate'),
-                  filters_evidence=dict(status='prior_design_evidence_only',
+                  filters_evidence=(dict(status='P06_certified_final_hex',
+                      path='src/dsd_coeffs.h',
+                      certificate='numeric/filter-certificate.json',
+                      manifest='tests/dsd/reference/p06_coefficients.json',
+                      sha256=hashlib.sha256((ROOT/'src/dsd_coeffs.h').read_bytes()).hexdigest())
+                    if int(args.phase[1:])>=6 else dict(status='prior_design_evidence_only',
                        path='docs/dsd/evidence/filter_feasibility.json',
-                       sha256=hashlib.sha256((ROOT/'docs/dsd/evidence/filter_feasibility.json').read_bytes()).hexdigest()),
+                       sha256=hashlib.sha256((ROOT/'docs/dsd/evidence/filter_feasibility.json').read_bytes()).hexdigest())),
                   quality_measurements=[],
                   summary=dict(passed=sum(x['status']=='pass' for x in passed),
                                failed=sum(x['status']=='fail' for x in passed),
-                               unrun_gates=['analysis-v1 coefficient generation/certification',
+                               unrun_gates=['analysis-v1 coefficient generation/certification' if int(args.phase[1:])<6 else 'P09 analysis-v1 audio corpus qualification',
                                             'independent DSD quality measurements']))
     report_path=args.results/'measure.json'
     if report_path.exists():

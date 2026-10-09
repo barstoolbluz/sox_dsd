@@ -1,0 +1,1 @@
+libtool: link: gcc -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -Isrc -o <checkpoint-root>/p06-sanitized-faults tests/dsd/test_decode_faults.c  src/.libs/libsox_ng.a -lpng -lz -lm -fopenmp
