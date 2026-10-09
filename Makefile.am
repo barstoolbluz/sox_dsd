@@ -219,13 +219,13 @@ win64.exe: winexe-prepare
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.
 .PHONY: check-dsd
-DSD_PHASE ?= P03
+DSD_PHASE ?= P04
 DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
 check-dsd: all
 	$(MAKE) -C test dsd_test_io$(EXEEXT)
 	$(MAKE) -C test dsd_test_dff_writer$(EXEEXT)
 	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox_ng --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
-	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03"; then \
+	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04"; then \
 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_streaming.py \
@@ -233,12 +233,19 @@ check-dsd: all
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/streaming; \
 	fi
-	@if test "$(DSD_PHASE)" = "P03"; then \
+	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04"; then \
 	  $(MAKE) -C test dsd_test_seek_contract$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_seek.py \
 	    --probe $(abs_builddir)/test/dsd_test_seek_contract$(EXEEXT) \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/seek; \
+	fi
+	@if test "$(DSD_PHASE)" = "P04"; then \
+	  $(MAKE) -C test dsd_test_layout$(EXEEXT) && \
+	  python3 $(srcdir)/tests/dsd/test_layout.py \
+	    --unit $(abs_builddir)/test/dsd_test_layout$(EXEEXT) \
+	    --sox $(abs_builddir)/src/sox_ng \
+	    --results $(DSD_RESULTS)/layout; \
 	fi
 # P00 distributable design/test inputs (generated raw runs live in the continuation archive).
 EXTRA_DIST += \
@@ -281,3 +288,24 @@ EXTRA_DIST += \
   docs/dsd/SEEK_CONTRACT.md docs/dsd/handoffs/P03.md \
   docs/dsd/handoffs/P03_CHECKPOINT.md \
   tests/dsd/test_seek.py tests/dsd/test_seek_contract.c
+
+# P04 independent channel-identity evidence and documentation.
+EXTRA_DIST += \
+  docs/dsd/LAYOUT_CONTRACT.md docs/dsd/handoffs/P04.md \
+  docs/dsd/handoffs/P04_CHECKPOINT.md \
+  tests/dsd/test_layout.py tests/dsd/test_layout.c \
+  tests/dsd/fixtures/p04/manifest.json \
+  tests/dsd/fixtures/p04/p04_ambiguous.dff \
+  tests/dsd/fixtures/p04/p04_context.dff \
+  tests/dsd/fixtures/p04/p04_five_lsco3.dff \
+  tests/dsd/fixtures/p04/p04_mono_unmasked.wav \
+  tests/dsd/fixtures/p04/p04_opaque_assignment.wsd \
+  tests/dsd/fixtures/p04/p04_quad_unmasked.wav \
+  tests/dsd/fixtures/p04/p04_six_lsco4.dff \
+  tests/dsd/fixtures/p04/p04_stereo_masked.wav \
+  tests/dsd/fixtures/p04/p04_stereo_lsco0.dff \
+  tests/dsd/fixtures/p04/p04_stereo_side_masked.wav \
+  tests/dsd/fixtures/p04/p04_stereo_unmasked.wav \
+  tests/dsd/fixtures/p04/p04_stereo_unsupported_mask.wav \
+  tests/dsd/fixtures/p04/p04_swap_lsco.dff \
+  tests/dsd/fixtures/p04/p04_type5_standard.dff

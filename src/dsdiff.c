@@ -22,8 +22,10 @@
  */
 
 #include "sox_i.h"
+#include "dsd_layout_i.h"
 
 struct dsdiff {
+	lsx_dsd_layout_state_t metadata;
 	uint64_t data_size;
 	uint8_t *buf;
 	uint32_t bit_pos;
@@ -71,12 +73,13 @@ static int dff_skip(sox_format_t *ft, uint64_t bytes)
 /* Parse exactly the PROP/SND payload. Never interpret children as FRM8
  * siblings or accept required fields from outside PROP. */
 static int dff_read_prop(sox_format_t *ft, uint64_t bytes,
-	uint32_t *rate, uint16_t *channels)
+	uint32_t *rate, uint16_t *channels, struct dsdiff *dff)
 {
 	uint32_t type, id;
 	uint64_t size, span, left;
 	sox_bool seen_fs = sox_false, seen_chnl = sox_false;
-	sox_bool seen_cmpr = sox_false;
+	sox_bool seen_cmpr = sox_false, seen_lsco = sox_false;
+	uint16_t lsco = 0;
 
 	if (bytes < 4 || lsx_readdw(ft, &type) ||
 	    type != ID('S', 'N', 'D', ' '))
@@ -100,7 +103,42 @@ static int dff_read_prop(sox_format_t *ft, uint64_t bytes,
 			if (seen_chnl || size < 2 || lsx_readw(ft, channels) ||
 			    !*channels || size < 2 + 4 * (uint64_t)*channels)
 				return SOX_EHDR;
+			if (!(dff->metadata.layout = sox_dsd_layout_new(*channels)))
+				return SOX_ENOMEM;
+			dff->metadata.layout->origin = SOX_DSD_CONTAINER_DFF;
+			dff->metadata.layout->physical_bit_order = 8;
+			if (seen_lsco) {
+				dff->metadata.layout->lsco_present = sox_true;
+				dff->metadata.layout->lsco = lsco;
+			}
+			{
+				unsigned ch;
+				for (ch = 0; ch < *channels; ++ch) {
+					unsigned char bytes[4];
+					if (lsx_read_b_buf(ft, bytes, 4) != 4)
+						return SOX_EHDR;
+					memcpy(dff->metadata.layout->channel[ch].dff_id, bytes, 4);
+					dff->metadata.layout->channel[ch].dff_id_valid = sox_true;
+					id = ((uint32_t)bytes[0]<<24)|((uint32_t)bytes[1]<<16)|
+					     ((uint32_t)bytes[2]<<8)|bytes[3];
+					dff->metadata.layout->channel[ch].role = lsx_dsd_role_from_dff_id(id);
+                    /* A single explicit centre channel is monophonic; in a
+                     * multichannel vector it remains FC, not DSF mono. */
+                    if (*channels==1 && dff->metadata.layout->channel[ch].role==SOX_DSD_ROLE_FC)
+                        dff->metadata.layout->channel[ch].role=SOX_DSD_ROLE_MONO;
+				}
+			}
 			seen_chnl = sox_true;
+			consumed = 2 + 4 * (uint64_t)*channels;
+			break;
+		case ID('L', 'S', 'C', 'O'):
+			if (seen_lsco || size != 2 || lsx_readw(ft, &lsco))
+				return SOX_EHDR;
+			seen_lsco = sox_true;
+			if (dff->metadata.layout) {
+				dff->metadata.layout->lsco_present = sox_true;
+			dff->metadata.layout->lsco = lsco;
+			}
 			consumed = 2;
 			break;
 		case ID('C', 'M', 'P', 'R'):
@@ -120,6 +158,9 @@ static int dff_read_prop(sox_format_t *ft, uint64_t bytes,
 			return SOX_EHDR;
 		left -= span;
 	}
+	if (seen_fs && seen_chnl && seen_cmpr &&
+	    !lsx_dsd_lsco_consistent(dff->metadata.layout))
+		lsx_warn("DSDIFF LSCO contradicts CHNL channel IDs; preserving CHNL audio order");
 	return seen_fs && seen_chnl && seen_cmpr ? SOX_SUCCESS : SOX_EHDR;
 }
 
@@ -157,7 +198,7 @@ static int dff_startread(sox_format_t *ft)
 			consumed = 4;
 			break;
 		case ID('P', 'R', 'O', 'P'):
-			if (seen_prop || dff_read_prop(ft, chunk_size, &rate, &channels))
+			if (seen_prop || dff_read_prop(ft, chunk_size, &rate, &channels, dff))
 				goto invalid;
 			seen_prop = sox_true;
 			consumed = chunk_size;
@@ -252,8 +293,7 @@ static int dff_seek(sox_format_t * ft, sox_uint64_t offset)
   uint64_t frame, byte_offset, data_offset, physical;
   off_t target;
 
-  if (!ft->signal.channels || ft->data_start < 0 ||
-      offset % ft->signal.channels || offset > ft->signal.length)
+  if (!ft->signal.channels || offset % ft->signal.channels || offset > ft->signal.length)
     return SOX_EOF;
   frame = offset / ft->signal.channels;
   byte_offset = frame / 8;
@@ -312,14 +352,17 @@ static int dff_writeheader(sox_format_t *ft, sox_bool final)
 {
 	struct dsdiff *dff = ft->priv;
 	uint64_t chnl_size = 2 + 4 * (uint64_t)ft->signal.channels;
+	const sox_dsd_layout_t *layout = dff->metadata.layout;
+	sox_bool lsco = layout && layout->lsco_present;
 	uint64_t cmpr_size = 4 + 1 + sizeof(DFF_CMPR_NAME) - 1;
 	uint64_t chnl_span, cmpr_span, prop_size, prop_span;
 	uint64_t audio_span, frm8_size, frm8_span;
+	uint64_t lsco_span = lsco ? 14 : 0;
 
 	if (dff_chunk_span(chnl_size, &chnl_span) ||
 	    dff_chunk_span(cmpr_size, &cmpr_span))
 		return SOX_EOF;
-	prop_size = 4 + 16 + chnl_span + cmpr_span; /* SND, FS, CHNL, CMPR */
+	prop_size = 4 + 16 + chnl_span + cmpr_span + lsco_span; /* SND, FS, CHNL, LSCO?, CMPR */
 	if (dff_chunk_span(prop_size, &prop_span) ||
 	    dff_chunk_span(dff->data_size, &audio_span) ||
 	    audio_span > UINT64_MAX - 4 - 16 - prop_span ||
@@ -354,20 +397,27 @@ static int dff_writeheader(sox_format_t *ft, sox_bool final)
             lsx_writew(ft, ft->signal.channels))
 		return SOX_EOF;
 
-	if (ft->signal.channels == 2) {
+	if (layout) {
+		unsigned i;
+		for (i = 0; i < ft->signal.channels; ++i)
+			if (lsx_writedw(ft, lsx_dsd_dff_id(layout,i)))
+				return SOX_EOF;
+	} else if (ft->signal.channels == 2) {
 		if (lsx_writedw(ft, ID('S', 'L', 'F', 'T')) ||
 		    lsx_writedw(ft, ID('S', 'R', 'G', 'T')))
 			return SOX_EOF;
 	} else {
 		char ch[8];
 		unsigned i;
-
 		for (i = 0; i < ft->signal.channels; i++) {
 			snprintf(ch, sizeof(ch), "C%03d", i);
 			if (lsx_writedw(ft, ID(ch[0], ch[1], ch[2], ch[3])))
 				return SOX_EOF;
 		}
 	}
+	if (lsco && (lsx_writedw(ft, ID('L', 'S', 'C', 'O')) ||
+	             lsx_writeqw(ft, 2) || lsx_writew(ft, layout->lsco)))
+		return SOX_EOF;
 
 	if (lsx_writedw(ft, ID('C', 'M', 'P', 'R')) ||
 	    lsx_writeqw(ft, cmpr_size) ||
@@ -661,6 +711,11 @@ static int wsd_startread(sox_format_t *ft)
 	dff->cluster_valid = sox_false;
 	ft->data_start = data_sp;
 
+	dff->metadata.layout = sox_dsd_layout_new(ch_n);
+	if (!dff->metadata.layout) return SOX_ENOMEM;
+	dff->metadata.layout->origin = SOX_DSD_CONTAINER_WSD;
+	dff->metadata.layout->wsd_present = sox_true;
+	dff->metadata.layout->wsd_assignment = ch_asn;
 	ft->signal.rate = fs;
 	ft->signal.channels = ch_n;
 	ft->signal.precision = 1;

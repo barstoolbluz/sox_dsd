@@ -16,6 +16,7 @@
  */
 
 #include "sox_i.h"
+#include "dsd_layout_query.h"
 
 typedef struct {
   enum {semi, automatic, manual} mode;
@@ -312,4 +313,29 @@ sox_effect_handler_t const * lsx_oops_effect_fn(void)
   handler.extra_usage = NULL;
   handler.getopts = oops_getopts;
   return &handler;
+}
+
+/* P04 channel-identity planner: ask the remix parser, not a second parser,
+ * whether each output draws one unscaled, distinct input.  Do not classify
+ * a mix, sign change, duplication or out-of-range source as a pure map. */
+sox_bool lsx_remix_pure_map(sox_effect_t *effp, unsigned input_channels,
+    unsigned *source_indexes, unsigned capacity)
+{
+  priv_t *p;
+  unsigned i,j;
+  if (!effp || !source_indexes || !input_channels ||
+      strcmp(effp->handler.name, "remix")) return sox_false;
+  p = effp->priv;
+  if (!p || p->num_out_channels > capacity ||
+      p->num_out_channels > input_channels ||
+      parse(effp, NULL, input_channels) != SOX_SUCCESS) return sox_false;
+  for (i = 0; i < p->num_out_channels; ++i) {
+    if (p->out_specs[i].num_in_channels != 1 ||
+        p->out_specs[i].in_specs[0].multiplier != 1) return sox_false;
+    source_indexes[i] = p->out_specs[i].in_specs[0].channel_num;
+    if (source_indexes[i] >= input_channels) return sox_false;
+    for (j = 0; j < i; ++j)
+      if (source_indexes[i] == source_indexes[j]) return sox_false;
+  }
+  return sox_true;
 }
