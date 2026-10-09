@@ -56,3 +56,9 @@ EXTRA_PROGRAMS += dsd_test_layout
 dsd_test_layout_SOURCES = ../tests/dsd/test_layout.c
 dsd_test_layout_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_layout_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P05 numeric and domain state-machine probe, built only by check-dsd.
+EXTRA_PROGRAMS += dsd_test_plan
+dsd_test_plan_SOURCES = ../tests/dsd/test_plan.c
+dsd_test_plan_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_plan_LDADD = $(top_builddir)/src/libsox_ng.la

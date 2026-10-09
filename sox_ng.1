@@ -1384,6 +1384,66 @@ The compression factor is interpreted differently for different
 compressed file formats; for details, see the description
 of the file formats that use this option in
 .BR soxformat_ng (7)
+.SS DSD domain planning (P05, opt-in)
+DSD processing has three distinct domains: native one-bit pulses, reconstructed
+PCM audio, and DoP transport in lossless 24-bit PCM words.  The default CLI
+behavior remains the prior legacy policy until the planned release migration.
+The following options explicitly select or inspect the new policy.
+.TP
+.B \-\-dsd-mode auto|native|legacy
+Select planned domain conversion, strict native-only operation, or legacy
+routing.  Native-only refuses any effect, input gain, or combination needing
+PCM.  Legacy can process raw DSD pulses as if they were PCM.
+.TP
+.B \-\-dsd-decode mastering|wideband|legacy
+Select the versioned reconstruction profile.  Legacy reconstruction has no
+certified pass/stop edges; no mastering bandwidth is inferred for it.
+.TP
+.B \-\-dsd-encode mastering|legacy|experimental
+Select the composite PCM-to-DSD modulator profile.
+.TP
+.B \-\-dsd-level preserve|sacd
+Preserve native full-scale reference, or apply the SACD 6.0206 dB decoder
+reference adjustment.  Per-input gains are planned ahead of the combiner.
+.TP
+.B \-\-dsd-clip warn|error
+Choose the future reconstruction/modulator clipping policy.
+.TP
+.B \-\-dsd-bandwidth adapt|strict
+Adapt the reported effective passband to the output PCM rate, or reject
+requests that would reduce the selected profile's guaranteed passband.
+.TP
+.B \-\-dsd-layout role,role,...
+Provide an explicit ordered output speaker-role assignment, according to
+P04 channel-layout policy.
+.TP
+.B \-\-dsd-layout-loss error|warn
+Reject unrepresentable channel identity, or permit a diagnosed loss.
+.TP
+.B \-\-dsd-plan
+Validate and print one JSON plan without opening an output audio file.
+Sequence mode prints a list of separately checked segment plans.
+.TP
+.B \-\-dsd-report PATH
+Write the deterministic resolved plan as JSON before audio output opening.
+.PP
+The P05 implementation parses the composite
+.BR dsdpcm ,
+.BR pcmdsd ,
+and
+.B dsdstat
+preflight effects, but does not yet implement their audio DSP.  A valid plan
+can report
+.B executable: false
+and an unavailable reason.  Such an invocation fails before audio output
+creation.  Native repacking and supported terminal DoP remain executable.
+.PP
+SOX_DSD_KERNEL_FIR and SOX_DSD_KERNEL_SDM accept
+.B auto
+or
+.B scalar
+in this phase.  Forced SIMD tiers will be enabled only when implemented and
+qualified.
 .SH EFFECTS
 In addition to converting, playing and recording audio files, SoX can
 be used to invoke a number of audio effects.  Multiple effects may

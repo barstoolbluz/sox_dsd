@@ -1,0 +1,197 @@
+{
+  "cases": [
+    {
+      "argv": [
+        "--dsd-plan",
+        "--dsd-mode",
+        "auto",
+        "--norm",
+        "<DSD64-clock PCM input>",
+        "-r",
+        "2822400",
+        "<DSF output>",
+        "sdm",
+        "-f",
+        "sdm-5"
+      ],
+      "executable": false,
+      "name": "norm_sdm_plan",
+      "needs_unimplemented_dsp": false,
+      "output_bytes": 0,
+      "output_created": false,
+      "phase": "plan",
+      "returncode": 0,
+      "steps": [
+        "auto_normalize",
+        "sdm"
+      ],
+      "unavailable_reason": "automatic normalization before low-level sdm is not supported by the current effects pipeline"
+    },
+    {
+      "argv": [
+        "--dsd-mode",
+        "auto",
+        "--norm",
+        "<DSD64-clock PCM input>",
+        "-r",
+        "2822400",
+        "<DSF output>",
+        "sdm",
+        "-f",
+        "sdm-5"
+      ],
+      "name": "norm_sdm_exec",
+      "output_bytes": 0,
+      "output_created": false,
+      "phase": "execute",
+      "returncode": 2,
+      "stderr": "sox_ng FAIL sox_ng: P05 preflight: automatic normalization before low-level sdm is not supported by the current effects pipeline; plan with --dsd-plan (no output created)"
+    },
+    {
+      "argv": [
+        "--dsd-plan",
+        "--dsd-mode",
+        "auto",
+        "--norm",
+        "-D",
+        "<DSD64-clock PCM input>",
+        "-r",
+        "2822400",
+        "<DSF output>",
+        "sdm",
+        "-f",
+        "sdm-5"
+      ],
+      "executable": false,
+      "name": "norm_sdm_D_plan",
+      "needs_unimplemented_dsp": false,
+      "output_bytes": 0,
+      "output_created": false,
+      "phase": "plan",
+      "returncode": 0,
+      "steps": [
+        "auto_normalize",
+        "sdm"
+      ],
+      "unavailable_reason": "automatic normalization before low-level sdm is not supported by the current effects pipeline"
+    },
+    {
+      "argv": [
+        "--dsd-mode",
+        "auto",
+        "--norm",
+        "-D",
+        "<DSD64-clock PCM input>",
+        "-r",
+        "2822400",
+        "<DSF output>",
+        "sdm",
+        "-f",
+        "sdm-5"
+      ],
+      "name": "norm_sdm_D_exec",
+      "output_bytes": 0,
+      "output_created": false,
+      "phase": "execute",
+      "returncode": 2,
+      "stderr": "sox_ng FAIL sox_ng: P05 preflight: automatic normalization before low-level sdm is not supported by the current effects pipeline; plan with --dsd-plan (no output created)"
+    },
+    {
+      "argv": [
+        "--dsd-mode",
+        "auto",
+        "<DSD64-clock PCM input>",
+        "-r",
+        "2822400",
+        "<DSF output>",
+        "sdm",
+        "-f",
+        "sdm-5"
+      ],
+      "name": "plain_sdm_exec",
+      "output_bytes": 4188,
+      "output_created": true,
+      "phase": "execute",
+      "returncode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "--dsd-mode",
+        "auto",
+        "--norm",
+        "<DSD64-clock PCM input>",
+        "-r",
+        "2822400",
+        "<DSF output>",
+        "dither",
+        "-p",
+        "1"
+      ],
+      "name": "norm_dither_one_exec",
+      "output_bytes": 4188,
+      "output_created": true,
+      "phase": "execute",
+      "returncode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "--dsd-plan",
+        "--dsd-mode",
+        "auto",
+        "--norm",
+        "<DSD64-clock PCM input>",
+        "-r",
+        "2822400",
+        "<DSF output>",
+        "dither",
+        "-p",
+        "16",
+        "sdm",
+        "-f",
+        "sdm-5"
+      ],
+      "executable": true,
+      "name": "explicit_dither_before_sdm",
+      "needs_unimplemented_dsp": false,
+      "output_bytes": 0,
+      "output_created": false,
+      "phase": "plan",
+      "returncode": 0,
+      "steps": [
+        "auto_normalize",
+        "dither",
+        "sdm"
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "argv": [
+        "--dsd-mode",
+        "auto",
+        "--norm",
+        "<DSD64-clock PCM input>",
+        "-r",
+        "2822400",
+        "<DSF output>",
+        "dither",
+        "-p",
+        "16",
+        "sdm",
+        "-f",
+        "sdm-5"
+      ],
+      "name": "explicit_dither_before_sdm_exec",
+      "output_bytes": 4188,
+      "output_created": true,
+      "phase": "execute",
+      "returncode": 0,
+      "stderr": "sox_ng WARN sox_ng: sdm: effects that modify audio should not follow dither"
+    }
+  ],
+  "failed": 0,
+  "input": "mono 16-bit signed nonzero PCM at 2822400 Hz, 24576 frames; 1000 Hz sine at 20000/32768 amplitude",
+  "passed": 8,
+  "schema": "sox.dsd.P05.sdm-normalization-smoke.v1"
+}

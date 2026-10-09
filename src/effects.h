@@ -34,6 +34,8 @@
   EFFECT(delay)
   EFFECT(dft_filter) /* abstract */
   EFFECT(dither)
+  EFFECT(dsdpcm)
+  EFFECT(dsdstat)
 #if HAVE_DOLBYB_H
   EFFECT(dolbyb)
 #endif
@@ -74,6 +76,7 @@
   EFFECT(riaa)
   EFFECT(saturation)
   EFFECT(sdm)
+  EFFECT(pcmdsd)
   EFFECT(silence)
   EFFECT(sinc)
   EFFECT(softvol)

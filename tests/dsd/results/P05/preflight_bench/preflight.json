@@ -1,0 +1,178 @@
+{
+  "cases": [
+    {
+      "failures": [],
+      "inputs": 1,
+      "max_rss_kib": [
+        1804,
+        1800,
+        1848,
+        1896,
+        1896,
+        1804,
+        1848,
+        1736,
+        1856,
+        1908,
+        1804
+      ],
+      "measured": 11,
+      "mode": "native",
+      "normalized_command": [
+        "sox_ng",
+        "--dsd-plan",
+        "<DSD64-stereo-input> x1",
+        "<WAV-output>"
+      ],
+      "repetitions": 11,
+      "rss_median_kib": 1848,
+      "wall_median_seconds": 0.002572937,
+      "wall_seconds": [
+        0.00286773,
+        0.00321381,
+        0.0028604,
+        0.002882573,
+        0.002572937,
+        0.002032181,
+        0.002746302,
+        0.001627686,
+        0.001696637,
+        0.001821881,
+        0.001709306
+      ]
+    },
+    {
+      "failures": [],
+      "inputs": 4,
+      "max_rss_kib": [
+        1804,
+        1888,
+        1852,
+        1848,
+        1884,
+        1872,
+        1808,
+        1896,
+        1736,
+        1800,
+        1736
+      ],
+      "measured": 11,
+      "mode": "parallel per-input decode",
+      "normalized_command": [
+        "sox_ng",
+        "--dsd-plan",
+        "--combine",
+        "mix",
+        "<DSD64-stereo-input> x4",
+        "<WAV-output>"
+      ],
+      "repetitions": 11,
+      "rss_median_kib": 1848,
+      "wall_median_seconds": 0.001924432,
+      "wall_seconds": [
+        0.002665473,
+        0.001845577,
+        0.001665993,
+        0.001740302,
+        0.001924432,
+        0.001850113,
+        0.001995197,
+        0.001968718,
+        0.002974368,
+        0.001797145,
+        0.002974097
+      ]
+    },
+    {
+      "failures": [],
+      "inputs": 16,
+      "max_rss_kib": [
+        1976,
+        1936,
+        2016,
+        1976,
+        1976,
+        1864,
+        1984,
+        1984,
+        1932,
+        1984,
+        1996
+      ],
+      "measured": 11,
+      "mode": "parallel per-input decode",
+      "normalized_command": [
+        "sox_ng",
+        "--dsd-plan",
+        "--combine",
+        "mix",
+        "<DSD64-stereo-input> x16",
+        "<WAV-output>"
+      ],
+      "repetitions": 11,
+      "rss_median_kib": 1976,
+      "wall_median_seconds": 0.001833097,
+      "wall_seconds": [
+        0.002003349,
+        0.001686422,
+        0.001802813,
+        0.002916483,
+        0.001802113,
+        0.001821561,
+        0.001934487,
+        0.001833097,
+        0.001802162,
+        0.002108833,
+        0.002095624
+      ]
+    },
+    {
+      "failures": [],
+      "inputs": 64,
+      "max_rss_kib": [
+        2496,
+        2444,
+        2496,
+        2512,
+        2488,
+        2448,
+        2488,
+        2444,
+        2448,
+        2444,
+        2508
+      ],
+      "measured": 11,
+      "mode": "parallel per-input decode",
+      "normalized_command": [
+        "sox_ng",
+        "--dsd-plan",
+        "--combine",
+        "mix",
+        "<DSD64-stereo-input> x64",
+        "<WAV-output>"
+      ],
+      "repetitions": 11,
+      "rss_median_kib": 2488,
+      "wall_median_seconds": 0.002452009,
+      "wall_seconds": [
+        0.002414874,
+        0.002452009,
+        0.002683169,
+        0.002378521,
+        0.002430477,
+        0.002658783,
+        0.003455996,
+        0.00241914,
+        0.002419461,
+        0.002718772,
+        0.00407701
+      ]
+    }
+  ],
+  "host_preparation": "not asserted; see benchprep status log",
+  "profiling_limit": "not comparable to P00-P04 per-sample throughput gate",
+  "schema": "sox.dsd.P05.preflight_bench.v1",
+  "timing": "process startup + header open + planner + JSON output"
+}

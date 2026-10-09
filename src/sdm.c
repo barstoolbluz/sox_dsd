@@ -1101,6 +1101,26 @@ static int getopts_sdm(sox_effect_t *effp, int argc, char **argv)
   return argc != optstate.ind ? lsx_usage(effp) : SOX_SUCCESS;
 }
 
+/* Preflight observes only option-owned data. sdm_init() chooses coefficients
+ * by the actual incoming clock, and does not resample. */
+char const *lsx_sdm_effect_filter_name(sox_effect_t const *effect)
+{
+  if (!effect || !effect->handler.name || strcmp(effect->handler.name,"sdm"))
+    return NULL;
+  return ((sdm_effect_t const *)effect->priv)->filter_name;
+}
+
+int lsx_sdm_filter_valid_for_rate(char const *name, uint32_t rate)
+{
+  return sdm_find_filter(name,rate) != NULL;
+}
+
+char const *lsx_sdm_filter_selected_name(char const *name, uint32_t rate)
+{
+  sdm_filter_t const *selected=sdm_find_filter(name,rate);
+  return selected?selected->name:NULL;
+}
+
 static int start_sdm(sox_effect_t *effp)
 {
   sdm_effect_t *p = effp->priv;
