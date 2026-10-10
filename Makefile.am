@@ -459,3 +459,8 @@ EXTRA_DIST += tests/dsd/test_p10_soak_receipts.py \
   tests/dsd/test_p10_fixture_rounding.c \
   docs/dsd/handoffs/P10_REVALIDATION.md \
   docs/dsd/handoffs/P10_REVALIDATION_CHECKPOINT.md
+
+# P10 release-gate measurement on material this project did not generate. The
+# corpus audio itself is not distributed; only the driver and its analyser.
+EXTRA_DIST += tests/dsd/corpus_realworld.py \
+  tests/dsd/dsd_windows.py
