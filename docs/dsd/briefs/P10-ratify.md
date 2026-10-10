@@ -65,16 +65,37 @@ determinations.
   the four rejections are the sources mastered hottest. We believe the level
   results show risk R7a does not occur on real material, since reconstructing
   each output reproduced its source excerpt's level.
-- We believe admission at unity reference is decided by level against the SACD
-  convention rather than by interpolation overshoot. The envelope of 0.5 is
-  -6.0206 dBFS, and in preserve reference DSD full scale maps to 1.0, so the
-  ceiling sits at the convention section 5.4 describes. Measuring each excerpt's
-  reconstructed sample peak, amplitude 0.5 separates admitted from rejected
-  across all eighteen sources with no exceptions: the admitted peak between
-  -13.05 and -7.01 dBFS, the rejected between -6.02 and -5.22 dBFS. Overshoot
-  accounts for only 0.06 to 0.38 dB on top of what the level alone predicts. An
-  earlier reading of ours framed overshoot as the cause, and we now think that
-  was wrong; `source-peaks.json` carries the measurement either way.
+- We believe admission at unity reference is decided by source level against the
+  SACD reference, and that this evidence establishes no interpolation
+  contribution whatsoever. The envelope of 0.5 is -6.020600 dBFS, and in
+  preserve reference DSD full scale maps to 1.0, so the ceiling sits at the
+  convention section 5.4 describes. Each rejected excerpt's reconstructed source
+  maximum exceeds 0.5 by itself: 0.500128, 0.510970, 0.536729 and 0.548224. The
+  gain ladder bounds each true requirement to the interval between the step that
+  failed and the step that admitted, and for all four the attenuation implied by
+  level alone falls inside that interval, so a contribution of exactly zero is
+  consistent with every measurement.
+- This round made two successive errors here that we want visible rather than
+  tidied away. We first described interpolation overshoot as the reason real
+  material fails, which the level measurement does not support. We then
+  attributed 0.06 to 0.38 dB to overshoot, which was worse: those figures were
+  the gap between the level-implied minimum and whichever ladder step happened
+  to succeed, so they measured the ladder's step size, not the DSP. Quantifying
+  overshoot needs the maximum post-interpolation sample against the maximum
+  source sample. `report.peak` tracks the former but `src/pcmdsd.c` logs it only
+  on the failure path, so successful runs surface nothing and we have no figure.
+  Surfacing it on success, or a harness mode feeding an external file through the
+  corrective round's stage observer, would measure it.
+- Two scope limits on the above, both of which we think matter. It describes
+  preserve-reference DSD remodulation, where the tag is 1.0; an ordinary PCM
+  source is scaled by 0.5 and carries roughly 6 dB more headroom, which nothing
+  here characterises. And amplitude 0.5 separated the two groups across these
+  eighteen sources without exception, but that is an observation about this
+  corpus, not an admission rule: the design tests after interpolation and
+  reference scaling by design, so a source under 0.5 may still exceed the
+  envelope and one over it is not guaranteed to be rejected. This corpus
+  exercises neither case, since the admitted all peak at or below 0.4462 and the
+  rejected all exceed 0.5.
 - We believe `minimum_attenuation_db` is a lower bound rather than a
   requirement, because `fail_stream` in `src/pcmdsd.c` records only the first
   failure under `if (!p->error)` and derives the figure from that one sample's

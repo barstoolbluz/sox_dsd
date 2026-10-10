@@ -99,55 +99,59 @@ will under-attenuate and fail again later in the stream. A fixed -0.1 dB pass in
 Once admitted, these four behave like the rest: exact frames, population inside
 4 to 24, and level preserved.
 
-## Why these four and not the others: the envelope is the SACD reference level
+## Why these four and not the others: source level against the SACD reference
 
-The envelope of 0.5 is -6.0206 dBFS, and in preserve reference DSD full
-scale maps to 1.0, so the admitted ceiling sits exactly at the PCM-full-scale to
-0 dB SACD convention that section 5.4 describes. Measuring each excerpt's
-reconstructed sample peak shows that this, and not interpolation overshoot, is
-what decides admission.
+The envelope of 0.5 is -6.020600 dBFS. In preserve reference DSD full scale
+maps to 1.0, so the admitted ceiling sits at the PCM-full-scale to 0 dB SACD
+convention of section 5.4. Each rejected excerpt's reconstructed source maximum
+exceeds 0.5 on its own, before any interpolation is considered:
 
-| Source | Native Hz | Preserve peak dBFS | Amplitude | Admitted | Predicted from level | Actually needed |
-| --- | --- | --- | --- | --- | --- | --- |
-| `01 - Out On The Weekend` | 11289600 | -13.05 | 0.2226 | yes | - | - |
-| `01 - Shine On You Crazy Diamond (Parts` | 2822400 | -11.39 | 0.2695 | yes | - | - |
-| `Pink_Floyd~Wish_You_Were_Here~side1` | 11289600 | -11.33 | 0.2713 | yes | - | - |
-| `A1 Do Nothin' Till You Hear From Me` | 5644800 | -10.07 | 0.3137 | yes | - | - |
-| `Genesis~Foxtrot~side1` | 5644800 | -10.00 | 0.3162 | yes | - | - |
-| `Kate_Bush~The_Dreaming_-_(1982)_[Japan` | 11289600 | -9.44 | 0.3373 | yes | - | - |
-| `01 - Cantata BWV 110_ 1. Chorus` | 2822400 | -7.53 | 0.4202 | yes | - | - |
-| `01 - Better Git It In Your Soul` | 11289600 | -7.53 | 0.4202 | yes | - | - |
-| `Michael_Jackson~Thriller~side1` | 5644800 | -7.21 | 0.4360 | yes | - | - |
-| `01 - Start Me Up` | 5644800 | -7.20 | 0.4365 | yes | - | - |
-| `01 - Birdland` | 2822400 | -7.17 | 0.4380 | yes | - | - |
-| `Pink_Floyd~Meddle~side1` | 5644800 | -7.17 | 0.4380 | yes | - | - |
-| `01-So What` | 11289600 | -7.12 | 0.4406 | yes | - | - |
-| `01. Born Under A Bad Sign` | 11289600 | -7.01 | 0.4462 | yes | - | - |
-| `01 - Little Girl Blue` | 2822400 | -6.02 | 0.5000 | no | 0.00 dB | 0.10 dB |
-| `01 - ROCKIT` | 2822400 | -5.83 | 0.5111 | no | 0.19 dB | 0.25 dB |
-| `A1. Too Hot To Handle` | 5644800 | -5.40 | 0.5370 | no | 0.62 dB | 1.00 dB |
-| `01 - Bone Machine` | 2822400 | -5.22 | 0.5483 | no | 0.80 dB | 1.00 dB |
+| Source | Source max abs | Attenuation implied by level alone | Ladder bracket | Level-implied value inside bracket |
+| --- | --- | --- | --- | --- |
+| `01 - Little Girl Blue` | 0.500128 | 0.0022 dB | (0.00, 0.10] dB | yes |
+| `01 - Bone Machine` | 0.548224 | 0.7998 dB | (0.50, 1.00] dB | yes |
+| `01 - ROCKIT` | 0.510970 | 0.1885 dB | (0.10, 0.25] dB | yes |
+| `A1. Too Hot To Handle` | 0.536729 | 0.6157 dB | (0.50, 1.00] dB | yes |
 
-Amplitude 0.5 separates the two groups with no exceptions across all 18 sources.
-The 14 admitted sources peak between -13.05 and -7.01 dBFS, so all are at
-least 7 dB below DSD full scale, which is the ordinary mastering practice for
-this format. The 4 rejected sources peak between -6.02 and -5.22 dBFS: each is
-mastered hotter than the convention the envelope encodes.
+The ladder tested 0, 0.1, 0.25, 0.5, 1.0, 2.0 and 3.0 dB, so each result bounds
+the true requirement to the interval between the step that failed and the step
+that admitted. For all four sources the attenuation implied by source level
+alone falls inside that interval. **This corpus therefore establishes no
+interpolation contribution at all**: every rejection is fully accounted for by
+source level, and a contribution of exactly zero is consistent with every
+measurement here.
 
-Interpolation overshoot is the marginal term rather than the cause. Subtracting
-the attenuation predicted from the sample peak alone from the attenuation that
-actually admitted each source leaves between 0.06 and 0.38 dB, and for
-`Little Girl Blue`, whose peak sits at the convention exactly, the whole
-0.10 dB requirement is overshoot. An earlier reading of this evidence framed
-overshoot as the cause; the measurement above does not support that, and the
-level threshold does.
+An earlier version of this file attributed 0.06 to 0.38 dB to interpolation
+overshoot. That was wrong. Those figures were the difference between the
+level-implied minimum and whichever ladder step happened to succeed, so they
+measured the ladder's step size and not the DSP. The error is recorded here
+rather than quietly removed.
 
-The practical consequence, which we believe but have not established beyond
-this corpus, is that a DSD-origin remodulation workflow at unity reference
-admits material mastered to the SACD convention and rejects anything mastered
-above it, with the required correction equal to roughly the amount by which the
-master exceeds -6.0206 dBFS plus a small overshoot allowance. Whether that is
-the right product behaviour is a policy question this evidence does not settle.
+Quantifying interpolation overshoot needs the maximum absolute post-interpolation
+sample compared against the maximum absolute source sample, which this evidence
+does not contain. `report.peak` in `src/pcmdsd.c` tracks that maximum, but it is
+logged only on the failure path, so a successful run never surfaces it and the
+fourteen admitted sources yield no overshoot figure. On a failing run the logged
+value is the running maximum at the abort point, which is why `Little Girl Blue`
+reports 0.50000984 while its source maximum is 0.500128: the first offending
+sample is not the largest. Surfacing that field on success, or a harness mode
+that feeds an external file through the stage observer the corrective round
+added, would measure it.
+
+## Scope of this explanation
+
+Two limits matter. First, this applies to preserve-reference DSD remodulation,
+where the reference tag is 1.0. An ordinary PCM mastering source is scaled by
+0.5 instead, so it carries about 6 dB more headroom before the same envelope and
+nothing here describes its behaviour. Second, amplitude 0.5 separated admitted
+from rejected across these 18 sources with no exceptions, but that is an
+observation about this corpus and not an admission rule. The design deliberately
+tests the signal after interpolation and reference scaling rather than the stored
+samples, so a source below 0.5 may still exceed the envelope once filtered, and
+filtering may equally reduce a transient so that a source above 0.5 is not
+guaranteed to be rejected. Nothing in this corpus exercises either case: the
+fourteen admitted sources all peak at or below 0.4462 and the four rejected all
+exceed 0.5, so the interesting region immediately around 0.5 is untested.
 
 ## Method and reproduction
 
