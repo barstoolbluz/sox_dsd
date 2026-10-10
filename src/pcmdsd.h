@@ -31,6 +31,18 @@ typedef struct {
   sdm_normal_monitor_t monitor;
 } lsx_pcmdsd_report;
 
+/* Private diagnostic observer, optional and never enabled by production routing.
+ * Observations are read-only and grouped by actual stream stage. A callback
+ * must not call back into the encoder or alter samples. */
+typedef enum {
+  LSX_PCMDSD_STAGE_SOURCE, LSX_PCMDSD_STAGE_R,
+  LSX_PCMDSD_STAGE_PREFILTER, LSX_PCMDSD_STAGE_NATIVE,
+  LSX_PCMDSD_STAGE_SCALED, LSX_PCMDSD_STAGE_COUNT
+} lsx_pcmdsd_stage;
+typedef void (*lsx_pcmdsd_stage_observer)(void *opaque, lsx_pcmdsd_stage,
+    const double *samples, size_t frames);
+void lsx_pcmdsd_observe(lsx_pcmdsd *, lsx_pcmdsd_stage_observer, void *opaque);
+
 const lsx_pcmdsd_profile *lsx_pcmdsd_profile_find(uint32_t);
 int lsx_pcmdsd_qualified(uint32_t);
 sox_dsd_status_t lsx_pcmdsd_create(uint32_t input_hz, uint32_t native_hz,
