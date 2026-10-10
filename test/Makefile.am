@@ -86,3 +86,9 @@ EXTRA_PROGRAMS += dsd_test_p07_reference
 dsd_test_p07_reference_SOURCES = ../tests/dsd/test_p07_reference.c
 dsd_test_p07_reference_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p07_reference_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P09 strict profile registry and independent coefficient-bit oracle.
+EXTRA_PROGRAMS += dsd_test_p09
+dsd_test_p09_SOURCES = ../tests/dsd/test_p09.c
+dsd_test_p09_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p09_LDADD = $(top_builddir)/src/libsox_ng.la

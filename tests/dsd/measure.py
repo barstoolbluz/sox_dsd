@@ -116,14 +116,49 @@ def main() -> int:
             except (subprocess.TimeoutExpired,OSError) as exc:
                 p06_results.append(dict(name=name,status='fail',error=str(exc)))
         passed.extend(p06_results)
+    # P09 has an immutable, independently synthesized analysis reference.
+    # Its self-tests must pass before running any candidate comparisons.
+    p09_runs = []
+    if int(args.phase[1:]) >= 9:
+        base = ROOT / 'tests/dsd/reference/analysis-v1'
+        tasks = [
+            ('P09_frozen_analysis_selftests',
+             [sys.executable, str(base/'verify.py'), '--results', str(args.results)],
+             'analysis-v1-selftest.json'),
+            ('P09_scalar_candidate_analysis_v1',
+             [sys.executable, str(base/'measure_candidates.py'),
+              '--unit', str(ROOT/'test/dsd_test_p09'),
+              '--results', str(args.results/'candidate')],
+             'candidate/candidate-analysis-v1.json'),
+        ]
+        for name, command, evidence in tasks:
+            if name.endswith('analysis_v1') and any(r['status'] != 'pass' for r in p09_runs):
+                p09_runs.append(dict(name=name, status='fail',
+                                     reason='frozen analysis selftest failed; candidate measurement withheld'))
+                continue
+            try:
+                proc = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=1800)
+                p09_runs.append(dict(name=name, status='pass' if proc.returncode==0 else 'fail',
+                                     detail=dict(exit=proc.returncode,evidence=evidence,
+                                                 stdout=proc.stdout,stderr=proc.stderr)))
+            except (subprocess.TimeoutExpired,OSError) as exc:
+                p09_runs.append(dict(name=name,status='fail',error=str(exc)))
+        passed.extend(p09_runs)
+    analysis_procedures = (dict(metrology.ANALYSIS_V1) if int(args.phase[1:]) < 9 else
+             dict(reference='tests/dsd/reference/analysis-v1/manifest.json',
+                  frozen_sha256=hashlib.sha256((ROOT/'tests/dsd/reference/analysis-v1/SHA256SUMS.txt').read_bytes()).hexdigest(),
+                  verification='tests/dsd/reference/analysis-v1/verify.py',
+                  scoring='tests/dsd/reference/analysis-v1/analyze.py'))
     result = dict(schema='dsd-numerical-results/1', phase=args.phase,
                   executed_command=sys.argv, utc_timestamp=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   python=platform.python_version(),
-                  procedures=metrology.ANALYSIS_V1,
+                  procedures=analysis_procedures,
                   source_fixture_catalog=str(ROOT/'tests/dsd/fixtures/manifest.json'),
                   unit_tests=passed,
                   native_commands=native_commands,
-                  independent_analysis=dict(status='unrun', reason='P00 does not generate/certify analysis-v1 coefficients; P09 qualification gate'),
+                  independent_analysis=(dict(status='frozen-selftests-passed',candidate_qualification='INCOMPLETE; P10 qualification and soak unrun')
+                    if int(args.phase[1:])>=9 and p09_runs and all(r['status']=='pass' for r in p09_runs) else
+                    dict(status='unrun-or-failed',reason='P09 analysis gate incomplete or failed')), 
                   filters_evidence=(dict(status='P06_certified_final_hex',
                       path='src/dsd_coeffs.h',
                       certificate='numeric/filter-certificate.json',
@@ -132,11 +167,16 @@ def main() -> int:
                     if int(args.phase[1:])>=6 else dict(status='prior_design_evidence_only',
                        path='docs/dsd/evidence/filter_feasibility.json',
                        sha256=hashlib.sha256((ROOT/'docs/dsd/evidence/filter_feasibility.json').read_bytes()).hexdigest())),
-                  quality_measurements=[],
+                  quality_measurements=([dict(status='analytic-scalar-unqualified',
+                    path='numeric/candidate/candidate-analysis-v1.json')] if int(args.phase[1:]) >= 9 else []),
                   summary=dict(passed=sum(x['status']=='pass' for x in passed),
                                failed=sum(x['status']=='fail' for x in passed),
-                               unrun_gates=['analysis-v1 coefficient generation/certification' if int(args.phase[1:])<6 else 'P09 analysis-v1 audio corpus qualification',
-                                            'independent DSD quality measurements']))
+                               unrun_gates=(['P10 full production PCM interpolation/filter qualification',
+                                            'P10 30-minute per-rate and one-hour ISA soaks',
+                                            'real-world independent DSD corpus'] if int(args.phase[1:])>=9 else
+                                           ['analysis-v1 coefficient generation/certification' if int(args.phase[1:])<6
+                                             else 'P09 analysis-v1 audio corpus qualification',
+                                            'independent DSD quality measurements'])))
     report_path=args.results/'measure.json'
     if report_path.exists():
         old=report_path.read_bytes()

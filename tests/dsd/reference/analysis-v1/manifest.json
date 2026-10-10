@@ -1,0 +1,84 @@
+{
+  "analysis_output_rate_hz": 88200,
+  "band_dbfs": "10*log10(power/0.5)",
+  "boundaries": "discard max(0.25 s, twice complete FIR support) at both ends",
+  "cutoff_hz": 22000,
+  "decimation": "full convolution; delay-compensated indices delay + m*(rate/88200), m=0..ceil(native_frames/factor)-1",
+  "design": "symmetric Kaiser-windowed ideal low-pass; arbitrary precision mpmath",
+  "design_attenuation_db": 205,
+  "fit": "least squares DC+sine+cosine at specified source frequency; remove these only before THD+N",
+  "frequencies_hz": [
+    997,
+    1000
+  ],
+  "full_scale_case": "separate and unqualified unless admitted after interpolation",
+  "generator_precision_decimal_digits": 60,
+  "id": "analysis-v1",
+  "passband_end_hz": 20000,
+  "records": [
+    {
+      "coeff_sum_f64": 1.0,
+      "decimation_factor": 32,
+      "delay_native_frames": 4841,
+      "file": "fir-2822400.f64le",
+      "float64_endianness": "little",
+      "num_taps": 9683,
+      "rate_hz": 2822400,
+      "sha256": "1bba6e83a53dbd5a690664dda52bac672eacd18ed8c3f886ffe0a4d2d53cc74b"
+    },
+    {
+      "coeff_sum_f64": 1.0,
+      "decimation_factor": 64,
+      "delay_native_frames": 9682,
+      "file": "fir-5644800.f64le",
+      "float64_endianness": "little",
+      "num_taps": 19365,
+      "rate_hz": 5644800,
+      "sha256": "4be03881c09051bd0c430a1eb1b0386325b83e12661c572ea3a1ebf569f6c167"
+    },
+    {
+      "coeff_sum_f64": 1.0,
+      "decimation_factor": 128,
+      "delay_native_frames": 19364,
+      "file": "fir-11289600.f64le",
+      "float64_endianness": "little",
+      "num_taps": 38729,
+      "rate_hz": 11289600,
+      "sha256": "35b52b0d88fece13662252fbfba076cdd7b80cccf812b4f503520197f3317964"
+    }
+  ],
+  "reference_native_bit_sign": {
+    "0": -1,
+    "1": 1
+  },
+  "required_passband_error_db": 1e-05,
+  "required_stop_attenuation_db": 180,
+  "residual_band_hz": [
+    20,
+    20000
+  ],
+  "retain_seconds_minimum": 1.0,
+  "source_peaks_dbfs": [
+    -0.1,
+    -6,
+    -20,
+    -60,
+    -90,
+    -120
+  ],
+  "status": "frozen",
+  "stopband_start_hz": 24000,
+  "unit_reference": "normalized PCM; 0dBFS sine peak=1, band power=0.5",
+  "version": 1,
+  "window_coherent": "rectangular, only for integer cycles in aligned measured segment",
+  "window_noncoherent": {
+    "coefficients": [
+      0.35875,
+      0.48829,
+      0.14128,
+      0.01168
+    ],
+    "enbw_correction": "divide integrated squared FFT by N*sum(w^2)",
+    "name": "periodic Blackman-Harris four-term"
+  }
+}
