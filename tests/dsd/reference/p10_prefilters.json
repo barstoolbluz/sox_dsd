@@ -1,0 +1,77 @@
+{
+  "arithmetic": "95-digit mpmath to binary64",
+  "banks": {
+    "master128": {
+      "certificate": {
+        "dense_stop_rejection_db": 187.57504019225368,
+        "pass_extrema": 18,
+        "pass_ripple_db": 4.956983025558272e-09,
+        "passes": true,
+        "stop_extrema": 18,
+        "stop_peak_cycles": 0.342800924110814,
+        "stop_rejection_db": 187.57503662528282
+      },
+      "delay_working_frames": 38,
+      "length": 77,
+      "pass_cycles_per_input": 0.17006802721088435,
+      "rounded_hex_sha256": "e15f0c9d5d79c33a696920bc483f8d573a016132943418e2c7db5e7844d21325",
+      "stop_cycles_per_input": 0.3401360544217687
+    },
+    "master64_256": {
+      "certificate": {
+        "dense_stop_rejection_db": 185.95711096483274,
+        "pass_extrema": 19,
+        "pass_ripple_db": 3.221040876072487e-09,
+        "passes": true,
+        "stop_extrema": 7,
+        "stop_peak_cycles": 0.4753144087373731,
+        "stop_rejection_db": 185.95710958416393
+      },
+      "delay_working_frames": 30,
+      "length": 61,
+      "pass_cycles_per_input": 0.22675736961451248,
+      "rounded_hex_sha256": "2553f40845a3ad079e606472d9c5cf21beb83174040f0dfa68b6be1a576e970b",
+      "stop_cycles_per_input": 0.45351473922902497
+    }
+  },
+  "beta": 19.97926,
+  "design_attenuation_db": 190,
+  "generator": "tests/dsd/generate_p10_coeffs.py",
+  "limitation": "numerical extrema evidence, not an interval proof",
+  "method": "independent derivative bracketing, 95-digit reevaluation of extrema",
+  "pass_envelope_db": 0.0001,
+  "profiles": [
+    {
+      "bank": "master64_256",
+      "decimation": 1,
+      "id": "encode.mastering.v1.dsd64",
+      "native_hz": 2822400,
+      "pass_hz": 20000,
+      "prefilter_design_hz": 88200,
+      "stop_hz": 40000,
+      "working_hz": 88200
+    },
+    {
+      "bank": "master128",
+      "decimation": 1,
+      "id": "encode.mastering.v1.dsd128",
+      "native_hz": 5644800,
+      "pass_hz": 30000,
+      "prefilter_design_hz": 176400,
+      "stop_hz": 60000,
+      "working_hz": 176400
+    },
+    {
+      "bank": "master64_256",
+      "decimation": 1,
+      "id": "encode.mastering.v1.dsd256",
+      "native_hz": 11289600,
+      "pass_hz": 40000,
+      "prefilter_design_hz": 176400,
+      "stop_hz": 80000,
+      "working_hz": 176400
+    }
+  ],
+  "required_stage_rejection_db": 185,
+  "schema": "P10/prefilters/1"
+}

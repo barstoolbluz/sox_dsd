@@ -1,0 +1,6218 @@
+{
+  "caveat": "Population counts check stimulus/monitor comparability; native-bit determinism and audio qualification have separate tests.",
+  "comparability": "same unmodified test_p09.c probe, LUT, exact-rate profile, sample count and monitor mode",
+  "config": {
+    "baseline_sha256": "ae1722322b9fc7021b4a9b6095205d5eae25d627d7dc6a813da1dca66c55b360",
+    "candidate_sha256": "912ad01a4cb93277a720a6f3e6597376f0d7c564be8e5e6859ec0e062b9bda86",
+    "cpu": 0,
+    "pairs": 15,
+    "samples": 1000000,
+    "seed": 20261009,
+    "warmups": 2
+  },
+  "qualified": false,
+  "rows": [
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015402,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01604,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01674,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.014923,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.014974,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01544,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015427,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015102,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015012,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020922,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015294,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015461,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015748,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015337,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015314,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016074,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.0148,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015525,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019381,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015241,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015768,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015677,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015541,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015428,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015678,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015486,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015649,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015419,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015949,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015267,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015909,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01494,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016438,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020174,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020805,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019632,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020796,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.022001,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020752,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020811,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.022872,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021402,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020483,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020885,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019786,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020181,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020729,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020703,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020299,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.022492,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020685,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021902,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020943,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021209,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020025,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.023752,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020193,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.02103,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021078,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020576,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020523,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.024068,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020825,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.02188,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020725,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020203,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.02151,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "2822400-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd64",
+        "2822400",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.022186,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate": 2822400,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016314,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016025,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.017453,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016019,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.017511,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015658,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015968,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016136,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016504,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01802,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016226,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016071,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016571,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.017956,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01777,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.017551,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016436,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015895,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016863,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.017025,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016483,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015798,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015952,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016229,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016061,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.0177,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01709,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.017174,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015998,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.017064,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015935,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01548,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015629,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016869,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021242,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021501,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020386,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020445,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019714,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.02088,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.02075,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.030854,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021492,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019857,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020124,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020532,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020068,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021408,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020788,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.030441,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021333,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020861,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020299,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.02093,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021598,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.02028,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021094,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020374,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020408,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01979,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.0199,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021123,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020457,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019914,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020921,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020263,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020288,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "5644800-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd128",
+        "5644800",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019747,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate": 5644800,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015817,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015469,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01637,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015371,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015482,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015104,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016094,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.014956,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.014907,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015484,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016273,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016047,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016055,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016606,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015299,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015906,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.01557,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.026495,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019342,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015769,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016353,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015881,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016715,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.018539,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016552,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016972,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016527,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016197,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016011,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016718,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015235,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.017319,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.016652,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-none",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "none"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.015192,
+        "legacy_allocation_bytes": 30336,
+        "monitor": false,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.0213,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021313,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 0,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021592,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.02068,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 1,
+      "stderr": "",
+      "warmup": true
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020853,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.022704,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 2,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021134,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.029536,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 3,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021944,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020947,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 4,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.022215,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.022864,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 5,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020481,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021344,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 6,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.02148,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020767,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 7,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.0207,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021609,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 8,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020764,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019942,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 9,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.022344,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020831,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 10,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020239,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019793,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 11,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021045,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019776,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 12,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020343,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019778,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 13,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.019727,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020733,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 14,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.020579,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.022515,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 15,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "candidate",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "test/dsd_test_p09",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021998,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    },
+    {
+      "arm": "baseline",
+      "case": "11289600-monitor",
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "<P09-probe>",
+        "--state-bench",
+        "encode.mastering.v1.dsd256",
+        "11289600",
+        "1000000",
+        "monitor"
+      ],
+      "exit_code": 0,
+      "measurement": {
+        "cpu_seconds": 0.021973,
+        "legacy_allocation_bytes": 30336,
+        "monitor": true,
+        "monitor_bytes": 160,
+        "normal_state_bytes": 168,
+        "ones": 500000,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate": 11289600,
+        "samples": 1000000
+      },
+      "pair": 16,
+      "stderr": "",
+      "warmup": false
+    }
+  ],
+  "schema": "P10/paired-original-normal-kernel/1",
+  "status": "INCONCLUSIVE",
+  "summaries": {
+    "11289600-monitor": {
+      "baseline_median_cpu_seconds": 0.020853,
+      "candidate_median_cpu_seconds": 0.021045,
+      "measurement_noise": 0.09068385330089751,
+      "median_ratio": 1.009207308300964,
+      "paired_bootstrap_95pct_interval": [
+        0.9458467597565342,
+        1.053347491909385
+      ],
+      "regression_percent": 0.9207308300964057,
+      "samples": 15,
+      "status": "inconclusive-noise"
+    },
+    "11289600-none": {
+      "baseline_median_cpu_seconds": 0.016273,
+      "candidate_median_cpu_seconds": 0.016011,
+      "measurement_noise": 0.06180887778273635,
+      "median_ratio": 0.9838997111780251,
+      "paired_bootstrap_95pct_interval": [
+        0.9187484986788373,
+        1.0203741433598814
+      ],
+      "regression_percent": -1.6100288821974895,
+      "samples": 15,
+      "status": "inconclusive-noise"
+    },
+    "2822400-monitor": {
+      "baseline_median_cpu_seconds": 0.020576,
+      "candidate_median_cpu_seconds": 0.021209,
+      "measurement_noise": 0.05875374738635832,
+      "median_ratio": 1.03076399688958,
+      "paired_bootstrap_95pct_interval": [
+        1.008790996473941,
+        1.0800480192076831
+      ],
+      "regression_percent": 3.076399688958009,
+      "samples": 15,
+      "status": "inconclusive-noise"
+    },
+    "2822400-none": {
+      "baseline_median_cpu_seconds": 0.015748,
+      "candidate_median_cpu_seconds": 0.015294,
+      "measurement_noise": 0.025842527593135284,
+      "median_ratio": 0.9711709423418846,
+      "paired_bootstrap_95pct_interval": [
+        0.9492739958514049,
+        0.9853025752444247
+      ],
+      "regression_percent": -2.8829057658115387,
+      "samples": 15,
+      "status": "inconclusive-noise"
+    },
+    "5644800-monitor": {
+      "baseline_median_cpu_seconds": 0.020124,
+      "candidate_median_cpu_seconds": 0.02088,
+      "measurement_noise": 0.03698345277809831,
+      "median_ratio": 1.037567084078712,
+      "paired_bootstrap_95pct_interval": [
+        1.0111691673457648,
+        1.0607110575474539
+      ],
+      "regression_percent": 3.75670840787119,
+      "samples": 15,
+      "status": "inconclusive-noise"
+    },
+    "5644800-none": {
+      "baseline_median_cpu_seconds": 0.016869,
+      "candidate_median_cpu_seconds": 0.016136,
+      "measurement_noise": 0.06824489467325538,
+      "median_ratio": 0.9565475131898751,
+      "paired_bootstrap_95pct_interval": [
+        0.9177659756724345,
+        1.0086260782597827
+      ],
+      "regression_percent": -4.345248681012492,
+      "samples": 15,
+      "status": "inconclusive-noise"
+    }
+  }
+}

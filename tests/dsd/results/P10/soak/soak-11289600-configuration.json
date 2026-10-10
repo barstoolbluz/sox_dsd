@@ -1,0 +1,22 @@
+{
+  "edge_ramp_seconds": 0.1,
+  "generator": "test_p10.c:soak_source; int32 graph-equivalent",
+  "minute_sequence": [
+    "silence",
+    "DC +0.7",
+    "DC -0.7",
+    "53/997/5501/17011 Hz multitone, each peak 0.15",
+    "SplitMix64-indexed uniform noise, peak 0.7",
+    "1000 Hz tone, peak 0.8"
+  ],
+  "native_hz": 11289600,
+  "qualification": false,
+  "reference_scale": 0.5,
+  "resets_between_segments": false,
+  "resume": "deterministic prefix replay with byte-checked saved SDM/monitor states",
+  "schema": "P10/continuous-soak/1",
+  "seconds": 1800,
+  "segment_seconds": 60,
+  "sequence_repeats": true,
+  "source_hz": 176400
+}

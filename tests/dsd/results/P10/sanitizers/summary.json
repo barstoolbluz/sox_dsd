@@ -1,0 +1,47 @@
+{
+  "build": {
+    "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+    "LDFLAGS": "-fsanitize=address,undefined",
+    "configure": [
+      "--disable-shared",
+      "--without-libltdl"
+    ]
+  },
+  "cli": {
+    "caveat": "Stopped at first UBSan report in each failed process. No full CLI sanitizer pass is claimed.",
+    "failed": 11,
+    "failure_sources": [
+      "inherited signed int shift in SOX_SAMPLE_MIN expansions: gain.c, synth.c, dsdpcm.c",
+      "inherited zero-argument memcpy with null source: effects.c:81"
+    ],
+    "passed": 51,
+    "scope": "62 CLI cases before the final mixed-source addition; no baseline comparison in this sanitizer copy",
+    "status": "FAIL"
+  },
+  "core": {
+    "assertions": 105474,
+    "command": [
+      "env",
+      "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS=halt_on_error=1",
+      "test/dsd_test_p10",
+      "--unit"
+    ],
+    "exit_code": 0,
+    "failures": 0,
+    "status": "PASS"
+  },
+  "corrected": {
+    "new_test": "Use INT32_MIN for the numerical boundary test instead of expanding the inherited signed-shift macro",
+    "private_src": "Skip zero-occupancy final-FIFO read; all 183 numeric native-bit hashes agree before and after"
+  },
+  "disposition": "Do not broaden P10 into global sample-macro or generic effect-argument cleanup. Retain explicit sanitizer failures and scope.",
+  "inherited_source_sha256": {
+    "src/dsdpcm.c": "993df153cfed686bec08e5f458116406f2d926d995106964365f2761b2096db7",
+    "src/effects.c": "6a9ace41141fff63a91fd7d600ea602461e14ef2879cb1915603e093d36e04b6",
+    "src/gain.c": "dcc2d2c2407d5bdc3d1b7fa8cc5bcde78ffd318454a55c2ea33cfdec29dcc8ae",
+    "src/sox_ng.h": "7d1c99725e7351a5c2033050f5666a98f14c368d5d926f37a6d7f2305bd88e51",
+    "src/synth.c": "a50f35df1bb876e35bdc1bb2707b09a2d17fe29db4b72da766ee4c7ff26dcede"
+  },
+  "schema": "P10/sanitizer-results/1"
+}

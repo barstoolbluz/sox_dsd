@@ -43,6 +43,7 @@ struct dsf {
 	uint32_t bit_pos;
 	uint8_t *block;
 	uint64_t read_samp;
+	int write_failed; /* Latched payload error; never reuse a full failed block. */
 };
 
 #define TAG(a, b, c, d) ((a) | (b) << 8 | (c) << 16 | (d) << 24)
@@ -323,7 +324,13 @@ static int dsf_writeheader(sox_format_t *ft)
 	struct dsf *dsf = ft->priv;
 	uint64_t data_size = dsf->file_size ? dsf->file_size - HEADER_SIZE : 0;
 
-	if (lsx_writedw(ft, DSF_TAG) ||
+	sox_bool seekable = ft->seekable;
+	int failed;
+
+	/* Header replacement must write zeros over old placeholders rather than
+	 * seek over them as sparse data. Payload I/O retains its original policy. */
+	ft->seekable = sox_false;
+	failed = (lsx_writedw(ft, DSF_TAG) ||
 	    lsx_writeqw(ft, (uint64_t)28) ||
 	    lsx_writeqw(ft, dsf->file_size) ||
 	    lsx_writeqw(ft, dsf->metadata) ||
@@ -335,14 +342,14 @@ static int dsf_writeheader(sox_format_t *ft)
 	    lsx_writedw(ft, dsf->chan_num) ||
 	    lsx_writedw(ft, dsf->sfreq) ||
 	    lsx_writedw(ft, dsf->bps) ||
-	    lsx_writeqw(ft, dsf->scount ? dsf->scount : SOX_UNKNOWN_LEN) ||
+	    /* A finalized empty stream has zero samples, not unknown length. */
+	    lsx_writeqw(ft, dsf->file_size ? dsf->scount : SOX_UNKNOWN_LEN) ||
 	    lsx_writedw(ft, dsf->block_size) ||
 	    lsx_writedw(ft, 0) || /* reserved */
 	    lsx_writedw(ft, DATA_TAG) ||
-	    lsx_writeqw(ft, data_size + 12))
-		return SOX_EOF;
-
-	return SOX_SUCCESS;
+	    lsx_writeqw(ft, data_size + 12));
+	ft->seekable = seekable;
+	return failed ? SOX_EOF : SOX_SUCCESS;
 }
 
 static int dsf_startwrite(sox_format_t *ft)
@@ -376,8 +383,10 @@ static int dsf_write_buf(sox_format_t *ft)
 
 	if (dsf->block_pos == dsf->block_size) {
 		size_t wlen = dsf->chan_num * dsf->block_size;
-		if (lsx_write_b_buf(ft, dsf->block, wlen) < wlen)
+		if (lsx_write_b_buf(ft, dsf->block, wlen) < wlen) {
+			dsf->write_failed = 1;
 			return SOX_EOF;
+		}
 		dsf->block_pos = 0;
 		memset(dsf->block, 0, wlen);
 	}
@@ -409,6 +418,8 @@ static size_t dsf_write(sox_format_t *ft, const sox_sample_t *buf, size_t len)
 	unsigned nchan = dsf->chan_num;
 	size_t wsamp = 0;
 
+	if (dsf->write_failed)
+		return 0;
 	len /= nchan;
 
 	if (dsf->bit_pos) {
@@ -436,7 +447,9 @@ static size_t dsf_write(sox_format_t *ft, const sox_sample_t *buf, size_t len)
 		len -= 8;
 
 		if (dsf_write_buf(ft))
-			return wsamp * nchan;
+			/* Even a failed flush on the last requested bit must be short.
+			 * Claiming the whole block would let the caller continue writing. */
+			return 0;
 	}
 
 	if (len) {
@@ -455,6 +468,11 @@ static int dsf_stopwrite(sox_format_t *ft)
 	struct dsf *dsf = ft->priv;
 	int err = SOX_SUCCESS;
 
+	if (dsf->write_failed) {
+		free(dsf->block);
+		dsf->block = NULL;
+		return SOX_EOF;
+	}
 	if (dsf->bit_pos)
 		dsf->block_pos++;
 

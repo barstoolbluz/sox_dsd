@@ -26,9 +26,10 @@ host, interval from a paired bootstrap.
 | P06+hotfix to P07 | +3.06% | [+2.79%, +3.54%] | 0.63% | pass |
 | P07 to P08 | +2.59% | [+2.39%, +2.90%] | 0.50% | pass |
 | P08 to P09 | -3.69% | [-3.90%, -3.51%] | 0.50% | pass, unexplained speedup |
+| P09 to P10 | +1.02% | [+0.82%, +1.43%] | 0.50% | pass |
 
 Cumulative, as the product of the recorded median ratios: **+3.20%** from P05
-through P08, then **-0.60%** once P09 is included. Each phase passed its own 5%
+through P08, then **-0.60%** once P09 is included and **+0.42%** through P10. Each phase passed its own 5%
 gate. The design gates per phase and not the accumulation, so this total is
 tracked here rather than by any gate.
 

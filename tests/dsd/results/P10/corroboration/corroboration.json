@@ -1,0 +1,196 @@
+{
+  "filters": [
+    {
+      "decimation": 32,
+      "delay_native_samples": 5216,
+      "native_hz": 2822400,
+      "passband_error_db": 2.791322998180665e-10,
+      "sha256": "179c897eb8806458a3710f88220575ea13f9acd049624c01daced44dae0c1311",
+      "stop_attenuation_db": 209.18593063315097,
+      "taps": 10433
+    },
+    {
+      "decimation": 64,
+      "delay_native_samples": 10432,
+      "native_hz": 5644800,
+      "passband_error_db": 2.7913519280046624e-10,
+      "sha256": "1b6923650ede8c441f652ffbe85d6ca0fbfb21e3871946fb2ded0abe2bd8da63",
+      "stop_attenuation_db": 211.0688547680025,
+      "taps": 20865
+    },
+    {
+      "decimation": 128,
+      "delay_native_samples": 20864,
+      "native_hz": 11289600,
+      "passband_error_db": 2.7913712145539944e-10,
+      "sha256": "2e28e66cce6393a1f6a9c245b35db16c137a01877895356470ccbeb6769fc8be",
+      "stop_attenuation_db": 215.67384106342644,
+      "taps": 41729
+    }
+  ],
+  "method": "scipy.signal.resample_poly direct polyphase FIR; independently synthesized 220 dB Kaiser design, 22 kHz cutoff",
+  "primary_reference": "analysis-v1 (unchanged)",
+  "qualified": false,
+  "rows": [
+    {
+      "bits_sha256": "3ad967fc7d1b8edbac5657ed1ad9c978129804a6e6ba30b1f56ed1a703b34ab8",
+      "difference_from_primary": {
+        "gain_db": 1.0706150261611451e-10,
+        "phase_rad": -1.199040866595169e-14,
+        "residual_db": 4.0654600752532133e-07
+      },
+      "exit_code": 0,
+      "interpretation": "corroboration only; analysis-v1 controls primary gates",
+      "name": "tone-997--6",
+      "native_hz": 2822400,
+      "precision": {
+        "fixture_floor_limited": false,
+        "ranking": "do not rank intrinsic modulator residual below this representation bound",
+        "source_quantization_error_power_upper_bound_dbfs": -195.6694971775431,
+        "status": "conservative source representation bound, not a measured analysis precision limit"
+      },
+      "secondary": {
+        "dc": -3.004718121936818e-10,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020594933910491,
+        "fitted_modulator_peak": 0.25059376047174486,
+        "gain_error_db": 4.979369132413234e-06,
+        "phase_rad": 1.57301578343211,
+        "residual_band_dbfs": -146.46256415427536,
+        "residual_band_power": 1.1290510758184835e-15,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 134.44196922036488,
+        "thd_only_diagnostic_db": -156.49684941690427,
+        "thdn_db": -134.44196922036488,
+        "window": "rectangular"
+      },
+      "source_sha256": "f1b4067d6a781144f136f4752f9ccfa80864c8017771e0e6712f57849472a459"
+    },
+    {
+      "bits_sha256": "e31db5d0cc318878e604c17b0797142449eeb0cf0fe50387e578154b0771d8a1",
+      "difference_from_primary": {
+        "gain_db": 1.0878192394743077e-10,
+        "phase_rad": -1.4432899320127035e-14,
+        "residual_db": -3.259386556919708e-05
+      },
+      "exit_code": 0,
+      "interpretation": "corroboration only; analysis-v1 controls primary gates",
+      "name": "tone-997--6",
+      "native_hz": 5644800,
+      "precision": {
+        "fixture_floor_limited": true,
+        "ranking": "do not rank intrinsic modulator residual below this representation bound",
+        "source_quantization_error_power_upper_bound_dbfs": -195.6694971775431,
+        "status": "conservative source representation bound, not a measured analysis precision limit"
+      },
+      "secondary": {
+        "dc": -9.860861827085061e-13,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020599893696565,
+        "fitted_modulator_peak": 0.2505936173786203,
+        "gain_error_db": 1.9583060718405723e-08,
+        "phase_rad": 1.5719060800546194,
+        "residual_band_dbfs": -197.13801007597857,
+        "residual_band_power": 9.664268709098001e-21,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 185.11741018228201,
+        "thd_only_diagnostic_db": -207.58919702194453,
+        "thdn_db": -185.11741018228201,
+        "window": "rectangular"
+      },
+      "source_sha256": "b8e8d07fa56c346147850c32e1faeead2ef3aab0dbd681435083176a8a52cd4d"
+    },
+    {
+      "bits_sha256": "e4d4cd9e52b762c33ba204ec58c95532c7f97abbc892b059ac5f17c89305f9da",
+      "difference_from_primary": {
+        "gain_db": 1.0965174759043722e-10,
+        "phase_rad": -1.5543122344752192e-15,
+        "residual_db": -2.0539915794870467e-06
+      },
+      "exit_code": 0,
+      "interpretation": "corroboration only; analysis-v1 controls primary gates",
+      "name": "tone-997--6",
+      "native_hz": 11289600,
+      "precision": {
+        "fixture_floor_limited": true,
+        "ranking": "do not rank intrinsic modulator residual below this representation bound",
+        "source_quantization_error_power_upper_bound_dbfs": -195.6694971775431,
+        "status": "conservative source representation bound, not a measured analysis precision limit"
+      },
+      "secondary": {
+        "dc": 2.877081488519289e-16,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020599915093907,
+        "fitted_modulator_peak": 0.2505936167612929,
+        "gain_error_db": -1.8142828027804356e-09,
+        "phase_rad": 1.571351203473685,
+        "residual_band_dbfs": -206.84144740513483,
+        "residual_band_power": 1.0347257662636757e-21,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 194.8208474900409,
+        "thd_only_diagnostic_db": -226.89838889845592,
+        "thdn_db": -194.8208474900409,
+        "window": "rectangular"
+      },
+      "source_sha256": "b8e8d07fa56c346147850c32e1faeead2ef3aab0dbd681435083176a8a52cd4d"
+    },
+    {
+      "bits_sha256": "f2efc1f77349eb1dad8bbd13f3f54451774a0351337305b04d48685bde1d0594",
+      "difference_from_primary": {
+        "gain_db": 9.170438768980101e-10,
+        "phase_rad": 8.997549363551349e-11,
+        "residual_db": -4.258522210420779e-06
+      },
+      "exit_code": 0,
+      "interpretation": "corroboration only; analysis-v1 controls primary gates",
+      "name": "tone-1000--90",
+      "native_hz": 2822400,
+      "precision": {
+        "fixture_floor_limited": false,
+        "ranking": "do not rank intrinsic modulator residual below this representation bound",
+        "source_quantization_error_power_upper_bound_dbfs": -195.6694971775431,
+        "status": "conservative source representation bound, not a measured analysis precision limit"
+      },
+      "secondary": {
+        "dc": -1.0241314214147158e-10,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -96.02065735822798,
+        "fitted_modulator_peak": 1.5811283731083494e-05,
+        "gain_error_db": -5.744494836196917e-05,
+        "phase_rad": 0.002103665877436697,
+        "residual_band_dbfs": -153.23660772220418,
+        "residual_band_power": 2.373062803886851e-16,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 57.215950363976205,
+        "thd_only_diagnostic_db": -85.69602915161943,
+        "thdn_db": -57.215950363976205,
+        "window": "rectangular"
+      },
+      "source_sha256": "e2b7242ff7179d78b7cbca80720f1421e45a59467412cc5f8ebf0e8befd8cb7f"
+    },
+    {
+      "bits_sha256": "715f0ed083fcbf07648d8226fbb1ff814374977b763fde92c0c351556fbe80c0",
+      "difference_from_primary": {
+        "residual_db": -6.314196241419268e-07
+      },
+      "exit_code": 0,
+      "interpretation": "corroboration only; analysis-v1 controls primary gates",
+      "name": "silence",
+      "native_hz": 2822400,
+      "precision": null,
+      "secondary": {
+        "dbfs": -153.43611478610387,
+        "enbw_bins": 2.0043529382170475,
+        "high_hz": 20000.0,
+        "low_hz": 20.0,
+        "power": 2.2665146248773497e-16,
+        "window": "blackman-harris-4"
+      },
+      "source_sha256": "e3c346f3a9b2bfa4ef7d2ea9e2a71331982621dadda906deb72329e9829fffa5"
+    }
+  ],
+  "schema": "P10/independent-reconstruction/1",
+  "scope": "Five recorded bitstreams reproduced exactly; independent filters validated and measurements retained. Not a replacement qualification.",
+  "status": "PASS",
+  "unit_sha256": "eb1fe1ef3c8d4e818b0b1279ee5324bc4bbab722d8e7456888c58279ea0b4025"
+}

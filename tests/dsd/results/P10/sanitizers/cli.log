@@ -1,0 +1,202 @@
+FAIL generated_PCM_through_single_composite sox_p10_candidate:      SoX_ng v14.8.0+git
+
+Input File     : '' (null)
+Channels       : 1
+Sample Rate    : 88200
+Precision      : 32-bit
+
+
+Output File    : '<fixture>/generated.dsf'
+Channels       : 1
+Sample Rate    : 2.8224e+06
+Precision      : 1-bit
+Sample Encoding: 1-bit Direct Stream Digital
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+Comment        : 'Processed by SoX'
+
+sox_p10_candidate INFO sox_ng: effects chain: input        88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: synth        88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: gain         88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: pcmdsd     2.8224e+06Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: output     2.8224e+06Hz  1 channels
+synth.c:804:17: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'
+
+FAIL DoP_final_word_completion sox_p10_candidate:      SoX_ng v14.8.0+git
+sox_p10_candidate INFO formats: detected file format type `wav'
+effects.c:81:3: runtime error: null pointer passed as argument 2, which is declared to never be null
+
+FAIL DSD_origin_preserve_0 sox_p10_candidate:      SoX_ng v14.8.0+git
+sox_p10_candidate INFO formats: detected file format type `dsf'
+
+Input File     : '<fixture>/base.dsf'
+Channels       : 1
+Sample Rate    : 2.8224e+06
+Precision      : 1-bit
+Duration       : 00:00:00.02 = 64096 samples ~ 1.70323 CDDA sectors
+File Size      : 8.28k
+Bit Rate       : 2.89M
+Sample Encoding: 1-bit Direct Stream Digital
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+
+sox_p10_candidate WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)
+sox_p10_candidate WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)
+
+Output File    : '<fixture>/origin-preserve-0.raw'
+Channels       : 1
+Sample Rate    : 88200
+Precision      : 32-bit
+Sample Encoding: 32-bit Signed Integer PCM
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+Comment        : 'Processed by SoX'
+
+sox_p10_candidate INFO sox_ng: effects chain: input      2.8224e+06Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: dsdpcm       88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: gain         88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: output       88200Hz  1 channels
+dsdpcm.c:72:12: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'
+
+FAIL DSD_origin_preserve_-3 sox_p10_candidate:      SoX_ng v14.8.0+git
+sox_p10_candidate INFO formats: detected file format type `dsf'
+
+Input File     : '<fixture>/base.dsf'
+Channels       : 1
+Sample Rate    : 2.8224e+06
+Precision      : 1-bit
+Duration       : 00:00:00.02 = 64096 samples ~ 1.70323 CDDA sectors
+File Size      : 8.28k
+Bit Rate       : 2.89M
+Sample Encoding: 1-bit Direct Stream Digital
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+
+sox_p10_candidate WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)
+sox_p10_candidate WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)
+
+Output File    : '<fixture>/origin-preserve--3.raw'
+Channels       : 1
+Sample Rate    : 88200
+Precision      : 32-bit
+Sample Encoding: 32-bit Signed Integer PCM
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+Comment        : 'Processed by SoX'
+
+sox_p10_candidate INFO sox_ng: effects chain: input      2.8224e+06Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: dsdpcm       88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: gain         88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: output       88200Hz  1 channels
+dsdpcm.c:72:12: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'
+
+FAIL DSD_origin_sacd_0 sox_p10_candidate:      SoX_ng v14.8.0+git
+sox_p10_candidate INFO formats: detected file format type `dsf'
+
+Input File     : '<fixture>/base.dsf'
+Channels       : 1
+Sample Rate    : 2.8224e+06
+Precision      : 1-bit
+Duration       : 00:00:00.02 = 64096 samples ~ 1.70323 CDDA sectors
+File Size      : 8.28k
+Bit Rate       : 2.89M
+Sample Encoding: 1-bit Direct Stream Digital
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+
+sox_p10_candidate WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)
+sox_p10_candidate WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)
+
+Output File    : '<fixture>/origin-sacd-0.raw'
+Channels       : 1
+Sample Rate    : 88200
+Precision      : 32-bit
+Sample Encoding: 32-bit Signed Integer PCM
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+Comment        : 'Processed by SoX'
+
+sox_p10_candidate INFO sox_ng: effects chain: input      2.8224e+06Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: dsdpcm       88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: gain         88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: output       88200Hz  1 channels
+dsdpcm.c:72:12: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'
+
+FAIL DSD_origin_sacd_-3 sox_p10_candidate:      SoX_ng v14.8.0+git
+sox_p10_candidate INFO formats: detected file format type `dsf'
+
+Input File     : '<fixture>/base.dsf'
+Channels       : 1
+Sample Rate    : 2.8224e+06
+Precision      : 1-bit
+Duration       : 00:00:00.02 = 64096 samples ~ 1.70323 CDDA sectors
+File Size      : 8.28k
+Bit Rate       : 2.89M
+Sample Encoding: 1-bit Direct Stream Digital
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+
+sox_p10_candidate WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)
+sox_p10_candidate WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)
+
+Output File    : '<fixture>/origin-sacd--3.raw'
+Channels       : 1
+Sample Rate    : 88200
+Precision      : 32-bit
+Sample Encoding: 32-bit Signed Integer PCM
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+Comment        : 'Processed by SoX'
+
+sox_p10_candidate INFO sox_ng: effects chain: input      2.8224e+06Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: dsdpcm       88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: gain         88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: output       88200Hz  1 channels
+dsdpcm.c:72:12: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'
+
+FAIL explicit_attenuation_retry (1, "sox_p10_candidate:      SoX_ng v14.8.0+git\nsox_p10_candidate INFO formats: detected file format type `wav'\n\nInput File     : '<fixture>/overload.wav'\nChannels       : 2\nSample Rate    : 88200\nPrecision      : 32-bit\nDuration       : 00:00:00.37 = 32768 samples ~ 27.8639 CDDA sectors\nFile Size      : 262k\nBit Rate       : 5.64M\nSample Encoding: 32-bit Signed Integer PCM\nEndian Type    : little\nReverse Nibbles: no\nReverse Bits   : no\n\n\nOutput File    : '<fixture>/attenuated.dsf'\nChannels       : 2\nSample Rate    : 2.8224e+06\nPrecision      : 1-bit\nSample Encoding: 1-bit Direct Stream Digital\nEndian Type    : little\nReverse Nibbles: no\nReverse Bits   : no\nComment        : 'Processed by SoX'\n\nsox_p10_candidate INFO sox_ng: effects chain: input        88200Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: gain         88200Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: pcmdsd     2.8224e+06Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: output     2.8224e+06Hz  2 channels\ngain.c:134:17: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'\n")
+FAIL normalization_before_explicit_encoder sox_p10_candidate:      SoX_ng v14.8.0+git
+sox_p10_candidate INFO formats: detected file format type `wav'
+
+Input File     : '<fixture>/pcm.wav'
+Channels       : 1
+Sample Rate    : 88200
+Precision      : 32-bit
+Duration       : 00:00:00.02 = 2003 samples ~ 1.70323 CDDA sectors
+File Size      : 8.06k
+Bit Rate       : 2.82M
+Sample Encoding: 32-bit Signed Integer PCM
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+
+
+Output File    : '<fixture>/norm.dsf'
+Channels       : 1
+Sample Rate    : 2.8224e+06
+Precision      : 1-bit
+Sample Encoding: 1-bit Direct Stream Digital
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+Comment        : 'Processed by SoX'
+
+sox_p10_candidate INFO sox_ng: effects chain: input        88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: gain         88200Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: pcmdsd     2.8224e+06Hz  1 channels
+sox_p10_candidate INFO sox_ng: effects chain: output     2.8224e+06Hz  1 channels
+gain.c:182:15: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'
+
+FAIL output_failure_128 (1, "sox_p10_candidate:      SoX_ng v14.8.0+git\nsox_p10_candidate INFO formats: detected file format type `wav'\n\nInput File     : '<fixture>/overload.wav'\nChannels       : 2\nSample Rate    : 88200\nPrecision      : 32-bit\nDuration       : 00:00:00.37 = 32768 samples ~ 27.8639 CDDA sectors\nFile Size      : 262k\nBit Rate       : 5.64M\nSample Encoding: 32-bit Signed Integer PCM\nEndian Type    : little\nReverse Nibbles: no\nReverse Bits   : no\n\n\nOutput File    : '<fixture>/limited-128.dsf'\nChannels       : 2\nSample Rate    : 2.8224e+06\nPrecision      : 1-bit\nSample Encoding: 1-bit Direct Stream Digital\nEndian Type    : little\nReverse Nibbles: no\nReverse Bits   : no\nComment        : 'Processed by SoX'\n\nsox_p10_candidate INFO sox_ng: effects chain: input        88200Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: gain         88200Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: pcmdsd     2.8224e+06Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: output     2.8224e+06Hz  2 channels\ngain.c:134:17: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'\n")
+FAIL output_failure_5000 (1, "sox_p10_candidate:      SoX_ng v14.8.0+git\nsox_p10_candidate INFO formats: detected file format type `wav'\n\nInput File     : '<fixture>/overload.wav'\nChannels       : 2\nSample Rate    : 88200\nPrecision      : 32-bit\nDuration       : 00:00:00.37 = 32768 samples ~ 27.8639 CDDA sectors\nFile Size      : 262k\nBit Rate       : 5.64M\nSample Encoding: 32-bit Signed Integer PCM\nEndian Type    : little\nReverse Nibbles: no\nReverse Bits   : no\n\n\nOutput File    : '<fixture>/limited-5000.dsf'\nChannels       : 2\nSample Rate    : 2.8224e+06\nPrecision      : 1-bit\nSample Encoding: 1-bit Direct Stream Digital\nEndian Type    : little\nReverse Nibbles: no\nReverse Bits   : no\nComment        : 'Processed by SoX'\n\nsox_p10_candidate INFO sox_ng: effects chain: input        88200Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: gain         88200Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: pcmdsd     2.8224e+06Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: output     2.8224e+06Hz  2 channels\ngain.c:134:17: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'\n")
+FAIL output_failure_20000 (1, "sox_p10_candidate:      SoX_ng v14.8.0+git\nsox_p10_candidate INFO formats: detected file format type `wav'\n\nInput File     : '<fixture>/overload.wav'\nChannels       : 2\nSample Rate    : 88200\nPrecision      : 32-bit\nDuration       : 00:00:00.37 = 32768 samples ~ 27.8639 CDDA sectors\nFile Size      : 262k\nBit Rate       : 5.64M\nSample Encoding: 32-bit Signed Integer PCM\nEndian Type    : little\nReverse Nibbles: no\nReverse Bits   : no\n\n\nOutput File    : '<fixture>/limited-20000.dsf'\nChannels       : 2\nSample Rate    : 2.8224e+06\nPrecision      : 1-bit\nSample Encoding: 1-bit Direct Stream Digital\nEndian Type    : little\nReverse Nibbles: no\nReverse Bits   : no\nComment        : 'Processed by SoX'\n\nsox_p10_candidate INFO sox_ng: effects chain: input        88200Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: gain         88200Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: pcmdsd     2.8224e+06Hz  2 channels\nsox_p10_candidate INFO sox_ng: effects chain: output     2.8224e+06Hz  2 channels\ngain.c:134:17: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'\n")
+{"fail": 11, "pass": 51, "unrun": 0}

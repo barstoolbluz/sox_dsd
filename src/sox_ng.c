@@ -25,6 +25,7 @@
 #include "sox_ng.h"
 #include "sox_dsd.h"
 #include "dsd.h"
+#include "pcmdsd.h"
 #include "dsd_layout_query.h"
 #include "util.h"
 #include "softvol.h"
@@ -263,6 +264,7 @@ static unsigned dsd_output_permutation_count = 0;
 static lsx_dsd_plan dsd_runtime_plan;
 static sox_bool dsd_runtime_active = sox_false;
 static size_t *dsd_decode_before;
+static size_t *dsd_encode_before; /* planned step index + 1, not a guessed encoder */
 static sox_bool dsd_consume_leading;
 
 
@@ -326,6 +328,8 @@ static void cleanup(void)
   lsx_dsd_plan_free(&dsd_runtime_plan);
   free(dsd_decode_before);
   dsd_decode_before=NULL;
+  free(dsd_encode_before);
+  dsd_encode_before=NULL;
   /* Close the input and output files before exiting. */
   for (i = 0; i < input_count; i++) {
     dsd_adapter_destroy(files[i]);
@@ -1374,10 +1378,83 @@ static void dsd_insert_boundary(sox_effects_chain_t *chain,
     *guard=0;
 }
 
+/* Finalize PCM gain before a composite boundary, never after its pulses.
+ * The plan still decides whether normalization belongs before this boundary. */
+static int dsd_normalize_before_step(size_t step)
+{
+  size_t j;
+  for (j=0;j<step;j++)
+    if (!strcmp(dsd_runtime_plan.steps[j].name,"auto_normalize")) return 1;
+  return 0;
+}
+static void dsd_finalize_encode_gain(sox_effects_chain_t *chain,
+    sox_signalinfo_t *signal,int *guard,int normalize,int *normalized)
+{
+  if (is_guarded && *guard>=0 &&
+      ((do_guarded_norm && normalize && !*normalized) ||
+       !(signal->mult && *signal->mult==1))) {
+    char *args[2];int no_guard=-1;
+    args[0]=do_guarded_norm && normalize && !*normalized?"-nh":*guard?"-rh":"-h";
+    args[1]=norm_level;
+    auto_effect(chain,"gain",norm_level?2:1,args,signal,&no_guard);
+    if (do_guarded_norm && normalize) *normalized=1;
+  }
+}
+static void dsd_insert_encoder(sox_effects_chain_t *chain,
+    sox_signalinfo_t *signal,int *guard,size_t index,int *normalized)
+{
+  size_t step;
+  lsx_dsd_plan_step const *plan;
+  sox_effect_t *e;
+  char rate[32],*args[1];
+  int no_guard=-1;
+  if (!dsd_runtime_active || !dsd_encode_before || !dsd_encode_before[index]) return;
+  step=dsd_encode_before[index]-1;
+  plan=&dsd_runtime_plan.steps[step];
+  if (signal->rate!=plan->rate_before || signal->channels!=plan->channels_before) {
+    lsx_fail("P10: composite encoder input disagrees with its resolved plan");exit(2);
+  }
+  dsd_finalize_encode_gain(chain,signal,guard,dsd_normalize_before_step(step),normalized);
+  e=sox_create_effect(sox_find_effect("pcmdsd"));
+  snprintf(rate,sizeof(rate),"%.0f",plan->rate_after);args[0]=rate;
+  if (sox_effect_options(e,1,args)!=SOX_SUCCESS) exit(2);
+  lsx_pcmdsd_set_reference(e,plan->reference);
+  if (add_effect(chain,e,signal,&ofile->ft->signal,&no_guard)!=SOX_SUCCESS) exit(2);
+  free(e);dsd_encode_before[index]=0;*guard=-1;
+}
+static int dsd_composite_pending(size_t index)
+{
+  size_t i;
+  if (!dsd_runtime_active) return 0;
+  for (i=index;i<=nuser_effects[current_eff_chain];i++) {
+    if (dsd_encode_before && dsd_encode_before[i]) return 1;
+    if (i<nuser_effects[current_eff_chain] &&
+        !strcmp(user_efftab[i]->handler.name,"pcmdsd")) return 1;
+  }
+  return 0;
+}
+static void dsd_prepare_explicit_encoder(sox_effects_chain_t *chain,
+    sox_signalinfo_t *signal,int *guard,size_t index,int *normalized)
+{
+  size_t i,k=0;
+  if (!dsd_runtime_active || strcmp(user_efftab[index]->handler.name,"pcmdsd")) return;
+  for (i=0;i<dsd_runtime_plan.step_count;i++) {
+    const lsx_dsd_plan_step *p=&dsd_runtime_plan.steps[i];
+    if (!p->implicit && p->input_index<0) {
+      if (k++==index) {
+        dsd_finalize_encode_gain(chain,signal,guard,dsd_normalize_before_step(i),normalized);
+        break;
+      }
+    }
+  }
+  *guard=-1;
+}
+
 static void add_effects(sox_effects_chain_t *chain)
 {
   sox_signalinfo_t signal = combiner_signal;
   int guard = is_guarded - 1;
+  int p10_normalized=0;
   size_t i;
   sox_effect_t * effp;
   char * rate_arg = is_player ? (play_rate_arg ? play_rate_arg : "-l") : NULL;
@@ -1401,6 +1478,8 @@ static void add_effects(sox_effects_chain_t *chain)
   for (i = 0; i < nuser_effects[current_eff_chain] &&
       strcmp(user_efftab[i]->handler.name, "dither"); i++) {
     dsd_insert_boundary(chain,&signal,&guard,i);
+    dsd_insert_encoder(chain,&signal,&guard,i,&p10_normalized);
+    dsd_prepare_explicit_encoder(chain,&signal,&guard,i,&p10_normalized);
     if (i==0 && dsd_consume_leading) {
       free(user_efftab[i]);
       continue;
@@ -1421,27 +1500,32 @@ static void add_effects(sox_effects_chain_t *chain)
   dsd_insert_boundary(chain,&signal,&guard,i);
 
   /* Add auto effects if still needed at this point */
-  if (signal.channels < ofile->ft->signal.channels &&
+  if (!dsd_composite_pending(i) &&
+      signal.channels < ofile->ft->signal.channels &&
       signal.rate != ofile->ft->signal.rate)
     auto_effect(chain, "rate", rate_arg != NULL, &rate_arg, &signal, &guard);
   if (signal.channels != ofile->ft->signal.channels)
     auto_effect(chain, "channels", 0, NULL, &signal, &guard);
-  if (signal.rate != ofile->ft->signal.rate)
+  if (!dsd_composite_pending(i) && signal.rate != ofile->ft->signal.rate)
     auto_effect(chain, "rate", rate_arg != NULL, &rate_arg, &signal, &guard);
 
   if (is_guarded && guard >= 0 &&
-      (do_guarded_norm || !(signal.mult && *signal.mult == 1))) {
+      ((do_guarded_norm && !p10_normalized) || !(signal.mult && *signal.mult == 1))) {
     char *args[2];
     int no_guard = -1;
     args[0] = do_guarded_norm? "-nh" : guard? "-rh" : "-h";
     args[1] = norm_level;
     auto_effect(chain, "gain", norm_level ? 2 : 1, args, &signal, &no_guard);
     guard = 1;
+    if (do_guarded_norm) p10_normalized=1;
   }
+  if (i==nuser_effects[current_eff_chain])
+    dsd_insert_encoder(chain,&signal,&guard,i,&p10_normalized);
 
   /* A null sink has no output precision.  Its fabricated one-bit default
    * cannot request low-level sigma-delta modulation of decoded PCM. */
   if (i == nuser_effects[current_eff_chain] && !no_dither &&
+      !dsd_composite_pending(i) &&
       !(dsd_runtime_active &&
         !strcmp(ofile->ft->handler.names[0],"null")) &&
       signal.precision > ofile->ft->signal.precision &&
@@ -1451,11 +1535,15 @@ static void add_effects(sox_effects_chain_t *chain)
   /* Add user specified effects from `dither' onwards */
   for (; i < nuser_effects[current_eff_chain]; i++, guard = 2) {
     dsd_insert_boundary(chain,&signal,&guard,i);
+    dsd_insert_encoder(chain,&signal,&guard,i,&p10_normalized);
+    dsd_prepare_explicit_encoder(chain,&signal,&guard,i,&p10_normalized);
     if (add_effect(chain, user_efftab[i], &signal, &ofile->ft->signal,
           &guard) != SOX_SUCCESS)
       exit(2); /* Effects chain should have displayed an error message */
     free(user_efftab[i]);
   }
+
+  dsd_insert_encoder(chain,&signal,&guard,nuser_effects[current_eff_chain],&p10_normalized);
 
   /* An output WAV mask describes the wire-order samples, not just labels.
    * Insert the matching pure remix before the output effect.  All role
@@ -2464,6 +2552,8 @@ static void preflight_dsd(void)
   dsd_runtime_active=sox_false;
   free(dsd_decode_before);
   dsd_decode_before=NULL;
+  free(dsd_encode_before);
+  dsd_encode_before=NULL;
   dsd_consume_leading=sox_false;
   for (i=0;i<nuser_effects[current_eff_chain];i++) {
     char const *name=user_efftab[i]->handler.name;
@@ -2717,7 +2807,7 @@ static void preflight_dsd(void)
     else lsx_dsd_plan_free(&plan);
     free(input);free(effect);exit(2);
   }
-  if (has_dsd_input || active->output_domain==LSX_DOP_TRANSPORT) {
+  if (has_dsd_input || active->output_domain==LSX_DOP_TRANSPORT || active->encode_count) {
     if (active->output_domain==LSX_PCM_AUDIO &&
         !ofile_encoding_options.encoding && !ofile_encoding_options.bits_per_sample &&
         active->output_bits!=24 && !spec.output_is_null)
@@ -2736,13 +2826,19 @@ static void preflight_dsd(void)
     memset(active,0,sizeof(*active));
     dsd_runtime_active=sox_true;
     dsd_decode_before=lsx_calloc(spec.effect_count+1,sizeof(*dsd_decode_before));
+    dsd_encode_before=lsx_calloc(spec.effect_count+1,sizeof(*dsd_encode_before));
     dsd_consume_leading=dsd_runtime_plan.input_decode_count && spec.effect_count &&
         !strcmp(effect[0].name,"dsdpcm");
     if (dsd_consume_leading) k=1;
     for (j=0;j<dsd_runtime_plan.step_count;j++) {
       char const *name=dsd_runtime_plan.steps[j].name;
       if (!strcmp(name,"implicit_dsdpcm")) ++dsd_decode_before[k];
-      else if (k<spec.effect_count && !strcmp(name,effect[k].name)) ++k;
+      else if (!strcmp(name,"implicit_pcmdsd")) dsd_encode_before[k]=j+1;
+      else if (k<spec.effect_count && !strcmp(name,effect[k].name)) {
+        if (!strcmp(name,"pcmdsd"))
+          lsx_pcmdsd_set_reference(user_efftab[k],dsd_runtime_plan.steps[j].reference);
+        ++k;
+      }
     }
     for (j=0;j<input_count;j++) {
       lsx_dsd_plan_input const *in;
@@ -2773,7 +2869,8 @@ static void preflight_dsd(void)
       combiner_encoding.encoding=SOX_ENCODING_SIGN2;
       combiner_encoding.bits_per_sample=32;
     }
-    if (dsd_runtime_plan.input_decode_count || dsd_runtime_plan.graph_decode_count)
+    if (dsd_runtime_plan.input_decode_count || dsd_runtime_plan.graph_decode_count ||
+        dsd_runtime_plan.encode_count)
       ofile->signal.length=SOX_UNKNOWN_LEN;
   }
   if (series) dsd_free_sequence(series,segments);

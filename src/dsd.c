@@ -3,6 +3,7 @@
  */
 #include "sox_i.h"
 #include "dsd.h"
+#include "pcmdsd.h"
 #include <math.h>
 #include <errno.h>
 #include <limits.h>
@@ -233,8 +234,8 @@ const sox_effect_handler_t *lsx_dsdpcm_effect_fn(void)
 const sox_effect_handler_t *lsx_pcmdsd_effect_fn(void)
 {
   static sox_effect_handler_t h={"pcmdsd", "[-p mastering|legacy|experimental] [--reference auto|pcm|dsd] rate",
-    SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, dsd_unavailable,
-    NULL, NULL, NULL, NULL, sizeof(lsx_dsd_effect_options), NULL, NULL, NULL};
+    SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, lsx_pcmdsd_start,
+    lsx_pcmdsd_flow, lsx_pcmdsd_drain, lsx_pcmdsd_stop, NULL, sizeof(lsx_pcmdsd_private), NULL, NULL, NULL};
   return &h;
 }
 const sox_effect_handler_t *lsx_dsdstat_effect_fn(void)

@@ -665,7 +665,36 @@ def main():
     runner=Runner(args);runner.register_units();runner.register_integrations()
     if not args.sox.is_file() or not args.probe.is_file():
         ap.error('missing built sox_ng/test/dsd_test_io; build with make and make -C test dsd_test_io')
-    return runner.run()
+    floor=runner.run()
+    if floor or args.phase!='P10' or args.only!='*' or args.mode!='all':
+        return floor
+    # Keep the inherited 36-case floor visible, and execute real P10 contracts
+    # in a separate report rather than relabeling that floor as qualification.
+    tasks=[('P10_core',[str(ROOT/'test/dsd_test_p10'),'--unit']),
+        ('P10_CLI',[sys.executable,str(ROOT/'tests/dsd/test_p10.py'),
+            '--sox',str(args.sox),'--results',str(args.results/'cli')]),
+        ('P10_continuation_replay',[sys.executable,str(ROOT/'tests/dsd/soak_p10.py'),
+            '--test-replay','--results',str(args.results/'soak')]),
+        ('P10_prefilter_reproduction',[sys.executable,str(ROOT/'tests/dsd/generate_p10_coeffs.py'),'--check']),
+        ('P10_qualification_accounting',[sys.executable,str(ROOT/'tests/dsd/test_p10_qualification.py')]),
+        ('P10_negative_certificates',[sys.executable,str(ROOT/'tests/dsd/generate_p10_profiles.py'),'--check'])]
+    records=[]
+    for name,command in tasks:
+        try:
+            cp=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=300)
+            record=dict(name=name,status='PASS' if cp.returncode==0 else 'FAIL',
+                exit_code=cp.returncode,command=[str(x).replace(str(ROOT),'<tree>') for x in command],
+                stdout=cp.stdout,stderr=cp.stderr)
+        except (OSError,subprocess.TimeoutExpired) as error:
+            record=dict(name=name,status='FAIL',error=str(error))
+        records.append(record)
+        print(name,record['status'],flush=True)
+        from soak_p10 import atomic
+        atomic(args.results/'implementation.json',dict(schema='P10/implementation-tests/1',
+            rows=records,qualified=False,status='FAIL' if any(r['status']=='FAIL' for r in records) else
+            'PASS' if len(records)==len(tasks) else 'INCOMPLETE',
+            distinction='Implementation tests do not qualify a mastering profile. See numeric/qualification.json.'))
+    return int(any(r['status']!='PASS' for r in records))
 
 
 if __name__=='__main__':

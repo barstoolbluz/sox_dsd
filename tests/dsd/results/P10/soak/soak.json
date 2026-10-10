@@ -1,0 +1,328 @@
+{
+  "limitation": "A rejected prefix is not a completed 30-minute soak. A clean DSD64 prefix is not a guarantee over the unprocessed suffix.",
+  "profiles": [
+    {
+      "completed_audio_seconds": 240.5762471655329,
+      "configuration": {
+        "edge_ramp_seconds": 0.1,
+        "generator": "test_p10.c:soak_source; int32 graph-equivalent",
+        "minute_sequence": [
+          "silence",
+          "DC +0.7",
+          "DC -0.7",
+          "53/997/5501/17011 Hz multitone, each peak 0.15",
+          "SplitMix64-indexed uniform noise, peak 0.7",
+          "1000 Hz tone, peak 0.8"
+        ],
+        "native_hz": 2822400,
+        "qualification": false,
+        "reference_scale": 0.5,
+        "resets_between_segments": false,
+        "resume": "deterministic prefix replay with byte-checked saved SDM/monitor states",
+        "schema": "P10/continuous-soak/1",
+        "seconds": 1800,
+        "segment_seconds": 60,
+        "sequence_repeats": true,
+        "source_hz": 88200
+      },
+      "evidence": "soak-2822400-result.json",
+      "evidence_sha256": "dba9de0057f1c33b1c94526bc443439742d2c365a582c575308524a767a63647",
+      "execution": {
+        "architecture": "x86_64",
+        "binary_sha256": "16eaec54d5d237668742b88a021551a01fc8048049d35784ecf7b09f8de02ad4",
+        "command": [
+          "test/dsd_test_p10",
+          "--soak",
+          "2822400",
+          "1800",
+          "60",
+          "<results>/soak-2822400"
+        ],
+        "exit_code": 1,
+        "replay": true,
+        "source_generator_sha256": "da04e924d3b9e6fbe96e61355a3437746e8fe467d419634958124d7501b6366d"
+      },
+      "failure_class": "interpolation-envelope overload; no limiter or rescue",
+      "first_bad_audio_seconds": 240.57834325396826,
+      "prefix_windows28_pass": true,
+      "raw": {
+        "channel": 0,
+        "committed_native_frames": 679002400,
+        "coordinate": 4294967295,
+        "cpu_seconds": 21.925322,
+        "effective_pass_hz": 20000,
+        "excursions28": 0,
+        "failure": 2,
+        "failure_value": -0.5032625406080818,
+        "first_bad_frame": 679008316,
+        "input_frames": 21220864,
+        "longest_run": 7,
+        "max_abs_state": [
+          3.1069706959488625,
+          12.030189364394818,
+          71.21863137718681,
+          482.5727225509741,
+          3392.8913469656277,
+          25409.653198511885,
+          237832.10472667144,
+          2896016.877019608
+        ],
+        "max_ones28": 22,
+        "min_ones28": 7,
+        "minimum_attenuation_db": 0.05649202757470792,
+        "mode": "soak",
+        "monitor_overloads_nominal_half": 0,
+        "native_hz": 2822400,
+        "nonfinite_states": 0,
+        "peak": 0.5032625406080818,
+        "processed_native_frames": 679008316,
+        "profile": "encode.mastering.v1.dsd64",
+        "qualification": "UNQUALIFIED",
+        "schema": "P10/candidate-render/1",
+        "source_hz": 88200,
+        "status": 7,
+        "windows28": 679008289
+      },
+      "snapshots": [
+        {
+          "file": "soak-2822400-0001.state",
+          "sha256": "f38688fc68652e2a01524851a177568c61c7cf7b5bcc25c4d604d164166de45a"
+        },
+        {
+          "file": "soak-2822400-0002.state",
+          "sha256": "b188cc385f2b7348fc9d868fe7ef3c4b70b74a2714332245ba49af8559b8f7ae"
+        },
+        {
+          "file": "soak-2822400-0003.state",
+          "sha256": "24a91d5044490dbc104d7448f9bb0a4bc9902d8d05c773096c62b0c3825eb1ce"
+        },
+        {
+          "file": "soak-2822400-0004.state",
+          "sha256": "5c44922ea3f419b05ca0ac3957643f54e40448cd5962375bd7f056a34ac20f04"
+        },
+        {
+          "file": "soak-2822400-failure.state",
+          "sha256": "08fcab6ca1c4c11ab8b8473a1446d385e0a5ab6ad7dfbb69b79decd2d42e40fe"
+        }
+      ],
+      "state_bound_crossed": false,
+      "status": "FAIL"
+    },
+    {
+      "completed_audio_seconds": 262.32897108843537,
+      "configuration": {
+        "edge_ramp_seconds": 0.1,
+        "generator": "test_p10.c:soak_source; int32 graph-equivalent",
+        "minute_sequence": [
+          "silence",
+          "DC +0.7",
+          "DC -0.7",
+          "53/997/5501/17011 Hz multitone, each peak 0.15",
+          "SplitMix64-indexed uniform noise, peak 0.7",
+          "1000 Hz tone, peak 0.8"
+        ],
+        "native_hz": 5644800,
+        "qualification": false,
+        "reference_scale": 0.5,
+        "resets_between_segments": false,
+        "resume": "deterministic prefix replay with byte-checked saved SDM/monitor states",
+        "schema": "P10/continuous-soak/1",
+        "seconds": 1800,
+        "segment_seconds": 60,
+        "sequence_repeats": true,
+        "source_hz": 176400
+      },
+      "evidence": "soak-5644800-result.json",
+      "evidence_sha256": "f2d41ee99183b6ee65f975d6ffe97b9e76299923229a7287932b525539cc2f2a",
+      "execution": {
+        "architecture": "x86_64",
+        "binary_sha256": "16eaec54d5d237668742b88a021551a01fc8048049d35784ecf7b09f8de02ad4",
+        "command": [
+          "test/dsd_test_p10",
+          "--soak",
+          "5644800",
+          "1800",
+          "60",
+          "<results>/soak-5644800"
+        ],
+        "exit_code": 1,
+        "replay": true,
+        "source_generator_sha256": "da04e924d3b9e6fbe96e61355a3437746e8fe467d419634958124d7501b6366d"
+      },
+      "failure_class": "interpolation-envelope overload; no limiter or rescue",
+      "first_bad_audio_seconds": 262.329055236678,
+      "raw": {
+        "channel": 0,
+        "committed_native_frames": 1480794576,
+        "coordinate": 4294967295,
+        "cpu_seconds": 49.449525,
+        "effective_pass_hz": 30000,
+        "excursions28": 0,
+        "failure": 2,
+        "failure_value": -0.5002482345460705,
+        "first_bad_frame": 1480795051,
+        "input_frames": 46275328,
+        "longest_run": 8,
+        "max_abs_state": [
+          3.311632195605106,
+          13.11907121949019,
+          86.28018377303935,
+          541.8838401117546,
+          3814.774853986391,
+          28560.208233388046,
+          230751.65136558245,
+          2981038.8799736495
+        ],
+        "max_ones28": 22,
+        "min_ones28": 6,
+        "minimum_attenuation_db": 0.004311205641402068,
+        "mode": "soak",
+        "monitor_overloads_nominal_half": 0,
+        "native_hz": 5644800,
+        "nonfinite_states": 0,
+        "peak": 0.5002482345460705,
+        "processed_native_frames": 1480795051,
+        "profile": "encode.mastering.v1.dsd128",
+        "qualification": "UNQUALIFIED",
+        "schema": "P10/candidate-render/1",
+        "source_hz": 176400,
+        "status": 7,
+        "windows28": 1480795024
+      },
+      "snapshots": [
+        {
+          "file": "soak-5644800-0001.state",
+          "sha256": "720e38fe655dccae7740e62eafe187f50a1b8bbceb9ed1f2acd555027e5b196f"
+        },
+        {
+          "file": "soak-5644800-0002.state",
+          "sha256": "afc375d6401f6bdaffcf8a11d9321ef62ab07a278a4706161f59a0763f80aa3f"
+        },
+        {
+          "file": "soak-5644800-0003.state",
+          "sha256": "0bb46cfdb1b390a3dead21abf0511c3d024f49b655dd5ed072d9ac711a2bac1f"
+        },
+        {
+          "file": "soak-5644800-0004.state",
+          "sha256": "04c7acdb8a2b44efd8b2c4f99e8daf37ab1538fc7cc377edf7cf6623a3bdfb32"
+        },
+        {
+          "file": "soak-5644800-failure.state",
+          "sha256": "508c65f18bcdb88ebcf1aeeca62efdb8fb625d52f820992ed7db0cb4566eb2fd"
+        }
+      ],
+      "state_bound_crossed": false,
+      "status": "FAIL"
+    },
+    {
+      "completed_audio_seconds": 240.21319160997732,
+      "configuration": {
+        "edge_ramp_seconds": 0.1,
+        "generator": "test_p10.c:soak_source; int32 graph-equivalent",
+        "minute_sequence": [
+          "silence",
+          "DC +0.7",
+          "DC -0.7",
+          "53/997/5501/17011 Hz multitone, each peak 0.15",
+          "SplitMix64-indexed uniform noise, peak 0.7",
+          "1000 Hz tone, peak 0.8"
+        ],
+        "native_hz": 11289600,
+        "qualification": false,
+        "reference_scale": 0.5,
+        "resets_between_segments": false,
+        "resume": "deterministic prefix replay with byte-checked saved SDM/monitor states",
+        "schema": "P10/continuous-soak/1",
+        "seconds": 1800,
+        "segment_seconds": 60,
+        "sequence_repeats": true,
+        "source_hz": 176400
+      },
+      "evidence": "soak-11289600-result.json",
+      "evidence_sha256": "fe3ff150d7ccc2ffec29e46c274a7499b962af7daa92893e52161b77467700ce",
+      "execution": {
+        "architecture": "x86_64",
+        "binary_sha256": "cd28b0b48eb4ffb8a77e8a8fbbda667b49e1eca11e5bc293247bc6e6968c20ef",
+        "command": [
+          "test/dsd_test_p10",
+          "--soak",
+          "11289600",
+          "1800",
+          "60",
+          "<results>/soak-11289600"
+        ],
+        "exit_code": 1,
+        "replay": true,
+        "source_generator_sha256": "e816d78fe3a868e2d37afe30792b9d6a46c976d7007894e1b392780792470355"
+      },
+      "failure_class": "interpolation-envelope overload; no limiter or rescue",
+      "first_bad_audio_seconds": 240.21337221867913,
+      "raw": {
+        "channel": 0,
+        "committed_native_frames": 2711910848,
+        "coordinate": 4294967295,
+        "cpu_seconds": 90.007025,
+        "effective_pass_hz": 40000,
+        "excursions28": 0,
+        "failure": 2,
+        "failure_value": -0.5019130927578137,
+        "first_bad_frame": 2711912887,
+        "input_frames": 42374656,
+        "longest_run": 8,
+        "max_abs_state": [
+          3.416726859173435,
+          15.89731056616979,
+          93.8522041240641,
+          626.3802207808455,
+          4343.9404320186595,
+          30362.04224310324,
+          236131.41522205787,
+          3034081.554469189
+        ],
+        "max_ones28": 22,
+        "min_ones28": 7,
+        "minimum_attenuation_db": 0.03317040744706747,
+        "mode": "soak",
+        "monitor_overloads_nominal_half": 0,
+        "native_hz": 11289600,
+        "nonfinite_states": 0,
+        "peak": 0.5019130927578137,
+        "processed_native_frames": 2711912887,
+        "profile": "encode.mastering.v1.dsd256",
+        "qualification": "UNQUALIFIED",
+        "schema": "P10/candidate-render/1",
+        "source_hz": 176400,
+        "status": 7,
+        "windows28": 2711912860
+      },
+      "snapshots": [
+        {
+          "file": "soak-11289600-0001.state",
+          "sha256": "3d6f8865c0fa6ce6fe4154ce3d80608da0f4bddaf27a2172da53b43f10983417"
+        },
+        {
+          "file": "soak-11289600-0002.state",
+          "sha256": "124ff876ba29197c062bdfacfc537dfb6d161f523206312e057e10725c172b13"
+        },
+        {
+          "file": "soak-11289600-0003.state",
+          "sha256": "73c0d1bafaf320a5a302854b71e55ac7b8cddf5787206033cb129a8dab2d2611"
+        },
+        {
+          "file": "soak-11289600-0004.state",
+          "sha256": "944ad1a0de100daffe52109c7d196900d938d69f67a46a63946af0f15c11d0c9"
+        },
+        {
+          "file": "soak-11289600-failure.state",
+          "sha256": "e8b2ec0e0a326ca9e77a3ff93b69513b1a23982d1f0258c6d57affab30e5d787"
+        }
+      ],
+      "state_bound_crossed": false,
+      "status": "FAIL"
+    }
+  ],
+  "qualified": false,
+  "representative_hardware_hour_per_profile_isa": "UNRUN",
+  "schema": "P10/soak-summary/1",
+  "status": "FAIL"
+}

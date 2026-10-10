@@ -1,0 +1,279 @@
+{
+  "exit_interpretation": "measure=1: retained failed qualification, not a successful completion; bench/kernel=2: inconclusive qualification, no command errors; host-noise exits zero even when its verdict says too noisy",
+  "host": {
+    "CFLAGS": "-O2 -g",
+    "OpenMP": true,
+    "architecture": "x86_64",
+    "cgroup_cpu_budget": 4,
+    "compiler": "GCC 14.2.0",
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "prepared": false,
+    "processor": "AMD EPYC 9V74",
+    "unavailable_optional_formats": [
+      "AMR",
+      "FLAC",
+      "MP3",
+      "Ogg/Vorbis",
+      "Opus",
+      "libsndfile",
+      "WavPack"
+    ]
+  },
+  "qualification": false,
+  "rows": [
+    {
+      "command": [
+        "autoreconf",
+        "-fi"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-autoreconf.log",
+      "name": "autoreconf"
+    },
+    {
+      "command": [
+        "env",
+        "CFLAGS=-O2 -g",
+        "./configure",
+        "--disable-shared",
+        "--without-libltdl"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-configure.log",
+      "name": "configure"
+    },
+    {
+      "command": [
+        "make",
+        "-j2"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-build.log",
+      "name": "build"
+    },
+    {
+      "command": [
+        "make",
+        "check"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-check.log",
+      "name": "check"
+    },
+    {
+      "command": [
+        "make",
+        "check-dsd"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-check-dsd.log",
+      "name": "check-dsd"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/dsd/run.py",
+        "--phase",
+        "P10",
+        "--results",
+        "tests/dsd/results/P10"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-phase-run.log",
+      "name": "phase-run"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/dsd/corroborate_p10.py",
+        "--primary",
+        "tests/dsd/results/P10/numeric/qualification.json",
+        "--results",
+        "tests/dsd/results/P10/corroboration"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-corroboration.log",
+      "name": "corroboration"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/dsd/test_p10.py",
+        "--baseline-sox",
+        "<P09-tree>/src/sox_ng",
+        "--results",
+        "tests/dsd/results/P10/cli/p09-control"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-cli-control.log",
+      "name": "cli-control"
+    },
+    {
+      "command": [
+        "test/dsd_test_p10",
+        "--unit"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-core.log",
+      "name": "core"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/dsd/measure.py",
+        "--phase",
+        "P10",
+        "--results",
+        "tests/dsd/results/P10/numeric"
+      ],
+      "exit_code": 1,
+      "log": "execution/final-measure.log",
+      "name": "measure"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/dsd/bench.py",
+        "--phase",
+        "P10",
+        "--results",
+        "tests/dsd/results/P10/bench"
+      ],
+      "exit_code": 2,
+      "log": "execution/final-bench.log",
+      "name": "bench"
+    },
+    {
+      "command": [
+        "sh",
+        "tests/dsd/benchprep.sh",
+        "status",
+        "--cpu",
+        "0"
+      ],
+      "exit_code": 0,
+      "log": "performance/host-status.txt",
+      "name": "host-status"
+    },
+    {
+      "command": [
+        "sh",
+        "tests/dsd/benchprep.sh",
+        "noise",
+        "--cpu",
+        "0",
+        "--runs",
+        "15"
+      ],
+      "exit_code": 0,
+      "log": "performance/host-noise.txt",
+      "name": "host-noise"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/dsd/bench_read_p02.py",
+        "--baseline-sox",
+        "<P09-tree>/src/sox_ng",
+        "--sox",
+        "src/sox_ng",
+        "--results",
+        "tests/dsd/results/P10/performance/paired-legacy",
+        "--cpu",
+        "0",
+        "--pairs",
+        "15",
+        "--warmups",
+        "2",
+        "--working-directory",
+        "/dev/shm",
+        "--both-arg=--dsd-mode=legacy",
+        "--require-comparable-preset",
+        "p01p02",
+        "--null-extra-arg=--dsd-layout-loss",
+        "--null-extra-arg=warn"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-paired-legacy.log",
+      "name": "paired-legacy"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/dsd/bench_read_p02.py",
+        "--baseline-sox",
+        "<P09-tree>/src/sox_ng",
+        "--sox",
+        "src/sox_ng",
+        "--results",
+        "tests/dsd/results/P10/performance/paired-auto",
+        "--cpu",
+        "0",
+        "--pairs",
+        "15",
+        "--warmups",
+        "2",
+        "--working-directory",
+        "/dev/shm",
+        "--both-arg=--dsd-mode=auto",
+        "--require-comparable-preset",
+        "p01p02",
+        "--operation",
+        "repack"
+      ],
+      "exit_code": 0,
+      "log": "execution/final-paired-auto.log",
+      "name": "paired-auto"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/dsd/measure.py",
+        "--phase",
+        "P10",
+        "--results",
+        "tests/dsd/results/P10/numeric"
+      ],
+      "exit_code": 1,
+      "log": "execution/final-measure-after-performance.log",
+      "name": "measure-after-performance"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/dsd/bench.py",
+        "--phase",
+        "P10",
+        "--results",
+        "tests/dsd/results/P10/bench"
+      ],
+      "exit_code": 2,
+      "log": "execution/final-bench-after-performance.log",
+      "name": "bench-after-performance"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/dsd/bench_p10_kernel_control.py",
+        "--baseline",
+        "<P09-tree>/test/dsd_test_p09",
+        "--results",
+        "tests/dsd/results/P10/performance/kernel",
+        "--cpu",
+        "0"
+      ],
+      "exit_code": 2,
+      "log": "execution/final-kernel-control.log",
+      "name": "kernel-control"
+    }
+  ],
+  "schema": "P10/execution-journal/1",
+  "task_date": "2026-10-09",
+  "working_directory": "<tree>"
+}

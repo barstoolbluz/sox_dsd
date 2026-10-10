@@ -92,3 +92,17 @@ EXTRA_PROGRAMS += dsd_test_p09
 dsd_test_p09_SOURCES = ../tests/dsd/test_p09.c
 dsd_test_p09_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p09_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P10 private candidate renderer and streaming/overload contracts.
+EXTRA_PROGRAMS += dsd_test_p10
+dsd_test_p10_SOURCES = ../tests/dsd/test_p10.c
+dsd_test_p10_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p10_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# Explicit, uninstalled qualification CLI, supported on GNU-linker hosts.
+# Never substitutes for the production binary or its fail-closed certificate.
+EXTRA_PROGRAMS += sox_p10_candidate
+sox_p10_candidate_SOURCES = ../src/sox_ng.c ../tests/dsd/p10_candidate_cli.c
+sox_p10_candidate_CPPFLAGS = -I$(top_srcdir)/src
+sox_p10_candidate_LDFLAGS = -Wl,--wrap=lsx_pcmdsd_qualified -Wl,--wrap=lsx_pcmdsd_start
+sox_p10_candidate_LDADD = $(top_builddir)/src/libsox_ng.la
