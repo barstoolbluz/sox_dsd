@@ -252,7 +252,8 @@ def main():
         for glob in (('-D',),('-D','--buffer','32'),('-D','--multi-threaded')):
             def over(glob=glob):
                 dst=tmp/'overload.dsf';cp=encode(overload,dst,glob=glob,ok=False)
-                assert 'interpolation overload' in cp.stderr and 'attenuation' in cp.stderr,cp.stderr
+                assert ('interpolation overload' in cp.stderr and 'attenuation' in cp.stderr and
+                        'lower bound from first overloaded sample' in cp.stderr),cp.stderr
                 assert 'clipped' not in cp.stderr and 'Done.' not in cp.stderr,cp.stderr
                 return dict(exit_code=cp.returncode,output_removed=True,diagnostic=clean(cp.stderr))
             record('fatal_interpolation_'+str(len(rows)),over)

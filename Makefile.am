@@ -464,3 +464,12 @@ EXTRA_DIST += tests/dsd/test_p10_soak_receipts.py \
 # corpus audio itself is not distributed; only the driver and its analyser.
 EXTRA_DIST += tests/dsd/corpus_realworld.py \
   tests/dsd/dsd_windows.py
+
+# P10 independent release gate ratification (versioned; historical corrective
+# receipts/certificates remain frozen). No source audio is distributed.
+EXTRA_DIST += docs/dsd/handoffs/P10_RATIFICATION.md \
+  docs/dsd/handoffs/P10_RATIFICATION_WORKLOG.md \
+  tests/dsd/reference/p10_ratification_criteria.json \
+  tests/dsd/ratify_p10_gates.py \
+  tests/dsd/qualify_p10_ratification.py \
+  tests/dsd/test_p10_ratification.py
