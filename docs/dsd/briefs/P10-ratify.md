@@ -1,8 +1,9 @@
 # P10 closeout: set the criteria for the last two gates, then rule on them
 
-Work in the attached tree, `sox_ng-P10ratify-1b0a7b03.tar.gz`, SHA-256
-`5165bcca28f0fb81668a2df787ed01e04eadce2c6dc72a7b30928b793d45cc3d`, no `.git`.
-It contains P00 through P10 including the corrective and revalidation rounds.
+Work in the attached tree, a `git archive` snapshot with no `.git`; the
+dispatch note carries its filename and SHA-256, since a document inside the tree
+cannot name its own tree's hash. It contains P00 through P10 including the
+corrective and revalidation rounds.
 `docs/dsd/sows/P10.md` remains the statement of work and
 `docs/dsd/DSD_DESIGN.md` the authority.
 
