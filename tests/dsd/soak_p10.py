@@ -31,8 +31,10 @@ def atomic(path, value):
     tmp.replace(path)
 
 
-def configuration(native, seconds=1800, segment=60):
-    return dict(schema='P10/continuous-soak/1', native_hz=native,
+def configuration(native, seconds=1800, segment=60, fixture='original-v1'):
+    if fixture not in ('original-v1', 'nominal-v2'):
+        raise ValueError('unknown P10 soak fixture')
+    config = dict(schema='P10/continuous-soak/1', native_hz=native,
         source_hz=88200 if native == RATES[0] else 176400,
         seconds=seconds, segment_seconds=segment, reference_scale=.5,
         generator='test_p10.c:soak_source; int32 graph-equivalent',
@@ -43,12 +45,18 @@ def configuration(native, seconds=1800, segment=60):
         resets_between_segments=False,
         resume='deterministic prefix replay with byte-checked saved SDM/monitor states',
         qualification=False)
+    if fixture == 'nominal-v2':
+        config.update(generator='test_p10.c:soak_source_version; int32 graph-equivalent',
+            fixture_version='nominal-v2')
+        config['minute_sequence'][4] = 'SplitMix64-indexed uniform noise, peak 0.45'
+    return config
 
 
-def inspect(results, seconds=1800, segment=60):
+def inspect(results, seconds=1800, segment=60, fixture='original-v1', unit=None):
+    unit = ROOT/'test/dsd_test_p10' if unit is None else Path(unit)
     profiles = []
     for native in RATES:
-        config = configuration(native, seconds, segment)
+        config = configuration(native, seconds, segment, fixture)
         prefix = results / f'soak-{native}'
         path = Path(str(prefix) + '-result.json')
         row = dict(configuration=config, status='UNRUN', evidence=path.name)
@@ -56,6 +64,7 @@ def inspect(results, seconds=1800, segment=60):
             report = json.loads(path.read_text())
             expected = seconds * native
             good = (report.get('failure') == 0 and
+                    report.get('mode') == ('soak-nominal-v2' if fixture == 'nominal-v2' else 'soak') and
                     report.get('committed_native_frames') == expected and
                     report.get('input_frames') == seconds * config['source_hz'])
             execution_path = Path(str(prefix) + '-execution.json')
@@ -66,6 +75,47 @@ def inspect(results, seconds=1800, segment=60):
             elif good:
                 good = False
                 row['missing_execution_record'] = True
+            if fixture == 'nominal-v2':
+                # A nominal PASS is a fully admitted *soak*, never an activation
+                # certificate. Verify identity, complete count and monitoring.
+                from math import isfinite
+                bound_manifest = json.loads((ROOT/'tests/dsd/reference/p10_guards.json').read_text())
+                bounds = bound_manifest['profiles'][str(native)]['bounds']
+                maxima = report.get('max_abs_state', [])
+                snapshots = list(results.glob(f'soak-{native}-*.state'))
+                failure_state = Path(str(prefix) + '-failure.state')
+                final_state = Path(str(prefix) + '-final.state')
+                config_path = Path(str(prefix) + '-configuration.json')
+                criteria = dict(
+                    original_configuration=config_path.exists() and
+                        json.loads(config_path.read_text()) == config,
+                    exact_native_duration=report.get('processed_native_frames') == expected and
+                        report.get('committed_native_frames') == expected,
+                    clean_terminal_status=report.get('status') == 3 and
+                        report.get('failure') == 0 and report.get('first_bad_frame') is None,
+                    admitted_peak=isfinite(report.get('peak',float('inf'))) and
+                        0 <= report.get('peak',float('inf')) <= .5+1./(2**31-1),
+                    stable_state=report.get('nonfinite_states') == 0 and
+                        len(maxima)==8 and all(isinstance(v,(float,int)) and
+                        isfinite(v) and 0 <= v <= b for v,b in zip(maxima,bounds)),
+                    complete_window_monitor=report.get('windows28') == max(0,expected-27),
+                    complete_snapshots=len(snapshots) == seconds//segment+1 and
+                        final_state.is_file() and not failure_state.exists(),
+                    source_and_native_identity=report.get('source_hz') == config['source_hz'] and
+                        report.get('native_hz') == native,
+                    observed_half_guard=report.get('monitor_overloads_nominal_half') == 0,
+                    release_sequence=seconds == 1800 and segment == 60,
+                )
+                if native == RATES[0]:
+                    criteria['dsd64_28bit_population'] = (report.get('excursions28') == 0 and
+                        report.get('min_ones28',0) >= 4 and report.get('max_ones28',29) <= 24)
+                if 'execution' in row:
+                    ex = row['execution']
+                    criteria['reproducible_binary'] = (ex.get('fixture') == fixture and
+                        ex.get('binary_sha256') == sha(unit) and
+                        ex.get('source_generator_sha256') == sha(ROOT/'tests/dsd/test_p10.c'))
+                row['admission_checks'] = criteria
+                good = good and all(criteria.values())
             row.update(status='PASS' if good else 'FAIL', raw=report,
                 evidence_sha256=sha(path),
                 completed_audio_seconds=report['committed_native_frames'] / native,
@@ -81,7 +131,7 @@ def inspect(results, seconds=1800, segment=60):
         profiles.append(row)
     status = ('FAIL' if any(p['status'] == 'FAIL' for p in profiles) else
         'PASS' if all(p['status'] == 'PASS' for p in profiles) else 'UNRUN')
-    result = dict(schema='P10/soak-summary/1', status=status, qualified=False,
+    result = dict(schema='P10/soak-summary/1', fixture_version=fixture, status=status, qualified=False,
         profiles=profiles, limitation='A rejected prefix is not a completed 30-minute soak. '
         'A clean DSD64 prefix is not a guarantee over the unprocessed suffix.',
         representative_hardware_hour_per_profile_isa='UNRUN')
@@ -93,7 +143,7 @@ def run(args):
     args.results.mkdir(parents=True, exist_ok=True)
     for native in RATES:
         prefix = args.results / f'soak-{native}'
-        config = configuration(native, args.seconds, args.segment_seconds)
+        config = configuration(native, args.seconds, args.segment_seconds, args.fixture)
         config_path = Path(str(prefix) + '-configuration.json')
         if config_path.exists() and json.loads(config_path.read_text()) != config:
             raise ValueError('resume configuration differs; use a new result directory')
@@ -109,19 +159,21 @@ def run(args):
             saved = result_path.with_name(result_path.stem + '-original-' + sha(result_path)[:16] + '.json')
             if not saved.exists():
                 saved.write_bytes(old)
-        command = [str(args.unit.resolve()), '--soak', str(native), str(args.seconds),
+        soak_command = '--soak-nominal-v2' if args.fixture == 'nominal-v2' else '--soak'
+        command = [str(args.unit.resolve()), soak_command, str(native), str(args.seconds),
             str(args.segment_seconds), str(prefix.resolve())]
         with Path(str(prefix) + '-execution.log').open('w') as log:
             proc = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT,
                 timeout=args.timeout)
         atomic(Path(str(prefix) + '-execution.json'), dict(exit_code=proc.returncode,
-            command=['test/dsd_test_p10', '--soak', str(native), str(args.seconds),
+            command=['test/dsd_test_p10', soak_command, str(native), str(args.seconds),
                 str(args.segment_seconds), f'<results>/soak-{native}'],
             binary_sha256=sha(args.unit), architecture=platform.machine(),
-            replay=args.replay, source_generator_sha256=sha(ROOT/'tests/dsd/test_p10.c')))
-        inspect(args.results, args.seconds, args.segment_seconds)
+            replay=args.replay, fixture=args.fixture,
+            source_generator_sha256=sha(ROOT/'tests/dsd/test_p10.c')))
+        inspect(args.results, args.seconds, args.segment_seconds, args.fixture, args.unit)
         print(native, 'exit', proc.returncode, flush=True)
-    report = inspect(args.results, args.seconds, args.segment_seconds)
+    report = inspect(args.results, args.seconds, args.segment_seconds, args.fixture, args.unit)
     return 1 if report['status'] == 'FAIL' else 2 if report['status'] == 'UNRUN' else 0
 
 
@@ -173,6 +225,7 @@ def main():
     ap.add_argument('--segment-seconds', type=int, default=60)
     ap.add_argument('--timeout', type=float, default=14400)
     ap.add_argument('--replay', action='store_true')
+    ap.add_argument('--fixture', choices=('original-v1', 'nominal-v2'), default='original-v1')
     ap.add_argument('--inspect', action='store_true')
     ap.add_argument('--test-replay', action='store_true')
     args = ap.parse_args()
@@ -181,7 +234,7 @@ def main():
     if args.test_replay:
         return replay_test(args)
     if args.inspect:
-        report = inspect(args.results, args.seconds, args.segment_seconds)
+        report = inspect(args.results, args.seconds, args.segment_seconds, args.fixture, args.unit)
         print(json.dumps(dict(status=report['status'], qualified=False)))
         return 1 if report['status'] == 'FAIL' else 2 if report['status'] == 'UNRUN' else 0
     return run(args)

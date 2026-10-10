@@ -1,0 +1,83 @@
+{
+  "distinction": "Implementation tests do not qualify a mastering profile. See numeric/qualification.json.",
+  "qualified": false,
+  "rows": [
+    {
+      "command": [
+        "<tree>/test/dsd_test_p10",
+        "--unit"
+      ],
+      "exit_code": 0,
+      "name": "P10_core",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "{\"assertions\":105474,\"failures\":0}\n"
+    },
+    {
+      "command": [
+        "python3",
+        "<tree>/tests/dsd/test_p10.py",
+        "--sox",
+        "<tree>/src/sox_ng",
+        "--results",
+        "<tree>/tests/dsd/results/P10_corrective/regression/cli"
+      ],
+      "exit_code": 0,
+      "name": "P10_CLI",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "{\"fail\": 0, \"pass\": 63, \"unrun\": 0}\n"
+    },
+    {
+      "command": [
+        "python3",
+        "<tree>/tests/dsd/soak_p10.py",
+        "--test-replay",
+        "--results",
+        "<tree>/tests/dsd/results/P10_corrective/regression/soak"
+      ],
+      "exit_code": 0,
+      "name": "P10_continuation_replay",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "{\"cases\": [\"interrupted-prefix replay\", \"complete replay\", \"mismatch refuses replacement\"], \"final_state_sha256\": \"471b64d08e69fecc5d94b51c5467e010cad6d8f9cdc62650da8a81a56a4712b1\", \"interrupted_snapshots\": 1, \"mismatch_exit\": 1, \"schema\": \"P10/soak-replay-test/1\", \"source_generator_sha256\": \"21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30\", \"status\": \"PASS\"}\n"
+    },
+    {
+      "command": [
+        "python3",
+        "<tree>/tests/dsd/generate_p10_coeffs.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "name": "P10_prefilter_reproduction",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "{\"master64_256\": {\"pass_ripple_db\": 3.221040876072487e-09, \"stop_rejection_db\": 185.95710958416393, \"stop_peak_cycles\": 0.4753144087373731, \"pass_extrema\": 19, \"stop_extrema\": 7, \"dense_stop_rejection_db\": 185.95711096483274, \"passes\": true, \"taps\": 61}, \"master128\": {\"pass_ripple_db\": 4.956983025558272e-09, \"stop_rejection_db\": 187.57503662528282, \"stop_peak_cycles\": 0.342800924110814, \"pass_extrema\": 18, \"stop_extrema\": 18, \"dense_stop_rejection_db\": 187.57504019225368, \"passes\": true, \"taps\": 77}}\n"
+    },
+    {
+      "command": [
+        "python3",
+        "<tree>/tests/dsd/test_p10_qualification.py"
+      ],
+      "exit_code": 0,
+      "name": "P10_qualification_accounting",
+      "status": "PASS",
+      "stderr": "test_complete_numeric_is_not_qualification (__main__.QualificationAccounting.test_complete_numeric_is_not_qualification) ... ok\ntest_duplicate_case_fails (__main__.QualificationAccounting.test_duplicate_case_fails) ... ok\ntest_failed_soak_blocks (__main__.QualificationAccounting.test_failed_soak_blocks) ... ok\ntest_finite_state_above_guard_fails (__main__.QualificationAccounting.test_finite_state_above_guard_fails) ... ok\ntest_low_level_spur_fails (__main__.QualificationAccounting.test_low_level_spur_fails) ... ok\ntest_missing_case_fails (__main__.QualificationAccounting.test_missing_case_fails) ... ok\ntest_missing_legacy_measurement_fails (__main__.QualificationAccounting.test_missing_legacy_measurement_fails) ... ok\ntest_nonfinite_state_fails (__main__.QualificationAccounting.test_nonfinite_state_fails) ... ok\ntest_resume_rejects_changed_implementation_without_render (__main__.QualificationAccounting.test_resume_rejects_changed_implementation_without_render) ... ok\ntest_resume_rejects_duplicates_without_render (__main__.QualificationAccounting.test_resume_rejects_duplicates_without_render) ... ok\ntest_success_with_failure_marker_fails (__main__.QualificationAccounting.test_success_with_failure_marker_fails) ... ok\ntest_success_with_short_output_fails (__main__.QualificationAccounting.test_success_with_short_output_fails) ... ok\ntest_training_cannot_be_regenerated_in_new_directory (__main__.QualificationAccounting.test_training_cannot_be_regenerated_in_new_directory) ... ok\ntest_window_excursion_fails (__main__.QualificationAccounting.test_window_excursion_fails) ... ok\n\n----------------------------------------------------------------------\nRan 14 tests in 0.282s\n\nOK\n",
+      "stdout": ""
+    },
+    {
+      "command": [
+        "python3",
+        "<tree>/tests/dsd/generate_p10_profiles.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "name": "P10_negative_certificates",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "{\"qualified\": false, \"certificate_sha256\": \"df25a2a11855e8a380cd756cf38769701103338faf36b46271aa3df22bc5157e\", \"profiles\": 3}\n"
+    }
+  ],
+  "schema": "P10/implementation-tests/1",
+  "status": "PASS"
+}

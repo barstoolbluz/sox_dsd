@@ -1,0 +1,30 @@
+{
+  "schema": "P10/revalidation-red-green/1",
+  "original_archive_sha256": "4b182e38fd94ace650faa6a18494cc40c8013151bd9bd621d9915553183fe0b8",
+  "results": [
+    {
+      "case": "duplicate nominal rate",
+      "gate": "nominal_30min_all_rates",
+      "before": "PASS",
+      "after": "FAIL"
+    },
+    {
+      "case": "duplicate original rate",
+      "gate": "original_expected_overload_replay",
+      "before": "PASS",
+      "after": "FAIL"
+    },
+    {
+      "case": "stale stage measurement",
+      "gate": "stage_unity_scaling_and_distribution",
+      "before": "PASS",
+      "after": "FAIL"
+    },
+    {
+      "case": "stale soak bound measurement",
+      "gate": "nominal_30min_all_rates",
+      "before": "PASS",
+      "after": "FAIL"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "cases": 5,
+  "full_duration": {
+    "committed_native_frames": 5080320000,
+    "evidence": "nominal-dsd64/soak.json",
+    "native_hz": 2822400,
+    "qualified": false,
+    "seconds": 1800,
+    "snapshot_count": 31,
+    "status": "PASS"
+  },
+  "schema": "P10/revalidated-soak-receipts/1",
+  "scope": "receipt generation and replay; no release promotion",
+  "status": "PASS",
+  "tests": [
+    "default-unit: correct fixture/binary receipt; short run not release-qualified",
+    "default-unit: retained result is idempotent",
+    "selected-unit: correct fixture/binary receipt; short run not release-qualified",
+    "selected-unit: retained result is idempotent",
+    "full DSD64 nominal runner roundtrip: 1800 seconds with pinned receipt"
+  ]
+}

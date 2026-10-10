@@ -1,0 +1,138 @@
+{
+  "changes": "Harness receipt/inspection, evidence consistency and coverage, tests and documentation only; no runtime source changes",
+  "clean_archive_execution": {
+    "evidence": "archive-build/verification.json",
+    "status": "PASS",
+    "tested_source_set_sha256": "626e1328f72b1dc21355b1c920a98cb3c0c2fe339cb0ce06024106758596c37f"
+  },
+  "commands": [
+    {
+      "command": "autoreconf -fi",
+      "exit_code": 0
+    },
+    {
+      "command": "./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'",
+      "exit_code": 0
+    },
+    {
+      "command": "make -j3",
+      "exit_code": 0
+    },
+    {
+      "command": "make -j3 check",
+      "exit_code": 0
+    },
+    {
+      "command": "make -j3 check-dsd DSD_RESULTS=<new-regression-results>",
+      "exit_code": 0
+    },
+    {
+      "command": "test/dsd_test_p10 --unit",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/test_p10.py --sox src/sox_ng --candidate test/sox_p10_candidate --results <new-cli-results>",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/test_p10_qualification.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/soak_p10.py --test-replay --results <new-replay-results>",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/test_p10_corrective_qualification.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/test_p10_soak_receipts.py --full-dsd64 --results <new-receipt-results>",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/replay_p10_numeric_bits.py --results <new-bit-results>",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/verify_p10_corrective.py --results <new-stage-results>",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/generate_p10_corrective_profiles.py --check",
+      "exit_code": 0
+    },
+    {
+      "command": "fixture-rounding (compiled from tests/dsd/test_p10_fixture_rounding.c)",
+      "exit_code": 0
+    }
+  ],
+  "evidence": {
+    "bit_equivalence": "bit-equivalence/bit-equivalence.json",
+    "collector_before_after": "pre-fix/collector-reproductions.json",
+    "corrective_tests": "corrective-collector-tests.json",
+    "full_soak": "receipt-full/nominal-dsd64/soak.json",
+    "full_soak_equivalence": "full-dsd64-equivalence.json",
+    "old_writer_failure": "pre-fix/nominal-smoke/soak.json",
+    "source_quantization": "source-identity/measurement.jsonl",
+    "stage_equivalence": "stage-equivalence.json"
+  },
+  "host": {
+    "architecture": "x86_64",
+    "cflags": "-O2 -g",
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+    "cpu_cgroup": "400000 100000 (4 CPU quota)",
+    "os": "Debian GNU/Linux 13",
+    "processor": "AMD EPYC 9V74 80-Core Processor",
+    "representative_hardware_claim": false
+  },
+  "note": "Revalidation is not release qualification. No controlled-host performance remeasurement or real-world/hardware corpus is claimed.",
+  "promotion": "BLOCKED",
+  "qualification_status": "INCOMPLETE",
+  "qualified": false,
+  "remaining_release_gates": [
+    "representative_hardware_1hour_per_profile_isa",
+    "independent_realworld_corpus"
+  ],
+  "results": {
+    "cli": {
+      "fail": 0,
+      "pass": 63,
+      "unrun": 0
+    },
+    "core": {
+      "assertions": 105474,
+      "failures": 0
+    },
+    "corrective_cases": 16,
+    "fresh_full_dsd64": {
+      "committed_native_frames": 5080320000,
+      "evidence": "nominal-dsd64/soak.json",
+      "native_hz": 2822400,
+      "qualified": false,
+      "seconds": 1800,
+      "snapshot_count": 31,
+      "status": "PASS"
+    },
+    "higher_rate_30min_scope": "Archived DSD128/256 results rechecked, not freshly rerun for 30 minutes",
+    "numeric_rows": 183,
+    "numeric_status": "PASS",
+    "original_accounting_cases": 14,
+    "receipt_cases": 5,
+    "regression": {
+      "fail": 0,
+      "pass": 36,
+      "skip": 0,
+      "xfail": 0,
+      "xpass": 0
+    },
+    "replay_contract_cases": 3,
+    "stage_observations": 18,
+    "stage_status": "PASS"
+  },
+  "review_status": "PASS_AFTER_CORRECTION",
+  "reviewed_qualification_root": "tests/dsd/results/P10_corrective",
+  "schema": "P10/revalidation-review/1",
+  "source_executable_sha256": "b298e4817d274715b32012063e79529716137629dd33a0624d15963287319664",
+  "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30"
+}

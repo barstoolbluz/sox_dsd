@@ -440,4 +440,22 @@ EXTRA_DIST += tests/dsd/generate_p10_profiles.py tests/dsd/reference/p10_profile
   tests/dsd/results/P10/certificate-input.json
 
 EXTRA_DIST += tests/dsd/bench_p10_kernel_control.py
-EXTRA_DIST += docs/dsd/briefs/P10-corrective.md
+
+# P10 corrective: evidence classification, independent stage measurements and
+# a versioned *negative* profile record. These are not release activation gates.
+EXTRA_DIST += docs/dsd/handoffs/P10_CORRECTIVE.md \
+  docs/dsd/handoffs/P10_CORRECTIVE_CHECKPOINT.md \
+  tests/dsd/reference/p10_soak_nominal_v2.json \
+  tests/dsd/reference/p10_profiles_corrective.json \
+  tests/dsd/verify_p10_corrective.py \
+  tests/dsd/replay_p10_numeric_bits.py \
+  tests/dsd/sanitize_p10_corrective.py \
+  tests/dsd/qualify_p10_corrective.py \
+  tests/dsd/test_p10_corrective_qualification.py \
+  tests/dsd/generate_p10_corrective_profiles.py
+
+# P10 revalidation: executable receipt coverage and source-quantization audit.
+EXTRA_DIST += tests/dsd/test_p10_soak_receipts.py \
+  tests/dsd/test_p10_fixture_rounding.c \
+  docs/dsd/handoffs/P10_REVALIDATION.md \
+  docs/dsd/handoffs/P10_REVALIDATION_CHECKPOINT.md

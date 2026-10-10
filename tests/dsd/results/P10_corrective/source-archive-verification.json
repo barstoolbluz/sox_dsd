@@ -1,0 +1,83 @@
+{
+  "commands": [
+    {
+      "command": "autoreconf -fi",
+      "exit_code": 0
+    },
+    {
+      "command": "./configure --disable-shared --without-libltdl CFLAGS=\"-O2 -g\"",
+      "exit_code": 0
+    },
+    {
+      "command": "make -j2",
+      "exit_code": 0
+    },
+    {
+      "command": "make -j2 check",
+      "exit_code": 0
+    },
+    {
+      "command": "make -j2 check-dsd DSD_RESULTS=<separate-new-results>",
+      "exit_code": 0,
+      "regressions_failed": 0,
+      "regressions_passed": 36
+    },
+    {
+      "adversarial_cases_passed": 7,
+      "command": "python3 tests/dsd/test_p10_corrective_qualification.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/verify_p10_corrective.py --verify-only --results <delivered-stage-results>",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/generate_p10_corrective_profiles.py --check",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/reference/analysis-v1/verify.py --results <new-results>",
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 8
+    },
+    {
+      "bitwise_matches": 183,
+      "command": "python3 tests/dsd/replay_p10_numeric_bits.py --results <new-results>",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/qualify_p10_corrective.py",
+      "exit_code": 2,
+      "verdict": "INCOMPLETE"
+    }
+  ],
+  "compiler_cflags": "-O2 -g",
+  "configure_args": [
+    "--disable-shared",
+    "--without-libltdl"
+  ],
+  "execution_host": "Linux x86_64 Debian 13, AMD EPYC 9V74 (virtualized, 4 CPU cgroup quota)",
+  "inherited_numerical_render_hashes_matched": 183,
+  "interpretation": "Different -g binary SHA due to build root, but all 183 reference input/output render bits and significant state/frame values reproduced exactly; not a new reference analysis or a release qualification",
+  "original_executable_sha256": "bf6c2ba07d137e65b53732eaee3b79294b7f04d84b384a7a90bfae0a6c68da3c",
+  "original_provenance_unmodified": true,
+  "rebuilt_executable_sha256": "1982392f622aaf0db9d8bac1feb299758e5a4b3513cd0e33344497910def391a",
+  "reconstructed_evidence_sha256": "c35e4cf9157dad0f45734121a90d183de357c5d4d72fada12913fd4a9f8c719c",
+  "schema": "P10/corrective-independent-source-rebuild/1",
+  "source_generator_matches": true,
+  "source_sha256": {
+    "Makefile.am": "13980d79d1a43024ba04e4854a1f5301f802060772c181f766193619f25fdee4",
+    "src/pcmdsd.c": "1f570b4c11a0c659d40bcaca4e11874652ab1d425d963b15e3bbf6fb1fcc74a3",
+    "src/pcmdsd.h": "5559c0706e3da7a0ccb3964b40dfd5e5d0cbc978699ae52b906d2326de008be3",
+    "tests/dsd/reference/analysis-v1/SHA256SUMS.txt": "7a5e104099fb18224e589d03b676c0ca3e9c8036eedb87b0fbd1de1d9bee1616",
+    "tests/dsd/reference/p10_guards.json": "12f92c1ef2d66cb7a72df97d56aee760ec17e962c3d566f9275979df774fe447",
+    "tests/dsd/reference/p10_profiles.json": "df25a2a11855e8a380cd756cf38769701103338faf36b46271aa3df22bc5157e",
+    "tests/dsd/replay_p10_numeric_bits.py": "678b45dae0da9f1f229dd3b668fdfcf827b6df114f156b51ea01da4d10477a90",
+    "tests/dsd/results/P10/numeric/qualification.json": "5795423cc3b602eaafdf4ff949d0f18536273d34f321414d7f117d77df1e34af",
+    "tests/dsd/soak_p10.py": "6ba65876b7fa7bd9dc0facfbd66cd8bfce658ff63a36c1636ffde40024bef8be",
+    "tests/dsd/test_p10.c": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+    "tests/dsd/verify_p10_corrective.py": "29d388324af08d79548a992be115128506d33d5b3938b155af77b451252a21a2"
+  },
+  "status": "PASS"
+}

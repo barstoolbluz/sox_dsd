@@ -1,0 +1,65 @@
+{
+  "archive_scope": "Tested a clean extraction. This verification record and updated evidence are added afterward; the non-results source fingerprint is checked again in the final archive.",
+  "commands": [
+    {
+      "command": "autoreconf -fi",
+      "exit_code": 0
+    },
+    {
+      "command": "./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'",
+      "exit_code": 0
+    },
+    {
+      "command": "make -j3",
+      "exit_code": 0
+    },
+    {
+      "command": "make -j3 check",
+      "exit_code": 0
+    },
+    {
+      "command": "make -j3 check-dsd DSD_RESULTS=<new-regression-results>",
+      "exit_code": 0
+    },
+    {
+      "command": "test/dsd_test_p10 --unit",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/test_p10_corrective_qualification.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/test_p10_soak_receipts.py --results <new-receipt-results>",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/generate_p10_corrective_profiles.py --check",
+      "exit_code": 0
+    }
+  ],
+  "compiler_warnings": 0,
+  "core": {
+    "assertions": 105474,
+    "failures": 0
+  },
+  "corrective_collector_cases": 16,
+  "executable_sha256": "6f669f97db5abb280f9802aee580015a9843841f35e834b6d30609b3ed7a1820",
+  "live_receipt_cases": 4,
+  "original_review_executable_sha256": "b298e4817d274715b32012063e79529716137629dd33a0624d15963287319664",
+  "promoted": false,
+  "qualification": "INCOMPLETE",
+  "regressions": {
+    "fail": 0,
+    "pass": 36,
+    "skip": 0,
+    "xfail": 0,
+    "xpass": 0
+  },
+  "schema": "P10/revalidated-source-archive-execution/1",
+  "source_files": 851,
+  "source_set_definition": "SHA-256 of sorted lines: member SHA-256, two spaces, repository-relative path, newline; all non-results archive files",
+  "status": "PASS",
+  "tested_archive_sha256": "d901021e5c13b23682ba93b55fa57829bf82c6c212eb50377ce07bd11c39699c",
+  "tested_non_result_source_set_sha256": "626e1328f72b1dc21355b1c920a98cb3c0c2fe339cb0ce06024106758596c37f"
+}

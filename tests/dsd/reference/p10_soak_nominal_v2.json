@@ -1,0 +1,25 @@
+{
+  "schema": "P10/soak-fixture/2",
+  "id": "p10-soak-nominal-v2",
+  "parent_fixture": "p10-soak-original-v1",
+  "purpose": "An explicitly admitted 30-minute qualifying stimulus; not a substitute for the original overload-regression fixture",
+  "source": "tests/dsd/test_p10.c:soak_source_version",
+  "source_normalization": "round_nearest_even(raw * SOX_SAMPLE_MAX) / SOX_SAMPLE_MAX",
+  "reference_scale": 0.5,
+  "sequence_repeats": true,
+  "duration_seconds": 1800,
+  "minute_segments": [
+    "silence",
+    "DC +0.7",
+    "DC -0.7",
+    "four-tone multitone: amplitude 0.15 per tone",
+    "index-seeded uniform noise: peak 0.45",
+    "1000 Hz sine: peak 0.8"
+  ],
+  "only_difference_from_original": "index-seeded uniform-noise peak 0.7 -> 0.45; no change to other segments, timing, ramps, seed, coefficients or admission envelope",
+  "declared_rationale": "0.45 is a conservative PCM peak for white-noise stress after the 0.5 reference scale and real prefilter/interpolator overshoot. The level does not guarantee admission; actual processed-peak and full-duration tests must establish it.",
+  "nominal_peak_is_not_an_encoder_threshold": true,
+  "original_overload_preserved_in": "tests/dsd/results/P10/soak/",
+  "required_gates": ["stage gain and distribution", "original expected-overload", "explicit source-domain attenuation", "numeric holdout", "1800-second full composite soaks at all rates", "representative hardware/ISA 1h", "independent real-world corpus", "controlled-host performance"],
+  "promotion": "blocked until every required release gate passes"
+}

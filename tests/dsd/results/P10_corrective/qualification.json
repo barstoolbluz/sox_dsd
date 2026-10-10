@@ -1,0 +1,67 @@
+{
+  "altered_admission_policy": false,
+  "assessment": "reviewer correct: fixture classification subject to executable gain audit, now supported",
+  "gates": {
+    "independent_realworld_corpus": {
+      "reason": "Independent real-world recordings not supplied; synthetic qualification stimuli are not independent recordings",
+      "status": "UNRUN"
+    },
+    "inherited_analysis_v1": {
+      "details": "Includes DSD64 35.9084-dB residual improvement, no material per-case regressions",
+      "evidence": "../P10/numeric/qualification.json",
+      "status": "PASS"
+    },
+    "inherited_numeric_183_bit_identical": {
+      "details": "All inherited analysis-v1 numerical identities confirmed with corrected executable; no reanalysis claimed",
+      "evidence": "bit-equivalence/bit-equivalence.json",
+      "status": "PASS"
+    },
+    "inherited_prepared_host_read_repack": {
+      "details": "P09 vs P10 read/repack only; not a new encoder/observer benchmark",
+      "evidence": "../P10/bench-read-prepared-host-2026-10-09/bench-read.json",
+      "status": "PASS"
+    },
+    "no_promotion": {
+      "details": null,
+      "evidence": "tests/dsd/reference/p10_profiles.json",
+      "status": "PASS"
+    },
+    "nominal_30min_all_rates": {
+      "details": "One uninterrupted 1800-s encoder per rate, all 30 snapshot states and final output checked",
+      "evidence": "nominal-v2/soak/soak.json",
+      "status": "PASS"
+    },
+    "original_expected_overload_replay": {
+      "details": "Original unattenuated stimulus still fails at the identical frame, state and value",
+      "evidence": "original-overload/verification.json",
+      "status": "PASS"
+    },
+    "regressions_and_candidate_cli": {
+      "details": "make check and make check-dsd executed separately; 36 regression, 63 CLI, 105474 core assertions",
+      "evidence": "regression, cli/cli.json, unit/core.json",
+      "status": "PASS"
+    },
+    "representative_hardware_1hour_per_profile_isa": {
+      "reason": "No one-hour per-rate/ISA representative-hardware traces supplied or executed",
+      "status": "UNRUN"
+    },
+    "stage_unity_scaling_and_distribution": {
+      "details": "9 steady-DC paths, 3 directly measured noise modes per native rate",
+      "evidence": "stage-audit/classification.json",
+      "status": "PASS"
+    }
+  },
+  "nominal_noise_fixture": "p10-soak-nominal-v2",
+  "operational_disposition": "P10 continuation; no default promotion and no P11 handoff",
+  "original_noise_class": "EXPECTED_INTERPOLATION_OVERLOAD",
+  "performance_scope": "Inherited P10 prepared-host read/repack gate passed; no corrective full-composite controlled-host remeasurement",
+  "promotion": "BLOCKED",
+  "qualified": false,
+  "remaining_release_gates": [
+    "representative_hardware_1hour_per_profile_isa",
+    "independent_realworld_corpus"
+  ],
+  "retained_original_evidence": true,
+  "schema": "P10/corrective-qualification/1",
+  "status": "INCOMPLETE"
+}

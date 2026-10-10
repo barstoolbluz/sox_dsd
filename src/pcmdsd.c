@@ -40,7 +40,19 @@ struct lsx_pcmdsd {
   sdm_normal_t sdm;
   lsx_pcmdsd_report report;
   sox_dsd_status_t error;
+  lsx_pcmdsd_stage_observer observer;
+  void *observer_opaque;
 };
+
+void lsx_pcmdsd_observe(lsx_pcmdsd *p, lsx_pcmdsd_stage_observer callback, void *opaque)
+{
+  if (p) {p->observer=callback;p->observer_opaque=opaque;}
+}
+static void observe(lsx_pcmdsd *p, lsx_pcmdsd_stage stage,
+    const double *samples, size_t count)
+{
+  if (p->observer && count) p->observer(p->observer_opaque,stage,samples,count);
+}
 
 const lsx_pcmdsd_profile *lsx_pcmdsd_profile_find(uint32_t hz)
 {
@@ -223,7 +235,9 @@ static sox_dsd_status_t pump(lsx_pcmdsd *p,const double *input,size_t *input_n,
       }
       if (got) {
         size_t j;
+        observe(p,LSX_PCMDSD_STAGE_NATIVE,native,got);
         for (j=0;j<got;++j) native[j]*=p->scale;
+        observe(p,LSX_PCMDSD_STAGE_SCALED,native,got);
         if (lsx_pcmdsd_modulate(p,native,output+produced,got)!=SOX_DSD_OK)
           goto failed;
         produced+=got;
@@ -241,7 +255,10 @@ static sox_dsd_status_t pump(lsx_pcmdsd *p,const double *input,size_t *input_n,
       if (finish && p->source_done && p->working_pos==p->working_n)
         while (p->fir_produced<p->working_limit && p->filtered_n<PCMDSD_BATCH)
           if (feed_fir(p,0.,&p->filtered[p->filtered_n])) ++p->filtered_n;
-      if (p->filtered_n) continue;
+      if (p->filtered_n) {
+        observe(p,LSX_PCMDSD_STAGE_PREFILTER,p->filtered,p->filtered_n);
+        continue;
+      }
     }
     if (p->working_pos==p->working_n && !p->source_done) {
       p->working_pos=p->working_n=0;
@@ -259,10 +276,12 @@ static sox_dsd_status_t pump(lsx_pcmdsd *p,const double *input,size_t *input_n,
         }
         rc=lsx_rate_f64_process(p->source,input?input+used:NULL,&take,p->working,&got);
         if (rc!=SOX_DSD_NEED_INPUT && rc!=SOX_DSD_NEED_OUTPUT) goto stream_error;
+        observe(p,LSX_PCMDSD_STAGE_SOURCE,input?input+used:NULL,take);
         used+=take;
         p->report.input_frames+=take;
       }
       p->working_n=got;
+      observe(p,LSX_PCMDSD_STAGE_R,p->working,got);
       if (got || p->source_done || (!finish && used<available)) continue;
     }
     /* Every iteration must consume, produce, finish a stage, or return for

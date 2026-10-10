@@ -272,7 +272,7 @@ done:
 /* Full-composite soak: one encoder instance for the entire sequence. Saved
  * states verify deterministic replay after an interruption. No segment resets
  * the recurrence, FIR, SRC, run-length history, or 28-bit windows. */
-static double soak_source(uint64_t frame,uint32_t hz)
+static double soak_source_version(uint64_t frame,uint32_t hz,int nominal_v2)
 {
   uint64_t minute=frame/((uint64_t)hz*60),local=frame%((uint64_t)hz*60);
   uint64_t word=frame+UINT64_C(0x9e3779b97f4a7c15);
@@ -285,7 +285,7 @@ static double soak_source(uint64_t frame,uint32_t hz)
     case 2: x=-.7;break;
     case 3: x=.15*(sin(6.283185307179586*53*t)+sin(6.283185307179586*997*t)+
         sin(6.283185307179586*5501*t)+sin(6.283185307179586*17011*t));break;
-    case 4: x=.7*((double)(word>>11)*0x1p-52-1.);break;
+    case 4: x=(nominal_v2?.45:.7)*((double)(word>>11)*0x1p-52-1.);break;
     default:x=.8*sin(6.283185307179586*1000*t);break;
   }
   if (local<hz/10) ramp=(double)local/(hz/10);
@@ -294,6 +294,7 @@ static double soak_source(uint64_t frame,uint32_t hz)
   ramp=ramp*ramp*ramp*(10+ramp*(-15+6*ramp));
   return nearbyint(x*ramp*SOX_SAMPLE_MAX)/SOX_SAMPLE_MAX;
 }
+/* Original v1 is unchanged in content, to preserve first-failure replay. */
 static int save_soak_state(const char *path,lsx_pcmdsd *p,uint64_t bits_hash)
 {
   sdm_normal_t s;lsx_pcmdsd_report r;
@@ -327,6 +328,7 @@ static int save_soak_state(const char *path,lsx_pcmdsd *p,uint64_t bits_hash)
 }
 static int soak(int argc,char **argv)
 {
+  int nominal_v2=!strcmp(argv[1],"--soak-nominal-v2");
   uint32_t native=(uint32_t)strtoul(argv[2],NULL,10);
   uint64_t seconds=strtoull(argv[3],NULL,10),segment=strtoull(argv[4],NULL,10);
   const lsx_pcmdsd_profile *profile=lsx_pcmdsd_profile_find(native);
@@ -343,7 +345,7 @@ static int soak(int argc,char **argv)
   while(accepted<target) {
     size_t i,available=(size_t)min((uint64_t)array_length(input),target-accepted),used=0;
     uint64_t base=accepted;
-    for(i=0;i<available;i++)input[i]=soak_source(base+i,profile->working_hz);
+    for(i=0;i<available;i++)input[i]=soak_source_version(base+i,profile->working_hz,nominal_v2);
     while(used<available) {
       size_t n=available-used,m=array_length(output);
       status=lsx_pcmdsd_process(p,input+used,&n,output,&m);
@@ -376,10 +378,132 @@ report:
     if(save_soak_state(path,p,hash))rc=1;
   }
   snprintf(path,pathlen,"%s-result.json",prefix);
-  if(write_report(path,p,status,profile->working_hz,native,profile->id,"soak",
+  if(write_report(path,p,status,profile->working_hz,native,profile->id,
+      nominal_v2?"soak-nominal-v2":"soak",
       (double)(clock()-start)/CLOCKS_PER_SEC))rc=1;
 done:
   lsx_pcmdsd_destroy(p);free(path);return rc;
+}
+
+/* Read-only instrumentation of the production composite at each handoff.
+ * This deliberately does NOT bypass the modulator's fatal overload policy.
+ * A rejected source yields prefix-only statistics and a nonzero exit code. */
+typedef struct {
+  uint64_t count, steady_count, over_half, over_envelope;
+  long double sum, squares, steady_sum, steady_squares;
+  double peak, steady_peak;
+  uint64_t bins[101];
+} p10_audit_stage;
+typedef struct {
+  p10_audit_stage stages[LSX_PCMDSD_STAGE_COUNT];
+  uint32_t source_hz,native_hz,working_hz;
+  double warmup_seconds,steady_stop_seconds;
+} p10_audit;
+static const char *audit_names[LSX_PCMDSD_STAGE_COUNT]={
+  "source", "R_SRC", "R_prefilter", "native_SRC", "scaled_modulator_input"};
+static void audit_observer(void *opaque,lsx_pcmdsd_stage stage,
+    const double *samples,size_t n)
+{
+  p10_audit *a=opaque;
+  p10_audit_stage *s=&a->stages[stage];
+  uint32_t hz=stage==LSX_PCMDSD_STAGE_SOURCE?a->source_hz:
+      stage==LSX_PCMDSD_STAGE_R||stage==LSX_PCMDSD_STAGE_PREFILTER?
+      a->working_hz:a->native_hz;
+  uint64_t start=(uint64_t)(a->warmup_seconds*hz);
+  size_t i;
+  for (i=0;i<n;i++) {
+    double v=samples[i],abs_v=fabs(v);
+    int bin=(int)fmin(abs_v*100.,100.);
+    if (abs_v>s->peak)s->peak=abs_v;
+    s->sum+=(long double)v;s->squares+=(long double)v*v;
+    ++s->bins[bin];
+    if(abs_v>.5)++s->over_half;
+    if(abs_v>.5+2./SOX_SAMPLE_MAX)++s->over_envelope;
+    if(s->count>=start && s->count<(uint64_t)(a->steady_stop_seconds*hz)) {
+      s->steady_sum+=(long double)v;
+      s->steady_squares+=(long double)v*v;
+      if(abs_v>s->steady_peak)s->steady_peak=abs_v;
+      ++s->steady_count;
+    }
+    ++s->count;
+  }
+}
+static void audit_dump(const p10_audit *a,const char *name,
+    const lsx_pcmdsd_report *report,int status)
+{
+  unsigned i,j;
+  printf("{\"schema\":\"P10/stage-observation/1\",\"kind\":\"%s\","
+      "\"source_hz\":%u,\"working_hz\":%u,\"native_hz\":%u,"
+      "\"status\":%d,\"failure\":%u,\"first_bad_frame\":",
+      name,a->source_hz,a->working_hz,a->native_hz,status,report->failure);
+  if(report->first_bad_frame==UINT64_MAX)printf("null");
+  else printf("%" PRIu64,report->first_bad_frame);
+  printf(",\"peak_report\":%.17g,\"stages\":{",report->peak);
+  for(i=0;i<LSX_PCMDSD_STAGE_COUNT;i++) {
+    const p10_audit_stage *s=&a->stages[i];
+    long double mean=s->count?s->sum/s->count:0;
+    long double rms=s->count?sqrtl(s->squares/s->count):0;
+    long double steady_mean=s->steady_count?s->steady_sum/s->steady_count:0;
+    long double steady_rms=s->steady_count?sqrtl(s->steady_squares/s->steady_count):0;
+    printf("%s\"%s\":{\"count\":%" PRIu64 ",\"peak\":%.17g,"
+        "\"rms\":%.17g,\"mean\":%.17g,\"steady_count\":%" PRIu64
+        ",\"steady_peak\":%.17g,\"steady_rms\":%.17g,\"steady_mean\":%.17g,"
+        "\"over_half\":%" PRIu64 ",\"over_envelope\":%" PRIu64 ",\"abs_bins_0p01\":[",
+        i?",":"",audit_names[i],s->count,s->peak,(double)rms,(double)mean,
+        s->steady_count,s->steady_peak,(double)steady_rms,(double)steady_mean,
+        s->over_half,s->over_envelope);
+    for(j=0;j<101;j++)printf("%s%" PRIu64,j?",":"",s->bins[j]);
+    printf("]}");
+  }
+  printf("}}\n");
+}
+static int stage_probe(int argc,char **argv)
+{
+  uint32_t native=(uint32_t)strtoul(argv[2],NULL,10),source=(uint32_t)strtoul(argv[3],NULL,10);
+  const char *kind=argv[4];
+  double seconds=strtod(argv[5],NULL);
+  const lsx_pcmdsd_profile *profile=lsx_pcmdsd_profile_find(native);
+  lsx_pcmdsd *p=NULL;lsx_pcmdsd_report r;
+  p10_audit a={0};
+  double input[4096];sox_sample_t output[8192];
+  uint64_t count,accepted=0;int rc=SOX_DSD_NEED_INPUT;
+  if(argc!=6||!profile||!source||!isfinite(seconds)||seconds<=0||seconds>90||
+      (strcmp(kind,"dc")&&strcmp(kind,"original-noise")&&
+       strcmp(kind,"nominal-noise")&&strcmp(kind,"attenuated-original-noise")))return 2;
+  if(strcmp(kind,"dc") && source!=profile->working_hz)return 2;
+  count=(uint64_t)nearbyint(seconds*source);
+  a.source_hz=source;a.native_hz=native;a.working_hz=profile->working_hz;
+  a.warmup_seconds=.2;a.steady_stop_seconds=!strcmp(kind,"dc")?1.:seconds;
+  if(lsx_pcmdsd_candidate_create(source,native,.5,0,NULL,profile->bounds,&p)!=SOX_DSD_OK)return 2;
+  lsx_pcmdsd_observe(p,audit_observer,&a);
+  while(accepted<count) {
+    size_t i,used=0,available=(size_t)min((uint64_t)array_length(input),count-accepted);
+    for(i=0;i<available;i++) {
+      uint64_t frame=accepted+i+UINT64_C(240)*source;
+      double val=!strcmp(kind,"dc")?.6:
+          soak_source_version(frame,source,!strcmp(kind,"nominal-noise"));
+      if(!strcmp(kind,"attenuated-original-noise"))
+        val=nearbyint((val*(.45/.7))*SOX_SAMPLE_MAX)/SOX_SAMPLE_MAX;
+      input[i]=!strcmp(kind,"dc")?nearbyint(val*SOX_SAMPLE_MAX)/SOX_SAMPLE_MAX:val;
+    }
+    while(used<available) {
+      size_t n=available-used,m=array_length(output);
+      rc=lsx_pcmdsd_process(p,input+used,&n,output,&m);
+      if(rc!=SOX_DSD_NEED_INPUT&&rc!=SOX_DSD_NEED_OUTPUT)goto completed;
+      if(!n&&!m) {rc=SOX_DSD_NUMERIC_ERROR;goto completed;}
+      used+=n;accepted+=n;
+    }
+  }
+  do {
+    size_t m=array_length(output);
+    rc=lsx_pcmdsd_finish(p,output,&m);
+    if(rc!=SOX_DSD_NEED_OUTPUT&&rc!=SOX_DSD_DONE)break;
+  }while(rc!=SOX_DSD_DONE);
+completed:
+  lsx_pcmdsd_report_get(p,&r);
+  audit_dump(&a,kind,&r,rc);
+  lsx_pcmdsd_destroy(p);
+  return rc==SOX_DSD_DONE?0:rc==SOX_DSD_NUMERIC_ERROR&&r.failure==LSX_PCMDSD_INTERPOLATION_OVERLOAD?4:1;
 }
 
 /* The same LUT and scalar coefficients as the inherited P09 kernel probe.
@@ -419,9 +543,11 @@ int main(int argc,char **argv)
   if (argc==2 && !strcmp(argv[1],"--unit")) {
     envelope();failed_block_commit();stream_tests();printf("{\"assertions\":%lu,\"failures\":0}\n",checks);rc=0;
   } else if (argc>=10 && argc<=12 && !strcmp(argv[1],"--render")) rc=render(argc,argv);
-  else if (argc==6 && !strcmp(argv[1],"--soak")) rc=soak(argc,argv);
+  else if (argc==6 && (!strcmp(argv[1],"--soak") ||
+      !strcmp(argv[1],"--soak-nominal-v2"))) rc=soak(argc,argv);
+  else if (argc==6 && !strcmp(argv[1],"--stage-probe")) rc=stage_probe(argc,argv);
   else if (argc==5 && !strcmp(argv[1],"--state-bench"))
     rc=state_bench((unsigned)strtoul(argv[2],NULL,10),strtoul(argv[3],NULL,10),argv[4]);
-  else fprintf(stderr,"usage: %s --unit | --render sourceHz nativeHz profile scale training|guarded input.f64le bits report.json [inputBatch outputBatch] | --soak nativeHz seconds segmentSeconds prefix\n",argv[0]);
+  else fprintf(stderr,"usage: %s --unit | --render sourceHz nativeHz profile scale training|guarded input.f64le bits report.json [inputBatch outputBatch] | --soak[-nominal-v2] nativeHz seconds segmentSeconds prefix\n",argv[0]);
   sox_quit();return rc;
 }
