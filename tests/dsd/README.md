@@ -165,3 +165,27 @@ The output and native bit chronology assertions do not derive their truth
 from the production DSDIFF writer. `docs/dsd/LAYOUT_CONTRACT.md` specifies
 ownership, the WAV canonical mask/sample order, and explicit metadata-loss
 behavior, including ordinary PCM compatibility.
+
+## P09: exact-rate SDM profiles and frozen independent metrology
+
+`make check-dsd` now defaults to P09. The P00 runner retains the 36-case
+regression floor; the P09-specific gates additionally build `test/dsd_test_p09`
+and run `test_p09.py` and `reference/analysis-v1/verify.py`. The P09 normal
+interface accepts only versioned rate-identified registry entries; the old
+`sdm` effect continues to use its historical selection and scaling.
+
+`tests/dsd/reference/analysis-v1/` contains **frozen** mpmath-synthesized
+binary64 FIRs, a SHA-256 inventory, an independent FFT overlap-add and exact
+decimator, known-noise/distortion tests, and a separate SciPy polyphase
+corroboration. It reports true one-second coherent tone residuals only after
+verified coefficient/analysis hashes. `measure.py --phase P09` re-executes the
+reference tests and reports both `sdm-8` and legacy/diagnostic controls at
+native 64/128/256 clocks. This is an analytic scalar test corpus, deliberately
+**not** P10's interpolated mastering encoder or its qualification test.
+
+The CPU footprint/monitor and legacy effect differential diagnostics are
+`tests/dsd/bench_p09.py`; they require a separately built P08 control binary.
+The paired release preservation benchmark is `bench_read_p02.py` with P08 and
+P09 binaries under identical `--dsd-mode=legacy` arguments; the P09 handoff
+records exact commands and noise-qualified conclusions. Do not use the P00
+short development `bench.py` runs to establish a 5% release-throughput pass.

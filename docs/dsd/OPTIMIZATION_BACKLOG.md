@@ -25,10 +25,20 @@ host, interval from a paired bootstrap.
 | P05 to P06+hotfix | -2.39% | [-2.70%, -2.03%] | 0.70% | pass |
 | P06+hotfix to P07 | +3.06% | [+2.79%, +3.54%] | 0.63% | pass |
 | P07 to P08 | +2.59% | [+2.39%, +2.90%] | 0.50% | pass |
+| P08 to P09 | -3.69% | [-3.90%, -3.51%] | 0.50% | pass, unexplained speedup |
 
-Cumulative from P05 through P08, as the product of the recorded median ratios:
-**+3.20%**. Each phase passed its own 5% gate. The design gates per phase and
-not the accumulation, so this total is tracked here rather than by any gate.
+Cumulative, as the product of the recorded median ratios: **+3.20%** from P05
+through P08, then **-0.60%** once P09 is included. Each phase passed its own 5%
+gate. The design gates per phase and not the accumulation, so this total is
+tracked here rather than by any gate.
+
+The P09 leg is worth treating with suspicion rather than relief. P09 changes
+only `src/sdm.c` and `src/sdm.h`, touching no read path, yet this workload
+became 3.69% faster with a tight interval at 0.50% noise. That is the same
+unattributed behavior P06 showed in the other direction, and it means the
+running total is partly tracking something other than deliberate work. An
+optimization pass should establish why this workload moves when unrelated
+object files change before trusting any cumulative figure, including this one.
 
 ### What the two hotfixes found
 
@@ -65,7 +75,8 @@ on `dff-6ch-null-large` and 5.69% on `dff-6ch-repack-large`, were never
 attributed either; linker layout or instruction-cache effects are the plausible
 explanation but nobody has looked. A `perf` profile of this workload against
 P01 would likely settle both the residual cost and those speedups, and would
-tell a later optimization pass where the remaining +3.20% actually sits.
+tell a later optimization pass where the movement actually sits, in either
+direction.
 
 ### How to measure it
 

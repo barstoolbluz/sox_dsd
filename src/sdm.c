@@ -655,6 +655,169 @@ static const sdm_filter_t sdm_filters[] = {
   },
 };
 
+/* Exact-rate entries are independent of the legacy array search order.
+ * Deliberately refer to the original literal coefficient tables: copying or
+ * recalculating their decimal constants could change one or more bits. The
+ * three names per class are public *IDs*, not promotion certificates. */
+struct sdm_profile {
+  const char *id;
+  const sdm_filter_t *filter;
+  unsigned working_hz;
+};
+
+static const sdm_profile_t sdm_profiles[] = {
+  {"encode.legacy.v1.dsd64",     &sdm_filters[20],  88200},
+  {"encode.legacy.v1.dsd128",    &sdm_filters[10], 176400},
+  {"encode.legacy.v1.dsd256",    &sdm_filters[0],  176400},
+  {"encode.mastering.v1.dsd64",  &sdm_filters[29],  88200},
+  {"encode.mastering.v1.dsd128", &sdm_filters[19], 176400},
+  {"encode.mastering.v1.dsd256", &sdm_filters[9],  176400},
+  {"encode.diagnostic.sdm6.v1.dsd64",   &sdm_filters[25],  88200},
+  {"encode.diagnostic.sdm6.v1.dsd128",  &sdm_filters[15], 176400},
+  {"encode.diagnostic.sdm6.v1.dsd256",  &sdm_filters[5],  176400},
+  {"encode.diagnostic.clans8.v1.dsd64", &sdm_filters[28],  88200},
+  {"encode.diagnostic.clans8.v1.dsd128",&sdm_filters[18], 176400},
+  {"encode.diagnostic.clans8.v1.dsd256",&sdm_filters[8],  176400},
+};
+
+const sdm_profile_t *sdm_profile_find(const char *id, unsigned native_hz)
+{
+  size_t i;
+  if (!id) return NULL;
+  for (i = 0; i < array_length(sdm_profiles); ++i)
+    if (native_hz == sdm_profiles[i].filter->freq &&
+        !strcmp(id, sdm_profiles[i].id))
+      return &sdm_profiles[i];
+  return NULL;
+}
+
+const char *sdm_profile_id(const sdm_profile_t *p) { return p ? p->id : NULL; }
+const char *sdm_profile_filter_name(const sdm_profile_t *p)
+{ return p ? p->filter->name : NULL; }
+unsigned sdm_profile_rate(const sdm_profile_t *p)
+{ return p ? p->filter->freq : 0; }
+unsigned sdm_profile_working_rate(const sdm_profile_t *p)
+{ return p ? p->working_hz : 0; }
+int sdm_profile_coefficients(const sdm_profile_t *p, const double **a,
+                             const double **g, unsigned *order)
+{
+  if (!p || !a || !g || !order) return -1;
+  *a = p->filter->a;
+  *g = p->filter->g;
+  *order = (unsigned)p->filter->order;
+  return 0;
+}
+
+static void sdm_monitor_increment(uint64_t *value, unsigned *saturated)
+{
+  if (*value == UINT64_MAX) *saturated = 1;
+  else ++*value;
+}
+
+void sdm_normal_monitor_init(sdm_normal_monitor_t *m)
+{
+  if (m) {
+    memset(m, 0, sizeof(*m));
+    m->min_ones28 = 29;
+    m->first_bad_frame = UINT64_MAX;
+    m->first_overload_frame = UINT64_MAX;
+  }
+}
+
+int sdm_normal_init(sdm_normal_t *s, const sdm_profile_t *profile)
+{
+  if (!s || !profile) return -1;
+  memset(s, 0, sizeof(*s));
+  s->profile = profile;
+  return 0;
+}
+void sdm_normal_attach_monitor(sdm_normal_t *s, sdm_normal_monitor_t *m)
+{
+  if (s) s->monitor = m;
+}
+int sdm_normal_decision(double accumulator)
+{
+  return signbit(accumulator) ? -1 : 1;
+}
+
+/* Separate, scalar, old-bank-only recurrence: the legacy SIMD/trellis filter
+ * remains untouched. Test against the reviewed scalar recurrence, not a
+ * reconstruction produced by this code. */
+int sdm_normal_step(sdm_normal_t *s, double x, int *bit)
+{
+  const sdm_filter_t *f;
+  sdm_normal_monitor_t *m;
+  const double *old;
+  double *next, v;
+  unsigned i;
+  int y;
+  if (!s || !s->profile || !bit) return -1;
+  f = s->profile->filter;
+  m = s->monitor;
+  if (!isfinite(x)) goto nonfinite;
+  old = s->state[s->bank];
+  next = s->state[s->bank ^ 1];
+  next[0] = old[0] - f->g[0] * old[1] + x - s->previous_decision;
+  v = x + f->a[0] * next[0];
+  for (i = 1; i < (unsigned)f->order - 1; ++i) {
+    next[i] = old[i] + old[i-1] - f->g[i] * old[i+1];
+    v += f->a[i] * next[i];
+  }
+  next[i] = old[i] + old[i-1];
+  v += f->a[i] * next[i];
+  if (!isfinite(v)) goto nonfinite;
+  for (i = 0; i < (unsigned)f->order; ++i)
+    if (!isfinite(next[i])) goto nonfinite;
+
+  y = sdm_normal_decision(v);
+  *bit = y;
+  s->bank ^= 1;
+  s->previous_decision = (double)y;
+  if (m) {
+    unsigned bit1 = y > 0;
+    if (fabs(x) > .5) {
+      if (m->overloads == 0) m->first_overload_frame = s->frames;
+      sdm_monitor_increment(&m->overloads, &m->counter_saturated);
+    }
+    for (i = 0; i < (unsigned)f->order; ++i) {
+      double a = fabs(next[i]);
+      if (a > m->max_abs_state[i]) m->max_abs_state[i] = a;
+    }
+    if (m->history_bits < 28) {
+      ++m->history_bits;
+      m->ones28 += bit1;
+    } else {
+      m->ones28 += bit1;
+      m->ones28 -= (m->history28 >> 27) & 1U;
+    }
+    m->history28 = ((m->history28 << 1) | bit1) & UINT32_C(0x0fffffff);
+    if (m->history_bits == 28) {
+      sdm_monitor_increment(&m->windows28, &m->counter_saturated);
+      if (m->ones28 < m->min_ones28) m->min_ones28 = m->ones28;
+      if (m->ones28 > m->max_ones28) m->max_ones28 = m->ones28;
+      if (m->ones28 < 4 || m->ones28 > 24)
+        sdm_monitor_increment(&m->excursions28, &m->counter_saturated);
+    }
+    if (m->run_length && bit1 == m->last_bit) {
+      if (m->run_length != UINT32_MAX) ++m->run_length;
+      else m->counter_saturated = 1;
+    } else m->run_length = 1;
+    m->last_bit = bit1;
+    if (m->run_length > m->longest_run) m->longest_run = m->run_length;
+    sdm_monitor_increment(&m->frames, &m->counter_saturated);
+  }
+  if (s->frames != UINT64_MAX) ++s->frames;
+  else if (m) m->counter_saturated = 1;
+  return 0;
+
+nonfinite:
+  if (m) {
+    if (m->nonfinite == 0) m->first_bad_frame = s->frames;
+    sdm_monitor_increment(&m->nonfinite, &m->counter_saturated);
+  }
+  return -1; /* no bank swap or decision/state commit */
+}
+
 static const sdm_filter_t *sdm_find_filter(const char *name, unsigned freq)
 {
   unsigned i;
@@ -1063,6 +1226,11 @@ sdm_t *sdm_init(const char *filter_name,
   }
 
   return p;
+}
+
+size_t sdm_legacy_allocation_bytes(void)
+{
+  return sizeof(sdm_t);
 }
 
 void sdm_close(sdm_t *p)

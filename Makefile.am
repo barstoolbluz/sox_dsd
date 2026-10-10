@@ -219,17 +219,17 @@ win64.exe: winexe-prepare
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.
 .PHONY: check-dsd
-DSD_PHASE ?= P08
+DSD_PHASE ?= P09
 DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
 check-dsd: all
-	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08"; then \
+	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09"; then \
 	  python3 -c 'import mpmath, numpy, scipy' || { \
 	    echo "UNRUN: required P06/P07 numerical gate (mpmath/numpy/scipy not installed)" >&2; exit 2; }; \
 	fi
 	$(MAKE) -C test dsd_test_io$(EXEEXT)
 	$(MAKE) -C test dsd_test_dff_writer$(EXEEXT)
 	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox_ng --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
-	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08"; then \
+	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09"; then \
 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_streaming.py \
@@ -237,28 +237,28 @@ check-dsd: all
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/streaming; \
 	fi
-	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08"; then \
+	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09"; then \
 	  $(MAKE) -C test dsd_test_seek_contract$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_seek.py \
 	    --probe $(abs_builddir)/test/dsd_test_seek_contract$(EXEEXT) \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/seek; \
 	fi
-	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08"; then \
+	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09"; then \
 	  $(MAKE) -C test dsd_test_layout$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_layout.py \
 	    --unit $(abs_builddir)/test/dsd_test_layout$(EXEEXT) \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/layout; \
 	fi
-	@if test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08"; then \
+	@if test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09"; then \
 	  $(MAKE) -C test dsd_test_plan$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_plan$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_plan.py \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/plan; \
 	fi
-	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08"; then \
+	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09"; then \
 	  $(MAKE) -C test dsd_test_decode$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_decode$(EXEEXT) && \
 	  $(MAKE) -C test dsd_test_decode_faults$(EXEEXT) && \
@@ -268,7 +268,7 @@ check-dsd: all
 	    --results $(DSD_RESULTS)/scalar; \
 	fi
 
-	@if test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08"; then \
+	@if test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09"; then \
 	  $(MAKE) -C test dsd_test_p07$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_p07$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p07.py \
@@ -291,13 +291,22 @@ check-dsd: all
 	    --sox $(abs_builddir)/src/sox_ng; \
 	fi
 
-	@if test "$(DSD_PHASE)" = "P08"; then \
+	@if test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09"; then \
 	  python3 $(srcdir)/tests/dsd/test_p08.py \
 	    --sox $(abs_builddir)/src/sox_ng \
 	    --results $(DSD_RESULTS)/integration; \
 	fi
 
 # P00 distributable design/test inputs (generated raw runs live in the continuation archive).
+	@if test "$(DSD_PHASE)" = "P09"; then \
+	  $(MAKE) -C test dsd_test_p09$(EXEEXT) && \
+	  python3 $(srcdir)/tests/dsd/test_p09.py \
+	    --unit $(abs_builddir)/test/dsd_test_p09$(EXEEXT) \
+	    --results $(DSD_RESULTS)/unit && \
+	  python3 $(srcdir)/tests/dsd/reference/analysis-v1/verify.py \
+	    --results $(DSD_RESULTS)/numeric; \
+	fi
+
 EXTRA_DIST += \
   docs/dsd/BASELINE.md docs/dsd/DSD_DESIGN.md docs/dsd/DSD_HANDOFF.md \
   docs/dsd/IMPLEMENTATION_PLAN.md docs/dsd/README.md docs/dsd/evidence/README.md \
@@ -397,5 +406,17 @@ EXTRA_DIST += src/rate_internal.h src/dsd_public.c src/dsdpcm.c \
 
 # P08 automatic graph and pre-combiner domain boundaries.
 EXTRA_DIST += tests/dsd/test_p08.py tests/dsd/bench_p08_adapter.py docs/dsd/handoffs/P08.md
-EXTRA_DIST += docs/dsd/briefs/P09.md
-EXTRA_DIST += docs/dsd/OPTIMIZATION_BACKLOG.md
+
+# P09 exact-rate registry, immutable analysis reference, tests and handoff.
+EXTRA_DIST += tests/dsd/test_p09.c tests/dsd/test_p09.py \
+  tests/dsd/reference/p09_original_coefficients.json \
+  tests/dsd/reference/analysis-v1/README.md tests/dsd/reference/analysis-v1/generate.py \
+  tests/dsd/reference/analysis-v1/analyze.py tests/dsd/reference/analysis-v1/verify.py \
+  tests/dsd/reference/analysis-v1/measure_candidates.py \
+  tests/dsd/reference/analysis-v1/manifest.json tests/dsd/reference/analysis-v1/SHA256SUMS.txt \
+  tests/dsd/reference/analysis-v1/fir-2822400.f64le \
+  tests/dsd/reference/analysis-v1/fir-5644800.f64le \
+  tests/dsd/reference/analysis-v1/fir-11289600.f64le \
+  docs/dsd/handoffs/P09.md docs/dsd/handoffs/P09_CHECKPOINT.md
+EXTRA_DIST += tests/dsd/bench_p09.py
+EXTRA_DIST += docs/dsd/briefs/P09_brief.md tests/dsd/sanitize_p09_results.py
