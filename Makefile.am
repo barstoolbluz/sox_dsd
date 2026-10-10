@@ -420,3 +420,4 @@ EXTRA_DIST += tests/dsd/test_p09.c tests/dsd/test_p09.py \
   docs/dsd/handoffs/P09.md docs/dsd/handoffs/P09_CHECKPOINT.md
 EXTRA_DIST += tests/dsd/bench_p09.py
 EXTRA_DIST += docs/dsd/briefs/P09_brief.md tests/dsd/sanitize_p09_results.py
+EXTRA_DIST += docs/dsd/briefs/P10.md
