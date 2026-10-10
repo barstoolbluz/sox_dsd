@@ -3,6 +3,7 @@
  * The returned plan owns only its arrays and borrows static effect names.
  */
 #include "dsd.h"
+#include "pcmdsd.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -110,8 +111,12 @@ static int resolve_encode(lsx_dsd_plan *p, uint32_t hz,
   if (profile == LSX_DSD_ENCODE_MASTERING) p->encoder_id=r->encode_mastering_id;
   else if (profile == LSX_DSD_ENCODE_LEGACY) p->encoder_id="encode.legacy.explicit";
   else p->encoder_id="encode.experimental.explicit";
-  p->needs_unimplemented_dsp=1;
-  p->unavailable_reason="composite DSD modulation is scheduled for P09/P10";
+  if (profile!=LSX_DSD_ENCODE_MASTERING || !lsx_pcmdsd_qualified(hz)) {
+    p->needs_unimplemented_dsp=1;
+    p->unavailable_reason=profile==LSX_DSD_ENCODE_MASTERING?
+        "P10 mastering profile is unqualified; qualification evidence blocks activation":
+        "no qualified composite for legacy/experimental selection; explicit sdm remains available";
+  }
   return 1;
 }
 
@@ -489,9 +494,14 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         p->encoder_filter_name=is(e->name,"sdm")?
             lsx_sdm_filter_selected_name(e->sdm_filter_name,target):
             lsx_sdm_filter_selected_name(NULL,target);
-      } else if (!resolve_encode(p,target,
+      } else {
+        uint32_t integer_source;
+        if (!lsx_dsd_integer_rate(rate,&integer_source))
+          return fail(error,n,"pcmdsd requires integer source Hz; insert an explicit rate effect");
+        if (!resolve_encode(p,target,
           e->dsd.profile_specified?(lsx_dsd_encode)e->dsd.profile:spec->policy.encode,
           error,n)) return 0;
+      }
       domain=LSX_DSD_NATIVE;
       rate=target;
       p->modulator_input_scale=lowlevel?1.:
@@ -499,7 +509,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
           e->dsd.reference==LSX_DSD_REF_DSD?1.:ref;
       ++p->encode_count;
       p->trim_native_seek=0;
-      append(p,e->name,old_domain,domain,before,rate,old_channels,channels,0,-1,ref);
+      append(p,e->name,old_domain,domain,before,rate,old_channels,channels,0,-1,p->modulator_input_scale);
     } else if (is(e->name,"dop")) {
       if (spec->policy.normalizing && !norm_inserted && domain==LSX_DSD_NATIVE) {
         /* DoP is transport, so a requested PCM normalization cannot be
@@ -625,6 +635,10 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         p->layout_identity_preserved=0;
         p->trim_native_seek=0;
       }
+      { uint32_t integer_source;
+        if (!lsx_dsd_integer_rate(rate,&integer_source))
+          return fail(error,n,"pcmdsd requires integer source Hz; insert an explicit rate effect");
+      }
       if (!resolve_encode(p,output_hz,spec->policy.encode,error,n)) return 0;
       append(p,"implicit_pcmdsd",domain,LSX_DSD_NATIVE,rate,output_hz,
           channels,channels,1,-1,ref);
@@ -730,7 +744,9 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   if (p->needs_unimplemented_dsp) {
     int unsupported_encoder=p->encoder_id &&
         strcmp(p->encoder_id,"encode.legacy.sdm") &&
-        strcmp(p->encoder_id,"encode.legacy.dither-p1");
+        strcmp(p->encoder_id,"encode.legacy.dither-p1") &&
+        !(p->native_output_hz && lsx_pcmdsd_qualified(p->native_output_hz) &&
+          !strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id));
     int unsupported_decoder=p->decoder_id &&
         !strcmp(p->decoder_id,"decode.legacy.generic");
     if (!unsupported_encoder && !unsupported_decoder && !p->dop_count &&
@@ -807,6 +823,14 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   /* Current low-level SDM/dither filters have no certified mastering ID. */
   if (p->encoder_filter_name) json_string(fp,p->encoder_filter_name);
   else fputs("null",fp);
+  if (p->encoder_id && p->native_output_hz) {
+    const lsx_pcmdsd_profile *enc=lsx_pcmdsd_profile_find(p->native_output_hz);
+    if (enc && !strcmp(enc->id,p->encoder_id)) {
+      fprintf(fp,", \"qualified\": %s, \"working_hz\": %u, \"prefilter_design_hz\": %u, \"pass_hz\": %.9g, \"stop_hz\": %.9g, \"certificate_sha256\": ",
+          enc->qualified?"true":"false",enc->working_hz,enc->working_hz,enc->pass_hz,enc->stop_hz);
+      json_string(fp,enc->certificate_sha256);
+    }
+  }
   fputs("},\n",fp);
   fprintf(fp,"  \"level_reference\": %.17g,\n",p->dsd_amplitude_per_pcm_unit);
   fprintf(fp,"  \"native_trim_seek\": %s,\n  \"layout_identity_preserved\": %s,\n",

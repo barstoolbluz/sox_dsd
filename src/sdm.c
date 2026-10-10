@@ -743,7 +743,8 @@ int sdm_normal_decision(double accumulator)
 /* Separate, scalar, old-bank-only recurrence: the legacy SIMD/trellis filter
  * remains untouched. Test against the reviewed scalar recurrence, not a
  * reconstruction produced by this code. */
-int sdm_normal_step(sdm_normal_t *s, double x, int *bit)
+static int sdm_normal_step_impl(sdm_normal_t *s, double x, int *bit,
+    const double *bounds, unsigned *coordinate)
 {
   const sdm_filter_t *f;
   sdm_normal_monitor_t *m;
@@ -766,8 +767,16 @@ int sdm_normal_step(sdm_normal_t *s, double x, int *bit)
   next[i] = old[i] + old[i-1];
   v += f->a[i] * next[i];
   if (!isfinite(v)) goto nonfinite;
-  for (i = 0; i < (unsigned)f->order; ++i)
-    if (!isfinite(next[i])) goto nonfinite;
+  for (i = 0; i < (unsigned)f->order; ++i) {
+    if (!isfinite(next[i])) {
+      if (coordinate) *coordinate=i;
+      goto nonfinite;
+    }
+    if (bounds && fabs(next[i])>bounds[i]) {
+      if (coordinate) *coordinate=i;
+      return -2; /* no decision or active-bank commit on finite runaway */
+    }
+  }
 
   y = sdm_normal_decision(v);
   *bit = y;
@@ -817,6 +826,14 @@ nonfinite:
   }
   return -1; /* no bank swap or decision/state commit */
 }
+
+/* The legacy P09 entry has no guard semantics change. The new composite
+ * uses the same recurrence with a before-commit finite-bound check. */
+int sdm_normal_step(sdm_normal_t *s,double x,int *bit)
+{ return sdm_normal_step_impl(s,x,bit,NULL,NULL); }
+int sdm_normal_step_guarded(sdm_normal_t *s,double x,int *bit,
+    const double bounds[8],unsigned *coordinate)
+{ return sdm_normal_step_impl(s,x,bit,bounds,coordinate); }
 
 static const sdm_filter_t *sdm_find_filter(const char *name, unsigned freq)
 {

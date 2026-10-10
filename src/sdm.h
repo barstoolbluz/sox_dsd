@@ -83,6 +83,9 @@ void sdm_normal_attach_monitor(sdm_normal_t *s, sdm_normal_monitor_t *m);
 /* Return 0 on success. Nonfinite arithmetic returns -1 without committing
  * the sample/state. The caller owns the output buffer and failure policy. */
 int sdm_normal_step(sdm_normal_t *s, double x, int *bit);
+/* P10: -2 denotes a finite state bound crossing; active state is uncommitted. */
+int sdm_normal_step_guarded(sdm_normal_t *, double, int *,
+    const double bounds[8], unsigned *coordinate);
 /* Signbit wins ties: negative zero must return -1. */
 int sdm_normal_decision(double accumulator);
 

@@ -93,6 +93,7 @@ def main():
     ap.add_argument('--repetitions',type=int,default=1)
     ap.add_argument('--warmups',type=int,default=0,help='untimed warm-ups before each case')
     ap.add_argument('--timeout',type=float,default=180)
+    ap.add_argument('--cpu',type=int,default=min(os.sched_getaffinity(0)) if hasattr(os,'sched_getaffinity') else None)
     ap.add_argument('--resume',action='store_true',help='keep previously completed cases only if configuration hashes match')
     args=ap.parse_args()
     if not (0 < args.duration <= 3600) or not (1 <= args.repetitions <= 1000) or not (0 <= args.warmups <= 1000) or args.timeout <= 0:
@@ -254,9 +255,23 @@ def main():
         if scalar.returncode:
             report['summary']['status']='incomplete'
             missing.append('P06 scalar benchmark failed')
+    if args.phase=='P10':
+        command=[sys.executable,str(ROOT/'tests/dsd/bench_p10.py'),
+            '--results',str(args.results/'composite')]
+        if args.cpu is not None:command+=['--cpu',str(args.cpu)]
+        cp=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=3600)
+        report['p10_composite_benchmark']=dict(exit=cp.returncode,stdout=cp.stdout,stderr=cp.stderr,
+            evidence='composite/composite-bench.json',qualified=False)
+        if cp.returncode:missing.append('P10 composite benchmark failed or incomplete')
+        from bench_p10 import performance_summary
+        perf=performance_summary(args.results.parent/'performance')
+        report['p10_paired_throughput']=dict(status=perf['status'],evidence='../performance/summary.json')
+        report['summary']['p10_throughput_qualification']=perf['status']
     atomic_json(outfile,report)
     print(json.dumps(dict(summary=report['summary'], path=str(outfile))))
-    return int(bool(missing))
+    if missing:return 1
+    if args.phase=='P10' and report['p10_paired_throughput']['status']!='PASS':return 2
+    return 0
 
 
 if __name__=='__main__':

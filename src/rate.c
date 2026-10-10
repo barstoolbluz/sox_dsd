@@ -1160,6 +1160,10 @@ static size_t lsx_rate_f64_available(lsx_rate_f64_t *ctx, double *output,
   if (ctx->delivered >= allowed || !limit) return 0;
   n = (size_t)min((uint64_t)limit, allowed - ctx->delivered);
   if (ctx->identity) return 0;
+  /* An unprimed SRC has no final FIFO storage. Avoid the zero-length
+   * read: its null source is not a valid memcpy argument even for n=0. */
+  if (!lsx_fifo_occupancy(&ctx->rate.stages[ctx->rate.num_stages].fifo))
+    return 0;
   rate_output(&ctx->rate, output, &n);
   ctx->delivered += n;
   return n;

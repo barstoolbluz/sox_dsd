@@ -177,6 +177,24 @@ def main() -> int:
                                            ['analysis-v1 coefficient generation/certification' if int(args.phase[1:])<6
                                              else 'P09 analysis-v1 audio corpus qualification',
                                             'independent DSD quality measurements'])))
+    if args.phase=='P10':
+        from soak_p10 import inspect as inspect_soaks
+        from bench_p10 import performance_summary
+        inspect_soaks(args.results.parent/'soak')
+        performance_summary(args.results.parent/'performance')
+        command=[sys.executable,str(ROOT/'tests/dsd/qualify_p10.py'),
+            '--stage','evaluate','--results',str(args.results)]
+        cp=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=3600)
+        qualification_path=args.results/'qualification.json'
+        qualification=json.loads(qualification_path.read_text()) if qualification_path.exists() else {'status':'FAILED','qualified':False}
+        result['p10_composite']=dict(exit_code=cp.returncode,status=qualification['status'],qualified=False,
+            evidence='qualification.json',stdout=cp.stdout,stderr=cp.stderr)
+        result['summary']['qualification_status']=qualification['status']
+        result['summary']['unrun_gates']=[name for name,gate in qualification.get('gates',{}).items()
+            if isinstance(gate,dict) and gate.get('status') in ('UNRUN','INCONCLUSIVE')]
+        result['independent_analysis']['candidate_qualification']=qualification['status']
+        result['quality_measurements'].append(dict(status='unpromoted',path='numeric/qualification.json'))
+        if cp.returncode not in (0,2):result['summary']['failed']+=1
     report_path=args.results/'measure.json'
     if report_path.exists():
         old=report_path.read_bytes()
@@ -195,7 +213,9 @@ def main() -> int:
             json.dumps(metrology.ANALYSIS_V1, indent=2, sort_keys=True) + '\n')
     print(json.dumps({'schema':result['schema'], 'summary':result['summary'],
                       'result_path':str(args.results/'measure.json')}))
-    return int(result['summary']['failed'] != 0)
+    if result['summary']['failed']:return 1
+    if args.phase=='P10' and result['p10_composite']['status']!='QUALIFIED':return 2
+    return 0
 
 
 if __name__ == '__main__':
