@@ -99,6 +99,56 @@ will under-attenuate and fail again later in the stream. A fixed -0.1 dB pass in
 Once admitted, these four behave like the rest: exact frames, population inside
 4 to 24, and level preserved.
 
+## Why these four and not the others: the envelope is the SACD reference level
+
+The envelope of 0.5 is -6.0206 dBFS, and in preserve reference DSD full
+scale maps to 1.0, so the admitted ceiling sits exactly at the PCM-full-scale to
+0 dB SACD convention that section 5.4 describes. Measuring each excerpt's
+reconstructed sample peak shows that this, and not interpolation overshoot, is
+what decides admission.
+
+| Source | Native Hz | Preserve peak dBFS | Amplitude | Admitted | Predicted from level | Actually needed |
+| --- | --- | --- | --- | --- | --- | --- |
+| `01 - Out On The Weekend` | 11289600 | -13.05 | 0.2226 | yes | - | - |
+| `01 - Shine On You Crazy Diamond (Parts` | 2822400 | -11.39 | 0.2695 | yes | - | - |
+| `Pink_Floyd~Wish_You_Were_Here~side1` | 11289600 | -11.33 | 0.2713 | yes | - | - |
+| `A1 Do Nothin' Till You Hear From Me` | 5644800 | -10.07 | 0.3137 | yes | - | - |
+| `Genesis~Foxtrot~side1` | 5644800 | -10.00 | 0.3162 | yes | - | - |
+| `Kate_Bush~The_Dreaming_-_(1982)_[Japan` | 11289600 | -9.44 | 0.3373 | yes | - | - |
+| `01 - Cantata BWV 110_ 1. Chorus` | 2822400 | -7.53 | 0.4202 | yes | - | - |
+| `01 - Better Git It In Your Soul` | 11289600 | -7.53 | 0.4202 | yes | - | - |
+| `Michael_Jackson~Thriller~side1` | 5644800 | -7.21 | 0.4360 | yes | - | - |
+| `01 - Start Me Up` | 5644800 | -7.20 | 0.4365 | yes | - | - |
+| `01 - Birdland` | 2822400 | -7.17 | 0.4380 | yes | - | - |
+| `Pink_Floyd~Meddle~side1` | 5644800 | -7.17 | 0.4380 | yes | - | - |
+| `01-So What` | 11289600 | -7.12 | 0.4406 | yes | - | - |
+| `01. Born Under A Bad Sign` | 11289600 | -7.01 | 0.4462 | yes | - | - |
+| `01 - Little Girl Blue` | 2822400 | -6.02 | 0.5000 | no | 0.00 dB | 0.10 dB |
+| `01 - ROCKIT` | 2822400 | -5.83 | 0.5111 | no | 0.19 dB | 0.25 dB |
+| `A1. Too Hot To Handle` | 5644800 | -5.40 | 0.5370 | no | 0.62 dB | 1.00 dB |
+| `01 - Bone Machine` | 2822400 | -5.22 | 0.5483 | no | 0.80 dB | 1.00 dB |
+
+Amplitude 0.5 separates the two groups with no exceptions across all 18 sources.
+The 14 admitted sources peak between -13.05 and -7.01 dBFS, so all are at
+least 7 dB below DSD full scale, which is the ordinary mastering practice for
+this format. The 4 rejected sources peak between -6.02 and -5.22 dBFS: each is
+mastered hotter than the convention the envelope encodes.
+
+Interpolation overshoot is the marginal term rather than the cause. Subtracting
+the attenuation predicted from the sample peak alone from the attenuation that
+actually admitted each source leaves between 0.06 and 0.38 dB, and for
+`Little Girl Blue`, whose peak sits at the convention exactly, the whole
+0.10 dB requirement is overshoot. An earlier reading of this evidence framed
+overshoot as the cause; the measurement above does not support that, and the
+level threshold does.
+
+The practical consequence, which we believe but have not established beyond
+this corpus, is that a DSD-origin remodulation workflow at unity reference
+admits material mastered to the SACD convention and rejects anything mastered
+above it, with the required correction equal to roughly the amount by which the
+master exceeds -6.0206 dBFS plus a small overshoot allowance. Whether that is
+the right product behaviour is a policy question this evidence does not settle.
+
 ## Method and reproduction
 
     python3 tests/dsd/dsd_windows.py --self-check <small.dsf>

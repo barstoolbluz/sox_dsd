@@ -60,17 +60,28 @@ determinations.
   `__SSE2__`. If that is right, one family satisfies the gate today and P11
   reopens it; if it is not, the soak covers less than we think.
 - The corpus is eighteen commercial DSD releases, six per rate, none produced by
-  this project or any SoX writer. Fourteen were admitted at unity reference. We
-  believe the level results show risk R7a does not occur on real material, since
-  reconstructing each output reproduced its source excerpt's level.
+  this project or any SoX writer. Fourteen were admitted at unity reference, and
+  the four rejections are the sources mastered hottest. We believe the level
+  results show risk R7a does not occur on real material, since reconstructing
+  each output reproduced its source excerpt's level.
+- We believe admission at unity reference is decided by level against the SACD
+  convention rather than by interpolation overshoot. The envelope of 0.5 is
+  -6.0206 dBFS, and in preserve reference DSD full scale maps to 1.0, so the
+  ceiling sits at the convention section 5.4 describes. Measuring each excerpt's
+  reconstructed sample peak, amplitude 0.5 separates admitted from rejected
+  across all eighteen sources with no exceptions: the admitted peak between
+  -13.05 and -7.01 dBFS, the rejected between -6.02 and -5.22 dBFS. Overshoot
+  accounts for only 0.06 to 0.38 dB on top of what the level alone predicts. An
+  earlier reading of ours framed overshoot as the cause, and we now think that
+  was wrong; `source-peaks.json` carries the measurement either way.
 - We believe `minimum_attenuation_db` is a lower bound rather than a
   requirement, because `fail_stream` in `src/pcmdsd.c` records only the first
   failure under `if (!p->error)` and derives the figure from that one sample's
   value. Measured consequence: `Bone Machine` reports 0.0102 dB, still overloads
-  at 0.5 dB, and is admitted only at 1.0 dB. We think that implies unattenuated
-  interpolation peaks near 0.53, and that a user trusting the field would
-  under-attenuate and fail later in the stream. The code reading is ours and the
-  inference from it is ours.
+  at 0.5 dB, and is admitted only at 1.0 dB, against a measured sample peak of
+  0.5483. We think a user trusting the field would under-attenuate and fail
+  later in the stream. The code reading is ours and the inference from it is
+  ours.
 - We did not measure integrator state maxima or nonfinite counts over the
   corpus. No harness mode accepts an external audio file, so a CLI run cannot
   observe them. If your criteria require that coverage, the corpus evidence is
