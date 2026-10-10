@@ -440,3 +440,4 @@ EXTRA_DIST += tests/dsd/generate_p10_profiles.py tests/dsd/reference/p10_profile
   tests/dsd/results/P10/certificate-input.json
 
 EXTRA_DIST += tests/dsd/bench_p10_kernel_control.py
+EXTRA_DIST += docs/dsd/briefs/P10-corrective.md
