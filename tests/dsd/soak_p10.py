@@ -104,7 +104,7 @@ def inspect(results, seconds=1800, segment=60, fixture='original-v1', unit=None)
                     source_and_native_identity=report.get('source_hz') == config['source_hz'] and
                         report.get('native_hz') == native,
                     observed_half_guard=report.get('monitor_overloads_nominal_half') == 0,
-                    release_sequence=seconds == 1800 and segment == 60,
+                    release_sequence=seconds >= 1800 and seconds % segment == 0 and segment == 60,
                 )
                 if native == RATES[0]:
                     criteria['dsd64_28bit_population'] = (report.get('excursions28') == 0 and

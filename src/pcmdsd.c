@@ -12,6 +12,7 @@
 #include "dsd_kernels.h"
 #include <inttypes.h>
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -376,17 +377,25 @@ void lsx_pcmdsd_set_reference(sox_effect_t *e,double scale)
 static int effect_failure(sox_effect_t *e)
 {
   lsx_pcmdsd_private *p=e->priv;
-  lsx_pcmdsd_report r;
+  lsx_pcmdsd_report r={0};
+  char attenuation[192];
   lsx_pcmdsd_report_get(p->encoder,&r);
   static const char *const failures[]={"none","nonfinite input",
     "interpolation overload","nonfinite modulator state","state guard exceeded",
     "stream error"};
+  if (r.failure==LSX_PCMDSD_INTERPOLATION_OVERLOAD)
+    snprintf(attenuation,sizeof(attenuation),
+        "minimum explicit attenuation %.9g dB (lower bound from first "
+        "overloaded sample; later peaks may require more)",
+        r.minimum_attenuation_db);
+  else
+    strcpy(attenuation,"no attenuation estimate for this failure");
   lsx_fail("pcmdsd: %s (failure %u) at native frame %" PRIu64
       ", channel %u, coordinate %u, value %.17g, observed peak %.17g; "
-      "minimum explicit attenuation %.9g dB; output block discarded",
+      "%s; output block discarded",
       (unsigned)r.failure<array_length(failures)?failures[r.failure]:"unknown failure",
       (unsigned)r.failure,r.first_bad_frame,r.channel,r.coordinate,
-      r.failure_value,r.peak,r.minimum_attenuation_db);
+      r.failure_value,r.peak,attenuation);
   return LSX_EFF_FATAL;
 }
 int lsx_pcmdsd_flow(sox_effect_t *e,const sox_sample_t *in,sox_sample_t *out,

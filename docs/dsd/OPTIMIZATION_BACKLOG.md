@@ -28,12 +28,16 @@ host, interval from a paired bootstrap.
 | P08 to P09 | -3.69% | [-3.90%, -3.51%] | 0.50% | pass, unexplained speedup |
 | P09 to P10 | +1.02% | [+0.82%, +1.43%] | 0.50% | pass |
 | P10 to P10 corrective | -0.15% | [-0.34%, +0.06%] | 0.34% | pass |
+| P10 corrective to P10 ratification | **+6.81%** | [+6.54%, +7.04%] | 0.41% | **fail**, attributed to a failure-path diagnostic in `src/pcmdsd.c` |
 
 Cumulative, as the product of the recorded median ratios: **+3.20%** from P05
 through P08, then **-0.60%** once P09 is included, **+0.42%** through P10 and
-**+0.26%** through the P10 corrective round. Each phase passed its own 5%
-gate. The design gates per phase and not the accumulation, so this total is
-tracked here rather than by any gate.
+**+0.26%** through the P10 corrective round, and **+7.08%** once the
+ratification round is included. Every phase up to the corrective round passed
+its own 5% gate; the ratification round does not, and its regression alone
+accounts for essentially all of that cumulative figure. The design gates per
+phase and not the accumulation, so this total is tracked here rather than by any
+gate.
 
 The P09 leg is worth treating with suspicion rather than relief. P09 changes
 only `src/sdm.c` and `src/sdm.h`, touching no read path, yet this workload
@@ -69,6 +73,25 @@ amortised over very little work. That makes this the most sensitive workload in
 the matrix to anything added near the read loop, and the first place a cost
 shows up. It is a useful canary for that reason, and a poor one to leave
 un-optimized.
+
+### The cause, demonstrated
+
+As of the P10 ratification round this is no longer unattributed. That round's
+only production change adds `#include <stdio.h>`, a 192-byte stack buffer, an
+`snprintf` and a `strcpy` to a branch in `src/pcmdsd.c` that runs only after the
+encoder has already failed. It cannot execute during a DFF read and cannot alter
+an output bit, yet it costs +6.81% here. Reverting that one file, with
+everything else in the tree held constant, returns the workload to -0.23%.
+Evidence: `tests/dsd/results/P10_ratification_throughput_2026-10-10/`.
+
+So the sensitivity this file has been documenting for five phases is real,
+large, and caused by the size of unrelated objects in the same library rather
+than by anything on the read path. Linker layout or instruction-cache placement
+remains the plausible mechanism, and it is now worth establishing rather than
+inferring, because it is what stands between a wanted diagnostic improvement and
+a passing gate. Two directions a remedy might take: keep the message but hold
+the translation unit's size and shape constant, or make the fragment read loop
+insensitive to placement so that unrelated edits stop moving it.
 
 ### What has not been done
 

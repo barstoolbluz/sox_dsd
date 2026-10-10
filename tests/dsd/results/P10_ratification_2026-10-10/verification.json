@@ -1,0 +1,106 @@
+{
+  "adversarial_corrective_cases_passed": 16,
+  "adversarial_ratification_cases_passed": 18,
+  "commands": [
+    {
+      "command": "autoreconf -fi",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "logs/autoreconf.log",
+      "log_sha256": "3d629c2ca357f0349173a41a22eefdb1a606bc818b9db74ca2e8aae694de5346",
+      "verdict": "PASS"
+    },
+    {
+      "command": "./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "logs/configure.log",
+      "log_sha256": "4fc3159f57563aec38ec05b562bacb53f7b5c151fbd8ca8dd1c174fe16853608",
+      "verdict": "PASS"
+    },
+    {
+      "command": "make -j2",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "logs/build-final.log",
+      "log_sha256": "c4084d39baf75ff19def881454c3fe6d99c62518b0697aa6294c3f747a6c8c84",
+      "verdict": "PASS"
+    },
+    {
+      "command": "make check",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "logs/make-check-final.log",
+      "log_sha256": "6652c0d5a73af22c591a26590bcfd0e99d2c999f6f1e709a95542b56569c314d",
+      "verdict": "PASS"
+    },
+    {
+      "command": "make check-dsd DSD_PHASE=P10 DSD_RESULTS=<out-of-tree-results>",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "logs/full-check-dsd-final.log",
+      "log_sha256": "d262666755653e0ddda79304fff97616885a72e18b96a77b7e4dbfb2aedb2fd7",
+      "verdict": "PASS"
+    },
+    {
+      "command": "test/dsd_test_p10 --unit",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "logs/p10-unit-final.log",
+      "log_sha256": "beaf8714ed6467147f5b8017a5134dfa082d31f3926a046563eeebdc48c86911",
+      "verdict": "PASS"
+    },
+    {
+      "command": "python3 tests/dsd/test_p10.py --sox src/sox_ng --candidate test/sox_p10_candidate --results <out-of-tree-results>",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "logs/p10-cli-final.log",
+      "log_sha256": "1612536023a104a56f9f2e493736dfb81758e496ad5e8eda0b2ec3a8619aa2be",
+      "verdict": "PASS"
+    },
+    {
+      "command": "python3 tests/dsd/test_p10_corrective_qualification.py",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "logs/p10-corrective-qualification-final.log",
+      "log_sha256": "69085eced3ac76850a1ce46b40a9a52856a8bec5d8b52316678461a120f27008",
+      "verdict": "PASS"
+    },
+    {
+      "command": "python3 tests/dsd/test_p10_ratification.py",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "logs/p10-ratification-tests-final.log",
+      "log_sha256": "56c3e6c0a67573f092ba30455ba6205b73b7f4173c87fd9d6a98dabf8f45c208",
+      "verdict": "PASS"
+    },
+    {
+      "command": "python3 tests/dsd/test_p10_soak_receipts.py --unit test/dsd_test_p10 --results <out-of-tree-results>",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "logs/soak-receipts-final.log",
+      "log_sha256": "5460ef0322dfc9778b2e337f48514f147016ee02538628cf7824b84bc07bd8a4",
+      "verdict": "PASS"
+    },
+    {
+      "command": "python3 tests/dsd/qualify_p10_ratification.py --check",
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "log": "logs/ratification-check-final.log",
+      "log_sha256": "2cd20615d868a0356f9c2d2ef6f98eaa0e743883fada8f5564dff645bc4363c1",
+      "verdict": "PASS"
+    }
+  ],
+  "date": "2026-10-10",
+  "full_inherited_dsd_suite_completed": true,
+  "historical_evidence_files_sha256_checked": 1945,
+  "host_architecture": "x86_64",
+  "host_operating_system": "Linux",
+  "note": "Logs sanitize ephemeral workspace paths. The source audio and prepared-host 1-hour/release benchmarks were not rerun in this session. Collector exit 2 represents INCOMPLETE, not an executable failure.",
+  "outcome": "INCOMPLETE",
+  "p10_cli_cases_passed": 63,
+  "p10_unit_assertions": 105474,
+  "promotion": "BLOCKED",
+  "schema": "P10/reviewer-verification/1",
+  "soak_receipt_cases_passed": 4
+}

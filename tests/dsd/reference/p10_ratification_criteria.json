@@ -1,0 +1,51 @@
+{
+  "schema": "P10/reviewer-release-criteria/1",
+  "authority": [
+    "docs/dsd/DSD_DESIGN.md:7.2",
+    "docs/dsd/DSD_DESIGN.md:10.1",
+    "docs/dsd/DSD_DESIGN.md:10.5",
+    "docs/dsd/sows/P10.md"
+  ],
+  "one_hour_hardware": {
+    "native_hz": [2822400, 5644800, 11289600],
+    "seconds": 3600,
+    "segment_seconds": 60,
+    "fixture": "nominal-v2",
+    "current_mastering_kernel_family": "scalar",
+    "requirements": [
+      "one continuous stateful stream per native rate on representative physical hardware",
+      "record architecture, generator identity and one stable executable identity",
+      "all required deterministic mixed-content segments and continuation hashes",
+      "exact source, processed and committed frame counts; clean terminal status",
+      "no nonfinite values, envelope crossings or guard-bound violations",
+      "DSD64: all complete 28-bit windows contain 4..24 ones",
+      "DSD128 and DSD256: record windows, runs and state extrema without imposing DSD64 population rule",
+      "P11 requalifies every newly introduced runtime ISA/kernel family"
+    ]
+  },
+  "independent_corpus": {
+    "required_domains": ["DSD_NATIVE", "PCM_AUDIO"],
+    "native_hz": [2822400, 5644800, 11289600],
+    "minimum_distinct_external_recordings_per_domain_and_native_rate": 2,
+    "minimum_excerpt_seconds": 60,
+    "minimum_genres_per_domain": 2,
+    "source_identity": "source/release/provenance and SHA-256 of each independent excerpt",
+    "pcm_rate_family_coverage": ["44100-family", "48000-family"],
+    "source_level_calibration": {
+      "rms_delta_tolerance_db": 0.25,
+      "peak_delta_tolerance_db": 0.5,
+      "dsd_source_reconstruction_reference": "preserve",
+      "pcm_source_output_reconstruction_reference": "sacd"
+    },
+    "requirements": [
+      "real independent recordings, not internally generated synthetic stimuli",
+      "route both DSD-origin preserve-reference remodulation and ordinary PCM mastering through the candidate composite",
+      "admitted renders have exact per-channel frames and a verified complete bit-window count",
+      "DSD64 admitted output has no 28-bit excursion outside 4..24 ones; higher-rate values are diagnostic",
+      "no silent gain correction: explicit overload rejection with nonzero status and optional recorded gain retry",
+      "compare source/output RMS and peak level with the appropriate reference scale, not the same scale for both domains",
+      "no positive statement about unmeasured real-corpus spectral or state extrema"
+    ],
+    "note": "The sustained 30-minute-per-rate synthetic qualification and frozen analysis-v1 suite are separate gates; do not impose a second arbitrary 30-minute requirement on external excerpts or treat short excerpts as full-track certification. The minimal 60-second excerpt and two independent recordings per rate prevent a single short signal from being mislabeled as a corpus."
+  }
+}
