@@ -1,5 +1,11 @@
 # P10 independent real-world corpus, PCM_AUDIO arm (2026-10-11)
 
+The four machine records for this arm, `pcm-sources.json`, `pcm-unity.json`,
+`pcm-ladder.json` and `pcm-corpus.json`, live in
+`tests/dsd/results/P10_realworld_corpus_2026-10-10/` beside the DSD_NATIVE
+records, because `qualify_p10_ratification.py` reads both domains from that one
+base. This directory holds the narrative only.
+
 **Coverage: PASS.** 51 measurements, 17 independent commercial PCM releases
 at each of the three native rates, all admitted at unity reference with no
 attenuation, every frame count exact, every window count exact, every level

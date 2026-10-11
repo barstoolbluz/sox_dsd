@@ -1,4 +1,4 @@
-# P10 closeout: rule on the last gate
+# P10 closeout: certify, or say what prevents it
 
 Work in the attached tree, a `git archive` snapshot with no `.git`; the dispatch
 note carries its filename and SHA-256. `docs/dsd/sows/P10.md` remains the
@@ -6,84 +6,89 @@ statement of work, `docs/dsd/DSD_DESIGN.md` the authority, and
 `tests/dsd/reference/p10_ratification_criteria.json` the criterion your
 ratification round wrote.
 
-Both halves of `independent_realworld_corpus` have now been measured on the
-hardware and the material. Every other P10 gate records a pass. This round is
-the ruling, and whatever follows from it.
+Both halves of `independent_realworld_corpus` have been measured on the hardware
+and the material, and by your own collector every P10 gate now passes with no
+release gates remaining. What is left is the certification that collector
+declines to issue for itself.
 
-## What has been measured since you last saw this tree
+## Where this now stands
 
-Everything in this section is what we believe from runs we performed and
-interpreted ourselves. You must make the determination.
+Your own collector, `qualify_p10_ratification.py`, run unmodified at its default
+paths with both corpus arms in place, reports every gate `PASS` and
+`remaining_release_gates` empty. It also reports `qualified` false, `promotion`
+BLOCKED, and `profile_activation` as "UNQUALIFIED: requires explicit positive
+certification; P15 governs defaults". Recorded in
+`tests/dsd/results/P10_gate_assessment_2026-10-11/`.
 
-- **`PCM_AUDIO`**, with your `corpus_pcm.py` and no modification by us: 51
-  measurements, 17 independent commercial releases at each of the three native
-  rates. We read all 51 as admitted at unity reference, frame and window counts
-  exact, levels inside tolerance, and the DSD64 population inside 4 to 24 across
-  40,303,869,246 complete windows. Your collector reported coverage `PASS` with
-  `approved_for_profile_promotion` false. Evidence:
-  `tests/dsd/results/P10_pcm_corpus_2026-10-11/`.
-- **`DSD_NATIVE`**, measured earlier with our own driver: 18 commercial DSD
-  releases, six per rate. We read 14 as admitted at unity and 4 as rejected and
-  then admitted with explicit attenuation between 0.1 and 1.0 dB. Evidence:
-  `tests/dsd/results/P10_realworld_corpus_2026-10-10/`.
-- **The read/repack throughput gate**, which your validation left to us: we
-  measure the hotfix at `-4.43%` on `dff-6ch-repack-small`, all sixteen
-  workloads passing, worst noise 0.91%. Evidence:
-  `tests/dsd/results/P10_hotfix_throughput_2026-10-11/`.
+So the measuring is done and the remaining step is a judgement your collector
+deliberately declines to make for itself.
 
-## You cannot re-run this corpus, and that is permanent
+What we did since you last saw this tree, each item our reading of runs we
+performed and interpreted ourselves:
 
-Every other P10 gate you have ruled on was reproducible in your environment.
-This one is not, and will never be. The corpus is 19 commercial releases held
-privately on this host, on read-only and network mounts. The audio is not in the
-tree and must not be: it is third-party copyrighted material and the repository
-is published. Your own ratification validation already recorded that no
-commercial PCM FLAC recordings were available to you and none are bundled.
+- **`PCM_AUDIO`**, with your `corpus_pcm.py` unmodified: 51 measurements, 17
+  independent commercial releases at each native rate, all admitted at unity,
+  frame and window counts exact, levels inside tolerance, DSD64 population
+  within 4 to 24 across 40,303,869,246 complete windows. Evidence under
+  `tests/dsd/results/P10_realworld_corpus_2026-10-10/` as `pcm-*.json`, with the
+  narrative in `tests/dsd/results/P10_pcm_corpus_2026-10-11/`.
+- **`DSD_NATIVE`**, measured earlier with our own driver: 18 releases, 14
+  admitted at unity, 4 explicitly rejected and then admitted under declared
+  attenuation between 0.1 and 1.0 dB.
+- **The read/repack throughput gate**, which your validation left to a prepared
+  host: the hotfix measures `-4.43%` on `dff-6ch-repack-small`, sixteen of
+  sixteen workloads passing, worst noise 0.91%. Evidence:
+  `tests/dsd/results/P10_hotfix_throughput_2026-10-11/`. Note your collector's
+  `inherited_prepared_host_read_repack` still cites the 2026-10-09 run; this
+  newer measurement is not wired into it.
 
-So this gate cannot be discharged by re-execution. It can only be discharged by
-judging attested measurement, or else it cannot be discharged at all. We think
-that is a property of the gate rather than a defect in the evidence, but you may
-disagree, and if you conclude that receipt-level scrutiny is insufficient in
-principle here, say so plainly: that is a finding about a gate your own round
-wrote, and we would rather have it than a ruling nobody can stand behind.
+One correction we owe you: the corpus gate read `PARTIAL` only because we filed
+the PCM records in a directory of their own, while your collector reads both
+domains from one base and looks for `pcm-sources.json`, `pcm-unity.json` and
+`pcm-ladder.json` beside the DSD files. Your layout was right and ours was
+wrong; the records now sit where you put them. Nothing was re-measured.
 
-What the tree does let you check, without any of the audio:
+## You cannot re-run this corpus, and your criterion already allows for that
 
-- Whether the collector's logic actually implements your criterion, in
-  `corpus_pcm.py`, `qualify_p10_ratification.py` and
-  `p10_ratification_criteria.json`.
-- Whether the recorded receipts are internally consistent and fail closed when
-  tampered with. You built exactly this machinery already: `test_p10_pcm.py` and
-  the eighteen adversarial receipt tests in `test_p10_ratification.py`.
-- Whether each entry carries the provenance the criterion demands: release
-  identity, source FLAC and excerpt hashes, STREAMINFO MD5 and CRC result,
-  source clock and family, target rate, CLI exit status, output DSF hash,
-  per-channel frame and window counts, and the reference used per domain.
-- Whether the claimed coverage follows from the entries: rate, family, genre and
-  cardinality counts recomputed from the rows rather than taken from the summary.
-- Whether the bitstream statistics are trustworthy by construction, via
-  `dsd_windows.py --self-check` against `reference/verify.decode_dsf`.
+We had drafted this section to warn you that the corpus is not reproducible in
+your environment, and then found your collector already says so itself:
+"Recorded hardware provenance and audio hashes are operator-supplied; external
+commercial sources are not distributed or re-rendered here." You built the gate
+to accept attested measurement with provenance. We note it anyway because it
+bears on how much weight the ruling can carry: 19 privately held commercial
+releases and a real-hardware soak cannot be re-executed by a model session, and
+never will be.
 
-If what you need is a receipt we did not record, name it and we will re-run. The
-material stays here; the measurements can be regenerated to any specification
-you set.
+What the tree does let you check without any audio: whether the collector
+implements your criterion; whether the receipts are internally consistent and
+fail closed when tampered with, which your `test_p10_pcm.py` and the eighteen
+adversarial tests in `test_p10_ratification.py` already exercise; whether each
+entry carries the provenance the criterion demands; whether the coverage follows
+from the rows rather than from a summary; and whether the bitstream statistics
+are sound by construction via `dsd_windows.py --self-check`.
+
+If a receipt we did not record would change your confidence, name it and we will
+re-run. The material stays here; the measurements can be regenerated to any
+specification you set.
 
 ## Outcomes wanted
 
-1. A ruling on `independent_realworld_corpus` against your own criterion, across
-   both domains, on the basis set out above. Whether the evidence discharges it,
-   partly discharges it, or does not, is yours to determine. If the honest answer
-   is that it cannot be adjudicated from receipts, that is an acceptable answer.
-2. A ruling on the read/repack throughput gate, which your own validation
-   recorded as awaiting a prepared host.
-3. If those close, P10's release disposition stated explicitly, including what it
-   does and does not authorise. Our reading is that qualification and promotion
-   are different things and that no activation happens before P15, but that is
-   your call to make and record, not ours to assume.
-4. If they do not close, what specifically is missing and what would suffice.
+1. Confirm or reject that assessment. If you accept it, say so against your own
+   criterion rather than against our account of it.
+2. The explicit positive certification your collector requires, or a statement
+   of what stands in its way. This is the step it will not take for itself, and
+   we are not going to assert it on your behalf.
+3. P10's release disposition stated plainly, including what it does and does not
+   authorise. Our reading is that passing every gate is not activation and that
+   P15 governs defaults, which is what your own `profile_activation` field says,
+   but recording that is yours.
+4. Whether the throughput gate should cite the newer prepared-host measurement
+   rather than the inherited 2026-10-09 one.
+5. If any of this does not close, what specifically is missing and what would
+   suffice.
 
 **A rejection is still a good outcome if the evidence warrants it.** We would
-rather run more than have a gate closed on our account.
+rather run more than have a phase closed on our account.
 
 ## Things we think you should weigh, and may disagree with us about
 

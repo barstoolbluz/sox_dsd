@@ -1,0 +1,130 @@
+{
+ "criteria": "tests/dsd/reference/p10_ratification_criteria.json",
+ "criteria_sha256": "d0ec5d40f59190b972a5d916dcd38bf5ff2ee524423d1a2a1e7b966165de914e",
+ "gates": {
+  "independent_realworld_corpus": {
+   "checks": {
+    "DSD_NATIVE": {
+     "admitted": 14,
+     "by_rate": {
+      "11289600": {
+       "admitted": 6,
+       "explicit_rejections": 0,
+       "sources": 6
+      },
+      "2822400": {
+       "admitted": 3,
+       "explicit_rejections": 3,
+       "sources": 6
+      },
+      "5644800": {
+       "admitted": 5,
+       "explicit_rejections": 1,
+       "sources": 6
+      }
+     },
+     "genres": 12,
+     "rejected": 4,
+     "sources": 18,
+     "status": "PASS"
+    },
+    "PCM_AUDIO": {
+     "admitted": 51,
+     "by_rate": {
+      "11289600": {
+       "admitted": 17,
+       "explicit_rejections": 0,
+       "sources": 17
+      },
+      "2822400": {
+       "admitted": 17,
+       "explicit_rejections": 0,
+       "sources": 17
+      },
+      "5644800": {
+       "admitted": 17,
+       "explicit_rejections": 0,
+       "sources": 17
+      }
+     },
+     "genres": 13,
+     "rejected": 0,
+     "sources": 51,
+     "status": "PASS"
+    }
+   },
+   "criteria": "independent_corpus",
+   "evidence": "tests/dsd/results/P10_realworld_corpus_2026-10-10/",
+   "reasons": [],
+   "status": "PASS"
+  },
+  "inherited_analysis_v1": {
+   "details": "Includes DSD64 35.9084-dB residual improvement, no material per-case regressions",
+   "evidence": "../P10/numeric/qualification.json",
+   "status": "PASS"
+  },
+  "inherited_numeric_183_bit_identical": {
+   "details": "All inherited analysis-v1 numerical identities confirmed with corrected executable; no reanalysis claimed",
+   "evidence": "bit-equivalence/bit-equivalence.json",
+   "status": "PASS"
+  },
+  "inherited_prepared_host_read_repack": {
+   "details": "P09 vs P10 read/repack only; not a new encoder/observer benchmark",
+   "evidence": "../P10/bench-read-prepared-host-2026-10-09/bench-read.json",
+   "status": "PASS"
+  },
+  "no_promotion": {
+   "details": null,
+   "evidence": "tests/dsd/reference/p10_profiles.json",
+   "status": "PASS"
+  },
+  "nominal_30min_all_rates": {
+   "details": "One uninterrupted 1800-s encoder per rate, all 30 snapshot states and final output checked",
+   "evidence": "nominal-v2/soak/soak.json",
+   "status": "PASS"
+  },
+  "original_expected_overload_replay": {
+   "details": "Original unattenuated stimulus still fails at the identical frame, state and value",
+   "evidence": "original-overload/verification.json",
+   "status": "PASS"
+  },
+  "regressions_and_candidate_cli": {
+   "details": "make check and make check-dsd executed separately; 36 regression, 63 CLI, 105474 core assertions",
+   "evidence": "regression, cli/cli.json, unit/core.json",
+   "status": "PASS"
+  },
+  "representative_hardware_1hour_per_profile_isa": {
+   "checks": {
+    "continuation_snapshots": 183,
+    "hardware_provenance": "operator-reported Threadripper 7970X",
+    "kernel_family": "scalar (x86_64 baseline build, not an SSE2 mastering kernel)",
+    "rates": [
+     2822400,
+     5644800,
+     11289600
+    ],
+    "seconds_per_rate": 3600
+   },
+   "criteria": "one_hour_hardware",
+   "evidence": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/",
+   "reasons": [],
+   "status": "PASS"
+  },
+  "stage_unity_scaling_and_distribution": {
+   "details": "9 steady-DC paths, 3 directly measured noise modes per native rate",
+   "evidence": "stage-audit/classification.json",
+   "status": "PASS"
+  }
+ },
+ "historical_corrective_receipt_sha256": "d5993a642fe282ad405a9b41565cab9ecb6c108d695ecd7f135e09d20ed97c80",
+ "inherited_gates_unchanged": true,
+ "limitation": "Recorded hardware provenance and audio hashes are operator-supplied; external commercial sources are not distributed or re-rendered here. The 1-hour soak qualifies the scalar P10 recurrence, not legacy SIMD or future P11 runtime kernels.",
+ "old_release_status": "INCOMPLETE",
+ "profile_activation": "UNQUALIFIED: requires explicit positive certification; P15 governs defaults",
+ "promotion": "BLOCKED",
+ "qualified": false,
+ "remaining_release_gates": [],
+ "schema": "P10/reviewer-ratification/1",
+ "status": "PASS",
+ "supersedes_release_accounting": "tests/dsd/results/P10_corrective/qualification.json"
+}
