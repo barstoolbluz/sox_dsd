@@ -1,0 +1,95 @@
+{
+  "activation_notes": "This certifies P10 evidence/profile qualification only. Historical negative certificates and production qualified=0 flags remain unchanged. P11 may proceed; release defaults and activation are reserved for P15.",
+  "basis": {
+    "all_ten_gates": "PASS",
+    "hours": {
+      "family": "scalar P10 guarded recurrence",
+      "rates_hz": [
+        2822400,
+        5644800,
+        11289600
+      ],
+      "seconds_each": 3600
+    },
+    "inherited_analysis_and_regression_gates": "PASS per frozen P10 and corrective receipts",
+    "prepared_host_read_repack": {
+      "date": "2026-10-11",
+      "dff_6ch_repack_small_percent": -4.429432639269503,
+      "pass_workloads": 16,
+      "worst_noise_percent": 0.9090639196180546
+    },
+    "real_world_corpus": {
+      "DSD_NATIVE": {
+        "distinct_excerpt_receipts": 18,
+        "rejected_and_attenuated": 4,
+        "unity_admitted": 14
+      },
+      "PCM_AUDIO": {
+        "distinct_recordings": 17,
+        "source_to_target_measurements": 51,
+        "unity_admitted": 51
+      }
+    },
+    "standard": "tests/dsd/reference/p10_ratification_criteria.json"
+  },
+  "certified_profiles": [
+    "encode.mastering.v1.dsd64",
+    "encode.mastering.v1.dsd128",
+    "encode.mastering.v1.dsd256"
+  ],
+  "date": "2026-10-11",
+  "decision": "CERTIFIED",
+  "input_archive": {
+    "name": "sox_ng-P10adjudicate-ce14dcbe.tar.gz",
+    "sha256": "e6b3a69b6f74e63a04b6e507f53be1cac3f6a4daec7503fdbc8b2b04eb79c06f"
+  },
+  "input_sha256": {
+    "docs/dsd/DSD_DESIGN.md": "a3cecb47019006375d0c760a57df97849900144dca36301585f63509dea347bb",
+    "docs/dsd/sows/P10.md": "6d0f7ce27ebe7898eea27f733d2cbdaafe6cbac6dc0deeaf2ea2fdb0ab694783",
+    "src/dsd_plan.c": "5bc05977247b96092efa721058d0c3e3c179cf6512a4799b38a3244192555d89",
+    "src/dsdiff.c": "620deb72a98e7f54b98e2e9a5c8ea051d2a08361ddbe8b4671d23f4404775885",
+    "src/pcmdsd.c": "62f9625ccb570a7b6fdb35f66e0a72db58292ac3c9bdde00e1cd618fce781d37",
+    "src/pcmdsd.h": "74393d4341ce758f68b61bd6b9d33fafbb0baa6b6a2b11134f9c09651203b5c0",
+    "src/pcmdsd_coeffs.h": "bac79e8fac35fd1fadb3fb5ec9532101ae60286fb57c2cb75e061003eb548538",
+    "src/pcmdsd_guards.h": "a0c83042250a3d0b230c7675c236d00b7cc2291484ef9e8246a4da366c6fbe5e",
+    "src/sdm.c": "87521841741b89478038af103fec6bae8a2258191781a4aa3a9945d676930773",
+    "tests/dsd/reference/p10_guards.json": "12f92c1ef2d66cb7a72df97d56aee760ec17e962c3d566f9275979df774fe447",
+    "tests/dsd/reference/p10_profiles.json": "df25a2a11855e8a380cd756cf38769701103338faf36b46271aa3df22bc5157e",
+    "tests/dsd/reference/p10_ratification_criteria.json": "d0ec5d40f59190b972a5d916dcd38bf5ff2ee524423d1a2a1e7b966165de914e",
+    "tests/dsd/results/P10_corrective/qualification.json": "d5993a642fe282ad405a9b41565cab9ecb6c108d695ecd7f135e09d20ed97c80",
+    "tests/dsd/results/P10_gate_assessment_2026-10-11/assessment.json": "79eaf5f0eb54c56ba7014e122b9af656b0900c9573db04ec2282aa643d2794ac",
+    "tests/dsd/results/P10_hotfix_throughput_2026-10-11/bench-read.json": "2494cd153f4b70309d65dca4f22ff8f6753dc04e3421d485bbdb65d2e13c3015",
+    "tests/dsd/results/P10_ratification_2026-10-10/qualification.json": "800d087806d9acab5dbf6cd8239f3d92c46a8f274147662fbeee0588ff7f24f5",
+    "tests/dsd/results/P10_realworld_corpus_2026-10-10/corpus-ladder.json": "9242ab74898d4552ee258d55897dda2f8b94d306a6fa64f028925c87d066aef9",
+    "tests/dsd/results/P10_realworld_corpus_2026-10-10/corpus-unity.json": "3ff6e7a5937158cea981a9971dd12b4972f45a7ab4d340d4c7ae70c2fbe9daa2",
+    "tests/dsd/results/P10_realworld_corpus_2026-10-10/pcm-corpus.json": "bcb907a44b0d51b6c6f9485feebb98e57af5a926cbcac7c7db45d4284c78bc39",
+    "tests/dsd/results/P10_realworld_corpus_2026-10-10/pcm-ladder.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "tests/dsd/results/P10_realworld_corpus_2026-10-10/pcm-sources.json": "afa476871e79e767362cc501210a641d1b1b87981fc54fedd2c306ac0e2378e9",
+    "tests/dsd/results/P10_realworld_corpus_2026-10-10/pcm-unity.json": "243ff548887d3d3a4257b0062bf1591f17b4903a4401b38174f1257ff3c019eb",
+    "tests/dsd/results/P10_realworld_corpus_2026-10-10/reader-self-check.json": "dc3067ffdaa1716a737a93c13d05749c137df790a79ef340597461f2b077a067",
+    "tests/dsd/results/P10_realworld_corpus_2026-10-10/sources.json": "18353861b5bf0c3d0c5ef288e35eef258bfe81aa2d20d9567e36683e0642f50d",
+    "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-11289600-configuration.json": "47059394b3acaadc18dee5a9a072c09162f8727a0a3a1d506e14b053ab0aec75",
+    "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-11289600-execution.json": "d6eae5f5262fc2ad7ca70692ac32a50772e4478adcbfc83be58017ef3f1f2a94",
+    "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-11289600-result.json": "5cb95dfd6d32e9ba788084b72f26007937d4eb15adb9c1e2e063cd04e019720e",
+    "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-2822400-configuration.json": "306930e07086a2d99d6c0eac001ec97cb8ab7ba60c96c2493c321c7de581f42a",
+    "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-2822400-execution.json": "ef54cdbb403cbb34dfa80f335a3721a3d9a6b29e843493f1a3a63b65a507bf03",
+    "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-2822400-result.json": "5be64bbe130ad25caaa13b1e751655ed0f364058c383e4881cbd9d17e63a6e22",
+    "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-5644800-configuration.json": "f07f41e206651b6764721babcfe2975d71affb9811bd750d5952944558f0dd4a",
+    "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-5644800-execution.json": "5e452b8244db7110908a8a535e45b44afee30410c713fbb1863e8249cde01723",
+    "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-5644800-result.json": "c03e1d13274384efb07fae9778d8c1ef5ad16faf525d32368bd02192ba3e98ae",
+    "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak.json": "bc5e242854e2baa03039fb21f8b2ba6d6432fa77e074418aca4c30fc95f828e6",
+    "tests/dsd/test_p10.c": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30"
+  },
+  "kernel_family": "scalar guarded P10 composite",
+  "p10_phase": "CLOSED",
+  "p11": "PERMITTED",
+  "p15_default_activation": "NOT_AUTHORIZED",
+  "production_profile_flags_modified": false,
+  "schema": "P10/explicit-reviewer-certification/1",
+  "scope": {
+    "not_claimed": "Universal stability, complete-track certification, independent hardware attestation, or quality/throughput for future P11 ISA variants",
+    "not_measured": "Real-world external-PCM/DSD corpus integrator extrema, nonfinite counts, independent corpus-specific analysis-v1 spectra, interpolation overshoot on all admitted commercial tracks",
+    "operator_supplied": "Commercial audio identities/hashes, recordings and benchmark/soak host provenance; sources absent, raw performance cannot be independently repeated here",
+    "verified": "Source code path, evidence integrity and internal consistency, collector criteria, receipt hashes, recorded measurements and reproducible tests where supported"
+  }
+}
