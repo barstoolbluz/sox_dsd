@@ -1,0 +1,1044 @@
+{
+  "fixture_version": "nominal-v2",
+  "limitation": "A rejected prefix is not a completed 30-minute soak. A clean DSD64 prefix is not a guarantee over the unprocessed suffix.",
+  "profiles": [
+    {
+      "admission_checks": {
+        "admitted_peak": true,
+        "clean_terminal_status": true,
+        "complete_snapshots": true,
+        "complete_window_monitor": true,
+        "dsd64_28bit_population": true,
+        "exact_native_duration": true,
+        "observed_half_guard": true,
+        "original_configuration": true,
+        "release_sequence": true,
+        "reproducible_binary": true,
+        "source_and_native_identity": true,
+        "stable_state": true
+      },
+      "completed_audio_seconds": 3600.0,
+      "configuration": {
+        "edge_ramp_seconds": 0.1,
+        "fixture_version": "nominal-v2",
+        "generator": "test_p10.c:soak_source_version; int32 graph-equivalent",
+        "minute_sequence": [
+          "silence",
+          "DC +0.7",
+          "DC -0.7",
+          "53/997/5501/17011 Hz multitone, each peak 0.15",
+          "SplitMix64-indexed uniform noise, peak 0.45",
+          "1000 Hz tone, peak 0.8"
+        ],
+        "native_hz": 2822400,
+        "qualification": false,
+        "reference_scale": 0.5,
+        "resets_between_segments": false,
+        "resume": "deterministic prefix replay with byte-checked saved SDM/monitor states",
+        "schema": "P10/continuous-soak/1",
+        "seconds": 3600,
+        "segment_seconds": 60,
+        "sequence_repeats": true,
+        "source_hz": 88200
+      },
+      "evidence": "soak-2822400-result.json",
+      "evidence_sha256": "91ffe74d384eed8cf1b4a8d83d7e47d6ced9fd4a3d1efcf4240a619a09ba234b",
+      "execution": {
+        "architecture": "x86_64",
+        "binary_sha256": "59eeee60cacf8579875312f32eabf4839883e3340dc73797c33a9609e63b70cb",
+        "command": [
+          "test/dsd_test_p10",
+          "--soak-nominal-v2",
+          "2822400",
+          "3600",
+          "60",
+          "<results>/soak-2822400"
+        ],
+        "exit_code": 0,
+        "fixture": "nominal-v2",
+        "replay": false,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30"
+      },
+      "first_bad_audio_seconds": null,
+      "prefix_windows28_pass": true,
+      "raw": {
+        "channel": 0,
+        "committed_native_frames": 10160640000,
+        "coordinate": 4294967295,
+        "cpu_seconds": 262.786142,
+        "effective_pass_hz": 20000,
+        "excursions28": 0,
+        "failure": 0,
+        "failure_value": 0,
+        "first_bad_frame": null,
+        "input_frames": 317520000,
+        "longest_run": 8,
+        "max_abs_state": [
+          3.1543108080699045,
+          12.59312312689329,
+          74.97964186978865,
+          486.74791767882016,
+          3594.5791657851278,
+          26503.327819347644,
+          246149.4678727662,
+          3087051.184632233
+        ],
+        "max_ones28": 21,
+        "min_ones28": 7,
+        "minimum_attenuation_db": 0,
+        "mode": "soak-nominal-v2",
+        "monitor_overloads_nominal_half": 0,
+        "native_hz": 2822400,
+        "nonfinite_states": 0,
+        "peak": 0.3999999999944214,
+        "processed_native_frames": 10160640000,
+        "profile": "encode.mastering.v1.dsd64",
+        "qualification": "UNQUALIFIED",
+        "schema": "P10/candidate-render/1",
+        "source_hz": 88200,
+        "status": 3,
+        "windows28": 10160639973
+      },
+      "snapshots": [
+        {
+          "file": "soak-2822400-0001.state",
+          "sha256": "b516073d5bad08f4d4e0513ce47d3325be639fe757e30c4ff60e43e5650d9ab6"
+        },
+        {
+          "file": "soak-2822400-0002.state",
+          "sha256": "4916490d08411fa4bf41f5600d9f50a8e7d08e1f822c61cde87aba31edf70f50"
+        },
+        {
+          "file": "soak-2822400-0003.state",
+          "sha256": "078773b54be31f9ef52f78900233f5df46b20c07379f15ef36135a34ee132ad5"
+        },
+        {
+          "file": "soak-2822400-0004.state",
+          "sha256": "f84d32cc993e010b6788e0f55f204f7ea94d114016bd07dd30067afd800ee58c"
+        },
+        {
+          "file": "soak-2822400-0005.state",
+          "sha256": "ff08c981dfc143e74ba62954b3d423009e815eac1a7ad0e4acd58daa5885985a"
+        },
+        {
+          "file": "soak-2822400-0006.state",
+          "sha256": "433e9fa6e5b7c610f5bcf9ffbe15076b454243ccaf03d6b98729226b01d2d118"
+        },
+        {
+          "file": "soak-2822400-0007.state",
+          "sha256": "164b64e85075cbd9917cc161b3ee5ba020139f8a1df5ebaef4b0d41448ba0591"
+        },
+        {
+          "file": "soak-2822400-0008.state",
+          "sha256": "c21a324ad00b0be4cc3598ed392922905beb703d0fc28bfde9814a2db3269e6d"
+        },
+        {
+          "file": "soak-2822400-0009.state",
+          "sha256": "7e8c2aaa6d785a2ee324fa2fb9b355de5d8a0872148429738d151c722eddedd2"
+        },
+        {
+          "file": "soak-2822400-0010.state",
+          "sha256": "552b8e03215bb94ed04677987ad7f6e08d290d4c43f187ce890825dac70dc9dd"
+        },
+        {
+          "file": "soak-2822400-0011.state",
+          "sha256": "361ae920574198fd839a9e50de11892ec32175702e9dfb3e3c8bb73c26403c43"
+        },
+        {
+          "file": "soak-2822400-0012.state",
+          "sha256": "a36b30871d040066ed252626ff469211c1080d5a1bdba999aa9579bca4db977a"
+        },
+        {
+          "file": "soak-2822400-0013.state",
+          "sha256": "9737216609f9a92b8e4f99c64370e3b9e592dd22e8f614bd99b03ea4384223a3"
+        },
+        {
+          "file": "soak-2822400-0014.state",
+          "sha256": "672204332f80609ec29158dabf1225f5c34e400354d655f3fadcf93084a4e16f"
+        },
+        {
+          "file": "soak-2822400-0015.state",
+          "sha256": "a4e27637456517997832f4f7ca9e01dd99daa2efb965f1e65802b6d552675d92"
+        },
+        {
+          "file": "soak-2822400-0016.state",
+          "sha256": "928cb50ae1e597f5cfb9a975db9779784205d339d363911808b6d11c31c9c873"
+        },
+        {
+          "file": "soak-2822400-0017.state",
+          "sha256": "5f3894ccf10705899196fb9e002c2c956dc29d3ecfa0202662236dbabb13459e"
+        },
+        {
+          "file": "soak-2822400-0018.state",
+          "sha256": "db6d3be4e59f07c42b423d695662da73314d6942b2c6678c3f7d8196de5441e6"
+        },
+        {
+          "file": "soak-2822400-0019.state",
+          "sha256": "0de957986673299658e08777b6b7361acbaa1dea1c6d73543440753e2306aa5d"
+        },
+        {
+          "file": "soak-2822400-0020.state",
+          "sha256": "9ce59e5f7c5aea7e3474c4a82f10c22b6963729fada4ae5775efe205e3dd3b5f"
+        },
+        {
+          "file": "soak-2822400-0021.state",
+          "sha256": "158668815ea50a95eb59e21358196c5f00e0f9775c6f725b16db129749942cf7"
+        },
+        {
+          "file": "soak-2822400-0022.state",
+          "sha256": "8cc2eba074f2d251fbd3a8f446401b833354e8a8be5c6778d10b276fe6c91bbb"
+        },
+        {
+          "file": "soak-2822400-0023.state",
+          "sha256": "297ef0639895dc475d6e5fba6b02420dc99c3f8a4fc204ece956b970ca48afa9"
+        },
+        {
+          "file": "soak-2822400-0024.state",
+          "sha256": "bf4c434be7eba5941ec071e199354ea05648f8d8cfba1608cbc28afc67709af7"
+        },
+        {
+          "file": "soak-2822400-0025.state",
+          "sha256": "a926e383eef58aab39cdee1771c8e842aac2af5b6676afd49ee1803dc4cd47ad"
+        },
+        {
+          "file": "soak-2822400-0026.state",
+          "sha256": "d9deb985fd1b9fb8ac7f201bfa87ae6966a5397734b436b93bec85c2ff4f31bc"
+        },
+        {
+          "file": "soak-2822400-0027.state",
+          "sha256": "a4a07544fca9a79cf2226f0d362e64626d9ce5d4802c1b81a89b9d7523abf7d2"
+        },
+        {
+          "file": "soak-2822400-0028.state",
+          "sha256": "45bd704a03ad91fff4b28a76af54080c30dd4b3e47747b6850cb691df8c5d4c7"
+        },
+        {
+          "file": "soak-2822400-0029.state",
+          "sha256": "d974fe62d71675e3139e73e0f9773bf157b273cdb8b590277e67fc1ffb2f1fd3"
+        },
+        {
+          "file": "soak-2822400-0030.state",
+          "sha256": "0216e8863786da2ff038d71f911cdaeb34f19e88919f6deeabd2410ba9dbef84"
+        },
+        {
+          "file": "soak-2822400-0031.state",
+          "sha256": "1fb37847fee0da41a41203db33a0c3d1f1829ba8b90290657159e088e1050d65"
+        },
+        {
+          "file": "soak-2822400-0032.state",
+          "sha256": "4ca1c4da92e2e860a7dcdc648db4d27b997282ef34321e702f6d8ca0db4a1d9c"
+        },
+        {
+          "file": "soak-2822400-0033.state",
+          "sha256": "d1c52f0cbce4ea6f3e0a89ed6f94fcda888502c1e79de27a58a48c32263c35ef"
+        },
+        {
+          "file": "soak-2822400-0034.state",
+          "sha256": "24a0caeb86c7b8f99d3285af86bd30abaa02a787878e30cdf5cdfec2880d2113"
+        },
+        {
+          "file": "soak-2822400-0035.state",
+          "sha256": "0e12c347f1ffcad950c49d3de3015796cf96b1c26140ce97592d626943c41a09"
+        },
+        {
+          "file": "soak-2822400-0036.state",
+          "sha256": "816e7a8926c2a87338d815507c68d4be2a241c1cfed6741728466b2c0b09b6f5"
+        },
+        {
+          "file": "soak-2822400-0037.state",
+          "sha256": "defca1ade273d481eefb357261d7048cac307e8b83bd4122f912e8825b3aa7ad"
+        },
+        {
+          "file": "soak-2822400-0038.state",
+          "sha256": "60916eb097406a7b867be6fa9fa9c8fe123d4cb74b9b5b962e0e524598a54860"
+        },
+        {
+          "file": "soak-2822400-0039.state",
+          "sha256": "51297b309b97ee8ec683fe7e4ebd4f4668711ef955da2e619e25fd4c56043b0c"
+        },
+        {
+          "file": "soak-2822400-0040.state",
+          "sha256": "592243ce2a0c3d53333a033d63202f478b848b274772d3b06ea4b40e4e6b438b"
+        },
+        {
+          "file": "soak-2822400-0041.state",
+          "sha256": "976f40248b88843f3a5919c47391f8b98ae2bb91342ce0ae315634aa4cf4c671"
+        },
+        {
+          "file": "soak-2822400-0042.state",
+          "sha256": "5b1dd9a9ba5cc55fe9d35705a4b8d28a0742dbeca255ab4199ebaa9dc44c1950"
+        },
+        {
+          "file": "soak-2822400-0043.state",
+          "sha256": "1c4a81e720d4b3d1c45afe4c0defd12a16264a0f486427b877e045e482bc6cea"
+        },
+        {
+          "file": "soak-2822400-0044.state",
+          "sha256": "121a6637e039749660d1d4974225b7035763348c3ed803acfe626bdd5b6a239e"
+        },
+        {
+          "file": "soak-2822400-0045.state",
+          "sha256": "63aeb830ae330ecabe9389ce1b99d76e0394ee7ff6f440e44d0d1725d6adb165"
+        },
+        {
+          "file": "soak-2822400-0046.state",
+          "sha256": "32a8824a289c009849b3e2cb3da6bfb59d6b7b90f3dc9772c247ad76b5bea20c"
+        },
+        {
+          "file": "soak-2822400-0047.state",
+          "sha256": "fdc666955019e25bfcd10a0b1661409c9078036f3d339a872cf668d2f6d71697"
+        },
+        {
+          "file": "soak-2822400-0048.state",
+          "sha256": "a40365f9fd78ffb6415fdc0f389b6dfed948a787fe3f93b111f05bf8582a1165"
+        },
+        {
+          "file": "soak-2822400-0049.state",
+          "sha256": "6387b05bc9477c63737a2323818b9faa4d24caa6c631af046bf9ba0a1b3d5ae8"
+        },
+        {
+          "file": "soak-2822400-0050.state",
+          "sha256": "71948522396f52d50ad5aa5c64bd9d289db98dda46bb468bc1ead90d30dbc14b"
+        },
+        {
+          "file": "soak-2822400-0051.state",
+          "sha256": "3dae4d6d164e1062f09ce6bfa6f2121415d39a10d0bb156b456ba510b934a76e"
+        },
+        {
+          "file": "soak-2822400-0052.state",
+          "sha256": "4d5074954a622c6c3db8f2ab737348bdfdae582079b88be357b33cd6af5ae9ab"
+        },
+        {
+          "file": "soak-2822400-0053.state",
+          "sha256": "076001240262398f85d5d0b12cb6c57bc75b520499ddd2749645611b49326499"
+        },
+        {
+          "file": "soak-2822400-0054.state",
+          "sha256": "81bf6ed8184d0a31c1413186ab6a9cf2971a851688095d4317191336c01e5518"
+        },
+        {
+          "file": "soak-2822400-0055.state",
+          "sha256": "ab581070256a378fe8363cccad56b13e9249a256454d78d7fd8007855cf38d8b"
+        },
+        {
+          "file": "soak-2822400-0056.state",
+          "sha256": "50fea9224f4942fe2082d87dfa88b5ee08ed2c7635d4ad910324a4d6d83aa095"
+        },
+        {
+          "file": "soak-2822400-0057.state",
+          "sha256": "849b0649a776757a927c3f2be16dce81be421b8a46886ff84cc2214968e45226"
+        },
+        {
+          "file": "soak-2822400-0058.state",
+          "sha256": "376e9a2901ed91583fa1218169ae6615173c61b26c88efa77a54c158473a5308"
+        },
+        {
+          "file": "soak-2822400-0059.state",
+          "sha256": "d02131a9e4e76bc5b13f9460ff96808b40cc4a9769b673f0c0ce29851958584f"
+        },
+        {
+          "file": "soak-2822400-0060.state",
+          "sha256": "a12af8eaa21cd75a06bbce63a0d28020fbcfce367c171976d18b8708e221e069"
+        },
+        {
+          "file": "soak-2822400-final.state",
+          "sha256": "cf486d26b498f21f99caf4610b4b516b6f913ed7633ad7668c89b55c31c697e2"
+        }
+      ],
+      "state_bound_crossed": false,
+      "status": "PASS"
+    },
+    {
+      "admission_checks": {
+        "admitted_peak": true,
+        "clean_terminal_status": true,
+        "complete_snapshots": true,
+        "complete_window_monitor": true,
+        "exact_native_duration": true,
+        "observed_half_guard": true,
+        "original_configuration": true,
+        "release_sequence": true,
+        "reproducible_binary": true,
+        "source_and_native_identity": true,
+        "stable_state": true
+      },
+      "completed_audio_seconds": 3600.0,
+      "configuration": {
+        "edge_ramp_seconds": 0.1,
+        "fixture_version": "nominal-v2",
+        "generator": "test_p10.c:soak_source_version; int32 graph-equivalent",
+        "minute_sequence": [
+          "silence",
+          "DC +0.7",
+          "DC -0.7",
+          "53/997/5501/17011 Hz multitone, each peak 0.15",
+          "SplitMix64-indexed uniform noise, peak 0.45",
+          "1000 Hz tone, peak 0.8"
+        ],
+        "native_hz": 5644800,
+        "qualification": false,
+        "reference_scale": 0.5,
+        "resets_between_segments": false,
+        "resume": "deterministic prefix replay with byte-checked saved SDM/monitor states",
+        "schema": "P10/continuous-soak/1",
+        "seconds": 3600,
+        "segment_seconds": 60,
+        "sequence_repeats": true,
+        "source_hz": 176400
+      },
+      "evidence": "soak-5644800-result.json",
+      "evidence_sha256": "ddd03b5ee20e7e08813c6369cbd02ce9b4386bfde996828a82ddde5a855f53f4",
+      "execution": {
+        "architecture": "x86_64",
+        "binary_sha256": "59eeee60cacf8579875312f32eabf4839883e3340dc73797c33a9609e63b70cb",
+        "command": [
+          "test/dsd_test_p10",
+          "--soak-nominal-v2",
+          "5644800",
+          "3600",
+          "60",
+          "<results>/soak-5644800"
+        ],
+        "exit_code": 0,
+        "fixture": "nominal-v2",
+        "replay": false,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30"
+      },
+      "first_bad_audio_seconds": null,
+      "raw": {
+        "channel": 0,
+        "committed_native_frames": 20321280000,
+        "coordinate": 4294967295,
+        "cpu_seconds": 528.82634,
+        "effective_pass_hz": 30000,
+        "excursions28": 0,
+        "failure": 0,
+        "failure_value": 0,
+        "first_bad_frame": null,
+        "input_frames": 635040000,
+        "longest_run": 9,
+        "max_abs_state": [
+          3.4828614494362204,
+          15.154423645407586,
+          94.3002215821133,
+          614.2119078115144,
+          4349.065494764429,
+          32382.94262622808,
+          253982.27897143265,
+          3123646.620527451
+        ],
+        "max_ones28": 22,
+        "min_ones28": 6,
+        "minimum_attenuation_db": 0,
+        "mode": "soak-nominal-v2",
+        "monitor_overloads_nominal_half": 0,
+        "native_hz": 5644800,
+        "nonfinite_states": 0,
+        "peak": 0.39999999996265356,
+        "processed_native_frames": 20321280000,
+        "profile": "encode.mastering.v1.dsd128",
+        "qualification": "UNQUALIFIED",
+        "schema": "P10/candidate-render/1",
+        "source_hz": 176400,
+        "status": 3,
+        "windows28": 20321279973
+      },
+      "snapshots": [
+        {
+          "file": "soak-5644800-0001.state",
+          "sha256": "d08569f855f8c6b10570ff245900e211e494f239bab22ceea1987c154928f3f0"
+        },
+        {
+          "file": "soak-5644800-0002.state",
+          "sha256": "b2cc53a23961f948930b14edc5224b6ee235882a9aa7314d54406b1d832720fd"
+        },
+        {
+          "file": "soak-5644800-0003.state",
+          "sha256": "2b90cd1eb3627fdac79571ef879c0420bac1886e4ba3e1998bc2d525aa83d4ab"
+        },
+        {
+          "file": "soak-5644800-0004.state",
+          "sha256": "95bd0d293ab6d1d61bb4b1db54bc6fe1870d4160877d529087b2c583b776230a"
+        },
+        {
+          "file": "soak-5644800-0005.state",
+          "sha256": "83349558cc08ccc14fafd72a01c9d19546e528b11ed2458a5feaaa7ed84f8c31"
+        },
+        {
+          "file": "soak-5644800-0006.state",
+          "sha256": "89948d328f5b55537627924947a60bb9cfed8f30e1fe0f8e83edad404135690b"
+        },
+        {
+          "file": "soak-5644800-0007.state",
+          "sha256": "b81d8cf76fc2c6351934963a98e76f563abdf82250b37bb34a3263fd28e4aa58"
+        },
+        {
+          "file": "soak-5644800-0008.state",
+          "sha256": "d192b864a1ccd5d4cdbf8da75f3c55bff12d9586246f36c1460fe7d0f0c8cedb"
+        },
+        {
+          "file": "soak-5644800-0009.state",
+          "sha256": "08f975d9ebd6f6ef2dc012d59c4fcfdb738f4099c2ca72ac33d7e5153fe7168e"
+        },
+        {
+          "file": "soak-5644800-0010.state",
+          "sha256": "d68c27a41cb59017f6ef5ae96ec15161a5d6a50e47b017d8636225e8433d44d6"
+        },
+        {
+          "file": "soak-5644800-0011.state",
+          "sha256": "bea8ec2931c2df01e1c17fb16abbe7fe4d558e874b4005f229cc01aaa315104a"
+        },
+        {
+          "file": "soak-5644800-0012.state",
+          "sha256": "c1c8b714fe486b3c09c5c8400eecbc6cc836dfef745b94daea18301614927744"
+        },
+        {
+          "file": "soak-5644800-0013.state",
+          "sha256": "8df3bce06c8506b5dec8912d5a3283cde6103bb851ce99ff0f33b183184c5b5c"
+        },
+        {
+          "file": "soak-5644800-0014.state",
+          "sha256": "c8d6cdac207a63b507e6d898d9e4dd6d1b5dcff382ff3f7873b8eefa63221add"
+        },
+        {
+          "file": "soak-5644800-0015.state",
+          "sha256": "abc400355dcd9d2e065d375d25833294193a79815093fc058af3d7bc559c57ce"
+        },
+        {
+          "file": "soak-5644800-0016.state",
+          "sha256": "7f029c18320de752a58da799771ab858556220bbded61dda57f4d5afe6e15080"
+        },
+        {
+          "file": "soak-5644800-0017.state",
+          "sha256": "aa1c46f720a1014018ae7a9d724535e5bea179a69e2f7141aeaad09610d0ecf2"
+        },
+        {
+          "file": "soak-5644800-0018.state",
+          "sha256": "1431067e9f366f49546d0303f743f931a6a9d064417554ff6972eb9f4b8dd785"
+        },
+        {
+          "file": "soak-5644800-0019.state",
+          "sha256": "18f1c24cca516ee435484fc830bf423db0525ce491bb57d835bc7dc75888dc6d"
+        },
+        {
+          "file": "soak-5644800-0020.state",
+          "sha256": "504113625e4f6396c1916f01727e3c3c258d98490895cd822c3a1124d07af12b"
+        },
+        {
+          "file": "soak-5644800-0021.state",
+          "sha256": "1a6205cface89269b2228f6835cffe21be8d55a852064c29cb75b84f24d23be9"
+        },
+        {
+          "file": "soak-5644800-0022.state",
+          "sha256": "be480bff92af330431bda0985593af2104926f15d08face5352981fc4beab69e"
+        },
+        {
+          "file": "soak-5644800-0023.state",
+          "sha256": "cdface6e085266a9320fa22d7b0e10353a7415ae4905206d6ba5bcca4815ddb0"
+        },
+        {
+          "file": "soak-5644800-0024.state",
+          "sha256": "96fc640cbb9b2a7ba46bf7f925b24233b97651415f13342a28c3b8840664eafb"
+        },
+        {
+          "file": "soak-5644800-0025.state",
+          "sha256": "e3d02e5756e29b7726ec86c52b3aa78b7fb972bbf8ddda5b387ad8cb847cfccc"
+        },
+        {
+          "file": "soak-5644800-0026.state",
+          "sha256": "82d68a735f086faa96b0c641e0919dbc71415eeb2399a6725d20206a1f8a8b6b"
+        },
+        {
+          "file": "soak-5644800-0027.state",
+          "sha256": "5096eca5775ee15318004e78f693057ff5325dfa67729762cb185726e564aa30"
+        },
+        {
+          "file": "soak-5644800-0028.state",
+          "sha256": "3b85f35c5ad2b5220112ab8a31313db3d6d3910d4ad2c2742f1f340db728743e"
+        },
+        {
+          "file": "soak-5644800-0029.state",
+          "sha256": "2683bad870c308d703d2714542fec987966a3471a3c97e36d0566b7344769a25"
+        },
+        {
+          "file": "soak-5644800-0030.state",
+          "sha256": "012afe821699c588d3728b207aaefd05e2e5d06ee96303f5223cd024a6623738"
+        },
+        {
+          "file": "soak-5644800-0031.state",
+          "sha256": "4f64f4ef87671493d8631e30f51f633e0992bdac3fa440513969724d86c247ae"
+        },
+        {
+          "file": "soak-5644800-0032.state",
+          "sha256": "21548d5a58bd0775e24689c1c4118430933d9ef6877f80eb474c7c7662f03974"
+        },
+        {
+          "file": "soak-5644800-0033.state",
+          "sha256": "5967b06a169e2fb4c367cd5b5de56acf81f031846157e2ecffeb2f70024c459d"
+        },
+        {
+          "file": "soak-5644800-0034.state",
+          "sha256": "9d702c8bb462f828f4762fd6919a1108889f7335f0fad513f0d01856a10971cd"
+        },
+        {
+          "file": "soak-5644800-0035.state",
+          "sha256": "262f40f80c457709b45727295f3be7d5b373c6a0f06afa11b90c5aafe82884a0"
+        },
+        {
+          "file": "soak-5644800-0036.state",
+          "sha256": "07dc3bd7956809dbb10502e3c2d861172c34283e59d52605f854bd1a49a9e2e9"
+        },
+        {
+          "file": "soak-5644800-0037.state",
+          "sha256": "f0fab487be9ffd9c562865c82efd6b490c0f032d28984d6514ea70dd4eabed0c"
+        },
+        {
+          "file": "soak-5644800-0038.state",
+          "sha256": "898bc2b6ab25ac37611c8a55bb062958b9348475fbc41e60e33c7ae3b669820a"
+        },
+        {
+          "file": "soak-5644800-0039.state",
+          "sha256": "7e38fbfda6636787d6fd2b4cac8a2385d90c993e8c2d6b34cdcfd65ecd87b34d"
+        },
+        {
+          "file": "soak-5644800-0040.state",
+          "sha256": "93975c53d5bfddd8dd95e6c3f3fa3de9a7fa0e2e9bdfbb80ff3a5aa500c8685d"
+        },
+        {
+          "file": "soak-5644800-0041.state",
+          "sha256": "19fcb7d7eafa63cccb737fa28e6e2a70c84caa14306798a406de6f55fd12e494"
+        },
+        {
+          "file": "soak-5644800-0042.state",
+          "sha256": "88a6fcb13c6d6a7e6e9ee01799e5b8a4815d2b471b4438a9ae62869e308d80f0"
+        },
+        {
+          "file": "soak-5644800-0043.state",
+          "sha256": "a2d4c85f090e7ab95cd265b7f1c5e090a5fd9d970c32277b83bafd0c21eb0f38"
+        },
+        {
+          "file": "soak-5644800-0044.state",
+          "sha256": "67747f94d4d67e0132ed89ae55fe2ca787bc6386048b4674c41e64f434532c40"
+        },
+        {
+          "file": "soak-5644800-0045.state",
+          "sha256": "4e8e743ba75e84b26931965f3e90fd4a35c0f10b7e1bbd338e25596cdb09f0d9"
+        },
+        {
+          "file": "soak-5644800-0046.state",
+          "sha256": "7f3419e547fafedf7dffa7683f2d114ea2fd57e7312db3092c438174c60f36f9"
+        },
+        {
+          "file": "soak-5644800-0047.state",
+          "sha256": "cc489d71db348b0d54c9689de3ca98077e96f0acb6afa9b0ea0cd3d878458deb"
+        },
+        {
+          "file": "soak-5644800-0048.state",
+          "sha256": "4cdd7d9ad288a56456417a0eb697eae705c70de4fb4da005b14fbb6dc0cdd04b"
+        },
+        {
+          "file": "soak-5644800-0049.state",
+          "sha256": "5e2a6d5c68931f700d2ecf74f27b6b7719e30dc4edcd5cc79b9a7f11a587cbcb"
+        },
+        {
+          "file": "soak-5644800-0050.state",
+          "sha256": "4ea899a210171df8ba7cee63b79908d9ef5d1e928b41bef73610e8fe20da4802"
+        },
+        {
+          "file": "soak-5644800-0051.state",
+          "sha256": "9213c51ec0327edba4fc9f7d8de0b0894f764d2e54c2b23d386d9817de9d7923"
+        },
+        {
+          "file": "soak-5644800-0052.state",
+          "sha256": "9b8dd87463a9e6879eb88000d72409ccd9ecd884eb3d36bfd9fcd0b4767406bb"
+        },
+        {
+          "file": "soak-5644800-0053.state",
+          "sha256": "13b7450a709b1e3a9547f29feda33ece50ee67e8fee7550fb5f6ad78860ee313"
+        },
+        {
+          "file": "soak-5644800-0054.state",
+          "sha256": "c465dad5f594e9d5f22cf10f915b0001407cbe4bc776c3148a4acf3be2806718"
+        },
+        {
+          "file": "soak-5644800-0055.state",
+          "sha256": "f63d61ac766c97e8977275371a0a79a044bb1ff082a33b6a6c8ecc4c3b52756e"
+        },
+        {
+          "file": "soak-5644800-0056.state",
+          "sha256": "296a817ba849b2040c5be527a857cf34b63f1b394b22afa83d15b11782b09439"
+        },
+        {
+          "file": "soak-5644800-0057.state",
+          "sha256": "eceeab4339f2a74d3017d00acdd74f5df76e10c9201da424292600b23c7b0a84"
+        },
+        {
+          "file": "soak-5644800-0058.state",
+          "sha256": "fbf0ebe09a8293bb9118366d09031b9f9794fe70347fc1ade68c14b33ecf388d"
+        },
+        {
+          "file": "soak-5644800-0059.state",
+          "sha256": "583c637b098fe43b04a78ce4f9a53e71cddfe10bf8b4d3f988f91a4b2be365b3"
+        },
+        {
+          "file": "soak-5644800-0060.state",
+          "sha256": "1b13baefd54de5f0dcf421dd3ff0fa40cb27eb93ae36c5818e0881fa7e550ff5"
+        },
+        {
+          "file": "soak-5644800-final.state",
+          "sha256": "32f5d3382a314dad212eed4f2b23437a2750822f02337997e97db2c9cdc2735a"
+        }
+      ],
+      "state_bound_crossed": false,
+      "status": "PASS"
+    },
+    {
+      "admission_checks": {
+        "admitted_peak": true,
+        "clean_terminal_status": true,
+        "complete_snapshots": true,
+        "complete_window_monitor": true,
+        "exact_native_duration": true,
+        "observed_half_guard": true,
+        "original_configuration": true,
+        "release_sequence": true,
+        "reproducible_binary": true,
+        "source_and_native_identity": true,
+        "stable_state": true
+      },
+      "completed_audio_seconds": 3600.0,
+      "configuration": {
+        "edge_ramp_seconds": 0.1,
+        "fixture_version": "nominal-v2",
+        "generator": "test_p10.c:soak_source_version; int32 graph-equivalent",
+        "minute_sequence": [
+          "silence",
+          "DC +0.7",
+          "DC -0.7",
+          "53/997/5501/17011 Hz multitone, each peak 0.15",
+          "SplitMix64-indexed uniform noise, peak 0.45",
+          "1000 Hz tone, peak 0.8"
+        ],
+        "native_hz": 11289600,
+        "qualification": false,
+        "reference_scale": 0.5,
+        "resets_between_segments": false,
+        "resume": "deterministic prefix replay with byte-checked saved SDM/monitor states",
+        "schema": "P10/continuous-soak/1",
+        "seconds": 3600,
+        "segment_seconds": 60,
+        "sequence_repeats": true,
+        "source_hz": 176400
+      },
+      "evidence": "soak-11289600-result.json",
+      "evidence_sha256": "34977dd3610c55c3e416710a4d5ba30ce9761d81c9d4f9f708da28a31d1e9b68",
+      "execution": {
+        "architecture": "x86_64",
+        "binary_sha256": "59eeee60cacf8579875312f32eabf4839883e3340dc73797c33a9609e63b70cb",
+        "command": [
+          "test/dsd_test_p10",
+          "--soak-nominal-v2",
+          "11289600",
+          "3600",
+          "60",
+          "<results>/soak-11289600"
+        ],
+        "exit_code": 0,
+        "fixture": "nominal-v2",
+        "replay": false,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30"
+      },
+      "first_bad_audio_seconds": null,
+      "raw": {
+        "channel": 0,
+        "committed_native_frames": 40642560000,
+        "coordinate": 4294967295,
+        "cpu_seconds": 1011.88143,
+        "effective_pass_hz": 40000,
+        "excursions28": 0,
+        "failure": 0,
+        "failure_value": 0,
+        "first_bad_frame": null,
+        "input_frames": 635040000,
+        "longest_run": 9,
+        "max_abs_state": [
+          3.677624881984531,
+          15.313691478015,
+          95.06774557681439,
+          634.861660671714,
+          4405.824401918297,
+          31293.59940672701,
+          251827.5551582211,
+          3159138.9094367186
+        ],
+        "max_ones28": 22,
+        "min_ones28": 6,
+        "minimum_attenuation_db": 0,
+        "mode": "soak-nominal-v2",
+        "monitor_overloads_nominal_half": 0,
+        "native_hz": 11289600,
+        "nonfinite_states": 0,
+        "peak": 0.3999999998741878,
+        "processed_native_frames": 40642560000,
+        "profile": "encode.mastering.v1.dsd256",
+        "qualification": "UNQUALIFIED",
+        "schema": "P10/candidate-render/1",
+        "source_hz": 176400,
+        "status": 3,
+        "windows28": 40642559973
+      },
+      "snapshots": [
+        {
+          "file": "soak-11289600-0001.state",
+          "sha256": "40f061562a39beab06a0b66460cc27696d262ac25feb5bc29148d1d246a515f6"
+        },
+        {
+          "file": "soak-11289600-0002.state",
+          "sha256": "6d02047286add962bc5ba5d9b6e4ec601589021b08ae525b6b147b66347d1a11"
+        },
+        {
+          "file": "soak-11289600-0003.state",
+          "sha256": "0ac0012070f69c4b5d6dbdaa97b58eec1411d54762a793577976ace30ca13a18"
+        },
+        {
+          "file": "soak-11289600-0004.state",
+          "sha256": "bc906f8e072e155068e77a2e2c2b17fd5963b6a1c027c10701ea174673c91cf4"
+        },
+        {
+          "file": "soak-11289600-0005.state",
+          "sha256": "93351fd37e9b8f4fa067d0d12e0471a9aefab0009d481292dd9bd5efce181c55"
+        },
+        {
+          "file": "soak-11289600-0006.state",
+          "sha256": "8a8fe7201eed89aceda0132b66793b556e4e84dd61d83a5d0657c9f14b2adde6"
+        },
+        {
+          "file": "soak-11289600-0007.state",
+          "sha256": "385173a33c89de1a3a0714767b0f01b34b9d0e7acfd1b3c194bdd6b83b25082c"
+        },
+        {
+          "file": "soak-11289600-0008.state",
+          "sha256": "4cf0e6406752a564b6c55fd074cfdf30210f83b86aa7de86ff3c3046e4c66536"
+        },
+        {
+          "file": "soak-11289600-0009.state",
+          "sha256": "578559678fcf26ad1548ffaf877cc67a22e81819273968157c76cf3ec3bbdef9"
+        },
+        {
+          "file": "soak-11289600-0010.state",
+          "sha256": "eac23db5df3fbf77c5c6567a23b9bf6cdfa92e93e4b1dd7e0a57d13cceb72640"
+        },
+        {
+          "file": "soak-11289600-0011.state",
+          "sha256": "f036184e8249e5c3b99e661ed6034ff8c189d1c9229169846a5430d99ed1effe"
+        },
+        {
+          "file": "soak-11289600-0012.state",
+          "sha256": "9a15292f206e6b72e356b482d60da5c9d45a5f1544faa0f77239f112c4aa287e"
+        },
+        {
+          "file": "soak-11289600-0013.state",
+          "sha256": "835683abdab8ce23c9b0f2746230cd5e85d7abf6c98f1cb14dbf89be05d6effb"
+        },
+        {
+          "file": "soak-11289600-0014.state",
+          "sha256": "0792137772550fd437be050de0056b51e3eb356e66d1d119ee7140ffcb882184"
+        },
+        {
+          "file": "soak-11289600-0015.state",
+          "sha256": "a5c84d6c42551437be1e15ab5e5e2a93c07f2f4dc42216a9905e914b426da77b"
+        },
+        {
+          "file": "soak-11289600-0016.state",
+          "sha256": "64904f81bcc75e00349b6ba9c1832a28989e03fed30da8148bf319fd18ed6d99"
+        },
+        {
+          "file": "soak-11289600-0017.state",
+          "sha256": "fcf6270d989c0f4a5ab5cdf0bc2330a5ccd70e7f495f14aa7703ddf2af1a2db0"
+        },
+        {
+          "file": "soak-11289600-0018.state",
+          "sha256": "b466610938aa2c57beaa76717c0459b61894367cc8ca938753245a0b4d111695"
+        },
+        {
+          "file": "soak-11289600-0019.state",
+          "sha256": "5d3297e8d1206aab24acaa990d5787a2ed1f806eab78ec35f2c92785708d8526"
+        },
+        {
+          "file": "soak-11289600-0020.state",
+          "sha256": "33e69c190c3d194f8bd30984bd862a020c8b5bd8c3afc9240dbb7120566ae665"
+        },
+        {
+          "file": "soak-11289600-0021.state",
+          "sha256": "aa89046dfa32be05283a72732dab68aec5cfb7df37113bda2ede439cb3ae69cb"
+        },
+        {
+          "file": "soak-11289600-0022.state",
+          "sha256": "7c2dc608a873579110fe792c5547de902d031c82eee9d943bfd5819b65cda320"
+        },
+        {
+          "file": "soak-11289600-0023.state",
+          "sha256": "ef2c61cd18ee0848951ab2e2a8b548ccb2f6ffb044a486424cbb158217fd3277"
+        },
+        {
+          "file": "soak-11289600-0024.state",
+          "sha256": "6f997c2b4a6b5f88e85dc169aacf332b3b7cb86bc29268912af31d29cab2f025"
+        },
+        {
+          "file": "soak-11289600-0025.state",
+          "sha256": "99f82df979d682b14e0a5785b9f7522a40cbfb2d5c680c35bbe8d9128f05dbfb"
+        },
+        {
+          "file": "soak-11289600-0026.state",
+          "sha256": "f8caf3bf1427f441aed290cab70af32af4488a4e115b463c2402facda76ef448"
+        },
+        {
+          "file": "soak-11289600-0027.state",
+          "sha256": "39ba3b2398b0e9551e466fc63de3ff4c509632415d6e0cffbfdc6682f9c7d422"
+        },
+        {
+          "file": "soak-11289600-0028.state",
+          "sha256": "b7d3634f3761cc61b1fc5fc6a68c1efc4585d21171622aa0de8cb108f894691a"
+        },
+        {
+          "file": "soak-11289600-0029.state",
+          "sha256": "12b7bb544243f13ad73fae3b8f47b82ac2d95db3d4e6e1a31a78ad503b8e13a2"
+        },
+        {
+          "file": "soak-11289600-0030.state",
+          "sha256": "51b9faad78c884d91fa7343b4c655b980984aafb3d69ac2af0e325eec34db5b4"
+        },
+        {
+          "file": "soak-11289600-0031.state",
+          "sha256": "ccc893c6d1a4af4702fccb6820139281fabe62b25b9df9fab4031833c295be48"
+        },
+        {
+          "file": "soak-11289600-0032.state",
+          "sha256": "8b0c7660c051a65b4956ec774a64c4d2edf5d4a32272e93a76eb19ca4df479fe"
+        },
+        {
+          "file": "soak-11289600-0033.state",
+          "sha256": "114f0eca62c047d3e71a0669d85620f14fa54f702e8dcdbcb4d9d880c1e38871"
+        },
+        {
+          "file": "soak-11289600-0034.state",
+          "sha256": "bcfdfc5c0a772bbce47a9e37b67ee35bb68f34da3fac11b9ae10c4ec21f3108a"
+        },
+        {
+          "file": "soak-11289600-0035.state",
+          "sha256": "311775b312b8c2827a62ca89e7b56de0d422a3219ed2129c644f4ff11a797606"
+        },
+        {
+          "file": "soak-11289600-0036.state",
+          "sha256": "485fbb463be38ca7ea08e51fd88c79eeef6063320a95dd4329ebd7c33e97b057"
+        },
+        {
+          "file": "soak-11289600-0037.state",
+          "sha256": "127cda389a2801d0c0b45bb8033098c2a4f77c9bf2bd88e7e78e7e2b175ff08c"
+        },
+        {
+          "file": "soak-11289600-0038.state",
+          "sha256": "87bc5eac46d1bbb0f452f799685394db4a8e64b2f4a57a0dd4434a965a62ca4d"
+        },
+        {
+          "file": "soak-11289600-0039.state",
+          "sha256": "f4f2addeeea22383918b1716d530ee6773fd9140c2eb85b76ddaa2de8e3fac30"
+        },
+        {
+          "file": "soak-11289600-0040.state",
+          "sha256": "9bb302d9ce3cb22ff8d9895d526bee115a917e1c68970e21e699d6c3e675db83"
+        },
+        {
+          "file": "soak-11289600-0041.state",
+          "sha256": "f862c3d8b058863bab375830a5ba2e2c8ac86ff29bb979e17f5aa803a446c131"
+        },
+        {
+          "file": "soak-11289600-0042.state",
+          "sha256": "4fc1b4e5997de4ba70634e9c674dd4c2ab05001d9c511c05a17d1110f3590b8d"
+        },
+        {
+          "file": "soak-11289600-0043.state",
+          "sha256": "516c9aeabd53a907e9ff0c10d8f07de41581a9c9dde434b2d168d5041c1add83"
+        },
+        {
+          "file": "soak-11289600-0044.state",
+          "sha256": "fd7e3bb0ea3646a75e23bb6906207163388173c4cb41d0d27bc534243a475b84"
+        },
+        {
+          "file": "soak-11289600-0045.state",
+          "sha256": "7357f721a0fc60e9179ce70eb16521b5022b0db8ab040ad599e27f36df6610ee"
+        },
+        {
+          "file": "soak-11289600-0046.state",
+          "sha256": "9f9aa30c835285b44c9d8026726a67f345c6349d865e44138bb36dd0450c6b4b"
+        },
+        {
+          "file": "soak-11289600-0047.state",
+          "sha256": "af625ebdbb5f6ef4fd8f6208cb48fb7921fda6bfafbbf136dce0043ed8f34b13"
+        },
+        {
+          "file": "soak-11289600-0048.state",
+          "sha256": "f9777ccaa36e4ea3ebeb06fe074f3e8467c93db319115c2f8d7dbd5c15e3a910"
+        },
+        {
+          "file": "soak-11289600-0049.state",
+          "sha256": "b7d51efd61f8169794e4bbc067643afb98f5bd31fd66377c18e3c5239917baf8"
+        },
+        {
+          "file": "soak-11289600-0050.state",
+          "sha256": "8090c33a29acb6054c9509ee7faf3943da8350acbde01079c62bda2eb22d4cd6"
+        },
+        {
+          "file": "soak-11289600-0051.state",
+          "sha256": "d38ef675f0eae4f6d8d274de1e0e41e8442eda217d2e6458c9b52a919ce98149"
+        },
+        {
+          "file": "soak-11289600-0052.state",
+          "sha256": "e9dc8e25c943048b503d1fd5213261ff2b8e24d502ade5441578eca6ce95ad1e"
+        },
+        {
+          "file": "soak-11289600-0053.state",
+          "sha256": "8423f08d343fde7d4b02978e169611ffff3eb1ca315e02212a60c99bc7301e90"
+        },
+        {
+          "file": "soak-11289600-0054.state",
+          "sha256": "5239c79bab7b8ad3e2d37d176eff142c750126924237394118a25a4a186fc70f"
+        },
+        {
+          "file": "soak-11289600-0055.state",
+          "sha256": "9522ddcfc232e9ab16eef2f6a5647d3e8b8d8649e9278cba0e160caf5926de25"
+        },
+        {
+          "file": "soak-11289600-0056.state",
+          "sha256": "0645b84afd6bd8733a9ecdedb1073cc40056f880c0ea75468c8879f2cf93160e"
+        },
+        {
+          "file": "soak-11289600-0057.state",
+          "sha256": "b34e14bd0fa0f2fdde0c41adf2a8590101947c39668523ff5bac6d316bc9102b"
+        },
+        {
+          "file": "soak-11289600-0058.state",
+          "sha256": "e032aab0eb05ce659d922fbd5f0dfcb4e772940cc76e2271efa8de7bdfc81677"
+        },
+        {
+          "file": "soak-11289600-0059.state",
+          "sha256": "f826a7d5c62c5c34c464ae21f3c50dcff94256eda10f9a7060c6afedfca9c8de"
+        },
+        {
+          "file": "soak-11289600-0060.state",
+          "sha256": "f398e01bd3f5bdde0ccefa14095b9f8c40b8f510f9f567ae677f9b20dbf7cf88"
+        },
+        {
+          "file": "soak-11289600-final.state",
+          "sha256": "f668603161f5be9845e4ec5de75dd48b30f8196daa137a25c073dd83690ac8f3"
+        }
+      ],
+      "state_bound_crossed": false,
+      "status": "PASS"
+    }
+  ],
+  "qualified": false,
+  "representative_hardware_hour_per_profile_isa": "UNRUN",
+  "schema": "P10/soak-summary/1",
+  "status": "PASS"
+}
