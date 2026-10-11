@@ -1,0 +1,88 @@
+{
+  "build_configuration": {
+    "cflags": "-O2 -g",
+    "configure_options": [
+      "--disable-shared",
+      "--without-libltdl"
+    ]
+  },
+  "date": "2026-10-10",
+  "executed_checks": [
+    {
+      "command": "autoreconf -fi",
+      "exit_code": 0
+    },
+    {
+      "command": "./configure --disable-shared --without-libltdl CFLAGS=\"-O2 -g\"",
+      "exit_code": 0
+    },
+    {
+      "command": "make -j2",
+      "exit_code": 0
+    },
+    {
+      "command": "make check",
+      "exit_code": 0
+    },
+    {
+      "command": "make check-dsd DSD_RESULTS=<outside-source>",
+      "dsd_regressions": {
+        "failed": 0,
+        "passed": 36
+      },
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/test_p10_pcm.py",
+      "exit_code": 0,
+      "synthetic_examples": "44.1- and 48-kHz clock families and all three native rates; unity overload, explicit gain retry, fail-closed level mismatch; bounded bit-window oracle and idempotent resume",
+      "tests_failed": 0,
+      "tests_passed": 8
+    },
+    {
+      "adversarial_receipt_tests_passed": 18,
+      "command": "python3 tests/dsd/test_p10_ratification.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/dsd/qualify_p10_ratification.py --output <outside-source>",
+      "exit_code": 2,
+      "independent_corpus": "PARTIAL (PCM_AUDIO not yet executed)",
+      "one_hour_hardware": "PASS (historical retained evidence)",
+      "promotion": "BLOCKED",
+      "release_status": "INCOMPLETE"
+    }
+  ],
+  "host_class": "virtual AMD EPYC 9V74, shared/development; not representative prepared Threadripper",
+  "limitations": [
+    "No commercial PCM FLAC recordings were available here and none are bundled.",
+    "No prepared representative Threadripper throughput measurements of this hotfix were possible.",
+    "Earlier P10 recorded hardware and DSD-native corpus bytes were not modified.",
+    "Synthetic tests do not qualify independent real-world material."
+  ],
+  "performance_development_only": {
+    "bootstrap_interval_ratio": [
+      0.953650907,
+      1.008006991
+    ],
+    "comparison": "simplified diagnostic + aligned reader vs simplified diagnostic + original unaligned reader",
+    "is_5_percent_gate_evidence": false,
+    "limitation": "Unprepared virtual host with >2% measured noise and different comparison baseline",
+    "measurement_noise_percent": 5.013836,
+    "median_regression_percent": -2.553294,
+    "output_byte_equivalent": true,
+    "samples": 28,
+    "verdict": "INCONCLUSIVE_NOISE",
+    "workload": "dff-6ch-repack-small"
+  },
+  "ratification_criteria_sha256": "d0ec5d40f59190b972a5d916dcd38bf5ff2ee524423d1a2a1e7b966165de914e",
+  "remaining_qualification": {
+    "commercial_pcm_audio_corpus": "UNRUN",
+    "p10_release": "INCOMPLETE",
+    "prepared_threadripper_read_repack_5_percent_gate": "UNRUN_FOR_THIS_HOTFIX",
+    "profile_activation": "UNQUALIFIED",
+    "promotion": "BLOCKED"
+  },
+  "schema": "P10/hotfix-independent-development-validation/1",
+  "source_base_sha256": "be542972b131ea9ad783ede2112fe86b3f78e9900b78ed452e5006e365537890"
+}

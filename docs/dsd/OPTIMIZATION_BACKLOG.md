@@ -29,15 +29,16 @@ host, interval from a paired bootstrap.
 | P09 to P10 | +1.02% | [+0.82%, +1.43%] | 0.50% | pass |
 | P10 to P10 corrective | -0.15% | [-0.34%, +0.06%] | 0.34% | pass |
 | P10 corrective to P10 ratification | **+6.81%** | [+6.54%, +7.04%] | 0.41% | **fail**, attributed to a failure-path diagnostic in `src/pcmdsd.c` |
+| P10 ratification to P10 hotfix | **-4.43%** | [-4.63%, -4.24%] | 0.49% | pass, faster than before the regression; page-aligned reader |
 
 Cumulative, as the product of the recorded median ratios: **+3.20%** from P05
 through P08, then **-0.60%** once P09 is included, **+0.42%** through P10 and
-**+0.26%** through the P10 corrective round, and **+7.08%** once the
-ratification round is included. Every phase up to the corrective round passed
-its own 5% gate; the ratification round does not, and its regression alone
-accounts for essentially all of that cumulative figure. The design gates per
-phase and not the accumulation, so this total is tracked here rather than by any
-gate.
+**+0.26%** through the P10 corrective round, **+7.08%** once the ratification
+round is included, and **+2.34%** after the hotfix recovered it. Every phase
+except the ratification round passed its own 5% gate; that round's regression
+alone accounted for essentially all of the +7.08%, and the hotfix removed most
+of it. The design gates per phase and not the accumulation, so this total is
+tracked here rather than by any gate.
 
 The P09 leg is worth treating with suspicion rather than relief. P09 changes
 only `src/sdm.c` and `src/sdm.h`, touching no read path, yet this workload
@@ -47,10 +48,12 @@ running total is partly tracking something other than deliberate work. An
 optimization pass should establish why this workload moves when unrelated
 object files change before trusting any cumulative figure, including this one.
 
-### What the two hotfixes found
+### What the hotfixes found
 
-Both were write-pattern problems in the same place, not algorithmic cost, which
-is the reason to treat this path as a target rather than a recurring accident.
+Three rounds have now had to repair this path. The first two were write-pattern
+problems in the same place rather than algorithmic cost, which is the reason to
+treat it as a target rather than a recurring accident; the third, described
+below, was not about the read code at all.
 
 The P02 hotfix split an aligned eight-frame fast path, which needs no retained
 state, from a `dff_read_fragment` that keeps state only for partial clusters.
@@ -86,17 +89,39 @@ Evidence: `tests/dsd/results/P10_ratification_throughput_2026-10-10/`.
 
 So the sensitivity this file has been documenting for five phases is real,
 large, and caused by the size of unrelated objects in the same library rather
-than by anything on the read path. Linker layout or instruction-cache placement
-remains the plausible mechanism, and it is now worth establishing rather than
-inferring, because it is what stands between a wanted diagnostic improvement and
-a passing gate. Two directions a remedy might take: keep the message but hold
-the translation unit's size and shape constant, or make the fragment read loop
-insensitive to placement so that unrelated edits stop moving it.
+than by anything on the read path.
+
+### The remedy, and what it did not fix
+
+Two directions were open: keep the diagnostic but hold its translation unit's
+size and shape constant, or make the read loop insensitive to placement. The
+P10 hotfix round took the second. `dff_read` and
+`dff_read_fragment` now carry 4096-byte function alignment behind a GCC/Clang
+x86-64 guard, and the diagnostic was rewritten to add no buffer or formatting
+work to its object. On a prepared host the workload moved from +6.81% to
+**-4.43%**, faster than it was before the regression was introduced, and the
+whole matrix passes.
+
+The sensitivity is reduced, not removed. Growing an unrelated object by about a
+page, 40 used non-inlined functions added to `src/pcmdsd.c` with no other
+change, still moves this workload **-2.70%** [-2.93%, -2.50%] at 0.43% noise.
+Both functions stayed page-aligned under that perturbation, at 0x70000 and
+0x71000, so the structural claim that alignment pins the L1-I set mapping holds;
+throughput independence does not follow from it. The movement was favourable in
+that instance, which is not a property to rely on. Call it roughly a 2.5 times
+reduction in sensitivity, enough to recover the gate and not enough to stop a
+future unrelated edit moving this workload by a few percent either way.
+Evidence: `tests/dsd/results/P10_hotfix_throughput_2026-10-11/`.
+
+What would settle the remainder is the profiling this file has been deferring:
+nobody has yet shown *which* accesses contend, so the alignment fix is a
+well-aimed empirical remedy rather than an understood one.
 
 ### What has not been done
 
-No profiling. Both hotfixes were reasoned from the diff and confirmed by
-measurement, and the speedups P06 showed elsewhere on untouched paths, 11.16%
+Still no profiling. All three hotfixes were reasoned from the diff or from the
+linked image and confirmed by measurement, and the speedups P06 showed
+elsewhere on untouched paths, 11.16%
 on `dff-6ch-null-large` and 5.69% on `dff-6ch-repack-large`, were never
 attributed either; linker layout or instruction-cache effects are the plausible
 explanation but nobody has looked. A `perf` profile of this workload against
