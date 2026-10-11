@@ -31,11 +31,49 @@ interpreted ourselves. You must make the determination.
   workloads passing, worst noise 0.91%. Evidence:
   `tests/dsd/results/P10_hotfix_throughput_2026-10-11/`.
 
+## You cannot re-run this corpus, and that is permanent
+
+Every other P10 gate you have ruled on was reproducible in your environment.
+This one is not, and will never be. The corpus is 19 commercial releases held
+privately on this host, on read-only and network mounts. The audio is not in the
+tree and must not be: it is third-party copyrighted material and the repository
+is published. Your own ratification validation already recorded that no
+commercial PCM FLAC recordings were available to you and none are bundled.
+
+So this gate cannot be discharged by re-execution. It can only be discharged by
+judging attested measurement, or else it cannot be discharged at all. We think
+that is a property of the gate rather than a defect in the evidence, but you may
+disagree, and if you conclude that receipt-level scrutiny is insufficient in
+principle here, say so plainly: that is a finding about a gate your own round
+wrote, and we would rather have it than a ruling nobody can stand behind.
+
+What the tree does let you check, without any of the audio:
+
+- Whether the collector's logic actually implements your criterion, in
+  `corpus_pcm.py`, `qualify_p10_ratification.py` and
+  `p10_ratification_criteria.json`.
+- Whether the recorded receipts are internally consistent and fail closed when
+  tampered with. You built exactly this machinery already: `test_p10_pcm.py` and
+  the eighteen adversarial receipt tests in `test_p10_ratification.py`.
+- Whether each entry carries the provenance the criterion demands: release
+  identity, source FLAC and excerpt hashes, STREAMINFO MD5 and CRC result,
+  source clock and family, target rate, CLI exit status, output DSF hash,
+  per-channel frame and window counts, and the reference used per domain.
+- Whether the claimed coverage follows from the entries: rate, family, genre and
+  cardinality counts recomputed from the rows rather than taken from the summary.
+- Whether the bitstream statistics are trustworthy by construction, via
+  `dsd_windows.py --self-check` against `reference/verify.decode_dsf`.
+
+If what you need is a receipt we did not record, name it and we will re-run. The
+material stays here; the measurements can be regenerated to any specification
+you set.
+
 ## Outcomes wanted
 
 1. A ruling on `independent_realworld_corpus` against your own criterion, across
-   both domains. Whether the evidence discharges it, partly discharges it, or
-   does not, is yours to determine.
+   both domains, on the basis set out above. Whether the evidence discharges it,
+   partly discharges it, or does not, is yours to determine. If the honest answer
+   is that it cannot be adjudicated from receipts, that is an acceptable answer.
 2. A ruling on the read/repack throughput gate, which your own validation
    recorded as awaiting a prepared host.
 3. If those close, P10's release disposition stated explicitly, including what it
