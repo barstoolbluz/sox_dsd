@@ -1,0 +1,132 @@
+{
+  "schema": "P11-adjudication/path-provenance/1",
+  "rule": "Only machine-specific source, result, and temporary directory prefixes were replaced; all numeric data, hashes, exit codes and statuses remain intact.",
+  "files": [
+    {
+      "file": "receipt-consistency.json",
+      "input_sha256": "ed477d9ccd94b594ab6b1f45b94133c2adb8e67de066a03f97dc1d74d3ca68c9",
+      "delivery_sha256": "ed477d9ccd94b594ab6b1f45b94133c2adb8e67de066a03f97dc1d74d3ca68c9",
+      "paths_replaced": false
+    },
+    {
+      "file": "isa-isolation.json",
+      "input_sha256": "4e1906c33f4d7615f9e3c3f44d3913e78b8497a953f771aa77bdcdd547880a5c",
+      "delivery_sha256": "4e1906c33f4d7615f9e3c3f44d3913e78b8497a953f771aa77bdcdd547880a5c",
+      "paths_replaced": false
+    },
+    {
+      "file": "phase-run.json",
+      "input_sha256": "17fcb008bad73556b9d3118facd90c0001edf32d5658d46a1044b749ff82c823",
+      "delivery_sha256": "0dea8e27f4f1047ffaab96b3e5a782fab33c4aad01af4ca30953ded1f74fec5d",
+      "paths_replaced": true
+    },
+    {
+      "file": "phase-measure.json",
+      "input_sha256": "18605ec782831fe2672c4d2b83a124cef9242ff17ced24dd1b08b3598604b512",
+      "delivery_sha256": "77349be6d58ad3f7a4f303dbcb8d68c8595c7b13f2911384ae0f4ec0d5cf7186",
+      "paths_replaced": true
+    },
+    {
+      "file": "phase-bench.json",
+      "input_sha256": "c17835e37fafcbd92e04354a8b730a0b334efa0b1cd65eb9f6c6570004eeb2ee",
+      "delivery_sha256": "6204a3457d60c3dc93c177becaeed027437e636ae0ea7503500983ce50ab3e66",
+      "paths_replaced": true
+    },
+    {
+      "file": "forced-isa-cli.json",
+      "input_sha256": "117c49e77fb4bc1f1720b6860265bc02c0b4fd47d3b70657aae97c9ceafd9571",
+      "delivery_sha256": "117c49e77fb4bc1f1720b6860265bc02c0b4fd47d3b70657aae97c9ceafd9571",
+      "paths_replaced": false
+    },
+    {
+      "file": "soak-first-minute-replay.json",
+      "input_sha256": "85ffb55ec3d4daf56a344b9bf74760dd71088125154dc8c553897e7732bdc863",
+      "delivery_sha256": "85ffb55ec3d4daf56a344b9bf74760dd71088125154dc8c553897e7732bdc863",
+      "paths_replaced": false
+    },
+    {
+      "file": "qemu-status.json",
+      "input_sha256": "fda35d2a4aca1e163da29b7f4a3a161eb153474b36cd503e6105352d6002f583",
+      "delivery_sha256": "fda35d2a4aca1e163da29b7f4a3a161eb153474b36cd503e6105352d6002f583",
+      "paths_replaced": false
+    },
+    {
+      "file": "commands.tsv",
+      "input_sha256": "aaa4ee56caaa4f740102592e46aaecf20d1ffa1c3ecda55782d358ed491890b2",
+      "delivery_sha256": "3edb1cc2200a9e06a6567b5a672bedaf9366bd4dc59a07313fffa3983e735045",
+      "paths_replaced": true
+    },
+    {
+      "file": "exits.tsv",
+      "input_sha256": "a7aea81e83d7c20430283556d7a9b2773e3968ee68e9405323729d93b64cc984",
+      "delivery_sha256": "a7aea81e83d7c20430283556d7a9b2773e3968ee68e9405323729d93b64cc984",
+      "paths_replaced": false
+    },
+    {
+      "file": "logs/autoreconf.log",
+      "input_sha256": "51a751c72c7aea8154cd29f13f96a26dd96f8da25737ebdf38ca34bb3342e363",
+      "delivery_sha256": "51a751c72c7aea8154cd29f13f96a26dd96f8da25737ebdf38ca34bb3342e363",
+      "paths_replaced": false
+    },
+    {
+      "file": "logs/configure.log",
+      "input_sha256": "55950277701caf80b5e71918b4f896fd4675946865142f0df01e11aec8bf29c1",
+      "delivery_sha256": "55950277701caf80b5e71918b4f896fd4675946865142f0df01e11aec8bf29c1",
+      "paths_replaced": false
+    },
+    {
+      "file": "logs/build.log",
+      "input_sha256": "0010dd0b883090f3d206d81fbc3fea3e57ef27a7ea1397242b5e549c023e3863",
+      "delivery_sha256": "f9445581be3797bd28ec2895cc17a1d2eb4dd2502c9481c272805774be82d108",
+      "paths_replaced": true
+    },
+    {
+      "file": "logs/make-check.log",
+      "input_sha256": "5a570db6d635d4d9f6f5fc9c75e3c47e98fff9ccebd11a12a6bb930f8ee36bdf",
+      "delivery_sha256": "6eb6ec3d989b9be1b67c5463666c0f0640fedaed4fde0d2983d21c65cde423b1",
+      "paths_replaced": true
+    },
+    {
+      "file": "logs/make-check-dsd.log",
+      "input_sha256": "615d72a58089251f56767f811dbf4306441352db5987a9587a39273f427a98a1",
+      "delivery_sha256": "e994d5ebf7487a288018265f9a9e6a29c7721f0009dc1ed7fd0a477fe0208556",
+      "paths_replaced": true
+    },
+    {
+      "file": "logs/phase-run.log",
+      "input_sha256": "aab95094b3a2ff1a23c01d40056fbdc0a084240756706fb0a39f49ff239fd568",
+      "delivery_sha256": "af48c8de126647689268e77ede541f9c5db5a6308e0e5eb558992fa92fdc40aa",
+      "paths_replaced": true
+    },
+    {
+      "file": "logs/phase-measure.log",
+      "input_sha256": "0506c08152f4be1aefe8008ec2336f57ea8ecd13896428af325df9c91f7dbb0a",
+      "delivery_sha256": "648c2b2409ecf7535a2a6151cb13916cd5f153d99e4941a9c1e1a23b1cfc2c2d",
+      "paths_replaced": true
+    },
+    {
+      "file": "logs/phase-bench.log",
+      "input_sha256": "aa49ff83ae7ffd144608c46f4a07a76bd20279a4c259152e6907296c474fdd28",
+      "delivery_sha256": "eae55eec27711a914143f933df211d1148561d1ecc7e340a4e6d73f90099af6c",
+      "paths_replaced": true
+    },
+    {
+      "file": "logs/p11-cli-integration.log",
+      "input_sha256": "f029a4cca3002405d9522838c543632ac2a439186ca27cff0ee634d1da066b62",
+      "delivery_sha256": "f029a4cca3002405d9522838c543632ac2a439186ca27cff0ee634d1da066b62",
+      "paths_replaced": false
+    },
+    {
+      "file": "logs/isa-audit.log",
+      "input_sha256": "e775b60c222b8f2dfbf7783758749ba30a9bc391439616bd169c7e3b383f5a4a",
+      "delivery_sha256": "e775b60c222b8f2dfbf7783758749ba30a9bc391439616bd169c7e3b383f5a4a",
+      "paths_replaced": false
+    },
+    {
+      "file": "logs/soak-prefix-replay.log",
+      "input_sha256": "48b87fca4e84454d84791fb516ee8ef37921942736271d0bf559b9faf716e5ec",
+      "delivery_sha256": "48b87fca4e84454d84791fb516ee8ef37921942736271d0bf559b9faf716e5ec",
+      "paths_replaced": false
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "checks_failed": 0,
+  "checks_passed": 212,
+  "errors": [],
+  "evidence_gaps": [
+    "Emulated AVX-without-AVX2 execution includes only FIR, not forced composite SDM AVX1",
+    "Emulator results contain no exact command lines, CPUID dumps, raw stdout/stderr or executable; cannot independently replay on current host (qemu unavailable)",
+    "540 of 549 committed P11 soak segment-state files are absent from archive (final states present); hashes listed but intermediate replay cannot be independently checked"
+  ],
+  "input_sha256": "6d58f5ff181a5c3d1a113a0e529492b6efa9a8ca32e5ef0f15ae6904159404f8",
+  "missing_segment_states": 540,
+  "qemu_fir_tested": true,
+  "qemu_sdm_tested": false,
+  "reported_benchmark_max_noise": 0.007913026442670348,
+  "reported_benchmark_worst_regression_pct": 0.30951982599800587,
+  "segment_state_entries": 549,
+  "source_archive": "sox_ng-P11adjudicate-14ae2c49.tar.gz",
+  "verification": "internal numerical/logical consistency only; original QEMU, P10 baseline and one-hour executions unavailable on adjudication host"
+}

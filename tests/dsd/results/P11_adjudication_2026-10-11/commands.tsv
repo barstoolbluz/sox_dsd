@@ -1,0 +1,16 @@
+autoreconf	2026-10-11T22:05:46Z	autoreconf -fi 
+configure	2026-10-11T22:05:52Z	./configure --disable-shared --without-libltdl CFLAGS=-O2 -g 
+build	2026-10-11T22:06:00Z	make -j2 
+make-check	2026-10-11T22:06:22Z	make check 
+make-check-dsd	2026-10-11T22:06:35Z	make check-dsd DSD_PHASE=P11 DSD_RESULTS=<audit-root>/check-dsd-results 
+make-check-dsd-complete	2026-10-11T22:07:22Z	make check-dsd DSD_PHASE=P11 DSD_RESULTS=<audit-root>/check-dsd-results-complete 
+phase-run	2026-10-11T22:08:34Z	python3 tests/dsd/run.py --phase P11 --results <audit-root>/phase-run 
+phase-measure	2026-10-11T22:08:38Z	python3 tests/dsd/measure.py --phase P11 --results <audit-root>/phase-measure 
+phase-measure-complete	2026-10-11T22:09:17Z	python3 tests/dsd/measure.py --phase P11 --results <audit-root>/phase-measure-complete 
+phase-bench	2026-10-11T22:10:03Z	python3 tests/dsd/bench.py --phase P11 --results <audit-root>/phase-bench 
+isa-audit	2026-10-11T22:10:04Z	python3 tests/dsd/check_p11_isa.py --results <audit-root>/isa 
+soak-prefix-replay	2026-10-11T22:11:09Z	python3 <audit-root>/replay_soak_prefix.py 
+p11-cli-integration	2026-10-11T22:11:29Z	python3 tests/dsd/test_p11_integration.py --results <audit-root>/p11-cli-integration 
+p11-p10-regression	2026-10-11T22:11:33Z	python3 tests/dsd/test_p11_p10_regression.py --results <audit-root>/p11-p10-regression 
+soak-prefix-replay-61	2026-10-11T22:11:56Z	python3 <audit-root>/replay_soak_prefix.py 
+soak-prefix-replay-61-fresh	2026-10-11T22:12:40Z	python3 <audit-root>/replay_soak_prefix.py 
