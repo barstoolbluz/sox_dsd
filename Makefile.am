@@ -503,3 +503,4 @@ EXTRA_DIST += \
   tests/dsd/check_p11_isa.py tests/dsd/bench_p11.py \
   tests/dsd/bench_p11_e2e.py
 EXTRA_DIST += tests/dsd/sanitize_p11_results.py
+EXTRA_DIST += tests/dsd/qualify_p11_avx1_emulator.py
