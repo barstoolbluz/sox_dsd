@@ -15,11 +15,15 @@ and this round is both of them.
 
 ## 1. The read/repack throughput gate no longer passes
 
+Everything in this section is what we believe from measurements we took and
+interpreted ourselves. You must make the determination.
+
 Your `minimum_attenuation_db` correction is a real improvement and we want to
-keep it: the previous message invited a reader to under-attenuate. It also costs
-6.81% on `dff-6ch-repack-small`, interval [+6.54%, +7.04%] at 0.41% measurement
-noise, against a 5% limit. The interval sits entirely above the limit, so this
-is a failure rather than an inconclusive measurement.
+keep it: the previous message invited a reader to under-attenuate. We also
+measure it costing 6.81% on `dff-6ch-repack-small`, interval [+6.54%, +7.04%] at
+0.41% measurement noise, against a 5% limit. Applying the project's own rule,
+that the verdict comes from the interval, we read it as a failure rather than an
+inconclusive measurement, because the interval sits entirely above the limit.
 
 We measured the delivered tree, then the same tree with only `src/pcmdsd.c` and
 `src/pcmdsd.h` reverted and everything else held constant. The regression goes
@@ -27,12 +31,14 @@ away: the workload returns to -0.23%. `dsf-6ch-repack-small` moves with it,
 +3.01% to -0.28%. Evidence and method are in
 `tests/dsd/results/P10_ratification_throughput_2026-10-10/`.
 
-The changed branch runs only after the encoder has already failed. It cannot
-execute during a DFF read and cannot alter an output bit, so the cost is not the
-code being run. `docs/dsd/OPTIMIZATION_BACKLOG.md` has recorded this workload
-moving under phases that touch no read code five times now, in both directions
-and never explained; this is the first time one file could be reverted to remove
-one regression with everything else fixed.
+Reading the code, the changed branch appears to run only after the encoder has
+already failed, so we do not see how it could execute during a DFF read or alter
+an output bit, and we therefore doubt the cost is the new code being run. That
+is our inference about your change and you are better placed to judge it.
+`docs/dsd/OPTIMIZATION_BACKLOG.md` has recorded this workload moving under
+phases that touch no read code five times now, in both directions and never
+explained; what is new here is only that reverting one file removed one
+regression with everything else held fixed.
 
 **Outcome wanted:** the improved diagnostic, and a passing gate. Whether that
 means holding this translation unit's shape constant, moving the message
@@ -70,7 +76,9 @@ walks one bit at a time and is impractical at hundreds of millions of frames.
 ## 3. The existing gates still hold
 
 36 pass / 0 fail, `make check` unchanged, all six P10 groups passing, your
-eighteen adversarial receipt tests passing, and no profile promoted.
+eighteen adversarial receipt tests passing, and no profile promoted. We observed
+all of these on this tree, but our having observed them is not a reason for you
+to skip checking them.
 
 ## What we believe, and why you should not take our word for it
 
