@@ -61,6 +61,19 @@ rest of the set. They are distinct commercial albums from different years and
 two different transfer routes, DVD-Audio and HDTracks, but a round weighing
 independence should know they share an artist and catalogue lineage.
 
+## Correction, 2026-10-11
+
+Two listed releases cannot be used and the first version of this inventory did
+not say so. Van Morrison, *Live At The Grand Opera House*, and Erling Aasgard,
+*Bach Toccata and Fugue*, were both encoded without a STREAMINFO MD5, and the
+Van Morrison first track is 66 seconds, shorter than a 30-second offset plus a
+60-second excerpt. `corpus_pcm.py` refuses a source whose decode cannot be
+proven bit-exact, which is the right call, since that proof is what licenses
+decoding outside the audited binary. Each entry now carries
+`first_track_streaminfo_md5_present` and `usable_by_corpus_pcm`, so the
+limitation is visible in the data rather than discovered at run time. The
+remaining 17 releases satisfied every cardinality requirement with margin.
+
 ## Staging constraints
 
 The audited `sox_ng` has no FLAC handler: `no handler for detected file type
