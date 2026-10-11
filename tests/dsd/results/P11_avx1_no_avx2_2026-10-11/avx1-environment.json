@@ -1,0 +1,72 @@
+{
+ "date": "2026-10-11",
+ "environment": "qemu-user x86-64 TCG, version 10.0.13, -cpu SandyBridge",
+ "limitation": "Emulated under TCG, not silicon. Trap-accurate for ISA availability; no performance claim is made or implied from this environment.",
+ "rows": [
+  {
+   "check": "isa_trap_probe",
+   "cpu_model": "SandyBridge",
+   "exit_code": 0,
+   "instruction_class": "avx",
+   "outcome": "executed"
+  },
+  {
+   "check": "isa_trap_probe",
+   "cpu_model": "SandyBridge",
+   "exit_code": -4,
+   "instruction_class": "avx2",
+   "outcome": "illegal instruction (SIGILL)"
+  },
+  {
+   "check": "isa_trap_probe",
+   "cpu_model": "SandyBridge",
+   "exit_code": -4,
+   "instruction_class": "fma",
+   "outcome": "illegal instruction (SIGILL)"
+  },
+  {
+   "check": "forced_fir_tier",
+   "cpu_model": "SandyBridge",
+   "exit_code": 0,
+   "identical_to_native_run": true,
+   "output_sha256": "e869bad9bb59658e4c2cb58cdfd427edf495faa7db80bb96d0a45231b00e281f",
+   "tier": "scalar"
+  },
+  {
+   "check": "forced_fir_tier",
+   "cpu_model": "SandyBridge",
+   "exit_code": 0,
+   "identical_to_native_run": true,
+   "output_sha256": "e869bad9bb59658e4c2cb58cdfd427edf495faa7db80bb96d0a45231b00e281f",
+   "tier": "sse2"
+  },
+  {
+   "check": "forced_fir_tier",
+   "cpu_model": "SandyBridge",
+   "exit_code": 0,
+   "identical_to_native_run": true,
+   "output_sha256": "e869bad9bb59658e4c2cb58cdfd427edf495faa7db80bb96d0a45231b00e281f",
+   "tier": "avx1"
+  },
+  {
+   "check": "baseline_starts_without_avx",
+   "cpu_model": "Nehalem",
+   "exit_code": 0
+  },
+  {
+   "check": "baseline_starts_without_avx",
+   "cpu_model": "core2duo",
+   "exit_code": 0
+  },
+  {
+   "check": "forced_tier_refused_without_cpu_support",
+   "cpu_model": "Nehalem",
+   "diagnostic_tail": "P05 preflight: requested DSD FIR kernel tier is unavailable on this CPU/build",
+   "exit_code": 2,
+   "tier": "avx1"
+  }
+ ],
+ "schema": "P11/avx1-without-avx2-environment/1",
+ "sox_ng_sha256": "e272549784c99a632be3bddf2fccec1ef88fc28d5fc9cbdb169615cf42e0ba8e",
+ "trap_accurate": true
+}
