@@ -248,9 +248,21 @@ invalid:
 	return SOX_EHDR;
 }
 
+/* The six-channel small-buffer reader is sensitive to link-time placement:
+ * a change in an unrelated failure-message object has moved this code by
+ * 256 bytes, with a repeatable throughput change on prepared hardware.
+ * Page-offset alignment pins its L1-I cache set mapping independently of
+ * preceding object sizes, without changing any read/bit/sample operation.
+ * Only compilers supporting function alignment take this non-ABI hint. */
+#if (defined(__GNUC__) || defined(__clang__)) && defined(__x86_64__)
+#define LSX_DFF_READ_ALIGN __attribute__((aligned(4096)))
+#else
+#define LSX_DFF_READ_ALIGN
+#endif
+
 /* Retain partially consumed clusters for small reads and non-byte-aligned
  * seeks. This path is not used by the aligned eight-frame hot loop. */
-static unsigned dff_read_fragment(sox_format_t *ft, sox_sample_t *buf,
+static unsigned LSX_DFF_READ_ALIGN dff_read_fragment(sox_format_t *ft, sox_sample_t *buf,
                                   unsigned frames)
 {
     struct dsdiff *dff = ft->priv;
@@ -291,7 +303,7 @@ static unsigned dff_read_fragment(sox_format_t *ft, sox_sample_t *buf,
     return bits;
 }
 
-static size_t dff_read(sox_format_t *ft, sox_sample_t *buf, size_t len)
+static size_t LSX_DFF_READ_ALIGN dff_read(sox_format_t *ft, sox_sample_t *buf, size_t len)
 {
     struct dsdiff *dff = ft->priv;
     size_t nc = ft->signal.channels;

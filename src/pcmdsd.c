@@ -378,24 +378,28 @@ static int effect_failure(sox_effect_t *e)
 {
   lsx_pcmdsd_private *p=e->priv;
   lsx_pcmdsd_report r={0};
-  char attenuation[192];
   lsx_pcmdsd_report_get(p->encoder,&r);
   static const char *const failures[]={"none","nonfinite input",
     "interpolation overload","nonfinite modulator state","state guard exceeded",
     "stream error"};
-  if (r.failure==LSX_PCMDSD_INTERPOLATION_OVERLOAD)
-    snprintf(attenuation,sizeof(attenuation),
+  /* No allocation, buffer or formatting work on the successful read path.
+   * The FIRST rejected sample supplies a lower bound, not the attenuation
+   * that would admit the rest of the stream.  Keep that distinction visible. */
+  if (r.failure==LSX_PCMDSD_INTERPOLATION_OVERLOAD) {
+    lsx_fail("pcmdsd: %s (failure %u) at native frame %" PRIu64
+        ", channel %u, coordinate %u, value %.17g, observed peak %.17g; "
         "minimum explicit attenuation %.9g dB (lower bound from first "
-        "overloaded sample; later peaks may require more)",
-        r.minimum_attenuation_db);
-  else
-    strcpy(attenuation,"no attenuation estimate for this failure");
-  lsx_fail("pcmdsd: %s (failure %u) at native frame %" PRIu64
-      ", channel %u, coordinate %u, value %.17g, observed peak %.17g; "
-      "%s; output block discarded",
-      (unsigned)r.failure<array_length(failures)?failures[r.failure]:"unknown failure",
-      (unsigned)r.failure,r.first_bad_frame,r.channel,r.coordinate,
-      r.failure_value,r.peak,attenuation);
+        "overloaded sample; later peaks may require more); output block discarded",
+        failures[r.failure],(unsigned)r.failure,r.first_bad_frame,r.channel,
+        r.coordinate,r.failure_value,r.peak,r.minimum_attenuation_db);
+  } else {
+    lsx_fail("pcmdsd: %s (failure %u) at native frame %" PRIu64
+        ", channel %u, coordinate %u, value %.17g, observed peak %.17g; "
+        "no attenuation estimate for this failure; output block discarded",
+        (unsigned)r.failure<array_length(failures)?failures[r.failure]:"unknown failure",
+        (unsigned)r.failure,r.first_bad_frame,r.channel,r.coordinate,
+        r.failure_value,r.peak);
+  }
   return LSX_EFF_FATAL;
 }
 int lsx_pcmdsd_flow(sox_effect_t *e,const sox_sample_t *in,sox_sample_t *out,
