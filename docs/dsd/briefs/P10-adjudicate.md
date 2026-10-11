@@ -70,6 +70,17 @@ run more than have a phase closed on our account.
   a page still moved that workload `-2.70%` with both read functions staying
   page-aligned. The structural claim in your comment holds; throughput
   independence does not follow from it. Both readings are ours.
+- Your criterion records `current_mastering_kernel_family` as `scalar`, and we
+  think the one-hour soak actually qualified the SSE2 kernel. `sdm_x86.h` defines
+  `sdm_filter_calc` as `sdm_filter_calc_sse2` under `__SSE2__`, `sdm.c` guards
+  its own scalar version behind `#ifndef sdm_filter_calc`, and an x86-64 `-O2`
+  build defines `__SSE2__` unconditionally, so the scalar path is unreachable
+  here. The built `sdm.o` carries 70 packed-double instructions and
+  `src/pcmdsd.c:163` enters that kernel through `sdm_normal_step_guarded`. If
+  `scalar` is your shorthand for the single compile-time family as against
+  runtime-dispatched ones, nothing is wrong. If it means unvectorised, the label
+  understates what was exercised, and P11 would compute its requalification
+  scope against a family this host never ran.
 - This gate cannot be discharged by re-execution, now or ever: 19 privately held
   commercial releases and a real-hardware soak. Your collector already says so,
   recording that provenance and hashes are operator-supplied and external
@@ -89,7 +100,8 @@ run more than have a phase closed on our account.
   byte-identical and the new assessment writes elsewhere.
 - P11 is blocked behind P10 and introduces runtime ISA kernels. Your one-hour
   hardware criterion requires requalification per newly introduced kernel
-  family; today there is one, the compiled `__SSE2__` baseline.
+  family; today one compile-time family is built, subject to the labelling
+  question above.
 - Please return a source tree rather than a built one, keep machine-specific
   paths out of recorded results, leave previously recorded evidence as
   delivered, do not ship copies of this brief in the tree, and flag anything
