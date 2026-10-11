@@ -112,6 +112,12 @@ typedef struct sox_dsd_decode_options {
   sox_dsd_decode_profile_t profile;
   sox_dsd_decode_level_t level;
   sox_dsd_decode_bandwidth_t bandwidth;
+  /* Optional P11 extension, NULL=family environment/default policy. A
+   * non-NULL override has precedence over environment variables. Call
+   * sox_dsd_decode_options_init_extended() to initialize and activate it;
+   * the original initializer deliberately uses the shorter P07 record size
+   * to preserve ABI safety for already compiled callers. */
+  const char *kernel_fir;
 } sox_dsd_decode_options_t;
 typedef struct sox_dsd_report {
   size_t size;
@@ -123,6 +129,8 @@ typedef struct sox_dsd_report {
   sox_dsd_status_t status;
 } sox_dsd_report_t;
 void SOX_DSD_CALL sox_dsd_decode_options_init(sox_dsd_decode_options_t *);
+/* Initialize the full P11-sized record, including the optional FIR override. */
+void SOX_DSD_CALL sox_dsd_decode_options_init_extended(sox_dsd_decode_options_t *);
 sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_create(
     const sox_dsd_decode_options_t *, sox_dsd_decoder_t **);
 sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_process(

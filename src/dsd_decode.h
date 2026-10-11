@@ -29,6 +29,14 @@ typedef struct {
 sox_dsd_status_t lsx_dsd_reconstruction_create(
     uint32_t native_hz, lsx_dsd_decode profile, unsigned channels,
     lsx_dsd_reconstruction **out);
+/* Existing create is source/ABI stable. The internal variant carries the
+ * caller's optional per-context override (ahead of environment selection). */
+sox_dsd_status_t lsx_dsd_reconstruction_create_kernel(
+    uint32_t native_hz, lsx_dsd_decode profile, unsigned channels,
+    const char *kernel_fir, lsx_dsd_reconstruction **out);
+/* Private read-only introspection for context-selection regression tests. */
+const char *lsx_dsd_reconstruction_kernel_name(const lsx_dsd_reconstruction *);
+const char *lsx_dsd_decoder_kernel_name(const sox_dsd_decoder_t *);
 sox_dsd_status_t lsx_dsd_reconstruction_process(
     lsx_dsd_reconstruction *, const sox_sample_t *bits, size_t *input_frames,
     double *pcm, size_t *output_frames);

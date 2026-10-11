@@ -7,6 +7,7 @@
 #include "rate_internal.h"
 #include "dsd.h"
 #include <math.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,15 +26,37 @@ struct sox_dsd_decoder {
   sox_dsd_status_t error;
 };
 
-void sox_dsd_decode_options_init(sox_dsd_decode_options_t *options)
+/* The original initializer is an existing ABI entry point. It cannot know
+ * whether the caller allocated the P07 version-1 prefix or P11's extension:
+ * do NOT clear/write past the original size. The extended initializer is
+ * explicit so an existing binary never receives a larger write. */
+static void init_options_defaults(sox_dsd_decode_options_t *options)
 {
-  if (!options) return;
-  memset(options, 0, sizeof(*options));
-  options->size = sizeof(*options);
   options->version = 1;
   options->profile = SOX_DSD_DECODE_MASTERING;
   options->level = SOX_DSD_LEVEL_PRESERVE;
   options->bandwidth = SOX_DSD_BANDWIDTH_ADAPT;
+}
+
+void sox_dsd_decode_options_init(sox_dsd_decode_options_t *options)
+{
+  if (!options) return;
+  memset(options, 0, offsetof(sox_dsd_decode_options_t,kernel_fir));
+  options->size = offsetof(sox_dsd_decode_options_t,kernel_fir);
+  init_options_defaults(options);
+}
+
+void sox_dsd_decode_options_init_extended(sox_dsd_decode_options_t *options)
+{
+  if (!options) return;
+  memset(options, 0, sizeof(*options));
+  options->size = sizeof(*options);
+  init_options_defaults(options);
+}
+
+const char *lsx_dsd_decoder_kernel_name(const sox_dsd_decoder_t *ctx)
+{
+  return ctx ? lsx_dsd_reconstruction_kernel_name(ctx->front) : NULL;
 }
 
 void sox_dsd_decoder_destroy(sox_dsd_decoder_t *ctx)
@@ -54,46 +77,59 @@ sox_dsd_status_t sox_dsd_decoder_create(
     const sox_dsd_decode_options_t *options, sox_dsd_decoder_t **out)
 {
   sox_dsd_decoder_t *ctx;
+  sox_dsd_decode_options_t resolved;
   const lsx_dsd_frontend_profile *profile;
   lsx_rate_f64_config rc;
+  sox_dsd_status_t st;
   unsigned c;
   if (!out) return SOX_DSD_BAD_ARGUMENT;
   *out = NULL;
-  if (!options || options->size < sizeof(*options) || options->version != 1 ||
-      !options->channels || options->channels > DSD_MAX_CHANNELS ||
-      !lsx_dsd_pcm_rate_supported(options->output_hz) ||
-      options->profile > SOX_DSD_DECODE_WIDEBAND ||
-      options->level > SOX_DSD_LEVEL_SACD ||
-      options->bandwidth > SOX_DSD_BANDWIDTH_STRICT)
+  /* Version 1 accepts its original record prefix without reading beyond the
+   * caller's advertised size. New fields default to NULL/automatic. */
+  if (!options || options->size < offsetof(sox_dsd_decode_options_t,kernel_fir) ||
+      options->version != 1) return SOX_DSD_BAD_ARGUMENT;
+  sox_dsd_decode_options_init_extended(&resolved);
+  memcpy(&resolved,options,options->size < sizeof(resolved) ?
+      options->size : sizeof(resolved));
+  resolved.size = sizeof(resolved);
+  if (!resolved.channels || resolved.channels > DSD_MAX_CHANNELS ||
+      !lsx_dsd_pcm_rate_supported(resolved.output_hz) ||
+      resolved.profile > SOX_DSD_DECODE_WIDEBAND ||
+      resolved.level > SOX_DSD_LEVEL_SACD ||
+      resolved.bandwidth > SOX_DSD_BANDWIDTH_STRICT)
     return SOX_DSD_BAD_ARGUMENT;
-  profile = lsx_dsd_frontend_profile_find(options->native_hz,
-      (lsx_dsd_decode)options->profile);
+  profile = lsx_dsd_frontend_profile_find(resolved.native_hz,
+      (lsx_dsd_decode)resolved.profile);
   if (!profile) return SOX_DSD_UNSUPPORTED;
-  if (options->bandwidth == SOX_DSD_BANDWIDTH_STRICT &&
-      profile->intermediate_hz != options->output_hz &&
+  if (resolved.bandwidth == SOX_DSD_BANDWIDTH_STRICT &&
+      profile->intermediate_hz != resolved.output_hz &&
       .475 * fmin((double)profile->intermediate_hz,
-                  (double)options->output_hz) + 1e-9 < profile->pass_hz)
+                  (double)resolved.output_hz) + 1e-9 < profile->pass_hz)
     return SOX_DSD_UNSUPPORTED;
   ctx = calloc(1, sizeof(*ctx));
   if (!ctx) return SOX_DSD_NUMERIC_ERROR;
-  ctx->cfg = *options;
+  ctx->cfg = resolved;
   ctx->intermediate_hz = profile->intermediate_hz;
   ctx->pass_hz = lsx_dsd_effective_bandwidth(profile->pass_hz,
-      profile->intermediate_hz, options->output_hz);
-  ctx->gain = options->level == SOX_DSD_LEVEL_SACD ? 2. : 1.;
-  ctx->src = calloc(options->channels, sizeof(*ctx->src));
-  ctx->queue = calloc((size_t)options->channels * DSD_QUEUE, sizeof(double));
-  ctx->intermediate = calloc(options->channels, sizeof(double));
+      profile->intermediate_hz, resolved.output_hz);
+  ctx->gain = resolved.level == SOX_DSD_LEVEL_SACD ? 2. : 1.;
+  ctx->src = calloc(resolved.channels, sizeof(*ctx->src));
+  ctx->queue = calloc((size_t)resolved.channels * DSD_QUEUE, sizeof(double));
+  ctx->intermediate = calloc(resolved.channels, sizeof(double));
   if (!ctx->src || !ctx->queue || !ctx->intermediate) goto fail;
-  if (lsx_dsd_reconstruction_create(options->native_hz,
-      (lsx_dsd_decode)options->profile, options->channels,
-      &ctx->front) != SOX_DSD_OK) goto fail;
+  st=lsx_dsd_reconstruction_create_kernel(resolved.native_hz,
+      (lsx_dsd_decode)resolved.profile, resolved.channels,
+      resolved.kernel_fir,&ctx->front);
+  if (st!=SOX_DSD_OK) {
+    sox_dsd_decoder_destroy(ctx);
+    return st; /* Preserve UNSUPPORTED, do not disguise it as NUMERIC_ERROR. */
+  }
   rc.input_hz = profile->intermediate_hz;
-  rc.output_hz = options->output_hz;
+  rc.output_hz = resolved.output_hz;
   rc.bandwidth_0db_pct = 95.;
   rc.rejection_db = 180.;
   rc.phase_percent = 50;
-  for (c = 0; c < options->channels; ++c)
+  for (c = 0; c < resolved.channels; ++c)
     if (lsx_rate_f64_create(&rc, &ctx->src[c]) != SOX_DSD_OK)
       goto fail;
   *out = ctx;

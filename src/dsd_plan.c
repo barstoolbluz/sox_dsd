@@ -3,6 +3,7 @@
  * The returned plan owns only its arrays and borrows static effect names.
  */
 #include "dsd.h"
+#include "dsd_kernels.h"
 #include "pcmdsd.h"
 #include <stdlib.h>
 #include <string.h>
@@ -120,9 +121,18 @@ static int resolve_encode(lsx_dsd_plan *p, uint32_t hz,
   return 1;
 }
 
-static int forced_kernel_supported(char const *s)
+/* A force is checked only for a family whose P11 context will exist. Use
+ * the SAME dispatcher as context creation, including runtime CPU capability
+ * and documented/compatibility environment precedence. */
+static int check_kernel(enum lsx_dsd_kernel_family family, char const *requested,
+    char *error, size_t n)
 {
-  return !s || is(s,"auto") || is(s,"scalar");
+  const lsx_dsd_kernel *selected=NULL;
+  int rc=lsx_dsd_kernel_select(family,requested,&selected);
+  if (!rc) return 1;
+  return fail(error,n,"requested DSD %s kernel tier is %s",
+      family==LSX_DSD_FIR?"FIR":"SDM",
+      rc==-2?"unavailable on this CPU/build":"unknown or unimplemented");
 }
 
 /* An explicit leading decoder is a configuration for per-input reconstruction
@@ -210,10 +220,6 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   p->executable=1;
   p->layout_identity_preserved=1;
   p->trim_native_seek=1;
-  if (!forced_kernel_supported(spec->policy.kernel_fir) ||
-      !forced_kernel_supported(spec->policy.kernel_sdm))
-    return fail(error,n,"requested DSD kernel tier is not implemented in P05");
-
   for (i=0;i<spec->input_count;i++) {
     lsx_dsd_plan_input *in=&p->inputs[i];
     lsx_dsd_input_spec const *src=&spec->inputs[i];
@@ -759,6 +765,18 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
     p->executable=0;
     p->unavailable_reason="automatic normalization before low-level sdm is not supported by the current effects pipeline";
   }
+  if (p->executable &&
+      (p->input_decode_count || p->graph_decode_count) &&
+      (!p->decoder_id || strcmp(p->decoder_id,"decode.legacy.generic")) &&
+      !check_kernel(LSX_DSD_FIR,spec->policy.kernel_fir,error,n)) return 0;
+  /* Legacy low-level sdm and precision-one dither never instantiate the
+   * composite P11 SDM kernel; their overrides must remain inert. */
+  if (p->executable) for (i=0;i<p->step_count;++i)
+    if (is(p->steps[i].name,"pcmdsd") ||
+        is(p->steps[i].name,"implicit_pcmdsd")) {
+      if (!check_kernel(LSX_DSD_SDM,spec->policy.kernel_sdm,error,n)) return 0;
+      break;
+    }
   return 1;
 }
 

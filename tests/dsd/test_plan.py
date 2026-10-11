@@ -295,8 +295,14 @@ def main() -> int:
             inspect=expect(encoder__modulator_input_scale=1),suffix='.dsf')
         run('pcm_ref_default',[w88,'-r','5644800','@OUT@','pcmdsd','5644800'],
             inspect=expect(encoder__modulator_input_scale=.5),suffix='.dsf')
-        run('explicit_bad_kernel',['--dsd-mode','native',ds,'@OUT@'],
-            ok=False,error='kernel tier',env={'SOX_DSD_KERNEL_FIR':'avx512'},suffix='.dsf')
+        # P11 makes kernel forcing context-local. A native-only transcode
+        # creates no FIR context and must ignore the inactive family override.
+        run('native_inactive_fir_force',['--dsd-mode','native',ds,'@OUT@'],
+            env={'SOX_DSD_KERNEL_FIR':'avx512'},suffix='.dsf')
+        # The same invalid force fails before output when reconstruction is
+        # actually requested, without a silent fallback.
+        run('explicit_bad_kernel',['--dsd-mode','auto',ds,'-r','88200','@OUT@'],
+            ok=False,error='kernel tier',env={'SOX_DSD_KERNEL_FIR':'avx512'},suffix='.wav')
 
         # Independent corrective regressions: explicit decoder selection before
         # input scaling / balance_input, never an after-combiner second decode.
