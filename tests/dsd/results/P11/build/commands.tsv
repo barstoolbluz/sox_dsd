@@ -1,0 +1,14 @@
+autoreconf	0	autoreconf -fi
+configure	0	./configure --disable-shared --without-libltdl CFLAGS=-O2 -g
+build	0	make -j2
+make_check	0	make check
+make_check_dsd	0	make check-dsd
+run	0	python3 tests/dsd/run.py --phase P11 --results tests/dsd/results/P11
+measure	0	python3 tests/dsd/measure.py --phase P11 --results tests/dsd/results/P11/numeric
+bench_legacy	0	python3 tests/dsd/bench.py --phase P11 --results tests/dsd/results/P11/bench
+kernel_unit	0	test/dsd_test_p11
+isa	0	python3 tests/dsd/check_p11_isa.py --results tests/dsd/results/P11/isa
+integration	0	python3 tests/dsd/test_p11_integration.py --results tests/dsd/results/P11/integration
+p10_baseline	0	python3 tests/dsd/test_p11_p10_regression.py --baseline-candidate <P10-source>/test/sox_p10_candidate --results tests/dsd/results/P11/integration
+kernel_timing	0	python3 tests/dsd/bench_p11.py --results tests/dsd/results/P11/bench --repetitions 15 --frames 1000000
+e2e_timing	0	python3 tests/dsd/bench_p11_e2e.py --results tests/dsd/results/P11/bench --repetitions 15 --warmups 2

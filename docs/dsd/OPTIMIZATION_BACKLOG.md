@@ -30,6 +30,7 @@ host, interval from a paired bootstrap.
 | P10 to P10 corrective | -0.15% | [-0.34%, +0.06%] | 0.34% | pass |
 | P10 corrective to P10 ratification | **+6.81%** | [+6.54%, +7.04%] | 0.41% | **fail**, attributed to a failure-path diagnostic in `src/pcmdsd.c` |
 | P10 ratification to P10 hotfix | **-4.43%** | [-4.63%, -4.24%] | 0.49% | pass, faster than before the regression; page-aligned reader |
+| P10 hotfix to P11 | -2.87% | [see evidence] | 0.79% max | pass; first phase to add translation units since the alignment fix |
 
 Cumulative, as the product of the recorded median ratios: **+3.20%** from P05
 through P08, then **-0.60%** once P09 is included, **+0.42%** through P10 and

@@ -1,0 +1,77 @@
+{
+  "checks": {
+    "avx1_no_avx2": true,
+    "avx1_no_fma": true,
+    "avx1_ymm_executable": true,
+    "baseline_dispatch_no_avx": true,
+    "baseline_scalar_no_avx": true,
+    "explicit_avx1_flags": true,
+    "explicit_sse2_flags": true,
+    "sse2_no_avx": true,
+    "sse2_no_fma": true
+  },
+  "errors": [],
+  "note": "Static audit of built objects only; execution tests and AVX1-only hardware are independent gates",
+  "objects": {
+    "avx1": {
+      "avx_mnemonics": {
+        "vaddpd": 9,
+        "vaddsd": 7,
+        "vandpd": 8,
+        "vblendpd": 3,
+        "vbroadcastsd": 1,
+        "vcomisd": 5,
+        "vcvtsi2sd": 1,
+        "vextractf128": 2,
+        "vinsertf128": 5,
+        "vmovapd": 7,
+        "vmovddup": 2,
+        "vmovhpd": 6,
+        "vmovq": 2,
+        "vmovsd": 30,
+        "vmovupd": 6,
+        "vmulpd": 7,
+        "vmulsd": 2,
+        "vperm2f128": 5,
+        "vpermilpd": 4,
+        "vsubpd": 2,
+        "vsubsd": 1,
+        "vucomisd": 7,
+        "vunpckhpd": 2,
+        "vxorpd": 4,
+        "vzeroupper": 7
+      },
+      "fma_mnemonics": [],
+      "path": "src/libdsd_kernels_avx1_la-dsd_kernels_avx1.o",
+      "possible_avx2_mnemonics": [],
+      "total_instructions": 629,
+      "ymm_instructions": 41
+    },
+    "baseline_dispatch": {
+      "avx_mnemonics": {},
+      "fma_mnemonics": [],
+      "path": "src/libsox_ng_la-dsd_dispatch.o",
+      "possible_avx2_mnemonics": [],
+      "total_instructions": 259,
+      "ymm_instructions": 0
+    },
+    "baseline_scalar": {
+      "avx_mnemonics": {},
+      "fma_mnemonics": [],
+      "path": "src/libsox_ng_la-dsd_kernels_scalar.o",
+      "possible_avx2_mnemonics": [],
+      "total_instructions": 159,
+      "ymm_instructions": 0
+    },
+    "sse2": {
+      "avx_mnemonics": {},
+      "fma_mnemonics": [],
+      "path": "src/libdsd_kernels_sse2_la-dsd_kernels_sse2.o",
+      "possible_avx2_mnemonics": [],
+      "total_instructions": 604,
+      "ymm_instructions": 0
+    }
+  },
+  "schema": "P11/ISA-audit/1",
+  "status": "PASS"
+}

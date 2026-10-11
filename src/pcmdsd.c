@@ -39,11 +39,17 @@ struct lsx_pcmdsd {
   double working[PCMDSD_BATCH], filtered[PCMDSD_BATCH];
   size_t working_pos, working_n, filtered_pos, filtered_n;
   sdm_normal_t sdm;
+  const lsx_dsd_kernel *sdm_kernel; /* context-owned, immutable */
   lsx_pcmdsd_report report;
   sox_dsd_status_t error;
   lsx_pcmdsd_stage_observer observer;
   void *observer_opaque;
 };
+
+const char *lsx_pcmdsd_kernel_name(const lsx_pcmdsd *p)
+{
+  return p && p->sdm_kernel ? p->sdm_kernel->name : NULL;
+}
 
 void lsx_pcmdsd_observe(lsx_pcmdsd *p, lsx_pcmdsd_stage_observer callback, void *opaque)
 {
@@ -124,6 +130,14 @@ sox_dsd_status_t lsx_pcmdsd_candidate_create(uint32_t source_hz,
   cfg.input_hz=profile->working_hz;cfg.output_hz=native_hz;
   rc=lsx_rate_f64_create(&cfg,&p->interpolator);
   if (rc!=SOX_DSD_OK) {lsx_pcmdsd_destroy(p);return rc;}
+  /* A forced unavailable ISA fails context creation, never execution. */
+  {
+    int sel=lsx_dsd_kernel_select(LSX_DSD_SDM,NULL,&p->sdm_kernel);
+    if (sel) {
+      lsx_pcmdsd_destroy(p);
+      return sel==-2 ? SOX_DSD_UNSUPPORTED : SOX_DSD_BAD_ARGUMENT;
+    }
+  }
   sdm_normal_init(&p->sdm,control);
   sdm_normal_monitor_init(&p->report.monitor);
   sdm_normal_attach_monitor(&p->sdm,&p->report.monitor);
@@ -147,26 +161,25 @@ sox_dsd_status_t lsx_pcmdsd_create(uint32_t source_hz, uint32_t native_hz,
 sox_dsd_status_t lsx_pcmdsd_modulate(lsx_pcmdsd *p, const double *input,
     sox_sample_t *output, size_t n)
 {
-  size_t i;
+  size_t committed=0;
+  unsigned coordinate=UINT_MAX;
+  int rc;
   if (!p || (!input && n) || (!output && n)) return SOX_DSD_BAD_ARGUMENT;
   if (p->error) return p->error;
-  for (i=0;i<n;++i) {
-    double x=input[i];
-    unsigned coordinate=UINT_MAX;
-    int bit,rc;
-    if (!isfinite(x)) return fail_stream(p,LSX_PCMDSD_INPUT_NONFINITE,x,UINT_MAX);
-    if (fabs(x)>p->report.peak) p->report.peak=fabs(x);
-    if (fabs(x)>p->envelope)
-      return fail_stream(p,LSX_PCMDSD_INTERPOLATION_OVERLOAD,x,UINT_MAX);
-    if (p->sdm.frames==UINT64_MAX)
-      return fail_stream(p,LSX_PCMDSD_STREAM_ERROR,0,UINT_MAX);
-    rc=sdm_normal_step_guarded(&p->sdm,x,&bit,p->guarded?p->bounds:NULL,&coordinate);
-    if (rc)
-      return fail_stream(p,rc==-2?LSX_PCMDSD_STATE_BOUND:LSX_PCMDSD_STATE_NONFINITE,
-          coordinate<8?p->sdm.state[p->sdm.bank^1][coordinate]:0,coordinate);
-    output[i]=bit>0?SOX_SAMPLE_MAX:-SOX_SAMPLE_MAX;
-  }
-  return SOX_DSD_OK;
+  /* One immutable per-context call for the entire block. Each ISA kernel
+   * owns its time recurrence, guard and monitor, not an indirect per bit. */
+  rc=p->sdm_kernel->sdm_block(&p->sdm,input,n,output,&committed,
+      p->guarded?p->bounds:NULL,&coordinate,p->envelope,&p->report.peak);
+  if (!rc) return SOX_DSD_OK;
+  if (rc==LSX_DSD_SDM_OVERLOAD)
+    return fail_stream(p,LSX_PCMDSD_INTERPOLATION_OVERLOAD,input[committed],UINT_MAX);
+  if (rc==LSX_DSD_SDM_FRAME_LIMIT)
+    return fail_stream(p,LSX_PCMDSD_STREAM_ERROR,0,UINT_MAX);
+  if (rc==LSX_DSD_SDM_NONFINITE && !isfinite(input[committed]))
+    return fail_stream(p,LSX_PCMDSD_INPUT_NONFINITE,input[committed],UINT_MAX);
+  return fail_stream(p,rc==LSX_DSD_SDM_BOUNDS?LSX_PCMDSD_STATE_BOUND:
+      LSX_PCMDSD_STATE_NONFINITE,
+      coordinate<8?p->sdm.state[p->sdm.bank^1][coordinate]:0,coordinate);
 }
 
 static int feed_fir(lsx_pcmdsd *p, double x, double *out)

@@ -1,0 +1,83 @@
+{
+  "executed": [
+    {
+      "command": "autoreconf -fi",
+      "exit_code": 0,
+      "gate": "autoreconf"
+    },
+    {
+      "command": "./configure --disable-shared --without-libltdl CFLAGS=-O2 -g",
+      "exit_code": 0,
+      "gate": "configure"
+    },
+    {
+      "command": "make -j2",
+      "exit_code": 0,
+      "gate": "build"
+    },
+    {
+      "command": "make check",
+      "exit_code": 0,
+      "gate": "make_check"
+    },
+    {
+      "command": "make check-dsd",
+      "exit_code": 0,
+      "gate": "make_check_dsd"
+    },
+    {
+      "command": "python3 tests/dsd/run.py --phase P11 --results tests/dsd/results/P11",
+      "exit_code": 0,
+      "gate": "run"
+    },
+    {
+      "command": "python3 tests/dsd/measure.py --phase P11 --results tests/dsd/results/P11/numeric",
+      "exit_code": 0,
+      "gate": "measure"
+    },
+    {
+      "command": "python3 tests/dsd/bench.py --phase P11 --results tests/dsd/results/P11/bench",
+      "exit_code": 0,
+      "gate": "bench_legacy"
+    },
+    {
+      "command": "test/dsd_test_p11",
+      "exit_code": 0,
+      "gate": "kernel_unit"
+    },
+    {
+      "command": "python3 tests/dsd/check_p11_isa.py --results tests/dsd/results/P11/isa",
+      "exit_code": 0,
+      "gate": "isa"
+    },
+    {
+      "command": "python3 tests/dsd/test_p11_integration.py --results tests/dsd/results/P11/integration",
+      "exit_code": 0,
+      "gate": "integration"
+    },
+    {
+      "command": "python3 tests/dsd/test_p11_p10_regression.py --baseline-candidate <P10-source>/test/sox_p10_candidate --results tests/dsd/results/P11/integration",
+      "exit_code": 0,
+      "gate": "p10_baseline"
+    },
+    {
+      "command": "python3 tests/dsd/bench_p11.py --results tests/dsd/results/P11/bench --repetitions 15 --frames 1000000",
+      "exit_code": 0,
+      "gate": "kernel_timing"
+    },
+    {
+      "command": "python3 tests/dsd/bench_p11_e2e.py --results tests/dsd/results/P11/bench --repetitions 15 --warmups 2",
+      "exit_code": 0,
+      "gate": "e2e_timing"
+    }
+  ],
+  "historical_P10_certification_verifier": "pass unmodified P10; expected hash mismatch modified P11",
+  "num_executed": 14,
+  "qualification": "INCOMPLETE; hardware gates unrun",
+  "schema": "P11/gates/1",
+  "status": "PASS_ON_HOST",
+  "unrun": [
+    "real AVX-capable AVX2-incapable host test",
+    "real pre-AVX baseline startup test"
+  ]
+}

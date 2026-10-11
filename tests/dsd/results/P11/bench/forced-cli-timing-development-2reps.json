@@ -1,0 +1,272 @@
+{
+  "config": {
+    "DSD_rate": 2822400,
+    "PCM_rate": 88200,
+    "channels": 2,
+    "decode_seconds": 0.1,
+    "encode_seconds": 0.05,
+    "random_seed": 11,
+    "repetitions": 2,
+    "sox_buffer_bytes": 8192,
+    "threads": "single",
+    "warmups": 1
+  },
+  "errors": [],
+  "machine": "x86_64",
+  "measurements": [
+    {
+      "exit": 0,
+      "family": "decode",
+      "output_bytes": 70640,
+      "repeat": 0,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "tier": "scalar",
+      "wall_seconds": 0.039174558,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "decode",
+      "output_bytes": 70640,
+      "repeat": 0,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "tier": "avx1",
+      "wall_seconds": 0.041557401,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "decode",
+      "output_bytes": 70640,
+      "repeat": 0,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "tier": "sse2",
+      "wall_seconds": 0.047980269,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "decode",
+      "output_bytes": 70640,
+      "repeat": 1,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "tier": "avx1",
+      "wall_seconds": 0.045172339,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "decode",
+      "output_bytes": 70640,
+      "repeat": 1,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "tier": "scalar",
+      "wall_seconds": 0.039215862,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "decode",
+      "output_bytes": 70640,
+      "repeat": 1,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "tier": "sse2",
+      "wall_seconds": 0.044598367,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "encode",
+      "output_bytes": 41052,
+      "repeat": 0,
+      "sha256": "e6eb8b0796274c77f30138927c5f8fddc40ef403b3992a8ee1a705c6209c1106",
+      "tier": "avx1",
+      "wall_seconds": 0.017050632,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "encode",
+      "output_bytes": 41052,
+      "repeat": 0,
+      "sha256": "e6eb8b0796274c77f30138927c5f8fddc40ef403b3992a8ee1a705c6209c1106",
+      "tier": "sse2",
+      "wall_seconds": 0.015081024,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "encode",
+      "output_bytes": 41052,
+      "repeat": 0,
+      "sha256": "47d38d158ad8b9823ee13fac0ffd6a18f9b6a76c7b69958384cafc4fab75f979",
+      "tier": "scalar",
+      "wall_seconds": 0.017699466,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "encode",
+      "output_bytes": 41052,
+      "repeat": 1,
+      "sha256": "e6eb8b0796274c77f30138927c5f8fddc40ef403b3992a8ee1a705c6209c1106",
+      "tier": "sse2",
+      "wall_seconds": 0.016388372,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "encode",
+      "output_bytes": 41052,
+      "repeat": 1,
+      "sha256": "47d38d158ad8b9823ee13fac0ffd6a18f9b6a76c7b69958384cafc4fab75f979",
+      "tier": "scalar",
+      "wall_seconds": 0.033860227,
+      "warmup": false
+    },
+    {
+      "exit": 0,
+      "family": "encode",
+      "output_bytes": 41052,
+      "repeat": 1,
+      "sha256": "e6eb8b0796274c77f30138927c5f8fddc40ef403b3992a8ee1a705c6209c1106",
+      "tier": "avx1",
+      "wall_seconds": 0.014740173,
+      "warmup": false
+    }
+  ],
+  "note": "Host wall time includes CLI startup and output file I/O; no ISA preference inferred",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "schema": "P11/end-to-end-timing/1",
+  "source_identity": {
+    "candidate_sha256": "0faaf91ef297f0f1133e2d395819f8170026d4039b1dfcbb379ef5dd6ab60a31",
+    "native_frames": 282240,
+    "native_sha256": "f82322f1703bf0e5c2b7d63bdf6736bdf31d70e6fc03e9f5a0a5c7bb0450a535",
+    "pcm_frames": 4410,
+    "pcm_sha256": "f824d32e17ce90a9c513da0957bee3740bb168242864942e3fa26063a7e7d579",
+    "sox_sha256": "a93756b1ec543fff96eb1baf281e624b0579ccd57cacc174f354a0e02799d006"
+  },
+  "status": "PASS",
+  "summary": {
+    "decode": {
+      "avx1": {
+        "mad_wall_seconds": 0.001807468999999999,
+        "max_wall_seconds": 0.045172339,
+        "median_over_audio_duration": 0.4336487,
+        "median_wall_seconds": 0.04336487,
+        "min_wall_seconds": 0.041557401,
+        "output_sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+        "samples": 2
+      },
+      "scalar": {
+        "mad_wall_seconds": 2.0651999999999476e-05,
+        "max_wall_seconds": 0.039215862,
+        "median_over_audio_duration": 0.3919520999999999,
+        "median_wall_seconds": 0.039195209999999994,
+        "min_wall_seconds": 0.039174558,
+        "output_sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+        "samples": 2
+      },
+      "sse2": {
+        "mad_wall_seconds": 0.0016909509999999996,
+        "max_wall_seconds": 0.047980269,
+        "median_over_audio_duration": 0.46289317999999996,
+        "median_wall_seconds": 0.046289317999999996,
+        "min_wall_seconds": 0.044598367,
+        "output_sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+        "samples": 2
+      }
+    },
+    "encode": {
+      "avx1": {
+        "mad_wall_seconds": 0.0011552294999999995,
+        "max_wall_seconds": 0.017050632,
+        "median_over_audio_duration": 0.31790804999999994,
+        "median_wall_seconds": 0.0158954025,
+        "min_wall_seconds": 0.014740173,
+        "output_sha256": "e6eb8b0796274c77f30138927c5f8fddc40ef403b3992a8ee1a705c6209c1106",
+        "samples": 2
+      },
+      "scalar": {
+        "mad_wall_seconds": 0.0080803805,
+        "max_wall_seconds": 0.033860227,
+        "median_over_audio_duration": 0.51559693,
+        "median_wall_seconds": 0.025779846500000002,
+        "min_wall_seconds": 0.017699466,
+        "output_sha256": "47d38d158ad8b9823ee13fac0ffd6a18f9b6a76c7b69958384cafc4fab75f979",
+        "samples": 2
+      },
+      "sse2": {
+        "mad_wall_seconds": 0.0006536739999999991,
+        "max_wall_seconds": 0.016388372,
+        "median_over_audio_duration": 0.31469395999999994,
+        "median_wall_seconds": 0.015734698,
+        "min_wall_seconds": 0.015081024,
+        "output_sha256": "e6eb8b0796274c77f30138927c5f8fddc40ef403b3992a8ee1a705c6209c1106",
+        "samples": 2
+      }
+    }
+  },
+  "warmups": [
+    {
+      "exit": 0,
+      "family": "decode",
+      "output_bytes": 70640,
+      "repeat": 0,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "tier": "scalar",
+      "wall_seconds": 0.038386966,
+      "warmup": true
+    },
+    {
+      "exit": 0,
+      "family": "decode",
+      "output_bytes": 70640,
+      "repeat": 0,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "tier": "sse2",
+      "wall_seconds": 0.030622755,
+      "warmup": true
+    },
+    {
+      "exit": 0,
+      "family": "decode",
+      "output_bytes": 70640,
+      "repeat": 0,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "tier": "avx1",
+      "wall_seconds": 0.035269194,
+      "warmup": true
+    },
+    {
+      "exit": 0,
+      "family": "encode",
+      "output_bytes": 41052,
+      "repeat": 0,
+      "sha256": "47d38d158ad8b9823ee13fac0ffd6a18f9b6a76c7b69958384cafc4fab75f979",
+      "tier": "scalar",
+      "wall_seconds": 0.01872038,
+      "warmup": true
+    },
+    {
+      "exit": 0,
+      "family": "encode",
+      "output_bytes": 41052,
+      "repeat": 0,
+      "sha256": "e6eb8b0796274c77f30138927c5f8fddc40ef403b3992a8ee1a705c6209c1106",
+      "tier": "sse2",
+      "wall_seconds": 0.021056366,
+      "warmup": true
+    },
+    {
+      "exit": 0,
+      "family": "encode",
+      "output_bytes": 41052,
+      "repeat": 0,
+      "sha256": "e6eb8b0796274c77f30138927c5f8fddc40ef403b3992a8ee1a705c6209c1106",
+      "tier": "avx1",
+      "wall_seconds": 0.019802635,
+      "warmup": true
+    }
+  ]
+}

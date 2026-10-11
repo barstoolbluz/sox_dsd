@@ -1,0 +1,236 @@
+{
+  "cases": [],
+  "checks": [
+    {
+      "case_count": 0,
+      "name": "decode-scalar-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "decode-sse2-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "decode-avx1-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "encode-scalar-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "encode-sse2-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "encode-avx1-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    }
+  ],
+  "errors": [
+    {
+      "buffer": 32,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 257,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--multi-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 32,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 257,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--multi-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 32,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 257,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "thread": "--multi-threaded",
+      "tier": "avx1"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "tier": "avx2"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "tier": "unsupported"
+    },
+    {
+      "buffer": 32,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 257,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--multi-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 32,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 257,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--multi-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 32,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 257,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 8192,
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "thread": "--multi-threaded",
+      "tier": "avx1"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "tier": "avx2"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "tier": "unsupported"
+    }
+  ],
+  "qualifications": "Real production decoder and uninstalled P10 candidate only; P15 release activation unchanged",
+  "schema": "P11/CLI/1",
+  "sources": {
+    "DSF_file_sha256": "f82322f1703bf0e5c2b7d63bdf6736bdf31d70e6fc03e9f5a0a5c7bb0450a535",
+    "PCM_file_sha256": "9e5ba22ac03ada5043150d3c30b9b79fe469428cc8c73b0c0bf104eed71c4615",
+    "channels": 2,
+    "native_frames": 282240,
+    "pcm_frames": 4096
+  },
+  "status": "FAIL",
+  "unrun": []
+}

@@ -1,0 +1,459 @@
+{
+  "config": {
+    "frames": 200000,
+    "guards_and_monitors_active_for_sdm": true,
+    "modes": [
+      "fir-single",
+      "fir-block",
+      "sdm"
+    ],
+    "random_seed": 11,
+    "repetitions": 3,
+    "tiers": [
+      "scalar",
+      "sse2",
+      "avx1"
+    ]
+  },
+  "errors": [],
+  "executable_sha256": "3264c2e650a0013722824e25755828eddcc1d5ab41278277f9bee70c068083f2",
+  "host": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+    "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "shared_or_virtualized": "unknown; throughput is only valid for this measured host",
+    "threads": 1,
+    "timer": "C clock(): process CPU seconds (excludes fixture setup and ISA selection)"
+  },
+  "qualification": "CPU timing on current host only; not ISA-wide preference evidence",
+  "raw": [
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 80.47,
+      "cpu_seconds": 0.016094,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-single",
+      "monitor_active": false,
+      "round": 0,
+      "tier": "scalar"
+    },
+    {
+      "checksum": 0.8663156981444905,
+      "cpu_ns_per_frame": 20.33,
+      "cpu_seconds": 0.004066,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-single",
+      "monitor_active": false,
+      "round": 0,
+      "tier": "avx1"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 37.095,
+      "cpu_seconds": 0.007419,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-single",
+      "monitor_active": false,
+      "round": 0,
+      "tier": "sse2"
+    },
+    {
+      "checksum": 0.8663156981444905,
+      "cpu_ns_per_frame": 32.995,
+      "cpu_seconds": 0.006599,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-single",
+      "monitor_active": false,
+      "round": 1,
+      "tier": "avx1"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 67.34,
+      "cpu_seconds": 0.013468,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-single",
+      "monitor_active": false,
+      "round": 1,
+      "tier": "scalar"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 35.9,
+      "cpu_seconds": 0.00718,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-single",
+      "monitor_active": false,
+      "round": 1,
+      "tier": "sse2"
+    },
+    {
+      "checksum": 0.8663156981444905,
+      "cpu_ns_per_frame": 19.54,
+      "cpu_seconds": 0.003908,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-single",
+      "monitor_active": false,
+      "round": 2,
+      "tier": "avx1"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 32.01,
+      "cpu_seconds": 0.006402,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-single",
+      "monitor_active": false,
+      "round": 2,
+      "tier": "sse2"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 72.55,
+      "cpu_seconds": 0.01451,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-single",
+      "monitor_active": false,
+      "round": 2,
+      "tier": "scalar"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 52.37,
+      "cpu_seconds": 0.010474,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-block",
+      "monitor_active": false,
+      "round": 0,
+      "tier": "sse2"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 76.75,
+      "cpu_seconds": 0.01535,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-block",
+      "monitor_active": false,
+      "round": 0,
+      "tier": "scalar"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 70.38,
+      "cpu_seconds": 0.014076,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-block",
+      "monitor_active": false,
+      "round": 0,
+      "tier": "avx1"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 70.64,
+      "cpu_seconds": 0.014128,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-block",
+      "monitor_active": false,
+      "round": 1,
+      "tier": "avx1"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 44.15,
+      "cpu_seconds": 0.00883,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-block",
+      "monitor_active": false,
+      "round": 1,
+      "tier": "sse2"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 70.39,
+      "cpu_seconds": 0.014078,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-block",
+      "monitor_active": false,
+      "round": 1,
+      "tier": "scalar"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 70.415,
+      "cpu_seconds": 0.014083,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-block",
+      "monitor_active": false,
+      "round": 2,
+      "tier": "avx1"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 74.88,
+      "cpu_seconds": 0.014976,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-block",
+      "monitor_active": false,
+      "round": 2,
+      "tier": "scalar"
+    },
+    {
+      "checksum": 0.8663156981444928,
+      "cpu_ns_per_frame": 49.295,
+      "cpu_seconds": 0.009859,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": false,
+      "mode": "fir-block",
+      "monitor_active": false,
+      "round": 2,
+      "tier": "sse2"
+    },
+    {
+      "checksum": -5,
+      "cpu_ns_per_frame": 33.1,
+      "cpu_seconds": 0.00662,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": true,
+      "mode": "sdm",
+      "monitor_active": true,
+      "round": 0,
+      "tier": "sse2"
+    },
+    {
+      "checksum": -5,
+      "cpu_ns_per_frame": 30.93,
+      "cpu_seconds": 0.006186,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": true,
+      "mode": "sdm",
+      "monitor_active": true,
+      "round": 0,
+      "tier": "avx1"
+    },
+    {
+      "checksum": 5,
+      "cpu_ns_per_frame": 29.6,
+      "cpu_seconds": 0.00592,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": true,
+      "mode": "sdm",
+      "monitor_active": true,
+      "round": 0,
+      "tier": "scalar"
+    },
+    {
+      "checksum": 5,
+      "cpu_ns_per_frame": 34.595,
+      "cpu_seconds": 0.006919,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": true,
+      "mode": "sdm",
+      "monitor_active": true,
+      "round": 1,
+      "tier": "scalar"
+    },
+    {
+      "checksum": -5,
+      "cpu_ns_per_frame": 32.345,
+      "cpu_seconds": 0.006469,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": true,
+      "mode": "sdm",
+      "monitor_active": true,
+      "round": 1,
+      "tier": "sse2"
+    },
+    {
+      "checksum": -5,
+      "cpu_ns_per_frame": 27.46,
+      "cpu_seconds": 0.005492,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": true,
+      "mode": "sdm",
+      "monitor_active": true,
+      "round": 1,
+      "tier": "avx1"
+    },
+    {
+      "checksum": -5,
+      "cpu_ns_per_frame": 34.33,
+      "cpu_seconds": 0.006866,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": true,
+      "mode": "sdm",
+      "monitor_active": true,
+      "round": 2,
+      "tier": "avx1"
+    },
+    {
+      "checksum": 5,
+      "cpu_ns_per_frame": 36.425,
+      "cpu_seconds": 0.007285,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": true,
+      "mode": "sdm",
+      "monitor_active": true,
+      "round": 2,
+      "tier": "scalar"
+    },
+    {
+      "checksum": -5,
+      "cpu_ns_per_frame": 35.53,
+      "cpu_seconds": 0.007106,
+      "exit": 0,
+      "frames": 200000,
+      "guards_active": true,
+      "mode": "sdm",
+      "monitor_active": true,
+      "round": 2,
+      "tier": "sse2"
+    }
+  ],
+  "schema": "P11/kernel-timing/1",
+  "source_sha256": {
+    "src/dsd_dispatch.c": "f401952fb2437e2e6851d910a47873299238e59cdc3729bcf1b660fa33566ac0",
+    "src/dsd_kernels_avx1.c": "f7d007d2f329771c1f036b13fe39db541e45b347b702f2e5f0fd949a96926b4a",
+    "src/dsd_kernels_scalar.c": "0f40b04314a048b92ef86ee425fa776eb6f5657ee80b9d8779cc4b803241911f",
+    "src/dsd_kernels_sse2.c": "b5cc48eb1bd03a7281bfa171b0452d882750aa4ad258297bd6503ff2deb74dea",
+    "tests/dsd/test_p11.c": "90bc29fc46e2ea72331af88daa25f0086a6d0ec9404975f61002ca1ce43dc5ed"
+  },
+  "status": "PASS",
+  "summary": {
+    "fir-block": {
+      "avx1": {
+        "checksum": 0.8663156981444928,
+        "mad_cpu_ns_per_frame": 0.0350000000000108,
+        "max_cpu_ns_per_frame": 70.64,
+        "median_cpu_ns_per_frame": 70.415,
+        "min_cpu_ns_per_frame": 70.38,
+        "samples": 3,
+        "speedup_over_scalar": 1.0634097848469786
+      },
+      "scalar": {
+        "checksum": 0.8663156981444928,
+        "mad_cpu_ns_per_frame": 1.8700000000000045,
+        "max_cpu_ns_per_frame": 76.75,
+        "median_cpu_ns_per_frame": 74.88,
+        "min_cpu_ns_per_frame": 70.39,
+        "samples": 3
+      },
+      "sse2": {
+        "checksum": 0.8663156981444928,
+        "mad_cpu_ns_per_frame": 3.0749999999999957,
+        "max_cpu_ns_per_frame": 52.37,
+        "median_cpu_ns_per_frame": 49.295,
+        "min_cpu_ns_per_frame": 44.15,
+        "samples": 3,
+        "speedup_over_scalar": 1.519018155999594
+      }
+    },
+    "fir-single": {
+      "avx1": {
+        "checksum": 0.8663156981444905,
+        "mad_cpu_ns_per_frame": 0.7899999999999991,
+        "max_cpu_ns_per_frame": 32.995,
+        "median_cpu_ns_per_frame": 20.33,
+        "min_cpu_ns_per_frame": 19.54,
+        "samples": 3,
+        "speedup_over_scalar": 3.5686178061977376
+      },
+      "scalar": {
+        "checksum": 0.8663156981444928,
+        "mad_cpu_ns_per_frame": 5.209999999999994,
+        "max_cpu_ns_per_frame": 80.47,
+        "median_cpu_ns_per_frame": 72.55,
+        "min_cpu_ns_per_frame": 67.34,
+        "samples": 3
+      },
+      "sse2": {
+        "checksum": 0.8663156981444928,
+        "mad_cpu_ns_per_frame": 1.1950000000000003,
+        "max_cpu_ns_per_frame": 37.095,
+        "median_cpu_ns_per_frame": 35.9,
+        "min_cpu_ns_per_frame": 32.01,
+        "samples": 3,
+        "speedup_over_scalar": 2.020891364902507
+      }
+    },
+    "sdm": {
+      "avx1": {
+        "checksum": -5,
+        "mad_cpu_ns_per_frame": 3.3999999999999986,
+        "max_cpu_ns_per_frame": 34.33,
+        "median_cpu_ns_per_frame": 30.93,
+        "min_cpu_ns_per_frame": 27.46,
+        "samples": 3,
+        "speedup_over_scalar": 1.1184933721306174
+      },
+      "scalar": {
+        "checksum": 5,
+        "mad_cpu_ns_per_frame": 1.8299999999999983,
+        "max_cpu_ns_per_frame": 36.425,
+        "median_cpu_ns_per_frame": 34.595,
+        "min_cpu_ns_per_frame": 29.6,
+        "samples": 3
+      },
+      "sse2": {
+        "checksum": -5,
+        "mad_cpu_ns_per_frame": 0.7550000000000026,
+        "max_cpu_ns_per_frame": 35.53,
+        "median_cpu_ns_per_frame": 33.1,
+        "min_cpu_ns_per_frame": 32.345,
+        "samples": 3,
+        "speedup_over_scalar": 1.045166163141994
+      }
+    }
+  },
+  "unrun": []
+}

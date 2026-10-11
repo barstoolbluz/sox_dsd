@@ -1,0 +1,13 @@
+gate	exit	command
+generic_suite	0	make check
+dsd_suite	0	make check-dsd
+run_phase	0	python3 tests/dsd/run.py --phase P11 --results tests/dsd/results/P11
+measure	0	python3 tests/dsd/measure.py --phase P11 --results tests/dsd/results/P11/numeric
+inherited_bench	0	python3 tests/dsd/bench.py --phase P11 --results tests/dsd/results/P11/bench
+p11_unit	0	./test/dsd_test_p11
+isa	0	python3 tests/dsd/check_p11_isa.py --results tests/dsd/results/P11/isa
+numeric	0	python3 tests/dsd/test_p11_numeric.py --results tests/dsd/results/P11/numeric
+forced_integration	0	python3 tests/dsd/test_p11_integration.py --results tests/dsd/results/P11/integration
+p10_scalar	0	python3 tests/dsd/test_p11_p10_regression.py --baseline-candidate <P10-source>/test/sox_p10_candidate --results tests/dsd/results/P11/integration
+kernel_bench	0	python3 tests/dsd/bench_p11.py --results tests/dsd/results/P11/bench --repetitions 15 --frames 1000000
+e2e_bench	0	python3 tests/dsd/bench_p11_e2e.py --results tests/dsd/results/P11/bench --repetitions 15 --warmups 2

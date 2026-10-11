@@ -1,0 +1,173 @@
+{
+  "config": {
+    "DSD_rate": 2822400,
+    "PCM_rate": 88200,
+    "channels": 2,
+    "decode_seconds": 0.1,
+    "encode_seconds": 0.05,
+    "random_seed": 11,
+    "repetitions": 2,
+    "sox_buffer_bytes": 8192,
+    "threads": "single",
+    "warmups": 1
+  },
+  "errors": [
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "tier": "scalar",
+      "warmup": 0
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "tier": "sse2",
+      "warmup": 0
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "tier": "avx1",
+      "warmup": 0
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "repeat": 0,
+      "tier": "scalar"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "repeat": 0,
+      "tier": "avx1"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "repeat": 0,
+      "tier": "sse2"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "repeat": 1,
+      "tier": "avx1"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "repeat": 1,
+      "tier": "scalar"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "decode",
+      "repeat": 1,
+      "tier": "sse2"
+    },
+    {
+      "family": "decode",
+      "reason": "missing repetitions",
+      "tier": "scalar"
+    },
+    {
+      "family": "decode",
+      "reason": "missing repetitions",
+      "tier": "sse2"
+    },
+    {
+      "family": "decode",
+      "reason": "missing repetitions",
+      "tier": "avx1"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "tier": "scalar",
+      "warmup": 0
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "tier": "sse2",
+      "warmup": 0
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "tier": "avx1",
+      "warmup": 0
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "repeat": 0,
+      "tier": "avx1"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "repeat": 0,
+      "tier": "sse2"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "repeat": 0,
+      "tier": "scalar"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "repeat": 1,
+      "tier": "sse2"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "repeat": 1,
+      "tier": "scalar"
+    },
+    {
+      "error": "unsupported operand type(s) for +: 'PosixPath' and 'str'",
+      "family": "encode",
+      "repeat": 1,
+      "tier": "avx1"
+    },
+    {
+      "family": "encode",
+      "reason": "missing repetitions",
+      "tier": "scalar"
+    },
+    {
+      "family": "encode",
+      "reason": "missing repetitions",
+      "tier": "sse2"
+    },
+    {
+      "family": "encode",
+      "reason": "missing repetitions",
+      "tier": "avx1"
+    }
+  ],
+  "machine": "x86_64",
+  "measurements": [],
+  "note": "Host wall time includes CLI startup and output file I/O; no ISA preference inferred",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "schema": "P11/end-to-end-timing/1",
+  "source_identity": {
+    "candidate_sha256": "0faaf91ef297f0f1133e2d395819f8170026d4039b1dfcbb379ef5dd6ab60a31",
+    "native_frames": 282240,
+    "native_sha256": "f82322f1703bf0e5c2b7d63bdf6736bdf31d70e6fc03e9f5a0a5c7bb0450a535",
+    "pcm_frames": 4410,
+    "pcm_sha256": "f824d32e17ce90a9c513da0957bee3740bb168242864942e3fa26063a7e7d579",
+    "sox_sha256": "a93756b1ec543fff96eb1baf281e624b0579ccd57cacc174f354a0e02799d006"
+  },
+  "status": "FAIL",
+  "summary": {
+    "decode": {},
+    "encode": {}
+  },
+  "warmups": []
+}

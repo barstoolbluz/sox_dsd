@@ -34,6 +34,7 @@ typedef struct {
 
 struct lsx_dsd_reconstruction {
   lsx_dsd_reconstruction_info info;
+  const lsx_dsd_kernel *fir; /* selected once, immutable until destroy */
   stage_state *stages; /* stage count x channels, private mutable histories */
   double *histories;   /* single aligned allocation, each ring has a halo */
   void *histories_raw;
@@ -69,9 +70,9 @@ static double *allocate_aligned(size_t bytes, void **raw)
   return (double *)aligned;
 }
 
-sox_dsd_status_t lsx_dsd_reconstruction_create(
+sox_dsd_status_t lsx_dsd_reconstruction_create_kernel(
     uint32_t rate, lsx_dsd_decode profile, unsigned channels,
-    lsx_dsd_reconstruction **out)
+    const char *kernel_fir, lsx_dsd_reconstruction **out)
 {
   lsx_dsd_reconstruction *ctx;
   const bank *last;
@@ -108,6 +109,7 @@ sox_dsd_status_t lsx_dsd_reconstruction_create(
   }
   if (elements > SIZE_MAX / sizeof(double)) goto invalid_size;
   if (G != desc->delay_native_frames) goto invalid_size;
+  if (lsx_dsd_kernel_select(LSX_DSD_FIR,kernel_fir,&ctx->fir)) goto unsupported_kernel;
   ctx->info.delay_native_frames = G;
   ctx->info.discard_frames = G / ctx->info.factor;
   for (j = 0; j < depth; ++j)
@@ -132,6 +134,9 @@ sox_dsd_status_t lsx_dsd_reconstruction_create(
       + channels * sizeof(double) + elements * sizeof(double) + LSX_DSD_ALIGN - 1;
   *out = ctx;
   return SOX_DSD_OK;
+unsupported_kernel:
+  lsx_dsd_reconstruction_destroy(ctx);
+  return SOX_DSD_UNSUPPORTED;
 invalid_size:
   lsx_dsd_reconstruction_destroy(ctx);
   return SOX_DSD_BAD_ARGUMENT;
@@ -140,9 +145,21 @@ no_memory:
   return SOX_DSD_NUMERIC_ERROR;
 }
 
-/* Feed one sample through a mono cascade.  Stage phases are common to all
+sox_dsd_status_t lsx_dsd_reconstruction_create(
+    uint32_t rate, lsx_dsd_decode profile, unsigned channels,
+    lsx_dsd_reconstruction **out)
+{
+  return lsx_dsd_reconstruction_create_kernel(rate,profile,channels,NULL,out);
+}
+
+const char *lsx_dsd_reconstruction_kernel_name(const lsx_dsd_reconstruction *ctx)
+{
+  return ctx && ctx->fir ? ctx->fir->name : NULL;
+}
+
+/* scalar directly bound: feed one sample through a mono cascade.  Stage phases are common to all
  * channels, hence their output flags must agree for each interleaved frame. */
-static int feed(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j,
+static int feed_scalar(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j,
                 double x, double *result)
 {
   stage_state *st = &ctx->stages[(size_t)channel * ctx->info.stages + j];
@@ -156,10 +173,10 @@ static int feed(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j,
     *result = x;
     return 1;
   }
-  return feed(ctx, channel, j + 1, x, result);
+  return feed_scalar(ctx, channel, j + 1, x, result);
 }
 
-static int accept_frame(lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
+static int accept_frame_scalar(lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
                         int pad, double *pcm, size_t destination)
 {
   unsigned c;
@@ -167,7 +184,7 @@ static int accept_frame(lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
   for (c = 0; c < ctx->info.channels; ++c) {
     int got;
     double x = pad ? 0.0 : (bits[c] == SOX_SAMPLE_MAX ? 1.0 : -1.0);
-    got = feed(ctx, c, 0, x, &ctx->frame[c]);
+    got = feed_scalar(ctx, c, 0, x, &ctx->frame[c]);
     if (!c) produced = got;
     /* Each channel shares stage clocks; no channel-specific phase drift. */
   }
@@ -183,6 +200,96 @@ static int accept_frame(lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
   return 0;
 }
 
+#if defined(HAVE_DSD_SSE2)
+/* sse2 directly bound: feed one sample through a mono cascade.  Stage phases are common to all
+ * channels, hence their output flags must agree for each interleaved frame. */
+static int feed_sse2(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j,
+                double x, double *result)
+{
+  stage_state *st = &ctx->stages[(size_t)channel * ctx->info.stages + j];
+  const size_t head = st->head, L = st->taps;
+  st->ring[head] = x;
+  st->ring[head + L] = x; /* mirrored halo */
+  st->head = head + 1 == L ? 0 : head + 1;
+  if ((st->samples++ & 1u) != st->phase) return 0;
+  x = lsx_dsd_fir_sse2_direct(st->h, L, st->ring + head + 1, st->halfband);
+  if (j + 1 == ctx->info.stages) {
+    *result = x;
+    return 1;
+  }
+  return feed_sse2(ctx, channel, j + 1, x, result);
+}
+
+static int accept_frame_sse2(lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
+                        int pad, double *pcm, size_t destination)
+{
+  unsigned c;
+  int produced = 0;
+  for (c = 0; c < ctx->info.channels; ++c) {
+    int got;
+    double x = pad ? 0.0 : (bits[c] == SOX_SAMPLE_MAX ? 1.0 : -1.0);
+    got = feed_sse2(ctx, c, 0, x, &ctx->frame[c]);
+    if (!c) produced = got;
+    /* Each channel shares stage clocks; no channel-specific phase drift. */
+  }
+  if (produced) {
+    uint64_t index = ctx->raw_outputs++;
+    if (index >= ctx->info.discard_frames) {
+      for (c = 0; c < ctx->info.channels; ++c)
+        pcm[destination * ctx->info.channels + c] = ctx->frame[c];
+      ++ctx->emitted;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+#endif
+#if defined(HAVE_DSD_AVX1)
+/* avx1 directly bound: feed one sample through a mono cascade.  Stage phases are common to all
+ * channels, hence their output flags must agree for each interleaved frame. */
+static int feed_avx1(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j,
+                double x, double *result)
+{
+  stage_state *st = &ctx->stages[(size_t)channel * ctx->info.stages + j];
+  const size_t head = st->head, L = st->taps;
+  st->ring[head] = x;
+  st->ring[head + L] = x; /* mirrored halo */
+  st->head = head + 1 == L ? 0 : head + 1;
+  if ((st->samples++ & 1u) != st->phase) return 0;
+  x = lsx_dsd_fir_avx1_direct(st->h, L, st->ring + head + 1, st->halfband);
+  if (j + 1 == ctx->info.stages) {
+    *result = x;
+    return 1;
+  }
+  return feed_avx1(ctx, channel, j + 1, x, result);
+}
+
+static int accept_frame_avx1(lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
+                        int pad, double *pcm, size_t destination)
+{
+  unsigned c;
+  int produced = 0;
+  for (c = 0; c < ctx->info.channels; ++c) {
+    int got;
+    double x = pad ? 0.0 : (bits[c] == SOX_SAMPLE_MAX ? 1.0 : -1.0);
+    got = feed_avx1(ctx, c, 0, x, &ctx->frame[c]);
+    if (!c) produced = got;
+    /* Each channel shares stage clocks; no channel-specific phase drift. */
+  }
+  if (produced) {
+    uint64_t index = ctx->raw_outputs++;
+    if (index >= ctx->info.discard_frames) {
+      for (c = 0; c < ctx->info.channels; ++c)
+        pcm[destination * ctx->info.channels + c] = ctx->frame[c];
+      ++ctx->emitted;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+#endif
 sox_dsd_status_t lsx_dsd_reconstruction_process(
     lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
     size_t *input_frames, double *pcm, size_t *output_frames)
@@ -211,21 +318,33 @@ sox_dsd_status_t lsx_dsd_reconstruction_process(
     ctx->error = SOX_DSD_NUMERIC_ERROR;
     return ctx->error;
   }
-  while (consumed < avail && produced < limit) {
-    unsigned c;
-    const sox_sample_t *frame = bits + consumed * ctx->info.channels;
-    for (c = 0; c < ctx->info.channels; ++c) {
-      if (frame[c] != SOX_SAMPLE_MAX && frame[c] != -SOX_SAMPLE_MAX) {
-        ctx->error = SOX_DSD_BAD_ARGUMENT;
-        *input_frames = consumed;
-        *output_frames = produced;
-        return SOX_DSD_BAD_ARGUMENT;
-      }
-    }
-    produced += accept_frame(ctx, frame, 0, pcm, produced);
-    ++consumed;
-    ++ctx->real_frames;
-  }
+#define LSX_DSD_STREAM_FRAMES(ACCEPT) do {                                   \
+  while (consumed < avail && produced < limit) {                            \
+    unsigned c;                                                             \
+    const sox_sample_t *frame = bits + consumed * ctx->info.channels;       \
+    for (c = 0; c < ctx->info.channels; ++c) {                               \
+      if (frame[c] != SOX_SAMPLE_MAX && frame[c] != -SOX_SAMPLE_MAX) {       \
+        ctx->error = SOX_DSD_BAD_ARGUMENT;                                  \
+        *input_frames = consumed; *output_frames = produced;                \
+        return SOX_DSD_BAD_ARGUMENT;                                        \
+      }                                                                     \
+    }                                                                       \
+    produced += ACCEPT(ctx, frame, 0, pcm, produced);                       \
+    ++consumed; ++ctx->real_frames;                                         \
+  }                                                                         \
+} while (0)
+  if (ctx->fir == &lsx_dsd_kernel_scalar)
+    LSX_DSD_STREAM_FRAMES(accept_frame_scalar);
+#if defined(HAVE_DSD_SSE2)
+  else if (ctx->fir == &lsx_dsd_kernel_sse2)
+    LSX_DSD_STREAM_FRAMES(accept_frame_sse2);
+#endif
+#if defined(HAVE_DSD_AVX1)
+  else if (ctx->fir == &lsx_dsd_kernel_avx1)
+    LSX_DSD_STREAM_FRAMES(accept_frame_avx1);
+#endif
+  else return SOX_DSD_UNSUPPORTED;
+#undef LSX_DSD_STREAM_FRAMES
   *input_frames = consumed;
   *output_frames = produced;
   if (consumed < avail) return SOX_DSD_NEED_OUTPUT;
@@ -262,8 +381,22 @@ sox_dsd_status_t lsx_dsd_reconstruction_finish(
     ctx->wanted = wanted;
     ctx->finish_started = 1;
   }
-  while (produced < capacity && ctx->emitted < ctx->wanted)
-    produced += accept_frame(ctx, NULL, 1, pcm, produced);
+#define LSX_DSD_FINISH_FRAMES(ACCEPT) do {                                   \
+  while (produced < capacity && ctx->emitted < ctx->wanted)                 \
+    produced += ACCEPT(ctx, NULL, 1, pcm, produced);                        \
+} while (0)
+  if (ctx->fir == &lsx_dsd_kernel_scalar)
+    LSX_DSD_FINISH_FRAMES(accept_frame_scalar);
+#if defined(HAVE_DSD_SSE2)
+  else if (ctx->fir == &lsx_dsd_kernel_sse2)
+    LSX_DSD_FINISH_FRAMES(accept_frame_sse2);
+#endif
+#if defined(HAVE_DSD_AVX1)
+  else if (ctx->fir == &lsx_dsd_kernel_avx1)
+    LSX_DSD_FINISH_FRAMES(accept_frame_avx1);
+#endif
+  else return SOX_DSD_UNSUPPORTED;
+#undef LSX_DSD_FINISH_FRAMES
   *output_frames = produced;
   if (ctx->emitted == ctx->wanted) {
     ctx->done = 1;

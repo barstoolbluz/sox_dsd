@@ -1,0 +1,113 @@
+{
+  "added_P11_results_path": "tests/dsd/results/P11",
+  "added_P11_source_and_documentation": [
+    {
+      "path": "docs/dsd/handoffs/P11.md",
+      "sha256": "294cee3b8c9b6290e7fea667db99296c1c0e4ec30a1507d04d0e34c1c5aee334"
+    },
+    {
+      "path": "docs/dsd/handoffs/P11_CHECKPOINT.md",
+      "sha256": "b2634bd08a3809c1c6393f4e79c3d0a762b4e0dd5c99aaad0c0161fd5cce6754"
+    },
+    {
+      "path": "src/dsd_dispatch.c",
+      "sha256": "10a9d1b649323dcc70df6f169a60737487dbf94fa53873fdd4dcf7d71b56194e"
+    },
+    {
+      "path": "src/dsd_kernels_sse2.c",
+      "sha256": "b5cc48eb1bd03a7281bfa171b0452d882750aa4ad258297bd6503ff2deb74dea"
+    },
+    {
+      "path": "src/dsd_kernels_avx1.c",
+      "sha256": "f7d007d2f329771c1f036b13fe39db541e45b347b702f2e5f0fd949a96926b4a"
+    },
+    {
+      "path": "src/sdm_normal_commit_i.h",
+      "sha256": "36778ce05af91a2ba793ec04ee52c5a40d3d5f63a708edf9bc050b959aa3e053"
+    },
+    {
+      "path": "tests/dsd/test_p11.c",
+      "sha256": "90bc29fc46e2ea72331af88daa25f0086a6d0ec9404975f61002ca1ce43dc5ed"
+    },
+    {
+      "path": "tests/dsd/check_p11_isa.py",
+      "sha256": "01f914def502774f3a9ac89f5464b3248dd97d3092cbaa9ef0d5dc83a5175705"
+    },
+    {
+      "path": "tests/dsd/test_p11_numeric.py",
+      "sha256": "f03f53649970403a71f78bad84de387b887f7f604893c96306dbd82342ffb1da"
+    },
+    {
+      "path": "tests/dsd/test_p11_integration.py",
+      "sha256": "dfe9fc6ebb962e335dc492e8eb6540d68b704293c66f70598747b12b8d875bca"
+    },
+    {
+      "path": "tests/dsd/test_p11_p10_regression.py",
+      "sha256": "77b57ef3981bda31f3c6d8d69b4ab50c6c7b18826a9564297a29f9ad4a12afc0"
+    },
+    {
+      "path": "tests/dsd/bench_p11.py",
+      "sha256": "0f0b2485abb04004d5de9ba68237b5f9bec3c106824d23b4678aaf7ce295a64b"
+    },
+    {
+      "path": "tests/dsd/bench_p11_e2e.py",
+      "sha256": "f27669899f613838098e0df0ce3d47835b6ffc5f52df082bdfae0f29669b51cd"
+    },
+    {
+      "path": "tests/dsd/sanitize_p11_results.py",
+      "sha256": "e31d70a7158ca9801d78b392f4fe200f638444aede90fa08cacfdbf54f716633"
+    }
+  ],
+  "input_archive_sha256": "2acce5b455aaaf9bd6aedf5082e4490f6af87f593a1cac3d6da114d4f729075f",
+  "modified_regular_files": [
+    {
+      "after_sha256": "52e1eaf7d857adb2c3993817e3000ad8590e985a59b2d7dab97022fc82578266",
+      "before_sha256": "e0dd4b812c3c93ee3b108dd17451a9dc967d5931de309fec2eca739352ea33ec",
+      "path": "Makefile.am"
+    },
+    {
+      "after_sha256": "4918384a2a074e83c881159a9c41422f52ceecad4378d1f4c67a606c116a432d",
+      "before_sha256": "8e2a93c7acfa0a5d69731595b44f38742e6b590e42e3998c64d06e95e6547750",
+      "path": "configure.ac"
+    },
+    {
+      "after_sha256": "26b8071223d5d59f6b047791809fba5177093b6ea30ea3428c52f635a2c3bfab",
+      "before_sha256": "cea9550a16d6771dc1aa85a766a12c8f3de7d799cdfda113ec37109089a4b77e",
+      "path": "src/Makefile.am"
+    },
+    {
+      "after_sha256": "cdda28bb5ed74a3ea112d99926efeaee77355cccd81394892c80c4a62edf02b0",
+      "before_sha256": "25b46f2c48baeab7d7e3ee095790e97d85e5f104795ec4ba1e12c190a30e6d3b",
+      "path": "src/dsd_decode.c"
+    },
+    {
+      "after_sha256": "676d035a7ec3cfd3aa5228b4a27e1bacc4eec673258c643adb4a29a09e533f3c",
+      "before_sha256": "1f8d70f145490a99650db0bb7039550f8c688dbd1bafc4117f8859a3125c1f0b",
+      "path": "src/dsd_kernels.h"
+    },
+    {
+      "after_sha256": "0f40b04314a048b92ef86ee425fa776eb6f5657ee80b9d8779cc4b803241911f",
+      "before_sha256": "53130b472a186420985c974913693b5221b753f27f2b5ad8c3d3d8b72c93b205",
+      "path": "src/dsd_kernels_scalar.c"
+    },
+    {
+      "after_sha256": "2dd8cac28c766f924eeb9325cbef38eb706b644449b6973546da6759efa70aa7",
+      "before_sha256": "62f9625ccb570a7b6fdb35f66e0a72db58292ac3c9bdde00e1cd618fce781d37",
+      "path": "src/pcmdsd.c"
+    },
+    {
+      "after_sha256": "3e8bbc8189b820196d4405a8da7f619ac59b5356810212acfd8b02b39e632a27",
+      "before_sha256": "87521841741b89478038af103fec6bae8a2258191781a4aa3a9945d676930773",
+      "path": "src/sdm.c"
+    },
+    {
+      "after_sha256": "e7ae1edbca4e4661fd4ba1ee23de9d9677d8da010e8e0674415cefcb0793e46f",
+      "before_sha256": "50320e3a566c64a502465238172a2421eac394affce43c797543e6b5c224311b",
+      "path": "test/Makefile.am"
+    }
+  ],
+  "original_regular_files": 2849,
+  "preserved_P00_P10_evidence_bytes_identical": true,
+  "schema": "P11/source-delta/1",
+  "source_only_packaging": "original source member whitelist plus P11 source and results"
+}

@@ -255,6 +255,44 @@ AC_CHECK_MEMBERS([struct stat.st_blocks], [], [], [[#include <sys/stat.h>]])
 AC_CHECK_FUNCS(getenv setenv execvp)
 AC_CHECK_FUNCS(posix_fadvise)
 
+dnl P11: independently compiled ISA convenience libraries. Never extend global
+dnl CFLAGS with ISA switches. Reject a compiler that cannot isolate AVX1
+dnl without AVX2/FMA, rather than relabeling an AVX2 object as AVX1.
+DSD_SSE2_CFLAGS='-msse2 -mno-avx -ffp-contract=off -fno-lto'
+DSD_AVX1_CFLAGS='-mavx -mno-avx2 -mno-fma -ffp-contract=off -fno-lto'
+have_dsd_sse2=no
+have_dsd_avx1=no
+case "$host_cpu" in
+  i?86|x86_64|amd64)
+    save_p11_CFLAGS=$CFLAGS
+    CFLAGS="$CFLAGS $DSD_SSE2_CFLAGS"
+    AC_MSG_CHECKING([for independently compiled SSE2 DSD kernels])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <emmintrin.h>]],
+      [[__m128d d = _mm_set1_pd(1.); d = _mm_add_pd(d,d);
+        volatile double out[2]; _mm_storeu_pd((double *)out,d);]])],
+      [have_dsd_sse2=yes],[])
+    AC_MSG_RESULT([$have_dsd_sse2])
+    CFLAGS="$save_p11_CFLAGS $DSD_AVX1_CFLAGS"
+    AC_MSG_CHECKING([for independently compiled AVX1 without AVX2/FMA])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <immintrin.h>]],
+      [[__m256d d = _mm256_set1_pd(1.); d = _mm256_add_pd(d,d);
+        volatile double out[4]; _mm256_storeu_pd((double *)out,d);]])],
+      [have_dsd_avx1=yes],[])
+    AC_MSG_RESULT([$have_dsd_avx1])
+    CFLAGS=$save_p11_CFLAGS
+    ;;
+esac
+if test "$have_dsd_sse2" = yes; then
+  AC_DEFINE([HAVE_DSD_SSE2], [1], [Have isolated SSE2 DSD kernels])
+fi
+if test "$have_dsd_avx1" = yes; then
+  AC_DEFINE([HAVE_DSD_AVX1], [1], [Have isolated AVX1 DSD kernels])
+fi
+AM_CONDITIONAL([HAVE_DSD_SSE2], [test "$have_dsd_sse2" = yes])
+AM_CONDITIONAL([HAVE_DSD_AVX1], [test "$have_dsd_avx1" = yes])
+AC_SUBST([DSD_SSE2_CFLAGS])
+AC_SUBST([DSD_AVX1_CFLAGS])
+
 dnl aligned alloc required for sdm_x86.h using AVX (32-byte) or SSE2 (16-byte)
 AC_CHECK_FUNCS(aligned_alloc memalign posix_memalign)
 

@@ -99,6 +99,12 @@ dsd_test_p10_SOURCES = ../tests/dsd/test_p10.c
 dsd_test_p10_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p10_LDADD = $(top_builddir)/src/libsox_ng.la
 
+# P11 executable mocked CPUID and real per-ISA FIR/SDM contract tests.
+EXTRA_PROGRAMS += dsd_test_p11
+dsd_test_p11_SOURCES = ../tests/dsd/test_p11.c
+dsd_test_p11_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p11_LDADD = $(top_builddir)/src/libsox_ng.la
+
 # Explicit, uninstalled qualification CLI, supported on GNU-linker hosts.
 # Never substitutes for the production binary or its fail-closed certificate.
 EXTRA_PROGRAMS += sox_p10_candidate
