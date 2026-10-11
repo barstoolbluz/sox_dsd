@@ -476,3 +476,12 @@ EXTRA_DIST += docs/dsd/handoffs/P10_RATIFICATION.md \
   tests/dsd/test_p10_ratification.py \
   docs/dsd/handoffs/P10_HOTFIX.md \
   docs/dsd/handoffs/P10_HOTFIX_CHECKPOINT.md
+
+# P10 explicit reviewer closeout; positive certification and verifier are
+# separate from historical negative receipts and P15 default activation.
+EXTRA_DIST += docs/dsd/handoffs/P10_ADJUDICATION.md \
+  docs/dsd/handoffs/P10_ADJUDICATION_WORKLOG.md \
+  tests/dsd/check_p10_certification.py \
+  tests/dsd/results/P10_certification_2026-10-11/certification.json \
+  tests/dsd/results/P10_certification_2026-10-11/README.md \
+  docs/dsd/handoffs/P10_ADJUDICATION_SHA256SUMS.txt

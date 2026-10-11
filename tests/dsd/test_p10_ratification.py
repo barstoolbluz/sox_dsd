@@ -56,13 +56,15 @@ def pcm_schema_example(base):
 
 def main():
     original=assess()
-    assert original['status']=='INCOMPLETE' and not original['qualified']
+    # The default evidence now includes real PCM receipts.  A PASS on all
+    # measured gates is distinct from explicit positive certification/P15.
+    assert original['status']=='PASS' and not original['qualified']
     assert original['promotion']=='BLOCKED'
     assert original['gates']['representative_hardware_1hour_per_profile_isa']['status']=='PASS'
-    assert original['gates']['independent_realworld_corpus']['status']=='PARTIAL'
-    assert original['remaining_release_gates']==['independent_realworld_corpus']
+    assert original['gates']['independent_realworld_corpus']['status']=='PASS'
+    assert original['remaining_release_gates']==[]
     assert assess()==original, 'assessing fixed receipts should be idempotent'
-    cases=['immutable original receipts -> hardware PASS, corpus PARTIAL, unpromoted']
+    cases=['immutable source receipts -> hardware PASS, corpus PASS, pending explicit certification']
     def test(name,src,mutation,validator,status='FAIL'):
         trial(src,mutation,validator,status);cases.append(name)
     test('missing hardware report fails closed',HARDWARE,
@@ -83,6 +85,14 @@ def main():
     test('changed frozen state maxima fail even with stale PASS',HARDWARE,
         lambda b:mutate_json(b/'soak-2822400-result.json',
             lambda x:x['max_abs_state'].__setitem__(7,1e99)),check_hardware)
+    test('missing PCM arm restores corpus PARTIAL without fabricating a PASS',CORPUS,
+        lambda b:(b/'pcm-sources.json').unlink(),check_corpus,'FAIL')
+    test('missing PCM arm files restores corpus PARTIAL',CORPUS,
+        lambda b:[(b/name).unlink() for name in ('pcm-sources.json','pcm-unity.json','pcm-ladder.json')],
+        check_corpus,'PARTIAL')
+    test('PCM half-reference level loss cannot pass independent corpus',CORPUS,
+        lambda b:mutate_json(b/'pcm-unity.json',
+            lambda x:x[0].update(rms_delta_db=-6.02)),check_corpus)
     test('missing DSD source cannot pass independent corpus',CORPUS,
         lambda b:mutate_json(b/'sources.json',lambda x:x.pop()),check_corpus)
     test('changed DSD excerpt hash cannot be silently accepted',CORPUS,
