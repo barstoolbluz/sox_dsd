@@ -1,0 +1,23 @@
+Forced-tier output hashes, Intel Sapphire Rapids against AMD Zen 4.
+
+The Intel console log records 20-character prefixes; the script did not then
+record full hashes, so this comparison is over those 80-bit prefixes.  That is
+decisive against accidental collision but is a prefix comparison, not a
+whole-hash one.  The AMD column carries the full value for the record, and
+later runs record full hashes in kernel-output-sha256.txt.
+
+KERNEL        AMD Zen 4 (full)                                                    INTEL SPR (prefix)      MATCH
+FIR scalar    ddc48d53afd672850466d0d3cd0b7b8c777ecd5a2c4757ae71dbf92ef6e286c2    ddc48d53afd672850466    yes
+FIR sse2      ddc48d53afd672850466d0d3cd0b7b8c777ecd5a2c4757ae71dbf92ef6e286c2    ddc48d53afd672850466    yes
+FIR avx1      ddc48d53afd672850466d0d3cd0b7b8c777ecd5a2c4757ae71dbf92ef6e286c2    ddc48d53afd672850466    yes
+FIR avx2      ddc48d53afd672850466d0d3cd0b7b8c777ecd5a2c4757ae71dbf92ef6e286c2    ddc48d53afd672850466    yes
+FIR avx512    ddc48d53afd672850466d0d3cd0b7b8c777ecd5a2c4757ae71dbf92ef6e286c2    ddc48d53afd672850466    yes
+SDM scalar    83f02d0856c23a50d9b717259fd15c5384ad2303e1b0c99211403d7569ef420b    83f02d0856c23a50d9b7    yes
+SDM sse2      65c0cbbd89b8e59be12e3eb0af17442700d4edab454ceaed3dd158b857c666da    65c0cbbd89b8e59be12e    yes
+SDM avx1      65c0cbbd89b8e59be12e3eb0af17442700d4edab454ceaed3dd158b857c666da    65c0cbbd89b8e59be12e    yes
+SDM avx2      65c0cbbd89b8e59be12e3eb0af17442700d4edab454ceaed3dd158b857c666da    65c0cbbd89b8e59be12e    yes
+SDM avx512    65c0cbbd89b8e59be12e3eb0af17442700d4edab454ceaed3dd158b857c666da    65c0cbbd89b8e59be12e    yes
+
+All ten agree across vendors.  The five FIR tiers produce one output; the four
+vector SDM tiers produce one output and scalar SDM produces a second, which is
+the expected split and the same split observed on AMD.

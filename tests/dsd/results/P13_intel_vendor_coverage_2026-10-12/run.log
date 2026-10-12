@@ -1,0 +1,45 @@
+=== host ===
+vendor_id    : GenuineIntel
+model name    : Intel(R) Xeon(R) Platinum 8488C
+avx512f    present
+avx512dq   present
+avx512bw   present
+avx512vl   present
+avx2       present
+fma        present
+
+=== generic and DSD regression suites ===
+make check     exit=0
+make check-dsd exit=0
+{"verdict": "pass", "counts": {"pass": 36, "xfail": 0, "xpass": 0, "fail": 0, "skip": 0}, "result_path": "/home/steve/dev/sox_ng/tests/dsd/results/P13/run.json"}
+
+=== P13 kernel unit, including AVX-512F executable qualification ===
+P13 PASS CPUID AVX-512F/AVX2 mask, XCR0, FMA failure, defaults
+P13 PASS FIR 190404 page-bounded comparisons, taps 1..257, tails 0..23
+P13 PASS SDM orders 4/6/8, tail blocks, guards, monitor, determinism
+P13 PASS AVX-512F executable qualification
+exit=0
+
+=== ISA isolation and cross-ISA numeric equivalence ===
+check_p13_isa          exit=0  PASS avx512_declares_implicit_avx2
+check_p12_isa          exit=0  PASS no_global_avx2
+test_p11_numeric       exit=0  P11 cross-ISA 11289600 avx1 PASS
+test_p11_integration   exit=0  P11 forced end-to-end PASS 29 executions
+test_p12_channels      exit=0  P12 channels PASS 32 executions
+
+=== forced-tier output equality, all five tiers ===
+FIR=scalar   exit=0 ddc48d53afd672850466
+FIR=sse2     exit=0 ddc48d53afd672850466
+FIR=avx1     exit=0 ddc48d53afd672850466
+FIR=avx2     exit=0 ddc48d53afd672850466
+FIR=avx512   exit=0 ddc48d53afd672850466
+SDM=scalar   exit=0 83f02d0856c23a50d9b7
+SDM=sse2     exit=0 65c0cbbd89b8e59be12e
+SDM=avx1     exit=0 65c0cbbd89b8e59be12e
+SDM=avx2     exit=0 65c0cbbd89b8e59be12e
+SDM=avx512   exit=0 65c0cbbd89b8e59be12e
+distinct FIR hashes: 1 (expect 1)
+distinct SDM hashes: 2 (expect 2: scalar, and the vector tiers)
+
+=== done ===
+results under tests/dsd/results/P13_intel_2026-10-12

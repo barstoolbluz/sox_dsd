@@ -92,5 +92,11 @@ printf 'distinct FIR hashes: %s (expect 1)\n' "$(sha256sum "$R"/fir_*.wav | awk 
 printf 'distinct SDM hashes: %s (expect 2: scalar, and the vector tiers)\n' "$(sha256sum "$R"/sdm_*.dsf | awk '{print $1}' | sort -u | wc -l)"
 
 say "done"
+# Record full hashes before the audio goes: the console prints a 20-character
+# prefix, which is enough to read but not what the evidence record should keep.
+sha256sum "$R"/fir_*.wav "$R"/sdm_*.dsf > "$R/kernel-output-sha256.txt" 2>/dev/null
+sed -i "s|$R/||" "$R/kernel-output-sha256.txt" 2>/dev/null
+echo "full hashes: $R/kernel-output-sha256.txt"
+cat "$R/kernel-output-sha256.txt" 2>/dev/null
 echo "results under $R"
 rm -f "$R"/*.wav "$R"/*.dsf
