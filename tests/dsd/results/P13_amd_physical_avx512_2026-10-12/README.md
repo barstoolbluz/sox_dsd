@@ -35,7 +35,15 @@ End-to-end, all six configurations:
 | dsd256-6ch-2t-long | 1.001x | 0.943x |
 
 The 1.93x block-FIR win does not reach the conversion graph. Decode is neutral
-to within a fifth of a percent in every case. Encode is *slower* in all six,
+to within a fifth of a percent in every case.
+
+**Read `decode-tier-sensitivity.md` before relying on the decode column.** A
+follow-up measurement prompted by review shows decode moves only 1.6% across
+the entire five-tier matrix, scalar through AVX-512F, because the FIR accounts
+for well under a percent of decode wall time. The decode column therefore is
+not a measurement of AVX-512F efficacy; it shows that no tier choice matters
+much to decode. The conclusion below is unaffected and better supported:
+nothing to gain on decode, a real loss on encode. Encode is *slower* in all six,
 between 2.4% and 5.7%, monotonically worse as the work grows, with median
 absolute deviations three to four orders of magnitude below the differences.
 Six independent configurations agreeing in direction and magnitude is signal.
