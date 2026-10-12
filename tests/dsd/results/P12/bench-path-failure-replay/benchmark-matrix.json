@@ -1,0 +1,313 @@
+{
+  "comparison": {
+    "dsd128-2ch": {
+      "decode": {
+        "avx1": {
+          "max_rss_kib": 2644,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.010602366
+        },
+        "avx2": {
+          "max_rss_kib": 2580,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.010958983
+        },
+        "scalar": {
+          "max_rss_kib": 2576,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.010780975
+        },
+        "sse2": {
+          "max_rss_kib": 2648,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.0105817
+        }
+      },
+      "encode": {
+        "avx1": {
+          "max_rss_kib": 3844,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.011148664
+        },
+        "avx2": {
+          "max_rss_kib": 3844,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.010828933
+        },
+        "scalar": {
+          "max_rss_kib": 3836,
+          "median_cpu_seconds": 0.01,
+          "median_wall_seconds": 0.01150134
+        },
+        "sse2": {
+          "max_rss_kib": 3844,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.011058973
+        }
+      }
+    },
+    "dsd256-2ch": {
+      "decode": {
+        "avx1": {
+          "max_rss_kib": 2648,
+          "median_cpu_seconds": 0.01,
+          "median_wall_seconds": 0.018083581
+        },
+        "avx2": {
+          "max_rss_kib": 2648,
+          "median_cpu_seconds": 0.01,
+          "median_wall_seconds": 0.018797883
+        },
+        "scalar": {
+          "max_rss_kib": 2564,
+          "median_cpu_seconds": 0.01,
+          "median_wall_seconds": 0.01808212
+        },
+        "sse2": {
+          "max_rss_kib": 2608,
+          "median_cpu_seconds": 0.01,
+          "median_wall_seconds": 0.018299562
+        }
+      },
+      "encode": {
+        "avx1": {
+          "max_rss_kib": 4604,
+          "median_cpu_seconds": 0.01,
+          "median_wall_seconds": 0.018957578
+        },
+        "avx2": {
+          "max_rss_kib": 4600,
+          "median_cpu_seconds": 0.01,
+          "median_wall_seconds": 0.018127808
+        },
+        "scalar": {
+          "max_rss_kib": 4600,
+          "median_cpu_seconds": 0.01,
+          "median_wall_seconds": 0.019994049
+        },
+        "sse2": {
+          "max_rss_kib": 4604,
+          "median_cpu_seconds": 0.01,
+          "median_wall_seconds": 0.01867307
+        }
+      }
+    },
+    "dsd64-2ch": {
+      "decode": {
+        "avx1": {
+          "max_rss_kib": 2228,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.006254258
+        },
+        "avx2": {
+          "max_rss_kib": 2236,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.006368951
+        },
+        "scalar": {
+          "max_rss_kib": 2220,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.006260442
+        },
+        "sse2": {
+          "max_rss_kib": 2220,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.006279261
+        }
+      },
+      "encode": {
+        "avx1": {
+          "max_rss_kib": 3600,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.007406633
+        },
+        "avx2": {
+          "max_rss_kib": 3600,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.007194864
+        },
+        "scalar": {
+          "max_rss_kib": 3604,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.007627216
+        },
+        "sse2": {
+          "max_rss_kib": 3604,
+          "median_cpu_seconds": 0.0,
+          "median_wall_seconds": 0.007284209
+        }
+      }
+    }
+  },
+  "config": {
+    "decode_seconds": 0.02,
+    "encode_seconds": 0.02,
+    "include_multichannel": false,
+    "kernel_frames": 1,
+    "repetitions": 15,
+    "tiers": [
+      "scalar",
+      "sse2",
+      "avx1",
+      "avx2"
+    ]
+  },
+  "cpu_features": "recorded per-object ISA audit",
+  "errors": [
+    {
+      "detail": "usage: bench_p11.py [-h] [--unit UNIT] --results RESULTS [--frames FRAMES]\n                    [--repetitions REPETITIONS] [--phase PHASE]\n                    [--tiers TIERS [TIERS ...]]\nbench_p11.py: error: out-of-range frames or repetitions\n",
+      "exit": 2,
+      "name": "kernel"
+    }
+  ],
+  "executable_sha256": {
+    "src/sox_ng": "dc8f81847c64fe6c22d2ce1473e4711a04417313a257479ecf638ebb923e8a76",
+    "test/dsd_test_p11": "720033a3df3e84cf086c9e63156cf7eb1c6e8e38daf4fb661d46fefc9a62a5fb",
+    "test/sox_p10_candidate": "3b01a7ebe98bf94ab743f9d89f5e2ca56bc2d5b855a5e441bb980d6743103d22"
+  },
+  "host": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "machine": "x86_64",
+  "runs": [
+    {
+      "command": [
+        "/opt/pyvenv/bin/python3",
+        "tests/dsd/bench_p11.py",
+        "--phase",
+        "P12",
+        "--unit",
+        "test/dsd_test_p11",
+        "--results",
+        "<failure-results>/kernel",
+        "--repetitions",
+        "15",
+        "--frames",
+        "1",
+        "--tiers",
+        "scalar",
+        "sse2",
+        "avx1",
+        "avx2"
+      ],
+      "evidence": "kernel/kernel-timing.json",
+      "exit": 2,
+      "name": "kernel",
+      "stderr": "usage: bench_p11.py [-h] [--unit UNIT] --results RESULTS [--frames FRAMES]\n                    [--repetitions REPETITIONS] [--phase PHASE]\n                    [--tiers TIERS [TIERS ...]]\nbench_p11.py: error: out-of-range frames or repetitions\n",
+      "stdout": ""
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/python3",
+        "tests/dsd/bench_p11_e2e.py",
+        "--phase",
+        "P12",
+        "--native-rate",
+        "2822400",
+        "--channels",
+        "2",
+        "--sox",
+        "src/sox_ng",
+        "--candidate",
+        "test/sox_p10_candidate",
+        "--results",
+        "<failure-results>/dsd64-2ch",
+        "--repetitions",
+        "15",
+        "--warmups",
+        "2",
+        "--decode-seconds",
+        "0.02",
+        "--encode-seconds",
+        "0.02",
+        "--tiers",
+        "scalar",
+        "sse2",
+        "avx1",
+        "avx2"
+      ],
+      "evidence": "dsd64-2ch/forced-cli-timing.json",
+      "exit": 0,
+      "name": "dsd64-2ch",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "P12 E2E decode [('scalar', 0.00626), ('sse2', 0.00628), ('avx1', 0.00625), ('avx2', 0.00637)]\nP12 E2E encode [('scalar', 0.00763), ('sse2', 0.00728), ('avx1', 0.00741), ('avx2', 0.00719)]\nP12 E2E PASS\n"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/python3",
+        "tests/dsd/bench_p11_e2e.py",
+        "--phase",
+        "P12",
+        "--native-rate",
+        "5644800",
+        "--channels",
+        "2",
+        "--sox",
+        "src/sox_ng",
+        "--candidate",
+        "test/sox_p10_candidate",
+        "--results",
+        "<failure-results>/dsd128-2ch",
+        "--repetitions",
+        "15",
+        "--warmups",
+        "2",
+        "--decode-seconds",
+        "0.02",
+        "--encode-seconds",
+        "0.02",
+        "--tiers",
+        "scalar",
+        "sse2",
+        "avx1",
+        "avx2"
+      ],
+      "evidence": "dsd128-2ch/forced-cli-timing.json",
+      "exit": 0,
+      "name": "dsd128-2ch",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "P12 E2E decode [('scalar', 0.01078), ('sse2', 0.01058), ('avx1', 0.0106), ('avx2', 0.01096)]\nP12 E2E encode [('scalar', 0.0115), ('sse2', 0.01106), ('avx1', 0.01115), ('avx2', 0.01083)]\nP12 E2E PASS\n"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/python3",
+        "tests/dsd/bench_p11_e2e.py",
+        "--phase",
+        "P12",
+        "--native-rate",
+        "11289600",
+        "--channels",
+        "2",
+        "--sox",
+        "src/sox_ng",
+        "--candidate",
+        "test/sox_p10_candidate",
+        "--results",
+        "<failure-results>/dsd256-2ch",
+        "--repetitions",
+        "15",
+        "--warmups",
+        "2",
+        "--decode-seconds",
+        "0.02",
+        "--encode-seconds",
+        "0.02",
+        "--tiers",
+        "scalar",
+        "sse2",
+        "avx1",
+        "avx2"
+      ],
+      "evidence": "dsd256-2ch/forced-cli-timing.json",
+      "exit": 0,
+      "name": "dsd256-2ch",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "P12 E2E decode [('scalar', 0.01808), ('sse2', 0.0183), ('avx1', 0.01808), ('avx2', 0.0188)]\nP12 E2E encode [('scalar', 0.01999), ('sse2', 0.01867), ('avx1', 0.01896), ('avx2', 0.01813)]\nP12 E2E PASS\n"
+    }
+  ],
+  "schema": "P12/benchmark-matrix/1",
+  "status": "FAIL",
+  "unrun": [],
+  "warning": "Host timings only, not evidence for a universal dispatch policy"
+}

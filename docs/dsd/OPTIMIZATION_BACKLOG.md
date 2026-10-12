@@ -31,14 +31,15 @@ host, interval from a paired bootstrap.
 | P10 corrective to P10 ratification | **+6.81%** | [+6.54%, +7.04%] | 0.41% | **fail**, attributed to a failure-path diagnostic in `src/pcmdsd.c` |
 | P10 ratification to P10 hotfix | **-4.43%** | [-4.63%, -4.24%] | 0.49% | pass, faster than before the regression; page-aligned reader |
 | P10 hotfix to P11 | -2.87% | [see evidence] | 0.79% max | pass; first phase to add translation units since the alignment fix |
+| P11 to P12 | **+5.66%** | [+5.48%, +5.91%] | 0.41% | **fail**; reader addresses unchanged, 8489 of 8897 other text symbols moved |
 
 Cumulative, as the product of the recorded median ratios: **+3.20%** from P05
 through P08, then **-0.60%** once P09 is included, **+0.42%** through P10 and
 **+0.26%** through the P10 corrective round, **+7.08%** once the ratification
-round is included, and **+2.34%** after the hotfix recovered it. Every phase
-except the ratification round passed its own 5% gate; that round's regression
-alone accounted for essentially all of the +7.08%, and the hotfix removed most
-of it. The design gates per phase and not the accumulation, so this total is
+round is included, **+2.34%** after the hotfix recovered it, **-0.60%** through
+P11, and **+5.03%** through P12. Two phases have now failed their own 5% gate on
+this workload, the P10 ratification round and P12, and in both cases the cause
+was unrelated code changing size rather than anything on the read path. The design gates per phase and not the accumulation, so this total is
 tracked here rather than by any gate.
 
 The P09 leg is worth treating with suspicion rather than relief. P09 changes
@@ -117,6 +118,26 @@ Evidence: `tests/dsd/results/P10_hotfix_throughput_2026-10-11/`.
 What would settle the remainder is the profiling this file has been deferring:
 nobody has yet shown *which* accesses contend, so the alignment fix is a
 well-aimed empirical remedy rather than an understood one.
+
+### P12 shows the alignment fix is necessary but not sufficient
+
+P12 adds one translation unit and a convenience library and breaks the 5% gate on
+this workload at +5.66%, interval [+5.48%, +5.91%] at 0.41% noise. It changes no
+container read code, and in the linked image `dff_read_fragment` and `dff_read`
+sit at the *same* addresses as in the P11-closed build, 0x70000 and 0x71000, both
+still page-aligned. So the pinned code did not move and still slowed down.
+
+Text grew 0.6%, from 619,486 to 623,198 bytes, and 8,489 of 8,897 text symbols
+changed address. On the read path, `lsx_read_b_buf` and `lsx_readbuf` happen to
+precede the insertion point and held still, while `lsx_rawread` moved from
+0x90a20 to 0x915e0.
+
+The inference, from address comparison rather than a profile: pinning the two
+functions named in the attribute leaves their callees free to move, so the
+relative cache-set mapping along the path still changes. If that is right, a
+durable remedy has to consider the path rather than two entry points, and the
+profiling deferred since P02 is what would establish it. Evidence:
+`tests/dsd/results/P12_throughput_prepared_host_2026-10-11/`.
 
 ### What has not been done
 

@@ -1,0 +1,12 @@
+PASS cpuid mock, XCR0, independent family policy, negative-zero
+PASS documented override, per-context retention, public option precedence/ABI
+P12 host feature mask=15 (SSE2=1 AVX1=1 AVX2=1 FMA=1)
+PASS FIR tier=scalar odd taps, aligned/unaligned, tails, stride, oracle
+PASS SDM tier=scalar 4/6/8 states, monitor, guarded failure, block invariance
+PASS FIR tier=sse2 odd taps, aligned/unaligned, tails, stride, oracle
+PASS SDM tier=sse2 4/6/8 states, monitor, guarded failure, block invariance
+PASS FIR tier=avx1 odd taps, aligned/unaligned, tails, stride, oracle
+PASS SDM tier=avx1 4/6/8 states, monitor, guarded failure, block invariance
+PASS FIR tier=avx2 odd taps, aligned/unaligned, tails, stride, oracle
+PASS SDM tier=avx2 4/6/8 states, monitor, guarded failure, block invariance
+P12 kernel unit suite PASS

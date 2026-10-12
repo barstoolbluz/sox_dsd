@@ -86,18 +86,20 @@ def main():
     ap.add_argument('--rates',type=int,nargs='*',default=[2822400,5644800,11289600])
     ap.add_argument('--frequency',type=float,default=997.)
     ap.add_argument('--dbfs',type=float,default=-6.)
+    ap.add_argument('--phase',default='P11')
+    ap.add_argument('--tiers',nargs='+',default=['scalar','sse2','avx1'])
     a=ap.parse_args()
     if not 1.51<=a.duration<=60:ap.error('duration >=1.51 and <=60 seconds required by frozen two-sided trim')
     if any(x not in (2822400,5644800,11289600) for x in a.rates):ap.error('unsupported rate')
     confirm_lock()
     a.results.mkdir(parents=True,exist_ok=True)
-    report=dict(schema='P11/analysis-v1/1',method='frozen analysis-v1',
+    report=dict(schema=f'{a.phase}/analysis-v1/1',method='frozen analysis-v1',
       analysis_lock_sha256=hashlib.sha256((ROOT/'tests/dsd/reference/analysis-v1/SHA256SUMS.txt').read_bytes()).hexdigest(),
       host=platform.platform(),machine=platform.machine(),
       command=[str(x).replace(str(ROOT),'<tree>') for x in sys.argv],
       qualification='synthetic cross-ISA kernels; P10 certification unchanged; not P15 promotion',
       records=[],comparisons=[],errors=[],unrun=[])
-    tiers=['scalar','sse2','avx1']
+    tiers=a.tiers
     for rate in a.rates:
       results={}
       profile=f'encode.mastering.v1.dsd{rate//44100}'
@@ -141,7 +143,7 @@ def main():
           row=dict(rate=rate,tier=tier,scalar='scalar',**comparison)
           row['status']='PASS' if all(comparison['checks'].values()) else 'FAIL'
           report['comparisons'].append(row)
-          print('P11 cross-ISA',rate,tier,row['status'],flush=True)
+          print(a.phase,'cross-ISA',rate,tier,row['status'],flush=True)
       atomic(a.results/'cross-isa.json',report)
     report['status']='PASS' if not report['errors'] and report['comparisons'] and all(
         r['status']=='PASS' for r in report['comparisons']) else 'INCOMPLETE' if report['unrun'] else 'FAIL'

@@ -1,0 +1,22 @@
+command	exit
+autoreconf -fi	0
+./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'	0
+make -j2	0
+make check	0
+make check-dsd DSD_PHASE=P12 DSD_RESULTS=tests/dsd/results/P12/check-dsd	2
+python3 tests/dsd/run.py --phase P12 --results tests/dsd/results/P12/phase-run	0
+python3 tests/dsd/measure.py --phase P12 --results tests/dsd/results/P12/phase-measure	1
+python3 tests/dsd/bench.py --phase P12 --results tests/dsd/results/P12/phase-bench	0
+autoreconf -fi	0
+./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'	0
+make -j2	0
+make check-dsd DSD_PHASE=P12 DSD_RESULTS=tests/dsd/results/P12/check-dsd-final	0
+python3 tests/dsd/measure.py --phase P12 --results tests/dsd/results/P12/phase-measure-final	0
+python3 tests/dsd/run.py --phase P12 --results tests/dsd/results/P12/phase-run-final	0
+python3 tests/dsd/bench.py --phase P12 --results tests/dsd/results/P12/phase-bench-final	0
+autoreconf-package	0
+configure-package	0
+make-package	0
+make-check-package	0
+unit-final	0
+make check-dsd DSD_PHASE=P12 DSD_RESULTS=tests/dsd/results/P12/check-dsd-delivered-final	0

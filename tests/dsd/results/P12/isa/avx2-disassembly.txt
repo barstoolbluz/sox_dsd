@@ -1,0 +1,693 @@
+
+<tree>/src/libdsd_kernels_avx2_la-dsd_kernels_avx2.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <lsx_dsd_fir_avx2_direct>:
+   0:	49 89 f1             	mov    %rsi,%r9
+   3:	48 89 d6             	mov    %rdx,%rsi
+   6:	4d 89 c8             	mov    %r9,%r8
+   9:	49 d1 e8             	shr    $1,%r8
+   c:	c4 a1 7b 10 04 c7    	vmovsd (%rdi,%r8,8),%xmm0
+  12:	4e 8d 14 c5 00 00 00 00 	lea    0x0(,%r8,8),%r10
+  1a:	c4 a1 7b 59 14 c2    	vmulsd (%rdx,%r8,8),%xmm0,%xmm2
+  20:	85 c9                	test   %ecx,%ecx
+  22:	0f 85 a8 00 00 00    	jne    d0 <lsx_dsd_fir_avx2_direct+0xd0>
+  28:	49 83 f8 03          	cmp    $0x3,%r8
+  2c:	0f 86 ae 00 00 00    	jbe    e0 <lsx_dsd_fir_avx2_direct+0xe0>
+  32:	4a 8d 54 ca e0       	lea    -0x20(%rdx,%r9,8),%rdx
+  37:	c5 f1 57 c9          	vxorpd %xmm1,%xmm1,%xmm1
+  3b:	b8 04 00 00 00       	mov    $0x4,%eax
+  40:	c4 e3 fd 01 02 1b    	vpermpd $0x1b,(%rdx),%ymm0
+  46:	c5 fd 58 44 c6 e0    	vaddpd -0x20(%rsi,%rax,8),%ymm0,%ymm0
+  4c:	48 83 ea 20          	sub    $0x20,%rdx
+  50:	c5 fd 59 44 c7 e0    	vmulpd -0x20(%rdi,%rax,8),%ymm0,%ymm0
+  56:	48 83 c0 04          	add    $0x4,%rax
+  5a:	c5 f5 58 c8          	vaddpd %ymm0,%ymm1,%ymm1
+  5e:	49 39 c0             	cmp    %rax,%r8
+  61:	73 dd                	jae    40 <lsx_dsd_fir_avx2_direct+0x40>
+  63:	49 8d 40 fc          	lea    -0x4(%r8),%rax
+  67:	c5 f9 28 e9          	vmovapd %xmm1,%xmm5
+  6b:	c5 f1 15 d9          	vunpckhpd %xmm1,%xmm1,%xmm3
+  6f:	48 83 e0 fc          	and    $0xfffffffffffffffc,%rax
+  73:	c4 e3 7d 19 c9 01    	vextractf128 $0x1,%ymm1,%xmm1
+  79:	48 83 c0 04          	add    $0x4,%rax
+  7d:	c5 f9 28 e1          	vmovapd %xmm1,%xmm4
+  81:	c5 f1 15 c9          	vunpckhpd %xmm1,%xmm1,%xmm1
+  85:	c5 f8 77             	vzeroupper
+  88:	c5 eb 58 c5          	vaddsd %xmm5,%xmm2,%xmm0
+  8c:	c5 fb 58 c3          	vaddsd %xmm3,%xmm0,%xmm0
+  90:	c5 fb 58 c4          	vaddsd %xmm4,%xmm0,%xmm0
+  94:	c5 fb 58 c1          	vaddsd %xmm1,%xmm0,%xmm0
+  98:	4c 39 c0             	cmp    %r8,%rax
+  9b:	73 2b                	jae    c8 <lsx_dsd_fir_avx2_direct+0xc8>
+  9d:	48 c1 e0 03          	shl    $0x3,%rax
+  a1:	4a 8d 0c ce          	lea    (%rsi,%r9,8),%rcx
+  a5:	48 89 c2             	mov    %rax,%rdx
+  a8:	48 f7 da             	neg    %rdx
+  ab:	c5 fb 10 4c 11 f8    	vmovsd -0x8(%rcx,%rdx,1),%xmm1
+  b1:	c5 f3 58 0c 06       	vaddsd (%rsi,%rax,1),%xmm1,%xmm1
+  b6:	c5 f3 59 0c 07       	vmulsd (%rdi,%rax,1),%xmm1,%xmm1
+  bb:	48 83 c0 08          	add    $0x8,%rax
+  bf:	c5 fb 58 c1          	vaddsd %xmm1,%xmm0,%xmm0
+  c3:	49 39 c2             	cmp    %rax,%r10
+  c6:	75 dd                	jne    a5 <lsx_dsd_fir_avx2_direct+0xa5>
+  c8:	c3                   	ret
+  c9:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+  d0:	4c 89 ce             	mov    %r9,%rsi
+  d3:	e9 00 00 00 00       	jmp    d8 <lsx_dsd_fir_avx2_direct+0xd8>	d4: R_X86_64_PLT32	lsx_dsd_fir_scalar-0x4
+  d8:	0f 1f 84 00 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+  e0:	c5 f1 57 c9          	vxorpd %xmm1,%xmm1,%xmm1
+  e4:	31 c0                	xor    %eax,%eax
+  e6:	c5 f9 28 e1          	vmovapd %xmm1,%xmm4
+  ea:	c5 f9 28 d9          	vmovapd %xmm1,%xmm3
+  ee:	c5 f9 28 e9          	vmovapd %xmm1,%xmm5
+  f2:	eb 94                	jmp    88 <lsx_dsd_fir_avx2_direct+0x88>
+  f4:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 cs nopw 0x0(%rax,%rax,1)
+  ff:	90                   	nop
+
+0000000000000100 <sdm_avx2_block>:
+ 100:	4c 8d 54 24 08       	lea    0x8(%rsp),%r10
+ 105:	48 83 e4 e0          	and    $0xffffffffffffffe0,%rsp
+ 109:	41 ff 72 f8          	push   -0x8(%r10)
+ 10d:	55                   	push   %rbp
+ 10e:	48 89 e5             	mov    %rsp,%rbp
+ 111:	41 57                	push   %r15
+ 113:	41 56                	push   %r14
+ 115:	4d 89 ce             	mov    %r9,%r14
+ 118:	41 55                	push   %r13
+ 11a:	41 54                	push   %r12
+ 11c:	41 52                	push   %r10
+ 11e:	53                   	push   %rbx
+ 11f:	48 83 c4 80          	add    $0xffffffffffffff80,%rsp
+ 123:	48 89 4d a8          	mov    %rcx,-0x58(%rbp)
+ 127:	4d 8b 22             	mov    (%r10),%r12
+ 12a:	64 4c 8b 0c 25 28 00 00 00 	mov    %fs:0x28,%r9
+ 133:	4c 89 4d c8          	mov    %r9,-0x38(%rbp)
+ 137:	4d 8b 4a 08          	mov    0x8(%r10),%r9
+ 13b:	4d 85 c0             	test   %r8,%r8
+ 13e:	0f 84 13 03 00 00    	je     457 <sdm_avx2_block+0x357>
+ 144:	49 c7 00 00 00 00 00 	movq   $0x0,(%r8)
+ 14b:	49 89 fd             	mov    %rdi,%r13
+ 14e:	48 85 ff             	test   %rdi,%rdi
+ 151:	0f 84 00 03 00 00    	je     457 <sdm_avx2_block+0x357>
+ 157:	48 8b 3f             	mov    (%rdi),%rdi
+ 15a:	48 85 ff             	test   %rdi,%rdi
+ 15d:	0f 84 f4 02 00 00    	je     457 <sdm_avx2_block+0x357>
+ 163:	49 89 f7             	mov    %rsi,%r15
+ 166:	49 89 d3             	mov    %rdx,%r11
+ 169:	c5 f9 28 e0          	vmovapd %xmm0,%xmm4
+ 16d:	48 85 d2             	test   %rdx,%rdx
+ 170:	74 12                	je     184 <sdm_avx2_block+0x84>
+ 172:	48 85 f6             	test   %rsi,%rsi
+ 175:	0f 84 dc 02 00 00    	je     457 <sdm_avx2_block+0x357>
+ 17b:	48 85 c9             	test   %rcx,%rcx
+ 17e:	0f 84 d3 02 00 00    	je     457 <sdm_avx2_block+0x357>
+ 184:	48 8d 4d b4          	lea    -0x4c(%rbp),%rcx
+ 188:	48 8d 55 c0          	lea    -0x40(%rbp),%rdx
+ 18c:	4c 89 4d 88          	mov    %r9,-0x78(%rbp)
+ 190:	48 8d 75 b8          	lea    -0x48(%rbp),%rsi
+ 194:	4c 89 45 98          	mov    %r8,-0x68(%rbp)
+ 198:	4c 89 5d a0          	mov    %r11,-0x60(%rbp)
+ 19c:	c5 fb 11 65 90       	vmovsd %xmm4,-0x70(%rbp)
+ 1a1:	e8 00 00 00 00       	call   1a6 <sdm_avx2_block+0xa6>	1a2: R_X86_64_PLT32	sdm_profile_coefficients-0x4
+ 1a6:	85 c0                	test   %eax,%eax
+ 1a8:	0f 85 a9 02 00 00    	jne    457 <sdm_avx2_block+0x357>
+ 1ae:	8b 75 b4             	mov    -0x4c(%rbp),%esi
+ 1b1:	8d 56 fc             	lea    -0x4(%rsi),%edx
+ 1b4:	83 fa 04             	cmp    $0x4,%edx
+ 1b7:	0f 87 9a 02 00 00    	ja     457 <sdm_avx2_block+0x357>
+ 1bd:	4c 8b 5d a0          	mov    -0x60(%rbp),%r11
+ 1c1:	4d 85 db             	test   %r11,%r11
+ 1c4:	0f 84 23 02 00 00    	je     3ed <sdm_avx2_block+0x2ed>
+ 1ca:	89 85 64 ff ff ff    	mov    %eax,-0x9c(%rbp)
+ 1d0:	31 f6                	xor    %esi,%esi
+ 1d2:	4c 8b 45 98          	mov    -0x68(%rbp),%r8
+ 1d6:	4d 89 fa             	mov    %r15,%r10
+ 1d9:	c5 fa 7e 15 00 00 00 00 	vmovq  0x0(%rip),%xmm2        # 1e1 <sdm_avx2_block+0xe1>	1dd: R_X86_64_PC32	.LC1-0x4
+ 1e1:	c5 fb 10 1d 00 00 00 00 	vmovsd 0x0(%rip),%xmm3        # 1e9 <sdm_avx2_block+0xe9>	1e5: R_X86_64_PC32	.LC2-0x4
+ 1e9:	4c 89 f2             	mov    %r14,%rdx
+ 1ec:	4c 89 a5 70 ff ff ff 	mov    %r12,-0x90(%rbp)
+ 1f3:	4c 8b 4d 88          	mov    -0x78(%rbp),%r9
+ 1f7:	c5 fb 10 65 90       	vmovsd -0x70(%rbp),%xmm4
+ 1fc:	49 89 f4             	mov    %rsi,%r12
+ 1ff:	4c 89 de             	mov    %r11,%rsi
+ 202:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 20d:	0f 1f 00             	nopl   (%rax)
+ 210:	41 8b 85 98 00 00 00 	mov    0x98(%r13),%eax
+ 217:	c4 81 7b 10 2c e2    	vmovsd (%r10,%r12,8),%xmm5
+ 21d:	89 c1                	mov    %eax,%ecx
+ 21f:	c5 d1 54 c2          	vandpd %xmm2,%xmm5,%xmm0
+ 223:	83 f1 01             	xor    $0x1,%ecx
+ 226:	48 c1 e1 06          	shl    $0x6,%rcx
+ 22a:	c5 f9 2e d8          	vucomisd %xmm0,%xmm3
+ 22e:	49 8d 7c 0d 10       	lea    0x10(%r13,%rcx,1),%rdi
+ 233:	0f 82 93 05 00 00    	jb     7cc <sdm_avx2_block+0x6cc>
+ 239:	4d 85 c9             	test   %r9,%r9
+ 23c:	74 16                	je     254 <sdm_avx2_block+0x154>
+ 23e:	c4 c1 79 2f 01       	vcomisd (%r9),%xmm0
+ 243:	76 0f                	jbe    254 <sdm_avx2_block+0x154>
+ 245:	c4 c1 7b 11 01       	vmovsd %xmm0,(%r9)
+ 24a:	c4 81 7b 10 2c e2    	vmovsd (%r10,%r12,8),%xmm5
+ 250:	c5 d1 54 c2          	vandpd %xmm2,%xmm5,%xmm0
+ 254:	c5 f9 2f c4          	vcomisd %xmm4,%xmm0
+ 258:	0f 87 a6 05 00 00    	ja     804 <sdm_avx2_block+0x704>
+ 25e:	49 83 bd a0 00 00 00 ff 	cmpq   $0xffffffffffffffff,0xa0(%r13)
+ 266:	0f 84 8e 05 00 00    	je     7fa <sdm_avx2_block+0x6fa>
+ 26c:	48 c1 e0 06          	shl    $0x6,%rax
+ 270:	4c 8b 5d c0          	mov    -0x40(%rbp),%r11
+ 274:	48 8b 4d b8          	mov    -0x48(%rbp),%rcx
+ 278:	c4 c1 53 5c b5 90 00 00 00 	vsubsd 0x90(%r13),%xmm5,%xmm6
+ 281:	49 8d 44 05 10       	lea    0x10(%r13,%rax,1),%rax
+ 286:	8b 5d b4             	mov    -0x4c(%rbp),%ebx
+ 289:	c5 fd 10 08          	vmovupd (%rax),%ymm1
+ 28d:	c5 fd 10 40 20       	vmovupd 0x20(%rax),%ymm0
+ 292:	c4 63 fd 01 c9 90    	vpermpd $0x90,%ymm1,%ymm9
+ 298:	c4 e2 7d 19 f6       	vbroadcastsd %xmm6,%ymm6
+ 29d:	c4 e2 7d 19 f8       	vbroadcastsd %xmm0,%ymm7
+ 2a2:	c4 63 35 0d ce 01    	vblendpd $0x1,%ymm6,%ymm9,%ymm9
+ 2a8:	c4 e3 fd 01 f1 f9    	vpermpd $0xf9,%ymm1,%ymm6
+ 2ae:	c4 63 fd 01 c0 90    	vpermpd $0x90,%ymm0,%ymm8
+ 2b4:	c4 e3 4d 0d f7 08    	vblendpd $0x8,%ymm7,%ymm6,%ymm6
+ 2ba:	c4 e3 fd 01 f9 ff    	vpermpd $0xff,%ymm1,%ymm7
+ 2c0:	c4 c1 75 58 c9       	vaddpd %ymm9,%ymm1,%ymm1
+ 2c5:	c4 c1 4d 59 33       	vmulpd (%r11),%ymm6,%ymm6
+ 2ca:	c4 63 3d 0d c7 01    	vblendpd $0x1,%ymm7,%ymm8,%ymm8
+ 2d0:	c4 e3 fd 01 f8 b9    	vpermpd $0xb9,%ymm0,%ymm7
+ 2d6:	c4 c1 7d 58 c0       	vaddpd %ymm8,%ymm0,%ymm0
+ 2db:	c5 f5 5c ce          	vsubpd %ymm6,%ymm1,%ymm1
+ 2df:	c4 c1 45 59 73 20    	vmulpd 0x20(%r11),%ymm7,%ymm6
+ 2e5:	c5 fd 11 0f          	vmovupd %ymm1,(%rdi)
+ 2e9:	c5 fd 5c c6          	vsubpd %ymm6,%ymm0,%ymm0
+ 2ed:	c5 fd 11 47 20       	vmovupd %ymm0,0x20(%rdi)
+ 2f2:	c5 f5 59 09          	vmulpd (%rcx),%ymm1,%ymm1
+ 2f6:	c5 fd 59 41 20       	vmulpd 0x20(%rcx),%ymm0,%ymm0
+ 2fb:	c5 fd 58 c1          	vaddpd %ymm1,%ymm0,%ymm0
+ 2ff:	c4 e3 fd 01 c8 4e    	vpermpd $0x4e,%ymm0,%ymm1
+ 305:	c5 fd 58 c1          	vaddpd %ymm1,%ymm0,%ymm0
+ 309:	c4 e3 7d 05 c8 05    	vpermilpd $0x5,%ymm0,%ymm1
+ 30f:	c5 fd 58 c9          	vaddpd %ymm1,%ymm0,%ymm1
+ 313:	c5 f3 58 cd          	vaddsd %xmm5,%xmm1,%xmm1
+ 317:	c5 f1 54 c2          	vandpd %xmm2,%xmm1,%xmm0
+ 31b:	83 fb 07             	cmp    $0x7,%ebx
+ 31e:	0f 87 bc 03 00 00    	ja     6e0 <sdm_avx2_block+0x5e0>
+ 324:	b9 08 00 00 00       	mov    $0x8,%ecx
+ 329:	89 d8                	mov    %ebx,%eax
+ 32b:	29 d9                	sub    %ebx,%ecx
+ 32d:	48 8d 04 c7          	lea    (%rdi,%rax,8),%rax
+ 331:	48 c1 e1 03          	shl    $0x3,%rcx
+ 335:	48 c7 00 00 00 00 00 	movq   $0x0,(%rax)
+ 33c:	89 cf                	mov    %ecx,%edi
+ 33e:	48 c7 44 38 f8 00 00 00 00 	movq   $0x0,-0x8(%rax,%rdi,1)
+ 347:	48 8d 78 08          	lea    0x8(%rax),%rdi
+ 34b:	48 83 e7 f8          	and    $0xfffffffffffffff8,%rdi
+ 34f:	48 29 f8             	sub    %rdi,%rax
+ 352:	01 c1                	add    %eax,%ecx
+ 354:	31 c0                	xor    %eax,%eax
+ 356:	c1 e9 03             	shr    $0x3,%ecx
+ 359:	f3 48 ab             	rep stos %rax,%es:(%rdi)
+ 35c:	41 8b 85 98 00 00 00 	mov    0x98(%r13),%eax
+ 363:	c4 81 7b 10 2c e2    	vmovsd (%r10,%r12,8),%xmm5
+ 369:	4d 8b 7d 08          	mov    0x8(%r13),%r15
+ 36d:	83 f0 01             	xor    $0x1,%eax
+ 370:	48 c1 e0 06          	shl    $0x6,%rax
+ 374:	c5 f9 2e d8          	vucomisd %xmm0,%xmm3
+ 378:	4d 8d 74 05 10       	lea    0x10(%r13,%rax,1),%r14
+ 37d:	0f 82 84 03 00 00    	jb     707 <sdm_avx2_block+0x607>
+ 383:	85 db                	test   %ebx,%ebx
+ 385:	0f 84 0d 01 00 00    	je     498 <sdm_avx2_block+0x398>
+ 38b:	c4 c1 7b 10 06       	vmovsd (%r14),%xmm0
+ 390:	c5 f9 54 c2          	vandpd %xmm2,%xmm0,%xmm0
+ 394:	c5 f9 2e d8          	vucomisd %xmm0,%xmm3
+ 398:	0f 82 1d 04 00 00    	jb     7bb <sdm_avx2_block+0x6bb>
+ 39e:	48 85 d2             	test   %rdx,%rdx
+ 3a1:	0f 84 b9 00 00 00    	je     460 <sdm_avx2_block+0x360>
+ 3a7:	31 c0                	xor    %eax,%eax
+ 3a9:	31 c9                	xor    %ecx,%ecx
+ 3ab:	eb 21                	jmp    3ce <sdm_avx2_block+0x2ce>
+ 3ad:	0f 1f 00             	nopl   (%rax)
+ 3b0:	48 83 c0 01          	add    $0x1,%rax
+ 3b4:	89 c1                	mov    %eax,%ecx
+ 3b6:	39 d8                	cmp    %ebx,%eax
+ 3b8:	0f 83 da 00 00 00    	jae    498 <sdm_avx2_block+0x398>
+ 3be:	c4 c1 7b 10 04 c6    	vmovsd (%r14,%rax,8),%xmm0
+ 3c4:	c5 f9 54 c2          	vandpd %xmm2,%xmm0,%xmm0
+ 3c8:	c5 f9 2e d8          	vucomisd %xmm0,%xmm3
+ 3cc:	72 4a                	jb     418 <sdm_avx2_block+0x318>
+ 3ce:	c5 f9 2f 04 c2       	vcomisd (%rdx,%rax,8),%xmm0
+ 3d3:	76 db                	jbe    3b0 <sdm_avx2_block+0x2b0>
+ 3d5:	4c 8b a5 70 ff ff ff 	mov    -0x90(%rbp),%r12
+ 3dc:	4d 85 e4             	test   %r12,%r12
+ 3df:	74 04                	je     3e5 <sdm_avx2_block+0x2e5>
+ 3e1:	41 89 0c 24          	mov    %ecx,(%r12)
+ 3e5:	b8 fe ff ff ff       	mov    $0xfffffffe,%eax
+ 3ea:	c5 f8 77             	vzeroupper
+ 3ed:	48 8b 55 c8          	mov    -0x38(%rbp),%rdx
+ 3f1:	64 48 2b 14 25 28 00 00 00 	sub    %fs:0x28,%rdx
+ 3fa:	0f 85 3f 04 00 00    	jne    83f <sdm_avx2_block+0x73f>
+ 400:	48 83 ec 80          	sub    $0xffffffffffffff80,%rsp
+ 404:	5b                   	pop    %rbx
+ 405:	41 5a                	pop    %r10
+ 407:	41 5c                	pop    %r12
+ 409:	41 5d                	pop    %r13
+ 40b:	41 5e                	pop    %r14
+ 40d:	41 5f                	pop    %r15
+ 40f:	5d                   	pop    %rbp
+ 410:	49 8d 62 f8          	lea    -0x8(%r10),%rsp
+ 414:	c3                   	ret
+ 415:	0f 1f 00             	nopl   (%rax)
+ 418:	4c 8b a5 70 ff ff ff 	mov    -0x90(%rbp),%r12
+ 41f:	4c 89 fa             	mov    %r15,%rdx
+ 422:	4d 85 e4             	test   %r12,%r12
+ 425:	74 04                	je     42b <sdm_avx2_block+0x32b>
+ 427:	41 89 0c 24          	mov    %ecx,(%r12)
+ 42b:	48 85 d2             	test   %rdx,%rdx
+ 42e:	0f 84 9c 02 00 00    	je     6d0 <sdm_avx2_block+0x5d0>
+ 434:	48 8b 42 20          	mov    0x20(%rdx),%rax
+ 438:	48 85 c0             	test   %rax,%rax
+ 43b:	0f 85 47 02 00 00    	jne    688 <sdm_avx2_block+0x588>
+ 441:	49 8b 8d a0 00 00 00 	mov    0xa0(%r13),%rcx
+ 448:	48 89 4a 28          	mov    %rcx,0x28(%rdx)
+ 44c:	48 83 c0 01          	add    $0x1,%rax
+ 450:	48 89 42 20          	mov    %rax,0x20(%rdx)
+ 454:	c5 f8 77             	vzeroupper
+ 457:	b8 ff ff ff ff       	mov    $0xffffffff,%eax
+ 45c:	eb 8f                	jmp    3ed <sdm_avx2_block+0x2ed>
+ 45e:	66 90                	xchg   %ax,%ax
+ 460:	31 c9                	xor    %ecx,%ecx
+ 462:	eb 2c                	jmp    490 <sdm_avx2_block+0x390>
+ 464:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 46f:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 47a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+ 480:	c4 c1 7b 10 04 ce    	vmovsd (%r14,%rcx,8),%xmm0
+ 486:	c5 f9 54 c2          	vandpd %xmm2,%xmm0,%xmm0
+ 48a:	c5 f9 2e d8          	vucomisd %xmm0,%xmm3
+ 48e:	72 88                	jb     418 <sdm_avx2_block+0x318>
+ 490:	48 83 c1 01          	add    $0x1,%rcx
+ 494:	39 d9                	cmp    %ebx,%ecx
+ 496:	72 e8                	jb     480 <sdm_avx2_block+0x380>
+ 498:	4c 89 8d 78 ff ff ff 	mov    %r9,-0x88(%rbp)
+ 49f:	c5 f9 28 c1          	vmovapd %xmm1,%xmm0
+ 4a3:	48 89 55 80          	mov    %rdx,-0x80(%rbp)
+ 4a7:	4c 89 45 88          	mov    %r8,-0x78(%rbp)
+ 4ab:	48 89 75 90          	mov    %rsi,-0x70(%rbp)
+ 4af:	4c 89 55 98          	mov    %r10,-0x68(%rbp)
+ 4b3:	c5 fb 11 65 a0       	vmovsd %xmm4,-0x60(%rbp)
+ 4b8:	c5 fb 11 ad 68 ff ff ff 	vmovsd %xmm5,-0x98(%rbp)
+ 4c0:	c5 f8 77             	vzeroupper
+ 4c3:	e8 00 00 00 00       	call   4c8 <sdm_avx2_block+0x3c8>	4c4: R_X86_64_PLT32	sdm_normal_decision-0x4
+ 4c8:	c5 d9 57 e4          	vxorpd %xmm4,%xmm4,%xmm4
+ 4cc:	41 83 b5 98 00 00 00 01 	xorl   $0x1,0x98(%r13)
+ 4d4:	c5 db 2a c0          	vcvtsi2sd %eax,%xmm4,%xmm0
+ 4d8:	4d 85 ff             	test   %r15,%r15
+ 4db:	c5 fb 10 65 a0       	vmovsd -0x60(%rbp),%xmm4
+ 4e0:	4c 8b 55 98          	mov    -0x68(%rbp),%r10
+ 4e4:	c5 fa 7e 15 00 00 00 00 	vmovq  0x0(%rip),%xmm2        # 4ec <sdm_avx2_block+0x3ec>	4e8: R_X86_64_PC32	.LC1-0x4
+ 4ec:	c5 fb 10 1d 00 00 00 00 	vmovsd 0x0(%rip),%xmm3        # 4f4 <sdm_avx2_block+0x3f4>	4f0: R_X86_64_PC32	.LC2-0x4
+ 4f4:	89 c7                	mov    %eax,%edi
+ 4f6:	48 8b 75 90          	mov    -0x70(%rbp),%rsi
+ 4fa:	4c 8b 45 88          	mov    -0x78(%rbp),%r8
+ 4fe:	48 8b 55 80          	mov    -0x80(%rbp),%rdx
+ 502:	4c 8b 8d 78 ff ff ff 	mov    -0x88(%rbp),%r9
+ 509:	c4 c1 7b 11 85 90 00 00 00 	vmovsd %xmm0,0x90(%r13)
+ 512:	0f 84 98 01 00 00    	je     6b0 <sdm_avx2_block+0x5b0>
+ 518:	c5 fb 10 ad 68 ff ff ff 	vmovsd -0x98(%rbp),%xmm5
+ 520:	45 31 db             	xor    %r11d,%r11d
+ 523:	85 c0                	test   %eax,%eax
+ 525:	41 0f 9f c3          	setg   %r11b
+ 529:	c5 d1 54 ea          	vandpd %xmm2,%xmm5,%xmm5
+ 52d:	c5 f9 2f 2d 00 00 00 00 	vcomisd 0x0(%rip),%xmm5        # 535 <sdm_avx2_block+0x435>	531: R_X86_64_PC32	.LC3-0x4
+ 535:	76 20                	jbe    557 <sdm_avx2_block+0x457>
+ 537:	49 8b 47 18          	mov    0x18(%r15),%rax
+ 53b:	48 85 c0             	test   %rax,%rax
+ 53e:	0f 85 42 02 00 00    	jne    786 <sdm_avx2_block+0x686>
+ 544:	49 8b 8d a0 00 00 00 	mov    0xa0(%r13),%rcx
+ 54b:	49 89 4f 30          	mov    %rcx,0x30(%r15)
+ 54f:	48 83 c0 01          	add    $0x1,%rax
+ 553:	49 89 47 18          	mov    %rax,0x18(%r15)
+ 557:	89 d9                	mov    %ebx,%ecx
+ 559:	31 c0                	xor    %eax,%eax
+ 55b:	48 c1 e1 03          	shl    $0x3,%rcx
+ 55f:	85 db                	test   %ebx,%ebx
+ 561:	74 40                	je     5a3 <sdm_avx2_block+0x4a3>
+ 563:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 56e:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 579:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+ 580:	c4 c1 7b 10 04 06    	vmovsd (%r14,%rax,1),%xmm0
+ 586:	c5 f9 54 c2          	vandpd %xmm2,%xmm0,%xmm0
+ 58a:	c4 c1 79 2f 44 07 60 	vcomisd 0x60(%r15,%rax,1),%xmm0
+ 591:	76 07                	jbe    59a <sdm_avx2_block+0x49a>
+ 593:	c4 c1 7b 11 44 07 60 	vmovsd %xmm0,0x60(%r15,%rax,1)
+ 59a:	48 83 c0 08          	add    $0x8,%rax
+ 59e:	48 39 c8             	cmp    %rcx,%rax
+ 5a1:	75 dd                	jne    580 <sdm_avx2_block+0x480>
+ 5a3:	41 8b 4f 44          	mov    0x44(%r15),%ecx
+ 5a7:	41 8b 5f 4c          	mov    0x4c(%r15),%ebx
+ 5ab:	41 8b 47 40          	mov    0x40(%r15),%eax
+ 5af:	44 01 d9             	add    %r11d,%ecx
+ 5b2:	83 fb 1b             	cmp    $0x1b,%ebx
+ 5b5:	0f 87 b5 00 00 00    	ja     670 <sdm_avx2_block+0x570>
+ 5bb:	83 c3 01             	add    $0x1,%ebx
+ 5be:	41 89 5f 4c          	mov    %ebx,0x4c(%r15)
+ 5c2:	01 c0                	add    %eax,%eax
+ 5c4:	41 89 4f 44          	mov    %ecx,0x44(%r15)
+ 5c8:	44 09 d8             	or     %r11d,%eax
+ 5cb:	25 ff ff ff 0f       	and    $0xfffffff,%eax
+ 5d0:	41 89 47 40          	mov    %eax,0x40(%r15)
+ 5d4:	83 fb 1c             	cmp    $0x1c,%ebx
+ 5d7:	0f 84 32 01 00 00    	je     70f <sdm_avx2_block+0x60f>
+ 5dd:	41 8b 47 48          	mov    0x48(%r15),%eax
+ 5e1:	85 c0                	test   %eax,%eax
+ 5e3:	74 0a                	je     5ef <sdm_avx2_block+0x4ef>
+ 5e5:	45 3b 5f 50          	cmp    0x50(%r15),%r11d
+ 5e9:	0f 84 bb 01 00 00    	je     7aa <sdm_avx2_block+0x6aa>
+ 5ef:	41 c7 47 48 01 00 00 00 	movl   $0x1,0x48(%r15)
+ 5f7:	b8 01 00 00 00       	mov    $0x1,%eax
+ 5fc:	45 89 5f 50          	mov    %r11d,0x50(%r15)
+ 600:	49 39 47 38          	cmp    %rax,0x38(%r15)
+ 604:	73 04                	jae    60a <sdm_avx2_block+0x50a>
+ 606:	49 89 47 38          	mov    %rax,0x38(%r15)
+ 60a:	49 8b 07             	mov    (%r15),%rax
+ 60d:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+ 611:	0f 84 49 01 00 00    	je     760 <sdm_avx2_block+0x660>
+ 617:	48 83 c0 01          	add    $0x1,%rax
+ 61b:	49 89 07             	mov    %rax,(%r15)
+ 61e:	49 8b 85 a0 00 00 00 	mov    0xa0(%r13),%rax
+ 625:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+ 629:	0f 84 4a 01 00 00    	je     779 <sdm_avx2_block+0x679>
+ 62f:	48 83 c0 01          	add    $0x1,%rax
+ 633:	49 89 85 a0 00 00 00 	mov    %rax,0xa0(%r13)
+ 63a:	85 ff                	test   %edi,%edi
+ 63c:	b8 01 00 00 80       	mov    $0x80000001,%eax
+ 641:	b9 ff ff ff 7f       	mov    $0x7fffffff,%ecx
+ 646:	48 8b 7d a8          	mov    -0x58(%rbp),%rdi
+ 64a:	0f 4f c1             	cmovg  %ecx,%eax
+ 64d:	42 89 04 a7          	mov    %eax,(%rdi,%r12,4)
+ 651:	49 83 c4 01          	add    $0x1,%r12
+ 655:	4d 89 20             	mov    %r12,(%r8)
+ 658:	49 39 f4             	cmp    %rsi,%r12
+ 65b:	0f 85 af fb ff ff    	jne    210 <sdm_avx2_block+0x110>
+ 661:	8b 85 64 ff ff ff    	mov    -0x9c(%rbp),%eax
+ 667:	e9 81 fd ff ff       	jmp    3ed <sdm_avx2_block+0x2ed>
+ 66c:	0f 1f 40 00          	nopl   0x0(%rax)
+ 670:	41 89 c6             	mov    %eax,%r14d
+ 673:	41 c1 ee 1b          	shr    $0x1b,%r14d
+ 677:	41 83 e6 01          	and    $0x1,%r14d
+ 67b:	44 29 f1             	sub    %r14d,%ecx
+ 67e:	e9 3f ff ff ff       	jmp    5c2 <sdm_avx2_block+0x4c2>
+ 683:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ 688:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+ 68c:	0f 85 ba fd ff ff    	jne    44c <sdm_avx2_block+0x34c>
+ 692:	c7 42 5c 01 00 00 00 	movl   $0x1,0x5c(%rdx)
+ 699:	b8 ff ff ff ff       	mov    $0xffffffff,%eax
+ 69e:	c5 f8 77             	vzeroupper
+ 6a1:	e9 47 fd ff ff       	jmp    3ed <sdm_avx2_block+0x2ed>
+ 6a6:	66 2e 0f 1f 84 00 00 00 00 00 	cs nopw 0x0(%rax,%rax,1)
+ 6b0:	49 8b 85 a0 00 00 00 	mov    0xa0(%r13),%rax
+ 6b7:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+ 6bb:	0f 85 6e ff ff ff    	jne    62f <sdm_avx2_block+0x52f>
+ 6c1:	e9 74 ff ff ff       	jmp    63a <sdm_avx2_block+0x53a>
+ 6c6:	66 2e 0f 1f 84 00 00 00 00 00 	cs nopw 0x0(%rax,%rax,1)
+ 6d0:	b8 ff ff ff ff       	mov    $0xffffffff,%eax
+ 6d5:	c5 f8 77             	vzeroupper
+ 6d8:	e9 10 fd ff ff       	jmp    3ed <sdm_avx2_block+0x2ed>
+ 6dd:	0f 1f 00             	nopl   (%rax)
+ 6e0:	41 8b 85 98 00 00 00 	mov    0x98(%r13),%eax
+ 6e7:	c4 81 7b 10 2c e2    	vmovsd (%r10,%r12,8),%xmm5
+ 6ed:	4d 8b 7d 08          	mov    0x8(%r13),%r15
+ 6f1:	83 f0 01             	xor    $0x1,%eax
+ 6f4:	48 c1 e0 06          	shl    $0x6,%rax
+ 6f8:	c5 f9 2e d8          	vucomisd %xmm0,%xmm3
+ 6fc:	4d 8d 74 05 10       	lea    0x10(%r13,%rax,1),%r14
+ 701:	0f 83 84 fc ff ff    	jae    38b <sdm_avx2_block+0x28b>
+ 707:	4c 89 fa             	mov    %r15,%rdx
+ 70a:	e9 1c fd ff ff       	jmp    42b <sdm_avx2_block+0x32b>
+ 70f:	49 8b 47 08          	mov    0x8(%r15),%rax
+ 713:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+ 717:	0f 84 80 00 00 00    	je     79d <sdm_avx2_block+0x69d>
+ 71d:	48 83 c0 01          	add    $0x1,%rax
+ 721:	49 89 47 08          	mov    %rax,0x8(%r15)
+ 725:	41 3b 4f 54          	cmp    0x54(%r15),%ecx
+ 729:	73 04                	jae    72f <sdm_avx2_block+0x62f>
+ 72b:	41 89 4f 54          	mov    %ecx,0x54(%r15)
+ 72f:	41 39 4f 58          	cmp    %ecx,0x58(%r15)
+ 733:	73 04                	jae    739 <sdm_avx2_block+0x639>
+ 735:	41 89 4f 58          	mov    %ecx,0x58(%r15)
+ 739:	83 e9 04             	sub    $0x4,%ecx
+ 73c:	83 f9 14             	cmp    $0x14,%ecx
+ 73f:	0f 86 98 fe ff ff    	jbe    5dd <sdm_avx2_block+0x4dd>
+ 745:	49 8b 47 10          	mov    0x10(%r15),%rax
+ 749:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+ 74d:	0f 84 bb 00 00 00    	je     80e <sdm_avx2_block+0x70e>
+ 753:	48 83 c0 01          	add    $0x1,%rax
+ 757:	49 89 47 10          	mov    %rax,0x10(%r15)
+ 75b:	e9 7d fe ff ff       	jmp    5dd <sdm_avx2_block+0x4dd>
+ 760:	49 8b 85 a0 00 00 00 	mov    0xa0(%r13),%rax
+ 767:	41 c7 47 5c 01 00 00 00 	movl   $0x1,0x5c(%r15)
+ 76f:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+ 773:	0f 85 b6 fe ff ff    	jne    62f <sdm_avx2_block+0x52f>
+ 779:	41 c7 47 5c 01 00 00 00 	movl   $0x1,0x5c(%r15)
+ 781:	e9 b4 fe ff ff       	jmp    63a <sdm_avx2_block+0x53a>
+ 786:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+ 78a:	0f 85 bf fd ff ff    	jne    54f <sdm_avx2_block+0x44f>
+ 790:	41 c7 47 5c 01 00 00 00 	movl   $0x1,0x5c(%r15)
+ 798:	e9 ba fd ff ff       	jmp    557 <sdm_avx2_block+0x457>
+ 79d:	41 c7 47 5c 01 00 00 00 	movl   $0x1,0x5c(%r15)
+ 7a5:	e9 7b ff ff ff       	jmp    725 <sdm_avx2_block+0x625>
+ 7aa:	83 f8 ff             	cmp    $0xffffffff,%eax
+ 7ad:	74 6c                	je     81b <sdm_avx2_block+0x71b>
+ 7af:	83 c0 01             	add    $0x1,%eax
+ 7b2:	41 89 47 48          	mov    %eax,0x48(%r15)
+ 7b6:	e9 41 fe ff ff       	jmp    5fc <sdm_avx2_block+0x4fc>
+ 7bb:	4c 8b a5 70 ff ff ff 	mov    -0x90(%rbp),%r12
+ 7c2:	4c 89 fa             	mov    %r15,%rdx
+ 7c5:	31 c9                	xor    %ecx,%ecx
+ 7c7:	e9 56 fc ff ff       	jmp    422 <sdm_avx2_block+0x322>
+ 7cc:	49 8b 45 08          	mov    0x8(%r13),%rax
+ 7d0:	48 85 c0             	test   %rax,%rax
+ 7d3:	0f 84 7e fc ff ff    	je     457 <sdm_avx2_block+0x357>
+ 7d9:	48 8b 50 20          	mov    0x20(%rax),%rdx
+ 7dd:	48 85 d2             	test   %rdx,%rdx
+ 7e0:	75 4b                	jne    82d <sdm_avx2_block+0x72d>
+ 7e2:	49 8b 8d a0 00 00 00 	mov    0xa0(%r13),%rcx
+ 7e9:	48 89 48 28          	mov    %rcx,0x28(%rax)
+ 7ed:	48 83 c2 01          	add    $0x1,%rdx
+ 7f1:	48 89 50 20          	mov    %rdx,0x20(%rax)
+ 7f5:	e9 5d fc ff ff       	jmp    457 <sdm_avx2_block+0x357>
+ 7fa:	b8 fc ff ff ff       	mov    $0xfffffffc,%eax
+ 7ff:	e9 e9 fb ff ff       	jmp    3ed <sdm_avx2_block+0x2ed>
+ 804:	b8 fd ff ff ff       	mov    $0xfffffffd,%eax
+ 809:	e9 df fb ff ff       	jmp    3ed <sdm_avx2_block+0x2ed>
+ 80e:	41 c7 47 5c 01 00 00 00 	movl   $0x1,0x5c(%r15)
+ 816:	e9 c2 fd ff ff       	jmp    5dd <sdm_avx2_block+0x4dd>
+ 81b:	41 c7 47 5c 01 00 00 00 	movl   $0x1,0x5c(%r15)
+ 823:	b8 ff ff ff ff       	mov    $0xffffffff,%eax
+ 828:	e9 cf fd ff ff       	jmp    5fc <sdm_avx2_block+0x4fc>
+ 82d:	48 83 fa ff          	cmp    $0xffffffffffffffff,%rdx
+ 831:	75 ba                	jne    7ed <sdm_avx2_block+0x6ed>
+ 833:	c7 40 5c 01 00 00 00 	movl   $0x1,0x5c(%rax)
+ 83a:	e9 18 fc ff ff       	jmp    457 <sdm_avx2_block+0x357>
+ 83f:	e8 00 00 00 00       	call   844 <sdm_avx2_block+0x744>	840: R_X86_64_PLT32	__stack_chk_fail-0x4
+ 844:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 cs nopw 0x0(%rax,%rax,1)
+ 84f:	90                   	nop
+
+0000000000000850 <fir_avx2_block>:
+ 850:	55                   	push   %rbp
+ 851:	48 89 e5             	mov    %rsp,%rbp
+ 854:	41 57                	push   %r15
+ 856:	41 56                	push   %r14
+ 858:	41 55                	push   %r13
+ 85a:	49 89 d5             	mov    %rdx,%r13
+ 85d:	48 89 f2             	mov    %rsi,%rdx
+ 860:	41 54                	push   %r12
+ 862:	48 d1 ea             	shr    $1,%rdx
+ 865:	49 89 fc             	mov    %rdi,%r12
+ 868:	53                   	push   %rbx
+ 869:	44 89 cb             	mov    %r9d,%ebx
+ 86c:	48 83 e4 e0          	and    $0xffffffffffffffe0,%rsp
+ 870:	48 83 ec 60          	sub    $0x60,%rsp
+ 874:	48 89 74 24 50       	mov    %rsi,0x50(%rsp)
+ 879:	48 89 4c 24 58       	mov    %rcx,0x58(%rsp)
+ 87e:	48 83 f9 03          	cmp    $0x3,%rcx
+ 882:	0f 86 0c 03 00 00    	jbe    b94 <fir_avx2_block+0x344>
+ 888:	48 89 f7             	mov    %rsi,%rdi
+ 88b:	48 83 e9 04          	sub    $0x4,%rcx
+ 88f:	4c 8b 4d 10          	mov    0x10(%rbp),%r9
+ 893:	4d 89 eb             	mov    %r13,%r11
+ 896:	48 8d 34 d5 00 00 00 00 	lea    0x0(,%rdx,8),%rsi
+ 89e:	49 8d 04 34          	lea    (%r12,%rsi,1),%rax
+ 8a2:	c4 c2 7d 19 04 34    	vbroadcastsd (%r12,%rsi,1),%ymm0
+ 8a8:	48 89 44 24 48       	mov    %rax,0x48(%rsp)
+ 8ad:	48 89 c8             	mov    %rcx,%rax
+ 8b0:	48 c1 e8 02          	shr    $0x2,%rax
+ 8b4:	48 c1 e0 05          	shl    $0x5,%rax
+ 8b8:	4d 8d 7c 01 20       	lea    0x20(%r9,%rax,1),%r15
+ 8bd:	49 83 f8 02          	cmp    $0x2,%r8
+ 8c1:	0f 85 d1 00 00 00    	jne    998 <fir_avx2_block+0x148>
+ 8c7:	4c 89 e8             	mov    %r13,%rax
+ 8ca:	48 83 ff 01          	cmp    $0x1,%rdi
+ 8ce:	0f 85 c4 00 00 00    	jne    998 <fir_avx2_block+0x148>
+ 8d4:	48 8b 54 24 48       	mov    0x48(%rsp),%rdx
+ 8d9:	c5 fb 10 48 20       	vmovsd 0x20(%rax),%xmm1
+ 8de:	c5 fb 10 18          	vmovsd (%rax),%xmm3
+ 8e2:	49 83 c1 20          	add    $0x20,%r9
+ 8e6:	c5 f1 16 48 30       	vmovhpd 0x30(%rax),%xmm1,%xmm1
+ 8eb:	c5 e1 16 58 10       	vmovhpd 0x10(%rax),%xmm3,%xmm3
+ 8f0:	c4 e3 65 18 d9 01    	vinsertf128 $0x1,%xmm1,%ymm3,%ymm3
+ 8f6:	c5 e5 59 d8          	vmulpd %ymm0,%ymm3,%ymm3
+ 8fa:	c4 c1 7d 11 59 e0    	vmovupd %ymm3,-0x20(%r9)
+ 900:	4d 39 cf             	cmp    %r9,%r15
+ 903:	74 1d                	je     922 <fir_avx2_block+0xd2>
+ 905:	49 83 c3 40          	add    $0x40,%r11
+ 909:	c4 e2 7d 19 02       	vbroadcastsd (%rdx),%ymm0
+ 90e:	4c 89 d8             	mov    %r11,%rax
+ 911:	eb c6                	jmp    8d9 <fir_avx2_block+0x89>
+ 913:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ 918:	48 8b 4c 24 20       	mov    0x20(%rsp),%rcx
+ 91d:	4c 8b 6c 24 18       	mov    0x18(%rsp),%r13
+ 922:	48 83 e1 fc          	and    $0xfffffffffffffffc,%rcx
+ 926:	4c 8d 79 04          	lea    0x4(%rcx),%r15
+ 92a:	c5 f8 77             	vzeroupper
+ 92d:	48 8b 44 24 58       	mov    0x58(%rsp),%rax
+ 932:	49 39 c7             	cmp    %rax,%r15
+ 935:	73 52                	jae    989 <fir_avx2_block+0x139>
+ 937:	4a 8d 14 c5 00 00 00 00 	lea    0x0(,%r8,8),%rdx
+ 93f:	4c 89 f8             	mov    %r15,%rax
+ 942:	4c 89 64 24 48       	mov    %r12,0x48(%rsp)
+ 947:	48 0f af c2          	imul   %rdx,%rax
+ 94b:	4d 8d 74 05 00       	lea    0x0(%r13,%rax,1),%r14
+ 950:	49 89 d5             	mov    %rdx,%r13
+ 953:	4d 89 f4             	mov    %r14,%r12
+ 956:	41 89 de             	mov    %ebx,%r14d
+ 959:	4c 89 fb             	mov    %r15,%rbx
+ 95c:	4c 8b 7d 10          	mov    0x10(%rbp),%r15
+ 960:	48 8b 74 24 50       	mov    0x50(%rsp),%rsi
+ 965:	48 8b 7c 24 48       	mov    0x48(%rsp),%rdi
+ 96a:	4c 89 e2             	mov    %r12,%rdx
+ 96d:	44 89 f1             	mov    %r14d,%ecx
+ 970:	4d 01 ec             	add    %r13,%r12
+ 973:	e8 00 00 00 00       	call   978 <fir_avx2_block+0x128>	974: R_X86_64_PLT32	lsx_dsd_fir_scalar-0x4
+ 978:	c4 c1 7b 11 04 df    	vmovsd %xmm0,(%r15,%rbx,8)
+ 97e:	48 83 c3 01          	add    $0x1,%rbx
+ 982:	48 39 5c 24 58       	cmp    %rbx,0x58(%rsp)
+ 987:	75 d7                	jne    960 <fir_avx2_block+0x110>
+ 989:	48 8d 65 d8          	lea    -0x28(%rbp),%rsp
+ 98d:	5b                   	pop    %rbx
+ 98e:	41 5c                	pop    %r12
+ 990:	41 5d                	pop    %r13
+ 992:	41 5e                	pop    %r14
+ 994:	41 5f                	pop    %r15
+ 996:	5d                   	pop    %rbp
+ 997:	c3                   	ret
+ 998:	4a 8d 04 02          	lea    (%rdx,%r8,1),%rax
+ 99c:	4d 89 c6             	mov    %r8,%r14
+ 99f:	4d 89 c2             	mov    %r8,%r10
+ 9a2:	48 89 4c 24 20       	mov    %rcx,0x20(%rsp)
+ 9a7:	48 89 44 24 38       	mov    %rax,0x38(%rsp)
+ 9ac:	4c 01 c0             	add    %r8,%rax
+ 9af:	4b 8d 3c 40          	lea    (%r8,%r8,2),%rdi
+ 9b3:	49 c1 e6 05          	shl    $0x5,%r14
+ 9b7:	48 89 44 24 30       	mov    %rax,0x30(%rsp)
+ 9bc:	4c 01 c0             	add    %r8,%rax
+ 9bf:	4c 01 ee             	add    %r13,%rsi
+ 9c2:	49 c1 e2 04          	shl    $0x4,%r10
+ 9c6:	48 89 44 24 28       	mov    %rax,0x28(%rsp)
+ 9cb:	48 8b 44 24 50       	mov    0x50(%rsp),%rax
+ 9d0:	48 c1 e7 03          	shl    $0x3,%rdi
+ 9d4:	c5 d9 57 e4          	vxorpd %xmm4,%xmm4,%xmm4
+ 9d8:	4c 89 6c 24 18       	mov    %r13,0x18(%rsp)
+ 9dd:	48 8d 04 c5 10 00 00 00 	lea    0x10(,%rax,8),%rax
+ 9e5:	48 89 44 24 40       	mov    %rax,0x40(%rsp)
+ 9ea:	4c 89 e8             	mov    %r13,%rax
+ 9ed:	49 83 f8 01          	cmp    $0x1,%r8
+ 9f1:	0f 84 78 01 00 00    	je     b6f <fir_avx2_block+0x31f>
+ 9f7:	66 0f 1f 84 00 00 00 00 00 	nopw   0x0(%rax,%rax,1)
+ a00:	49 83 f8 02          	cmp    $0x2,%r8
+ a04:	0f 84 76 01 00 00    	je     b80 <fir_avx2_block+0x330>
+ a0a:	48 8b 4c 24 30       	mov    0x30(%rsp),%rcx
+ a0f:	c5 fb 10 1e          	vmovsd (%rsi),%xmm3
+ a13:	c5 fb 10 0c c8       	vmovsd (%rax,%rcx,8),%xmm1
+ a18:	48 8b 4c 24 28       	mov    0x28(%rsp),%rcx
+ a1d:	c5 f1 16 0c c8       	vmovhpd (%rax,%rcx,8),%xmm1,%xmm1
+ a22:	48 8b 4c 24 38       	mov    0x38(%rsp),%rcx
+ a27:	c5 e1 16 1c c8       	vmovhpd (%rax,%rcx,8),%xmm3,%xmm3
+ a2c:	c4 e3 65 18 d9 01    	vinsertf128 $0x1,%xmm1,%ymm3,%ymm3
+ a32:	c5 e5 59 d8          	vmulpd %ymm0,%ymm3,%ymm3
+ a36:	48 85 d2             	test   %rdx,%rdx
+ a39:	0f 84 01 01 00 00    	je     b40 <fir_avx2_block+0x2f0>
+ a3f:	48 8b 44 24 40       	mov    0x40(%rsp),%rax
+ a44:	4d 89 e5             	mov    %r12,%r13
+ a47:	4a 8d 0c 18          	lea    (%rax,%r11,1),%rcx
+ a4b:	4c 89 d8             	mov    %r11,%rax
+ a4e:	eb 74                	jmp    ac4 <fir_avx2_block+0x274>
+ a50:	49 83 f8 01          	cmp    $0x1,%r8
+ a54:	0f 84 ce 00 00 00    	je     b28 <fir_avx2_block+0x2d8>
+ a5a:	49 83 f8 02          	cmp    $0x2,%r8
+ a5e:	0f 84 9c 00 00 00    	je     b00 <fir_avx2_block+0x2b0>
+ a64:	c4 a1 7b 10 04 10    	vmovsd (%rax,%r10,1),%xmm0
+ a6a:	c5 fb 10 08          	vmovsd (%rax),%xmm1
+ a6e:	c4 a1 7b 10 6c 11 e8 	vmovsd -0x18(%rcx,%r10,1),%xmm5
+ a75:	c5 f9 16 04 38       	vmovhpd (%rax,%rdi,1),%xmm0,%xmm0
+ a7a:	c4 a1 71 16 0c c0    	vmovhpd (%rax,%r8,8),%xmm1,%xmm1
+ a80:	c4 e3 75 18 c8 01    	vinsertf128 $0x1,%xmm0,%ymm1,%ymm1
+ a86:	c5 fb 10 41 e8       	vmovsd -0x18(%rcx),%xmm0
+ a8b:	c5 d1 16 6c 39 e8    	vmovhpd -0x18(%rcx,%rdi,1),%xmm5,%xmm5
+ a91:	c4 a1 79 16 44 c1 e8 	vmovhpd -0x18(%rcx,%r8,8),%xmm0,%xmm0
+ a98:	c4 e3 7d 18 c5 01    	vinsertf128 $0x1,%xmm5,%ymm0,%ymm0
+ a9e:	c5 fd 58 c1          	vaddpd %ymm1,%ymm0,%ymm0
+ aa2:	48 83 c0 08          	add    $0x8,%rax
+ aa6:	49 83 c5 08          	add    $0x8,%r13
+ aaa:	48 83 e9 08          	sub    $0x8,%rcx
+ aae:	c4 e2 7d 19 d2       	vbroadcastsd %xmm2,%ymm2
+ ab3:	c5 fd 59 c2          	vmulpd %ymm2,%ymm0,%ymm0
+ ab7:	c5 e5 58 d8          	vaddpd %ymm0,%ymm3,%ymm3
+ abb:	48 39 c6             	cmp    %rax,%rsi
+ abe:	0f 84 7c 00 00 00    	je     b40 <fir_avx2_block+0x2f0>
+ ac4:	c4 c1 7b 10 55 00    	vmovsd 0x0(%r13),%xmm2
+ aca:	85 db                	test   %ebx,%ebx
+ acc:	74 82                	je     a50 <fir_avx2_block+0x200>
+ ace:	c5 f9 2e d4          	vucomisd %xmm4,%xmm2
+ ad2:	0f 8a 78 ff ff ff    	jp     a50 <fir_avx2_block+0x200>
+ ad8:	0f 85 72 ff ff ff    	jne    a50 <fir_avx2_block+0x200>
+ ade:	48 83 c0 08          	add    $0x8,%rax
+ ae2:	49 83 c5 08          	add    $0x8,%r13
+ ae6:	48 83 e9 08          	sub    $0x8,%rcx
+ aea:	48 39 f0             	cmp    %rsi,%rax
+ aed:	74 51                	je     b40 <fir_avx2_block+0x2f0>
+ aef:	c4 c1 7b 10 55 00    	vmovsd 0x0(%r13),%xmm2
+ af5:	c5 f9 2e d4          	vucomisd %xmm4,%xmm2
+ af9:	7b dd                	jnp    ad8 <fir_avx2_block+0x288>
+ afb:	e9 50 ff ff ff       	jmp    a50 <fir_avx2_block+0x200>
+ b00:	c5 fd 10 08          	vmovupd (%rax),%ymm1
+ b04:	c5 fd 10 41 e0       	vmovupd -0x20(%rcx),%ymm0
+ b09:	c5 f5 14 48 20       	vunpcklpd 0x20(%rax),%ymm1,%ymm1
+ b0e:	c5 fd 15 01          	vunpckhpd (%rcx),%ymm0,%ymm0
+ b12:	c4 e3 fd 01 c9 d8    	vpermpd $0xd8,%ymm1,%ymm1
+ b18:	c4 e3 fd 01 c0 d8    	vpermpd $0xd8,%ymm0,%ymm0
+ b1e:	e9 7b ff ff ff       	jmp    a9e <fir_avx2_block+0x24e>
+ b23:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ b28:	c5 fd 10 08          	vmovupd (%rax),%ymm1
+ b2c:	c5 fd 10 41 e8       	vmovupd -0x18(%rcx),%ymm0
+ b31:	e9 68 ff ff ff       	jmp    a9e <fir_avx2_block+0x24e>
+ b36:	66 2e 0f 1f 84 00 00 00 00 00 	cs nopw 0x0(%rax,%rax,1)
+ b40:	c4 c1 7d 11 19       	vmovupd %ymm3,(%r9)
+ b45:	49 83 c1 20          	add    $0x20,%r9
+ b49:	4d 01 f3             	add    %r14,%r11
+ b4c:	4c 01 f6             	add    %r14,%rsi
+ b4f:	4d 39 f9             	cmp    %r15,%r9
+ b52:	0f 84 c0 fd ff ff    	je     918 <fir_avx2_block+0xc8>
+ b58:	48 8b 4c 24 48       	mov    0x48(%rsp),%rcx
+ b5d:	4c 89 d8             	mov    %r11,%rax
+ b60:	c4 e2 7d 19 01       	vbroadcastsd (%rcx),%ymm0
+ b65:	49 83 f8 01          	cmp    $0x1,%r8
+ b69:	0f 85 91 fe ff ff    	jne    a00 <fir_avx2_block+0x1b0>
+ b6f:	c5 fd 10 1e          	vmovupd (%rsi),%ymm3
+ b73:	e9 ba fe ff ff       	jmp    a32 <fir_avx2_block+0x1e2>
+ b78:	0f 1f 84 00 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+ b80:	c5 fd 10 1e          	vmovupd (%rsi),%ymm3
+ b84:	c5 e5 14 5e 20       	vunpcklpd 0x20(%rsi),%ymm3,%ymm3
+ b89:	c4 e3 fd 01 db d8    	vpermpd $0xd8,%ymm3,%ymm3
+ b8f:	e9 9e fe ff ff       	jmp    a32 <fir_avx2_block+0x1e2>
+ b94:	45 31 ff             	xor    %r15d,%r15d
+ b97:	e9 91 fd ff ff       	jmp    92d <fir_avx2_block+0xdd>

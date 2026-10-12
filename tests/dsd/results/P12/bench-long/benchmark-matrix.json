@@ -1,0 +1,364 @@
+{
+  "comparison": {
+    "dsd128-2ch": {
+      "decode": {
+        "avx1": {
+          "max_rss_kib": 2520,
+          "median_cpu_seconds": 0.18,
+          "median_wall_seconds": 0.193883265
+        },
+        "avx2": {
+          "max_rss_kib": 2520,
+          "median_cpu_seconds": 0.19,
+          "median_wall_seconds": 0.198882585
+        },
+        "scalar": {
+          "max_rss_kib": 2480,
+          "median_cpu_seconds": 0.19,
+          "median_wall_seconds": 0.197712456
+        },
+        "sse2": {
+          "max_rss_kib": 2520,
+          "median_cpu_seconds": 0.18,
+          "median_wall_seconds": 0.193805394
+        }
+      },
+      "encode": {
+        "avx1": {
+          "max_rss_kib": 3860,
+          "median_cpu_seconds": 0.04,
+          "median_wall_seconds": 0.048275663
+        },
+        "avx2": {
+          "max_rss_kib": 3868,
+          "median_cpu_seconds": 0.04,
+          "median_wall_seconds": 0.047770473
+        },
+        "scalar": {
+          "max_rss_kib": 3864,
+          "median_cpu_seconds": 0.04,
+          "median_wall_seconds": 0.05163961
+        },
+        "sse2": {
+          "max_rss_kib": 3860,
+          "median_cpu_seconds": 0.04,
+          "median_wall_seconds": 0.046813392
+        }
+      }
+    },
+    "dsd256-2ch": {
+      "decode": {
+        "avx1": {
+          "max_rss_kib": 2520,
+          "median_cpu_seconds": 0.38,
+          "median_wall_seconds": 0.388178544
+        },
+        "avx2": {
+          "max_rss_kib": 2520,
+          "median_cpu_seconds": 0.38,
+          "median_wall_seconds": 0.389723547
+        },
+        "scalar": {
+          "max_rss_kib": 2480,
+          "median_cpu_seconds": 0.38,
+          "median_wall_seconds": 0.38759254
+        },
+        "sse2": {
+          "max_rss_kib": 2520,
+          "median_cpu_seconds": 0.38,
+          "median_wall_seconds": 0.384672943
+        }
+      },
+      "encode": {
+        "avx1": {
+          "max_rss_kib": 4624,
+          "median_cpu_seconds": 0.08,
+          "median_wall_seconds": 0.092778801
+        },
+        "avx2": {
+          "max_rss_kib": 4624,
+          "median_cpu_seconds": 0.08,
+          "median_wall_seconds": 0.088765709
+        },
+        "scalar": {
+          "max_rss_kib": 4616,
+          "median_cpu_seconds": 0.09,
+          "median_wall_seconds": 0.098611491
+        },
+        "sse2": {
+          "max_rss_kib": 4620,
+          "median_cpu_seconds": 0.08,
+          "median_wall_seconds": 0.089110053
+        }
+      }
+    },
+    "dsd64-2ch": {
+      "decode": {
+        "avx1": {
+          "max_rss_kib": 2184,
+          "median_cpu_seconds": 0.1,
+          "median_wall_seconds": 0.102470363
+        },
+        "avx2": {
+          "max_rss_kib": 2228,
+          "median_cpu_seconds": 0.09,
+          "median_wall_seconds": 0.100498542
+        },
+        "scalar": {
+          "max_rss_kib": 2228,
+          "median_cpu_seconds": 0.09,
+          "median_wall_seconds": 0.100125941
+        },
+        "sse2": {
+          "max_rss_kib": 2228,
+          "median_cpu_seconds": 0.09,
+          "median_wall_seconds": 0.098366522
+        }
+      },
+      "encode": {
+        "avx1": {
+          "max_rss_kib": 3612,
+          "median_cpu_seconds": 0.02,
+          "median_wall_seconds": 0.027007704
+        },
+        "avx2": {
+          "max_rss_kib": 3624,
+          "median_cpu_seconds": 0.02,
+          "median_wall_seconds": 0.025120952
+        },
+        "scalar": {
+          "max_rss_kib": 3604,
+          "median_cpu_seconds": 0.02,
+          "median_wall_seconds": 0.027710456
+        },
+        "sse2": {
+          "max_rss_kib": 3608,
+          "median_cpu_seconds": 0.02,
+          "median_wall_seconds": 0.025443809
+        }
+      }
+    },
+    "kernel": {
+      "fir-block": {
+        "avx1": {
+          "median_cpu_ns_per_frame": 25.573,
+          "speedup_over_scalar": 1.8932467837172016
+        },
+        "avx2": {
+          "median_cpu_ns_per_frame": 22.768,
+          "speedup_over_scalar": 2.1264933239634574
+        },
+        "scalar": {
+          "median_cpu_ns_per_frame": 48.416,
+          "speedup_over_scalar": null
+        },
+        "sse2": {
+          "median_cpu_ns_per_frame": 32.016,
+          "speedup_over_scalar": 1.5122438780609695
+        }
+      },
+      "fir-single": {
+        "avx1": {
+          "median_cpu_ns_per_frame": 15.129,
+          "speedup_over_scalar": 3.2973759005882743
+        },
+        "avx2": {
+          "median_cpu_ns_per_frame": 13.79,
+          "speedup_over_scalar": 3.617548948513416
+        },
+        "scalar": {
+          "median_cpu_ns_per_frame": 49.886,
+          "speedup_over_scalar": null
+        },
+        "sse2": {
+          "median_cpu_ns_per_frame": 29.22,
+          "speedup_over_scalar": 1.7072553045859002
+        }
+      },
+      "sdm": {
+        "avx1": {
+          "median_cpu_ns_per_frame": 21.971,
+          "speedup_over_scalar": 1.081106913658914
+        },
+        "avx2": {
+          "median_cpu_ns_per_frame": 19.77,
+          "speedup_over_scalar": 1.2014668689934245
+        },
+        "scalar": {
+          "median_cpu_ns_per_frame": 23.753,
+          "speedup_over_scalar": null
+        },
+        "sse2": {
+          "median_cpu_ns_per_frame": 20.111,
+          "speedup_over_scalar": 1.1810949231763712
+        }
+      }
+    }
+  },
+  "config": {
+    "decode_seconds": 0.5,
+    "encode_seconds": 0.125,
+    "include_multichannel": false,
+    "kernel_frames": 1000000,
+    "repetitions": 15,
+    "tiers": [
+      "scalar",
+      "sse2",
+      "avx1",
+      "avx2"
+    ]
+  },
+  "cpu_features": "recorded per-object ISA audit",
+  "errors": [],
+  "executable_sha256": {
+    "src/sox_ng": "996cc82d365697c04d8aa9e69f44a992d64b171e2aa8f69ad3184c29186b9121",
+    "test/dsd_test_p11": "014ff4d83f1d6f3626131e6e6868a5ef65b429fa3ea1890a52b2762669e172a8",
+    "test/sox_p10_candidate": "5a3b90079dd1ea645ef693a96a1d393787a2d6fe5eef54d7888c2f83af427b13"
+  },
+  "host": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "machine": "x86_64",
+  "runs": [
+    {
+      "command": [
+        "/opt/pyvenv/bin/python3",
+        "tests/dsd/bench_p11.py",
+        "--phase",
+        "P12",
+        "--unit",
+        "test/dsd_test_p11",
+        "--results",
+        "tests/dsd/results/P12/bench-long/kernel",
+        "--repetitions",
+        "15",
+        "--frames",
+        "1000000",
+        "--tiers",
+        "scalar",
+        "sse2",
+        "avx1",
+        "avx2"
+      ],
+      "evidence": "tests/dsd/results/P12/bench-long/kernel/kernel-timing.json",
+      "exit": 0,
+      "name": "kernel",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "P12 fir-single [('scalar', 49.89), ('sse2', 29.22), ('avx1', 15.13), ('avx2', 13.79)]\nP12 fir-block [('scalar', 48.42), ('sse2', 32.02), ('avx1', 25.57), ('avx2', 22.77)]\nP12 sdm [('scalar', 23.75), ('sse2', 20.11), ('avx1', 21.97), ('avx2', 19.77)]\nP12 benchmark PASS repetitions 15\n"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/python3",
+        "tests/dsd/bench_p11_e2e.py",
+        "--phase",
+        "P12",
+        "--native-rate",
+        "2822400",
+        "--channels",
+        "2",
+        "--sox",
+        "src/sox_ng",
+        "--candidate",
+        "test/sox_p10_candidate",
+        "--results",
+        "tests/dsd/results/P12/bench-long/dsd64-2ch",
+        "--repetitions",
+        "15",
+        "--warmups",
+        "2",
+        "--decode-seconds",
+        "0.5",
+        "--encode-seconds",
+        "0.125",
+        "--tiers",
+        "scalar",
+        "sse2",
+        "avx1",
+        "avx2"
+      ],
+      "evidence": "tests/dsd/results/P12/bench-long/dsd64-2ch/forced-cli-timing.json",
+      "exit": 0,
+      "name": "dsd64-2ch",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "P12 E2E decode [('scalar', 0.10013), ('sse2', 0.09837), ('avx1', 0.10247), ('avx2', 0.1005)]\nP12 E2E encode [('scalar', 0.02771), ('sse2', 0.02544), ('avx1', 0.02701), ('avx2', 0.02512)]\nP12 E2E PASS\n"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/python3",
+        "tests/dsd/bench_p11_e2e.py",
+        "--phase",
+        "P12",
+        "--native-rate",
+        "5644800",
+        "--channels",
+        "2",
+        "--sox",
+        "src/sox_ng",
+        "--candidate",
+        "test/sox_p10_candidate",
+        "--results",
+        "tests/dsd/results/P12/bench-long/dsd128-2ch",
+        "--repetitions",
+        "15",
+        "--warmups",
+        "2",
+        "--decode-seconds",
+        "0.5",
+        "--encode-seconds",
+        "0.125",
+        "--tiers",
+        "scalar",
+        "sse2",
+        "avx1",
+        "avx2"
+      ],
+      "evidence": "tests/dsd/results/P12/bench-long/dsd128-2ch/forced-cli-timing.json",
+      "exit": 0,
+      "name": "dsd128-2ch",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "P12 E2E decode [('scalar', 0.19771), ('sse2', 0.19381), ('avx1', 0.19388), ('avx2', 0.19888)]\nP12 E2E encode [('scalar', 0.05164), ('sse2', 0.04681), ('avx1', 0.04828), ('avx2', 0.04777)]\nP12 E2E PASS\n"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/python3",
+        "tests/dsd/bench_p11_e2e.py",
+        "--phase",
+        "P12",
+        "--native-rate",
+        "11289600",
+        "--channels",
+        "2",
+        "--sox",
+        "src/sox_ng",
+        "--candidate",
+        "test/sox_p10_candidate",
+        "--results",
+        "tests/dsd/results/P12/bench-long/dsd256-2ch",
+        "--repetitions",
+        "15",
+        "--warmups",
+        "2",
+        "--decode-seconds",
+        "0.5",
+        "--encode-seconds",
+        "0.125",
+        "--tiers",
+        "scalar",
+        "sse2",
+        "avx1",
+        "avx2"
+      ],
+      "evidence": "tests/dsd/results/P12/bench-long/dsd256-2ch/forced-cli-timing.json",
+      "exit": 0,
+      "name": "dsd256-2ch",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "P12 E2E decode [('scalar', 0.38759), ('sse2', 0.38467), ('avx1', 0.38818), ('avx2', 0.38972)]\nP12 E2E encode [('scalar', 0.09861), ('sse2', 0.08911), ('avx1', 0.09278), ('avx2', 0.08877)]\nP12 E2E PASS\n"
+    }
+  ],
+  "schema": "P12/benchmark-matrix/1",
+  "status": "PASS",
+  "unrun": [],
+  "warning": "Host timings only, not evidence for a universal dispatch policy"
+}

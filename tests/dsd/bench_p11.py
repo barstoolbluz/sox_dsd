@@ -50,6 +50,8 @@ def main():
     ap.add_argument('--results',type=Path,required=True)
     ap.add_argument('--frames',type=int,default=1000000)
     ap.add_argument('--repetitions',type=int,default=15)
+    ap.add_argument('--phase',default='P11')
+    ap.add_argument('--tiers',nargs='+',default=list(TIERS))
     a=ap.parse_args()
     if not 16384<=a.frames<=40000000 or not 1<=a.repetitions<=1000:
         ap.error('out-of-range frames or repetitions')
@@ -57,11 +59,12 @@ def main():
     if not a.unit.is_file():ap.error('missing unit executable')
     sources=('src/dsd_dispatch.c','src/dsd_kernels_scalar.c',
              'src/dsd_kernels_sse2.c','src/dsd_kernels_avx1.c',
+             *(('src/dsd_kernels_avx2.c',) if a.phase=='P12' else ()),
              'tests/dsd/test_p11.c')
-    report=dict(schema='P11/kernel-timing/1',host=host(),
+    report=dict(schema=f'{a.phase}/kernel-timing/1',host=host(),
         source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources},
         executable_sha256=hashlib.sha256(a.unit.read_bytes()).hexdigest(),
-        config=dict(frames=a.frames,repetitions=a.repetitions,modes=MODES,tiers=TIERS,
+        config=dict(frames=a.frames,repetitions=a.repetitions,modes=MODES,tiers=a.tiers,
                     random_seed=11,guards_and_monitors_active_for_sdm=True),
         raw=[],summary={},errors=[],unrun=[],
         qualification='CPU timing on current host only; not ISA-wide preference evidence')
@@ -70,7 +73,7 @@ def main():
     for mode in MODES:
         # Warm-up each tier without contaminating timed repeats.
         available=[]
-        for tier in TIERS:
+        for tier in a.tiers:
             cmd=[str(a.unit),'--bench',tier,mode,str(a.frames)]
             p=subprocess.run(cmd,capture_output=True,text=True,cwd=ROOT,timeout=120)
             if p.returncode==2:
@@ -116,7 +119,7 @@ def main():
     for mode in MODES:
         scalar=report['summary'][mode].get('scalar')
         if scalar:
-            for tier in TIERS[1:]:
+            for tier in a.tiers[1:]:
                 candidate=report['summary'][mode].get(tier)
                 if candidate:
                     candidate['speedup_over_scalar']=scalar['median_cpu_ns_per_frame']/candidate['median_cpu_ns_per_frame']
@@ -124,9 +127,9 @@ def main():
         'INCOMPLETE' if report['unrun'] and not report['errors'] else 'FAIL')
     atomic(output,report)
     for mode in MODES:
-        print('P11',mode,[(tier,round(row['median_cpu_ns_per_frame'],2))
+        print(a.phase,mode,[(tier,round(row['median_cpu_ns_per_frame'],2))
               for tier,row in report['summary'][mode].items()],flush=True)
-    print('P11 benchmark',report['status'],'repetitions',a.repetitions)
+    print(a.phase,'benchmark',report['status'],'repetitions',a.repetitions)
     return 0 if report['status']=='PASS' else 2
 
 if __name__=='__main__':raise SystemExit(main())
