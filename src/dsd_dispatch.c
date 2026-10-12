@@ -55,6 +55,12 @@ unsigned lsx_dsd_features_probe(const lsx_dsd_cpu_probe *p)
   if ((features & LSX_DSD_CPU_AVX1) && maxleaf >= 7 &&
       p->cpuid(p->opaque, 7, 0, regs) && (regs[1] & (1u << 5)))
     features |= LSX_DSD_CPU_AVX2;
+  /* ZMM/opmask state is independent of AVX2: AVX-512F only needs leaf-7
+   * bit 16 and XCR0 0xE6. Do not infer DQ/BW/VL or FMA availability. */
+  if ((features & LSX_DSD_CPU_AVX1) && (xcr0 & UINT64_C(0xe6)) == UINT64_C(0xe6) &&
+      maxleaf >= 7 && p->cpuid(p->opaque, 7, 0, regs) &&
+      (regs[1] & (1u << 16)))
+    features |= LSX_DSD_CPU_AVX512F;
   return features;
 }
 
@@ -101,6 +107,13 @@ int lsx_dsd_kernel_select_features(enum lsx_dsd_kernel_family family,
 #else
   else if (!strcmp(requested, "avx2")) return -2;
 #endif
+#if defined(HAVE_DSD_AVX512)
+  else if (!strcmp(requested, "avx512")) k = &lsx_dsd_kernel_avx512;
+#else
+  else if (!strcmp(requested, "avx512")) return -2;
+#endif
+  /* Optional FMA specializations require independent qualification. */
+  else if (!strcmp(requested, "avx512-fma")) return -2;
   /* Reserved optional specialization is not installed by the P12 baseline.
    * Never alias it to non-FMA code or treat CPUID.FMA as qualification. */
   else if (!strcmp(requested, "avx2-fma")) return -2;

@@ -118,3 +118,9 @@ EXTRA_PROGRAMS += dsd_test_p12_bounds
 dsd_test_p12_bounds_SOURCES = ../tests/dsd/test_p12_bounds.c
 dsd_test_p12_bounds_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p12_bounds_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P13 masked AVX-512F exact-span FIR and eight-coordinate SDM executable gate.
+EXTRA_PROGRAMS += dsd_test_p13
+dsd_test_p13_SOURCES = ../tests/dsd/test_p13.c
+dsd_test_p13_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p13_LDADD = $(top_builddir)/src/libsox_ng.la

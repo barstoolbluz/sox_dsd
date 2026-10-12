@@ -59,7 +59,8 @@ def main():
     if not a.unit.is_file():ap.error('missing unit executable')
     sources=('src/dsd_dispatch.c','src/dsd_kernels_scalar.c',
              'src/dsd_kernels_sse2.c','src/dsd_kernels_avx1.c',
-             *(('src/dsd_kernels_avx2.c',) if a.phase=='P12' else ()),
+             *(('src/dsd_kernels_avx2.c',) if a.phase in ('P12','P13') else ()),
+             *(('src/dsd_kernels_avx512.c',) if a.phase=='P13' else ()),
              'tests/dsd/test_p11.c')
     report=dict(schema=f'{a.phase}/kernel-timing/1',host=host(),
         source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources},

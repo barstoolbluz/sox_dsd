@@ -267,6 +267,27 @@ def main():
         perf=performance_summary(args.results.parent/'performance')
         report['p10_paired_throughput']=dict(status=perf['status'],evidence='../performance/summary.json')
         report['summary']['p10_throughput_qualification']=perf['status']
+    if args.phase=='P13':
+        # P00's generic benchmark remains a regression measurement, not the
+        # P13 ISA comparison. Run the required guarded AVX2/AVX-512F matrix
+        # separately, retaining its own 15-repeat raw readings and exits.
+        matrix_command=[sys.executable,str(ROOT/'tests/dsd/bench_p13_matrix.py'),
+            '--results',str(args.results/'p13-avx512-vs-avx2'),
+            '--repetitions','15','--full-matrix']
+        try:
+            matrix=subprocess.run(matrix_command,cwd=ROOT,capture_output=True,
+                text=True,timeout=7200)
+            report['p13_avx512_vs_avx2']=dict(exit=matrix.returncode,
+                evidence='p13-avx512-vs-avx2/benchmark-matrix.json',
+                stdout_tail=matrix.stdout[-3000:],stderr_tail=matrix.stderr[-1500:])
+            if matrix.returncode:
+                missing.append('P13 AVX2/AVX-512F comparison incomplete or failed')
+        except (subprocess.TimeoutExpired,OSError) as exc:
+            report['p13_avx512_vs_avx2']=dict(exit=None,error=str(exc),
+                evidence='p13-avx512-vs-avx2/benchmark-matrix.json')
+            missing.append('P13 AVX2/AVX-512F comparison unrun or timed out')
+        if missing: report['summary']['status']='incomplete'
+        atomic_json(outfile,report)
     atomic_json(outfile,report)
     print(json.dumps(dict(summary=report['summary'], path=str(outfile))))
     if missing:return 1
