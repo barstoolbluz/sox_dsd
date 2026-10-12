@@ -1,0 +1,23 @@
+AMD physical AVX-512F host provenance, recorded 2026-10-12T23:06:21Z
+
+cpu_model          : AMD Ryzen Threadripper 7970X 32-Cores
+vendor_id          : AuthenticAMD
+cpu_family/model/stepping : 25/24/1
+microcode          : 0xa10810c
+logical_cpus       : 63
+virtualization     : none (physical: hypervisor flag absent)
+hypervisor_flag    : absent
+avx512f/dq/bw/vl   : yyyy
+avx2 / fma         : y / y
+xcr0               : read via dsd_test_p13 AVX-512F qualification group
+governor           : performance
+boost              : 0
+scaling_driver     : amd-pstate-epp
+cpu_min/max_freq   : 2188000/4001000 kHz
+smt                : on
+kernel             : 6.12.85+deb13-amd64
+compiler           : cc (Debian 14.2.0-19) 14.2.0
+cflags             : -O2 -g
+per_tier_cflags    : see configure.ac DSD_{SSE2,AVX1,AVX2,AVX512}_CFLAGS
+tree               : 39bc7101d38b1e853ddfb31762983aba01db589e
+kernels_vs_P13     : byte-identical (dsd_dispatch.c, dsd_kernels_{avx512,avx2,scalar}.c, dsd_kernels.h, sdm.c, dsd_coeffs.h)

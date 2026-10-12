@@ -1,0 +1,39 @@
+{
+ "end_to_end_speedups": {
+  "dsd128-2ch-1threads-short:decode": 1.0020769696737055,
+  "dsd128-2ch-1threads-short:encode": 0.9629521336357073,
+  "dsd128-2ch-2threads-long:decode": 0.9977509713953503,
+  "dsd128-2ch-2threads-long:encode": 0.9455241097688138,
+  "dsd256-6ch-1threads-short:decode": 0.9963188575352284,
+  "dsd256-6ch-1threads-short:encode": 0.9496134857911449,
+  "dsd256-6ch-2threads-long:decode": 1.0005016642002615,
+  "dsd256-6ch-2threads-long:encode": 0.9427778885960921,
+  "dsd64-1ch-1threads-short:decode": 0.9971526815557649,
+  "dsd64-1ch-1threads-short:encode": 0.9759262959324142,
+  "dsd64-1ch-2threads-long:decode": 1.0021662860808787,
+  "dsd64-1ch-2threads-long:encode": 0.9507443998415499
+ },
+ "frequency_mhz_under_sustained_load": {
+  "avx2": {
+   "busy_samples": 25,
+   "median": 3969.211,
+   "min": 3969.199
+  },
+  "avx512": {
+   "busy_samples": 27,
+   "median": 3969.199,
+   "min": 3965.533
+  }
+ },
+ "frequency_note": "governor performance, boost disabled; no AVX-512 frequency offset observed",
+ "host": "AMD Ryzen Threadripper 7970X, physical, microcode 0xa10810c",
+ "kernel_speedups": {
+  "fir-block": 1.9333700463288876,
+  "fir-single": 0.925419240136435,
+  "sdm": 0.920058568574007
+ },
+ "kernels_vs_P13": "byte-identical",
+ "schema": "P13/amd-physical-avx512/1",
+ "tree": "39bc7101",
+ "verdict": "AMD physical arm CLOSED; AVX-512F not recommended for promotion"
+}
