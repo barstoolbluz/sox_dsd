@@ -119,6 +119,39 @@ What would settle the remainder is the profiling this file has been deferring:
 nobody has yet shown *which* accesses contend, so the alignment fix is a
 well-aimed empirical remedy rather than an understood one.
 
+### Diagnosed: the decoded-uop cache
+
+`perf` settled it, and the answer is none of the three mechanisms proposed in
+this file over five phases. On the failing P12 workload, instructions are
+identical to six thousandths of a percent, branch misses, data-cache misses,
+L1 instruction-cache misses and ITLB misses are all unchanged, and cycles are up
+5.50%. What changed is the decoded-uop cache: misses rise from 1,296,842 to
+4,403,301, hits fall by 3.05 million, and front-end stalls rise 2.7 million
+cycles against a 4.6 million cycle regression.
+
+The code that moved is `sox_flow_effects` in `src/effects.c`, the per-buffer
+processing loop, from 0x39d30 to 0x39df0. A 192-byte shift of a loop executed
+millions of times per run changes its uop-cache set occupancy. Nothing on the
+container read or write path moved at all, which is why looking there found
+nothing.
+
+Giving that one function 4096-byte alignment returns uop-cache misses to
+1,505,167 and the gate to +0.23%, passing, with all sixteen workloads green.
+That is a demonstrated remedy, not an adopted one: it lives in a scratch build
+and belongs to a round that owns the code. Note the question it raises, since
+`dff_read` and `dff_read_fragment` already carry this attribute from the P10
+hotfix: how many hot functions should be pinned, and is per-function alignment
+the right structural answer or a growing list of patches.
+
+Also worth recording for whoever picks this up: the earlier guesses failed in
+instructive ways. Instruction-cache placement of the read path was excluded
+because that path never moved; generic image growth and one-page data
+displacement were excluded by a dead-padding build that reproduced the section
+signature and measured +0.25%; and that experiment failed precisely because
+unexecuted padding does not occupy uop-cache entries. Evidence:
+`tests/dsd/results/P12_perf_diagnosis_2026-10-11/` and
+`tests/dsd/results/P12_layout_experiment_2026-10-11/`.
+
 ### P12 shows the alignment fix is necessary but not sufficient
 
 P12 adds one translation unit and a convenience library and breaks the 5% gate on
