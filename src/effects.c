@@ -406,8 +406,18 @@ static int drain_effect(sox_effects_chain_t * chain, size_t n)
   return effstatus == SOX_SUCCESS? SOX_SUCCESS : SOX_EOF;
 }
 
-/* Flow data through the effects chain until an effect or callback gives EOF */
-int sox_flow_effects(sox_effects_chain_t * chain, int (* callback)(sox_bool all_done, void * client_data), void * client_data)
+/* Flow data through the effects chain until an effect or callback gives EOF.
+ * The small-buffer DFF repack path enters this loop once per buffer. On the
+ * prepared Zen 4 qualification host, its P12 link-address shift regressed that
+ * unchanged path by >5%; aligning this entry restored the throughput gate.
+ * This is a placement hint, not a change to flow behavior or CPU dispatch.
+ * Match the existing x86-64 compiler guard used for aligned DFF readers. */
+#if (defined(__GNUC__) || defined(__clang__)) && defined(__x86_64__)
+#define LSX_FLOW_EFFECTS_ALIGN __attribute__((aligned(4096)))
+#else
+#define LSX_FLOW_EFFECTS_ALIGN
+#endif
+int LSX_FLOW_EFFECTS_ALIGN sox_flow_effects(sox_effects_chain_t * chain, int (* callback)(sox_bool all_done, void * client_data), void * client_data)
 {
   int flow_status = SOX_SUCCESS;
   size_t e, source_e = 0;               /* effect indices */
