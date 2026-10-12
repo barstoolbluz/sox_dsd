@@ -140,10 +140,19 @@ What moved is everything after `.text`: section starts shift one page each,
 1340 text symbols moved, and every data, bss and rodata symbol moved, 303 of 303
 and 197 of 197.
 
-So the mechanism is open. A one-page displacement of all static data, relative
-to reader code that is byte-identical and co-located, is a candidate through
-cache-set or 4K-aliasing effects, but it is untested and offered as a hypothesis
-only. Two claims we published earlier were wrong: `lsx_rawread` moved but is not
+A second pass then ruled out displacement of the path itself. The workload
+repacks, so the write side counts too, and all eight project symbols across
+`dff_read`, `dff_read_fragment`, `lsx_read_b_buf`, `lsx_readbuf`, `dff_write`,
+`dff_write_buf`, `lsx_write_b_buf` and `lsx_writebuf` hold identical addresses.
+Meanwhile `dsf-6ch-repack-small`, whose `dsf_write` and `dsf_write_bits` did
+move, measures +0.15% and passes, and `dff-6ch-repack-large` on the same held
+code measures -0.01%. The moved-code format is fine and the held-code format
+regressed, which is the opposite of what this file's long-standing
+instruction-cache explanation predicts.
+
+So the mechanism is open and both of our hypotheses are unsupported. A one-page
+displacement of all static data remains possible via cache-set or 4K-aliasing
+effects, but DSF repack touches static data too and did not regress. Two claims we published earlier were wrong: `lsx_rawread` moved but is not
 on this path, and the "8,489 of 8,897" figure came from a join that formed a
 cartesian product over 16 duplicated symbol names. The measurement itself is
 sound, confirmed by swapping the arms: +5.66% forward and -5.48% reversed with
@@ -156,8 +165,9 @@ Still no profiling. All three hotfixes were reasoned from the diff or from the
 linked image and confirmed by measurement, and the speedups P06 showed
 elsewhere on untouched paths, 11.16%
 on `dff-6ch-null-large` and 5.69% on `dff-6ch-repack-large`, were never
-attributed either; linker layout or instruction-cache effects are the plausible
-explanation but nobody has looked. A `perf` profile of this workload against
+attributed either; linker layout or instruction-cache effects were the
+long-standing guess, but P12's corroboration contradicts that for the path's own
+code, and nobody has profiled it. A `perf` profile of this workload against
 P01 would likely settle both the residual cost and those speedups, and would
 tell a later optimization pass where the movement actually sits, in either
 direction.
