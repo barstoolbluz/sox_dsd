@@ -31,7 +31,7 @@ host, interval from a paired bootstrap.
 | P10 corrective to P10 ratification | **+6.81%** | [+6.54%, +7.04%] | 0.41% | **fail**, attributed to a failure-path diagnostic in `src/pcmdsd.c` |
 | P10 ratification to P10 hotfix | **-4.43%** | [-4.63%, -4.24%] | 0.49% | pass, faster than before the regression; page-aligned reader |
 | P10 hotfix to P11 | -2.87% | [see evidence] | 0.79% max | pass; first phase to add translation units since the alignment fix |
-| P11 to P12 | **+5.66%** | [+5.48%, +5.91%] | 0.41% | **fail**; reader addresses unchanged, 8489 of 8897 other text symbols moved |
+| P11 to P12 | **+5.66%** | [+5.48%, +5.91%] | 0.41% | **fail**; whole read path held its addresses, all static data moved one page |
 
 Cumulative, as the product of the recorded median ratios: **+3.20%** from P05
 through P08, then **-0.60%** once P09 is included, **+0.42%** through P10 and
@@ -127,16 +127,27 @@ container read code, and in the linked image `dff_read_fragment` and `dff_read`
 sit at the *same* addresses as in the P11-closed build, 0x70000 and 0x71000, both
 still page-aligned. So the pinned code did not move and still slowed down.
 
-Text grew 0.6%, from 619,486 to 623,198 bytes, and 8,489 of 8,897 text symbols
-changed address. On the read path, `lsx_read_b_buf` and `lsx_readbuf` happen to
-precede the insertion point and held still, while `lsx_rawread` moved from
-0x90a20 to 0x915e0.
+Corroboration then refuted our first explanation of it. The complete read path
+is `dff_read`, `dff_read_fragment`, `lsx_read_b_buf`, `lsx_readbuf`, then
+`fread`/`memcpy`, established from each function's call sites, and **every
+member holds an identical address in both builds**, with the two reader entry
+points also identical in size and instruction bytes. Nothing on the path moved
+or changed.
 
-The inference, from address comparison rather than a profile: pinning the two
-functions named in the attribute leaves their callees free to move, so the
-relative cache-set mapping along the path still changes. If that is right, a
-durable remedy has to consider the path rather than two entry points, and the
-profiling deferred since P02 is what would establish it. Evidence:
+What moved is everything after `.text`: section starts shift one page each,
+`.rodata` 0xac000 to 0xad000, `.data` 0xef480 to 0xf0480, `.bss` 0xf45e0 to
+0xf55e0, while `.text` still begins at 0x14000. Of uniquely named symbols 956 of
+1340 text symbols moved, and every data, bss and rodata symbol moved, 303 of 303
+and 197 of 197.
+
+So the mechanism is open. A one-page displacement of all static data, relative
+to reader code that is byte-identical and co-located, is a candidate through
+cache-set or 4K-aliasing effects, but it is untested and offered as a hypothesis
+only. Two claims we published earlier were wrong: `lsx_rawread` moved but is not
+on this path, and the "8,489 of 8,897" figure came from a join that formed a
+cartesian product over 16 duplicated symbol names. The measurement itself is
+sound, confirmed by swapping the arms: +5.66% forward and -5.48% reversed with
+consistent absolute medians. Evidence:
 `tests/dsd/results/P12_throughput_prepared_host_2026-10-11/`.
 
 ### What has not been done
