@@ -6,6 +6,7 @@
  * A failure discards this call's output block and permanently latches. */
 #include "sox_i.h"
 #include "pcmdsd.h"
+#include "dsd_stats.h"
 #include "pcmdsd_coeffs.h"
 #include "pcmdsd_guards.h"
 #include "rate_internal.h"
@@ -45,6 +46,11 @@ struct lsx_pcmdsd {
   lsx_pcmdsd_stage_observer observer;
   void *observer_opaque;
 };
+
+const lsx_pcmdsd_profile *lsx_pcmdsd_profile_of(const lsx_pcmdsd *p)
+{ return p ? p->profile : NULL; }
+double lsx_pcmdsd_reference_scale(const lsx_pcmdsd *p)
+{ return p ? p->scale : 0.; }
 
 const char *lsx_pcmdsd_kernel_name(const lsx_pcmdsd *p)
 {
@@ -453,5 +459,6 @@ int lsx_pcmdsd_drain(sox_effect_t *e,sox_sample_t *out,size_t *no)
 int lsx_pcmdsd_stop(sox_effect_t *e)
 {
   lsx_pcmdsd_private *p=e->priv;
+  lsx_dsd_report_note_encode(p->encoder);
   lsx_pcmdsd_destroy(p->encoder);p->encoder=NULL;return SOX_SUCCESS;
 }

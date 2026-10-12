@@ -3639,19 +3639,36 @@ for a dynamic range compression/expansion/limiting effect.
 Declares native DSD to reconstructed PCM conversion.  With no rate, selects
 the profile intermediate PCM clock.  Versioned profile IDs such as
 .B decode.mastering.v1.dsd128
-may be selected with -p.  P05 validates and reports this boundary but does not
-yet execute the composite reconstruction DSP.
+may be selected with -p.  This is an executable composite reconstruction
+DSP with runtime kernel selection and a fixed certified coefficient bank.
 .TP
 .B pcmdsd [-p mastering|legacy|experimental] [--reference auto|pcm|dsd] rate
 Declares one composite PCM-to-native-DSD modulator at the supplied exact DSD
 clock.  The reference specifies PCM full scale or the in-process reconstructed
 DSD calibration.  Mastering versioned IDs such as
 .B encode.mastering.v1.dsd128
-are accepted.  The composite DSP is scheduled for a later phase.
+are accepted.  The composite DSP executes only for configurations that
+pass its existing qualification gate; the installed release binary refuses
+unqualified mastering profiles, without a user-exposed bypass.
 .TP
-.B dsdstat
-Declares a native DSD statistics pass-through, scheduled for P14.  P05
-rejects execution before output opening instead of claiming to process samples.
+.B dsdstat [\-a]
+A native-DSD bit-preserving statistics pass-through.  The default displays
+exact per-channel bit counts, overlapping complete 28-bit-window extrema and
+excursions, longest identical-bit run, and first excursion frame on stderr.
+Option
+.B \-a
+adds original-native-rate fifth-order Butterworth digital SOS measurements:
+50 kHz low-pass peak, 40\-100 kHz high-pass/low-pass exponential power
+with 2 to the power of negative 19 as its averaging coefficient, and
+conventional integrated power in the 20\-40, 40\-100, 100\-200 kHz
+and 200 kHz\-Nyquist bands.  Power and peaks distinguish dBFS sine reference
+from dB SACD; short inputs can have unknown integrated measurements after
+the 20 ms warm-up exclusion.  These are software diagnostics, not formal
+SACD analog certification.  Neither basic counters nor optional analysis
+change any downstream sample.  The effect rejects PCM input.  With
+.B \-\-dsd-report PATH
+its exact counters and optionally analyzed measurements are additionally
+captured in the final conversion JSON.
 .SH REFERENCES
 .TP
 [1]

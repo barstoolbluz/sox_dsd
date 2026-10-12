@@ -1,0 +1,556 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sox-ng.example/schema/dsd-conversion-1.json",
+  "title": "sox_ng P14 DSD conversion result",
+  "description": "Version 1: lossless decimal counters, actual kernels/profiles, explicit null for unobserved values. Unknown extension fields are permitted within v1.",
+  "type": "object",
+  "required": [
+    "schema",
+    "schema_version",
+    "build",
+    "status",
+    "executable",
+    "source",
+    "output",
+    "processing",
+    "dsdstat",
+    "clipping",
+    "warnings"
+  ],
+  "properties": {
+    "schema": {
+      "const": "sox.dsd.conversion.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "build": {
+      "type": "object",
+      "required": [
+        "version",
+        "source_baseline",
+        "build_source_digest",
+        "build_digest_note"
+      ],
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "source_baseline": {
+          "type": "string"
+        },
+        "build_source_digest": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "build_digest_note": {
+          "type": "string"
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "executable": {
+      "const": true
+    },
+    "source": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "domain",
+          "container",
+          "native_hz",
+          "declared_logical_frames",
+          "channel_roles",
+          "native_statistics"
+        ],
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "container": {
+            "type": "string"
+          },
+          "native_hz": {
+            "$ref": "#/$defs/countOrNull"
+          },
+          "declared_logical_frames": {
+            "$ref": "#/$defs/countOrNull"
+          },
+          "channel_roles": {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "native_statistics": {
+            "$ref": "#/$defs/statsOrNull"
+          },
+          "sample_rate_hz": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "PCM clock in Hz; null for native DSD, whose clock is native_hz"
+          },
+          "encoding": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Encoding named by the opened SoX source reader"
+          },
+          "bits_per_sample": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "domain",
+        "actual_rate_hz",
+        "channels",
+        "frames_written",
+        "native_completed_frames",
+        "transport_frames"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "actual_rate_hz": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "channels": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "frames_written": {
+          "$ref": "#/$defs/count"
+        },
+        "native_completed_frames": {
+          "$ref": "#/$defs/countOrNull"
+        },
+        "transport_frames": {
+          "$ref": "#/$defs/countOrNull"
+        }
+      }
+    },
+    "processing": {
+      "type": "object",
+      "required": [
+        "requested_passband_hz",
+        "effective_passband_hz",
+        "decoder",
+        "encoder"
+      ],
+      "properties": {
+        "requested_passband_hz": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "effective_passband_hz": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "decoder": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "profile_id",
+              "fir_kernel_actual",
+              "coefficients",
+              "gain_mapping",
+              "frames_consumed",
+              "frames_produced",
+              "graph_clips"
+            ],
+            "properties": {
+              "profile_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "fir_kernel_actual": {
+                "type": "string"
+              },
+              "coefficients": {
+                "type": "object",
+                "required": [
+                  "bank_halfband_sha256",
+                  "bank_last_sha256"
+                ]
+              },
+              "gain_mapping": {
+                "type": "object",
+                "required": [
+                  "mode",
+                  "applied_linear_gain"
+                ]
+              },
+              "frames_consumed": {
+                "$ref": "#/$defs/count"
+              },
+              "frames_produced": {
+                "$ref": "#/$defs/count"
+              },
+              "graph_clips": {
+                "$ref": "#/$defs/count"
+              },
+              "latency": {
+                "type": "object",
+                "required": [
+                  "front_end_lookahead_native_frames",
+                  "front_end_lookahead_seconds",
+                  "final_src_active",
+                  "final_src_lookahead_intermediate_frames",
+                  "final_src_lookahead_seconds",
+                  "final_src_lookahead_note",
+                  "buffering_latency_seconds",
+                  "buffering_latency_note",
+                  "total_latency_seconds",
+                  "total_latency_note"
+                ],
+                "properties": {
+                  "front_end_lookahead_native_frames": {
+                    "$ref": "#/$defs/countOrNull"
+                  },
+                  "front_end_lookahead_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "final_src_active": {
+                    "type": "boolean"
+                  },
+                  "final_src_lookahead_intermediate_frames": {
+                    "$ref": "#/$defs/countOrNull"
+                  },
+                  "final_src_lookahead_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "final_src_lookahead_note": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "buffering_latency_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "buffering_latency_note": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "total_latency_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "total_latency_note": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "description": "Defined FIR lookahead; SRC lookahead and buffering/total latency may be null with reasons, never a queue capacity passed off as time."
+              }
+            }
+          }
+        },
+        "encoder": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "profile_id",
+              "coefficient_certificate_sha256",
+              "sdm_kernel_actual",
+              "monitor",
+              "committed_native_frames"
+            ],
+            "properties": {
+              "profile_id": {
+                "type": "string"
+              },
+              "coefficient_certificate_sha256": {
+                "type": "string"
+              },
+              "sdm_kernel_actual": {
+                "type": "string"
+              },
+              "committed_native_frames": {
+                "$ref": "#/$defs/count"
+              },
+              "monitor": {
+                "type": "object",
+                "required": [
+                  "frames",
+                  "excursions_28",
+                  "overloads",
+                  "first_overload_frame",
+                  "state_extrema_absolute"
+                ],
+                "properties": {
+                  "frames": {
+                    "$ref": "#/$defs/count"
+                  },
+                  "excursions_28": {
+                    "$ref": "#/$defs/count"
+                  },
+                  "overloads": {
+                    "$ref": "#/$defs/count"
+                  },
+                  "first_overload_frame": {
+                    "$ref": "#/$defs/countOrNull"
+                  },
+                  "state_extrema_absolute": {
+                    "type": "array",
+                    "items": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "dsdstat": {
+      "$ref": "#/$defs/statsOrNull"
+    },
+    "clipping": {
+      "type": "object",
+      "required": [
+        "output_writer",
+        "input_adapter",
+        "combiner"
+      ],
+      "properties": {
+        "output_writer": {
+          "$ref": "#/$defs/count"
+        },
+        "input_adapter": {
+          "$ref": "#/$defs/count"
+        },
+        "combiner": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "count": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "countOrNull": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/count"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "statsOrNull": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/stats"
+        }
+      ]
+    },
+    "stats": {
+      "type": "object",
+      "required": [
+        "native_hz",
+        "channel_count",
+        "frames",
+        "count_semantics",
+        "analysis_enabled",
+        "status",
+        "channels"
+      ],
+      "properties": {
+        "native_hz": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "channel_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "frames": {
+          "$ref": "#/$defs/count"
+        },
+        "analysis_enabled": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "observed",
+            "failed"
+          ]
+        },
+        "count_semantics": {
+          "const": "overlapping_28_bit_windows_chronological"
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "frames",
+              "one_bits",
+              "zero_bits",
+              "complete_28_bit_windows",
+              "28_bit_excursions",
+              "first_excursion_start_frame",
+              "min_ones_28",
+              "max_ones_28",
+              "longest_identical_bit_run"
+            ],
+            "properties": {
+              "frames": {
+                "$ref": "#/$defs/count"
+              },
+              "one_bits": {
+                "$ref": "#/$defs/count"
+              },
+              "zero_bits": {
+                "$ref": "#/$defs/count"
+              },
+              "complete_28_bit_windows": {
+                "$ref": "#/$defs/count"
+              },
+              "28_bit_excursions": {
+                "$ref": "#/$defs/count"
+              },
+              "first_excursion_start_frame": {
+                "$ref": "#/$defs/countOrNull"
+              },
+              "min_ones_28": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 28
+              },
+              "max_ones_28": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 28
+              },
+              "longest_identical_bit_run": {
+                "$ref": "#/$defs/count"
+              },
+              "measurement": {
+                "type": "object",
+                "required": [
+                  "method",
+                  "input_domain",
+                  "formal_sacd_certification",
+                  "warmup_excluded_frames",
+                  "integrated_frames",
+                  "sacd_style",
+                  "integrated_bands"
+                ],
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "input_domain": {
+                    "const": "original_native_bits"
+                  },
+                  "formal_sacd_certification": {
+                    "const": false
+                  },
+                  "warmup_excluded_frames": {
+                    "$ref": "#/$defs/count"
+                  },
+                  "integrated_frames": {
+                    "$ref": "#/$defs/count"
+                  },
+                  "sacd_style": {
+                    "type": "object",
+                    "required": [
+                      "power_average_alpha",
+                      "lowpass_peak_db_sacd",
+                      "band_exp_rms_max_db_sacd"
+                    ]
+                  },
+                  "integrated_bands": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

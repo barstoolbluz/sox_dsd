@@ -3,6 +3,7 @@
  * The binary64 result is intentionally saturated at SoX's int32 boundary. */
 #include "sox_i.h"
 #include "dsd.h"
+#include "dsd_stats.h"
 #include <inttypes.h>
 #include <math.h>
 #include <string.h>
@@ -121,6 +122,8 @@ int lsx_dsdpcm_stop(sox_effect_t *effect)
   if (priv->graph_clips)
     lsx_warn("dsdpcm: clipped %" PRIu64 " graph samples (channel %lu, max magnitude %.9g)",
         priv->graph_clips,(unsigned long)effect->flow,priv->max_preclip);
+  lsx_dsd_report_note_decode(priv->decoder,priv->options.profile,
+      priv->options.level,priv->graph_clips,priv->max_preclip);
   sox_dsd_decoder_destroy(priv->decoder);
   priv->decoder=NULL;
   return SOX_SUCCESS;

@@ -1,0 +1,99 @@
+{
+  "corrections": [
+    "plan-only report destination validates source aliases and overwrite policy; dash writes stdout",
+    "post-audio-open pre-DSP inode comparison catches previously absent output/report aliases",
+    "report sources include actual PCM sample rate, encoding, width, container without relabeling PCM as native DSD",
+    "decoder latency front-end/identity SRC separated; unknown SRC buffering and total explicitly null with reasons"
+  ],
+  "date": "2026-10-12",
+  "distribution": "directly created and independently extracted verified source-only tarball, not automake distdir",
+  "gates": [
+    {
+      "exit_status": 0,
+      "name": "autoreconf -fi",
+      "status": "PASS"
+    },
+    {
+      "exit_status": 0,
+      "name": "./configure --disable-shared --without-libltdl CFLAGS=-O2,-g",
+      "status": "PASS"
+    },
+    {
+      "exit_status": 0,
+      "name": "make -j2",
+      "status": "PASS"
+    },
+    {
+      "exit_status": 0,
+      "name": "make check",
+      "status": "PASS"
+    },
+    {
+      "evidence": "integration-p14.json",
+      "failed": 0,
+      "name": "P14 focused integration",
+      "passed": 16,
+      "status": "PASS"
+    },
+    {
+      "exit_status": 0,
+      "name": "make check-dsd DSD_PHASE=P14",
+      "status": "PASS"
+    },
+    {
+      "evidence": "run.json",
+      "failed": 0,
+      "name": "standalone P14 run.py",
+      "passed": 36,
+      "status": "PASS"
+    },
+    {
+      "evidence": "measure.json",
+      "failed": 0,
+      "name": "standalone P14 measure.py",
+      "passed": 10,
+      "status": "PASS"
+    },
+    {
+      "evidence": "bench.json",
+      "failed": 0,
+      "name": "standalone P14 bench.py",
+      "passed": 36,
+      "status": "PASS-development-only"
+    },
+    {
+      "arms": 4,
+      "audio_sha256_identical": true,
+      "evidence": "observer-overhead.json",
+      "name": "P14 bench_p14.py overhead",
+      "status": "PASS-development-only"
+    },
+    {
+      "evidence": "optional-distdir-blocked.log",
+      "exit_status": 2,
+      "missing": [
+        "tbl",
+        "nroff",
+        "pdfroff"
+      ],
+      "name": "supplemental make distdir",
+      "status": "BLOCKED-host-prerequisite"
+    }
+  ],
+  "outstanding_gates": [
+    "P13 physical-silicon sustained performance and ISA qualification OPEN",
+    "P10 long soaks and independent real DSD corpus not executed by P14 numerical runner",
+    "final SRC exact lookahead, FIFO occupancy and total latency unobservable under current API"
+  ],
+  "p00_inventory": {
+    "all_file_hashes_pass": true,
+    "entry_count": 4124,
+    "sha256_self_excluded": true
+  },
+  "previous_evidence": {
+    "p00_through_p13_unchanged_excluding_inventory": 3127,
+    "p14_prior_unchanged": 61
+  },
+  "schema": "sox.p14.corrective.validation.v1",
+  "source_archive_predecessor_sha256": "98e9da0f3a9b3576aeafbd6c27e227e2bb2e74c331cb3726814d4e5fef2490ec"
+}

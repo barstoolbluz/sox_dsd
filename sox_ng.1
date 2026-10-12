@@ -1425,7 +1425,24 @@ Validate and print one JSON plan without opening an output audio file.
 Sequence mode prints a list of separately checked segment plans.
 .TP
 .B \-\-dsd-report PATH
-Write the deterministic resolved plan as JSON before audio output opening.
+Write a versioned P14 conversion-result JSON document after audio output
+has closed successfully, or a failed/cancelled result on supported cleanup
+paths.  This reports actual decoder/encoder profiles, kernels, per-channel
+native-bit counters, clipped samples and error/stability events, not merely
+the requested preflight plan.  Large counts are decimal strings; unavailable
+values are JSON null.  A named path follows the normal overwrite policy;
+report destinations cannot be input or output carriers.  A single hyphen
+writes JSON to stdout only when audio is not itself on stdout.  When
+.B \-\-dsd-plan
+is selected, the preflight plan remains the only report (no conversion occurs);
+the same input-carrier and overwrite checks apply before the plan is written.
+For a PCM source, the conversion report names the opened source container,
+actual sample clock, encoding and sample width; the DSD native bit clock
+is a separate field and is null for PCM.  Decoder latency fields record
+the known native-front-end lookahead separately from final SRC lookahead,
+buffering latency and total.  Values not derivable from the rate backend or
+a fixed processing schedule remain null with explanatory notes; a FIFO
+capacity is never reported as observed delay.
 .PP
 P08 executes planned native DSD repacking without DSP.  Native input
 converted to PCM is reconstructed at the planned output rate.  Unknown and
@@ -1441,10 +1458,15 @@ The composite decoder
 is executable as an explicit effect, and auto mode inserts it where planned.
 The composite encoder
 .B pcmdsd
-is not executable yet: processed DSD-to-DSD and automatic modulator
-promotion report an unavailable plan before any output is created.
-Legacy reconstruction in auto mode is also unavailable.  Native-only mode
-refuses generic DSP rather than operating on one-bit pulse values.
+is implemented, but unqualified mastering-mode profiles are intentionally
+refused by the installed release executable.  The P10 candidate executable
+used by tests is not a release override.  Native-only mode refuses generic
+DSP rather than operating on one-bit pulse values.  The native
+.B dsdstat
+pass-through reports exact bit counts and 28-bit-window events to stderr;
+.B dsdstat \-a
+also performs fifth-order SOS digital measurements of the original native
+bits (SACD-style software analysis, not hardware certification).
 The historical CLI default remains legacy until release qualification.
 .PP
 Examples (input paths and output formats must have compatible channel layouts):

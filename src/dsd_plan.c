@@ -552,7 +552,6 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
     } else if (is(e->name,"dsdstat")) {
       if (domain!=LSX_DSD_NATIVE)
         return fail(error,n,"dsdstat is a native DSD pass-through only");
-      p->executable=0; p->unavailable_reason="dsdstat diagnostics are scheduled for P14";
       append(p,e->name,old_domain,domain,before,rate,old_channels,channels,0,-1,ref);
     } else if (domain==LSX_DSD_NATIVE && native_step(e,channels) &&
         (native_chain_only || native_identity(e,channels))) {

@@ -1,0 +1,29 @@
+make  distdir-am
+make[1]: Entering directory '<build-tree>'
+./README.sh
+tbl ./sox_ng.1 | LANG=C LC_ALL=C nroff -man -c | sed 's/.\x08//g' > sox_ng.txt
+/bin/bash: line 1: tbl: command not found
+/bin/bash: line 1: nroff: command not found
+tbl ./soxi_ng.1 | LANG=C LC_ALL=C nroff -man -c | sed 's/.\x08//g' > soxi_ng.txt
+/bin/bash: line 1: tbl: command not found
+/bin/bash: line 1: nroff: command not found
+tbl ./soxeffect_ng.7 | LANG=C LC_ALL=C nroff -man -c | sed 's/.\x08//g' > soxeffect_ng.txt
+/bin/bash: line 1: tbl: command not found
+/bin/bash: line 1: nroff: command not found
+tbl ./soxformat_ng.7 | LANG=C LC_ALL=C nroff -man -c | sed 's/.\x08//g' > soxformat_ng.txt
+/bin/bash: line 1: tbl: command not found
+/bin/bash: line 1: nroff: command not found
+tbl ./libsox_ng.3 | LANG=C LC_ALL=C nroff -man -c | sed 's/.\x08//g' > libsox_ng.txt
+/bin/bash: line 1: tbl: command not found
+/bin/bash: line 1: nroff: command not found
+tbl ./libsoxeffect_ng.3 | LANG=C LC_ALL=C nroff -man -c | sed 's/.\x08//g' > libsoxeffect_ng.txt
+/bin/bash: line 1: tbl: command not found
+/bin/bash: line 1: nroff: command not found
+tbl ./libsoxformat_ng.3 | LANG=C LC_ALL=C nroff -man -c | sed 's/.\x08//g' > libsoxformat_ng.txt
+/bin/bash: line 1: tbl: command not found
+/bin/bash: line 1: nroff: command not found
+pdfroff -t -man --no-toc-relocation -Tps ./sox_ng.1 > sox_ng.pdf
+/bin/bash: line 1: pdfroff: command not found
+make[1]: *** [Makefile:1377: sox_ng.pdf] Error 127
+make[1]: Leaving directory '<build-tree>'
+make: *** [Makefile:1031: distdir] Error 2

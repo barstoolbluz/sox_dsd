@@ -1,0 +1,59 @@
+{
+  "command_path_alias": "BUILD stands for the root of the unshipped build tree",
+  "host": {
+    "compiler": "GCC 14.2.0",
+    "cpu": "virtualized AMD EPYC 9V74",
+    "os": "Linux 6.18.44",
+    "visible_cpus": 5
+  },
+  "physical_silicon_performance_qualification": "OPEN",
+  "results": [
+    {
+      "command": "autoreconf -fi",
+      "exit_code": 0,
+      "log": "autoreconf.log"
+    },
+    {
+      "command": "./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'",
+      "exit_code": 0,
+      "log": "configure.log"
+    },
+    {
+      "command": "make -j2",
+      "exit_code": 0,
+      "log": "make.log"
+    },
+    {
+      "command": "make check",
+      "exit_code": 0,
+      "log": "make-check.log"
+    },
+    {
+      "command": "make check-dsd DSD_PHASE=P14 DSD_RESULTS=tests/dsd/results/P14/runner-final",
+      "exit_code": 0,
+      "log": "make-check-dsd.log"
+    },
+    {
+      "command": "python3 tests/dsd/run.py --phase P14 --results tests/dsd/results/P14/run-final --sox BUILD/src/sox_ng --probe BUILD/test/dsd_test_io --writer-unit BUILD/test/dsd_test_dff_writer",
+      "exit_code": 0,
+      "log": "run.log"
+    },
+    {
+      "command": "python3 tests/dsd/measure.py --phase P14 --results tests/dsd/results/P14/numeric-final",
+      "exit_code": 0,
+      "log": "measure.log"
+    },
+    {
+      "command": "python3 tests/dsd/bench.py --phase P14 --results tests/dsd/results/P14/bench-final",
+      "exit_code": 0,
+      "log": "bench.log"
+    },
+    {
+      "command": "python3 tests/dsd/bench_p14.py --sox BUILD/src/sox_ng --results tests/dsd/results/P14/bench-final/observer-overhead",
+      "exit_code": 0,
+      "log": "bench-observer-isolated.log"
+    }
+  ],
+  "schema": "sox.dsd.P14.build-gates.v1",
+  "tested_source_baseline": "d940cc93"
+}

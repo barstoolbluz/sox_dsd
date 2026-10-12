@@ -251,3 +251,32 @@ time, which is reasonable; it is cosmetic. Note that some of those lines are
 continuation alignment the file keeps in spaces deliberately, including the
 top-level signature continuations in `dff_write_bits` and `dff_read_fragment`,
 so a blind sweep would make the file worse rather than better.
+
+## 6-channel small-buffer workloads at P14, and an untested hypothesis
+
+P14's gate passes at 16/16, and `dff-6ch-repack-small` — the canary that needed
+explaining in five earlier phases — is flat at -0.03% [-0.32%, +0.16%]. The P12
+alignment remedy continues to hold: the three functions carrying the attribute
+moved by exactly 0x4000 and kept their page alignment.
+
+Three *other* workloads moved, with intervals excluding zero:
+`dsf-6ch-null-small` +1.30%, `dff-6ch-null-small` +1.26%,
+`dsf-6ch-repack-small` +1.07%. All are four times inside the 5% gate.
+
+The candidate explanation is that `lsx_readbuf` and `lsx_read_b_buf` carry no
+alignment attribute, moved by 0xd00 rather than a page multiple, and are the
+functions the 6-channel partial-cluster path exercises hardest. That fits which
+three workloads moved and fits the decoded-uop-cache mechanism established in
+P12.
+
+**It is a hypothesis and we did not test it.** No profile was taken of these
+three workloads and the dead-padding experiment that would confirm or refute it
+was not run. Three mechanisms proposed in this project on similar reasoning were
+later refuted by experiment, including two of ours, so this belongs here as a
+direction rather than in a phase record as a finding. The measurement also ran
+with a competing `rustc` build on other cores, at 1.43% worst-case noise against
+the 2% limit; admissible, but not an idle host.
+
+If it is ever worth closing: pad to displace `lsx_readbuf` alone and see whether
+these three workloads track the displacement, as was done for the P12 canary.
+Evidence: `tests/dsd/results/P14_throughput_prepared_host_2026-10-12/`.

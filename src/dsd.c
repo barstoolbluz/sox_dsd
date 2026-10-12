@@ -196,12 +196,6 @@ static int dsd_unavailable(sox_effect_t *eff)
   lsx_fail("%s: composite DSD DSP is not implemented in P05",eff->handler.name);
   return SOX_EOF;
 }
-static int dsdstat_getopts(sox_effect_t *eff, int argc, char **argv)
-{
-  (void)eff;(void)argv;
-  return argc == 1 ? SOX_SUCCESS : SOX_EOF;
-}
-
 lsx_dsd_effect_options lsx_dsd_effect_get_options(sox_effect_t const *effect)
 {
   lsx_dsd_effect_options defaults={0};
@@ -236,12 +230,5 @@ const sox_effect_handler_t *lsx_pcmdsd_effect_fn(void)
   static sox_effect_handler_t h={"pcmdsd", "[-p mastering|legacy|experimental] [--reference auto|pcm|dsd] rate",
     SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, lsx_pcmdsd_start,
     lsx_pcmdsd_flow, lsx_pcmdsd_drain, lsx_pcmdsd_stop, NULL, sizeof(lsx_pcmdsd_private), NULL, NULL, NULL};
-  return &h;
-}
-const sox_effect_handler_t *lsx_dsdstat_effect_fn(void)
-{
-  static sox_effect_handler_t h={"dsdstat", "(DSD native pass-through statistics, available in P14)",
-    SOX_EFF_MCHAN, dsdstat_getopts, dsd_unavailable,
-    NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL};
   return &h;
 }
