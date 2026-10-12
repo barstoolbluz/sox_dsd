@@ -290,6 +290,51 @@ static int accept_frame_avx1(lsx_dsd_reconstruction *ctx, const sox_sample_t *bi
 }
 
 #endif
+#if defined(HAVE_DSD_AVX2)
+/* avx2 directly bound: feed one sample through a mono cascade.  Stage phases are common to all
+ * channels, hence their output flags must agree for each interleaved frame. */
+static int feed_avx2(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j,
+                double x, double *result)
+{
+  stage_state *st = &ctx->stages[(size_t)channel * ctx->info.stages + j];
+  const size_t head = st->head, L = st->taps;
+  st->ring[head] = x;
+  st->ring[head + L] = x; /* mirrored halo */
+  st->head = head + 1 == L ? 0 : head + 1;
+  if ((st->samples++ & 1u) != st->phase) return 0;
+  x = lsx_dsd_fir_avx2_direct(st->h, L, st->ring + head + 1, st->halfband);
+  if (j + 1 == ctx->info.stages) {
+    *result = x;
+    return 1;
+  }
+  return feed_avx2(ctx, channel, j + 1, x, result);
+}
+
+static int accept_frame_avx2(lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
+                        int pad, double *pcm, size_t destination)
+{
+  unsigned c;
+  int produced = 0;
+  for (c = 0; c < ctx->info.channels; ++c) {
+    int got;
+    double x = pad ? 0.0 : (bits[c] == SOX_SAMPLE_MAX ? 1.0 : -1.0);
+    got = feed_avx2(ctx, c, 0, x, &ctx->frame[c]);
+    if (!c) produced = got;
+    /* Each channel shares stage clocks; no channel-specific phase drift. */
+  }
+  if (produced) {
+    uint64_t index = ctx->raw_outputs++;
+    if (index >= ctx->info.discard_frames) {
+      for (c = 0; c < ctx->info.channels; ++c)
+        pcm[destination * ctx->info.channels + c] = ctx->frame[c];
+      ++ctx->emitted;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+#endif
 sox_dsd_status_t lsx_dsd_reconstruction_process(
     lsx_dsd_reconstruction *ctx, const sox_sample_t *bits,
     size_t *input_frames, double *pcm, size_t *output_frames)
@@ -343,6 +388,10 @@ sox_dsd_status_t lsx_dsd_reconstruction_process(
   else if (ctx->fir == &lsx_dsd_kernel_avx1)
     LSX_DSD_STREAM_FRAMES(accept_frame_avx1);
 #endif
+#if defined(HAVE_DSD_AVX2)
+  else if (ctx->fir == &lsx_dsd_kernel_avx2)
+    LSX_DSD_STREAM_FRAMES(accept_frame_avx2);
+#endif
   else return SOX_DSD_UNSUPPORTED;
 #undef LSX_DSD_STREAM_FRAMES
   *input_frames = consumed;
@@ -394,6 +443,10 @@ sox_dsd_status_t lsx_dsd_reconstruction_finish(
 #if defined(HAVE_DSD_AVX1)
   else if (ctx->fir == &lsx_dsd_kernel_avx1)
     LSX_DSD_FINISH_FRAMES(accept_frame_avx1);
+#endif
+#if defined(HAVE_DSD_AVX2)
+  else if (ctx->fir == &lsx_dsd_kernel_avx2)
+    LSX_DSD_FINISH_FRAMES(accept_frame_avx2);
 #endif
   else return SOX_DSD_UNSUPPORTED;
 #undef LSX_DSD_FINISH_FRAMES

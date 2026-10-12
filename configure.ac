@@ -260,8 +260,11 @@ dnl CFLAGS with ISA switches. Reject a compiler that cannot isolate AVX1
 dnl without AVX2/FMA, rather than relabeling an AVX2 object as AVX1.
 DSD_SSE2_CFLAGS='-msse2 -mno-avx -ffp-contract=off -fno-lto'
 DSD_AVX1_CFLAGS='-mavx -mno-avx2 -mno-fma -ffp-contract=off -fno-lto'
+dnl P12 baseline requires AVX2 permutations, but must NOT require FMA.
+DSD_AVX2_CFLAGS='-mavx2 -mno-fma -ffp-contract=off -fno-lto'
 have_dsd_sse2=no
 have_dsd_avx1=no
+have_dsd_avx2=no
 case "$host_cpu" in
   i?86|x86_64|amd64)
     save_p11_CFLAGS=$CFLAGS
@@ -279,6 +282,14 @@ case "$host_cpu" in
         volatile double out[4]; _mm256_storeu_pd((double *)out,d);]])],
       [have_dsd_avx1=yes],[])
     AC_MSG_RESULT([$have_dsd_avx1])
+    CFLAGS="$save_p11_CFLAGS $DSD_AVX2_CFLAGS"
+    AC_MSG_CHECKING([for isolated non-FMA AVX2 full-width permutations])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <immintrin.h>]],
+      [[__m256d d = _mm256_set_pd(4.,3.,2.,1.);
+        d = _mm256_permute4x64_pd(d,0x1b);
+        volatile double out[4]; _mm256_storeu_pd((double *)out,d);]])],
+      [have_dsd_avx2=yes],[])
+    AC_MSG_RESULT([$have_dsd_avx2])
     CFLAGS=$save_p11_CFLAGS
     ;;
 esac
@@ -288,6 +299,11 @@ fi
 if test "$have_dsd_avx1" = yes; then
   AC_DEFINE([HAVE_DSD_AVX1], [1], [Have isolated AVX1 DSD kernels])
 fi
+if test "$have_dsd_avx2" = yes; then
+  AC_DEFINE([HAVE_DSD_AVX2], [1], [Have isolated non-FMA AVX2 DSD kernels])
+fi
+AM_CONDITIONAL([HAVE_DSD_AVX2], [test "$have_dsd_avx2" = yes])
+AC_SUBST([DSD_AVX2_CFLAGS])
 AM_CONDITIONAL([HAVE_DSD_SSE2], [test "$have_dsd_sse2" = yes])
 AM_CONDITIONAL([HAVE_DSD_AVX1], [test "$have_dsd_avx1" = yes])
 AC_SUBST([DSD_SSE2_CFLAGS])

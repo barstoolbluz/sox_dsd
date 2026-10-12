@@ -63,14 +63,17 @@ static void test_caps(void)
     CHECK(!!(features&LSX_DSD_CPU_AVX1)==((m.xcr0&6)==6),"XCR0 mask");
   }
   m.max_leaf=7;m.xcr0=6;m.ebx7=0;
-  CHECK((lsx_dsd_features_probe(&p)&LSX_DSD_CPU_AVX1) && m.leaf7==0,
-        "AVX1 does not require AVX2/leaf 7");
+  CHECK((lsx_dsd_features_probe(&p)&LSX_DSD_CPU_AVX1) &&
+        m.leaf7==1 && !(lsx_dsd_features_probe(&p)&LSX_DSD_CPU_AVX2),
+        "AVX1 availability remains independent of AVX2 capability");
   CHECK(lsx_dsd_kernel_select_features(LSX_DSD_FIR,"scalar",0,&k)==0 &&
         k==&lsx_dsd_kernel_scalar,"scalar universal");
   CHECK(lsx_dsd_kernel_select_features(LSX_DSD_FIR,"nonesuch",3,&k)==-1 && !k,
         "unknown force fails closed");
-  CHECK(lsx_dsd_kernel_select_features(LSX_DSD_SDM,"avx2",3,&k)==-1 && !k,
-        "unimplemented tier not aliased");
+  CHECK(lsx_dsd_kernel_select_features(LSX_DSD_SDM,"avx2",3,&k)==-2 && !k,
+        "AVX2 force fails when leaf 7 capability absent");
+  CHECK(lsx_dsd_kernel_select_features(LSX_DSD_SDM,"avx2-fma",15,&k)==-2 && !k,
+        "unbuilt FMA descriptor must never alias AVX2 baseline");
   CHECK(lsx_dsd_kernel_select_features(LSX_DSD_FIR,"avx1",0,&k)==-2 && !k,
         "unsupported force fails closed");
   CHECK(lsx_dsd_kernel_select_features(LSX_DSD_SDM,"sse2",0,&k)==-2 && !k,
@@ -87,6 +90,31 @@ static void test_caps(void)
   CHECK(lsx_dsd_kernel_select_features(LSX_DSD_SDM,"avx1",3,&k)==0 &&
         k==&lsx_dsd_kernel_avx1,"AVX1 independent of AVX2");
 #endif
+#if defined(HAVE_DSD_AVX2)
+  CHECK(lsx_dsd_kernel_select_features(LSX_DSD_SDM,"avx2",7,&k)==0 &&
+        k==&lsx_dsd_kernel_avx2,"AVX2 does not require FMA");
+  CHECK(lsx_dsd_kernel_select_features(LSX_DSD_FIR,"avx2",7,&k)==0 &&
+        k==&lsx_dsd_kernel_avx2,"AVX2 independent FIR available without FMA");
+#endif
+  /* Incomplete CPUID leaf-7/XCR0 must not enable AVX2 or issue XGETBV on
+   * CPUs without OSXSAVE. Only leaf-1 FMA+OSXSAVE grants FMA feature. */
+  m.max_leaf=7;m.xcr0=6;m.ebx7=1u<<5;m.ecx=(1u<<26)|(1u<<27)|(1u<<28);
+  CHECK((lsx_dsd_features_probe(&p)&LSX_DSD_CPU_AVX2)!=0,
+        "AVX2 enabled by CPUID leaf7 and YMM OS state");
+  CHECK(!(lsx_dsd_features_probe(&p)&LSX_DSD_CPU_FMA),"FMA absent despite AVX2");
+  m.ecx|=1u<<12;
+  CHECK((lsx_dsd_features_probe(&p)&LSX_DSD_CPU_FMA)!=0,"FMA detected separately");
+  m.xcr0=2;
+  CHECK(!(lsx_dsd_features_probe(&p)&(LSX_DSD_CPU_AVX2|LSX_DSD_CPU_FMA)),
+        "missing YMM state disables AVX2 and FMA");
+  m.xcr0=6;m.max_leaf=1;
+  CHECK(!(lsx_dsd_features_probe(&p)&LSX_DSD_CPU_AVX2),
+        "missing leaf seven disables AVX2");
+  m.max_leaf=7;m.ecx&=~(1u<<27);
+  {unsigned before=m.leaf7, reads=m.xgets;
+   CHECK(!(lsx_dsd_features_probe(&p)&LSX_DSD_CPU_AVX2) &&
+         m.leaf7==before && m.xgets==reads,
+         "no feature-leaf7 or XGETBV access without OSXSAVE");}
   CHECK(sdm_normal_decision(-0.0)==-1 && sdm_normal_decision(0.0)==1,
         "negative-zero quantizer tie rule");
   printf("PASS cpuid mock, XCR0, independent family policy, negative-zero\n");
@@ -105,7 +133,7 @@ static void set_override(const char *name,const char *value)
 
 static void test_context_overrides(void)
 {
-  static const char *tiers[]={"scalar","sse2","avx1"};
+  static const char *tiers[]={"scalar","sse2","avx1","avx2"};
   unsigned i;
   lsx_dsd_reconstruction *fir_first=NULL,*fir_second=NULL;
   lsx_pcmdsd *sdm_first=NULL,*sdm_second=NULL;
@@ -116,7 +144,7 @@ static void test_context_overrides(void)
   CHECK(profile!=NULL,"P10 profile available for P11 context tests");
   set_override("LSX_DSD_FIR_KERNEL","avx2");
   set_override("LSX_DSD_SDM_KERNEL","avx2");
-  for(i=0;i<3;++i) {
+  for(i=0;i<sizeof(tiers)/sizeof(*tiers);++i) {
     const char *tier=tiers[i];
     int supported=lsx_dsd_kernel_select(LSX_DSD_FIR,tier,&kernel)==0;
     if(!supported) continue; /* scalar always, ISA tiers only if supported */
@@ -151,13 +179,13 @@ static void test_context_overrides(void)
   CHECK(lsx_pcmdsd_candidate_create(88200,2822400,.5,0,NULL,
             profile->bounds,&sdm_second)==SOX_DSD_BAD_ARGUMENT && !sdm_second,
         "unknown documented SDM override fails at creation");
-  set_override("SOX_DSD_KERNEL_FIR","avx2");
+  set_override("SOX_DSD_KERNEL_FIR","avx2-fma");
   CHECK(lsx_dsd_reconstruction_create(2822400,LSX_DSD_PROFILE_MASTERING,1,
             &fir_second)==SOX_DSD_UNSUPPORTED && !fir_second,
         "unsupported documented FIR override fails without substitution");
-  set_override("SOX_DSD_KERNEL_SDM","avx2");
+  set_override("SOX_DSD_KERNEL_SDM","avx2-fma");
   CHECK(lsx_pcmdsd_candidate_create(88200,2822400,.5,0,NULL,
-            profile->bounds,&sdm_second)==SOX_DSD_BAD_ARGUMENT && !sdm_second,
+            profile->bounds,&sdm_second)==SOX_DSD_UNSUPPORTED && !sdm_second,
         "unsupported documented SDM override fails without substitution");
   CHECK(!strcmp(lsx_dsd_reconstruction_kernel_name(fir_first),"scalar") &&
         !strcmp(lsx_pcmdsd_kernel_name(sdm_first),"scalar"),
@@ -188,7 +216,7 @@ static void test_context_overrides(void)
         !strcmp(lsx_dsd_decoder_kernel_name(dec),"scalar"),
         "library option overrides an invalid environment force");
   sox_dsd_decoder_destroy(dec);dec=NULL;
-  opt.kernel_fir="avx2";
+  opt.kernel_fir="avx2-fma";
   CHECK(sox_dsd_decoder_create(&opt,&dec)==SOX_DSD_UNSUPPORTED && !dec,
         "public decoder returns UNSUPPORTED for unavailable library selection");
   opt.kernel_fir="garbage";
@@ -484,14 +512,19 @@ int main(int argc,char **argv)
                   strtod(argv[7],NULL),argv[8]);
   unsigned host;
   const lsx_dsd_kernel *k;
-  static const char *tier[]={"scalar","sse2","avx1"};
+  static const char *tier[]={"scalar","sse2","avx1","avx2"};
   unsigned i;
   test_caps();
   test_context_overrides();
   host=lsx_dsd_features_host();
-  printf("P11 host feature mask=%u (SSE2=%d AVX1=%d)\n",host,
+  /* Preserve the original P11 emulator qualifier stdout contract. */
+  printf("P11 host feature mask=%u (SSE2=%d AVX1=%d)\n",
+      host & (LSX_DSD_CPU_SSE2 | LSX_DSD_CPU_AVX1),
       !!(host&LSX_DSD_CPU_SSE2),!!(host&LSX_DSD_CPU_AVX1));
-  for (i=0;i<3;++i) {
+  printf("P12 host feature mask=%u (SSE2=%d AVX1=%d AVX2=%d FMA=%d)\n",host,
+      !!(host&LSX_DSD_CPU_SSE2),!!(host&LSX_DSD_CPU_AVX1),
+      !!(host&LSX_DSD_CPU_AVX2),!!(host&LSX_DSD_CPU_FMA));
+  for (i=0;i<sizeof(tier)/sizeof(*tier);++i) {
     int r=lsx_dsd_kernel_select(LSX_DSD_FIR,tier[i],&k);
     if (r==-2) {printf("UNRUN tier=%s unavailable hardware/compiler\n",tier[i]);continue;}
     CHECK(r==0 && k && !strcmp(k->name,tier[i]),"forced FIR dispatch");
@@ -501,5 +534,6 @@ int main(int argc,char **argv)
     test_sdm(k);
   }
   puts("P11 kernel unit suite PASS");
+  puts("P12 kernel unit suite PASS");
   return 0;
 }

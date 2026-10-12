@@ -112,3 +112,9 @@ sox_p10_candidate_SOURCES = ../src/sox_ng.c ../tests/dsd/p10_candidate_cli.c
 sox_p10_candidate_CPPFLAGS = -I$(top_srcdir)/src
 sox_p10_candidate_LDFLAGS = -Wl,--wrap=lsx_pcmdsd_qualified -Wl,--wrap=lsx_pcmdsd_start
 sox_p10_candidate_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P12 protected-page exact FIR span validation (POSIX; clean UNRUN elsewhere).
+EXTRA_PROGRAMS += dsd_test_p12_bounds
+dsd_test_p12_bounds_SOURCES = ../tests/dsd/test_p12_bounds.c
+dsd_test_p12_bounds_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p12_bounds_LDADD = $(top_builddir)/src/libsox_ng.la

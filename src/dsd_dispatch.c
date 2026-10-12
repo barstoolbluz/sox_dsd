@@ -48,9 +48,13 @@ unsigned lsx_dsd_features_probe(const lsx_dsd_cpu_probe *p)
   xcr0 = p->xgetbv(p->opaque, 0);
   if ((xcr0 & 0x6u) == 0x6u && (features & LSX_DSD_CPU_SSE2))
     features |= LSX_DSD_CPU_AVX1;
-  /* Leaf 7 is not consulted at P11: AVX2 and AVX-512 are future tiers.
-   * maxleaf is retained to make accidental access to an absent leaf explicit. */
-  (void)maxleaf;
+  /* FMA is a separately advertised capability, NOT a requirement for AVX2.
+   * Only read leaf 7 when the CPU reports it and AVX OS state is enabled. */
+  if ((features & LSX_DSD_CPU_AVX1) && (leaf1ecx & (1u << 12)))
+    features |= LSX_DSD_CPU_FMA;
+  if ((features & LSX_DSD_CPU_AVX1) && maxleaf >= 7 &&
+      p->cpuid(p->opaque, 7, 0, regs) && (regs[1] & (1u << 5)))
+    features |= LSX_DSD_CPU_AVX2;
   return features;
 }
 
@@ -92,6 +96,14 @@ int lsx_dsd_kernel_select_features(enum lsx_dsd_kernel_family family,
 #else
   else if (!strcmp(requested, "avx1")) return -2;
 #endif
+#if defined(HAVE_DSD_AVX2)
+  else if (!strcmp(requested, "avx2")) k = &lsx_dsd_kernel_avx2;
+#else
+  else if (!strcmp(requested, "avx2")) return -2;
+#endif
+  /* Reserved optional specialization is not installed by the P12 baseline.
+   * Never alias it to non-FMA code or treat CPUID.FMA as qualification. */
+  else if (!strcmp(requested, "avx2-fma")) return -2;
   else return -1;
   if ((features & k->required_features) != k->required_features) return -2;
   if ((family == LSX_DSD_FIR && (!k->fir_block || !k->fir_single)) ||

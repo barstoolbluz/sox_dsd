@@ -145,6 +145,13 @@ libdsd_kernels_avx1_la_SOURCES = dsd_kernels_avx1.c dsd_kernels.h sdm_normal_com
 libdsd_kernels_avx1_la_CFLAGS = $(WARN_CFLAGS) @DSD_AVX1_CFLAGS@
 libsox_ng_la_LIBADD += libdsd_kernels_avx1.la
 endif
+# P12 isolated AVX2: genuine 256-bit lane permutations, no FMA dependency.
+if HAVE_DSD_AVX2
+noinst_LTLIBRARIES += libdsd_kernels_avx2.la
+libdsd_kernels_avx2_la_SOURCES = dsd_kernels_avx2.c dsd_kernels.h sdm_normal_commit_i.h
+libdsd_kernels_avx2_la_CFLAGS = $(WARN_CFLAGS) @DSD_AVX2_CFLAGS@
+libsox_ng_la_LIBADD += libdsd_kernels_avx2.la
+endif
 
 libsox_ng_la_LIBADD += @GOMP_LIBS@
 

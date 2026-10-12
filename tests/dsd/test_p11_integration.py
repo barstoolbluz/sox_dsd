@@ -37,11 +37,13 @@ def main():
     ap.add_argument('--sox',type=Path,default=ROOT/'src/sox_ng')
     ap.add_argument('--candidate',type=Path,default=ROOT/'test/sox_p10_candidate')
     ap.add_argument('--results',type=Path,required=True)
+    ap.add_argument('--phase',default='P11')
+    ap.add_argument('--tiers',nargs='+',default=['scalar','sse2','avx1'])
     a=ap.parse_args()
-    tiers=('scalar','sse2','avx1')
+    tiers=tuple(a.tiers)
     a.results.mkdir(parents=True,exist_ok=True)
     output=a.results/'forced-isa-cli.json'
-    report=dict(schema='P11/CLI/1',cases=[],checks=[],errors=[],unrun=[],
+    report=dict(schema=f'{a.phase}/CLI/1',cases=[],checks=[],errors=[],unrun=[],
       qualifications='Real production decoder and uninstalled P10 candidate only; P15 release activation unchanged')
     with tempfile.TemporaryDirectory(prefix='p11-cli-') as temp:
         t=Path(temp)
@@ -131,7 +133,7 @@ def main():
                 report['checks'].append(dict(name=f'{family}-{tier}-buffer-thread-byte-invariance',
                                             status='PASS' if good else 'FAIL',case_count=len(rows)))
                 atomic(output,report)
-            for bad in ('avx2','unsupported'):
+            for bad in ('avx2-fma','unsupported'):
                 try:
                     row=invoke(family,bad,257,'--single-threaded',active='invalid')
                     report['cases'].append(row)
@@ -165,8 +167,8 @@ def main():
     report['status']='PASS' if not report['errors'] and all(x['status']=='PASS' for x in report['checks']) else 'FAIL'
     atomic(output,report)
     for item in report['checks']:
-        print('P11 CLI',item['name'],item['status'],flush=True)
-    print('P11 forced end-to-end',report['status'],len(report['cases']),'executions',flush=True)
+        print(a.phase,'CLI',item['name'],item['status'],flush=True)
+    print(a.phase,'forced end-to-end',report['status'],len(report['cases']),'executions',flush=True)
     return 0 if report['status']=='PASS' else 1
 
 if __name__=='__main__':raise SystemExit(main())
