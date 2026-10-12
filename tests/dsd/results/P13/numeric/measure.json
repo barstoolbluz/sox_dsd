@@ -1,0 +1,542 @@
+{
+  "executed_command": [
+    "tests/dsd/measure.py",
+    "--phase",
+    "P13",
+    "--results",
+    "tests/dsd/results/P13/numeric"
+  ],
+  "filters_evidence": {
+    "certificate": "numeric/filter-certificate.json",
+    "manifest": "tests/dsd/reference/p06_coefficients.json",
+    "path": "src/dsd_coeffs.h",
+    "sha256": "853c3e4c1902124513d99706a40a08c9b33363f7e18810ec41a955ab0b598d17",
+    "status": "P06_certified_final_hex"
+  },
+  "independent_analysis": {
+    "candidate_qualification": "INCOMPLETE; P10 qualification and soak unrun",
+    "status": "frozen-selftests-passed"
+  },
+  "native_commands": [
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/source.dsf",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0029922620000206734
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0023405649999403977
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/source.dsf",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0022701179999558008
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0023314160000609263
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/source.dsf",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0023827429999982996
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.005529052000042611
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/source.dsf",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0021666449999884208
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0057351460000063526
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/source.dsf",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0023096200000054523
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0020093620000807277
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/source.dsf",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.00236576099996455
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.002206299000022227
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/source.dsf",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.002200072999926306
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 2,
+      "stderr": "sox_ng FAIL formats: DSF cannot encode this channel identity\n",
+      "stdout": "",
+      "wall_seconds": 0.0024722679999058528
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "--dsd-layout",
+        "FL,FR,FC,LFE,BL,BR",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.002737690999992992
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/source.dsf",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0029541730000346433
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 2,
+      "stderr": "sox_ng FAIL formats: DSF cannot encode this channel identity\n",
+      "stdout": "",
+      "wall_seconds": 0.0046885569998948995
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "--dsd-layout",
+        "FL,FR,FC,LFE,BL,BR",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.002925333000007413
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/source.dsf",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0030053819999693587
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 2,
+      "stderr": "sox_ng FAIL formats: DSF cannot encode this channel identity\n",
+      "stdout": "",
+      "wall_seconds": 0.004615295999997215
+    },
+    {
+      "command": [
+        "/mnt/data/p13-work/sox_ng/src/sox_ng",
+        "-D",
+        "/tmp/dsd-p01-chronology-sm_q25it/out.dff",
+        "--dsd-layout",
+        "FL,FR,FC,LFE,BL,BR",
+        "/tmp/dsd-p01-chronology-sm_q25it/back.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.004852763000030791
+    }
+  ],
+  "phase": "P13",
+  "procedures": {
+    "frozen_sha256": "7a5e104099fb18224e589d03b676c0ca3e9c8036eedb87b0fbd1de1d9bee1616",
+    "reference": "tests/dsd/reference/analysis-v1/manifest.json",
+    "scoring": "tests/dsd/reference/analysis-v1/analyze.py",
+    "verification": "tests/dsd/reference/analysis-v1/verify.py"
+  },
+  "python": "3.13.5",
+  "quality_measurements": [
+    {
+      "path": "numeric/candidate/candidate-analysis-v1.json",
+      "status": "analytic-scalar-unqualified"
+    }
+  ],
+  "schema": "dsd-numerical-results/1",
+  "source_fixture_catalog": "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/manifest.json",
+  "summary": {
+    "failed": 0,
+    "passed": 9,
+    "unrun_gates": [
+      "P10 full production PCM interpolation/filter qualification",
+      "P10 30-minute per-rate and one-hour ISA soaks",
+      "real-world independent DSD corpus"
+    ]
+  },
+  "unit_tests": [
+    {
+      "detail": {
+        "quarter_sine_power_dbfs": -6.020599913279624,
+        "sine_power_dbfs": 0.0
+      },
+      "name": "normalized_power_dbfs_and_snr",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "fit_amplitude": 0.25000000000000006,
+        "phase": 0.3000000000000113,
+        "residual_peak": 4.260480856999038e-14
+      },
+      "name": "independent_analytic_tone_fit",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "enbw_bins": 2.0043529382170475
+      },
+      "name": "window_coefficients_enbw",
+      "status": "pass"
+    },
+    {
+      "detail": [
+        {
+          "rate_hz": 88200,
+          "sha256": "572f00c737633b562dba5a9fe6b4de6af0720fc3754befd81ed5c1d41e532aa1"
+        },
+        {
+          "rate_hz": 352800,
+          "sha256": "1358b8cb0e6810062d66fb5d904cba7ad82349503d20f695b438311de808bf59"
+        },
+        {
+          "rate_hz": 705600,
+          "sha256": "b45c9046079ebe7b9d17b786470d92db84b58a85eaaaa39bcbae6fa474e52909"
+        }
+      ],
+      "name": "synthetic_pcm_sources",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "cases": 9,
+        "checks": [
+          {
+            "channels": 1,
+            "completed_chronology_sha256": "76e8387a1cfeb269591916f17db25865c40ca441473052fdffe495d53a575bed",
+            "completed_frames": 72,
+            "roundtrip_bits_unchanged": true,
+            "source_bits_unchanged": true,
+            "source_chronology_sha256": "85140b4ec676354b29149d0d716adf8b7a9b38cde512e1dc6d6a12474de52b9d",
+            "source_frames": 65
+          },
+          {
+            "channels": 1,
+            "completed_chronology_sha256": "178814360f24e28529d3507185b840b344a7534308c7aa621a5ad84445102eaa",
+            "completed_frames": 72,
+            "roundtrip_bits_unchanged": true,
+            "source_bits_unchanged": true,
+            "source_chronology_sha256": "178814360f24e28529d3507185b840b344a7534308c7aa621a5ad84445102eaa",
+            "source_frames": 72
+          },
+          {
+            "channels": 1,
+            "completed_chronology_sha256": "a5cd0b8655f9c865fdb021ea67c3ba7237f147f88c576112bc7695c828d7d215",
+            "completed_frames": 80,
+            "roundtrip_bits_unchanged": true,
+            "source_bits_unchanged": true,
+            "source_chronology_sha256": "c389da316f5c0a9064b3a56173f8f1efc4d940c6b714d66c18209a4ca3312d34",
+            "source_frames": 73
+          },
+          {
+            "channels": 2,
+            "completed_chronology_sha256": "1ef6f0b0b69a6498d533dfb1c6e7095fc70418827b34aadcd57117b31805f57f",
+            "completed_frames": 72,
+            "roundtrip_bits_unchanged": true,
+            "source_bits_unchanged": true,
+            "source_chronology_sha256": "60409e14fb02980823ba8ca5062a376a28e729b522d757e4eefc861a7c7a976b",
+            "source_frames": 65
+          },
+          {
+            "channels": 2,
+            "completed_chronology_sha256": "ce119c39031c61cf655237134ff5a8a50e5a1e52b74fe84d0678de965236c988",
+            "completed_frames": 72,
+            "roundtrip_bits_unchanged": true,
+            "source_bits_unchanged": true,
+            "source_chronology_sha256": "ce119c39031c61cf655237134ff5a8a50e5a1e52b74fe84d0678de965236c988",
+            "source_frames": 72
+          },
+          {
+            "channels": 2,
+            "completed_chronology_sha256": "19c37720cc3cd5b02977c1619d62d7bfd06a86798e66efb27b648aac5bfc3654",
+            "completed_frames": 80,
+            "roundtrip_bits_unchanged": true,
+            "source_bits_unchanged": true,
+            "source_chronology_sha256": "01d4f2bb0ff38435a468689d2742fae2cdcb1f65668ea87ddc0a9e451ae414df",
+            "source_frames": 73
+          },
+          {
+            "channels": 6,
+            "completed_chronology_sha256": "7fba993cfab20e6ffe6b39dd8065e7d61cc2b382b5a08ecfc149edd3c585e205",
+            "completed_frames": 72,
+            "roundtrip_bits_unchanged": true,
+            "source_bits_unchanged": true,
+            "source_chronology_sha256": "1c5ec451480fcf90a01506b1afd56fee7cb925ac0e39d97c10d43cee5733f943",
+            "source_frames": 65
+          },
+          {
+            "channels": 6,
+            "completed_chronology_sha256": "785229edc476be738cc2fb72d124f81c5a8ffb3596e885f65cb62472bdda3521",
+            "completed_frames": 72,
+            "roundtrip_bits_unchanged": true,
+            "source_bits_unchanged": true,
+            "source_chronology_sha256": "785229edc476be738cc2fb72d124f81c5a8ffb3596e885f65cb62472bdda3521",
+            "source_frames": 72
+          },
+          {
+            "channels": 6,
+            "completed_chronology_sha256": "10138805ec8273b0f1ac9d52e2c3460917b49472cf7973696f57cb4a441cafe4",
+            "completed_frames": 80,
+            "roundtrip_bits_unchanged": true,
+            "source_bits_unchanged": true,
+            "source_chronology_sha256": "10c3015f8895646429af4b7c56d9edb6a4bd914ba8494a7ae1aaa6ffd9d593cd",
+            "source_frames": 73
+          }
+        ],
+        "logical_endpoint_rule": "round up to eight frames only for a partial cluster",
+        "status": "pass"
+      },
+      "name": "P01_native_program_bits_and_completed_frame_counts",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "evidence": "filter-certificate.json",
+        "exit": 0,
+        "stderr": "",
+        "stdout": "{\"banks_passed\": 4, \"profiles_passed\": 6, \"failed\": 0} 9.4s\nmaster128 pass 6.859e-09 dB; stop -188.876 dB; alias -190.737 dB; HP stop -188.876 dB\nmaster256 pass 5.518e-09 dB; stop -188.733 dB; alias -186.788 dB; HP stop -188.733 dB\nmaster64 pass 5.464e-09 dB; stop -188.733 dB; alias -186.905 dB; HP stop -188.733 dB\nwide128 pass 7.180e-09 dB; stop -187.410 dB; alias -182.442 dB; HP stop -187.410 dB\nwide256 pass 7.180e-09 dB; stop -187.410 dB; alias -182.442 dB; HP stop -187.410 dB\nwide64 pass 7.180e-09 dB; stop -187.410 dB; alias -182.442 dB; HP stop -187.410 dB\n"
+      },
+      "name": "P06_independent_coefficients_and_composites",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "evidence": "scalar/oracle.json",
+        "exit": 0,
+        "stderr": "",
+        "stdout": "P06 scalar oracle PASS: 1056 vectors, 58408 frame/channel samples, 5656 high-precision checks; largest bound fraction 0.000033; 10.9s\n"
+      },
+      "name": "P06_high_precision_finite_stream_oracle",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "evidence": "analysis-v1-selftest.json",
+        "exit": 0,
+        "stderr": "",
+        "stdout": "{\"failed\": 0, \"passed\": 8, \"results\": \"tests/dsd/results/P13/numeric\"}\n"
+      },
+      "name": "P09_frozen_analysis_selftests",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "evidence": "candidate/candidate-analysis-v1.json",
+        "exit": 0,
+        "stderr": "",
+        "stdout": "measured training 2822400 legacy analysis-v1 residual -112.243\nmeasured training 2822400 sdm-8 analysis-v1 residual -146.545\nmeasured training 2822400 sdm-6 analysis-v1 residual -133.993\nmeasured training 2822400 clans-8 analysis-v1 residual -126.811\nmeasured holdout 2822400 legacy analysis-v1 residual -112.985\nmeasured holdout 2822400 sdm-8 analysis-v1 residual -147.539\nmeasured holdout 2822400 sdm-6 analysis-v1 residual -135.216\nmeasured holdout 2822400 clans-8 analysis-v1 residual -127.69\nmeasured training 5644800 legacy analysis-v1 residual -137.351\nmeasured training 5644800 sdm-8 analysis-v1 residual -197.743\nmeasured training 5644800 sdm-6 analysis-v1 residual -173.055\nmeasured training 5644800 clans-8 analysis-v1 residual -186.659\nmeasured holdout 5644800 legacy analysis-v1 residual -138.385\nmeasured holdout 5644800 sdm-8 analysis-v1 residual -198.7\nmeasured holdout 5644800 sdm-6 analysis-v1 residual -174.375\nmeasured holdout 5644800 clans-8 analysis-v1 residual -187.777\nmeasured training 11289600 legacy analysis-v1 residual -159.061\nmeasured training 11289600 sdm-8 analysis-v1 residual -248.662\nmeasured training 11289600 sdm-6 analysis-v1 residual -212.237\nmeasured training 11289600 clans-8 analysis-v1 residual -234.524\nmeasured holdout 11289600 legacy analysis-v1 residual -160.47\nmeasured holdout 11289600 sdm-8 analysis-v1 residual -249.624\nmeasured holdout 11289600 sdm-6 analysis-v1 residual -213.547\nmeasured holdout 11289600 clans-8 analysis-v1 residual -235.349\n{\"measured\": 24, \"failed\": 0, \"rankings\": 6}\n"
+      },
+      "name": "P09_scalar_candidate_analysis_v1",
+      "status": "pass"
+    }
+  ],
+  "utc_timestamp": "2026-10-12T02:56:28Z"
+}

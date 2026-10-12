@@ -262,9 +262,12 @@ DSD_SSE2_CFLAGS='-msse2 -mno-avx -ffp-contract=off -fno-lto'
 DSD_AVX1_CFLAGS='-mavx -mno-avx2 -mno-fma -ffp-contract=off -fno-lto'
 dnl P12 baseline requires AVX2 permutations, but must NOT require FMA.
 DSD_AVX2_CFLAGS='-mavx2 -mno-fma -ffp-contract=off -fno-lto'
+dnl P13: AVX-512F only, not DQ/BW/VL/FMA. Compiler must prove isolation.
+DSD_AVX512_CFLAGS='-mavx512f -mno-avx512dq -mno-avx512bw -mno-avx512vl -mno-fma -ffp-contract=off -fno-lto'
 have_dsd_sse2=no
 have_dsd_avx1=no
 have_dsd_avx2=no
+have_dsd_avx512=no
 case "$host_cpu" in
   i?86|x86_64|amd64)
     save_p11_CFLAGS=$CFLAGS
@@ -290,6 +293,16 @@ case "$host_cpu" in
         volatile double out[4]; _mm256_storeu_pd((double *)out,d);]])],
       [have_dsd_avx2=yes],[])
     AC_MSG_RESULT([$have_dsd_avx2])
+    CFLAGS="$save_p11_CFLAGS $DSD_AVX512_CFLAGS"
+    AC_MSG_CHECKING([for isolated non-FMA AVX-512F permutations and opmask])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <immintrin.h>]],
+      [[__m512d d = _mm512_set1_pd(1.);
+        __m512i v = _mm512_setr_epi64(7,6,5,4,3,2,1,0);
+        d = _mm512_permutexvar_pd(v,d);
+        d = _mm512_maskz_mov_pd(0x7f,d);
+        volatile double out[8]; _mm512_storeu_pd((double *)out,d);]])],
+      [have_dsd_avx512=yes],[])
+    AC_MSG_RESULT([$have_dsd_avx512])
     CFLAGS=$save_p11_CFLAGS
     ;;
 esac
@@ -302,6 +315,11 @@ fi
 if test "$have_dsd_avx2" = yes; then
   AC_DEFINE([HAVE_DSD_AVX2], [1], [Have isolated non-FMA AVX2 DSD kernels])
 fi
+if test "$have_dsd_avx512" = yes; then
+  AC_DEFINE([HAVE_DSD_AVX512], [1], [Have isolated non-FMA AVX-512F DSD kernels])
+fi
+AM_CONDITIONAL([HAVE_DSD_AVX512], [test "$have_dsd_avx512" = yes])
+AC_SUBST([DSD_AVX512_CFLAGS])
 AM_CONDITIONAL([HAVE_DSD_AVX2], [test "$have_dsd_avx2" = yes])
 AC_SUBST([DSD_AVX2_CFLAGS])
 AM_CONDITIONAL([HAVE_DSD_SSE2], [test "$have_dsd_sse2" = yes])

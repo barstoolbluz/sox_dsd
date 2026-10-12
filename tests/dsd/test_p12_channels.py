@@ -32,10 +32,13 @@ def main():
     ap.add_argument('--results',type=Path,required=True)
     ap.add_argument('--sox',type=Path,default=ROOT/'src/sox_ng')
     ap.add_argument('--candidate',type=Path,default=ROOT/'test/sox_p10_candidate')
+    ap.add_argument('--phase',default='P12')
+    ap.add_argument('--tiers',nargs='+',default=['scalar','avx2'])
     a=ap.parse_args()
+    if 'scalar' not in a.tiers: ap.error('scalar required for numerical comparison')
     out=a.results/'channels.json'
-    record=dict(schema='P12/channel-wrappers/1',cases=[],checks=[],errors=[],
-        qualification='Forced scalar and AVX2 production CLI, 1/2/5/6 channels')
+    record=dict(schema=f'{a.phase}/channel-wrappers/1',cases=[],checks=[],errors=[],
+        qualification='Forced per-tier production CLI, 1/2/5/6 channels',tiers=a.tiers)
     with tempfile.TemporaryDirectory(prefix='p12-channels-') as temp:
         t=Path(temp)
         for channels in (1,2,5,6):
@@ -52,7 +55,7 @@ def main():
                 f.writeframes(np.rint(samples*(2**31-1)).astype('<i4').tobytes())
             for family in ('decode','encode'):
                 per_tier={}
-                for tier in ('scalar','avx2'):
+                for tier in a.tiers:
                     per_tier[tier]=[]
                     for buffer in (257,8192):
                         target=t/(f'{family}-{channels}-{tier}-{buffer}.'+('wav' if family=='decode' else 'dsf'))
@@ -103,19 +106,21 @@ def main():
                     record['checks'].append(dict(name=f'{family}-{channels}ch-{tier}-buffer-invariance',
                         status='PASS' if good else 'FAIL'))
                     if not good:record['errors'].append(dict(family=family,channels=channels,tier=tier,error='buffer invariance'))
-                if family=='decode' and all(per_tier.values()):
+                if family=='decode' and per_tier.get('scalar'):
                     lhs=per_tier['scalar'][0]['data'].astype(np.int64)
-                    rhs=per_tier['avx2'][0]['data'].astype(np.int64)
-                    delta=int(np.max(np.abs(lhs-rhs))) if lhs.shape==rhs.shape else None
-                    good=delta is not None and delta<=1
-                    record['checks'].append(dict(name=f'decode-{channels}ch-scalar-avx2-lsb',
-                        status='PASS' if good else 'FAIL',max_delta=delta))
-                    if not good:record['errors'].append(dict(channels=channels,error='graph sample delta',delta=delta))
+                    for tier in a.tiers:
+                        if tier=='scalar' or not per_tier.get(tier): continue
+                        rhs=per_tier[tier][0]['data'].astype(np.int64)
+                        delta=int(np.max(np.abs(lhs-rhs))) if lhs.shape==rhs.shape else None
+                        good=delta is not None and delta<=1
+                        record['checks'].append(dict(name=f'decode-{channels}ch-scalar-{tier}-lsb',
+                            status='PASS' if good else 'FAIL',max_delta=delta))
+                        if not good:record['errors'].append(dict(channels=channels,tier=tier,error='graph sample delta',delta=delta))
                 save(out,record)
     record['status']='PASS' if not record['errors'] else 'FAIL'
     save(out,record)
     for r in record['checks']:print(r['status'],r['name'],r.get('max_delta',''))
-    print('P12 channels',record['status'],len(record['cases']),'executions')
+    print(a.phase,'channels',record['status'],len(record['cases']),'executions')
     return 0 if record['status']=='PASS' else 1
 
 if __name__=='__main__':raise SystemExit(main())

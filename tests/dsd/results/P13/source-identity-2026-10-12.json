@@ -1,0 +1,78 @@
+{
+  "phase": "P13",
+  "date": "2026-10-12",
+  "status": "CLOSED",
+  "original_input": {
+    "filename": "sox_ng-P13-20059dbf.tar.gz",
+    "sha256_verified": "81c9aa9a98f6e8800af77055e00ea354fd4ffb6ad9bce6f02e0720fb9a879aa1",
+    "files": 3829
+  },
+  "recovered_predecessor": {
+    "filename": "sox_ng-P12canary-corrected-2026-10-11.tar.gz",
+    "sha256_verified": "48324520a7a121b91f9dd954d3fe894c3fe1c5e002ff2b000b83c1c3a7c40642",
+    "files": 3827
+  },
+  "accepted_p13_delivery": {
+    "filename": "sox_ng-P13-implementation-2026-10-11.tar.gz",
+    "sha256_verified": "b7fed2e88ceae9d1db686105fab1d4f8a088a362c4fd54f1f99048dd29b72708",
+    "files": 4023
+  },
+  "content_comparison": {
+    "byte_identical_shared_files": 3826,
+    "shared_different_generated_inventory": {
+      "file": "tests/dsd/results/P00/P00_SHA256SUMS.txt",
+      "specified_original_sha256": "10d0cd27c048bcea68432b0c11283857e2a92aff9c17877b3830e0f805e59a94",
+      "recovered_predecessor_sha256": "b432e0f1aa027d73ab7484685b01c90dce84b32cfebc774d1516dbcb592cf12b"
+    },
+    "original_only_evidence": {
+      "tests/dsd/results/P12_canary_fix_prepared_host_2026-10-11/README.md": "a540edacb936dc182f16abb2f497f3c42b16e51f704867b2716b2b24507da3d6",
+      "tests/dsd/results/P12_canary_fix_prepared_host_2026-10-11/bench-read.json": "d898ecc37379dfa45492e9a1d1511301f80c1fec63b5817bf5c1719cdd5a83bc"
+    },
+    "recovered_only_files": [],
+    "source_build_test_fixture_and_authority_differences": []
+  },
+  "original_mode_differences_non_executable": [
+    "docs/dsd/handoffs/P12_CANARY.md",
+    "tests/dsd/results/P12_canary_fix_2026-10-11/CURRENT_SOURCE_SHA256SUMS.txt",
+    "tests/dsd/results/P12_canary_fix_2026-10-11/README.md",
+    "tests/dsd/results/P12_canary_fix_2026-10-11/local-benchmark-summary.json"
+  ],
+  "reconstruction": {
+    "base": "specified_original",
+    "p13_delta_sha256": "a8b0bf6e490220d7c62a0cb604c5e487fd6238522c8547ee778dd8c0d9507493",
+    "p13_modified_source_files": [
+      "Makefile.am",
+      "configure.ac",
+      "src/Makefile.am",
+      "src/dsd_decode.c",
+      "src/dsd_dispatch.c",
+      "src/dsd_kernels.h",
+      "test/Makefile.am",
+      "tests/dsd/bench.py",
+      "tests/dsd/bench_p11.py",
+      "tests/dsd/bench_p11_e2e.py",
+      "tests/dsd/test_p12_channels.py",
+      "tests/dsd/test_plan.py"
+    ],
+    "p13_new_source_files": [
+      "src/dsd_kernels_avx512.c",
+      "tests/dsd/bench_p13_matrix.py",
+      "tests/dsd/check_p13_isa.py",
+      "tests/dsd/test_p13.c"
+    ],
+    "accepted_p13_source_files_verified_byte_identical": 16,
+    "original_p12_evidence_preserved": true,
+    "previous_p13_results_preserved": 190
+  },
+  "verification": {
+    "source_patch_dry_run": "PASS",
+    "source_patch_apply": "PASS",
+    "source_content_hash_match": "16/16 PASS",
+    "existing_functional_test_replay": "Not repeated; no build, test or runtime source bytes changed from accepted P13; refer to P13 handoff for executed previous results",
+    "benchmark_replay": "Not repeated; no performance-relevant source bytes changed"
+  },
+  "outstanding_unrelated": [
+    "Physical Intel/AMD AVX-512 performance qualification",
+    "Inherited P10 long-soak and independent real-corpus release gates"
+  ]
+}

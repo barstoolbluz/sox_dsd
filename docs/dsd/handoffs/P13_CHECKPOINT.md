@@ -1,0 +1,42 @@
+# P13 implementation checkpoint (2026-10-11)
+
+## Provenance and recovery
+
+**Updated 2026-10-12: source provenance CLOSED.** The initial P13 implementation used the recovered `sox_ng-P12canary-corrected-2026-10-11.tar.gz` (SHA-256 `48324520a7a121b91f9dd954d3fe894c3fe1c5e002ff2b000b83c1c3a7c40642`), because the specified archive was not then available. The specified `sox_ng-P13-20059dbf.tar.gz` has since been obtained and verified against SHA-256 `81c9aa9a98f6e8800af77055e00ea354fd4ffb6ad9bce6f02e0720fb9a879aa1`. The effective source/build/test/fixture/authority contents are identical; there are only three historical evidence exceptions. This continuation was reconstructed from the specified archive by applying the validated P13 source patch; all 16 P13 code/build/test files match the tested delivery byte-for-byte. See `P13_SOURCE_RECONCILIATION.md`. Historical checkpoint language below describes what was open **when each checkpoint was taken**, not the current acceptance status.
+
+Resume: extract this complete source-only checkpoint. Run `autoreconf -fi`, `./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'`, `make -j2`, and the named P13 tests. Build outputs are intentionally absent from the checkpoint. Prior-phase evidence was preserved as received.
+
+## Implementation checkpoint
+
+Implemented independent AVX-512F (not DQ/BW/VL/FMA) eight-output FIR and one eight-coordinate SDM kernel in `src/dsd_kernels_avx512.c`; feature-gated dispatcher and per-object compile flags; unchanged conservative automatic preference; `test_p13.c`, P13 ISA audit, P13 benchmark matrix and end-to-end benchmark threading, and Makefile runner wiring.
+
+Validated (before checkpoint): `autoreconf -fi` exit 0; configure exit 0; `make -j4` exit 0; `make -C test dsd_test_p11 dsd_test_p13 dsd_test_p12_bounds` exit 0; `test/dsd_test_p13` exit 0 (CPUID / incomplete XCR0 / page guard / SDM); `python3 tests/dsd/check_p13_isa.py --results tests/dsd/results/P13/isa` exit 0 after correcting overly conservative audit classification of AVX-512F vextractf64x4 / vinsertf64x4; `make check` exit 0. Initial `make check-dsd DSD_PHASE=P13` exit 2 at obsolete P05 test `explicit_bad_kernel` that expected baseline AVX-512 to be unavailable. The targeted test was updated to use unsupported `avx512-fma`; `python3 tests/dsd/test_plan.py --sox src/sox_ng --results tests/dsd/results/P13/plan-fixed` exit 0 (156 pass). Preserve initial failing gate log and repeat full P13 gate.
+
+NOT YET VERIFIED at checkpoint: complete rerun `make check-dsd`; independent `run.py`/`measure.py`/`bench.py` P13 invocation; host-wide e2e benchmarking; separate physical Intel and AMD hardware, vendor-qualified auto preference, and identity with the then-unavailable archive (closed by reconciliation on 2026-10-12). The other items in this historical checkpoint were still open at the time. The delivered state is **not release qualified** yet.
+
+## Correction after executable P13 failure
+
+The first full `make check-dsd .../runner-replay` failed (exit 2) at `P13 CLI decode-avx512-buffer-thread-byte-invariance`: all four forced AVX-512 decoder jobs rejected the stream with status `SOX_DSD_NUMERIC_ERROR(7)`. Root cause was *not* the numerical FIR: `src/dsd_decode.c` accepted the new kernel selection but omitted its process and finish dispatch cases. The minimal correction adds the P13 `feed_avx512` / `accept_frame_avx512` cascade, process and EOF routing. `make -j4` exit 0, `test/dsd_test_p13` exit 0 (expanded to 190,404 protected-page FIR comparisons, all odd 1..257 taps), and `test_p11_integration.py --phase P13 --tiers scalar sse2 avx1 avx2 avx512 .../forced-cli-fixed` exit 0 (45 executions). `bench_p11_e2e.py --threads 2` now supplies `OMP_NUM_THREADS=2` instead of defeating the multithread workload. Preserve the failed CLI report and the fixed replay side by side. A full P13 suite rerun remains necessary.
+
+## ISA subset correction before benchmark
+
+A deliberate compiler-flag experiment proved GCC 14 enables AVX2 as a lower-tier feature when `-mavx512f` is selected. Attempting to force `-mno-avx2` after `-mavx512f` made the AVX-512 intrinsic configure probe fail (`configure-final.log` reports `no`), and the interrupted/restarted trial build correctly omitted the kernel. This failed experiment **was not** an accepted implementation. The final AVX-512F flags use `-mavx512f -mno-avx512dq -mno-avx512bw -mno-avx512vl -mno-fma -ffp-contract=off -fno-lto`; the AVX-512 descriptor explicitly requires AVX2 as well as AVX1/SSE2/AVX-512F. CPUID mocks now demand rejection on AVX-512F-without-AVX2 and success when AVX2 is advertised. This is a conservative toolchain-derived requirement, not a claim about every conceivable AVX-512 implementation. `configure-qualified.log` reports the AVX-512F compiler probe `yes`; `make-qualified.log` exit 0; `test/dsd_test_p13` exit 0 (190,404 protected-page FIR comparisons), `check_p13_isa.py` exit 0 including an audit of the AVX2 dependency; `make-check-qualified.log` exit 0. The complete last `make check-dsd` rerun and P13 benchmarks are still pending at this checkpoint. The *earlier* full P13 DSD gate (prior to this subset correction) exited 0, as did the independent P13 run and measure entry points.
+
+## Final verified continuation state (after the above intermediate checkpoints)
+
+The earlier paragraphs deliberately preserve what was *unverified at the time* of each checkpoint. Those open working-state gates have since been executed on the qualified VM configuration; their passing evidence is delivered alongside the failing/recovered traces.
+
+- `autoreconf -fi`, configure (AVX-512F isolated probe `yes`), `make -j4`, `make check`: **exit 0**. The additionally executed `make -j2` returned **0** against the already-built tree (`build/make-j2-final.log`).
+- `make check-dsd DSD_PHASE=P13 DSD_RESULTS=tests/dsd/results/P13/runner-qualified`: **exit 0**. Includes inherited P00-P12 suites, P13 unit/ISA, 45 forced CLI runs, 48 multichannel variants and 12 frozen cross-ISA numerical comparisons.
+- `python3 tests/dsd/run.py --phase P13 --results tests/dsd/results/P13/run-replay --sox "$PWD/src/sox_ng" --probe "$PWD/test/dsd_test_io" --writer-unit "$PWD/test/dsd_test_dff_writer"`: **exit 0, 36/36**. Absolute binary paths are necessary for this runner's temporary working directories.
+- `python3 tests/dsd/measure.py --phase P13 --results tests/dsd/results/P13/numeric`: **exit 0, 9/9**; inherited P10/corpus release gaps remain open.
+- `python3 tests/dsd/bench.py --phase P13 --results tests/dsd/results/P13/bench`: **exit 0**, generic **36/36** and P13 AVX2-versus-AVX-512 paired matrix **7/7 PASS**, 15 repeats each. Isolated kernel gains do **not** translate into a reliable whole-conversion improvement on the VM, so automatic selection remains unchanged.
+- `python3 tests/dsd/check_p13_isa.py --results tests/dsd/results/P13/isa-qualified`: **exit 0**, **20/20** static checks plus executable test coverage.
+
+Primary handoff with exact evidence locations and outstanding physical/vendor hardware gates: `docs/dsd/handoffs/P13.md`. Independent physical Intel and AMD qualification remains open; reconciliation to the specified `sox_ng-P13-20059dbf.tar.gz` was CLOSED on 2026-10-12. No P13 implementation defect was left known and uncorrected in the executed tests.
+
+Restorable source-only checkpoints have already been saved in the user's file collection as `/sox_ng-P13-checkpoint-initial-2026-10-11.tar.gz`, `/sox_ng-P13-checkpoint-implementation-2026-10-11.tar.gz`, `/sox_ng-P13-checkpoint-decoder-fixed-2026-10-11.tar.gz` and `/sox_ng-P13-checkpoint-isa-qualified-2026-10-11.tar.gz`. The **final P13 delivery** supersedes all partial checkpoints and contains the complete updated test result directory.
+
+## Packaged-source clean-extraction regression (final postscript)
+
+An extracted source-only archive independently configured and built with `make -j2` and passed `make check`, `dsd_test_p13`, guarded bounds, ISA audit, 45 forced CLI tests, 48 channel tests and 12 cross-ISA tests (all exit 0). The separate full inherited P00–P13 replay on this fresh checkout hit the environment's 240-second foreground limit during P07; it did not finish and is **not** a PASS. The original fully executed development-tree P00–P13 gate remains PASS. The P13 code files in the final bundle were hash-matched to this successful fresh extraction. `tests/dsd/results/P13/packaged-recheck/execution-status.json` and its logs preserve the distinction.

@@ -1,0 +1,185 @@
+{
+  "coefficients_manifest_sha256": "cc56c94d2fe9c815ed9e581294a2259a8591137a53dba65663da162e72eee746",
+  "failed": 0,
+  "passed": 8,
+  "schema": "analysis-v1/selftest/1",
+  "tests": [
+    {
+      "name": "filter_response_2822400",
+      "result": {
+        "dc_sum": 0.9999999999999999,
+        "frequency_bins": 1048577,
+        "group_delay_native": 4841,
+        "passband_max_abs_db": 1.8166328688169174e-09,
+        "rate_hz": 2822400,
+        "taps": 9683,
+        "worst_stopband_db": -193.23461874736802
+      },
+      "status": "pass"
+    },
+    {
+      "name": "filter_count_direct_oracle_2822400",
+      "result": {
+        "count_cases": [
+          {
+            "frames": 0,
+            "output_samples": 0
+          },
+          {
+            "frames": 1,
+            "output_samples": 1
+          },
+          {
+            "frames": 31,
+            "output_samples": 1
+          },
+          {
+            "frames": 32,
+            "output_samples": 1
+          },
+          {
+            "frames": 33,
+            "output_samples": 2
+          },
+          {
+            "frames": 73,
+            "output_samples": 3
+          },
+          {
+            "frames": 513,
+            "output_samples": 17
+          }
+        ],
+        "rate_hz": 2822400
+      },
+      "status": "pass"
+    },
+    {
+      "name": "filter_response_5644800",
+      "result": {
+        "dc_sum": 1.0,
+        "frequency_bins": 1048577,
+        "group_delay_native": 9682,
+        "passband_max_abs_db": 1.8183831231690775e-09,
+        "rate_hz": 5644800,
+        "taps": 19365,
+        "worst_stopband_db": -194.7155463164617
+      },
+      "status": "pass"
+    },
+    {
+      "name": "filter_count_direct_oracle_5644800",
+      "result": {
+        "count_cases": [
+          {
+            "frames": 0,
+            "output_samples": 0
+          },
+          {
+            "frames": 1,
+            "output_samples": 1
+          },
+          {
+            "frames": 63,
+            "output_samples": 1
+          },
+          {
+            "frames": 64,
+            "output_samples": 1
+          },
+          {
+            "frames": 65,
+            "output_samples": 2
+          },
+          {
+            "frames": 137,
+            "output_samples": 3
+          },
+          {
+            "frames": 513,
+            "output_samples": 9
+          }
+        ],
+        "rate_hz": 5644800
+      },
+      "status": "pass"
+    },
+    {
+      "name": "filter_response_11289600",
+      "result": {
+        "dc_sum": 1.0,
+        "frequency_bins": 1048577,
+        "group_delay_native": 19364,
+        "passband_max_abs_db": 1.8192596968363583e-09,
+        "rate_hz": 11289600,
+        "taps": 38729,
+        "worst_stopband_db": -198.13754881077347
+      },
+      "status": "pass"
+    },
+    {
+      "name": "filter_count_direct_oracle_11289600",
+      "result": {
+        "count_cases": [
+          {
+            "frames": 0,
+            "output_samples": 0
+          },
+          {
+            "frames": 1,
+            "output_samples": 1
+          },
+          {
+            "frames": 127,
+            "output_samples": 1
+          },
+          {
+            "frames": 128,
+            "output_samples": 1
+          },
+          {
+            "frames": 129,
+            "output_samples": 2
+          },
+          {
+            "frames": 265,
+            "output_samples": 3
+          },
+          {
+            "frames": 513,
+            "output_samples": 5
+          }
+        ],
+        "rate_hz": 11289600
+      },
+      "status": "pass"
+    },
+    {
+      "name": "coherent_and_noncoherent_known_noise_distortion",
+      "result": {
+        "blackman_harris_enbw_bins": 2.0043529382170475,
+        "coherent_fitted_amp": 0.32999999999999385,
+        "coherent_fitted_phase": 0.22999999999998894,
+        "distortion_thd_plus_noise_dbc": -39.999999999999794,
+        "expected_noise_power": 4.5306122448979585e-07,
+        "noise_power_error_db": 0.00818770977652207,
+        "noncoherent_fitted_amp": 0.4000031948564378,
+        "noncoherent_fitted_phase": 0.7000002421535604,
+        "noncoherent_noise_power": 4.539161818847372e-07
+      },
+      "status": "pass"
+    },
+    {
+      "name": "second_independent_filter_and_reconstruction",
+      "result": {
+        "alternative": "scipy.signal.firwin + direct polyphase upfirdn",
+        "frames": 16000,
+        "max_abs_difference": 1.199040866595169e-14,
+        "not_averaged": true,
+        "primary": "numpy/scipy FFT overlap-add with high precision frozen Kaiser",
+        "rate_hz": 2822400
+      },
+      "status": "pass"
+    }
+  ]
+}

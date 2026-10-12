@@ -50,6 +50,7 @@ def main():
     ap.add_argument('--native-rate',type=int,choices=[2822400,5644800,11289600],default=2822400)
     ap.add_argument('--channels',type=int,choices=[1,2,6],default=2)
     ap.add_argument('--pcm-rate',type=int,choices=[88200,176400,352800,705600],default=88200)
+    ap.add_argument('--threads',type=int,choices=[1,2],default=1)
     a=ap.parse_args()
     if not (1<=a.repetitions<=100 and 0<=a.warmups<=100 and
             .02<=a.decode_seconds<=30. and .02<=a.encode_seconds<=30.):
@@ -66,7 +67,7 @@ def main():
       config=dict(repetitions=a.repetitions,warmups=a.warmups,
                   decode_seconds=a.decode_seconds,encode_seconds=a.encode_seconds,
                   DSD_rate=a.native_rate,PCM_rate=a.pcm_rate,channels=a.channels,
-                  threads='single',sox_buffer_bytes=8192,random_seed=11),
+                  threads=a.threads,sox_buffer_bytes=8192,random_seed=11),
       measurements=[],warmups=[],summary={},errors=[],
       note='Host wall time includes CLI startup and output file I/O; no ISA preference inferred')
     r=random.Random(11)
@@ -91,14 +92,14 @@ def main():
                 target=d/(f'out-{family}-{tier}.'+('wav' if family=='decode' else 'dsf'))
                 if family=='decode':
                     argv=[a.sox,'--dsd-mode','auto','-D','--buffer','8192',
-                          '--single-threaded',dsd,'-r',str(a.pcm_rate),
+                          *(['--single-threaded'] if a.threads==1 else []),dsd,'-r',str(a.pcm_rate),
                           '-e','signed-integer','-b','32',target]
                 else:
                     argv=[a.candidate,'--dsd-mode','auto','--dsd-layout-loss','warn',
                           *(['--dsd-layout','FL,FR,FC,LFE,BL,BR'] if a.channels==6 else []),
-                          '-D','--buffer','8192','--single-threaded',
+                          '-D','--buffer','8192',*(['--single-threaded'] if a.threads==1 else []),
                           pcm,'-r',str(a.native_rate),target]
-                env=dict(os.environ,OMP_NUM_THREADS='1',SOX_OPTS='',
+                env=dict(os.environ,OMP_NUM_THREADS=str(a.threads),SOX_OPTS='',
                          LSX_DSD_FIR_KERNEL='avx2',LSX_DSD_SDM_KERNEL='avx2')
                 env['SOX_DSD_KERNEL_FIR']=tier if family=='decode' else 'not-a-fir-kernel'
                 env['SOX_DSD_KERNEL_SDM']=tier if family=='encode' else 'not-an-sdm-kernel'

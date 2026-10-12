@@ -1,0 +1,85 @@
+{
+  "combiner": {
+    "channels": 1,
+    "domain": "PCM_AUDIO",
+    "rate_hz": 88200
+  },
+  "decoder": {
+    "effective_bandwidth_hz": 20000,
+    "gain": 1,
+    "id": "decode.mastering.v1.dsd64",
+    "intermediate_hz": 88200,
+    "pass_hz": 20000,
+    "stop_hz": 40000
+  },
+  "dop_count": 0,
+  "encoder": {
+    "id": null,
+    "lowlevel_filter": null,
+    "modulator_input_scale": 0
+  },
+  "encoder_count": 0,
+  "executable": true,
+  "graph_decoder_count": 0,
+  "input_decoder_count": 1,
+  "inputs": [
+    {
+      "channels": 1,
+      "decoder_before_combiner": true,
+      "decoder_gain": 1,
+      "decoder_id": "decode.mastering.v1.dsd64",
+      "decoder_pass_hz": 20000,
+      "decoder_stop_hz": 40000,
+      "effective_bandwidth_hz": 20000,
+      "effective_domain": "PCM_AUDIO",
+      "effective_rate_hz": 88200,
+      "index": 0,
+      "native_domain": "DSD_NATIVE",
+      "native_rate_hz": 2822400,
+      "reference": 1,
+      "volume": 0.5,
+      "volume_consumed_by_decoder": true
+    }
+  ],
+  "layout_identity_preserved": true,
+  "level_reference": 1,
+  "mode": "auto",
+  "native_trim_seek": false,
+  "needs_unimplemented_dsp": false,
+  "output": {
+    "bits_per_sample": 32,
+    "channels": 1,
+    "domain": "PCM_AUDIO",
+    "encoding": 1,
+    "rate_hz": 88200
+  },
+  "policy": {
+    "bandwidth": "adapt",
+    "clip": "warn",
+    "decode": "mastering",
+    "dither_disabled": false,
+    "encode": "mastering",
+    "guarded": false,
+    "kernel_fir": "auto",
+    "kernel_sdm": "auto",
+    "layout_loss": "warn",
+    "level": "preserve",
+    "normalizing": false
+  },
+  "schema": "sox.dsd.plan.v1",
+  "steps": [
+    {
+      "after": "PCM_AUDIO",
+      "before": "DSD_NATIVE",
+      "channels_in": 1,
+      "channels_out": 1,
+      "implicit": true,
+      "input_index": 0,
+      "name": "input_dsdpcm",
+      "rate_in_hz": 2822400,
+      "rate_out_hz": 88200,
+      "reference": 1
+    }
+  ],
+  "unavailable_reason": null
+}

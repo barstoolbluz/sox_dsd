@@ -1,0 +1,5126 @@
+{
+  "commands": [
+    {
+      "command": [
+        "test/dsd_test_dff_writer"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"checks\":960,\"tail_cases\":42,\"io_failure_cases\":11,\"arithmetic\":\"pass\",\"tails\":\"pass\",\"errors\":\"pass\"}\n",
+      "wall_seconds": 0.0032222669999555364
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/mono_96.dsf",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":96,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":96,\"read_calls\":2,\"head_bits\":\"110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001\",\"tail_bits\":\"110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001\",\"fnv64\":\"28ba89aabfb1e814\"}\n",
+      "wall_seconds": 0.002817910999965534
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/stereo_96.dsf",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":192,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":192,\"read_calls\":2,\"head_bits\":\"101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110\",\"tail_bits\":\"10100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110\",\"fnv64\":\"8ce5d55dc4dabf2b\"}\n",
+      "wall_seconds": 0.002119531000062125
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/type4_quad_96.dsf",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":384,\"channels\":4,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":384,\"read_calls\":2,\"head_bits\":\"100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010\",\"tail_bits\":\"10100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010\",\"fnv64\":\"903e6bc1bcfd7075\"}\n",
+      "wall_seconds": 0.002032937000080892
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/six_96.dsf",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":576,\"channels\":6,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":576,\"read_calls\":2,\"head_bits\":\"100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001\",\"tail_bits\":\"01101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001\",\"fnv64\":\"b21ee3a3eb474adc\"}\n",
+      "wall_seconds": 0.001665171000013288
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/stereo_128.dff",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":256,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":256,\"read_calls\":2,\"head_bits\":\"1010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010\",\"tail_bits\":\"10010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010\",\"fnv64\":\"70d67e5e433ecfb5\"}\n",
+      "wall_seconds": 0.0022026010000217866
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/mono_128_manf.dff",
+        "128",
+        "0",
+        "8",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":128,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":8,\"remaining_returned\":120,\"read_calls\":2,\"head_bits\":\"100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011\",\"tail_bits\":\"100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011\",\"fnv64\":\"2c0fc8b01bdf16ec\"}\n",
+      "wall_seconds": 0.0017161750000695974
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/mono_96.dsf",
+        "96",
+        "8",
+        "0",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":96,\"channels\":1,\"rate\":2822400,\"first_read\":8,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":96,\"read_calls\":2,\"head_bits\":\"110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001\",\"tail_bits\":\"110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001\",\"fnv64\":\"28ba89aabfb1e814\"}\n",
+      "wall_seconds": 0.0020462969999925917
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/mono_96.dsf",
+        "1",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":96,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":96,\"read_calls\":97,\"head_bits\":\"110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001\",\"tail_bits\":\"110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001\",\"fnv64\":\"28ba89aabfb1e814\"}\n",
+      "wall_seconds": 0.0020795980000229974
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/mono_128_manf.dff",
+        "1",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":128,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":128,\"read_calls\":129,\"head_bits\":\"11001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011\",\"tail_bits\":\"11001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011\",\"fnv64\":\"cbc84ac35cf621bf\"}\n",
+      "wall_seconds": 0.0017375099999981103
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/one.dsf",
+        "16",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":1,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":1,\"read_calls\":2,\"head_bits\":\"1\",\"tail_bits\":\"1\",\"fnv64\":\"af63bc4c8601b62c\"}\n",
+      "wall_seconds": 0.0019448169999805032
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/empty.dsf",
+        "16",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":0,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":0,\"read_calls\":1,\"head_bits\":\"\",\"tail_bits\":\"\",\"fnv64\":\"cbf29ce484222325\"}\n",
+      "wall_seconds": 0.0019061929999679705
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/one_cluster.dff",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":8,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":8,\"read_calls\":2,\"head_bits\":\"11001101\",\"tail_bits\":\"11001101\",\"fnv64\":\"b7ce7aab1db102e6\"}\n",
+      "wall_seconds": 0.0016170030000921543
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/msb_stereo_96.dsf",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":192,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":192,\"read_calls\":2,\"head_bits\":\"101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110\",\"tail_bits\":\"10100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110\",\"fnv64\":\"8ce5d55dc4dabf2b\"}\n",
+      "wall_seconds": 0.0014784510000254159
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/mono_96.dsf",
+        "96",
+        "8",
+        "0",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":96,\"channels\":1,\"rate\":2822400,\"first_read\":8,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":96,\"read_calls\":2,\"head_bits\":\"110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001\",\"tail_bits\":\"110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001\",\"fnv64\":\"28ba89aabfb1e814\"}\n",
+      "wall_seconds": 0.001934725000069193
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/stereo_96.dsf",
+        "4096",
+        "0",
+        "16",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":192,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":16,\"remaining_returned\":176,\"read_calls\":2,\"head_bits\":\"10010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110\",\"tail_bits\":\"10100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110\",\"fnv64\":\"367739c8760385b5\"}\n",
+      "wall_seconds": 0.0015367889999424733
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/stereo_128.dff",
+        "4096",
+        "0",
+        "16",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":256,\"channels\":2,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":16,\"remaining_returned\":240,\"read_calls\":2,\"head_bits\":\"100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010\",\"tail_bits\":\"10010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010\",\"fnv64\":\"1273f8e1c9cda03f\"}\n",
+      "wall_seconds": 0.0021465699999225762
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/mono_128_manf.dff",
+        "128",
+        "0",
+        "8",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":128,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":8,\"remaining_returned\":120,\"read_calls\":2,\"head_bits\":\"100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011\",\"tail_bits\":\"100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011\",\"fnv64\":\"2c0fc8b01bdf16ec\"}\n",
+      "wall_seconds": 0.002086910999992142
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/mono_16.wsd",
+        "4096",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":16,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":16,\"read_calls\":2,\"head_bits\":\"1100110110011011\",\"tail_bits\":\"1100110110011011\",\"fnv64\":\"b555f7ff9334967f\"}\n",
+      "wall_seconds": 0.0018533700000489262
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/mono_16.wsd",
+        "1",
+        "0",
+        "-",
+        "0"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":16,\"channels\":1,\"rate\":2822400,\"first_read\":0,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":16,\"read_calls\":17,\"head_bits\":\"1100110110011011\",\"tail_bits\":\"1100110110011011\",\"fnv64\":\"b555f7ff9334967f\"}\n",
+      "wall_seconds": 0.001642571999923348
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "read",
+        "/tmp/dsd-wav-seek-2tabwxbs/mono.wav",
+        "8192",
+        "8",
+        "0",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"open\":true,\"length\":441,\"channels\":1,\"rate\":44100,\"first_read\":8,\"seek_rc\":0,\"olength_after_seek\":0,\"remaining_returned\":441,\"read_calls\":2,\"head_bits\":\"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\",\"tail_bits\":\"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\",\"fnv64\":\"cd7c6d1c58447aff\"}\n",
+      "wall_seconds": 0.001976756999965801
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write",
+        "/tmp/dsd-writer-probe-btczqrl1/output.dff",
+        "1",
+        "16"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"frames\":16,\"channels\":1}\n",
+      "wall_seconds": 0.0026024850000112565
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":1}\n",
+      "wall_seconds": 0.002597949999994853
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":1}\n",
+      "wall_seconds": 0.0021040730000549956
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":1}\n",
+      "wall_seconds": 0.002199613000016143
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":1}\n",
+      "wall_seconds": 0.0019377569999505795
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":1,\"channels\":1}\n",
+      "wall_seconds": 0.001853882999967027
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":1,\"channels\":1}\n",
+      "wall_seconds": 0.0020933079999849724
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":1,\"channels\":1}\n",
+      "wall_seconds": 0.0020820460000550156
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":1,\"channels\":1}\n",
+      "wall_seconds": 0.0029810319999796775
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":2,\"channels\":1}\n",
+      "wall_seconds": 0.002071185999966474
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":2,\"channels\":1}\n",
+      "wall_seconds": 0.0018666679999341795
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":2,\"channels\":1}\n",
+      "wall_seconds": 0.0018580349999410828
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":2,\"channels\":1}\n",
+      "wall_seconds": 0.0022111370000175157
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":3,\"channels\":1}\n",
+      "wall_seconds": 0.002224016000013762
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":3,\"channels\":1}\n",
+      "wall_seconds": 0.0021237990000599893
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":3,\"channels\":1}\n",
+      "wall_seconds": 0.0025048599999308863
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":3,\"channels\":1}\n",
+      "wall_seconds": 0.002793396000015491
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":4,\"channels\":1}\n",
+      "wall_seconds": 0.0018911959999741157
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":4,\"channels\":1}\n",
+      "wall_seconds": 0.0018511060000037105
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":4,\"channels\":1}\n",
+      "wall_seconds": 0.0020020629999635275
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":4,\"channels\":1}\n",
+      "wall_seconds": 0.0022376699999995253
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":5,\"channels\":1}\n",
+      "wall_seconds": 0.002157440000019051
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":5,\"channels\":1}\n",
+      "wall_seconds": 0.0037606009999535672
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":5,\"channels\":1}\n",
+      "wall_seconds": 0.002278276000083679
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":5,\"channels\":1}\n",
+      "wall_seconds": 0.0022354400000494934
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":1}\n",
+      "wall_seconds": 0.005695947999925011
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":1}\n",
+      "wall_seconds": 0.0029921630000444566
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":1}\n",
+      "wall_seconds": 0.005018860999939534
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":1}\n",
+      "wall_seconds": 0.0025565420000930317
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":7,\"channels\":1}\n",
+      "wall_seconds": 0.0023639099999854807
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":7,\"channels\":1}\n",
+      "wall_seconds": 0.002937548999966566
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":7,\"channels\":1}\n",
+      "wall_seconds": 0.0060551379999651544
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":7,\"channels\":1}\n",
+      "wall_seconds": 0.0036000300000296193
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":8,\"channels\":1}\n",
+      "wall_seconds": 0.008208490000015445
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":8,\"channels\":1}\n",
+      "wall_seconds": 0.011923173000013776
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":8,\"channels\":1}\n",
+      "wall_seconds": 0.005915247999951134
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":8,\"channels\":1}\n",
+      "wall_seconds": 0.004015663000018321
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":9,\"channels\":1}\n",
+      "wall_seconds": 0.005477952999967783
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":9,\"channels\":1}\n",
+      "wall_seconds": 0.006449691999932838
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":9,\"channels\":1}\n",
+      "wall_seconds": 0.0024708610000061526
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":9,\"channels\":1}\n",
+      "wall_seconds": 0.008323205000010603
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":10,\"channels\":1}\n",
+      "wall_seconds": 0.01879950000000008
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":10,\"channels\":1}\n",
+      "wall_seconds": 0.008342911999989155
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":10,\"channels\":1}\n",
+      "wall_seconds": 0.0021533010000212016
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":10,\"channels\":1}\n",
+      "wall_seconds": 0.0018491559999347373
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":11,\"channels\":1}\n",
+      "wall_seconds": 0.0018951040000274588
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":11,\"channels\":1}\n",
+      "wall_seconds": 0.0019462829999383757
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":11,\"channels\":1}\n",
+      "wall_seconds": 0.001665890000026593
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":11,\"channels\":1}\n",
+      "wall_seconds": 0.0033020460000443563
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":1}\n",
+      "wall_seconds": 0.0030567559999781224
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":1}\n",
+      "wall_seconds": 0.0020856899999444067
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":1}\n",
+      "wall_seconds": 0.0018801950000124634
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":1}\n",
+      "wall_seconds": 0.002105863999986468
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":13,\"channels\":1}\n",
+      "wall_seconds": 0.002227581000056489
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":13,\"channels\":1}\n",
+      "wall_seconds": 0.0021338770000056684
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":13,\"channels\":1}\n",
+      "wall_seconds": 0.0019638850000092134
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":13,\"channels\":1}\n",
+      "wall_seconds": 0.001914597999984835
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":14,\"channels\":1}\n",
+      "wall_seconds": 0.0019403300000249146
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":14,\"channels\":1}\n",
+      "wall_seconds": 0.001961288999950739
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":14,\"channels\":1}\n",
+      "wall_seconds": 0.0020426749999842286
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":14,\"channels\":1}\n",
+      "wall_seconds": 0.0020911940000587492
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":15,\"channels\":1}\n",
+      "wall_seconds": 0.0021458409999013384
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":15,\"channels\":1}\n",
+      "wall_seconds": 0.0020004440000320756
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":15,\"channels\":1}\n",
+      "wall_seconds": 0.0025691970000707443
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":15,\"channels\":1}\n",
+      "wall_seconds": 0.0019763190000503528
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":16,\"channels\":1}\n",
+      "wall_seconds": 0.0024636629999577053
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":16,\"channels\":1}\n",
+      "wall_seconds": 0.0019375140000192914
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":16,\"channels\":1}\n",
+      "wall_seconds": 0.0021413949999669057
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":16,\"channels\":1}\n",
+      "wall_seconds": 0.002179012000055991
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":17,\"channels\":1}\n",
+      "wall_seconds": 0.0021406350000461316
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":17,\"channels\":1}\n",
+      "wall_seconds": 0.0021669510000492664
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":17,\"channels\":1}\n",
+      "wall_seconds": 0.002275058000009267
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":17,\"channels\":1}\n",
+      "wall_seconds": 0.002445054999952845
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":23,\"channels\":1}\n",
+      "wall_seconds": 0.002584215999945627
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":23,\"channels\":1}\n",
+      "wall_seconds": 0.002764377000062268
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":23,\"channels\":1}\n",
+      "wall_seconds": 0.0019265710000127
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":23,\"channels\":1}\n",
+      "wall_seconds": 0.0021340670000427053
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":1}\n",
+      "wall_seconds": 0.0026952930001016284
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":1}\n",
+      "wall_seconds": 0.002317146999985198
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":1}\n",
+      "wall_seconds": 0.0021938469999440713
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "1",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":1}\n",
+      "wall_seconds": 0.0026416929999868444
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":2}\n",
+      "wall_seconds": 0.0025589409999611235
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":2}\n",
+      "wall_seconds": 0.004206595000027846
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":2}\n",
+      "wall_seconds": 0.004927675999965686
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":2}\n",
+      "wall_seconds": 0.00400644400008332
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":2,\"channels\":2}\n",
+      "wall_seconds": 0.003161824000017077
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":2,\"channels\":2}\n",
+      "wall_seconds": 0.0029859840000199256
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":2,\"channels\":2}\n",
+      "wall_seconds": 0.005030576999956793
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":2,\"channels\":2}\n",
+      "wall_seconds": 0.005488320000040403
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":4,\"channels\":2}\n",
+      "wall_seconds": 0.002641083000071376
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":4,\"channels\":2}\n",
+      "wall_seconds": 0.004005867999921975
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":4,\"channels\":2}\n",
+      "wall_seconds": 0.0024984589999803575
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":4,\"channels\":2}\n",
+      "wall_seconds": 0.0022622779999892373
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":2}\n",
+      "wall_seconds": 0.004276159000028201
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":2}\n",
+      "wall_seconds": 0.002364725000006729
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":2}\n",
+      "wall_seconds": 0.0030079749999458727
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":2}\n",
+      "wall_seconds": 0.002789740999901369
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":8,\"channels\":2}\n",
+      "wall_seconds": 0.0023893090000228767
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":8,\"channels\":2}\n",
+      "wall_seconds": 0.0035443900000018402
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":8,\"channels\":2}\n",
+      "wall_seconds": 0.002461293999999725
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":8,\"channels\":2}\n",
+      "wall_seconds": 0.0060117429999309024
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":10,\"channels\":2}\n",
+      "wall_seconds": 0.0036878560000559446
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":10,\"channels\":2}\n",
+      "wall_seconds": 0.0031573809999372315
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":10,\"channels\":2}\n",
+      "wall_seconds": 0.00319053599992003
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":10,\"channels\":2}\n",
+      "wall_seconds": 0.0030864860000292538
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":2}\n",
+      "wall_seconds": 0.006430797999996685
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":2}\n",
+      "wall_seconds": 0.001874536999935117
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":2}\n",
+      "wall_seconds": 0.005115866000096503
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":2}\n",
+      "wall_seconds": 0.0035951400000158173
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":14,\"channels\":2}\n",
+      "wall_seconds": 0.0020448550000082832
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":14,\"channels\":2}\n",
+      "wall_seconds": 0.001982026000064252
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":14,\"channels\":2}\n",
+      "wall_seconds": 0.0030097889999751715
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":14,\"channels\":2}\n",
+      "wall_seconds": 0.002628410000056647
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":16,\"channels\":2}\n",
+      "wall_seconds": 0.001997624000068754
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":16,\"channels\":2}\n",
+      "wall_seconds": 0.0018094419999670208
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":16,\"channels\":2}\n",
+      "wall_seconds": 0.0019629509999958827
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":16,\"channels\":2}\n",
+      "wall_seconds": 0.0018654539999261033
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":18,\"channels\":2}\n",
+      "wall_seconds": 0.002125432999946497
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":18,\"channels\":2}\n",
+      "wall_seconds": 0.0019607599999744707
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":18,\"channels\":2}\n",
+      "wall_seconds": 0.0019246599999860337
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":18,\"channels\":2}\n",
+      "wall_seconds": 0.0018636689999311784
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":20,\"channels\":2}\n",
+      "wall_seconds": 0.0020397410000896343
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":20,\"channels\":2}\n",
+      "wall_seconds": 0.0018457189999026014
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":20,\"channels\":2}\n",
+      "wall_seconds": 0.0018806759999279166
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":20,\"channels\":2}\n",
+      "wall_seconds": 0.001841839999997319
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":22,\"channels\":2}\n",
+      "wall_seconds": 0.0019333710000637438
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":22,\"channels\":2}\n",
+      "wall_seconds": 0.0017934480000576514
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":22,\"channels\":2}\n",
+      "wall_seconds": 0.002288592000013523
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":22,\"channels\":2}\n",
+      "wall_seconds": 0.0019442610000623972
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":2}\n",
+      "wall_seconds": 0.001910085999952571
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":2}\n",
+      "wall_seconds": 0.001994660999912412
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":2}\n",
+      "wall_seconds": 0.0018735339999693679
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":2}\n",
+      "wall_seconds": 0.0018973550000964678
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":26,\"channels\":2}\n",
+      "wall_seconds": 0.001757033999979285
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":26,\"channels\":2}\n",
+      "wall_seconds": 0.0019677719999435794
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":26,\"channels\":2}\n",
+      "wall_seconds": 0.0016867249998995248
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":26,\"channels\":2}\n",
+      "wall_seconds": 0.0023643890000357715
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":28,\"channels\":2}\n",
+      "wall_seconds": 0.0017327529999420221
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":28,\"channels\":2}\n",
+      "wall_seconds": 0.0018986100000120132
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":28,\"channels\":2}\n",
+      "wall_seconds": 0.002139564000003702
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":28,\"channels\":2}\n",
+      "wall_seconds": 0.002119730000003983
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":30,\"channels\":2}\n",
+      "wall_seconds": 0.001981542999942576
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":30,\"channels\":2}\n",
+      "wall_seconds": 0.002018367000005128
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":30,\"channels\":2}\n",
+      "wall_seconds": 0.002259135000031165
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":30,\"channels\":2}\n",
+      "wall_seconds": 0.002010466000001543
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":32,\"channels\":2}\n",
+      "wall_seconds": 0.0027988619999632647
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":32,\"channels\":2}\n",
+      "wall_seconds": 0.002092363000087971
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":32,\"channels\":2}\n",
+      "wall_seconds": 0.0017015539999647444
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":32,\"channels\":2}\n",
+      "wall_seconds": 0.001912551000032181
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":34,\"channels\":2}\n",
+      "wall_seconds": 0.0017165830000749338
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":34,\"channels\":2}\n",
+      "wall_seconds": 0.002075527000101829
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":34,\"channels\":2}\n",
+      "wall_seconds": 0.0017983819999471962
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":34,\"channels\":2}\n",
+      "wall_seconds": 0.001730078999912621
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":46,\"channels\":2}\n",
+      "wall_seconds": 0.0021269669999810503
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":46,\"channels\":2}\n",
+      "wall_seconds": 0.00192622500003381
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":46,\"channels\":2}\n",
+      "wall_seconds": 0.0016796549999753552
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":46,\"channels\":2}\n",
+      "wall_seconds": 0.002496107999945707
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":48,\"channels\":2}\n",
+      "wall_seconds": 0.002093544999979713
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":48,\"channels\":2}\n",
+      "wall_seconds": 0.0019429520000358025
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":48,\"channels\":2}\n",
+      "wall_seconds": 0.0020013240000480437
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "2",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":48,\"channels\":2}\n",
+      "wall_seconds": 0.0019017629999780183
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":3}\n",
+      "wall_seconds": 0.0019358880000481804
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":3}\n",
+      "wall_seconds": 0.0020864650000476104
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":3}\n",
+      "wall_seconds": 0.0018320929999617874
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":0,\"channels\":3}\n",
+      "wall_seconds": 0.001933782000037354
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":3,\"channels\":3}\n",
+      "wall_seconds": 0.004030867000096805
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":3,\"channels\":3}\n",
+      "wall_seconds": 0.0020580569999992804
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":3,\"channels\":3}\n",
+      "wall_seconds": 0.0017958649999627596
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":3,\"channels\":3}\n",
+      "wall_seconds": 0.0032188410000344447
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":3}\n",
+      "wall_seconds": 0.0019447780000518833
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":3}\n",
+      "wall_seconds": 0.0021111639999844556
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":3}\n",
+      "wall_seconds": 0.0021572189999687907
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":6,\"channels\":3}\n",
+      "wall_seconds": 0.0021379219999744237
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":9,\"channels\":3}\n",
+      "wall_seconds": 0.0021218199999566423
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":9,\"channels\":3}\n",
+      "wall_seconds": 0.0019232450000572499
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":9,\"channels\":3}\n",
+      "wall_seconds": 0.0018736940000962932
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":9,\"channels\":3}\n",
+      "wall_seconds": 0.0017991909999182099
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":3}\n",
+      "wall_seconds": 0.0021878590000596887
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":3}\n",
+      "wall_seconds": 0.0023442379999778495
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":3}\n",
+      "wall_seconds": 0.0018483239999795842
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":12,\"channels\":3}\n",
+      "wall_seconds": 0.0019186210000725623
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":15,\"channels\":3}\n",
+      "wall_seconds": 0.0024978359999749955
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":15,\"channels\":3}\n",
+      "wall_seconds": 0.0020688700000164317
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":15,\"channels\":3}\n",
+      "wall_seconds": 0.002029225999990558
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":15,\"channels\":3}\n",
+      "wall_seconds": 0.0025480289999677552
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":18,\"channels\":3}\n",
+      "wall_seconds": 0.00234784999997828
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":18,\"channels\":3}\n",
+      "wall_seconds": 0.002013642999941112
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":18,\"channels\":3}\n",
+      "wall_seconds": 0.0018423620000476149
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":18,\"channels\":3}\n",
+      "wall_seconds": 0.0022475219999478213
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":21,\"channels\":3}\n",
+      "wall_seconds": 0.0017284589999917443
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":21,\"channels\":3}\n",
+      "wall_seconds": 0.001956852999910552
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":21,\"channels\":3}\n",
+      "wall_seconds": 0.0017618350000248029
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":21,\"channels\":3}\n",
+      "wall_seconds": 0.0017675249999911102
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":3}\n",
+      "wall_seconds": 0.0017349759999660819
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":3}\n",
+      "wall_seconds": 0.0017598379999981262
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":3}\n",
+      "wall_seconds": 0.0018483349999769416
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":24,\"channels\":3}\n",
+      "wall_seconds": 0.00201084599996193
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":27,\"channels\":3}\n",
+      "wall_seconds": 0.0018127099999674101
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":27,\"channels\":3}\n",
+      "wall_seconds": 0.0018828319999784071
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":27,\"channels\":3}\n",
+      "wall_seconds": 0.002302213000007214
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":27,\"channels\":3}\n",
+      "wall_seconds": 0.0023239979999516436
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":30,\"channels\":3}\n",
+      "wall_seconds": 0.002238702999989073
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":30,\"channels\":3}\n",
+      "wall_seconds": 0.001680246999967494
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":30,\"channels\":3}\n",
+      "wall_seconds": 0.0021893360000149187
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":30,\"channels\":3}\n",
+      "wall_seconds": 0.0024280489999455312
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":33,\"channels\":3}\n",
+      "wall_seconds": 0.0021584779999557213
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "1"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "170"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":33,\"channels\":3}\n",
+      "wall_seconds": 0.0029167620000407624
+    },
+    {
+      "command": [
+        "test/dsd_test_io",
+        "write-bits",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/out.dff",
+        "/tmp/dsd-p01-vectors-s_m_gcz1/bits.bin",
+        "3",
+        "9"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {
+        "MALLOC_PERTURB_": "85"
+      },
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"write_ok\":true,\"samples\":33,\"channels\":3}\n",
+      "wall_seconds": 0.0041516710000450985
+    },
+    {
+      "command": [
+        "src/sox_ng",
+        "-D",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/type5_quad_96.dsf",
+        "/tmp/dsd-type5-q6b_z72i/out.dsf"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.002483636999954797
+    },
+    {
+      "command": [
+        "src/sox_ng",
+        "-D",
+        "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/mono_32_dop.dsf",
+        "-r",
+        "176400",
+        "-b",
+        "24",
+        "-e",
+        "signed-integer",
+        "/tmp/dsd-dop-cli-_ndyj9u1/transport.wav",
+        "dop"
+      ],
+      "cwd": "/mnt/data/p13-work/sox_ng",
+      "env_overrides": {},
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "wall_seconds": 0.0024154839999255273
+    }
+  ],
+  "counts": {
+    "fail": 6,
+    "pass": 30,
+    "skip": 0,
+    "xfail": 0,
+    "xpass": 0
+  },
+  "executed_command": [
+    "tests/dsd/run.py",
+    "--phase",
+    "P13",
+    "--results",
+    "tests/dsd/results/P13/run",
+    "--sox",
+    "src/sox_ng",
+    "--probe",
+    "test/dsd_test_io",
+    "--writer-unit",
+    "test/dsd_test_dff_writer"
+  ],
+  "fixture_manifest_sha256": "20513691a51abe18effba30c22bb09761973487a1abc4c50691fa2a4588e7e94",
+  "metadata": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "architecture": "x86_64",
+    "build_configuration": "configure --disable-shared --without-libltdl CFLAGS=-O2 -g",
+    "cpu_features": [
+      "fpu",
+      "vme",
+      "de",
+      "pse",
+      "tsc",
+      "msr",
+      "pae",
+      "mce",
+      "cx8",
+      "apic",
+      "sep",
+      "mtrr",
+      "pge",
+      "mca",
+      "cmov",
+      "pat",
+      "pse36",
+      "clflush",
+      "mmx",
+      "fxsr",
+      "sse",
+      "sse2",
+      "ss",
+      "ht",
+      "syscall",
+      "nx",
+      "pdpe1gb",
+      "rdtscp",
+      "lm",
+      "constant_tsc",
+      "rep_good",
+      "nopl",
+      "xtopology",
+      "nonstop_tsc",
+      "cpuid",
+      "tsc_known_freq",
+      "pni",
+      "pclmulqdq",
+      "ssse3",
+      "fma",
+      "cx16",
+      "pcid",
+      "sse4_1",
+      "sse4_2",
+      "x2apic",
+      "movbe",
+      "popcnt",
+      "tsc_deadline_timer",
+      "aes",
+      "xsave",
+      "avx",
+      "f16c",
+      "rdrand",
+      "hypervisor",
+      "lahf_lm",
+      "abm",
+      "3dnowprefetch",
+      "cpuid_fault",
+      "fsgsbase",
+      "tsc_adjust",
+      "bmi1",
+      "hle",
+      "avx2",
+      "smep",
+      "bmi2",
+      "erms",
+      "invpcid",
+      "rtm",
+      "avx512f",
+      "avx512dq",
+      "rdseed",
+      "adx",
+      "smap",
+      "avx512ifma",
+      "clflushopt",
+      "clwb",
+      "avx512cd",
+      "sha_ni",
+      "avx512bw",
+      "avx512vl",
+      "xsaveopt",
+      "xsavec",
+      "xgetbv1",
+      "xsaves",
+      "avx_vnni",
+      "avx512_bf16",
+      "arat",
+      "avx512vbmi",
+      "umip",
+      "waitpkg",
+      "avx512_vbmi2",
+      "gfni",
+      "vaes",
+      "vpclmulqdq",
+      "avx512_vnni",
+      "avx512_bitalg",
+      "avx512_vpopcntdq",
+      "rdpid",
+      "cldemote",
+      "movdiri",
+      "movdir64b",
+      "fsrm",
+      "serialize",
+      "tsxldtrk",
+      "avx512_fp16",
+      "arch_capabilities"
+    ],
+    "cpu_microcode": "0x1",
+    "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "design_sha256": "a3cecb47019006375d0c760a57df97849900144dca36301585f63509dea347bb",
+    "dsdiff_source_sha256": "620deb72a98e7f54b98e2e9a5c8ea051d2a08361ddbe8b4671d23f4404775885",
+    "hostname": "2038da69b810",
+    "input_archive_sha256": null,
+    "os": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "prebuild_source_hash_manifest_sha256": "95bb8222c423cb66c295612c144d60222a52070fac7fd20af80d15330f45ac9a",
+    "python": "3.13.5",
+    "repository_git_metadata": "not present in supplied tar; source C/H hashes retained",
+    "seed": 1566834982,
+    "source_baseline_claim": "16aa7e17531dd3612f29247da98c8ea570cd905a"
+  },
+  "phase": "P13",
+  "schema": "dsd-tests/1",
+  "selected_count": 36,
+  "tests": [
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_exact_integer_counts",
+      "observed": {
+        "partial_frames_for_49_samples_at_6ch": [
+          8,
+          1
+        ],
+        "samples_per_8_frames_at_6ch": 48
+      },
+      "status": "pass",
+      "wall_seconds": 2.3886999997557723e-05
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_explicit_xfail_classifier",
+      "observed": {
+        "new failure": "error",
+        "phase fix gate": "hard pass required",
+        "xfail": "named baseline only",
+        "xpass": "error"
+      },
+      "status": "pass",
+      "wall_seconds": 1.6392000020459818e-05
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_P01_xfail_mutation_transition",
+      "observed": {
+        "P01_writer": "hard pass, no baseline mutation check",
+        "P03_reader": "baseline mutation check remains",
+        "P04_type5": "baseline mutation check remains"
+      },
+      "status": "pass",
+      "wall_seconds": 1.2215999959153123e-05
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_dff_chunk_spans",
+      "observed": {
+        "physical_spans_0_1_2_3_19": [
+          12,
+          14,
+          14,
+          16,
+          32
+        ],
+        "production_writer_units": {
+          "arithmetic": "pass",
+          "checks": 960,
+          "errors": "pass",
+          "io_failure_cases": 11,
+          "tail_cases": 42,
+          "tails": "pass"
+        }
+      },
+      "status": "pass",
+      "wall_seconds": 0.003346993000036491
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_hand_derived_bit_order_dsd_dop",
+      "observed": {
+        "dff_byte": "69",
+        "dop_pcm24le": "696905",
+        "dsf_lsb_byte": "96",
+        "dsf_msb_byte": "69"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0003420419999429214
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_reproducible_fixture_generator",
+      "observed": {
+        "byte_identical_regenerated_fixtures": 33,
+        "seed": 1566834982
+      },
+      "status": "pass",
+      "wall_seconds": 0.04923291900001914
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "unit",
+      "name": "unit_independent_chunk_and_bit_oracles",
+      "observed": {
+        "examples": [
+          "block_minus_1.dsf",
+          "block_plus_1.dsf",
+          "dop_stereo_1.pcm24le",
+          "dop_stereo_15.pcm24le",
+          "dop_stereo_16.pcm24le",
+          "dop_stereo_17.pcm24le",
+          "dop_stereo_32.pcm24le",
+          "dop_stereo_33.pcm24le",
+          "empty.dsf",
+          "five_16.dff",
+          "five_96.dsf",
+          "four_16.dff",
+          "mono_128_manf.dff",
+          "mono_16.dff",
+          "mono_32_dop.dsf",
+          "mono_9.dff",
+          "mono_96.dsf",
+          "msb_stereo_96.dsf",
+          "nine.dsf",
+          "one.dsf",
+          "one_cluster.dff",
+          "seven.dsf",
+          "six_16.dff",
+          "six_96.dsf",
+          "stereo_128.dff",
+          "stereo_96.dsf",
+          "type4_quad_96.dsf",
+          "type5_quad_96.dsf"
+        ],
+        "independent_fixture_decodes": 28
+      },
+      "status": "pass",
+      "wall_seconds": 0.04386903599993275
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_normal_mono_96",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "expected_samples": 96,
+        "first_read": 0,
+        "fnv64": "28ba89aabfb1e814",
+        "head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "length": 96,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "mono_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 96,
+        "seek_rc": 0,
+        "tail_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001"
+      },
+      "status": "pass",
+      "wall_seconds": 0.003081833999999617
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_normal_stereo_96",
+      "observed": {
+        "channels": 2,
+        "correct": true,
+        "expected_head_bits": "101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "expected_samples": 192,
+        "first_read": 0,
+        "fnv64": "8ce5d55dc4dabf2b",
+        "head_bits": "101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "length": 192,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "stereo_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 192,
+        "seek_rc": 0,
+        "tail_bits": "10100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0023689370000283816
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_fourchannel_type4_audio",
+      "observed": {
+        "channels": 4,
+        "correct": true,
+        "expected_head_bits": "100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010",
+        "expected_samples": 384,
+        "first_read": 0,
+        "fnv64": "903e6bc1bcfd7075",
+        "head_bits": "100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010",
+        "length": 384,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "type4_quad_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 384,
+        "seek_rc": 0,
+        "tail_bits": "10100100010110101010010110011010010001011010101001011001101001000101101010100101100110100100010110101010010110011010010001011010"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0025582989999293204
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_sixchannel_audio",
+      "observed": {
+        "channels": 6,
+        "correct": true,
+        "expected_head_bits": "100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001",
+        "expected_samples": 576,
+        "first_read": 0,
+        "fnv64": "b21ee3a3eb474adc",
+        "head_bits": "100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001",
+        "length": 576,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "six_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 576,
+        "seek_rc": 0,
+        "tail_bits": "01101010010100100101101010010010010101101001101010010100100101101010010010010101101001101010010100100101101010010010010101101001"
+      },
+      "status": "pass",
+      "wall_seconds": 0.002181309000093279
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dff_normal_stereo_128",
+      "observed": {
+        "channels": 2,
+        "correct": true,
+        "expected_head_bits": "1010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010",
+        "expected_samples": 256,
+        "first_read": 0,
+        "fnv64": "70d67e5e433ecfb5",
+        "head_bits": "1010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010",
+        "length": 256,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "stereo_128.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 256,
+        "seek_rc": 0,
+        "tail_bits": "10010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0025289260000818103
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dff_manf_core_corrected_control",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011",
+        "expected_samples": 120,
+        "first_read": 0,
+        "fnv64": "2c0fc8b01bdf16ec",
+        "head_bits": "100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011",
+        "length": 128,
+        "olength_after_seek": 8,
+        "open": true,
+        "oracle_filenames": [
+          "mono_128_manf.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 120,
+        "seek_rc": 0,
+        "tail_bits": "100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011"
+      },
+      "status": "pass",
+      "wall_seconds": 0.002028490000043348
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_rewind_core_corrected_control",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "expected_samples": 96,
+        "first_read": 8,
+        "fnv64": "28ba89aabfb1e814",
+        "head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "length": 96,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "mono_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 96,
+        "seek_rc": 0,
+        "tail_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0023004290000017136
+    },
+    {
+      "defect_id": "C3-DSF-SMALL-READ",
+      "expected_resolution_phase": "P02",
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_small_capacity_one_frame",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "expected_samples": 96,
+        "first_read": 0,
+        "fnv64": "28ba89aabfb1e814",
+        "head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "length": 96,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "mono_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 97,
+        "remaining_returned": 96,
+        "seek_rc": 0,
+        "tail_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001"
+      },
+      "status": "pass",
+      "wall_seconds": 0.002288243000066359
+    },
+    {
+      "defect_id": "C3-DFF-SMALL-READ",
+      "expected_resolution_phase": "P02",
+      "message": "",
+      "mode": "integration",
+      "name": "dff_small_capacity_one_frame",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "11001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011",
+        "expected_samples": 128,
+        "first_read": 0,
+        "fnv64": "cbc84ac35cf621bf",
+        "head_bits": "11001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011",
+        "length": 128,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "mono_128_manf.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 129,
+        "remaining_returned": 128,
+        "seek_rc": 0,
+        "tail_bits": "11001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0025067660000104297
+    },
+    {
+      "defect_id": "C3-DSF-TINY",
+      "expected_resolution_phase": "P02",
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_one_frame_first_bit",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "1",
+        "expected_samples": 1,
+        "first_read": 0,
+        "fnv64": "af63bc4c8601b62c",
+        "head_bits": "1",
+        "length": 1,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "one.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 1,
+        "seek_rc": 0,
+        "tail_bits": "1"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0022145170000840153
+    },
+    {
+      "defect_id": "C3-DSF-EMPTY",
+      "expected_resolution_phase": "P02",
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_empty_file",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "",
+        "expected_samples": 0,
+        "first_read": 0,
+        "fnv64": "cbf29ce484222325",
+        "head_bits": "",
+        "length": 0,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "empty.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 1,
+        "remaining_returned": 0,
+        "seek_rc": 0,
+        "tail_bits": ""
+      },
+      "status": "pass",
+      "wall_seconds": 0.002071772000022065
+    },
+    {
+      "defect_id": "C3-DFF-MINIMUM",
+      "expected_resolution_phase": "P02",
+      "message": "",
+      "mode": "integration",
+      "name": "dff_single_byte_cluster",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "11001101",
+        "expected_samples": 8,
+        "first_read": 0,
+        "fnv64": "b7ce7aab1db102e6",
+        "head_bits": "11001101",
+        "length": 8,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "one_cluster.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 8,
+        "seek_rc": 0,
+        "tail_bits": "11001101"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0017937700000629775
+    },
+    {
+      "defect_id": "C4-DSF-MSB",
+      "expected_resolution_phase": "P02",
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_msb_first_8bit_storage",
+      "observed": {
+        "channels": 2,
+        "correct": true,
+        "expected_head_bits": "101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "expected_samples": 192,
+        "first_read": 0,
+        "fnv64": "8ce5d55dc4dabf2b",
+        "head_bits": "101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "length": 192,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "msb_stereo_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 192,
+        "seek_rc": 0,
+        "tail_bits": "10100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110"
+      },
+      "status": "pass",
+      "wall_seconds": 0.001691599999958271
+    },
+    {
+      "defect_id": "C2-CORE-OLENGTH",
+      "expected_resolution_phase": "P03",
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_rewind_generic_core_position",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "expected_samples": 96,
+        "first_read": 8,
+        "fnv64": "28ba89aabfb1e814",
+        "head_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001",
+        "length": 96,
+        "olength_after_seek": 0,
+        "open": true,
+        "oracle_filenames": [
+          "mono_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 96,
+        "seek_rc": 0,
+        "tail_bits": "110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001"
+      },
+      "status": "pass",
+      "wall_seconds": 0.002180318000000625
+    },
+    {
+      "defect_id": "C2-DSF-SEEK-UNITS",
+      "expected_resolution_phase": "P03",
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_multichannel_public_seek_offset16",
+      "observed": {
+        "channels": 2,
+        "correct": true,
+        "expected_head_bits": "10010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "expected_samples": 176,
+        "first_read": 0,
+        "fnv64": "367739c8760385b5",
+        "head_bits": "10010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110",
+        "length": 192,
+        "olength_after_seek": 16,
+        "open": true,
+        "oracle_filenames": [
+          "stereo_96.dsf",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 176,
+        "seek_rc": 0,
+        "tail_bits": "10100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0017577840000058131
+    },
+    {
+      "defect_id": "C2-DFF-SEEK-UNITS",
+      "expected_resolution_phase": "P03",
+      "message": "",
+      "mode": "integration",
+      "name": "dff_multichannel_public_seek_offset16",
+      "observed": {
+        "channels": 2,
+        "correct": true,
+        "expected_head_bits": "100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010",
+        "expected_samples": 240,
+        "first_read": 0,
+        "fnv64": "1273f8e1c9cda03f",
+        "head_bits": "100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010",
+        "length": 256,
+        "olength_after_seek": 16,
+        "open": true,
+        "oracle_filenames": [
+          "stereo_128.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 240,
+        "seek_rc": 0,
+        "tail_bits": "10010110100110100101101001101001011010011010010110100110100101101001101001011010011010010110100110100101101001101001011010011010"
+      },
+      "status": "pass",
+      "wall_seconds": 0.002740344000017103
+    },
+    {
+      "defect_id": "C2-DFF-MANF-CORE-OLENGTH",
+      "expected_resolution_phase": "P03",
+      "message": "",
+      "mode": "integration",
+      "name": "dff_trailing_manf_generic_counter",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011",
+        "expected_samples": 120,
+        "first_read": 0,
+        "fnv64": "2c0fc8b01bdf16ec",
+        "head_bits": "100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011",
+        "length": 128,
+        "olength_after_seek": 8,
+        "open": true,
+        "oracle_filenames": [
+          "mono_128_manf.dff",
+          "fixtures/manifest.json"
+        ],
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 120,
+        "seek_rc": 0,
+        "tail_bits": "100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011001101100110110011011"
+      },
+      "status": "pass",
+      "wall_seconds": 0.002428679999979977
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "wsd_normal_mono_16",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "1100110110011011",
+        "expected_samples": 16,
+        "first_read": 0,
+        "fnv64": "b555f7ff9334967f",
+        "head_bits": "1100110110011011",
+        "length": 16,
+        "olength_after_seek": 0,
+        "open": true,
+        "rate": 2822400,
+        "read_calls": 2,
+        "remaining_returned": 16,
+        "seek_rc": 0,
+        "tail_bits": "1100110110011011"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0019541079999498834
+    },
+    {
+      "defect_id": "C3-WSD-SMALL-READ",
+      "expected_resolution_phase": "P02",
+      "message": "",
+      "mode": "integration",
+      "name": "wsd_small_capacity_one_frame",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_head_bits": "1100110110011011",
+        "expected_samples": 16,
+        "first_read": 0,
+        "fnv64": "b555f7ff9334967f",
+        "head_bits": "1100110110011011",
+        "length": 16,
+        "olength_after_seek": 0,
+        "open": true,
+        "rate": 2822400,
+        "read_calls": 17,
+        "remaining_returned": 16,
+        "seek_rc": 0,
+        "tail_bits": "1100110110011011"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0017473020000124961
+    },
+    {
+      "defect_id": "D2-WAV-PRIVATE-REMAINING",
+      "expected_resolution_phase": "P03",
+      "message": "",
+      "mode": "integration",
+      "name": "wav_rewind_after_manual_core_position_correction",
+      "observed": {
+        "channels": 1,
+        "correct": true,
+        "expected_samples": 441,
+        "first_read": 8,
+        "fnv64": "cd7c6d1c58447aff",
+        "head_bits": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "length": 441,
+        "olength_after_seek": 0,
+        "open": true,
+        "rate": 44100,
+        "read_calls": 2,
+        "remaining_returned": 441,
+        "seek_rc": 0,
+        "tail_bits": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0030783649999648333
+    },
+    {
+      "defect_id": "C1-DFF-CMPR-SIZE",
+      "expected_resolution_phase": "P01",
+      "message": "FileNotFoundError: [Errno 2] No such file or directory: 'test/dsd_test_io'",
+      "mode": "integration",
+      "name": "dff_writer_cmpr_name_length",
+      "status": "fail",
+      "wall_seconds": 0.6283071019998943
+    },
+    {
+      "defect_id": "C1-DFF-FRM8-DOUBLECOUNT",
+      "expected_resolution_phase": "P01",
+      "message": "FileNotFoundError: [Errno 2] No such file or directory: 'test/dsd_test_io'",
+      "mode": "integration",
+      "name": "dff_writer_frm8_parent_size",
+      "status": "fail",
+      "wall_seconds": 0.0008073440000089249
+    },
+    {
+      "defect_id": "C1-DFF-TAIL-COUNT",
+      "expected_resolution_phase": "P01",
+      "message": "FileNotFoundError: [Errno 2] No such file or directory: 'test/dsd_test_io'",
+      "mode": "integration",
+      "name": "dff_writer_completed_tail_audio_count",
+      "status": "fail",
+      "wall_seconds": 0.0006622719999995752
+    },
+    {
+      "defect_id": "C1-DFF-ODD-PADDING",
+      "expected_resolution_phase": "P01",
+      "message": "FileNotFoundError: [Errno 2] No such file or directory: 'test/dsd_test_io'",
+      "mode": "integration",
+      "name": "dff_writer_odd_payload_external_pad",
+      "status": "fail",
+      "wall_seconds": 0.0007361840000612574
+    },
+    {
+      "defect_id": "D1-DFF-FIRST-CLUSTER",
+      "expected_resolution_phase": "P01",
+      "message": "FileNotFoundError: [Errno 2] No such file or directory: 'test/dsd_test_io'",
+      "mode": "integration",
+      "name": "dff_writer_uninitialized_first_cluster_1ch",
+      "status": "fail",
+      "wall_seconds": 0.0006924110000454675
+    },
+    {
+      "defect_id": "D1-DFF-FIRST-CLUSTER",
+      "expected_resolution_phase": "P01",
+      "message": "FileNotFoundError: [Errno 2] No such file or directory: 'test/dsd_test_io'",
+      "mode": "integration",
+      "name": "dff_writer_uninitialized_first_cluster_4ch",
+      "status": "fail",
+      "wall_seconds": 0.0005944189999809169
+    },
+    {
+      "defect_id": "C5-DSF-TYPE5-LOSS",
+      "expected_resolution_phase": "P04",
+      "message": "",
+      "mode": "integration",
+      "name": "dsf_type5_channel_identity_loss",
+      "observed": {
+        "audio_matches_oracle": true,
+        "command": [
+          "src/sox_ng",
+          "-D",
+          "/mnt/data/p13-work/sox_ng/tests/dsd/fixtures/type5_quad_96.dsf",
+          "/tmp/dsd-type5-q6b_z72i/out.dsf"
+        ],
+        "correct": true,
+        "expected_type": 5,
+        "observed_type": 5,
+        "output_sha256": "afdffc9b3872b7a3159b9fd4d074a48511ae7e0a4326cb457071f6cdb2fcdd4e"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0032436610000559085
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "dop_cli_hand_vector_transport_markers",
+      "observed": {
+        "correct": true,
+        "expected_hex": "6969056969fa",
+        "marker_count": 2,
+        "output_hex": "6969056969fa"
+      },
+      "status": "pass",
+      "wall_seconds": 0.0030501339999773336
+    },
+    {
+      "defect_id": null,
+      "expected_resolution_phase": null,
+      "message": "",
+      "mode": "integration",
+      "name": "integration_xfail_audio_mutation_rejection",
+      "observed": {
+        "changed_audio": "fail",
+        "early_correction": "xpass",
+        "mutations": "first and last reader bits; deterministic writer tail",
+        "phase_correction": "pass",
+        "real_baseline_fingerprints_checked": [],
+        "unchanged_baseline": "xfail"
+      },
+      "status": "pass",
+      "wall_seconds": 1.9963999989158765e-05
+    }
+  ],
+  "utc_timestamp": "2026-10-12T02:54:55Z",
+  "verdict": "fail"
+}

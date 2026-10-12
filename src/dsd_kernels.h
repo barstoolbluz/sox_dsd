@@ -43,7 +43,8 @@ typedef int (*lsx_dsd_sdm_block_fn)(sdm_normal_t *state,
 
 enum lsx_dsd_kernel_family { LSX_DSD_FIR = 1, LSX_DSD_SDM = 2 };
 enum lsx_dsd_kernel_feature { LSX_DSD_CPU_SSE2 = 1, LSX_DSD_CPU_AVX1 = 2,
-  LSX_DSD_CPU_AVX2 = 4, LSX_DSD_CPU_FMA = 8 };
+  LSX_DSD_CPU_AVX2 = 4, LSX_DSD_CPU_FMA = 8,
+  LSX_DSD_CPU_AVX512F = 16 };
 
 typedef struct lsx_dsd_kernel {
   const char *name;
@@ -66,7 +67,7 @@ typedef struct lsx_dsd_cpu_probe {
 unsigned lsx_dsd_features_probe(const lsx_dsd_cpu_probe *probe);
 unsigned lsx_dsd_features_host(void);
 
-/* requested is NULL or "auto", or a concrete "scalar", "sse2", "avx1", "avx2".
+/* requested is NULL or "auto", or a concrete "scalar", "sse2", "avx1", "avx2", "avx512".
  * If requested is NULL, the independent family environment variable is
  * read ONCE for this context: SOX_DSD_KERNEL_FIR / SOX_DSD_KERNEL_SDM.
  * The earlier LSX_DSD_FIR_KERNEL / LSX_DSD_SDM_KERNEL spellings are
@@ -96,6 +97,11 @@ double lsx_dsd_fir_avx1_direct(const double *, size_t, const double *, int);
 #if defined(HAVE_DSD_AVX2)
 extern const lsx_dsd_kernel lsx_dsd_kernel_avx2;
 double lsx_dsd_fir_avx2_direct(const double *, size_t, const double *, int);
+#endif
+
+#if defined(HAVE_DSD_AVX512)
+extern const lsx_dsd_kernel lsx_dsd_kernel_avx512;
+double lsx_dsd_fir_avx512_direct(const double *, size_t, const double *, int);
 #endif
 
 #endif

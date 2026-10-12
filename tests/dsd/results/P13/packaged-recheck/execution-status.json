@@ -1,0 +1,70 @@
+{
+  "commands": {
+    "./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'": {
+      "exit": 0
+    },
+    "autoreconf -fi": {
+      "exit": 0
+    },
+    "make -j2": {
+      "exit": 0
+    },
+    "make check": {
+      "exit": 0
+    },
+    "make check-dsd DSD_PHASE=P13 DSD_RESULTS=tests/dsd/results/P13/rebuild-replay": {
+      "execution_limit_seconds": 240,
+      "interpretation": "interrupted externally during inherited regression; no test failure evidenced to this point",
+      "last_phase_reached": "P07",
+      "status": "INCOMPLETE_TIMEOUT"
+    },
+    "python3 tests/dsd/check_p13_isa.py": {
+      "checks": 20,
+      "exit": 0
+    },
+    "python3 tests/dsd/test_p11_integration.py --phase P13 --tiers scalar sse2 avx1 avx2 avx512": {
+      "executions": 45,
+      "exit": 0
+    },
+    "python3 tests/dsd/test_p11_numeric.py --phase P13 --tiers scalar sse2 avx1 avx2 avx512": {
+      "comparisons": 12,
+      "exit": 0
+    },
+    "python3 tests/dsd/test_p12_channels.py --phase P13 --tiers scalar avx2 avx512": {
+      "executions": 48,
+      "exit": 0
+    },
+    "tar_extract": {
+      "status": "PASS"
+    },
+    "test/dsd_test_p12_bounds": {
+      "exit": 0
+    },
+    "test/dsd_test_p13": {
+      "exit": 0,
+      "guarded_fir_comparisons": 190404
+    }
+  },
+  "schema": "P13/package-recheck/1",
+  "scope_note": "Identical P13 code files to the final source; only handoff text and evidence differ after this recheck. Full inherited P00-P13 gate PASSED in the original development build before this package recheck.",
+  "tested_archive": "sox_ng-P13-implementation-2026-10-11.tar.gz",
+  "verified_archive_before_evidence_append_sha256": "3a8fba46d61c93d1a5a6c748b2b51020cfae0e9810e2252e1841e17a2de903e8",
+  "verified_source_paths_sha256": {
+    "Makefile.am": "f1968245a79dbd7e6983089dfd20b5e356a536b83ed1b3a75407110bca7dd94e",
+    "configure.ac": "6417d20a4cd72a17b7b45052548c72d5032e11787a4b9fd8a8febb413741d4c4",
+    "src/Makefile.am": "b8aa83d330954b7fae9c860b1036b15dcde0cd67d14b7469facd230d9f159190",
+    "src/dsd_decode.c": "412af73734ac7a95c57138f973e4a1e0a31d3c1e90a6adc09a0adf2ebdb7b3ee",
+    "src/dsd_dispatch.c": "f4fb56e640171600458dfff8b344b17b7cb254455db01fe78a6678cad7409d81",
+    "src/dsd_kernels.h": "72e089d4001ba992f6098b27114076d184be51d875b6e15e2b376be9e829d093",
+    "src/dsd_kernels_avx512.c": "26d37e5a12426e3ae19301f67fc55e079456943c5ce482a39f6c840077f82ffb",
+    "test/Makefile.am": "4b4fa929c4b48f4224856d677257b377d579c3d7f94416be9f5adb48cbcc5858",
+    "tests/dsd/bench.py": "e86a5f8521c893b1d4f6393def83da2fd99035624121926f5ecb5b0d1fd13530",
+    "tests/dsd/bench_p11.py": "83d39af0afa370702402c8487e3932e62663f6406f9d82c2a2daccaea4ba24b3",
+    "tests/dsd/bench_p11_e2e.py": "b2352f9cd68282145aeb99968d07042355b765c2647d1a1a65d0797ccb41076f",
+    "tests/dsd/bench_p13_matrix.py": "fb1ffb729afe981f1cbfc83b42fa25d0f38c471b82d0cec47d01d324659de66b",
+    "tests/dsd/check_p13_isa.py": "e2e0786fa51d386efe8f6238354e14a6eb55c11c04e2aa639056482ce7a1b02d",
+    "tests/dsd/test_p12_channels.py": "44b07786b07977007e3d5dbdb0963c5d595c76fa7cc3024f955a2dbe62cec2f6",
+    "tests/dsd/test_p13.c": "ce78894d744f5b84be127eaac72f0afc4660f46150053f5edc6f406a9c843d9d",
+    "tests/dsd/test_plan.py": "ce0a7085fbfcba87316b4220dc5e456bbf70662c6b2f99d27582b145d1c3c5bb"
+  }
+}

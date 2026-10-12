@@ -152,6 +152,13 @@ libdsd_kernels_avx2_la_SOURCES = dsd_kernels_avx2.c dsd_kernels.h sdm_normal_com
 libdsd_kernels_avx2_la_CFLAGS = $(WARN_CFLAGS) @DSD_AVX2_CFLAGS@
 libsox_ng_la_LIBADD += libdsd_kernels_avx2.la
 endif
+# P13: isolated AVX-512F; do not include DQ, BW, VL, FMA or global flags.
+if HAVE_DSD_AVX512
+noinst_LTLIBRARIES += libdsd_kernels_avx512.la
+libdsd_kernels_avx512_la_SOURCES = dsd_kernels_avx512.c dsd_kernels.h sdm_normal_commit_i.h
+libdsd_kernels_avx512_la_CFLAGS = $(WARN_CFLAGS) @DSD_AVX512_CFLAGS@
+libsox_ng_la_LIBADD += libdsd_kernels_avx512.la
+endif
 
 libsox_ng_la_LIBADD += @GOMP_LIBS@
 

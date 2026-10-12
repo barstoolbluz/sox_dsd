@@ -1,0 +1,1472 @@
+{
+  "cases": [
+    {
+      "buffer_bytes": 32,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "scalar",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "32",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-scalar-32---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "scalar",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-scalar-257---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "scalar",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "8192",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-scalar-8192---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "scalar",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "8192",
+        "--multi-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-scalar-8192---multi-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--multi-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer_bytes": 32,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "sse2",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "32",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-sse2-32---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "sse2",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-sse2-257---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "sse2",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "8192",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-sse2-8192---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "sse2",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "8192",
+        "--multi-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-sse2-8192---multi-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--multi-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer_bytes": 32,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "avx1",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "32",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-avx1-32---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "avx1",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-avx1-257---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "avx1",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "8192",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-avx1-8192---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "avx1",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "8192",
+        "--multi-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-avx1-8192---multi-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--multi-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer_bytes": 32,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "avx2",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "32",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-avx2-32---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "avx2",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-avx2-257---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "avx2",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "8192",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-avx2-8192---single-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "avx2",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "8192",
+        "--multi-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-avx2-8192---multi-threaded-normal.wav"
+      ],
+      "exit": 0,
+      "family": "decode",
+      "frames": 8820,
+      "max_graph_lsb_delta_from_scalar": 0,
+      "pcm_samples": 17640,
+      "sha256": "468828b788930580366e4b80f2117b66196ef725a80b384bc66a66ee201ca38b",
+      "stderr_tail": "",
+      "thread": "--multi-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "avx2-fma",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-avx2-fma-257---single-threaded-invalid.wav"
+      ],
+      "exit": 2,
+      "family": "decode",
+      "stderr_tail": "sox_ng FAIL sox_ng: P05 preflight: requested DSD FIR kernel tier is unavailable on this CPU/build\n",
+      "thread": "--single-threaded",
+      "tier": "avx2-fma"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "unsupported",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-unsupported-257---single-threaded-invalid.wav"
+      ],
+      "exit": 2,
+      "family": "decode",
+      "stderr_tail": "sox_ng FAIL sox_ng: P05 preflight: requested DSD FIR kernel tier is unknown or unimplemented\n",
+      "thread": "--single-threaded",
+      "tier": "unsupported"
+    },
+    {
+      "buffer_bytes": 32,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "scalar"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "32",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-scalar-32---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "c7341e702a3552f2aecd0cd01ba01ae9dbdd30636ce608d12627715085abbe3b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "scalar"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-scalar-257---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "c7341e702a3552f2aecd0cd01ba01ae9dbdd30636ce608d12627715085abbe3b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "scalar"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "8192",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-scalar-8192---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "c7341e702a3552f2aecd0cd01ba01ae9dbdd30636ce608d12627715085abbe3b",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "scalar"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "8192",
+        "--multi-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-scalar-8192---multi-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "c7341e702a3552f2aecd0cd01ba01ae9dbdd30636ce608d12627715085abbe3b",
+      "stderr_tail": "",
+      "thread": "--multi-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer_bytes": 32,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "sse2"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "32",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-sse2-32---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "sse2"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-sse2-257---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "sse2"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "8192",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-sse2-8192---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "sse2"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "8192",
+        "--multi-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-sse2-8192---multi-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--multi-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer_bytes": 32,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx1"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "32",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx1-32---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx1"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx1-257---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx1"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "8192",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx1-8192---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx1"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "8192",
+        "--multi-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx1-8192---multi-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--multi-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer_bytes": 32,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx2"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "32",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx2-32---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx2"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx2-257---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx2"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "8192",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx2-8192---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx2"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "8192",
+        "--multi-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx2-8192---multi-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--multi-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer_bytes": 32,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx512"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "32",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx512-32---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx512"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx512-257---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx512"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "8192",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx512-8192---single-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer_bytes": 8192,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx512"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "8192",
+        "--multi-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx512-8192---multi-threaded-normal.dsf"
+      ],
+      "exit": 0,
+      "family": "encode",
+      "frames": 131072,
+      "sha256": "e446cfc1e9145341aa633a0013ad9fd5039f2b913fe9afae40cee94db0e80037",
+      "stderr_tail": "",
+      "thread": "--multi-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx2-fma"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx2-fma-257---single-threaded-invalid.dsf"
+      ],
+      "exit": 2,
+      "family": "encode",
+      "stderr_tail": "sox_p10_candidate FAIL sox_ng: P05 preflight: requested DSD SDM kernel tier is unavailable on this CPU/build\n",
+      "thread": "--single-threaded",
+      "tier": "avx2-fma"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "unsupported"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-unsupported-257---single-threaded-invalid.dsf"
+      ],
+      "exit": 2,
+      "family": "encode",
+      "stderr_tail": "sox_p10_candidate FAIL sox_ng: P05 preflight: requested DSD SDM kernel tier is unknown or unimplemented\n",
+      "thread": "--single-threaded",
+      "tier": "unsupported"
+    },
+    {
+      "command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "native",
+        "-D",
+        "<fixture>/independent-stereo.dsf",
+        "<fixture>/native-with-inactive-overrides.dsf"
+      ],
+      "exit": 0,
+      "family": "native-only",
+      "sha256": "f82322f1703bf0e5c2b7d63bdf6736bdf31d70e6fc03e9f5a0a5c7bb0450a535",
+      "stderr_tail": "",
+      "tier": "both-inactive"
+    }
+  ],
+  "checks": [
+    {
+      "case_count": 4,
+      "name": "decode-scalar-buffer-thread-byte-invariance",
+      "status": "PASS"
+    },
+    {
+      "case_count": 4,
+      "name": "decode-sse2-buffer-thread-byte-invariance",
+      "status": "PASS"
+    },
+    {
+      "case_count": 4,
+      "name": "decode-avx1-buffer-thread-byte-invariance",
+      "status": "PASS"
+    },
+    {
+      "case_count": 4,
+      "name": "decode-avx2-buffer-thread-byte-invariance",
+      "status": "PASS"
+    },
+    {
+      "case_count": 0,
+      "name": "decode-avx512-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "name": "decode-forced-avx2-fma-rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "decode-forced-unsupported-rejected",
+      "status": "PASS"
+    },
+    {
+      "case_count": 4,
+      "name": "encode-scalar-buffer-thread-byte-invariance",
+      "status": "PASS"
+    },
+    {
+      "case_count": 4,
+      "name": "encode-sse2-buffer-thread-byte-invariance",
+      "status": "PASS"
+    },
+    {
+      "case_count": 4,
+      "name": "encode-avx1-buffer-thread-byte-invariance",
+      "status": "PASS"
+    },
+    {
+      "case_count": 4,
+      "name": "encode-avx2-buffer-thread-byte-invariance",
+      "status": "PASS"
+    },
+    {
+      "case_count": 4,
+      "name": "encode-avx512-buffer-thread-byte-invariance",
+      "status": "PASS"
+    },
+    {
+      "name": "encode-forced-avx2-fma-rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "encode-forced-unsupported-rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "native-both-families-inactive",
+      "status": "PASS"
+    }
+  ],
+  "errors": [
+    {
+      "buffer": 32,
+      "error": "decode/avx512/32/--single-threaded: 2 sox_ng FAIL dsdpcm: dsdpcm: binary64 stream failed (7)\nsox_ng FAIL dsdpcm: dsdpcm: binary64 stream failed (7)\n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer": 257,
+      "error": "decode/avx512/257/--single-threaded: 2 sox_ng FAIL dsdpcm: dsdpcm: binary64 stream failed (7)\nsox_ng FAIL dsdpcm: dsdpcm: binary64 stream failed (7)\n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/avx512/8192/--single-threaded: 2 sox_ng FAIL dsdpcm: dsdpcm: binary64 stream failed (7)\nsox_ng FAIL dsdpcm: dsdpcm: binary64 stream failed (7)\n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/avx512/8192/--multi-threaded: 2 sox_ng FAIL dsdpcm: dsdpcm: binary64 stream failed (7)sox_ng FAIL dsdpcm: dsdpcm: binary64 stream failed (7)\n\n",
+      "family": "decode",
+      "thread": "--multi-threaded",
+      "tier": "avx512"
+    }
+  ],
+  "qualifications": "Real production decoder and uninstalled P10 candidate only; P15 release activation unchanged",
+  "schema": "P13/CLI/1",
+  "sources": {
+    "DSF_file_sha256": "f82322f1703bf0e5c2b7d63bdf6736bdf31d70e6fc03e9f5a0a5c7bb0450a535",
+    "PCM_file_sha256": "9e5ba22ac03ada5043150d3c30b9b79fe469428cc8c73b0c0bf104eed71c4615",
+    "channels": 2,
+    "native_frames": 282240,
+    "pcm_frames": 4096
+  },
+  "status": "FAIL",
+  "unrun": []
+}
