@@ -1,0 +1,114 @@
+{
+  "baseline": "Original P12 canary source rebuilt with GCC -O2 -g",
+  "candidate": "Same P12 canary source with the single guarded sox_flow_effects alignment change",
+  "comparability": {
+    "dff-2ch-repack-large": true,
+    "dff-2ch-repack-small": true,
+    "dff-6ch-repack-large": true,
+    "dff-6ch-repack-small": true,
+    "dsf-2ch-repack-large": true,
+    "dsf-2ch-repack-small": true,
+    "dsf-6ch-repack-large": true,
+    "dsf-6ch-repack-small": true
+  },
+  "comparison": "This is original P12 versus corrected P12, NOT the original P11-closed versus P12 performance gate.",
+  "date": "2026-10-11",
+  "errors": 0,
+  "host": "Virtualized AMD EPYC 9V74 x86-64 (KVM), five available vCPUs",
+  "operation": "repack",
+  "pairs": 40,
+  "pinned_cpu": 0,
+  "qualification_note": "The local benchmark is inconclusive because measurement noise exceeded 2% on seven of eight workloads, including the canary. It cannot independently close the physical-host throughput gate.",
+  "status": "incomplete",
+  "warmups": 3,
+  "workloads": {
+    "dff-2ch-repack-large": {
+      "baseline_median_cpu_seconds": 0.016109000000000318,
+      "candidate_median_cpu_seconds": 0.01607449999999988,
+      "measurement_noise": 0.03809172362531991,
+      "paired_bootstrap_95pct_interval": [
+        0.985755426872662,
+        1.0148056949837796
+      ],
+      "regression_percent": -0.21416599416745896,
+      "status": "inconclusive-noise"
+    },
+    "dff-2ch-repack-small": {
+      "baseline_median_cpu_seconds": 0.01078450000000053,
+      "candidate_median_cpu_seconds": 0.010965500000000183,
+      "measurement_noise": 0.05217107810705971,
+      "paired_bootstrap_95pct_interval": [
+        1.0022180121066209,
+        1.0494525886064066
+      ],
+      "regression_percent": 1.6783346469437133,
+      "status": "inconclusive-noise"
+    },
+    "dff-6ch-repack-large": {
+      "baseline_median_cpu_seconds": 0.0277319999999997,
+      "candidate_median_cpu_seconds": 0.02819750000000032,
+      "measurement_noise": 0.045789322924291435,
+      "paired_bootstrap_95pct_interval": [
+        0.9938986647802491,
+        1.0264495889225687
+      ],
+      "regression_percent": 1.6785662772271115,
+      "status": "inconclusive-noise"
+    },
+    "dff-6ch-repack-small": {
+      "baseline_median_cpu_seconds": 0.02561949999999985,
+      "candidate_median_cpu_seconds": 0.024117999999999695,
+      "measurement_noise": 0.0371597736874374,
+      "paired_bootstrap_95pct_interval": [
+        0.9309652509652561,
+        0.9531143253108145
+      ],
+      "regression_percent": -5.860770116513459,
+      "status": "inconclusive-noise"
+    },
+    "dsf-2ch-repack-large": {
+      "baseline_median_cpu_seconds": 0.013700500000000053,
+      "candidate_median_cpu_seconds": 0.013669999999999904,
+      "measurement_noise": 0.028360979413632182,
+      "paired_bootstrap_95pct_interval": [
+        0.9843676667027624,
+        1.0144483362521874
+      ],
+      "regression_percent": -0.22261961242399098,
+      "status": "inconclusive-noise"
+    },
+    "dsf-2ch-repack-small": {
+      "baseline_median_cpu_seconds": 0.009623999999999924,
+      "candidate_median_cpu_seconds": 0.009746000000000003,
+      "measurement_noise": 0.07058454499666271,
+      "paired_bootstrap_95pct_interval": [
+        0.9933870634428673,
+        1.038112051508386
+      ],
+      "regression_percent": 1.2676641729019167,
+      "status": "inconclusive-noise"
+    },
+    "dsf-6ch-repack-large": {
+      "baseline_median_cpu_seconds": 0.029844499999999996,
+      "candidate_median_cpu_seconds": 0.029527000000000053,
+      "measurement_noise": 0.05987659696973508,
+      "paired_bootstrap_95pct_interval": [
+        0.9604762857714588,
+        1.0167245506962734
+      ],
+      "regression_percent": -1.063847610112223,
+      "status": "inconclusive-noise"
+    },
+    "dsf-6ch-repack-small": {
+      "baseline_median_cpu_seconds": 0.024457500000000035,
+      "candidate_median_cpu_seconds": 0.024281499999999998,
+      "measurement_noise": 0.01944697118537645,
+      "paired_bootstrap_95pct_interval": [
+        0.9869885818167049,
+        1.001278324158272
+      ],
+      "regression_percent": -0.7196156598182069,
+      "status": "pass"
+    }
+  }
+}

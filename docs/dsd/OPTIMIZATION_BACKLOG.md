@@ -221,6 +221,26 @@ Forty pairs with larger fixtures matter: this workload read +3.28% at fifteen
 pairs with default fixtures and +5.65% at forty with larger ones, because short
 runs dilute a per-sample cost. See `tests/dsd/BENCHMARKING.md`.
 
+### P12 canary disposition (2026-10-11)
+
+The prepared-host throughput failure is real under section 10.7's gate:
+`dff-6ch-repack-small` measured +5.66%, 95% interval [+5.48%,
++5.91%], at 0.41% noise, and its output hashes agreed. The subsequent
+P12 + aligned-loop **scratch** comparison against P11-closed measured
++0.23%, 95% interval [+0.03%, +0.43%], with all sixteen workloads passing.
+The scratch evidence was recorded before this continuation, not rerun on
+that physical host in this round.
+
+This continuation applies the previously tested, guarded 4096-byte
+function-alignment hint only to `sox_flow_effects` in `src/effects.c`.
+The counter and intervention records support a decoded-uop-cache placement
+problem on the measured Zen 4 host; they do not prove a universal cause or
+justify aligning other functions. The change does not alter flow semantics,
+DSP arithmetic, container I/O, dispatcher preference or API. The
+reconstructed x86-64 binary and numerical suites passed on a VM, but that
+VM's benchmark noise exceeded the gate's 2% admissibility condition.
+See `docs/dsd/handoffs/P12_CANARY.md` for executed tests and limitations.
+
 ## `src/dsdiff.c` indentation
 
 99 code lines use spaces where the file indents with tabs: 68 at four-space in
