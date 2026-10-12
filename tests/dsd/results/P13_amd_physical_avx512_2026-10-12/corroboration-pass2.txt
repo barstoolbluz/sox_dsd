@@ -1,0 +1,25 @@
+CORROBORATION PASS 2 — fresh source, 9 reps, CPU 8
+
+A. decode 2822400->88200 (report says final_src_active=false), by forced FIR tier
+   FIR=scalar  0.8847s   1.000x vs scalar
+   FIR=sse2    0.8756s   1.010x vs scalar
+   FIR=avx1    0.8775s   1.008x vs scalar
+   FIR=avx2    0.8839s   1.001x vs scalar
+   FIR=avx512  0.8954s   0.988x vs scalar
+
+B. decode 2822400->44100 (final_src_active=true), by forced FIR tier
+   FIR=scalar  0.8985s   1.000x vs scalar
+   FIR=avx2    0.9091s   0.988x vs scalar
+   FIR=avx512  0.9078s   0.990x vs scalar
+
+C. encode 176400->2822400, by forced SDM tier
+   SDM=scalar  0.8156s   1.000x vs scalar
+   SDM=sse2    0.7333s   1.112x vs scalar
+   SDM=avx1    0.7625s   1.070x vs scalar
+   SDM=avx2    0.7314s   1.115x vs scalar
+   SDM=avx512  0.7675s   1.063x vs scalar
+
+D. cost decomposition of the 88200 decode
+   read only (-t null)        0.0330s  = 3.8% of decode
+   full decode                0.8758s
+   work above read            0.8428s
