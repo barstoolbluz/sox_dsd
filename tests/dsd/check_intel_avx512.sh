@@ -22,6 +22,22 @@ if [ -z "$PY" ]; then
   echo "Without them make check-dsd and the numeric suites cannot run."
   exit 2
 fi
+# The build needs the autotools chain plus a C compiler.  Check before doing
+# anything else: a missing autoreconf otherwise fails the build and then every
+# later check against binaries that were never produced.
+MISSING=""
+for b in cc make autoreconf autoconf automake aclocal; do
+  command -v "$b" >/dev/null 2>&1 || MISSING="$MISSING $b"
+done
+command -v libtoolize >/dev/null 2>&1 || command -v libtool >/dev/null 2>&1 \
+  || MISSING="$MISSING libtool"
+if [ -n "$MISSING" ]; then
+  echo "FATAL: missing build tools:$MISSING"
+  echo "  Debian/Ubuntu: sudo apt-get install -y build-essential autoconf automake libtool pkg-config"
+  echo "  RHEL/Amazon:   sudo dnf install -y gcc make autoconf automake libtool pkgconfig"
+  exit 2
+fi
+
 echo "using interpreter: $PY"
 # make check-dsd shells out to plain python3, so put the chosen one first.
 PYBIN="$(mktemp -d)"; ln -sf "$(command -v "$PY")" "$PYBIN/python3"; export PATH="$PYBIN:$PATH"
@@ -35,8 +51,14 @@ for f in avx512f avx512dq avx512bw avx512vl avx2 fma; do
 done | tee "$R/host-isa.txt"
 
 say "build"
-autoreconf -fi && ./configure --disable-shared --without-libltdl CFLAGS='-O2 -g' && make -j"$(nproc)"
-echo "build exit=$?"
+if autoreconf -fi && ./configure --disable-shared --without-libltdl CFLAGS='-O2 -g' \
+   && make -j"$(nproc)"; then
+  echo "build exit=0"
+else
+  echo "build FAILED; stopping.  Everything downstream needs these binaries."
+  echo "Send this log as-is: the build output above is the whole finding."
+  exit 2
+fi
 
 say "generic and DSD regression suites"
 make check            > "$R/make-check.log" 2>&1;     echo "make check     exit=$?"
