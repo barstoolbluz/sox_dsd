@@ -26,6 +26,7 @@
 #include "sox_dsd.h"
 #include "dsd.h"
 #include "pcmdsd.h"
+#include "dsd_stats.h"
 #include "dsd_layout_query.h"
 #include "util.h"
 #include "softvol.h"
@@ -195,6 +196,7 @@ typedef struct {
   uint64_t volume_clips;
   rg_mode replay_gain_mode;
   dsd_input_adapter_t *dsd_adapter;
+  lsx_dsd_stats *dsd_source_stats;
   uint32_t dsd_target_hz;
   lsx_dsd_decode dsd_profile;
   lsx_dsd_level dsd_level;
@@ -248,6 +250,17 @@ static lsx_dsd_policy dsd_policy = {
 static sox_bool dsd_mode_explicit = sox_false, dsd_plan_only = sox_false;
 static sox_bool dsd_new_policy_explicit = sox_false;
 static char *dsd_report_path = NULL;
+/* CLI-owned, opt-in evidence collection. A report is never an audio sink. */
+static lsx_dsd_report_context *dsd_report_ctx;
+static lsx_dsd_plan dsd_report_plan; /* NATIVE-mode plan, not active routing. */
+static sox_bool dsd_report_active, dsd_report_published;
+static uint64_t dsd_adapter_clips_total, dsd_output_clip_total;
+static int dsd_report_publish(char const *status);
+static void dsd_report_validate_destination(void);
+static void dsd_report_preflight_destination(void);
+static void dsd_report_check_open_output_alias(void);
+static int dsd_observe_input(file_t *f,const sox_sample_t *samples,size_t n);
+
 /* Planning is opt-in in P05.  The prior implicit effects graph is untouched. */
 static sox_bool dsd_preflight_enabled(void)
 {
@@ -296,6 +309,7 @@ static int close_output_checked(void)
   char *regular_path = ft->io_type == lsx_io_file &&
       !lsx_stat(ft->filename, &st) && IS_REGULAR_FILE(st) ?
       lsx_strdup(ft->filename) : NULL;
+  dsd_output_clip_total=ft->clips;
   int result = sox_close(ft);
   ofile->ft = NULL; /* sox_close frees the handle, even on failure. */
   if (result != SOX_SUCCESS) {
@@ -325,14 +339,23 @@ static void cleanup(void)
     if (env_opts && *env_opts)
       lsx_report("used "SOX_OPTS"=%s", env_opts);
   }
+  /* Effect stop has already captured graph conversion identities. Input
+   * adapters are retired first, while native stream metadata is still live. */
+  for (i=0;i<input_count;i++) dsd_adapter_destroy(files[i]);
+  if (dsd_report_publish(user_abort?"cancelled":success?"complete":"failed")!=SOX_SUCCESS)
+    lsx_fail("--dsd-report publication failed");
+  lsx_dsd_report_disable();
+  lsx_dsd_report_destroy(dsd_report_ctx);dsd_report_ctx=NULL;
   lsx_dsd_plan_free(&dsd_runtime_plan);
+  lsx_dsd_plan_free(&dsd_report_plan);
   free(dsd_decode_before);
   dsd_decode_before=NULL;
   free(dsd_encode_before);
   dsd_encode_before=NULL;
   /* Close the input and output files before exiting. */
   for (i = 0; i < input_count; i++) {
-    dsd_adapter_destroy(files[i]);
+    lsx_dsd_stats_destroy(files[i]->dsd_source_stats);
+    files[i]->dsd_source_stats=NULL;
     if (files[i]->ft) {
       sox_close(files[i]->ft);
     }
@@ -585,6 +608,11 @@ static void dsd_adapter_destroy(file_t *f)
 {
   dsd_input_adapter_t *a=f->dsd_adapter;
   if (!a) return;
+  if (a->decoder)
+    lsx_dsd_report_note_decode(a->decoder,f->dsd_profile,f->dsd_level,
+        a->clips,a->peak);
+  if (UINT64_MAX-dsd_adapter_clips_total>=a->clips)
+    dsd_adapter_clips_total+=a->clips;
   if (a->clips)
     lsx_warn("P08: '%s' adapter clipped %" PRIu64
         " graph samples (max magnitude %.9g)",f->filename,a->clips,a->peak);
@@ -651,6 +679,10 @@ static size_t dsd_adapter_read(file_t *f,sox_sample_t *out,size_t frames)
       if (samples%a->channels || (!samples && f->ft->sox_errno)) {
         lsx_fail("P08: input read failed for '%s': %s",f->filename,
             f->ft->sox_errno?sox_strerror(f->ft->sox_errno):"incomplete channel frame");
+        a->failed=sox_true;break;
+      }
+      if (!dsd_observe_input(f,a->native,samples)) {
+        lsx_fail("P14: native source observation counter failed");
         a->failed=sox_true;break;
       }
       a->cursor=0;
@@ -746,6 +778,11 @@ static size_t sox_read_wide(file_t *f, sox_sample_t *buf, size_t max)
   size_t len=max/combiner_signal.channels;
   if (f->dsd_adapter) return dsd_adapter_read(f,buf,len);
   len=sox_read(ft,buf,len*ft->signal.channels)/ft->signal.channels;
+  if (!dsd_observe_input(f,buf,len*ft->signal.channels)) {
+    lsx_fail("P14: native source observation counter failed");
+    ft->sox_errno=SOX_EOF;
+    return 0;
+  }
   if (!len && ft->sox_errno)
     lsx_fail("`%s' %s: %s",ft->filename,ft->sox_errstr,sox_strerror(ft->sox_errno));
   return len;
@@ -2777,8 +2814,11 @@ static void preflight_dsd(void)
 
   /* The plan is published before starting any DSP or opening the audio header.
    * Sequence reporting contains all independently validated segments. */
-  if (dsd_plan_only || dsd_report_path) {
-    if (dsd_report_path) {
+  if (dsd_plan_only) {
+    /* Planning never opens audio, but publishing its JSON is still a file
+     * write: apply the same input/overwrite policy as execution reports. */
+    dsd_report_validate_destination();
+    if (dsd_report_path && strcmp(dsd_report_path,"-")) {
       report=lsx_fopen(dsd_report_path,"w");
       if (!report) {lsx_fail("cannot open --dsd-report destination");exit(2);}
     } else report=stdout;
@@ -2873,9 +2913,165 @@ static void preflight_dsd(void)
         dsd_runtime_plan.encode_count)
       ofile->signal.length=SOX_UNKNOWN_LEN;
   }
+  /* Retain authoritative preflight facts without enabling graph routing
+   * for the explicit NATIVE mode. */
+  if (dsd_report_path && !dsd_plan_only &&
+      dsd_policy.mode!=LSX_DSD_MODE_AUTO) {
+    dsd_report_plan=*active;
+    memset(active,0,sizeof(*active));
+  }
   if (series) dsd_free_sequence(series,segments);
   else lsx_dsd_plan_free(&plan);
   free(input);free(effect);
+}
+
+
+/* P14: source statistics are collected at the actual native reader boundary,
+ * before volume, the P08 adapter, graph FIR or any mastering bandwidth loss.
+ * The hot path is an empty branch when reporting was not selected. */
+static int dsd_observe_input(file_t *f,const sox_sample_t *bits,size_t samples)
+{
+  uint32_t hz;
+  if (!dsd_report_active || f->ft->encoding.encoding!=SOX_ENCODING_DSD)
+    return 1;
+  if (!lsx_dsd_integer_rate(f->ft->signal.rate,&hz) ||
+      (samples % f->ft->signal.channels)) return 0;
+  if (!f->dsd_source_stats) {
+    f->dsd_source_stats=lsx_dsd_stats_create(f->ft->signal.channels,hz,0);
+    if (!f->dsd_source_stats) return 0;
+  }
+  return lsx_dsd_stats_feed(f->dsd_source_stats,bits,
+      samples/f->ft->signal.channels);
+}
+
+/* Resolve direct stdout and /dev/stdout-style aliases by stream identity.
+ * The audio and JSON must never share the same output byte stream. */
+static int dsd_path_is_stdout(const char *path)
+{
+  struct stat stream,path_stat;
+  if (!path) return 0;
+  if (!strcmp(path,"-")) return 1;
+  return !fstat(fileno(stdout),&stream) && !lsx_stat(path,&path_stat) &&
+      stream.st_dev==path_stat.st_dev && stream.st_ino==path_stat.st_ino;
+}
+
+/* Destination validation is shared by P05 plan-only JSON and P14 execution
+ * JSON.  It deliberately does not activate a runtime observer or open files. */
+static void dsd_report_validate_destination(void)
+{
+  struct stat target,source;
+  size_t i;
+  if (!dsd_report_path) return;
+  if (!dsd_plan_only && dsd_path_is_stdout(dsd_report_path) &&
+      (!ofile->filename || dsd_path_is_stdout(ofile->filename) ||
+       (ofile->ft && dsd_path_is_stdout(ofile->ft->filename)))) {
+    lsx_fail("--dsd-report conflicts with audio on stdout; select a separate file");
+    exit(2);
+  }
+  if (!strcmp(dsd_report_path,"-")) return; /* JSON to stdout. */
+  if (ofile->filename && !strcmp(dsd_report_path,ofile->filename)) {
+    lsx_fail("--dsd-report cannot replace the audio output");exit(2);
+  }
+  if (!lsx_stat(dsd_report_path,&target)) {
+    for (i=0;i<input_count;i++)
+      if (files[i]->ft && !lsx_stat(files[i]->ft->filename,&source) &&
+          source.st_dev==target.st_dev && source.st_ino==target.st_ino) {
+        lsx_fail("--dsd-report cannot overwrite an input carrier");exit(2);
+      }
+    if (ofile->filename && !lsx_stat(ofile->filename,&source) &&
+        source.st_dev==target.st_dev && source.st_ino==target.st_ino) {
+      lsx_fail("--dsd-report cannot overwrite the audio output");exit(2);
+    }
+    if (!overwrite_permitted(dsd_report_path)) {
+      lsx_fail("--dsd-report overwrite refused");exit(2);
+    }
+  }
+}
+
+static void dsd_report_preflight_destination(void)
+{
+  if (!dsd_report_path || dsd_report_active) return;
+  dsd_report_validate_destination();
+  dsd_report_ctx=lsx_dsd_report_create();
+  if (!dsd_report_ctx) {lsx_fail("cannot allocate --dsd-report context");exit(2);}
+  lsx_dsd_report_enable(dsd_report_ctx);
+  dsd_report_active=sox_true;
+}
+
+/* In an ordinary command the output is opened only after P05 planning.
+ * Relative spellings such as ./out.dsf and out.dsf can name the same
+ * not-yet-existing file. Compare their identities as soon as the audio
+ * writer has created the destination, before processing a single sample.
+ * Failure uses normal cleanup, which removes the uncompleted output. */
+static void dsd_report_check_open_output_alias(void)
+{
+  struct stat audio,report;
+  if (!dsd_report_path || !strcmp(dsd_report_path,"-") ||
+      !ofile->ft || !ofile->ft->filename) return;
+  if (!lsx_stat(ofile->ft->filename,&audio) &&
+      !lsx_stat(dsd_report_path,&report) &&
+      audio.st_dev==report.st_dev && audio.st_ino==report.st_ino) {
+    lsx_fail("--dsd-report cannot replace the audio output (aliased destination)");
+    /* No report may be written during failure cleanup to the same open
+     * stream. Cleanup still destroys the observer and unlinks partial audio. */
+    dsd_report_active=sox_false;
+    exit(2);
+  }
+}
+
+static int dsd_report_publish(char const *status)
+{
+  FILE *out;
+  size_t i;
+  const lsx_dsd_stats **stats;
+  sox_dsd_stream_info_t *infos;
+  const sox_dsd_layout_t **layouts;
+  const sox_format_t **source_formats;
+  uint64_t writer_clips=dsd_output_clip_total;
+  int ok;
+  if (!dsd_report_active || dsd_report_published) return SOX_SUCCESS;
+  stats=calloc(input_count?input_count:1,sizeof(*stats));
+  infos=calloc(input_count?input_count:1,sizeof(*infos));
+  layouts=calloc(input_count?input_count:1,sizeof(*layouts));
+  source_formats=calloc(input_count?input_count:1,sizeof(*source_formats));
+  if (!stats || !infos || !layouts || !source_formats) {
+    free(stats);free(infos);free(layouts);free(source_formats);return SOX_EOF;
+  }
+  for (i=0;i<input_count;i++) {
+    stats[i]=files[i]->dsd_source_stats;
+    source_formats[i]=files[i]->ft;
+    infos[i].version=1;infos[i].size=sizeof(*infos);
+    if (!files[i]->ft ||
+        sox_dsd_get_stream_info(files[i]->ft,&infos[i])!=SOX_DSD_OK)
+      memset(&infos[i],0,sizeof(*infos));
+    if (files[i]->ft) {
+      sox_dsd_layout_t *copy=NULL;
+      if (sox_dsd_get_layout(files[i]->ft,&copy)==SOX_DSD_OK)
+        layouts[i]=copy;
+    }
+  }
+  if (ofile->ft) writer_clips=ofile->ft->clips;
+  out=!strcmp(dsd_report_path,"-")?stdout:lsx_fopen(dsd_report_path,"w");
+  if (!out) {
+    lsx_fail("cannot open --dsd-report destination: %s",strerror(errno));
+    ok=SOX_EOF;
+  } else {
+    lsx_dsd_report_json(out,dsd_report_ctx,
+        dsd_runtime_active?&dsd_runtime_plan:
+        dsd_report_plan.output_channels?&dsd_report_plan:NULL,stats,input_count,
+        infos,layouts,source_formats,output_samples,writer_clips,
+        dsd_adapter_clips_total,mixing_clips,status,VERSION);
+    ok=ferror(out)?SOX_EOF:SOX_SUCCESS;
+    if (out==stdout) {
+      if (fflush(out)) ok=SOX_EOF;
+    } else if (fclose(out)) ok=SOX_EOF;
+    if (ok!=SOX_SUCCESS)
+      lsx_fail("failed to write --dsd-report destination");
+  }
+  for(i=0;i<input_count;i++)sox_dsd_layout_free((sox_dsd_layout_t *)layouts[i]);
+  free(stats);free(infos);free(layouts);free(source_formats);
+  if (ok==SOX_SUCCESS)dsd_report_published=sox_true;
+  return ok;
 }
 
 static int process(void)
@@ -2888,7 +3084,9 @@ static int process(void)
   set_combiner_and_output_encoding_parameters();
   calculate_output_signal_parameters();
   preflight_dsd();
+  dsd_report_preflight_destination();
   open_output_file();
+  dsd_report_check_open_output_alias();
   if (dsd_runtime_active &&
       (ofile->ft->signal.rate!=dsd_runtime_plan.output_rate ||
        ofile->ft->signal.channels!=dsd_runtime_plan.output_channels ||
@@ -3111,7 +3309,7 @@ static void usage(void)
 "--dsd-level preserve|sacd  Decoder level convention",
 "--dsd-clip warn|error    Graph-boundary clipping policy",
 "--dsd-bandwidth adapt|strict  PCM reconstruction passband policy",
-"--dsd-report PATH       Write preflight plan JSON (P05; not a DSP report)",
+"--dsd-report PATH       Write final versioned DSD conversion report (or - for stdout)",
 "--dsd-plan              Print preflight JSON and exit before output open",
 "--effects-file FILENAME  File containing effects and options",
 "-G, --guard              Use temporary files to guard against clipping",
@@ -4489,6 +4687,12 @@ int main(int argc, char **argv)
     return 2;
   }
 
+  /* Final status is published only after the output writer closes cleanly.
+   * A reporting failure is a command failure, not a completed conversion. */
+  if (dsd_report_publish("complete")!=SOX_SUCCESS) {
+    cleanup();
+    return 2;
+  }
   if (show_progress) {
     if (user_abort)
       fprintf(stderr, "Aborted.\n");

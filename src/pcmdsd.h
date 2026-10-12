@@ -47,6 +47,8 @@ typedef void (*lsx_pcmdsd_stage_observer)(void *opaque, lsx_pcmdsd_stage,
 void lsx_pcmdsd_observe(lsx_pcmdsd *, lsx_pcmdsd_stage_observer, void *opaque);
 /* Read-only per-context selection, used by P11 regression tests. */
 const char *lsx_pcmdsd_kernel_name(const lsx_pcmdsd *);
+const lsx_pcmdsd_profile *lsx_pcmdsd_profile_of(const lsx_pcmdsd *);
+double lsx_pcmdsd_reference_scale(const lsx_pcmdsd *);
 
 const lsx_pcmdsd_profile *lsx_pcmdsd_profile_find(uint32_t);
 int lsx_pcmdsd_qualified(uint32_t);

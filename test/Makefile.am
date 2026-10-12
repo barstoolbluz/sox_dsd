@@ -124,3 +124,9 @@ EXTRA_PROGRAMS += dsd_test_p13
 dsd_test_p13_SOURCES = ../tests/dsd/test_p13.c
 dsd_test_p13_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p13_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P14 native-bit invariant and fifth-order SOS numerical probe.
+EXTRA_PROGRAMS += dsd_test_p14
+dsd_test_p14_SOURCES = ../tests/dsd/test_p14.c
+dsd_test_p14_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p14_LDADD = $(top_builddir)/src/libsox_ng.la

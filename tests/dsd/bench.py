@@ -267,6 +267,22 @@ def main():
         perf=performance_summary(args.results.parent/'performance')
         report['p10_paired_throughput']=dict(status=perf['status'],evidence='../performance/summary.json')
         report['summary']['p10_throughput_qualification']=perf['status']
+    if args.phase=='P14':
+        command=[sys.executable,str(ROOT/'tests/dsd/bench_p14.py'),
+                 '--sox',str(args.sox), '--results',str(args.results/'observer-overhead')]
+        try:
+            cp=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=1000)
+            report['p14_observer_overhead']=dict(exit=cp.returncode,status='PASS' if cp.returncode==0 else 'FAIL',
+                stdout=cp.stdout,stderr=cp.stderr,evidence='observer-overhead/p14-overhead.json',
+                qualification='development-only; P13 physical silicon remains OPEN')
+            if cp.returncode:
+                missing.append('P14 basic/full observational overhead or audio integrity failed')
+                report['summary']['status']='incomplete'
+        except (OSError,subprocess.TimeoutExpired) as error:
+            report['p14_observer_overhead']=dict(status='FAIL',error=str(error))
+            missing.append('P14 observational overhead unrun or timed out')
+            report['summary']['status']='incomplete'
+        atomic_json(outfile,report)
     if args.phase=='P13':
         # P00's generic benchmark remains a regression measurement, not the
         # P13 ISA comparison. Run the required guarded AVX2/AVX-512F matrix

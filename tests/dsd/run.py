@@ -666,6 +666,27 @@ def main():
     if not args.sox.is_file() or not args.probe.is_file():
         ap.error('missing built sox_ng/test/dsd_test_io; build with make and make -C test dsd_test_io')
     floor=runner.run()
+    if args.phase=='P14' and not floor and args.only=='*' and args.mode=='all':
+        # P00's inherited floor is still reported separately; the P14 gate
+        # is an executable report/bit/stream contract, not a relabeled floor.
+        command=[sys.executable,str(ROOT/'tests/dsd/test_p14.py'),
+            '--sox',str(args.sox),
+            '--unit',str(args.probe.parent/'dsd_test_p14'),
+            '--results',str(args.results/'report')]
+        try:
+            cp=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=300)
+            record=dict(name='P14_report_native_statistics',status='PASS' if cp.returncode==0 else 'FAIL',
+                exit_code=cp.returncode,
+                command=[str(x).replace(str(ROOT),'<tree>') for x in command],
+                stdout=cp.stdout,stderr=cp.stderr)
+        except (OSError,subprocess.TimeoutExpired) as error:
+            record=dict(name='P14_report_native_statistics',status='FAIL',error=str(error))
+        print(record['name'],record['status'],flush=True)
+        (args.results/'implementation.json').write_text(json.dumps(dict(
+            schema='P14/implementation-tests/1',records=[record],
+            result='PASS' if record['status']=='PASS' else 'FAIL',
+            physical_performance_qualification='OPEN'),indent=2,sort_keys=True)+'\n')
+        return int(record['status']!='PASS')
     if floor or args.phase!='P10' or args.only!='*' or args.mode!='all':
         return floor
     # Keep the inherited 36-case floor visible, and execute real P10 contracts

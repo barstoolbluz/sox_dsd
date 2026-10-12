@@ -144,6 +144,20 @@ def main() -> int:
             except (subprocess.TimeoutExpired,OSError) as exc:
                 p09_runs.append(dict(name=name,status='fail',error=str(exc)))
         passed.extend(p09_runs)
+    if args.phase=='P14':
+        command=[sys.executable,str(ROOT/'tests/dsd/test_p14_numeric.py'),
+            '--unit',str(ROOT/'test/dsd_test_p14'),
+            '--sox',str(args.sox), '--results',str(args.results/'native-sos')]
+        try:
+            proc=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=400)
+            case=dict(name='P14_independent_digital_SOS_and_native_band',
+                      status='pass' if proc.returncode==0 else 'fail',
+                      detail=dict(exit=proc.returncode,stdout=proc.stdout,stderr=proc.stderr,
+                                  evidence='native-sos/numeric-p14.json'))
+        except (OSError,subprocess.TimeoutExpired) as exc:
+            case=dict(name='P14_independent_digital_SOS_and_native_band',
+                      status='fail',error=str(exc))
+        passed.append(case)
     analysis_procedures = (dict(metrology.ANALYSIS_V1) if int(args.phase[1:]) < 9 else
              dict(reference='tests/dsd/reference/analysis-v1/manifest.json',
                   frozen_sha256=hashlib.sha256((ROOT/'tests/dsd/reference/analysis-v1/SHA256SUMS.txt').read_bytes()).hexdigest(),
