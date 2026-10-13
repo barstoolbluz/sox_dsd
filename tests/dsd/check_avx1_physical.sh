@@ -27,6 +27,10 @@ HYP=$(grep -qw hypervisor /proc/cpuinfo && echo PRESENT || echo absent)
   printf 'avx / avx2  %s / %s\n' "$HAVE_AVX" "$HAVE_AVX2"
   printf 'virt        %s (hypervisor flag %s)\n' "$VIRT" "$HYP"
   printf 'cpus        %s, bench cpu %s\n' "$(nproc)" "$CPU"
+  printf 'compiler    %s\n' "$(cc --version 2>/dev/null | head -1)"
+  printf 'libc        %s\n' "$(ldd --version 2>/dev/null | head -1)"
+  printf 'kernel      %s\n' "$(uname -r)"
+  printf 'cflags      -O2 -g\n'
 } | tee "$R/host.txt"
 
 if [ "${AVX1_SMOKE:-0}" != 1 ] && { [ "$HAVE_AVX" != yes ] || [ "$HAVE_AVX2" != no ]; }; then
@@ -125,8 +129,19 @@ for k in scalar sse2 avx1; do
   SOX_DSD_KERNEL_SDM=$k ./test/sox_p10_candidate --dsd-layout-loss warn "$R/in.wav" \
     -r 2822400 "$R/sdm_$k.dsf" pcmdsd 2822400 2>/dev/null
 done
-sha256sum "$R"/fir_*.wav "$R"/sdm_*.dsf > "$R/kernel-output-sha256.txt"
+sha256sum "$R"/in.wav "$R"/a.dsf "$R"/fir_*.wav "$R"/sdm_*.dsf > "$R/kernel-output-sha256.txt"
 sed -i "s|$R/||" "$R/kernel-output-sha256.txt"; cat "$R/kernel-output-sha256.txt"
+echo
+echo "  cross-host reference, AMD Zen 4 and Intel Sapphire Rapids, gcc 14.2, -O2 -g:"
+echo "    in.wav     bb23075f0e133795df9d2f7f66623cddb244ae873461d416e119e9aa37349190"
+echo "    a.dsf      83f02d0856c23a50d9b717259fd15c5384ad2303e1b0c99211403d7569ef420b"
+echo "    fir_*      ddc48d53afd672850466d0d3cd0b7b8c777ecd5a2c4757ae71dbf92ef6e286c2"
+echo "    sdm_scalar 83f02d0856c23a50d9b717259fd15c5384ad2303e1b0c99211403d7569ef420b"
+echo "    sdm_vector 65c0cbbd89b8e59be12e3eb0af17442700d4edab454ceaed3dd158b857c666da"
+echo "  A within-host split of 1 FIR / 2 SDM is the gate criterion. Differing from"
+echo "  the reference above is a separate question about cross-host reproducibility"
+echo "  of the same tier, not an ISA-dispatch failure; report both."
+echo
 printf 'distinct FIR: %s (expect 1)   distinct SDM: %s (expect 2)\n' \
   "$(awk '/fir_/{print $1}' "$R/kernel-output-sha256.txt" | sort -u | wc -l)" \
   "$(awk '/sdm_/{print $1}' "$R/kernel-output-sha256.txt" | sort -u | wc -l)"
@@ -195,7 +210,9 @@ fi
 
 say "done"
 echo "gate_relevant=$GATE   results under $R"
-rm -f "$R"/*.wav "$R"/*.dsf
+# intermediates retained deliberately: they are what makes a cross-host
+# hash mismatch diagnosable. Delete by hand if space matters.
+rm -f "$R"/clk.dsf "$R"/long.wav
 if [ "$GATE" = yes ]; then
   echo "Timings above are GATE-RELEVANT for P15-physical-older-AVX-performance."
 else
