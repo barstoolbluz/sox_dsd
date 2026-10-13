@@ -267,7 +267,7 @@ def main():
         perf=performance_summary(args.results.parent/'performance')
         report['p10_paired_throughput']=dict(status=perf['status'],evidence='../performance/summary.json')
         report['summary']['p10_throughput_qualification']=perf['status']
-    if args.phase=='P14':
+    if args.phase in ('P14','P15'):
         command=[sys.executable,str(ROOT/'tests/dsd/bench_p14.py'),
                  '--sox',str(args.sox), '--results',str(args.results/'observer-overhead')]
         try:
@@ -283,7 +283,7 @@ def main():
             missing.append('P14 observational overhead unrun or timed out')
             report['summary']['status']='incomplete'
         atomic_json(outfile,report)
-    if args.phase=='P13':
+    if args.phase in ('P13','P15'):
         # P00's generic benchmark remains a regression measurement, not the
         # P13 ISA comparison. Run the required guarded AVX2/AVX-512F matrix
         # separately, retaining its own 15-repeat raw readings and exits.

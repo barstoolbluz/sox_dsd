@@ -3304,8 +3304,8 @@ static void usage(void)
 "--dsd-layout ROLES       Comma-separated output role assignment: FL,FR,FC,LFE,BL,BR,SL,SR,MONO",
 "--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
 "--dsd-mode auto|native|legacy  Opt in to P08 domain routing; default remains legacy",
-"--dsd-decode mastering|wideband|legacy  Select reconstruction policy",
-"--dsd-encode mastering|legacy|experimental  Select modulation policy",
+"--dsd-decode mastering|wideband|legacy|decode.<profile>.v1.dsd<rate>  Select reconstruction policy",
+"--dsd-encode mastering|legacy|experimental|encode.mastering.v1.dsd<rate>  Select modulation policy",
 "--dsd-level preserve|sacd  Decoder level convention",
 "--dsd-clip warn|error    Graph-boundary clipping policy",
 "--dsd-bandwidth adapt|strict  PCM reconstruction passband policy",
@@ -3862,19 +3862,31 @@ static char parse_gopts_and_fopts(file_t * f)
         dsd_mode_explicit=sox_true;
         break;
       case 29:
-        if (!strcmp(optstate.arg,"mastering"))dsd_policy.decode=LSX_DSD_PROFILE_MASTERING;
-        else if (!strcmp(optstate.arg,"wideband"))dsd_policy.decode=LSX_DSD_PROFILE_WIDEBAND;
-        else if (!strcmp(optstate.arg,"legacy"))dsd_policy.decode=LSX_DSD_PROFILE_LEGACY;
-        else {lsx_fail("--dsd-decode must be mastering, wideband or legacy");exit(1);}
-        dsd_policy.decode_specified=1;
-        dsd_new_policy_explicit=sox_true;break;
+        {
+          int profile;
+          if (!lsx_dsd_profile_parse(optstate.arg,0,&profile,
+                &dsd_policy.decode_pinned_native_hz)) {
+            lsx_fail("--dsd-decode requires mastering, wideband, legacy, or a supported decode.*.v1.dsd* ID");
+            exit(1);
+          }
+          dsd_policy.decode=(lsx_dsd_decode)profile;
+          dsd_policy.decode_specified=1;
+          dsd_new_policy_explicit=sox_true;
+        }
+        break;
       case 30:
-        if (!strcmp(optstate.arg,"mastering"))dsd_policy.encode=LSX_DSD_ENCODE_MASTERING;
-        else if (!strcmp(optstate.arg,"legacy"))dsd_policy.encode=LSX_DSD_ENCODE_LEGACY;
-        else if (!strcmp(optstate.arg,"experimental"))dsd_policy.encode=LSX_DSD_ENCODE_EXPERIMENTAL;
-        else {lsx_fail("--dsd-encode must be mastering, legacy or experimental");exit(1);}
-        dsd_policy.encode_specified=1;
-        dsd_new_policy_explicit=sox_true;break;
+        {
+          int profile;
+          if (!lsx_dsd_profile_parse(optstate.arg,1,&profile,
+                &dsd_policy.encode_pinned_native_hz)) {
+            lsx_fail("--dsd-encode requires mastering, legacy, experimental, or a supported encode.mastering.v1.dsd* ID");
+            exit(1);
+          }
+          dsd_policy.encode=(lsx_dsd_encode)profile;
+          dsd_policy.encode_specified=1;
+          dsd_new_policy_explicit=sox_true;
+        }
+        break;
       case 31:
         if (!strcmp(optstate.arg,"preserve"))dsd_policy.level=LSX_DSD_LEVEL_PRESERVE;
         else if (!strcmp(optstate.arg,"sacd"))dsd_policy.level=LSX_DSD_LEVEL_SACD;
