@@ -1,4 +1,25 @@
-# P15 physical older-AVX throughput, and a cross-host scalar question
+# P15 physical older-AVX: OPERATOR-REPORTED, ARTIFACTS NOT DELIVERED
+
+> **STATUS: UNVERIFIED. This directory does not contain the evidence for the
+> figures below.** An adjudication round found the original version of this
+> file asserting measurements from a physical AVX1-without-AVX2 host while the
+> only artifact present, `host.txt`, described an AMD Threadripper 7970X with
+> `avx2 yes`. That artifact was ours: it came from a local smoke test run
+> inside the repository to check the script's ISA guard, which wrote the file,
+> exited at the guard, and was then swept in by `git add -A` alongside a README
+> about a different machine. It has been removed. We never held the operator's
+> result files; the figures below are transcribed from pasted console output.
+>
+> `check_p15_avx1_receipt.py` reports `BLOCKED` on this directory, listing the
+> six raw receipts that are absent. The older-AVX gate is **UNRUN** until the
+> operator's `tests/dsd/results/P15_avx1_physical_*/` directory is delivered
+> and that checker passes.
+>
+> The adjudication is right that this does not show the measurements never
+> happened, and we do not claim the figures are wrong. It shows the delivered
+> evidence was insufficient and self-contradictory, which is the same standard
+> we have applied to every bundle we audited. Everything below is therefore a
+> transcript to be confirmed, not a record.
 
 Addresses `P15-physical-older-AVX-performance`, whose delivered evidence note
 read "P11 AVX1-only QEMU confirms instruction compatibility, not physical
@@ -80,7 +101,14 @@ against gcc 14.2 / glibc 2.41 on the reference host is the first step, and
 whether cross-host scalar reproducibility is promised at all is a design
 question we are not placed to answer.
 
-## Disposition, which is ours
+## Disposition, corrected
+
+We previously wrote that the throughput half of this gate had physical
+evidence. That was wrong: it had operator-reported numbers and no artifacts.
+The gate is UNRUN. The correctness half is in the same position, since its
+hashes also reach us only as console text.
+
+## Original disposition, superseded
 
 We believe the throughput half of this gate now has physical evidence on
 prepared silicon with a verified-flat clock, and that the correctness half

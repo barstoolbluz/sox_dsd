@@ -1,0 +1,34 @@
+{
+  "cross_host_byte_hash_requirement": false,
+  "host": {
+    "avx": [
+      "yes",
+      "yes"
+    ],
+    "microcode": "0xa10810c",
+    "model": "AMD Ryzen Threadripper 7970X 32-Cores",
+    "virt": "none"
+  },
+  "meaning": "input provenance and raw kernel timing completeness, NOT full P15 ISA/numerical release acceptance",
+  "measured_clocks": {},
+  "problems": [
+    "missing or empty raw receipt: gate-eligibility.txt",
+    "missing or empty raw receipt: clock.txt",
+    "missing or empty raw receipt: kernel.log",
+    "missing or empty raw receipt: kernel-output-sha256.txt",
+    "missing or empty raw receipt: kernel/kernel-timing.json",
+    "not proven AVX1 without AVX2; host flags: ('yes', 'yes')",
+    "not proven nonvirtualized physical host: none"
+  ],
+  "ready_for_release": false,
+  "required_files_present": {
+    "clock.txt": false,
+    "gate-eligibility.txt": false,
+    "host.txt": true,
+    "kernel-output-sha256.txt": false,
+    "kernel.log": false,
+    "kernel/kernel-timing.json": false
+  },
+  "schema": "P15/physical-older-avx-receipt-review/1",
+  "status": "BLOCKED"
+}

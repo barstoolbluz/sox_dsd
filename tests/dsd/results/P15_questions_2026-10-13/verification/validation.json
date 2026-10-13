@@ -1,0 +1,37 @@
+{
+  "build": {
+    "autoreconf": "PASS",
+    "configure": "PASS",
+    "first_make": "INTERRUPTED_BY_EXECUTION_TIMEOUT_NOT_COMPILER_FAILURE",
+    "incremental_make": "PASS"
+  },
+  "changed_runtime_dsp_source_files": [],
+  "evidence": {
+    "input_inventory_entries_verified": 4800,
+    "older_avx_receipt_status": "BLOCKED_EVIDENCE_CONTRADICTION",
+    "physical_host_performance_certified": false,
+    "release_manifest": "BLOCKED_SIX_REQUIRED_GATES_UNCLOSED",
+    "release_require_qualified_exit": 2,
+    "scalar_spectral_54_cells_executed": false
+  },
+  "note": "A full make check-dsd completion and 54-cell independent spectral certification are NOT claimed.",
+  "schema": "P15/question-adjudication-validation/1",
+  "source_revision": "1a2d9992",
+  "stage": "scope-limited question decision and source continuation",
+  "tests": {
+    "bash_syntax": "PASS",
+    "focused_qa": {
+      "failed": 0,
+      "passed": 9,
+      "status": "PASS"
+    },
+    "make_check": "PASS",
+    "make_check_dsd": "INCOMPLETE_TOOL_TIMEOUT_AFTER_P11_KERNEL_TESTS",
+    "p15_cli": {
+      "failed": 0,
+      "passed": 134,
+      "status": "PASS"
+    },
+    "python_compilation": "PASS"
+  }
+}
