@@ -98,19 +98,36 @@ class PhysicalOlderAvxReview(unittest.TestCase):
         (root/'kernel/kernel-timing.json').write_text(json.dumps(record))
 
     def test_bad_attached_host_and_no_raw_is_blocked(self):
+        # Originally this asserted against the live
+        # results/P15_avx1_physical_2026-10-13 directory while that directory
+        # held a contradictory host.txt and no raw receipts. A test pinned to a
+        # real directory being broken becomes wrong the moment the directory is
+        # repaired, which is what happened: the operator delivered the genuine
+        # Xeon E5-1680 v2 artifacts and the checker now reports
+        # ADMISSIBLE_FOR_INDEPENDENT_REVIEW. The adjudication's intent was that
+        # a wrong-host record with absent receipts must block, so that is what
+        # is asserted here, against a fixture the test owns.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            root.mkdir(parents=True, exist_ok=True)
+            (root/'host.txt').write_text(
+                'model name : AMD Ryzen Threadripper 7970X 32-Cores\n'
+                'avx / avx2  yes / yes\n'
+                'virt none (hypervisor flag absent)\n')
+            result = inspect_receipt(root)
+            self.assertEqual(result['status'], 'BLOCKED')
+            self.assertFalse(result['ready_for_release'])
+            self.assertTrue(any('AVX1 without AVX2' in p for p in result['problems']))
+            self.assertTrue(any('missing or empty raw receipt' in p
+                                for p in result['problems']))
+
+    def test_delivered_physical_record_is_admissible(self):
+        # The live directory, once the operator's artifacts were delivered.
         directory = Path(__file__).resolve().parent/'results/P15_avx1_physical_2026-10-13'
         result = inspect_receipt(directory)
-        self.assertEqual(result['status'], 'BLOCKED')
+        self.assertEqual(result['status'], 'ADMISSIBLE_FOR_INDEPENDENT_REVIEW')
+        self.assertEqual(result['problems'], [])
         self.assertFalse(result['ready_for_release'])
-        # The adjudication wrote this expecting the contradictory host.txt to
-        # remain in place. It was our smoke-test artifact describing an AVX2
-        # machine and has been removed rather than retained, so the directory
-        # is now BLOCKED for the absent receipt instead of the wrong host.
-        # Either is a correct reason to block; requiring the first would mean
-        # keeping misleading evidence in the tree to satisfy a test.
-        self.assertTrue(any('AVX1 without AVX2' in p for p in result['problems'])
-                        or any('host.txt' in p for p in result['problems']))
-        self.assertTrue(any('missing or empty raw receipt' in p for p in result['problems']))
 
     def test_expected_eligible_provenance_not_release(self):
         with tempfile.TemporaryDirectory() as tmp:

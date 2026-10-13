@@ -1,33 +1,51 @@
-# P15 physical older-AVX: OPERATOR-REPORTED, ARTIFACTS NOT DELIVERED
+# P15 physical older-AVX throughput: verified on Intel Xeon E5-1680 v2
 
-> **STATUS: UNVERIFIED. This directory does not contain the evidence for the
-> figures below.** An adjudication round found the original version of this
-> file asserting measurements from a physical AVX1-without-AVX2 host while the
-> only artifact present, `host.txt`, described an AMD Threadripper 7970X with
-> `avx2 yes`. That artifact was ours: it came from a local smoke test run
-> inside the repository to check the script's ISA guard, which wrote the file,
-> exited at the guard, and was then swept in by `git add -A` alongside a README
-> about a different machine. It has been removed. We never held the operator's
-> result files; the figures below are transcribed from pasted console output.
->
-> `check_p15_avx1_receipt.py` reports `BLOCKED` on this directory, listing the
-> six raw receipts that are absent. The older-AVX gate is **UNRUN** until the
-> operator's `tests/dsd/results/P15_avx1_physical_*/` directory is delivered
-> and that checker passes.
->
-> The adjudication is right that this does not show the measurements never
-> happened, and we do not claim the figures are wrong. It shows the delivered
-> evidence was insufficient and self-contradictory, which is the same standard
-> we have applied to every bundle we audited. Everything below is therefore a
-> transcript to be confirmed, not a record.
+**Status: artifacts delivered and independently verified.** This supersedes two
+earlier states of this file: a first version asserting these figures with no
+supporting artifacts, and a second marking them UNVERIFIED after an
+adjudication round found the only artifact present described a different
+machine. Both earlier defects were ours, recorded below under "Evidence
+history" rather than deleted.
 
-Addresses `P15-physical-older-AVX-performance`, whose delivered evidence note
-read "P11 AVX1-only QEMU confirms instruction compatibility, not physical
-throughput". Run by the operator on physical AVX1-without-AVX2 silicon.
+## The host, from its own receipt
 
-Two runs: one before host preparation and one after. The script judged the
-second `gate_relevant=yes` on its own criteria — governor `performance`,
-`intel_pstate/no_turbo` 1, clock verified flat.
+| field | value |
+|---|---|
+| CPU | Intel Xeon E5-1680 v2 @ 3.00 GHz (Ivy Bridge-EP) |
+| avx / avx2 | **yes / no** — genuine older-AVX silicon |
+| virtualization | none, hypervisor flag absent |
+| microcode | 0x42e |
+| compiler | gcc (Debian 14.2.0-19) 14.2.0 |
+| libc | Debian GLIBC 2.41-12 |
+| kernel | 6.12.48+deb13-amd64 |
+| cflags | -O2 -g |
+| bench cpu | 2 of 16 |
+
+The 3.00 GHz base clock is why boost-off yields a flat 3000 MHz rather than a
+reduced ceiling.
+
+## Independent verification performed here
+
+- `check_p15_avx1_receipt.py` on the delivered directory:
+  **`ADMISSIBLE_FOR_INDEPENDENT_REVIEW`, zero problems**, where the previous
+  record returned `BLOCKED` on six missing receipts.
+- `sha256sum -c kernel-output-sha256.txt`: **all eight artifacts OK**.
+- Every timing figure quoted below matches `kernel/kernel-timing.json` exactly,
+  which itself records the host as the E5-1680 v2, status PASS, 15 repetitions.
+- The within-host invariant computed from the delivered files, not the console:
+  **one distinct FIR hash, two distinct SDM hashes**.
+- `a.dsf` is byte-equal to `sdm_scalar.dsf`, confirming it is produced with the
+  default scalar SDM, which was previously an inference.
+- `in.wav` is **byte-identical** to this project's reference
+  `bb23075f...`, so the stimulus was the same and the scalar-SDM output
+  difference recorded below is real rather than an input artifact.
+- `gate-eligibility.txt` records `gate_relevant=yes` from the script's own
+  checks, with the clock flat at 3000 MHz across all three arms, 206 to 221
+  busy samples each.
+
+Audio payloads totalling 8.2 MB are deliberately not committed; their SHA-256
+digests are in `kernel-output-sha256.txt` and the originals are in the
+operator's delivered archive.
 
 ## Correctness, which does not depend on preparation
 
@@ -116,3 +134,34 @@ passed independently of preparation. We do not issue the gate; the scalar
 reproducibility question above may or may not bear on it.
 
 Figures are from one host and are not a property of the code alone.
+
+## The cross-host scalar difference, now adjudicated
+
+`sdm_scalar.dsf` is `9291799b...` here against this project's `83f02d08...`,
+from a byte-identical `in.wav`. The adjudication of 2026-10-13 ruled this **not
+a defect**: §8.6 states that forcing scalar assists reproducibility under a
+pinned build and is not advertised as universal cross-compiler determinism, and
+the specification nowhere guarantees cross-host scalar-encoded byte identity. A
+different trajectory from a different host is acceptable provided it satisfies
+the same numerical and stability gates.
+
+The one toolchain delta we can see is a glibc patch level, 2.41-12 here against
+2.41-12+deb13u2 on the reference host, with kernels 6.12.48 and 6.12.85. We did
+not establish that either causes the difference, and under the ruling above it
+no longer needs establishing for this gate.
+
+## Evidence history, kept rather than erased
+
+1. First version asserted these figures from pasted console output with no
+   artifacts in the directory.
+2. A local smoke run of the script inside the repository, used to check its ISA
+   guard, wrote a `host.txt` describing this AMD Threadripper with `avx2 yes`;
+   `git add -A` swept it in beside a README about a different machine. The
+   adjudication's section C found the contradiction and correctly ruled the
+   receipt inadmissible.
+3. That artifact was removed and the record marked UNVERIFIED.
+4. The operator delivered the real directory; this version is verified against
+   it.
+
+The script now forces `AVX1_SMOKE=1` runs to DIAGNOSTIC regardless of governor
+state, which closes the hole that allowed step 2.
