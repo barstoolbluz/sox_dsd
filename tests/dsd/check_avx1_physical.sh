@@ -36,6 +36,35 @@ if [ "${AVX1_SMOKE:-0}" != 1 ] && { [ "$HAVE_AVX" != yes ] || [ "$HAVE_AVX2" != 
   exit 2
 fi
 
+say "bench CPU validity"
+# An absent or offline CPU makes taskset fail and silently voids every timing.
+ONLINE=$(cat /sys/devices/system/cpu/online 2>/dev/null || echo "0-$(($(nproc)-1))")
+cpu_online(){ python3 - "$1" "$ONLINE" <<'PYCPU'
+import sys
+want=int(sys.argv[1]); ok=False
+for part in sys.argv[2].split(','):
+    if '-' in part:
+        a,b=part.split('-'); ok = ok or (int(a)<=want<=int(b))
+    elif part.strip().isdigit(): ok = ok or int(part)==want
+sys.exit(0 if ok else 1)
+PYCPU
+}
+command -v python3 >/dev/null 2>&1 || { echo "FATAL: no python3 on PATH; the bench and clock probe need it."; exit 2; }
+if ! cpu_online "$CPU"; then
+  echo "  cpu $CPU is absent or offline (online set: $ONLINE)"
+  for c in $(python3 -c "
+import sys
+s='$ONLINE';out=[]
+for p in s.split(','):
+    if '-' in p: a,b=p.split('-'); out+=list(range(int(a),int(b)+1))
+    elif p.strip().isdigit(): out.append(int(p))
+out=[x for x in out if x!=0] or out
+print(' '.join(str(x) for x in out[:8]))"); do CPU=$c; break; done
+  echo "  falling back to cpu $CPU (cpu 0 avoided: it services interrupts)"
+fi
+taskset -c "$CPU" true 2>/dev/null || { echo "FATAL: taskset cannot pin to cpu $CPU"; exit 2; }
+echo "  pinning to cpu $CPU (online set: $ONLINE)"
+
 say "can this host support a gate-relevant measurement?"
 GATE=yes
 G=/sys/devices/system/cpu/cpu$CPU/cpufreq
@@ -78,7 +107,14 @@ command -v libtoolize >/dev/null 2>&1 || command -v libtool >/dev/null 2>&1 || M
 if autoreconf -fi && ./configure --disable-shared --without-libltdl CFLAGS='-O2 -g' && make -j"$(nproc)"; then
   echo "build exit=0"
 else echo "build FAILED"; exit 2; fi
-make -C test dsd_test_p11 sox_p10_candidate >/dev/null 2>&1
+if ! make -C test dsd_test_p11 sox_p10_candidate >/dev/null 2>&1; then
+  echo "FATAL: could not build test/dsd_test_p11 or test/sox_p10_candidate"
+  make -C test dsd_test_p11 sox_p10_candidate 2>&1 | tail -5
+  exit 2
+fi
+for u in test/dsd_test_p11 test/sox_p10_candidate; do
+  [ -x "$u" ] || { echo "FATAL: $u missing after build"; exit 2; }
+done
 
 say "correctness first: AVX1 must agree with the others on this silicon"
 ./src/sox_ng -n -r 88200 -b 32 -e signed-integer "$R/in.wav" synth 3 sine 997 vol 0.3
@@ -100,37 +136,62 @@ taskset -c "$CPU" python3 tests/dsd/bench_p11.py --unit test/dsd_test_p11 --phas
   --results "$R/kernel" --repetitions 15 --frames 180000 --tiers scalar sse2 avx1 \
   2>&1 | tee "$R/kernel.log"
 
-say "effective clock per arm (same fixed work, TSC-independent, unprivileged)"
-taskset -c "$CPU" python3 - "$R" <<'PYCLK' 2>&1 | tee -a "$R/clock.log"
-import subprocess,sys,time,statistics,os
-R=sys.argv[1]
-N=1_500_000                      # identical work in every sample
-def spin():
-    t0=time.perf_counter(); k=0
-    for i in range(N): k+=i
-    return time.perf_counter()-t0
-idle=statistics.median([spin() for _ in range(7)])
-print("  idle            %.5fs  (reference, %d iterations)" % (idle,N))
-print("  NOTE: the probe shares the pinned core with the workload, so the")
-print("  absolute ratio reflects contention, not clock. Only the tier-to-tier")
-print("  spread below is a clock signal.")
-out={}
-for tier in ('scalar','sse2','avx1'):
-    p=subprocess.Popen(['./test/sox_p10_candidate','--dsd-layout-loss','warn',
-        R+'/in.wav','-r','2822400',R+'/clk.dsf','pcmdsd','2822400'],
-        env=dict(os.environ,SOX_DSD_KERNEL_SDM=tier),
-        stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-    s=[]
-    while p.poll() is None: s.append(spin())
-    if not s: continue
-    m=statistics.median(s); out[tier]=m
-    print("  during %-7s  %.5fs  contended ratio %.4f" % (tier,m,idle/m))
-if len(out)>1:
-    lo=min(out.values()); hi=max(out.values())
+say "effective clock per arm"
+# Direct sysfs sampling. Three earlier attempts were discarded and the reasons
+# matter: a spin-loop proxy conflated contention with clock (32% false spread
+# on a host with no downclock); sampling a 3-second workload gave two samples
+# per arm, one of which caught the idle floor (28% false spread). This uses a
+# deliberately long workload, fast sampling, and discards samples at or below
+# the policy minimum, which is what the AMD record used.
+F=/sys/devices/system/cpu/cpu$CPU/cpufreq/scaling_cur_freq
+FMIN=$(cat /sys/devices/system/cpu/cpu$CPU/cpufreq/scaling_min_freq 2>/dev/null || echo 0)
+if [ ! -r "$F" ]; then
+  echo "  scaling_cur_freq not readable for cpu $CPU -> clock UNMEASURED"
+  echo "  An older-AVX part may downclock under wide instructions. Without this"
+  echo "  reading, a tier throughput difference cannot be separated from a"
+  echo "  frequency difference; treat the comparison above with caution."
+  echo "clock=unmeasured" > "$R/clock.txt"
+else
+  ./src/sox_ng -n -r 176400 -b 32 -e signed-integer "$R/long.wav" \
+    synth 60 sine 997 vol 0.25 2>/dev/null
+  : > "$R/clock.txt"
+  for tier in scalar sse2 avx1; do
+    SOX_DSD_KERNEL_SDM=$tier taskset -c "$CPU" ./test/sox_p10_candidate \
+      --dsd-layout-loss warn "$R/long.wav" -r 2822400 "$R/clk.dsf" pcmdsd 2822400 \
+      >/dev/null 2>&1 &
+    W=$!
+    : > "$R/.s"
+    while kill -0 $W 2>/dev/null; do cat "$F" >> "$R/.s" 2>/dev/null; sleep 0.05; done
+    wait $W
+    python3 - "$tier" "$R/.s" "$R/clock.txt" "$FMIN" <<'PYF'
+import sys,statistics
+tier,src,out,fmin=sys.argv[1],sys.argv[2],sys.argv[3],int(sys.argv[4])
+raw=[int(x) for x in open(src) if x.strip()]
+busy=[v/1000 for v in raw if v > fmin*1.02]        # drop idle-floor samples
+if len(busy) < 10:
+    line="  %-7s only %d busy samples of %d -> UNRELIABLE, not reported" % (tier,len(busy),len(raw))
+    print(line); open(out,'a').write(line+"\n"); raise SystemExit
+m=statistics.median(busy)
+line="  %-7s median %.0f MHz  p10 %.0f  p90 %.0f  busy samples %d of %d" % (
+  tier,m,sorted(busy)[len(busy)//10],sorted(busy)[9*len(busy)//10],len(busy),len(raw))
+print(line); open(out,'a').write(line+"\n")
+PYF
+  done
+  rm -f "$R/.s" "$R/long.wav"
+  python3 - "$R/clock.txt" <<'PYS'
+import sys
+rows=[(l.split()[0],float(l.split()[2])) for l in open(sys.argv[1]) if 'median' in l]
+if len(rows)>1:
+    lo=min(r[1] for r in rows); hi=max(r[1] for r in rows)
     print("  spread across tiers: %.2f%%" % (100*(hi-lo)/lo))
-    print("  a tier with a materially lower relative clock is downclocking,")
-    print("  not algorithmically slower; report both if they diverge.")
-PYCLK
+    print("  a tier at a materially lower clock is downclocking, not")
+    print("  algorithmically slower; report both figures if they diverge.")
+elif rows:
+    print("  only one tier produced a reliable reading; no comparison made")
+else:
+    print("  no reliable clock readings; treat the tier comparison with caution")
+PYS
+fi
 
 say "done"
 echo "gate_relevant=$GATE   results under $R"
