@@ -1,0 +1,508 @@
+{
+  "cases": [
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "avx2-fma",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-avx2-fma-257---single-threaded-invalid.wav"
+      ],
+      "exit": 2,
+      "family": "decode",
+      "stderr_tail": "sox_ng FAIL sox_ng: P05 preflight: requested DSD FIR kernel tier is unavailable on this CPU/build\n",
+      "thread": "--single-threaded",
+      "tier": "avx2-fma"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "unsupported",
+        "SOX_DSD_KERNEL_SDM": "not-an-sdm-kernel"
+      },
+      "executed_command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "auto",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/independent-stereo.dsf",
+        "-r",
+        "88200",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "<fixture>/decode-unsupported-257---single-threaded-invalid.wav"
+      ],
+      "exit": 2,
+      "family": "decode",
+      "stderr_tail": "sox_ng FAIL sox_ng: P05 preflight: requested DSD FIR kernel tier is unknown or unimplemented\n",
+      "thread": "--single-threaded",
+      "tier": "unsupported"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "avx2-fma"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-avx2-fma-257---single-threaded-invalid.dsf"
+      ],
+      "exit": 2,
+      "family": "encode",
+      "stderr_tail": "sox_p10_candidate FAIL sox_ng: P05 preflight: requested DSD SDM kernel tier is unavailable on this CPU/build\n",
+      "thread": "--single-threaded",
+      "tier": "avx2-fma"
+    },
+    {
+      "buffer_bytes": 257,
+      "env_overrides": {
+        "LSX_DSD_FIR_KERNEL": "avx2",
+        "LSX_DSD_SDM_KERNEL": "avx2",
+        "OMP_NUM_THREADS": "2",
+        "SOX_DSD_KERNEL_FIR": "not-a-fir-kernel",
+        "SOX_DSD_KERNEL_SDM": "unsupported"
+      },
+      "executed_command": [
+        "<tree>/test/sox_p10_candidate",
+        "--dsd-mode",
+        "auto",
+        "--dsd-layout-loss",
+        "warn",
+        "-D",
+        "--buffer",
+        "257",
+        "--single-threaded",
+        "<fixture>/stereo-pcm.wav",
+        "-r",
+        "2822400",
+        "<fixture>/encode-unsupported-257---single-threaded-invalid.dsf"
+      ],
+      "exit": 2,
+      "family": "encode",
+      "stderr_tail": "sox_p10_candidate FAIL sox_ng: P05 preflight: requested DSD SDM kernel tier is unknown or unimplemented\n",
+      "thread": "--single-threaded",
+      "tier": "unsupported"
+    },
+    {
+      "command": [
+        "<tree>/src/sox_ng",
+        "--dsd-mode",
+        "native",
+        "-D",
+        "<fixture>/independent-stereo.dsf",
+        "<fixture>/native-with-inactive-overrides.dsf"
+      ],
+      "exit": 0,
+      "family": "native-only",
+      "sha256": "f82322f1703bf0e5c2b7d63bdf6736bdf31d70e6fc03e9f5a0a5c7bb0450a535",
+      "stderr_tail": "",
+      "tier": "both-inactive"
+    }
+  ],
+  "checks": [
+    {
+      "case_count": 0,
+      "name": "decode-scalar-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "decode-sse2-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "decode-avx1-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "decode-avx2-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "decode-avx512-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "name": "decode-forced-avx2-fma-rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "decode-forced-unsupported-rejected",
+      "status": "PASS"
+    },
+    {
+      "case_count": 0,
+      "name": "encode-scalar-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "encode-sse2-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "encode-avx1-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "encode-avx2-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "case_count": 0,
+      "name": "encode-avx512-buffer-thread-byte-invariance",
+      "status": "FAIL"
+    },
+    {
+      "name": "encode-forced-avx2-fma-rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "encode-forced-unsupported-rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "native-both-families-inactive",
+      "status": "PASS"
+    }
+  ],
+  "errors": [
+    {
+      "buffer": 32,
+      "error": "decode/scalar/32/--single-threaded: 1 60:10\n    #2 0x562f24603795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x562f24603795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x562f245f22c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7f485d3aaca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7f485d3aad64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x562f2452c0f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 257,
+      "error": "decode/scalar/257/--single-threaded: 1 60:10\n    #2 0x55d6cf5c9795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x55d6cf5c9795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x55d6cf5b82c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7ffaa8178ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7ffaa8178d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x55d6cf4f20f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/scalar/8192/--single-threaded: 1 60:10\n    #2 0x563fd40f1795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x563fd40f1795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x563fd40e02c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7fbe2cfafca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7fbe2cfafd64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x563fd401a0f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/scalar/8192/--multi-threaded: 1 60:10\n    #2 0x562342f4e795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x562342f4e795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x562342f3d2c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7fbab21d7ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7fbab21d7d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x562342e770f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--multi-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 32,
+      "error": "decode/sse2/32/--single-threaded: 1 60:10\n    #2 0x56545c358795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x56545c358795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x56545c3472c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7fdc3e952ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7fdc3e952d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x56545c2810f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 257,
+      "error": "decode/sse2/257/--single-threaded: 1 60:10\n    #2 0x55b0c1e5f795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x55b0c1e5f795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x55b0c1e4e2c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7f56dac04ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7f56dac04d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x55b0c1d880f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/sse2/8192/--single-threaded: 1 60:10\n    #2 0x56245701a795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x56245701a795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x5624570092c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7f0facd41ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7f0facd41d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x562456f430f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/sse2/8192/--multi-threaded: 1 60:10\n    #2 0x5579de51e795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x5579de51e795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x5579de50d2c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7f51d5ee5ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7f51d5ee5d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x5579de4470f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--multi-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 32,
+      "error": "decode/avx1/32/--single-threaded: 1 60:10\n    #2 0x55b2321c9795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x55b2321c9795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x55b2321b82c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7ffa9e41bca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7ffa9e41bd64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x55b2320f20f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 257,
+      "error": "decode/avx1/257/--single-threaded: 1 60:10\n    #2 0x55c56bb68795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x55c56bb68795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x55c56bb572c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7f106da62ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7f106da62d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x55c56ba910f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/avx1/8192/--single-threaded: 1 60:10\n    #2 0x5620e5e92795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x5620e5e92795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x5620e5e812c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7f31d7477ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7f31d7477d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x5620e5dbb0f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/avx1/8192/--multi-threaded: 1 60:10\n    #2 0x5567f7ff4795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x5567f7ff4795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x5567f7fe32c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7efd7d31eca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7efd7d31ed64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x5567f7f1d0f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--multi-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 32,
+      "error": "decode/avx2/32/--single-threaded: 1 60:10\n    #2 0x5589b6402795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x5589b6402795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x5589b63f12c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7f99beb05ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7f99beb05d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x5589b632b0f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer": 257,
+      "error": "decode/avx2/257/--single-threaded: 1 60:10\n    #2 0x562b4284e795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x562b4284e795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x562b4283d2c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7fed6e664ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7fed6e664d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x562b427770f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/avx2/8192/--single-threaded: 1 60:10\n    #2 0x55b6ce02f795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x55b6ce02f795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x55b6ce01e2c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7f49b1f5cca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7f49b1f5cd64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x55b6cdf580f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/avx2/8192/--multi-threaded: 1 60:10\n    #2 0x55f45beea795 in open_output_file <tree>/src/sox_ng.c:2339:9\n    #3 0x55f45beea795 in process <tree>/src/sox_ng.c:3088:3\n    #4 0x55f45bed92c2 in main <tree>/src/sox_ng.c:4641:20\n    #5 0x7f95fc756ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #6 0x7f95fc756d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #7 0x55f45be130f0 in _start (<tree>/src/sox_ng+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior formats.c:1398:25 \n",
+      "family": "decode",
+      "thread": "--multi-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer": 32,
+      "error": "decode/avx512/32/--single-threaded: 2 sox_ng FAIL sox_ng: P05 preflight: requested DSD FIR kernel tier is unavailable on this CPU/build\n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer": 257,
+      "error": "decode/avx512/257/--single-threaded: 2 sox_ng FAIL sox_ng: P05 preflight: requested DSD FIR kernel tier is unavailable on this CPU/build\n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/avx512/8192/--single-threaded: 2 sox_ng FAIL sox_ng: P05 preflight: requested DSD FIR kernel tier is unavailable on this CPU/build\n",
+      "family": "decode",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer": 8192,
+      "error": "decode/avx512/8192/--multi-threaded: 2 sox_ng FAIL sox_ng: P05 preflight: requested DSD FIR kernel tier is unavailable on this CPU/build\n",
+      "family": "decode",
+      "thread": "--multi-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer": 32,
+      "error": "encode/scalar/32/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x5583c6f6db80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x5583c6f5d2c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f089ad03ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f089ad03d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x5583c6e970f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 257,
+      "error": "encode/scalar/257/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x560280f6bb80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x560280f5b2c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f95d842aca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f95d842ad64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x560280e950f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 8192,
+      "error": "encode/scalar/8192/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x555fb7fe0b80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x555fb7fd02c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7fcfb0c70ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7fcfb0c70d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x555fb7f0a0f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 8192,
+      "error": "encode/scalar/8192/--multi-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x55d170768b80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x55d1707582c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7ff6f4954ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7ff6f4954d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x55d1706920f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--multi-threaded",
+      "tier": "scalar"
+    },
+    {
+      "buffer": 32,
+      "error": "encode/sse2/32/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x56209b757b80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x56209b7472c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f17984e2ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f17984e2d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x56209b6810f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 257,
+      "error": "encode/sse2/257/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x5574b016bb80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x5574b015b2c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f7909b13ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f7909b13d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x5574b00950f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 8192,
+      "error": "encode/sse2/8192/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x55abed222b80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x55abed2122c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7fa53e923ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7fa53e923d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x55abed14c0f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 8192,
+      "error": "encode/sse2/8192/--multi-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x564e5f713b80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x564e5f7032c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f1ae532fca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f1ae532fd64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x564e5f63d0f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--multi-threaded",
+      "tier": "sse2"
+    },
+    {
+      "buffer": 32,
+      "error": "encode/avx1/32/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x55f94657ab80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x55f94656a2c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7fe3a44acca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7fe3a44acd64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x55f9464a40f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 257,
+      "error": "encode/avx1/257/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x5575a7073b80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x5575a70632c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f5121409ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f5121409d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x5575a6f9d0f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 8192,
+      "error": "encode/avx1/8192/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x561b301fbb80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x561b301eb2c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f4d69948ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f4d69948d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x561b301250f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 8192,
+      "error": "encode/avx1/8192/--multi-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x55e0dd12ab80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x55e0dd11a2c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f230b83cca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f230b83cd64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x55e0dd0540f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--multi-threaded",
+      "tier": "avx1"
+    },
+    {
+      "buffer": 32,
+      "error": "encode/avx2/32/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x5578483e1b80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x5578483d12c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f2474a9fca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f2474a9fd64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x55784830b0f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer": 257,
+      "error": "encode/avx2/257/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x55b4785e8b80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x55b4785d82c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7fbe83bc7ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7fbe83bc7d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x55b4785120f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer": 8192,
+      "error": "encode/avx2/8192/--single-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x55701d4e3b80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x55701d4d32c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f7e633c1ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f7e633c1d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x55701d40d0f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer": 8192,
+      "error": "encode/avx2/8192/--multi-threaded: 1 file <tree>/test/../src/sox_ng.c:2328:26\n    #1 0x564e6dd49b80 in process <tree>/test/../src/sox_ng.c:3088:3\n    #2 0x564e6dd392c2 in main <tree>/test/../src/sox_ng.c:4641:20\n    #3 0x7f36d1331ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #4 0x7f36d1331d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)\n    #5 0x564e6dc730f0 in _start (<tree>/test/sox_p10_candidate+0x3710f0)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../src/sox_ng.c:2328:26 \n",
+      "family": "encode",
+      "thread": "--multi-threaded",
+      "tier": "avx2"
+    },
+    {
+      "buffer": 32,
+      "error": "encode/avx512/32/--single-threaded: 2 sox_p10_candidate FAIL sox_ng: P05 preflight: requested DSD SDM kernel tier is unavailable on this CPU/build\n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer": 257,
+      "error": "encode/avx512/257/--single-threaded: 2 sox_p10_candidate FAIL sox_ng: P05 preflight: requested DSD SDM kernel tier is unavailable on this CPU/build\n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer": 8192,
+      "error": "encode/avx512/8192/--single-threaded: 2 sox_p10_candidate FAIL sox_ng: P05 preflight: requested DSD SDM kernel tier is unavailable on this CPU/build\n",
+      "family": "encode",
+      "thread": "--single-threaded",
+      "tier": "avx512"
+    },
+    {
+      "buffer": 8192,
+      "error": "encode/avx512/8192/--multi-threaded: 2 sox_p10_candidate FAIL sox_ng: P05 preflight: requested DSD SDM kernel tier is unavailable on this CPU/build\n",
+      "family": "encode",
+      "thread": "--multi-threaded",
+      "tier": "avx512"
+    }
+  ],
+  "qualifications": "Real production decoder and uninstalled P10 candidate only; P15 release activation unchanged",
+  "schema": "P13/CLI/1",
+  "sources": {
+    "DSF_file_sha256": "f82322f1703bf0e5c2b7d63bdf6736bdf31d70e6fc03e9f5a0a5c7bb0450a535",
+    "PCM_file_sha256": "9e5ba22ac03ada5043150d3c30b9b79fe469428cc8c73b0c0bf104eed71c4615",
+    "channels": 2,
+    "native_frames": 282240,
+    "pcm_frames": 4096
+  },
+  "status": "FAIL",
+  "unrun": []
+}

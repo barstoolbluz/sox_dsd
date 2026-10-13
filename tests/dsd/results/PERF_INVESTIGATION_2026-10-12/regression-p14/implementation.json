@@ -1,0 +1,24 @@
+{
+  "physical_performance_qualification": "OPEN",
+  "records": [
+    {
+      "command": [
+        "/opt/pyvenv/bin/python3",
+        "<tree>/tests/dsd/test_p14.py",
+        "--sox",
+        "<tree>/src/sox_ng",
+        "--unit",
+        "<tree>/test/dsd_test_p14",
+        "--results",
+        "/mnt/data/perf_investigation/evidence/regression-p14/report"
+      ],
+      "exit_code": 0,
+      "name": "P14_report_native_statistics",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "PASS bit_exact_chunk_continuity_and_golden\nPASS native_audio_bit_hash_unchanged_with_dsdstat_and_a\nPASS schema_order_and_repeatability\nPASS stdout_report_and_audio_conflict\nPASS named_report_path_and_overwrite_policy\nPASS plan_only_report_destination_safety\nPASS uncreated_output_aliases_do_not_replace_audio\nPASS dsdstat_rejects_pcm_without_implicit_modulation\nPASS actual_forced_decoder_profile_coefficient_kernel\nPASS pcm_source_encoding_clock_and_container\nPASS decoder_latency_components_and_byte_identity\nPASS fatal_clipping_status_and_partial_output_cleanup\nPASS dop_transport_completion_accounting\nPASS test_candidate_actual_encoder_and_monitor_provenance\nPASS test_candidate_encoder_failure_and_first_event\nPASS sigint_cancellation_preserves_final_status\n"
+    }
+  ],
+  "result": "PASS",
+  "schema": "P14/implementation-tests/1"
+}

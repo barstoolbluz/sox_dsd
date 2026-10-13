@@ -1,0 +1,121 @@
+[
+  {
+    "label": "gcc-full-no-fake-stack-scalar",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "scalar"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.3555381298065186,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  {
+    "label": "gcc-full-no-fake-stack-sse2",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "sse2"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.3522052764892578,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  {
+    "label": "gcc-full-no-fake-stack-avx1",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "avx1"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.5787148475646973,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  {
+    "label": "gcc-full-no-fake-stack-avx2",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "avx2"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.7084810733795166,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  {
+    "label": "gcc-full-no-fake-stack-avx512",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "avx512"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.798281192779541,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  {
+    "label": "gcc-full-no-fake-stack-p13",
+    "command": [
+      "test/dsd_test_p13"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.4466221332550049,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  {
+    "label": "baseline-gcc-full-rebuild",
+    "command": [
+      "make",
+      "-j2"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline-gcc-full/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 5.279237985610962,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  {
+    "label": "baseline-gcc-full-p13-build",
+    "command": [
+      "make",
+      "-C",
+      "test",
+      "dsd_test_p13"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline-gcc-full/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.47336339950561523,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  {
+    "label": "baseline-gcc-full-p13-default-asan",
+    "command": [
+      "test/dsd_test_p13"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline-gcc-full/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 0.023235082626342773,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  {
+    "label": "baseline-gcc-full-p13-no-fake-stack",
+    "command": [
+      "test/dsd_test_p13"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline-gcc-full/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.42840003967285156,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  }
+]

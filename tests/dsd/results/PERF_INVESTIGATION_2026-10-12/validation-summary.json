@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-12",
+  "decode_profiled_conversions": 56,
+  "decode_timed_observations": 105,
+  "end_to_end_timed_observations": 150,
+  "final_decode_runs": [
+    "controlled-final/decode-88200",
+    "controlled-final/decode-44100",
+    "controlled-final/decode-with-report"
+  ],
+  "generic_check": {
+    "exit": 0,
+    "format_skips": [
+      "wv",
+      "w64",
+      "paf",
+      "mat5",
+      "mat4",
+      "flac",
+      "caf"
+    ],
+    "log": "make-check.log",
+    "void_cases": [
+      "BUG-305",
+      "BUG-327",
+      "BUG-334",
+      "BUG-libsndfile-float-level",
+      "ebu-r-128",
+      "equiv-chorus-flanger",
+      "ffmpeg-command-execution",
+      "playlist-with-pipe"
+    ]
+  },
+  "inherited_dsd_check": {
+    "exit": 0,
+    "log": "make-check-dsd-p14.log",
+    "phase": "P14",
+    "results": "regression-p14"
+  },
+  "kernel_timed_observations": 825,
+  "new_measurement_tests": 13,
+  "preliminary_wall_observations": "controlled/decode-* are not used; see exploratory/README.md",
+  "production_c_and_headers": 258,
+  "production_source_identity": "PASS",
+  "schema": "dsd/performance-investigation-validation/1",
+  "scope": "measurement investigation only; no phase or default promotion",
+  "status": "PASS",
+  "unclaimed": [
+    "physical Threadripper rerun",
+    "Intel physical qualification",
+    "P15 completion",
+    "new mastering certificate",
+    "default promotion"
+  ]
+}

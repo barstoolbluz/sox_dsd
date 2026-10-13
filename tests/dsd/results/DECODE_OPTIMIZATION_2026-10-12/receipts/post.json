@@ -1,0 +1,203 @@
+[
+  {
+    "label": "baseline-extra-build",
+    "command": [
+      "make",
+      "-j3",
+      "-C",
+      "test",
+      "sox_p10_candidate",
+      "sox_dsd_profile"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.524515151977539,
+    "log": "/mnt/data/dsd-work/receipts/baseline-extra-build.log"
+  },
+  {
+    "label": "unchanged-controls",
+    "command": [
+      "python3",
+      "/mnt/data/dsd-work/bench_controls.py",
+      "--workspace",
+      "/mnt/data/dsd-work"
+    ],
+    "cwd": "/mnt/data/dsd-work/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 28.71563196182251,
+    "log": "/mnt/data/dsd-work/receipts/unchanged-controls.log"
+  },
+  {
+    "label": "native-repack-controls",
+    "command": [
+      "python3",
+      "tests/dsd/bench_hotfix_dff.py",
+      "--before-sox",
+      "/mnt/data/dsd-work/variants/baseline/sox_ng",
+      "--after-sox",
+      "/mnt/data/dsd-work/variants/combined/sox_ng",
+      "--cpu",
+      "1",
+      "--results",
+      "/mnt/data/dsd-work/measurements/native-repack.json",
+      "--frames",
+      "16777216",
+      "--pairs",
+      "15",
+      "--warmups",
+      "2"
+    ],
+    "cwd": "/mnt/data/dsd-work/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 19.37783646583557,
+    "log": "/mnt/data/dsd-work/receipts/native-repack-controls.log"
+  },
+  {
+    "label": "halfband-stage",
+    "command": [
+      "python3",
+      "/mnt/data/dsd-work/bench_stage.py",
+      "--workspace",
+      "/mnt/data/dsd-work"
+    ],
+    "cwd": "/mnt/data/dsd-work/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 9.855288743972778,
+    "log": "/mnt/data/dsd-work/receipts/halfband-stage.log"
+  },
+  {
+    "label": "profile-baseline",
+    "command": [
+      "python3",
+      "tests/dsd/profile_decode.py",
+      "--sox",
+      "/mnt/data/dsd-work/variants/baseline/sox_ng",
+      "--profile-sox",
+      "/mnt/data/dsd-work/variants/baseline/sox_dsd_profile",
+      "--results",
+      "/mnt/data/dsd-work/measurements/profile-baseline",
+      "--tiers",
+      "sse2",
+      "--seconds",
+      "4",
+      "--repetitions",
+      "15",
+      "--profile-repetitions",
+      "8",
+      "--cpu",
+      "1"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 24.40668821334839,
+    "log": "/mnt/data/dsd-work/receipts/profile-baseline.log"
+  },
+  {
+    "label": "profile-combined",
+    "command": [
+      "python3",
+      "tests/dsd/profile_decode.py",
+      "--sox",
+      "/mnt/data/dsd-work/variants/combined/sox_ng",
+      "--profile-sox",
+      "/mnt/data/dsd-work/variants/combined/sox_dsd_profile",
+      "--results",
+      "/mnt/data/dsd-work/measurements/profile-combined",
+      "--tiers",
+      "sse2",
+      "--seconds",
+      "4",
+      "--repetitions",
+      "15",
+      "--profile-repetitions",
+      "8",
+      "--cpu",
+      "1"
+    ],
+    "cwd": "/mnt/data/dsd-work/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 15.021621227264404,
+    "log": "/mnt/data/dsd-work/receipts/profile-combined.log"
+  },
+  {
+    "label": "baseline-check",
+    "command": [
+      "make",
+      "check"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 7.492238998413086,
+    "log": "/mnt/data/dsd-work/receipts/baseline-check.log"
+  },
+  {
+    "label": "final-check",
+    "command": [
+      "make",
+      "check"
+    ],
+    "cwd": "/mnt/data/dsd-work/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 7.949885129928589,
+    "log": "/mnt/data/dsd-work/receipts/final-check.log"
+  },
+  {
+    "label": "final-check-dsd",
+    "command": [
+      "make",
+      "check-dsd",
+      "DSD_PHASE=P14",
+      "DSD_RESULTS=/mnt/data/dsd-work/validation/p14"
+    ],
+    "cwd": "/mnt/data/dsd-work/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 55.04142117500305,
+    "log": "/mnt/data/dsd-work/receipts/final-check-dsd.log"
+  },
+  {
+    "label": "measurement-tools",
+    "command": [
+      "python3",
+      "tests/dsd/test_perf_measurements.py"
+    ],
+    "cwd": "/mnt/data/dsd-work/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 3.587583303451538,
+    "log": "/mnt/data/dsd-work/receipts/measurement-tools.log"
+  },
+  {
+    "label": "p10-certificate",
+    "command": [
+      "python3",
+      "tests/dsd/check_p10_certification.py"
+    ],
+    "cwd": "/mnt/data/dsd-work/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 0.7185745239257812,
+    "log": "/mnt/data/dsd-work/receipts/p10-certificate.log"
+  },
+  {
+    "label": "p11-replay-receipts",
+    "command": [
+      "python3",
+      "tests/dsd/verify_p11_replay_receipts.py",
+      "--output",
+      "/mnt/data/dsd-work/validation/p11-inherited-receipts.json"
+    ],
+    "cwd": "/mnt/data/dsd-work/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.7177765369415283,
+    "log": "/mnt/data/dsd-work/receipts/p11-replay-receipts.log"
+  },
+  {
+    "label": "final-differential",
+    "command": [
+      "bash",
+      "/mnt/data/dsd-work/run-final-differential.sh"
+    ],
+    "cwd": "/mnt/data/dsd-work/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 5.482300043106079,
+    "log": "/mnt/data/dsd-work/receipts/final-differential.log"
+  }
+]

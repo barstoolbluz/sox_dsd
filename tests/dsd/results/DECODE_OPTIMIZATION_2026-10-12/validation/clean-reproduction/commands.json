@@ -1,0 +1,67 @@
+[
+  {
+    "label": "baseline-autoreconf",
+    "command": [
+      "autoreconf",
+      "-fi"
+    ],
+    "cwd": "/mnt/data/dsd-work/clean-reproduction/baseline/sox_ng",
+    "exit": 0
+  },
+  {
+    "label": "baseline-configure",
+    "command": [
+      "./configure",
+      "--disable-shared",
+      "--without-libltdl"
+    ],
+    "cwd": "/mnt/data/dsd-work/clean-reproduction/baseline/sox_ng",
+    "exit": 0
+  },
+  {
+    "label": "baseline-build",
+    "command": [
+      "make",
+      "-j2"
+    ],
+    "cwd": "/mnt/data/dsd-work/clean-reproduction/baseline/sox_ng",
+    "exit": 0
+  },
+  {
+    "label": "combined-autoreconf",
+    "command": [
+      "autoreconf",
+      "-fi"
+    ],
+    "cwd": "/mnt/data/dsd-work/clean-reproduction/combined/sox_ng",
+    "exit": 0
+  },
+  {
+    "label": "combined-configure",
+    "command": [
+      "./configure",
+      "--disable-shared",
+      "--without-libltdl"
+    ],
+    "cwd": "/mnt/data/dsd-work/clean-reproduction/combined/sox_ng",
+    "exit": 0
+  },
+  {
+    "label": "combined-build",
+    "command": [
+      "make",
+      "-j2"
+    ],
+    "cwd": "/mnt/data/dsd-work/clean-reproduction/combined/sox_ng",
+    "exit": 0
+  },
+  {
+    "label": "optimization-check",
+    "command": [
+      "make",
+      "check-dsd-optimization"
+    ],
+    "cwd": "/mnt/data/dsd-work/clean-reproduction/combined/sox_ng",
+    "exit": 0
+  }
+]

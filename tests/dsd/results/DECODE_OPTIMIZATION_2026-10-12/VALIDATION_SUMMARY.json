@@ -1,0 +1,133 @@
+{
+  "schema": "DSD/decode-optimization-validation/1",
+  "overall": "RELEASE_BUILD_AND_CHANGED_PATH_GATES_PASS; PHYSICAL_PERFORMANCE_AND_NAMED_INHERITED_VALIDATION_BLOCKERS_REMAIN",
+  "gates": [
+    {
+      "name": "GCC 14.2.0 release build",
+      "status": "PASS",
+      "receipt": "receipts/final-build.log"
+    },
+    {
+      "name": "make check, baseline and optimized",
+      "status": "PASS_WITH_UNAVAILABLE_OPTIONAL_TESTS",
+      "receipt": [
+        "receipts/baseline-check.log",
+        "receipts/final-check.log"
+      ],
+      "notes": "Seven unavailable format families; eight VOID regression cases in this configuration."
+    },
+    {
+      "name": "make check-dsd DSD_PHASE=P14",
+      "status": "PASS",
+      "receipt": "receipts/final-check-dsd.log",
+      "notes": "Full available phase integration, filters/numerical/SRC, streaming, errors, forced tiers, channel/DoP/seek/report and ISA-isolation gates."
+    },
+    {
+      "name": "new optimization unit, five release tiers",
+      "status": "PASS",
+      "receipt": "validation/differential-final",
+      "assertions_per_tier": 113573,
+      "stream_cases_per_tier": 1270
+    },
+    {
+      "name": "baseline/optimized public-API transcript, five release tiers",
+      "status": "PASS_BIT_IDENTICAL",
+      "receipt": "validation/differential-final",
+      "assertions_per_tier": 73563
+    },
+    {
+      "name": "measurement primitives",
+      "status": "PASS",
+      "tests": 13,
+      "receipt": "receipts/measurement-tools.log"
+    },
+    {
+      "name": "source invariants, P10 reference and SDM defaults",
+      "status": "PASS",
+      "receipt": "validation/source-invariants.json",
+      "production_changed_files": [
+        "src/dsd_decode.c",
+        "src/dsd_kernels.h",
+        "src/dsd_kernels_scalar.c",
+        "src/dsd_public.c"
+      ]
+    },
+    {
+      "name": "Clang17 ASan+UBSan changed-path/streaming/bounds units",
+      "status": "PASS_FOR_SCALAR_SSE2_AVX1_AVX2",
+      "receipt": "validation/sanitizer/commands.json",
+      "notes": "Clang rejects the existing isolated AVX-512 flag combination; Clang build also lacks OpenMP. Neither is hardware qualification."
+    },
+    {
+      "name": "GCC ASan+UBSan, five optimization tiers and P13",
+      "status": "PASS_WITH_EXPLICIT_RUNTIME_LIMITATION",
+      "receipt": "validation/sanitizer-followup/gcc-recheck-commands.json",
+      "notes": "detect_stack_use_after_return=0 required. Address/UB/heap/stack bounds instrumentation and leak checking remain enabled. Fake-stack/use-after-return coverage is not claimed."
+    },
+    {
+      "name": "GCC ASan-only real CLI forced tiers, numerical public rate and streaming",
+      "status": "PASS_WITH_EXPLICIT_RUNTIME_LIMITATION",
+      "receipt": [
+        "validation/sanitizer-followup/final-asan-commands.json",
+        "validation/sanitizer-followup/gcc-asan-streaming/streaming.json"
+      ],
+      "notes": "Five tiers, buffers and real single/multi-thread mode. CLI uses detect_stack_use_after_return=0; this is additional memory coverage, not a UBSan pass."
+    },
+    {
+      "name": "complete generic ASan+UBSan gate",
+      "status": "BLOCKED_INHERITED",
+      "receipt": "validation/sanitizer-followup/commands.json",
+      "notes": "Both original and candidate reproduce formats.c:1398 float-to-uint64 out of range, raw.c:89 negative left shift, and sample-test signed left shift. Source files unchanged; no unrelated fixes made."
+    },
+    {
+      "name": "complete generic ASan-only gate",
+      "status": "BLOCKED_TEST_HARNESS",
+      "receipt": "validation/sanitizer-followup/address-limit-commands.json",
+      "notes": "test/check.sh sets 1 GiB virtual address cap and overwrites ASAN_OPTIONS. ASan cannot map shadow memory under that cap; original and candidate --version probes reproduce this before decoding. Do not call the full generic sanitizer suite PASS."
+    },
+    {
+      "name": "default GCC ASan AVX-512 fake-stack mode",
+      "status": "BLOCKED_INHERITED_INSTRUMENTATION_DEPENDENT_FAULT",
+      "receipt": "validation/sanitizer-followup/gcc-recheck-commands.json",
+      "notes": "Original P13 and candidate fail at unchanged dense direct FIR stack store; both pass with fake-stack mode disabled. Disassembly retained; no compiler root-cause certification or production workaround asserted."
+    },
+    {
+      "name": "P10 historical certificate source binding",
+      "status": "INHERITED_REVISION_MISMATCH",
+      "receipt": "validation/p10-certificate-binding.json",
+      "notes": "Both trees fail; all 35 certificate inputs unchanged by optimization. Four files differ from earlier P10 certificate revision."
+    },
+    {
+      "name": "P11 historical replay/state integrity",
+      "status": "PASS_RECEIPT_VERIFICATION_NOT_NEW_EXECUTION",
+      "receipt": "validation/p11-inherited-receipts.json",
+      "notes": "21 replay rows, 6 digest pairs, 549 continuation states; no new hour-long or QEMU run."
+    },
+    {
+      "name": "production paired performance",
+      "status": "PASS_EXPLORATORY",
+      "receipt": "BENCHMARK_SUMMARY.json",
+      "notes": "Every retained final workload improves, output bytes identical. Explicitly corrected multi-thread command. KVM only."
+    },
+    {
+      "name": "unchanged-path controlled performance",
+      "status": "INCONCLUSIVE_NOISE",
+      "receipt": [
+        "measurements/unchanged-controls/controls.json",
+        "measurements/native-repack.json"
+      ],
+      "notes": "Byte identity passes; no material regression observed, but >=2% dispersion means physical controlled gate not closed."
+    },
+    {
+      "name": "physical Intel/AMD/older-AVX qualification; non-x86/32-bit; new QEMU or hour-long runs",
+      "status": "UNRUN",
+      "notes": "No prepared physical host or QEMU/perf/valgrind available here. Do not reinterpret historical receipts as new execution."
+    },
+    {
+      "name": "Fresh original/final source rebuild using relocatable reproduction tool",
+      "status": "PASS",
+      "receipt": "validation/clean-reproduction/commands.json",
+      "notes": "Both GCC release builds plus new scalar optimization test; smoke mode, not a repeated physical timing qualification."
+    }
+  ]
+}

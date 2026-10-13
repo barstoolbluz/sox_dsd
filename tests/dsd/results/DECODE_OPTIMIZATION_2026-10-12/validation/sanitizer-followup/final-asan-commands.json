@@ -1,0 +1,48 @@
+[
+  {
+    "label": "asan-cli-no-fake-stack",
+    "command": [
+      "python3",
+      "tests/dsd/test_p11_integration.py",
+      "--phase",
+      "P13",
+      "--tiers",
+      "scalar",
+      "sse2",
+      "avx1",
+      "avx2",
+      "avx512",
+      "--sox",
+      "/mnt/data/dsd-work/gcc-asan-only/sox_ng/src/sox_ng",
+      "--candidate",
+      "/mnt/data/dsd-work/gcc-asan-only/sox_ng/test/sox_p10_candidate",
+      "--results",
+      "/mnt/data/dsd-work/validation/sanitizer-followup/asan-cli-no-fake-stack"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 0,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0"
+  },
+  {
+    "label": "asan-generic-no-fake-stack",
+    "command": [
+      "make",
+      "check"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 2,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0"
+  },
+  {
+    "label": "asan-public-rate-no-fake-stack",
+    "command": [
+      "python3",
+      "tests/dsd/test_p07_public_rate.py",
+      "--sox",
+      "/mnt/data/dsd-work/gcc-asan-only/sox_ng/src/sox_ng"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 0,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:detect_stack_use_after_return=0"
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "label": "dsd256-six-channel-explicit-two-threads",
+    "command": [
+      "python3",
+      "/mnt/data/dsd-work/sox_ng/tests/dsd/bench_decode_optimization.py",
+      "--results",
+      "/mnt/data/dsd-work/measurements/dsd256-six-channel-explicit-two-threads",
+      "--variants",
+      "combined=/mnt/data/dsd-work/variants/combined/sox_ng",
+      "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+      "--tiers",
+      "sse2",
+      "--native-rate",
+      "11289600",
+      "--pcm-rate",
+      "176400",
+      "--channels",
+      "6",
+      "--seconds",
+      ".5",
+      "--threads",
+      "2"
+    ],
+    "exit": 0
+  },
+  {
+    "label": "harness-baseline-second-selftest",
+    "command": [
+      "python3",
+      "/mnt/data/dsd-work/sox_ng/tests/dsd/bench_decode_optimization.py",
+      "--results",
+      "/mnt/data/dsd-work/measurements/harness-baseline-second-selftest",
+      "--variants",
+      "combined=/mnt/data/dsd-work/variants/combined/sox_ng",
+      "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+      "--tiers",
+      "sse2",
+      "--seconds",
+      ".02",
+      "--channels",
+      "1"
+    ],
+    "exit": 0
+  }
+]

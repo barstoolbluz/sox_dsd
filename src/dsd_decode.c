@@ -168,7 +168,8 @@ static int feed_scalar(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j
   st->ring[head + L] = x; /* mirrored halo */
   st->head = head + 1 == L ? 0 : head + 1;
   if ((st->samples++ & 1u) != st->phase) return 0;
-  x = lsx_dsd_fir_scalar(st->h, L, st->ring + head + 1, st->halfband);
+  x = st->halfband ? lsx_dsd_fir_halfband57(st->h, st->ring + head + 1)
+      : lsx_dsd_fir_scalar(st->h, L, st->ring + head + 1, 0);
   if (j + 1 == ctx->info.stages) {
     *result = x;
     return 1;
@@ -212,7 +213,8 @@ static int feed_sse2(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j,
   st->ring[head + L] = x; /* mirrored halo */
   st->head = head + 1 == L ? 0 : head + 1;
   if ((st->samples++ & 1u) != st->phase) return 0;
-  x = lsx_dsd_fir_sse2_direct(st->h, L, st->ring + head + 1, st->halfband);
+  x = st->halfband ? lsx_dsd_fir_halfband57(st->h, st->ring + head + 1)
+      : lsx_dsd_fir_sse2_direct(st->h, L, st->ring + head + 1, 0);
   if (j + 1 == ctx->info.stages) {
     *result = x;
     return 1;
@@ -257,7 +259,8 @@ static int feed_avx1(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j,
   st->ring[head + L] = x; /* mirrored halo */
   st->head = head + 1 == L ? 0 : head + 1;
   if ((st->samples++ & 1u) != st->phase) return 0;
-  x = lsx_dsd_fir_avx1_direct(st->h, L, st->ring + head + 1, st->halfband);
+  x = st->halfband ? lsx_dsd_fir_halfband57(st->h, st->ring + head + 1)
+      : lsx_dsd_fir_avx1_direct(st->h, L, st->ring + head + 1, 0);
   if (j + 1 == ctx->info.stages) {
     *result = x;
     return 1;
@@ -302,7 +305,8 @@ static int feed_avx2(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j,
   st->ring[head + L] = x; /* mirrored halo */
   st->head = head + 1 == L ? 0 : head + 1;
   if ((st->samples++ & 1u) != st->phase) return 0;
-  x = lsx_dsd_fir_avx2_direct(st->h, L, st->ring + head + 1, st->halfband);
+  x = st->halfband ? lsx_dsd_fir_halfband57(st->h, st->ring + head + 1)
+      : lsx_dsd_fir_avx2_direct(st->h, L, st->ring + head + 1, 0);
   if (j + 1 == ctx->info.stages) {
     *result = x;
     return 1;
@@ -350,7 +354,8 @@ static int feed_avx512(lsx_dsd_reconstruction *ctx, unsigned channel, unsigned j
   st->ring[head + L] = x;
   st->head = head + 1 == L ? 0 : head + 1;
   if ((st->samples++ & 1u) != st->phase) return 0;
-  x = lsx_dsd_fir_avx512_direct(st->h, L, st->ring + head + 1, st->halfband);
+  x = st->halfband ? lsx_dsd_fir_halfband57(st->h, st->ring + head + 1)
+      : lsx_dsd_fir_avx512_direct(st->h, L, st->ring + head + 1, 0);
   if (j + 1 == ctx->info.stages) {
     *result = x;
     return 1;

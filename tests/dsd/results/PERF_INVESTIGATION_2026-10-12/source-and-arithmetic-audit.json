@@ -1,0 +1,127 @@
+{
+  "arithmetic": {
+    "amdahl_fraction_recorded_avx2": 0.6963428824202548,
+    "amdahl_fraction_rounded": 0.7098390925877078,
+    "avx2_over_sse2_encode_percent": 0.25977577249109984,
+    "decode_pass1": {
+      "avx512_vs_scalar_elapsed_percent": 1.0183875530410225,
+      "full_span_percent": 1.6220830961866772
+    },
+    "decode_pass2": {
+      "avx512_vs_scalar_elapsed_percent": 1.2094495309144193,
+      "full_span_percent": 2.2613065326632986
+    },
+    "encode": {
+      "avx1": {
+        "elapsed_reduction_percent": 6.510544384502214,
+        "seconds": 0.7625,
+        "speedup": 1.0696393442622951,
+        "throughput_increase_percent": 6.963934426229512
+      },
+      "avx2": {
+        "elapsed_reduction_percent": 10.323688082393323,
+        "seconds": 0.7314,
+        "speedup": 1.1151216844407983,
+        "throughput_increase_percent": 11.51216844407983
+      },
+      "avx512": {
+        "elapsed_reduction_percent": 5.897498773908783,
+        "seconds": 0.7675,
+        "speedup": 1.062671009771987,
+        "throughput_increase_percent": 6.267100977198692
+      },
+      "scalar": {
+        "elapsed_reduction_percent": 0.0,
+        "seconds": 0.8156,
+        "speedup": 1.0,
+        "throughput_increase_percent": 0.0
+      },
+      "sse2": {
+        "elapsed_reduction_percent": 10.090730750367838,
+        "seconds": 0.7333,
+        "speedup": 1.1122323741988274,
+        "throughput_increase_percent": 11.223237419882736
+      }
+    }
+  },
+  "input_archive_sha256": "4d0bcd399914f2433563e9ab7a236f7916c42dd613a466d4c04a1ac91c168120",
+  "physical_matrix_host_as_delivered": {
+    "affinity": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ],
+    "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+    "cpu_model": "AMD Ryzen Threadripper 7970X 32-Cores",
+    "machine": "x86_64",
+    "platform": "Linux-6.12.85+deb13-amd64-x86_64-with-glibc2.41",
+    "virtualization": "CPUID is virtualized or unknown; not independent vendor hardware certification"
+  },
+  "physical_matrix_references": [
+    {
+      "artifact": "kernel/kernel-timing.json",
+      "present": false,
+      "recorded_status": "PASS"
+    },
+    {
+      "artifact": "dsd64-1ch-1threads-short/forced-cli-timing.json",
+      "present": false,
+      "recorded_status": "PASS"
+    },
+    {
+      "artifact": "dsd128-2ch-1threads-short/forced-cli-timing.json",
+      "present": false,
+      "recorded_status": "PASS"
+    },
+    {
+      "artifact": "dsd256-6ch-1threads-short/forced-cli-timing.json",
+      "present": false,
+      "recorded_status": "PASS"
+    },
+    {
+      "artifact": "dsd64-1ch-2threads-long/forced-cli-timing.json",
+      "present": false,
+      "recorded_status": "PASS"
+    },
+    {
+      "artifact": "dsd128-2ch-2threads-long/forced-cli-timing.json",
+      "present": false,
+      "recorded_status": "PASS"
+    },
+    {
+      "artifact": "dsd256-6ch-2threads-long/forced-cli-timing.json",
+      "present": false,
+      "recorded_status": "PASS"
+    }
+  ],
+  "physical_source_identity": {
+    "src/dsd_dispatch.c": {
+      "match": true,
+      "observed": "f4fb56e640171600458dfff8b344b17b7cb254455db01fe78a6678cad7409d81",
+      "recorded": "f4fb56e640171600458dfff8b344b17b7cb254455db01fe78a6678cad7409d81"
+    },
+    "src/dsd_kernels_avx2.c": {
+      "match": true,
+      "observed": "9321cb0dced914a6ddbb565f488cdc00b82589b445f8842d0ba9d3c190d0ced3",
+      "recorded": "9321cb0dced914a6ddbb565f488cdc00b82589b445f8842d0ba9d3c190d0ced3"
+    },
+    "src/dsd_kernels_avx512.c": {
+      "match": true,
+      "observed": "26d37e5a12426e3ae19301f67fc55e079456943c5ce482a39f6c840077f82ffb",
+      "recorded": "26d37e5a12426e3ae19301f67fc55e079456943c5ce482a39f6c840077f82ffb"
+    }
+  }
+}

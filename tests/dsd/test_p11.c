@@ -7,6 +7,7 @@
 #include "sox_i.h"
 #include "dsd_kernels.h"
 #include "dsd_decode.h"
+#include "dsd_coeffs.h"
 #include "pcmdsd.h"
 #include <float.h>
 #include <inttypes.h>
@@ -435,30 +436,58 @@ static int render(const char *tier,const char *id,unsigned rate,double hz,
 }
 
 
-/* Runnable production-guard microbenchmark. Report measured CPU-time, not
- * host feature availability as a proxy for throughput. Explicitly separate
- * the direct streaming FIR (the decoder's actual call site), block FIR and
- * guarded+monitored SDM. Timing excludes stimulus construction and dispatch. */
+/* Kernel timing is not whole-decoder attribution. The original FIR cases
+ * remain synthetic dense 153-tap, stride-one cases. Explicit production-bank
+ * cases cover the 57-tap half-band and terminal banks with stride TWO. The
+ * decoder currently calls only single-output kernels; block cases measure an
+ * available primitive, not a path integrated into reconstruction.
+ * SDM checks and monitors are active, but its 1e18 state bounds are synthetic,
+ * NOT the certified mastering bounds. Setup and dispatch are outside timing. */
+typedef struct {
+  const char *name, *bank;
+  const double *coeff;
+  size_t taps, stride;
+  int halfband, block;
+} bench_fir_case;
+
+static const bench_fir_case bench_fir_cases[] = {
+  {"fir-single", "synthetic-dense-153", NULL, 153, 1, 0, 0},
+  {"fir-block", "synthetic-dense-153", NULL, 153, 1, 0, 1},
+  {"fir-halfband-single", "halfband-57", lsx_dsd_coeff_halfband, 57, 2, 1, 0},
+  {"fir-halfband-block", "halfband-57", lsx_dsd_coeff_halfband, 57, 2, 1, 1},
+  {"fir-master64-single", "master64-256-117", lsx_dsd_coeff_master64_256, 117, 2, 0, 0},
+  {"fir-master64-block", "master64-256-117", lsx_dsd_coeff_master64_256, 117, 2, 0, 1},
+  {"fir-master128-single", "master128-153", lsx_dsd_coeff_master128, 153, 2, 0, 0},
+  {"fir-master128-block", "master128-153", lsx_dsd_coeff_master128, 153, 2, 0, 1},
+  {"fir-wideband-single", "wideband-257", lsx_dsd_coeff_wideband, 257, 2, 0, 0},
+  {"fir-wideband-block", "wideband-257", lsx_dsd_coeff_wideband, 257, 2, 0, 1}
+};
+
 static int bench(const char *tier, const char *mode, size_t frames)
 {
   const lsx_dsd_kernel *k=NULL;
-  const size_t chunk=4096, taps=153, half=taps/2;
-  double input[4096+153+8],h[153],fir_output[4096],sdm_input[4096];
+  const size_t chunk=4096;
+  const bench_fir_case *work=NULL;
+  double input[2*4096+257],h[153],fir_output[4096],sdm_input[4096];
+  const double *coeff;
   sox_sample_t native_output[4096];
   sdm_normal_t state;
   sdm_normal_monitor_t monitor;
   double bounds[8],max_peak=0.,checksum=0.,cpu_time;
   clock_t before,after;
   size_t i,j,done;
-  int fir=!strncmp(mode,"fir-",4),rc;
+  int fir,rc;
   const sdm_profile_t *profile=sdm_profile_find("encode.mastering.v1.dsd64",2822400);
-  if(frames<16384 || frames>40000000 || !profile ||
-      (strcmp(mode,"fir-single") && strcmp(mode,"fir-block") && strcmp(mode,"sdm")))
+  for(i=0;i<sizeof(bench_fir_cases)/sizeof(*bench_fir_cases);++i)
+    if(!strcmp(mode,bench_fir_cases[i].name)) {work=&bench_fir_cases[i];break;}
+  fir=work!=NULL;
+  if(frames<16384 || frames>40000000 || !profile || (!fir && strcmp(mode,"sdm")))
     return 3;
   rc=lsx_dsd_kernel_select(fir?LSX_DSD_FIR:LSX_DSD_SDM,tier,&k);
   if(rc) {fprintf(stderr,"UNRUN: unavailable kernel: %s (%d)\n",tier,rc);return 2;}
-  for(i=0;i<taps;++i) h[i]=.003/(1.+fabs((double)i-(double)half));
-  h[half]=.18;
+  for(i=0;i<153;++i) h[i]=.003/(1.+fabs((double)i-76.));
+  h[76]=.18;
+  coeff=fir && work->coeff ? work->coeff : h;
   for(i=0;i<sizeof(input)/sizeof(*input);++i)
     input[i]=.1*sin((double)i*.027)+.02*cos((double)i*.003);
   for(i=0;i<chunk;++i)
@@ -472,11 +501,12 @@ static int bench(const char *tier, const char *mode, size_t frames)
   before=clock();
   for(i=0;i<frames;) {
     size_t n=frames-i<chunk?frames-i:chunk;
-    if(!strcmp(mode,"fir-single")) {
-      for(j=0;j<n;++j) fir_output[j]=k->fir_single(h,taps,input+j,0);
-      checksum+=fir_output[n/2];
-    } else if(!strcmp(mode,"fir-block")) {
-      k->fir_block(h,taps,input,n,1,0,fir_output);
+    if(fir) {
+      if(work->block)
+        k->fir_block(coeff,work->taps,input,n,work->stride,work->halfband,fir_output);
+      else
+        for(j=0;j<n;++j)
+          fir_output[j]=k->fir_single(coeff,work->taps,input+j*work->stride,work->halfband);
       checksum+=fir_output[n/2];
     } else {
       rc=k->sdm_block(&state,sdm_input,n,native_output,&done,
@@ -496,9 +526,14 @@ static int bench(const char *tier, const char *mode, size_t frames)
               monitor.overloads || monitor.counter_saturated))return 4;
   printf("{\"tier\":\"%s\",\"mode\":\"%s\",\"frames\":%zu,"
          "\"cpu_seconds\":%.9g,\"cpu_ns_per_frame\":%.9g,"
-         "\"checksum\":%.17g,\"guards_active\":%s,\"monitor_active\":%s}\n",
+         "\"checksum\":%.17g,\"guards_active\":%s,\"monitor_active\":%s,"
+         "\"coefficient_bank\":\"%s\",\"taps\":%zu,\"stride\":%zu,"
+         "\"halfband\":%s,\"frame_unit\":\"%s\",\"state_bounds\":\"%s\"}\n",
          tier,mode,frames,cpu_time,1e9*cpu_time/frames,checksum,
-         fir?"false":"true",fir?"false":"true");
+         fir?"false":"true",fir?"false":"true",
+         fir?work->bank:"encode.mastering.v1.dsd64",fir?work->taps:0,
+         fir?work->stride:0,fir && work->halfband?"true":"false",
+         fir?"FIR output":"native SDM output",fir?"not applicable":"synthetic 1e18");
   return 0;
 }
 

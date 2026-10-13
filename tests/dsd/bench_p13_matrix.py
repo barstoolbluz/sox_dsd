@@ -26,6 +26,23 @@ def atomic(path, value):
     tmp.replace(path)
 
 
+def host_observation(cpuinfo):
+    """Record observed CPU facts, never turn an absent flag into certification."""
+    fields={}
+    for line in cpuinfo.splitlines():
+        key,sep,value=line.partition(':')
+        if sep and key.strip() not in fields:
+            fields[key.strip()]=value.strip()
+    flags=fields.get('flags')
+    hypervisor=None if flags is None else 'hypervisor' in flags.split()
+    return dict(cpu_model=fields.get('model name','unknown'),
+        cpu_vendor=fields.get('vendor_id','unknown'),
+        hypervisor_flag_observed=hypervisor,
+        virtualization=('hypervisor flag observed' if hypervisor else
+          'not established; absence of an observed flag does not prove physical hosting'),
+        hardware_qualification='not assessed by this timing runner')
+
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--results',type=Path,required=True)
@@ -36,10 +53,10 @@ def main():
     ap.add_argument('--full-matrix',action='store_true',help='also run multithread + long cases')
     a=ap.parse_args()
     if a.repetitions<15:ap.error('P13 requires at least 15 timed samples')
+    cpuinfo=Path('/proc/cpuinfo')
+    observed=host_observation(cpuinfo.read_text(errors='replace') if cpuinfo.is_file() else '')
     report=dict(schema='P13/benchmark-matrix/1',host=dict(platform=platform.platform(),
-        machine=platform.machine(),cpu_model=next((l.split(':',1)[1].strip() for l in
-           Path('/proc/cpuinfo').read_text().splitlines() if l.startswith('model name')),'unknown'),
-        virtualization='CPUID is virtualized or unknown; not independent vendor hardware certification',
+        machine=platform.machine(),**observed,
         compiler=subprocess.run(['cc','--version'],capture_output=True,text=True).stdout.splitlines()[0],
         affinity=sorted(os.sched_getaffinity(0)) if hasattr(os,'sched_getaffinity') else None),
         source_sha256={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in
@@ -48,9 +65,8 @@ def main():
                     short_seconds=a.short_seconds,long_seconds=a.long_seconds,
                     full_matrix=a.full_matrix,tiers=TIERS),
         runs=[],comparisons=[],errors=[],unrun=[
-            'Physical Intel AVX-512F host: not independently available in this environment',
-            'Physical AMD AVX-512F host: not independently available in this environment',
-            'Physical microarchitecture-specific default preference: unqualified'],
+            'Project-wide physical hardware matrix is not assessed by this invocation',
+            'Microarchitecture-specific default preference is not qualified by timing alone'],
         note='CPU penalties require full-conversion comparisons; policy remains unchanged')
     suites=[('kernel', [sys.executable,'tests/dsd/bench_p11.py',
         '--unit','test/dsd_test_p11','--phase','P13','--results',str(a.results/'kernel'),
@@ -94,7 +110,7 @@ def main():
                         metric=k,avx2_median=avx2,avx512_median=avx512,
                         speedup_avx512_over_avx2=speedup,
                         avx512_mad=med_mad,
-                        dispatch_policy='unchanged: no physical-vendor qualification'))
+                        dispatch_policy='unchanged: qualification is outside this timing runner'))
             else:row['status']='FAIL'
             if p.returncode or row['status']!='PASS':
                 report['errors'].append(dict(name=name,exit=p.returncode,status=row['status']))

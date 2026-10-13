@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-f",
+    "%M",
+    "-o",
+    "/mnt/data/dsd-work/measurements/harness-baseline-second-selftest/timing/007-sse2-baseline/rss.txt",
+    "/mnt/data/dsd-work/variants/baseline/sox_ng",
+    "--dsd-mode",
+    "auto",
+    "--dsd-decode",
+    "mastering",
+    "-D",
+    "--buffer",
+    "8192",
+    "--single-threaded",
+    "/mnt/data/dsd-work/measurements/harness-baseline-second-selftest/fixture.dsf",
+    "-r",
+    "88200",
+    "-e",
+    "signed-integer",
+    "-b",
+    "32",
+    "/mnt/data/dsd-work/measurements/harness-baseline-second-selftest/timing/007-sse2-baseline/out.wav"
+  ],
+  "cpu_seconds": 0.004574999999999996,
+  "exit": 0,
+  "label": "timing/007-sse2-baseline",
+  "tier": "sse2",
+  "timed_out": false,
+  "variant": "baseline",
+  "wall_seconds": 0.005071633000000001
+}

@@ -1,0 +1,2305 @@
+{
+  "schema": "DSD/decode-optimization-summary/1",
+  "input_archive_sha256": "3f0704e1c38ae7bb0359c4a23d516558808dc746dcde61fd22baa548c91bf27f",
+  "implementation_manifest_sha256": "b5f2b990ab85b0baf9feaca6b9c5b8298224e9a25eb9cbe24adcd02290e02fc9",
+  "qualification": "KVM exploratory, not physical hardware qualification",
+  "production_changed_files": [
+    "src/dsd_decode.c",
+    "src/dsd_public.c",
+    "src/dsd_kernels.h",
+    "src/dsd_kernels_scalar.c"
+  ],
+  "method": "Two warmups, 15 randomized/interleaved timed repetitions per variant/tier; real production CLI, seeded native input and WAV output I/O included. Median paired process CPU ratio; empirical bootstrap interval, not a physical-host confidence guarantee.",
+  "cases": [
+    {
+      "name": "dsd128-stereo-all-tiers",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/dsd128-stereo-all-tiers/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 2,
+        "cpu": 1,
+        "native_rate": 5644800,
+        "pcm_rate": 176400,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/dsd128-stereo-all-tiers",
+        "seconds": 1.0,
+        "threads": 1,
+        "tiers": [
+          "scalar",
+          "sse2",
+          "avx1",
+          "avx2",
+          "avx512"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/avx1": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "baseline/avx2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "baseline/avx512": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "baseline/scalar": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/avx1": {
+          "median_ratio_ci95": [
+            0.547132298915149,
+            0.6108969078729785
+          ],
+          "median_wall_ratio": 0.5791927591596415,
+          "paired_cpu_ratio": {
+            "mad": 0.028211293527859227,
+            "max": 0.6299007067416843,
+            "median": 0.5753435924430083,
+            "min": 0.4371584129681747
+          }
+        },
+        "combined/avx2": {
+          "median_ratio_ci95": [
+            0.5559152526576265,
+            0.5779574652656827
+          ],
+          "median_wall_ratio": 0.566348681050672,
+          "paired_cpu_ratio": {
+            "mad": 0.010821531216659408,
+            "max": 0.6090193073747133,
+            "median": 0.5693358983989893,
+            "min": 0.43090879612114436
+          }
+        },
+        "combined/avx512": {
+          "median_ratio_ci95": [
+            0.5543717814633898,
+            0.6046496543093063
+          ],
+          "median_wall_ratio": 0.5712408999184898,
+          "paired_cpu_ratio": {
+            "mad": 0.03465293895070132,
+            "max": 0.6586792911432332,
+            "median": 0.5642376207705115,
+            "min": 0.5033273381294971
+          }
+        },
+        "combined/scalar": {
+          "median_ratio_ci95": [
+            0.5105153594693623,
+            0.6586897693367484
+          ],
+          "median_wall_ratio": 0.5746463272865919,
+          "paired_cpu_ratio": {
+            "mad": 0.058136215762960464,
+            "max": 0.6851123189396711,
+            "median": 0.6012171417888964,
+            "min": 0.4419980085296295
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.5641729511910937,
+            0.5995515872445156
+          ],
+          "median_wall_ratio": 0.5888460169405583,
+          "paired_cpu_ratio": {
+            "mad": 0.02055760066929735,
+            "max": 0.7634704392629386,
+            "median": 0.5789939865752183,
+            "min": 0.47410783444282545
+          }
+        }
+      },
+      "summary": {
+        "baseline/avx1": {
+          "cpu_seconds": {
+            "mad": 0.008117000000000707,
+            "max": 0.57842500000001,
+            "median": 0.508765000000001,
+            "min": 0.48079800000000883
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2236
+          },
+          "real_time_factor": 0.5093762350000001,
+          "wall_seconds": {
+            "mad": 0.0077819279999999935,
+            "max": 0.579209842,
+            "median": 0.5093762350000001,
+            "min": 0.481533657
+          }
+        },
+        "baseline/avx2": {
+          "cpu_seconds": {
+            "mad": 0.025827000000001488,
+            "max": 0.6600540000000048,
+            "median": 0.5186970000000003,
+            "min": 0.476278999999997
+          },
+          "max_rss_kib": {
+            "mad": 16,
+            "max": 2296,
+            "median": 2268,
+            "min": 2232
+          },
+          "real_time_factor": 0.519427688,
+          "wall_seconds": {
+            "mad": 0.02599922800000004,
+            "max": 0.6607153010000001,
+            "median": 0.519427688,
+            "min": 0.47721028800000004
+          }
+        },
+        "baseline/avx512": {
+          "cpu_seconds": {
+            "mad": 0.022424999999998363,
+            "max": 0.6221510000000009,
+            "median": 0.5099620000000018,
+            "min": 0.4366369999999975
+          },
+          "max_rss_kib": {
+            "mad": 16,
+            "max": 2296,
+            "median": 2256,
+            "min": 2192
+          },
+          "real_time_factor": 0.5107282550000001,
+          "wall_seconds": {
+            "mad": 0.022328930999999996,
+            "max": 0.622964533,
+            "median": 0.5107282550000001,
+            "min": 0.43727162700000005
+          }
+        },
+        "baseline/scalar": {
+          "cpu_seconds": {
+            "mad": 0.03742399999999724,
+            "max": 0.6316949999999991,
+            "median": 0.5235660000000059,
+            "min": 0.44399100000000447
+          },
+          "max_rss_kib": {
+            "mad": 24,
+            "max": 2296,
+            "median": 2268,
+            "min": 2236
+          },
+          "real_time_factor": 0.524210995,
+          "wall_seconds": {
+            "mad": 0.03748579200000002,
+            "max": 0.6322936410000001,
+            "median": 0.524210995,
+            "min": 0.444651622
+          }
+        },
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.035195999999997396,
+            "max": 0.7126480000000015,
+            "median": 0.5295319999999993,
+            "min": 0.435138000000002
+          },
+          "max_rss_kib": {
+            "mad": 24,
+            "max": 2296,
+            "median": 2268,
+            "min": 2236
+          },
+          "real_time_factor": 0.530331754,
+          "wall_seconds": {
+            "mad": 0.03532810399999997,
+            "max": 0.713328156,
+            "median": 0.530331754,
+            "min": 0.439637537
+          }
+        },
+        "combined/avx1": {
+          "cpu_seconds": {
+            "mad": 0.011381000000002861,
+            "max": 0.3164750000000005,
+            "median": 0.29442700000000155,
+            "min": 0.25155799999999573
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2236
+          },
+          "real_time_factor": 0.295027027,
+          "wall_seconds": {
+            "mad": 0.011267532999999996,
+            "max": 0.317211666,
+            "median": 0.295027027,
+            "min": 0.25213484
+          }
+        },
+        "combined/avx2": {
+          "cpu_seconds": {
+            "mad": 0.009851000000001164,
+            "max": 0.3354319999999992,
+            "median": 0.29347800000000035,
+            "min": 0.27195899999999895
+          },
+          "max_rss_kib": {
+            "mad": 20,
+            "max": 2296,
+            "median": 2268,
+            "min": 2212
+          },
+          "real_time_factor": 0.29417718600000003,
+          "wall_seconds": {
+            "mad": 0.009957556000000034,
+            "max": 0.33628198600000003,
+            "median": 0.29417718600000003,
+            "min": 0.272780167
+          }
+        },
+        "combined/avx512": {
+          "cpu_seconds": {
+            "mad": 0.01533399999999574,
+            "max": 0.35104099999999505,
+            "median": 0.2910439999999994,
+            "min": 0.24868199999999946
+          },
+          "max_rss_kib": {
+            "mad": 12,
+            "max": 2296,
+            "median": 2284,
+            "min": 2204
+          },
+          "real_time_factor": 0.291748868,
+          "wall_seconds": {
+            "mad": 0.015203929000000005,
+            "max": 0.351958647,
+            "median": 0.291748868,
+            "min": 0.249317578
+          }
+        },
+        "combined/scalar": {
+          "cpu_seconds": {
+            "mad": 0.01577100000001208,
+            "max": 0.35067199999999626,
+            "median": 0.30060600000000604,
+            "min": 0.2650030000000001
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2168
+          },
+          "real_time_factor": 0.301235923,
+          "wall_seconds": {
+            "mad": 0.015814771999999977,
+            "max": 0.351421398,
+            "median": 0.301235923,
+            "min": 0.265644099
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.02168800000000115,
+            "max": 0.34028899999999906,
+            "median": 0.31158100000000144,
+            "min": 0.2740500000000048
+          },
+          "max_rss_kib": {
+            "mad": 12,
+            "max": 2296,
+            "median": 2256,
+            "min": 2172
+          },
+          "real_time_factor": 0.312283741,
+          "wall_seconds": {
+            "mad": 0.021823042999999986,
+            "max": 0.341040673,
+            "median": 0.312283741,
+            "min": 0.274662567
+          }
+        }
+      }
+    },
+    {
+      "name": "dsd256-six-channel",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/dsd256-six-channel/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 6,
+        "cpu": 1,
+        "native_rate": 11289600,
+        "pcm_rate": 176400,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/dsd256-six-channel",
+        "seconds": 0.5,
+        "threads": 1,
+        "tiers": [
+          "scalar",
+          "sse2",
+          "avx512"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/avx512": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "baseline/scalar": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/avx512": {
+          "median_ratio_ci95": [
+            0.545673050827868,
+            0.589708192337625
+          ],
+          "median_wall_ratio": 0.5593344289748149,
+          "paired_cpu_ratio": {
+            "mad": 0.028165448679093208,
+            "max": 0.6068374525257165,
+            "median": 0.5530016082809535,
+            "min": 0.48778317377583436
+          }
+        },
+        "combined/scalar": {
+          "median_ratio_ci95": [
+            0.5749678188976729,
+            0.6013639523884878
+          ],
+          "median_wall_ratio": 0.5867770540545872,
+          "paired_cpu_ratio": {
+            "mad": 0.013486887245001578,
+            "max": 0.6255297089134504,
+            "median": 0.5878770651434863,
+            "min": 0.4960505580683604
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.5618718277579854,
+            0.5664953276067555
+          ],
+          "median_wall_ratio": 0.5598429830213001,
+          "paired_cpu_ratio": {
+            "mad": 0.0037110347948206,
+            "max": 0.5987385222015416,
+            "median": 0.5641299401780003,
+            "min": 0.5324780618411269
+          }
+        }
+      },
+      "summary": {
+        "baseline/avx512": {
+          "cpu_seconds": {
+            "mad": 0.037125999999994885,
+            "max": 1.5660109999999998,
+            "median": 1.3855640000000022,
+            "min": 1.3042460000000105
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2168
+          },
+          "real_time_factor": 2.7724239340000003,
+          "wall_seconds": {
+            "mad": 0.03716362200000001,
+            "max": 1.5667437180000001,
+            "median": 1.3862119670000002,
+            "min": 1.304871821
+          }
+        },
+        "baseline/scalar": {
+          "cpu_seconds": {
+            "mad": 0.0379859999999983,
+            "max": 1.535026999999999,
+            "median": 1.3534349999999957,
+            "min": 1.2827799999999927
+          },
+          "max_rss_kib": {
+            "mad": 24,
+            "max": 2296,
+            "median": 2268,
+            "min": 2240
+          },
+          "real_time_factor": 2.7084265600000004,
+          "wall_seconds": {
+            "mad": 0.03786219799999979,
+            "max": 1.545322281,
+            "median": 1.3542132800000002,
+            "min": 1.2833815780000002
+          }
+        },
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.04623099999999414,
+            "max": 1.5734139999999996,
+            "median": 1.4004209999999968,
+            "min": 1.3156089999999927
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2212
+          },
+          "real_time_factor": 2.802036338,
+          "wall_seconds": {
+            "mad": 0.04615808899999996,
+            "max": 1.5745708950000001,
+            "median": 1.401018169,
+            "min": 1.316373682
+          }
+        },
+        "combined/avx512": {
+          "cpu_seconds": {
+            "mad": 0.018360999999997407,
+            "max": 0.8545300000000003,
+            "median": 0.7747990000000002,
+            "min": 0.7423319999999898
+          },
+          "max_rss_kib": {
+            "mad": 12,
+            "max": 2296,
+            "median": 2252,
+            "min": 2240
+          },
+          "real_time_factor": 1.550712158,
+          "wall_seconds": {
+            "mad": 0.018220330000000007,
+            "max": 0.8552413280000001,
+            "median": 0.775356079,
+            "min": 0.7430199430000001
+          }
+        },
+        "combined/scalar": {
+          "cpu_seconds": {
+            "mad": 0.012155000000007021,
+            "max": 0.8687420000000003,
+            "median": 0.7939829999999974,
+            "min": 0.7614510000000005
+          },
+          "max_rss_kib": {
+            "mad": 12,
+            "max": 2296,
+            "median": 2256,
+            "min": 2224
+          },
+          "real_time_factor": 1.589242558,
+          "wall_seconds": {
+            "mad": 0.012127952000000053,
+            "max": 0.869419775,
+            "median": 0.794621279,
+            "min": 0.7620623780000001
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.028514000000024242,
+            "max": 0.8840570000000026,
+            "median": 0.7837530000000131,
+            "min": 0.7445220000000123
+          },
+          "max_rss_kib": {
+            "mad": 24,
+            "max": 2296,
+            "median": 2268,
+            "min": 2160
+          },
+          "real_time_factor": 1.568700382,
+          "wall_seconds": {
+            "mad": 0.028514383999999948,
+            "max": 0.884974739,
+            "median": 0.784350191,
+            "min": 0.74511326
+          }
+        }
+      }
+    },
+    {
+      "name": "dsd256-six-channel-explicit-two-threads",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/dsd256-six-channel-explicit-two-threads/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 6,
+        "cpu": 1,
+        "native_rate": 11289600,
+        "pcm_rate": 176400,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/dsd256-six-channel-explicit-two-threads",
+        "seconds": 0.5,
+        "threads": 2,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng",
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.5833114043935363,
+            0.6376194348992289
+          ],
+          "median_wall_ratio": 0.6604560941437976,
+          "paired_cpu_ratio": {
+            "mad": 0.024422168978999514,
+            "max": 0.686377976352462,
+            "median": 0.6143634910648988,
+            "min": 0.5110628014427571
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.05496999999999863,
+            "max": 1.776042,
+            "median": 1.5367689999999987,
+            "min": 1.4451899999999982
+          },
+          "max_rss_kib": {
+            "mad": 16,
+            "max": 2296,
+            "median": 2280,
+            "min": 2248
+          },
+          "real_time_factor": 1.888824252,
+          "wall_seconds": {
+            "mad": 0.03676518299999998,
+            "max": 1.042171694,
+            "median": 0.944412126,
+            "min": 0.8689930810000001
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.03441700000000081,
+            "max": 1.0467120000000008,
+            "median": 0.9470740000000015,
+            "min": 0.8440790000000005
+          },
+          "max_rss_kib": {
+            "mad": 12,
+            "max": 2296,
+            "median": 2268,
+            "min": 2216
+          },
+          "real_time_factor": 1.2474854880000001,
+          "wall_seconds": {
+            "mad": 0.04532254200000008,
+            "max": 0.7035253090000001,
+            "median": 0.6237427440000001,
+            "min": 0.532554343
+          }
+        }
+      }
+    },
+    {
+      "name": "dsd256-six-channel-two-threads",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/dsd256-six-channel-two-threads/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 6,
+        "cpu": 1,
+        "native_rate": 11289600,
+        "pcm_rate": 176400,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/dsd256-six-channel-two-threads",
+        "seconds": 0.5,
+        "threads": 2,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.5538734097909913,
+            0.5832222929012211
+          ],
+          "median_wall_ratio": 0.5718597772739933,
+          "paired_cpu_ratio": {
+            "mad": 0.014065559472771771,
+            "max": 0.608794401255134,
+            "median": 0.5706257746622322,
+            "min": 0.4967892665335325
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.030883000000001104,
+            "max": 1.5473099999999995,
+            "median": 1.345713,
+            "min": 1.3022820000000006
+          },
+          "max_rss_kib": {
+            "mad": 20,
+            "max": 2296,
+            "median": 2268,
+            "min": 2216
+          },
+          "real_time_factor": 2.6924316960000003,
+          "wall_seconds": {
+            "mad": 0.030910369999999965,
+            "max": 1.5479884720000001,
+            "median": 1.3462158480000002,
+            "min": 1.302945306
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.007936999999993422,
+            "max": 0.8633769999999998,
+            "median": 0.769369999999995,
+            "min": 0.7597659999999999
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2168
+          },
+          "real_time_factor": 1.53969339,
+          "wall_seconds": {
+            "mad": 0.00787345500000003,
+            "max": 0.863992089,
+            "median": 0.769846695,
+            "min": 0.760235663
+          }
+        }
+      },
+      "qualification": "SUPERSEDED AS THREAD EVIDENCE: no explicit --multi-threaded; CPU affinity and OMP limit alone do not enable parallel execution. Retained as a single-thread observation only."
+    },
+    {
+      "name": "dsd64-final-src-44100",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/dsd64-final-src-44100/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 2,
+        "cpu": 1,
+        "native_rate": 2822400,
+        "pcm_rate": 44100,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/dsd64-final-src-44100",
+        "seconds": 2.0,
+        "threads": 1,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.5978427592260457,
+            0.6110423550336797
+          ],
+          "median_wall_ratio": 0.6004422063294231,
+          "paired_cpu_ratio": {
+            "mad": 0.007149378931382011,
+            "max": 0.6255137072405906,
+            "median": 0.6038929761022976,
+            "min": 0.5375654355285114
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.013520000000000698,
+            "max": 0.48990499999999987,
+            "median": 0.44432099999999947,
+            "min": 0.42663300000000004
+          },
+          "max_rss_kib": {
+            "mad": 16,
+            "max": 2572,
+            "median": 2488,
+            "min": 2436
+          },
+          "real_time_factor": 0.22253299750000002,
+          "wall_seconds": {
+            "mad": 0.013550203000000038,
+            "max": 0.490496054,
+            "median": 0.44506599500000005,
+            "min": 0.42722709400000003
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.0034970000000006385,
+            "max": 0.2862479999999999,
+            "median": 0.2666540000000004,
+            "min": 0.2576100000000008
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2572,
+            "median": 2500,
+            "min": 2460
+          },
+          "real_time_factor": 0.13361820400000002,
+          "wall_seconds": {
+            "mad": 0.0034682719999999945,
+            "max": 0.28726523200000004,
+            "median": 0.26723640800000004,
+            "min": 0.25819916000000004
+          }
+        }
+      }
+    },
+    {
+      "name": "dsd64-final-src-48000",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/dsd64-final-src-48000/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 2,
+        "cpu": 1,
+        "native_rate": 2822400,
+        "pcm_rate": 48000,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/dsd64-final-src-48000",
+        "seconds": 2.0,
+        "threads": 1,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.596240715210945,
+            0.6423847624137246
+          ],
+          "median_wall_ratio": 0.6174670549170683,
+          "paired_cpu_ratio": {
+            "mad": 0.010829715874346557,
+            "max": 0.6688760232403763,
+            "median": 0.6054837213465598,
+            "min": 0.588913221544586
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.005187000000002162,
+            "max": 0.49156399999999945,
+            "median": 0.4712460000000007,
+            "min": 0.4562570000000008
+          },
+          "max_rss_kib": {
+            "mad": 12,
+            "max": 2836,
+            "median": 2744,
+            "min": 2712
+          },
+          "real_time_factor": 0.23595133350000003,
+          "wall_seconds": {
+            "mad": 0.0052097880000000485,
+            "max": 0.492140713,
+            "median": 0.47190266700000005,
+            "min": 0.45694735900000005
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.01000599999999896,
+            "max": 0.32545299999999955,
+            "median": 0.29080399999999973,
+            "min": 0.27203900000000064
+          },
+          "max_rss_kib": {
+            "mad": 4,
+            "max": 2836,
+            "median": 2732,
+            "min": 2724
+          },
+          "real_time_factor": 0.145692175,
+          "wall_seconds": {
+            "mad": 0.009906209999999971,
+            "max": 0.32633939300000003,
+            "median": 0.29138435,
+            "min": 0.27274110700000004
+          }
+        }
+      }
+    },
+    {
+      "name": "dsd64-short-mono",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/dsd64-short-mono/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 1,
+        "cpu": 1,
+        "native_rate": 2822400,
+        "pcm_rate": 88200,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/dsd64-short-mono",
+        "seconds": 0.02,
+        "threads": 1,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.7391620247033177,
+            0.8128730859070853
+          ],
+          "median_wall_ratio": 0.8139843330229264,
+          "paired_cpu_ratio": {
+            "mad": 0.039773639508431824,
+            "max": 0.875299122573786,
+            "median": 0.7652022834450233,
+            "min": 0.424387496479867
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.00014500000000000277,
+            "max": 0.007101999999999987,
+            "median": 0.003884000000000002,
+            "min": 0.0036470000000000113
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2276,
+            "median": 2220,
+            "min": 2160
+          },
+          "real_time_factor": 0.21095965000000003,
+          "wall_seconds": {
+            "mad": 0.00011056800000000012,
+            "max": 0.007474819000000001,
+            "median": 0.004219193,
+            "min": 0.003972901
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 7.299999999999321e-05,
+            "max": 0.0032920000000000033,
+            "median": 0.0030820000000000014,
+            "min": 0.002837000000000006
+          },
+          "max_rss_kib": {
+            "mad": 20,
+            "max": 2248,
+            "median": 2168,
+            "min": 2148
+          },
+          "real_time_factor": 0.17171785,
+          "wall_seconds": {
+            "mad": 7.105800000000015e-05,
+            "max": 0.0036514840000000004,
+            "median": 0.0034343570000000003,
+            "min": 0.003150847
+          }
+        }
+      }
+    },
+    {
+      "name": "dsd64-stereo-all-tiers",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/dsd64-stereo-all-tiers/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 2,
+        "cpu": 1,
+        "native_rate": 2822400,
+        "pcm_rate": 88200,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/dsd64-stereo-all-tiers",
+        "seconds": 2.0,
+        "threads": 1,
+        "tiers": [
+          "scalar",
+          "sse2",
+          "avx1",
+          "avx2",
+          "avx512"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/avx1": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "baseline/avx2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "baseline/avx512": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "baseline/scalar": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/avx1": {
+          "median_ratio_ci95": [
+            0.5613071586393756,
+            0.5938220989870363
+          ],
+          "median_wall_ratio": 0.5666709499092869,
+          "paired_cpu_ratio": {
+            "mad": 0.01590953477331325,
+            "max": 0.6312508476108706,
+            "median": 0.5851727002023578,
+            "min": 0.5046587710640783
+          }
+        },
+        "combined/avx2": {
+          "median_ratio_ci95": [
+            0.5573785810194452,
+            0.5928764587341385
+          ],
+          "median_wall_ratio": 0.5710643486346687,
+          "paired_cpu_ratio": {
+            "mad": 0.015393638340593152,
+            "max": 0.6457520608813533,
+            "median": 0.5727722193600383,
+            "min": 0.5096264822739947
+          }
+        },
+        "combined/avx512": {
+          "median_ratio_ci95": [
+            0.5582787733536655,
+            0.58269729495258
+          ],
+          "median_wall_ratio": 0.5807682979782285,
+          "paired_cpu_ratio": {
+            "mad": 0.016794177786873976,
+            "max": 0.6380486879603131,
+            "median": 0.5750729511405395,
+            "min": 0.5356936799592324
+          }
+        },
+        "combined/scalar": {
+          "median_ratio_ci95": [
+            0.585093893093665,
+            0.6161189953430563
+          ],
+          "median_wall_ratio": 0.6065551157207959,
+          "paired_cpu_ratio": {
+            "mad": 0.01729816394038608,
+            "max": 0.6454109635072508,
+            "median": 0.6087478638400153,
+            "min": 0.566122598281861
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.5807438397350114,
+            0.600328319638028
+          ],
+          "median_wall_ratio": 0.583790894354794,
+          "paired_cpu_ratio": {
+            "mad": 0.014614320177609996,
+            "max": 0.6401184760659948,
+            "median": 0.592078292991727,
+            "min": 0.5524482775066963
+          }
+        }
+      },
+      "summary": {
+        "baseline/avx1": {
+          "cpu_seconds": {
+            "mad": 0.02505199999999491,
+            "max": 0.5498949999999989,
+            "median": 0.467975000000004,
+            "min": 0.42555599999999316
+          },
+          "max_rss_kib": {
+            "mad": 16,
+            "max": 2296,
+            "median": 2268,
+            "min": 2232
+          },
+          "real_time_factor": 0.2342890085,
+          "wall_seconds": {
+            "mad": 0.025456077999999993,
+            "max": 0.550562232,
+            "median": 0.468578017,
+            "min": 0.42619551200000005
+          }
+        },
+        "baseline/avx2": {
+          "cpu_seconds": {
+            "mad": 0.02164500000000119,
+            "max": 0.5874419999999994,
+            "median": 0.481009999999999,
+            "min": 0.4320650000000086
+          },
+          "max_rss_kib": {
+            "mad": 20,
+            "max": 2296,
+            "median": 2268,
+            "min": 2236
+          },
+          "real_time_factor": 0.240821007,
+          "wall_seconds": {
+            "mad": 0.021814473999999973,
+            "max": 0.588253009,
+            "median": 0.481642014,
+            "min": 0.43271530500000005
+          }
+        },
+        "baseline/avx512": {
+          "cpu_seconds": {
+            "mad": 0.019906999999996955,
+            "max": 0.5460239999999987,
+            "median": 0.4644820000000025,
+            "min": 0.432304000000002
+          },
+          "max_rss_kib": {
+            "mad": 12,
+            "max": 2296,
+            "median": 2268,
+            "min": 2228
+          },
+          "real_time_factor": 0.2325588965,
+          "wall_seconds": {
+            "mad": 0.019992466000000042,
+            "max": 0.546618255,
+            "median": 0.465117793,
+            "min": 0.433014915
+          }
+        },
+        "baseline/scalar": {
+          "cpu_seconds": {
+            "mad": 0.013369999999996496,
+            "max": 0.5208100000000009,
+            "median": 0.4753829999999954,
+            "min": 0.4254510000000007
+          },
+          "max_rss_kib": {
+            "mad": 12,
+            "max": 2296,
+            "median": 2248,
+            "min": 2168
+          },
+          "real_time_factor": 0.237989376,
+          "wall_seconds": {
+            "mad": 0.01377888300000002,
+            "max": 0.5217419640000001,
+            "median": 0.475978752,
+            "min": 0.426104523
+          }
+        },
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.02236900000000197,
+            "max": 0.5048850000000016,
+            "median": 0.47739600000000093,
+            "min": 0.43183900000001074
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2200
+          },
+          "real_time_factor": 0.23897195100000002,
+          "wall_seconds": {
+            "mad": 0.02237346000000001,
+            "max": 0.505580637,
+            "median": 0.47794390200000003,
+            "min": 0.432445322
+          }
+        },
+        "combined/avx1": {
+          "cpu_seconds": {
+            "mad": 0.00983800000000723,
+            "max": 0.3086599999999989,
+            "median": 0.2649030000000063,
+            "min": 0.2528380000000041
+          },
+          "max_rss_kib": {
+            "mad": 20,
+            "max": 2296,
+            "median": 2268,
+            "min": 2240
+          },
+          "real_time_factor": 0.132764775,
+          "wall_seconds": {
+            "mad": 0.00991323999999999,
+            "max": 0.309220914,
+            "median": 0.26552955,
+            "min": 0.253548804
+          }
+        },
+        "combined/avx2": {
+          "cpu_seconds": {
+            "mad": 0.011283000000002985,
+            "max": 0.32626300000000086,
+            "median": 0.2743879999999973,
+            "min": 0.2483969999999971
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2192
+          },
+          "real_time_factor": 0.1375242915,
+          "wall_seconds": {
+            "mad": 0.012503362000000018,
+            "max": 0.327014011,
+            "median": 0.275048583,
+            "min": 0.249068381
+          }
+        },
+        "combined/avx512": {
+          "cpu_seconds": {
+            "mad": 0.013074000000004693,
+            "max": 0.2966390000000007,
+            "median": 0.26955599999999436,
+            "min": 0.2504770000000036
+          },
+          "max_rss_kib": {
+            "mad": 24,
+            "max": 2296,
+            "median": 2268,
+            "min": 2236
+          },
+          "real_time_factor": 0.1350628345,
+          "wall_seconds": {
+            "mad": 0.013164810000000027,
+            "max": 0.297316833,
+            "median": 0.270125669,
+            "min": 0.251092079
+          }
+        },
+        "combined/scalar": {
+          "cpu_seconds": {
+            "mad": 0.01041899999999929,
+            "max": 0.31098800000000215,
+            "median": 0.2881050000000023,
+            "min": 0.2615559999999968
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2196
+          },
+          "real_time_factor": 0.1443536735,
+          "wall_seconds": {
+            "mad": 0.010286040999999968,
+            "max": 0.31155189,
+            "median": 0.288707347,
+            "min": 0.262192914
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.017369999999996888,
+            "max": 0.30631000000000164,
+            "median": 0.2784779999999998,
+            "min": 0.25458299999999773
+          },
+          "max_rss_kib": {
+            "mad": 16,
+            "max": 2296,
+            "median": 2256,
+            "min": 2236
+          },
+          "real_time_factor": 0.139509649,
+          "wall_seconds": {
+            "mad": 0.017314259,
+            "max": 0.30692044900000004,
+            "median": 0.279019298,
+            "min": 0.255323838
+          }
+        }
+      }
+    },
+    {
+      "name": "dsd64-upsampling-705600",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/dsd64-upsampling-705600/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 2,
+        "cpu": 1,
+        "native_rate": 2822400,
+        "pcm_rate": 705600,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/dsd64-upsampling-705600",
+        "seconds": 1.0,
+        "threads": 1,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.6225200021114387,
+            0.6301344279200811
+          ],
+          "median_wall_ratio": 0.6133900584975029,
+          "paired_cpu_ratio": {
+            "mad": 0.004961724278733315,
+            "max": 0.6526390842242586,
+            "median": 0.627481726390172,
+            "min": 0.546567668727728
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.00787400000000038,
+            "max": 0.39594599999999947,
+            "median": 0.2551490000000005,
+            "min": 0.244491
+          },
+          "max_rss_kib": {
+            "mad": 8,
+            "max": 2836,
+            "median": 2732,
+            "min": 2692
+          },
+          "real_time_factor": 0.25571108600000003,
+          "wall_seconds": {
+            "mad": 0.007830256000000008,
+            "max": 0.396479142,
+            "median": 0.25571108600000003,
+            "min": 0.245077969
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.003938999999999998,
+            "max": 0.2280420000000003,
+            "median": 0.15624499999999988,
+            "min": 0.15230599999999989
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2836,
+            "median": 2756,
+            "min": 2724
+          },
+          "real_time_factor": 0.15685063800000001,
+          "wall_seconds": {
+            "mad": 0.003930355999999996,
+            "max": 0.228670163,
+            "median": 0.15685063800000001,
+            "min": 0.15292028200000002
+          }
+        }
+      }
+    },
+    {
+      "name": "dsd64-with-report",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/dsd64-with-report/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 2,
+        "cpu": 1,
+        "native_rate": 2822400,
+        "pcm_rate": 88200,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": true,
+        "results": "/mnt/data/dsd-work/measurements/dsd64-with-report",
+        "seconds": 2.0,
+        "threads": 1,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.6455228888549776,
+            0.6746914512172112
+          ],
+          "median_wall_ratio": 0.6712941449944226,
+          "paired_cpu_ratio": {
+            "mad": 0.018182266085143728,
+            "max": 0.689264296648052,
+            "median": 0.6637252285940864,
+            "min": 0.6325853675869668
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.0066339999999986965,
+            "max": 0.5650040000000001,
+            "median": 0.5307459999999997,
+            "min": 0.5239340000000001
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2224
+          },
+          "real_time_factor": 0.2656498665,
+          "wall_seconds": {
+            "mad": 0.006504100999999984,
+            "max": 0.5656828770000001,
+            "median": 0.531299733,
+            "min": 0.524752094
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.0038190000000006274,
+            "max": 0.3628209999999993,
+            "median": 0.35605699999999996,
+            "min": 0.3464849999999999
+          },
+          "max_rss_kib": {
+            "mad": 16,
+            "max": 2296,
+            "median": 2252,
+            "min": 2192
+          },
+          "real_time_factor": 0.17832920000000002,
+          "wall_seconds": {
+            "mad": 0.0037803559999999847,
+            "max": 0.363379275,
+            "median": 0.35665840000000004,
+            "min": 0.34705192500000004
+          }
+        }
+      }
+    },
+    {
+      "name": "wide128-mono-352800",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/wide128-mono-352800/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 1,
+        "cpu": 1,
+        "native_rate": 5644800,
+        "pcm_rate": 352800,
+        "profile": "wideband",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/wide128-mono-352800",
+        "seconds": 1.0,
+        "threads": 1,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.585997617038177,
+            0.6078434707911107
+          ],
+          "median_wall_ratio": 0.5970217490402753,
+          "paired_cpu_ratio": {
+            "mad": 0.016579558010895057,
+            "max": 0.6588707176380583,
+            "median": 0.602577175049072,
+            "min": 0.5351631263936149
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.0018359999999995602,
+            "max": 0.27267200000000036,
+            "median": 0.2401889999999996,
+            "min": 0.23218400000000017
+          },
+          "max_rss_kib": {
+            "mad": 20,
+            "max": 2428,
+            "median": 2408,
+            "min": 2328
+          },
+          "real_time_factor": 0.24080368300000002,
+          "wall_seconds": {
+            "mad": 0.0016700420000000105,
+            "max": 0.273265127,
+            "median": 0.24080368300000002,
+            "min": 0.232781872
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.0026249999999997387,
+            "max": 0.15933799999999984,
+            "median": 0.14318700000000018,
+            "min": 0.140231
+          },
+          "max_rss_kib": {
+            "mad": 12,
+            "max": 2428,
+            "median": 2416,
+            "min": 2348
+          },
+          "real_time_factor": 0.143765036,
+          "wall_seconds": {
+            "mad": 0.0025775749999999986,
+            "max": 0.159900977,
+            "median": 0.143765036,
+            "min": 0.14086252700000002
+          }
+        }
+      }
+    },
+    {
+      "name": "wide256-six-channel-705600",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/wide256-six-channel-705600/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 6,
+        "cpu": 1,
+        "native_rate": 11289600,
+        "pcm_rate": 705600,
+        "profile": "wideband",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/wide256-six-channel-705600",
+        "seconds": 0.25,
+        "threads": 1,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "combined=/mnt/data/dsd-work/variants/combined/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "combined/sse2": {
+          "median_ratio_ci95": [
+            0.5788992010878844,
+            0.625146571257546
+          ],
+          "median_wall_ratio": 0.619616495525955,
+          "paired_cpu_ratio": {
+            "mad": 0.01427147486335778,
+            "max": 0.6690304490614886,
+            "median": 0.6131926142955871,
+            "min": 0.5290555722803661
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.02977799999999986,
+            "max": 0.8736189999999994,
+            "median": 0.732621,
+            "min": 0.6867229999999994
+          },
+          "max_rss_kib": {
+            "mad": 20,
+            "max": 3084,
+            "median": 3000,
+            "min": 2968
+          },
+          "real_time_factor": 2.933301268,
+          "wall_seconds": {
+            "mad": 0.02969675599999999,
+            "max": 0.8742464820000001,
+            "median": 0.733325317,
+            "min": 0.6874061760000001
+          }
+        },
+        "combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.010967000000000615,
+            "max": 0.49270799999999976,
+            "median": 0.4536010000000014,
+            "min": 0.42570800000000164
+          },
+          "max_rss_kib": {
+            "mad": 24,
+            "max": 3084,
+            "median": 3012,
+            "min": 2980
+          },
+          "real_time_factor": 1.817521852,
+          "wall_seconds": {
+            "mad": 0.011186439999999964,
+            "max": 0.49329575600000003,
+            "median": 0.454380463,
+            "min": 0.42633682900000003
+          }
+        }
+      }
+    }
+  ],
+  "experiments": {
+    "screen-control": {
+      "name": "screen-control",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/screen-control/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 2,
+        "cpu": 1,
+        "native_rate": 2822400,
+        "pcm_rate": 88200,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/screen-control",
+        "seconds": 2.0,
+        "threads": 1,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "count-only=/mnt/data/dsd-work/variants/count-only/sox_ng",
+          "reconstruction-only=/mnt/data/dsd-work/variants/reconstruction-only/sox_ng",
+          "control-combined=/mnt/data/dsd-work/variants/control-combined/sox_ng",
+          "fir-block-width=/mnt/data/dsd-work/variants/fir-block-width/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "control-combined/sse2": {
+          "median_ratio_ci95": [
+            0.8093550208968715,
+            0.8652878667990272
+          ],
+          "median_wall_ratio": 0.825723437712921,
+          "paired_cpu_ratio": {
+            "mad": 0.02334880998541189,
+            "max": 0.9555896811129941,
+            "median": 0.8419390568136154,
+            "min": 0.7740599053769355
+          }
+        },
+        "count-only/sse2": {
+          "median_ratio_ci95": [
+            0.9529199141533949,
+            0.9976629168349884
+          ],
+          "median_wall_ratio": 0.9586759700560553,
+          "paired_cpu_ratio": {
+            "mad": 0.020623883662091225,
+            "max": 1.047173520454735,
+            "median": 0.9770390331728972,
+            "min": 0.8846779590258027
+          }
+        },
+        "fir-block-width/sse2": {
+          "median_ratio_ci95": [
+            1.1294755201457525,
+            1.1872336832111126
+          ],
+          "median_wall_ratio": 1.158622590987468,
+          "paired_cpu_ratio": {
+            "mad": 0.029249424535302104,
+            "max": 1.3942400373274126,
+            "median": 1.1650333220377203,
+            "min": 1.1059114030113515
+          }
+        },
+        "reconstruction-only/sse2": {
+          "median_ratio_ci95": [
+            0.9353687411618556,
+            0.9771974629866739
+          ],
+          "median_wall_ratio": 0.9477783909452249,
+          "paired_cpu_ratio": {
+            "mad": 0.024175689905299724,
+            "max": 1.1049625823820546,
+            "median": 0.9514706686647544,
+            "min": 0.8675171176356102
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.01840800000000331,
+            "max": 0.4886489999999988,
+            "median": 0.44725100000000384,
+            "min": 0.4218230000000007
+          },
+          "max_rss_kib": {
+            "mad": 16,
+            "max": 2296,
+            "median": 2252,
+            "min": 2188
+          },
+          "real_time_factor": 0.223975433,
+          "wall_seconds": {
+            "mad": 0.01849195499999995,
+            "max": 0.48931253900000005,
+            "median": 0.447950866,
+            "min": 0.42243124200000004
+          }
+        },
+        "control-combined/sse2": {
+          "cpu_seconds": {
+            "mad": 0.01274500000000256,
+            "max": 0.44865700000000075,
+            "median": 0.369289999999998,
+            "min": 0.35057199999999966
+          },
+          "max_rss_kib": {
+            "mad": 24,
+            "max": 2296,
+            "median": 2268,
+            "min": 2232
+          },
+          "real_time_factor": 0.18494176450000002,
+          "wall_seconds": {
+            "mad": 0.01285838899999997,
+            "max": 0.449598007,
+            "median": 0.36988352900000004,
+            "min": 0.351610425
+          }
+        },
+        "count-only/sse2": {
+          "cpu_seconds": {
+            "mad": 0.008286000000000904,
+            "max": 0.471426000000001,
+            "median": 0.42884300000000053,
+            "min": 0.4094509999999992
+          },
+          "max_rss_kib": {
+            "mad": 20,
+            "max": 2296,
+            "median": 2268,
+            "min": 2232
+          },
+          "real_time_factor": 0.21471986550000002,
+          "wall_seconds": {
+            "mad": 0.008285437000000007,
+            "max": 0.47205728500000005,
+            "median": 0.42943973100000005,
+            "min": 0.41045326400000004
+          }
+        },
+        "fir-block-width/sse2": {
+          "cpu_seconds": {
+            "mad": 0.008749000000001228,
+            "max": 0.6812940000000012,
+            "median": 0.5183900000000015,
+            "min": 0.49246799999999963
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2168
+          },
+          "real_time_factor": 0.2595029965,
+          "wall_seconds": {
+            "mad": 0.008759810000000035,
+            "max": 0.684602872,
+            "median": 0.519005993,
+            "min": 0.49309517100000005
+          }
+        },
+        "reconstruction-only/sse2": {
+          "cpu_seconds": {
+            "mad": 0.011813000000000906,
+            "max": 0.4974419999999993,
+            "median": 0.4231090000000015,
+            "min": 0.39400299999999955
+          },
+          "max_rss_kib": {
+            "mad": 12,
+            "max": 2296,
+            "median": 2256,
+            "min": 2212
+          },
+          "real_time_factor": 0.21227907550000003,
+          "wall_seconds": {
+            "mad": 0.011246235999999965,
+            "max": 0.498156488,
+            "median": 0.42455815100000005,
+            "min": 0.39461401900000004
+          }
+        }
+      }
+    },
+    "screen-independent": {
+      "name": "screen-independent",
+      "status": "PASS",
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/screen-independent/paired.json",
+      "config": {
+        "buffer": 8192,
+        "channels": 2,
+        "cpu": 1,
+        "native_rate": 2822400,
+        "pcm_rate": 88200,
+        "profile": "mastering",
+        "repetitions": 15,
+        "report": false,
+        "results": "/mnt/data/dsd-work/measurements/screen-independent",
+        "seconds": 2.0,
+        "threads": 1,
+        "tiers": [
+          "sse2"
+        ],
+        "variants": [
+          "baseline=/mnt/data/dsd-work/variants/baseline/sox_ng",
+          "fir-ordered=/mnt/data/dsd-work/variants/fir-ordered/sox_ng",
+          "fir-sse2-reduced=/mnt/data/dsd-work/variants/fir-sse2-reduced/sox_ng",
+          "count-only=/mnt/data/dsd-work/variants/count-only/sox_ng",
+          "fir-block-repeat=/mnt/data/dsd-work/variants/fir-block-repeat/sox_ng"
+        ],
+        "warmups": 2
+      },
+      "comparisons": {
+        "baseline/sse2": {
+          "median_ratio_ci95": [
+            1.0,
+            1.0
+          ],
+          "median_wall_ratio": 1.0,
+          "paired_cpu_ratio": {
+            "mad": 0.0,
+            "max": 1.0,
+            "median": 1.0,
+            "min": 1.0
+          }
+        },
+        "count-only/sse2": {
+          "median_ratio_ci95": [
+            0.9352609328245494,
+            0.9844487835532769
+          ],
+          "median_wall_ratio": 0.9691310840593006,
+          "paired_cpu_ratio": {
+            "mad": 0.0337749826431345,
+            "max": 1.026320347552919,
+            "median": 0.9690359154676839,
+            "min": 0.6295289740040299
+          }
+        },
+        "fir-block-repeat/sse2": {
+          "median_ratio_ci95": [
+            2.438944319279053,
+            2.583578055473419
+          ],
+          "median_wall_ratio": 2.5654551011867364,
+          "paired_cpu_ratio": {
+            "mad": 0.0704671106804895,
+            "max": 2.6916369486144656,
+            "median": 2.5496506225108413,
+            "min": 1.7852394639664488
+          }
+        },
+        "fir-ordered/sse2": {
+          "median_ratio_ci95": [
+            0.7259006544362105,
+            0.767059430828619
+          ],
+          "median_wall_ratio": 0.7545670316244881,
+          "paired_cpu_ratio": {
+            "mad": 0.02233887267764223,
+            "max": 0.7902154647761,
+            "median": 0.7482395271138528,
+            "min": 0.5412361169317319
+          }
+        },
+        "fir-sse2-reduced/sse2": {
+          "median_ratio_ci95": [
+            0.7331667045368554,
+            0.7892036682898773
+          ],
+          "median_wall_ratio": 0.7790734401449618,
+          "paired_cpu_ratio": {
+            "mad": 0.021377225736976202,
+            "max": 0.8067806945753053,
+            "median": 0.783035199076739,
+            "min": 0.5575931264436876
+          }
+        }
+      },
+      "summary": {
+        "baseline/sse2": {
+          "cpu_seconds": {
+            "mad": 0.009320000000002326,
+            "max": 0.7086870000000034,
+            "median": 0.44593600000000166,
+            "min": 0.42146100000000075
+          },
+          "max_rss_kib": {
+            "mad": 8,
+            "max": 2296,
+            "median": 2288,
+            "min": 2196
+          },
+          "real_time_factor": 0.22343659600000002,
+          "wall_seconds": {
+            "mad": 0.009632505000000013,
+            "max": 0.709812549,
+            "median": 0.44687319200000003,
+            "min": 0.42244339000000003
+          }
+        },
+        "count-only/sse2": {
+          "cpu_seconds": {
+            "mad": 0.006503000000000425,
+            "max": 0.5015240000000034,
+            "median": 0.4321279999999987,
+            "min": 0.4088249999999983
+          },
+          "max_rss_kib": {
+            "mad": 8,
+            "max": 2296,
+            "median": 2288,
+            "min": 2168
+          },
+          "real_time_factor": 0.2165393505,
+          "wall_seconds": {
+            "mad": 0.006189946000000002,
+            "max": 0.502501364,
+            "median": 0.433078701,
+            "min": 0.409853309
+          }
+        },
+        "fir-block-repeat/sse2": {
+          "cpu_seconds": {
+            "mad": 0.010870000000000157,
+            "max": 1.2651759999999967,
+            "median": 1.1452900000000035,
+            "min": 1.106615000000005
+          },
+          "max_rss_kib": {
+            "mad": 8,
+            "max": 2296,
+            "median": 2268,
+            "min": 2244
+          },
+          "real_time_factor": 0.573216555,
+          "wall_seconds": {
+            "mad": 0.010958964000000071,
+            "max": 1.267107647,
+            "median": 1.14643311,
+            "min": 1.1076076380000002
+          }
+        },
+        "fir-ordered/sse2": {
+          "cpu_seconds": {
+            "mad": 0.007225000000001924,
+            "max": 0.3835670000000001,
+            "median": 0.3364469999999997,
+            "min": 0.3220810000000043
+          },
+          "max_rss_kib": {
+            "mad": 28,
+            "max": 2296,
+            "median": 2268,
+            "min": 2228
+          },
+          "real_time_factor": 0.168597889,
+          "wall_seconds": {
+            "mad": 0.007400264000000045,
+            "max": 0.384512393,
+            "median": 0.337195778,
+            "min": 0.322719297
+          }
+        },
+        "fir-sse2-reduced/sse2": {
+          "cpu_seconds": {
+            "mad": 0.009708000000001382,
+            "max": 0.3951589999999996,
+            "median": 0.34754799999999975,
+            "min": 0.32912000000000113
+          },
+          "max_rss_kib": {
+            "mad": 20,
+            "max": 2296,
+            "median": 2268,
+            "min": 2196
+          },
+          "real_time_factor": 0.17407351750000002,
+          "wall_seconds": {
+            "mad": 0.009619426000000042,
+            "max": 0.395798237,
+            "median": 0.34814703500000005,
+            "min": 0.329736015
+          }
+        }
+      }
+    }
+  },
+  "controls": {
+    "unchanged_paths": {
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/unchanged-controls/controls.json",
+      "qualification": "INCONCLUSIVE_NOISE; byte identity passes, no material regression observed, but dispersion does not close the controlled physical performance gate"
+    },
+    "native_repack": {
+      "raw_receipt": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/measurements/native-repack.json",
+      "qualification": "INCONCLUSIVE_NOISE; byte identity passes, no material regression observed, but dispersion does not close the controlled physical performance gate"
+    }
+  },
+  "correctness": {
+    "source_audit": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/validation/source-invariants.json",
+    "differential": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/validation/differential-final",
+    "release_regressions": "tests/dsd/results/DECODE_OPTIMIZATION_2026-10-12/receipts/final-check-dsd.log"
+  }
+}

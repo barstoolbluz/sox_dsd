@@ -222,6 +222,7 @@ win64.exe: winexe-prepare
 DSD_PHASE ?= P14
 DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
 check-dsd: all
+	$(MAKE) check-dsd-optimization
 	@if test "$(DSD_PHASE)" = "P14"; then \
 	  $(MAKE) -C test dsd_test_p14$(EXEEXT); \
 	fi
@@ -591,3 +592,15 @@ EXTRA_DIST += docs/dsd/handoffs/P14.md docs/dsd/handoffs/P14_CHECKPOINT.md \
   tests/dsd/bench_p14.py tests/dsd/reference/p14_report_schema_v1.json \
   tests/dsd/reference/p14_report_golden.json
 
+
+# Non-phase performance investigation; no production policy or DSP changes.
+EXTRA_DIST += tests/dsd/profile_decode.py tests/dsd/test_perf_measurements.py \
+  docs/dsd/PERFORMANCE_INVESTIGATION_2026-10-12.md
+
+.PHONY: check-dsd-optimization
+check-dsd-optimization: all
+	$(MAKE) -C test dsd_test_decode_optimization$(EXEEXT)
+	$(abs_builddir)/test/dsd_test_decode_optimization$(EXEEXT) scalar
+
+# Decoder optimization measurements; production policy remains unchanged.
+EXTRA_DIST += tests/dsd/bench_decode_optimization.py

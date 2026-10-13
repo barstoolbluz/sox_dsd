@@ -1,0 +1,180 @@
+{
+  "cases": [
+    {
+      "channels": 1,
+      "frames": 1025,
+      "name": "decode_a",
+      "pcm_sha256": "b979ac04f05935a2b6a01ee1a76862a044c9da315e5810c00cc3e29d9b707320",
+      "status": "pass"
+    },
+    {
+      "channels": 1,
+      "frames": 516,
+      "name": "decode_b",
+      "pcm_sha256": "596b9a16918120c99ee3df6479cd5960bb39fc33ea922c85886c306281017bc2",
+      "status": "pass"
+    },
+    {
+      "channels": 2,
+      "frames": 2048,
+      "name": "decode_stereo",
+      "pcm_sha256": "328bb58b518aef72fc1da07bcf10ce432225e5e3fdcec68e150dbc07c7fb97e0",
+      "status": "pass"
+    },
+    {
+      "channels": 1,
+      "frames": 2048,
+      "name": "decode_one",
+      "pcm_sha256": "848e26e02f5e15c83633a210f7d3299ca0b792cbc63f4b1999bffba9eb006df9",
+      "status": "pass"
+    },
+    {
+      "channels": 1,
+      "frames": 0,
+      "name": "decode_empty",
+      "pcm_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "pass"
+    },
+    {
+      "channels": 6,
+      "frames": 1024,
+      "name": "decode_dff6",
+      "pcm_sha256": "450af3f80c69a8ef8e1054be9c1320a61cb6023cb41cdc639551b5bda6c51308",
+      "status": "pass"
+    },
+    {
+      "channels": 6,
+      "frames": 1024,
+      "name": "six_channel_private_adapter_matches_graph_decoder",
+      "sha256": "450af3f80c69a8ef8e1054be9c1320a61cb6023cb41cdc639551b5bda6c51308",
+      "status": "pass"
+    },
+    {
+      "effects": [
+        "gain",
+        "overdrive",
+        "rate",
+        "trim"
+      ],
+      "name": "implicit_before_pcm_effects",
+      "status": "pass"
+    },
+    {
+      "max_int32_difference": 1,
+      "name": "file_gain_before_graph_quantization",
+      "samples": 1025,
+      "status": "pass"
+    },
+    {
+      "name": "overrange_protected_by_file_gain",
+      "samples": 2048,
+      "status": "pass"
+    },
+    {
+      "combiners": [
+        "mix",
+        "merge",
+        "multiply",
+        "mix-power"
+      ],
+      "name": "parallel_combiner_pcm_equivalence_and_tails",
+      "status": "pass"
+    },
+    {
+      "name": "mixed_dsd_pcm_input_rate_and_gain",
+      "status": "pass"
+    },
+    {
+      "name": "different_native_dsd_clocks_merge_at_common_pcm_rate",
+      "samples": 4100,
+      "status": "pass",
+      "working_rate_hz": 176400
+    },
+    {
+      "name": "native_concatenation_one_continuous_filter",
+      "status": "pass"
+    },
+    {
+      "name": "per_input_finite_file_concatenation",
+      "status": "pass"
+    },
+    {
+      "frames": 1541,
+      "name": "sequence_restarts_reconstruction_at_equal_native_rates",
+      "status": "pass"
+    },
+    {
+      "name": "implicit_decoder_before_first_dither",
+      "status": "pass"
+    },
+    {
+      "name": "explicit_final_pcm_rate_without_extra_src",
+      "status": "pass"
+    },
+    {
+      "bytes": 24722,
+      "name": "unprocessed_native_repack_bypasses_dsp",
+      "status": "pass"
+    },
+    {
+      "gain_effects": 0,
+      "name": "guard_native_dsf_dff_no_generic_gain",
+      "native_decoder_count": 0,
+      "repack_routes": 4,
+      "status": "pass"
+    },
+    {
+      "gain_effects": 0,
+      "markers": "05/fa",
+      "name": "guard_native_dop_keeps_payload_and_markers",
+      "status": "pass",
+      "transport_frames": 2048
+    },
+    {
+      "executed_gain_count": 2,
+      "name": "guard_after_decoder_for_pcm_effect",
+      "pcm_frames": 1025,
+      "status": "pass"
+    },
+    {
+      "name": "actual_normalization_preserved_after_decoder",
+      "normalization_applied": true,
+      "pcm_frames": 1025,
+      "status": "pass"
+    },
+    {
+      "executed_gain_count": 0,
+      "name": "guard_native_plan_matches_executed_effects",
+      "planned_decoder_count": 0,
+      "status": "pass"
+    },
+    {
+      "name": "processed_dsd_requires_unavailable_pcmdsd",
+      "reported_encoder": "encode.mastering.v1.dsd64",
+      "status": "pass"
+    },
+    {
+      "name": "null_sink_does_not_trigger_native_modulation",
+      "status": "pass"
+    },
+    {
+      "declared_native_frames": 65536,
+      "name": "adapter_known_length_premature_eof_fails_closed",
+      "physically_delivered_native_frames": [
+        0,
+        32768,
+        32768,
+        65536
+      ],
+      "status": "pass"
+    },
+    {
+      "diagnostic": "dop requires native",
+      "name": "dop_after_pcm_effect_rejected_before_header",
+      "status": "pass"
+    }
+  ],
+  "failed": 0,
+  "passed": 28,
+  "schema": "sox.dsd.P08.integration.v1"
+}

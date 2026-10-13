@@ -1,0 +1,37 @@
+{
+  "schema": "DSD/P10-historical-certificate-binding/1",
+  "status": "INHERITED_REVISION_MISMATCH_NOT_OPTIMIZATION_REGRESSION",
+  "checked_inputs": 35,
+  "all_certificate_inputs_identical_before_after": true,
+  "mismatches": [
+    {
+      "path": "src/dsd_plan.c",
+      "certificate_sha256": "5bc05977247b96092efa721058d0c3e3c179cf6512a4799b38a3244192555d89",
+      "supplied_baseline_sha256": "58c25eec815db5322f29a471ab94a7d6e87265f02a3957d2bc0808df9c8c3126",
+      "optimized_sha256": "58c25eec815db5322f29a471ab94a7d6e87265f02a3957d2bc0808df9c8c3126",
+      "optimization_changed": false
+    },
+    {
+      "path": "src/pcmdsd.c",
+      "certificate_sha256": "62f9625ccb570a7b6fdb35f66e0a72db58292ac3c9bdde00e1cd618fce781d37",
+      "supplied_baseline_sha256": "cd38b6b39805fef7431997658100796f1e35eb0b1502bc19bda41a94a5761e92",
+      "optimized_sha256": "cd38b6b39805fef7431997658100796f1e35eb0b1502bc19bda41a94a5761e92",
+      "optimization_changed": false
+    },
+    {
+      "path": "src/pcmdsd.h",
+      "certificate_sha256": "74393d4341ce758f68b61bd6b9d33fafbb0baa6b6a2b11134f9c09651203b5c0",
+      "supplied_baseline_sha256": "ac149e4d771968b841d36ffae0380519cb11e50d649538716b8830b40e2bee04",
+      "optimized_sha256": "ac149e4d771968b841d36ffae0380519cb11e50d649538716b8830b40e2bee04",
+      "optimization_changed": false
+    },
+    {
+      "path": "src/sdm.c",
+      "certificate_sha256": "87521841741b89478038af103fec6bae8a2258191781a4aa3a9945d676930773",
+      "supplied_baseline_sha256": "3e8bbc8189b820196d4405a8da7f619ac59b5356810212acfd8b02b39e632a27",
+      "optimized_sha256": "3e8bbc8189b820196d4405a8da7f619ac59b5356810212acfd8b02b39e632a27",
+      "optimization_changed": false
+    }
+  ],
+  "note": "Do not rewrite historical certificate or reopen accepted P10; reconcile later accepted P11-P14 source transitions in the P15 evidence ledger"
+}

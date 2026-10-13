@@ -1,0 +1,24 @@
+[
+  {
+    "label": "baseline",
+    "command": [
+      "bash",
+      "-c",
+      "ulimit -v 1048576; exec \"$1\" --version",
+      "asan-limit-probe",
+      "/mnt/data/dsd-work/baseline-clang-sanitizer/sox_ng/src/sox_ng"
+    ],
+    "exit": -6
+  },
+  {
+    "label": "candidate",
+    "command": [
+      "bash",
+      "-c",
+      "ulimit -v 1048576; exec \"$1\" --version",
+      "asan-limit-probe",
+      "/mnt/data/dsd-work/gcc-asan-only/sox_ng/src/sox_ng"
+    ],
+    "exit": -6
+  }
+]

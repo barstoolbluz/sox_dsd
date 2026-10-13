@@ -1,0 +1,638 @@
+[
+  {
+    "label": "gcc-full-sanitizer-autoreconf",
+    "command": [
+      "autoreconf",
+      "-fi"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 4.3832597732543945,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-sanitizer-configure",
+    "command": [
+      "./configure",
+      "--disable-shared",
+      "--without-libltdl"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 6.916102647781372,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-sanitizer-build",
+    "command": [
+      "make",
+      "-j3"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 29.544030904769897,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-units-build",
+    "command": [
+      "make",
+      "-j3",
+      "-C",
+      "test",
+      "dsd_test_decode_optimization",
+      "dsd_test_decode_faults",
+      "dsd_test_p07",
+      "dsd_test_p11",
+      "dsd_test_p12_bounds",
+      "dsd_test_p13",
+      "dsd_test_dop_capacity"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.684417963027954,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-optimization-scalar",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "scalar"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.367629051208496,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-optimization-sse2",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "sse2"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.317399263381958,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-optimization-avx1",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "avx1"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.5683202743530273,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-optimization-avx2",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "avx2"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.521955966949463,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-optimization-avx512",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "avx512"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 0.032059669494628906,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-dsd_test_decode_faults",
+    "command": [
+      "test/dsd_test_decode_faults"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.015959501266479492,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-dsd_test_p07",
+    "command": [
+      "test/dsd_test_p07"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.3650689125061035,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-dsd_test_p11",
+    "command": [
+      "test/dsd_test_p11"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.1143178939819336,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-dsd_test_p12_bounds",
+    "command": [
+      "test/dsd_test_p12_bounds"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.01585984230041504,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-dsd_test_p13",
+    "command": [
+      "test/dsd_test_p13"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 0.031905412673950195,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-full-dsd_test_dop_capacity",
+    "command": [
+      "test/dsd_test_dop_capacity"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-full-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.0157773494720459,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "baseline-clang-sanitizer-autoreconf",
+    "command": [
+      "autoreconf",
+      "-fi"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline-clang-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 4.3932578563690186,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "baseline-clang-sanitizer-configure",
+    "command": [
+      "./configure",
+      "--disable-shared",
+      "--without-libltdl"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline-clang-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 9.513941049575806,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "baseline-clang-sanitizer-build",
+    "command": [
+      "make",
+      "-j3"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline-clang-sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 29.568620443344116,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "baseline-clang-generic",
+    "command": [
+      "make",
+      "check"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline-clang-sanitizer/sox_ng",
+    "exit": 2,
+    "elapsed_seconds": 0.3147900104522705,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "baseline-clang-format-ub",
+    "command": [
+      "src/sox_ng",
+      "--dsd-mode",
+      "auto",
+      "-D",
+      "--buffer",
+      "32",
+      "--single-threaded",
+      "/mnt/data/dsd-work/validation/sanitizer-followup/baseline-independent.dsf",
+      "-r",
+      "88200",
+      "-e",
+      "signed-integer",
+      "-b",
+      "32",
+      "/mnt/data/dsd-work/validation/sanitizer-followup/baseline-decode.wav"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline-clang-sanitizer/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 0.06433725357055664,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "candidate-clang-format-ub",
+    "command": [
+      "/mnt/data/dsd-work/sanitizer/sox_ng/src/sox_ng",
+      "--dsd-mode",
+      "auto",
+      "-D",
+      "--buffer",
+      "32",
+      "--single-threaded",
+      "/mnt/data/dsd-work/validation/sanitizer-followup/baseline-independent.dsf",
+      "-r",
+      "88200",
+      "-e",
+      "signed-integer",
+      "-b",
+      "32",
+      "/mnt/data/dsd-work/validation/sanitizer-followup/candidate-decode.wav"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 0.0641639232635498,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "baseline-clang-pcm-ub",
+    "command": [
+      "/mnt/data/dsd-work/baseline-clang-sanitizer/sox_ng/src/sox_ng",
+      "-D",
+      "/mnt/data/dsd-work/baseline-clang-sanitizer/sox_ng/tests/dsd/fixtures/pcm_sine_88200.wav",
+      "-t",
+      "raw",
+      "-e",
+      "signed-integer",
+      "-b",
+      "32",
+      "/mnt/data/dsd-work/validation/sanitizer-followup/baseline-rate.raw",
+      "rate",
+      "48000"
+    ],
+    "cwd": "/mnt/data/dsd-work/baseline-clang-sanitizer/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 0.06427645683288574,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "candidate-clang-pcm-ub",
+    "command": [
+      "/mnt/data/dsd-work/sanitizer/sox_ng/src/sox_ng",
+      "-D",
+      "/mnt/data/dsd-work/sanitizer/sox_ng/tests/dsd/fixtures/pcm_sine_88200.wav",
+      "-t",
+      "raw",
+      "-e",
+      "signed-integer",
+      "-b",
+      "32",
+      "/mnt/data/dsd-work/validation/sanitizer-followup/candidate-rate.raw",
+      "rate",
+      "48000"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 0.0323483943939209,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address,undefined -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-asan-only-autoreconf",
+    "command": [
+      "autoreconf",
+      "-fi"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 4.336203098297119,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-asan-only-configure",
+    "command": [
+      "./configure",
+      "--disable-shared",
+      "--without-libltdl"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 6.55001163482666,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-asan-only-build",
+    "command": [
+      "make",
+      "-j3"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 16.79112982749939,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-asan-units-build",
+    "command": [
+      "make",
+      "-j3",
+      "-C",
+      "test",
+      "dsd_test_io",
+      "sox_p10_candidate"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.6712701320648193,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-asan-generic",
+    "command": [
+      "make",
+      "check"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 2,
+    "elapsed_seconds": 7.540483236312866,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-asan-numeric-public",
+    "command": [
+      "python3",
+      "tests/dsd/test_p07_public_rate.py",
+      "--sox",
+      "/mnt/data/dsd-work/gcc-asan-only/sox_ng/src/sox_ng"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.9244444370269775,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-asan-streaming",
+    "command": [
+      "python3",
+      "tests/dsd/test_streaming.py",
+      "--probe",
+      "/mnt/data/dsd-work/gcc-asan-only/sox_ng/test/dsd_test_io",
+      "--sox",
+      "/mnt/data/dsd-work/gcc-asan-only/sox_ng/src/sox_ng",
+      "--results",
+      "/mnt/data/dsd-work/validation/sanitizer-followup/gcc-asan-streaming"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 5.648920059204102,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "gcc-asan-forced-cli",
+    "command": [
+      "python3",
+      "tests/dsd/test_p11_integration.py",
+      "--phase",
+      "P13",
+      "--tiers",
+      "scalar",
+      "sse2",
+      "avx1",
+      "avx2",
+      "avx512",
+      "--sox",
+      "/mnt/data/dsd-work/gcc-asan-only/sox_ng/src/sox_ng",
+      "--candidate",
+      "/mnt/data/dsd-work/gcc-asan-only/sox_ng/test/sox_p10_candidate",
+      "--results",
+      "/mnt/data/dsd-work/validation/sanitizer-followup/gcc-asan-forced-cli"
+    ],
+    "cwd": "/mnt/data/dsd-work/gcc-asan-only/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 4.332300901412964,
+    "environment": {
+      "CC": "gcc",
+      "CFLAGS": "-O1 -g -fsanitize=address -fno-omit-frame-pointer -fno-pie",
+      "LDFLAGS": "-fsanitize=address -no-pie",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  }
+]

@@ -1,0 +1,75 @@
+{
+  "purpose": "P05 input tree to hotfix, not historical P02 gate",
+  "before_sha256": "08b0340b7de325090a8cfd76c66f47d93d2cf1bf8e9a7d8f6fcee07fda6e0ab1",
+  "after_sha256": "f915827db354e85a29747909f7faf94e880052c15c215450ca43e29605ec4e9d",
+  "pinned_cpu": 1,
+  "frames": 16777216,
+  "pairs": 15,
+  "warmups": 2,
+  "results": {
+    "dff-2ch-null-large": {
+      "samples": 15,
+      "baseline_median_cpu_seconds": 0.05960800000000015,
+      "candidate_median_cpu_seconds": 0.05739300000000007,
+      "median_ratio": 0.962840558314319,
+      "regression_percent": -3.715944168568097,
+      "paired_bootstrap_95pct_interval": [
+        0.9437231590641504,
+        1.03267939387547
+      ],
+      "measurement_noise": 0.045205150049262205,
+      "status": "inconclusive-noise"
+    },
+    "dff-2ch-repack-large": {
+      "samples": 15,
+      "baseline_median_cpu_seconds": 0.11663899999999995,
+      "candidate_median_cpu_seconds": 0.11631199999999954,
+      "median_ratio": 0.9971964780219273,
+      "regression_percent": -0.2803521978072654,
+      "paired_bootstrap_95pct_interval": [
+        0.9840175705355684,
+        1.0097565994221542
+      ],
+      "measurement_noise": 0.035202671899958016,
+      "status": "inconclusive-noise",
+      "output_sha256": {
+        "before": "70a7038b86f6ee996a50ccc884c9d26f8a68dcdf7754855453fd64fe0dda6240",
+        "after": "70a7038b86f6ee996a50ccc884c9d26f8a68dcdf7754855453fd64fe0dda6240"
+      },
+      "all_outputs_identical": true
+    },
+    "dff-6ch-null-large": {
+      "samples": 15,
+      "baseline_median_cpu_seconds": 0.09956999999999988,
+      "candidate_median_cpu_seconds": 0.09966999999999993,
+      "median_ratio": 1.0010043185698507,
+      "regression_percent": 0.10043185698507262,
+      "paired_bootstrap_95pct_interval": [
+        0.9923883440907371,
+        1.0184999297343973
+      ],
+      "measurement_noise": 0.050223373404088154,
+      "status": "inconclusive-noise"
+    },
+    "dff-6ch-repack-large": {
+      "samples": 15,
+      "baseline_median_cpu_seconds": 0.22151399999999966,
+      "candidate_median_cpu_seconds": 0.21591700000000125,
+      "median_ratio": 0.9747329739881072,
+      "regression_percent": -2.526702601189279,
+      "paired_bootstrap_95pct_interval": [
+        0.9267699096052001,
+        1.0532458306552615
+      ],
+      "measurement_noise": 0.08911313625613099,
+      "status": "inconclusive-noise",
+      "output_sha256": {
+        "before": "75461bde45d52151f250d37e662906ffb5aad1f9644bfc51b79cf53bc7a812af",
+        "after": "75461bde45d52151f250d37e662906ffb5aad1f9644bfc51b79cf53bc7a812af"
+      },
+      "all_outputs_identical": true
+    }
+  },
+  "errors": [],
+  "status": "inconclusive-noise"
+}

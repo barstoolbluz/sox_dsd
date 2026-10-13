@@ -2,8 +2,10 @@
 """P11 runnable, 15-repeat, guarded FIR/SDM per-tier CPU benchmark.
 
 This is host-specific evidence, not a dispatch preference or AVX1-only proof.
-FIR streaming calls and four-lane block calls are distinguished. Every SDM
-kernel executes bounds, overload, finite-state and monitor accounting.
+FIR single-output and block calls are distinguished. Production-bank modes
+record taps, sparsity and stride; the default modes are synthetic dense FIRs.
+SDM executes bounds, overload, finite-state and monitor accounting, with
+synthetic 1e18 state bounds rather than the certified mastering thresholds.
 """
 from __future__ import annotations
 import argparse
@@ -20,6 +22,8 @@ import time
 
 ROOT=Path(__file__).resolve().parents[2]
 MODES=('fir-single','fir-block','sdm')
+ALL_MODES=MODES+tuple(f'fir-{bank}-{kind}' for bank in
+    ('halfband','master64','master128','wideband') for kind in ('single','block'))
 TIERS=('scalar','sse2','avx1')
 
 
@@ -52,26 +56,30 @@ def main():
     ap.add_argument('--repetitions',type=int,default=15)
     ap.add_argument('--phase',default='P11')
     ap.add_argument('--tiers',nargs='+',default=list(TIERS))
+    ap.add_argument('--modes',nargs='+',choices=ALL_MODES,default=list(MODES),
+                    help='legacy dense cases by default; select production banks explicitly')
     a=ap.parse_args()
     if not 16384<=a.frames<=40000000 or not 1<=a.repetitions<=1000:
         ap.error('out-of-range frames or repetitions')
+    if len(set(a.modes))!=len(a.modes) or len(set(a.tiers))!=len(a.tiers):
+        ap.error('duplicate modes or tiers would mix repetition counts')
     a.unit=a.unit.resolve()
     if not a.unit.is_file():ap.error('missing unit executable')
     sources=('src/dsd_dispatch.c','src/dsd_kernels_scalar.c',
              'src/dsd_kernels_sse2.c','src/dsd_kernels_avx1.c',
-             *(('src/dsd_kernels_avx2.c',) if a.phase in ('P12','P13') else ()),
-             *(('src/dsd_kernels_avx512.c',) if a.phase=='P13' else ()),
-             'tests/dsd/test_p11.c')
+             'src/dsd_kernels_avx2.c','src/dsd_kernels_avx512.c',
+             'src/dsd_coeffs.h','src/sdm.c','src/sdm_normal_commit_i.h',
+             'tests/dsd/test_p11.c','tests/dsd/bench_p11.py')
     report=dict(schema=f'{a.phase}/kernel-timing/1',host=host(),
         source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources},
         executable_sha256=hashlib.sha256(a.unit.read_bytes()).hexdigest(),
-        config=dict(frames=a.frames,repetitions=a.repetitions,modes=MODES,tiers=a.tiers,
+        config=dict(frames=a.frames,repetitions=a.repetitions,modes=a.modes,tiers=a.tiers,
                     random_seed=11,guards_and_monitors_active_for_sdm=True),
         raw=[],summary={},errors=[],unrun=[],
         qualification='CPU timing on current host only; not ISA-wide preference evidence')
     output=a.results/'kernel-timing.json'
     r=random.Random(11)
-    for mode in MODES:
+    for mode in a.modes:
         # Warm-up each tier without contaminating timed repeats.
         available=[]
         for tier in a.tiers:
@@ -117,17 +125,18 @@ def main():
                 mad_cpu_ns_per_frame=statistics.median(abs(x-median) for x in measured),
                 samples=len(measured),checksum=rows[0]['checksum'])
         atomic(output,report)
-    for mode in MODES:
+    for mode in a.modes:
         scalar=report['summary'][mode].get('scalar')
         if scalar:
-            for tier in a.tiers[1:]:
+            for tier in a.tiers:
+                if tier=='scalar':continue
                 candidate=report['summary'][mode].get(tier)
                 if candidate:
                     candidate['speedup_over_scalar']=scalar['median_cpu_ns_per_frame']/candidate['median_cpu_ns_per_frame']
     report['status']='PASS' if not report['errors'] and not report['unrun'] else (
         'INCOMPLETE' if report['unrun'] and not report['errors'] else 'FAIL')
     atomic(output,report)
-    for mode in MODES:
+    for mode in a.modes:
         print(a.phase,mode,[(tier,round(row['median_cpu_ns_per_frame'],2))
               for tier,row in report['summary'][mode].items()],flush=True)
     print(a.phase,'benchmark',report['status'],'repetitions',a.repetitions)

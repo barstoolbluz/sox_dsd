@@ -1,0 +1,374 @@
+[
+  {
+    "label": "autoreconf",
+    "command": [
+      "autoreconf",
+      "-fi"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 4.460463762283325,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "configure",
+    "command": [
+      "./configure",
+      "--disable-shared",
+      "--without-libltdl"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 10.037622928619385,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "build",
+    "command": [
+      "make",
+      "-j3"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 32.03897714614868,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "units-build",
+    "command": [
+      "make",
+      "-j3",
+      "-C",
+      "test",
+      "dsd_test_decode_optimization",
+      "dsd_test_decode_faults",
+      "dsd_test_p07",
+      "dsd_test_p11",
+      "dsd_test_p12_bounds",
+      "dsd_test_p13",
+      "dsd_test_io",
+      "dsd_test_dff_writer",
+      "dsd_test_dop_capacity",
+      "dsd_test_p10",
+      "sox_p10_candidate"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 5.085306882858276,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "optimization-scalar",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "scalar"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.217573881149292,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "optimization-sse2",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "sse2"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.2182471752166748,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "optimization-avx1",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "avx1"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.118544340133667,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "optimization-avx2",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "avx2"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 1.217447280883789,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "optimization-avx512",
+    "command": [
+      "test/dsd_test_decode_optimization",
+      "avx512"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 0.016892671585083008,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "dsd_test_decode_faults",
+    "command": [
+      "test/dsd_test_decode_faults"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.016048908233642578,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "dsd_test_p07",
+    "command": [
+      "test/dsd_test_p07"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.36515140533447266,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "dsd_test_p11",
+    "command": [
+      "test/dsd_test_p11"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.06491971015930176,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "dsd_test_p12_bounds",
+    "command": [
+      "test/dsd_test_p12_bounds"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.01624441146850586,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "dsd_test_p13",
+    "command": [
+      "test/dsd_test_p13"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 2,
+    "elapsed_seconds": 0.007656574249267578,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "dsd_test_dop_capacity",
+    "command": [
+      "test/dsd_test_dop_capacity"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 0.00776982307434082,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "streaming",
+    "command": [
+      "python3",
+      "tests/dsd/test_streaming.py",
+      "--probe",
+      "/mnt/data/dsd-work/sanitizer/sox_ng/test/dsd_test_io",
+      "--sox",
+      "/mnt/data/dsd-work/sanitizer/sox_ng/src/sox_ng",
+      "--results",
+      "/mnt/data/dsd-work/validation/sanitizer/streaming"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 0,
+    "elapsed_seconds": 6.901273488998413,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "forced-cli",
+    "command": [
+      "python3",
+      "tests/dsd/test_p11_integration.py",
+      "--phase",
+      "P13",
+      "--tiers",
+      "scalar",
+      "sse2",
+      "avx1",
+      "avx2",
+      "avx512",
+      "--sox",
+      "/mnt/data/dsd-work/sanitizer/sox_ng/src/sox_ng",
+      "--candidate",
+      "/mnt/data/dsd-work/sanitizer/sox_ng/test/sox_p10_candidate",
+      "--results",
+      "/mnt/data/dsd-work/validation/sanitizer/forced-cli"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 2.0692617893218994,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "numeric-public",
+    "command": [
+      "python3",
+      "tests/dsd/test_p07_public_rate.py",
+      "--sox",
+      "/mnt/data/dsd-work/sanitizer/sox_ng/src/sox_ng"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 1,
+    "elapsed_seconds": 0.7159082889556885,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  {
+    "label": "generic-check",
+    "command": [
+      "make",
+      "check"
+    ],
+    "cwd": "/mnt/data/dsd-work/sanitizer/sox_ng",
+    "exit": 2,
+    "elapsed_seconds": 0.31801700592041016,
+    "environment": {
+      "CC": "clang",
+      "CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "OMP_NUM_THREADS": "1"
+    }
+  }
+]
