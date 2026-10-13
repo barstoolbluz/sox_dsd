@@ -1,0 +1,1490 @@
+{
+  "configuration": {
+    "analysis_reference": "sacd",
+    "architecture": "x86_64",
+    "calibration_peak_tolerance_db": 0.5,
+    "calibration_rms_tolerance_db": 0.25,
+    "candidate_sha256": "d0cec16afbf26dad83539d437df8bca944dca2ade4dbd50e42d4da22184b55c9",
+    "excerpt_seconds": 60,
+    "flac_version": "flac 1.5.0",
+    "gain_ladder_db": [
+      0.0
+    ],
+    "inventory_sha256": "b172858560c02858408871929e45482fb781a8d7f60efd6b999a0da6b1c40be6",
+    "native_rates": [
+      5644800
+    ],
+    "preferred_offset_seconds": 30,
+    "schema": "P10/PCM_AUDIO-external-corpus/1",
+    "source_mapping_sha256": "fec036fca60b0f2439fbba208b553687707d8a67b722ff259e67d1773c0684fd",
+    "sox_sha256": "7161eb95c409e3ddd56fc88d04725f7ab37165e93133e577853839dc9279e2a5"
+  },
+  "coverage": {
+    "approved_for_profile_promotion": false,
+    "by_native": {
+      "11289600": {
+        "genres": [],
+        "independent_recordings": 0,
+        "releases": 0,
+        "source_clock_families": []
+      },
+      "2822400": {
+        "genres": [],
+        "independent_recordings": 0,
+        "releases": 0,
+        "source_clock_families": []
+      },
+      "5644800": {
+        "genres": [
+          "classical-chamber",
+          "classical-orchestral",
+          "classical-organ",
+          "country-rock",
+          "folk-live",
+          "folk-rock",
+          "hard-rock",
+          "jazz",
+          "jazz-fusion",
+          "jazz-live",
+          "rock",
+          "soul",
+          "vocal-jazz"
+        ],
+        "independent_recordings": 17,
+        "releases": 17,
+        "source_clock_families": [
+          "44100-family",
+          "48000-family"
+        ]
+      }
+    },
+    "completed": false,
+    "gate_status": "INCOMPLETE",
+    "genres": [
+      "classical-chamber",
+      "classical-orchestral",
+      "classical-organ",
+      "country-rock",
+      "folk-live",
+      "folk-rock",
+      "hard-rock",
+      "jazz",
+      "jazz-fusion",
+      "jazz-live",
+      "rock",
+      "soul",
+      "vocal-jazz"
+    ],
+    "issues": [
+      "not all three native targets were requested",
+      "2822400: fewer than two independent admitted commercial recordings",
+      "11289600: fewer than two independent admitted commercial recordings"
+    ],
+    "note": "This covers only the PCM_AUDIO domain; DSD_NATIVE and other P10 gates remain separate.",
+    "pcm_clock_families": [
+      "44100-family",
+      "48000-family"
+    ],
+    "schema": "P10/PCM_AUDIO-coverage/1",
+    "source_domain": "PCM_AUDIO"
+  },
+  "entries": [
+    {
+      "clock_family": "44100-family",
+      "excerpt_bytes": 31752068,
+      "excerpt_frames": 5292000,
+      "excerpt_offset_frames": 2646000,
+      "excerpt_pcm_sha256": "39181f794a9e6fb449b3dac5733268d45530d6d725455f11c18de4c024bf81ff",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "9536367bb60417bb3b9ff322f68163b7596c90d57171508c8503efb7787012bd",
+      "flac_crc_test_passed": true,
+      "genre": "jazz",
+      "origin": "commercial-external",
+      "release": "1976. Joachim Kuhn - Hip Elegy (2014) [24-88.2]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 181440533,
+      "source_file_mtime_ns": 1787627428000000000,
+      "source_flac_sha256": "17f4bcecd00ae805ea199cda6bb88c6633992368458e36699e349793422588fe",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 88200,
+      "source_streaminfo_md5": "710b707f221966cba113fc1cc096b0f0",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "8116d2a12eeda2f2e329713aa2ee2180d0aa748167d6e9dfa4a6c0f6ae31280e",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -1.78,
+            "rms_db": -16.67
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.05,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 21,
+              "min_ones": 7,
+              "one_bits": 169344579,
+              "ones_fraction": 0.5000017095379818,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 21,
+              "min_ones": 7,
+              "one_bits": 169344419,
+              "ones_fraction": 0.5000012371267951,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -1.83,
+            "rms_db": -16.67
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01. Seven Sacred Pools.flac"
+    },
+    {
+      "clock_family": "44100-family",
+      "excerpt_bytes": 31752068,
+      "excerpt_frames": 5292000,
+      "excerpt_offset_frames": 2646000,
+      "excerpt_pcm_sha256": "0c52dd424f0f6c63e4e0db32fba385e0a7233965b870bd9b0e19af2ec51aaf6e",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "5ccc2a3391d7906edb938b759f1a1b4d6ac1efe565b04b6541f9ddf84becd86e",
+      "flac_crc_test_passed": true,
+      "genre": "classical-organ",
+      "origin": "commercial-external",
+      "release": "Gerhard Gnann - Bach Complete Organ Works Vol. 17 (2018) [24-88,2]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 66405867,
+      "source_file_mtime_ns": 1604641501000000000,
+      "source_flac_sha256": "7d031f0601ed21f0c9136643e9f0347ee3a1ea8904c7b930c3624b87e41ed1b2",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 88200,
+      "source_streaminfo_md5": "c3bc675127647d324a32a6e21f1d0411",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "a6f0b3b30a32966f08a7581d32cad4715bb1bb988c03cc5eb511a7b3958ce06d",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -7.8,
+            "rms_db": -25.61
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.0,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 18,
+              "min_ones": 10,
+              "one_bits": 169344287,
+              "ones_fraction": 0.5000008473875661,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 18,
+              "min_ones": 10,
+              "one_bits": 169344117,
+              "ones_fraction": 0.5000003454506803,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -7.8,
+            "rms_db": -25.61
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01 - Concerto in A Minor, BWV 593 I..flac"
+    },
+    {
+      "clock_family": "44100-family",
+      "excerpt_bytes": 31752068,
+      "excerpt_frames": 5292000,
+      "excerpt_offset_frames": 2646000,
+      "excerpt_pcm_sha256": "44eea04d35b1111445643aebfd22576d18f0b6db7e3079885b3e5db1c66d8556",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "583a2574b09b73a9d0c5c5415b6de5e8bb2e962e848be9650f0ba4cd386ba59f",
+      "flac_crc_test_passed": true,
+      "genre": "jazz-fusion",
+      "origin": "commercial-external",
+      "release": "1977. Albert Mangelsdorff, Alphonse Mouzon, Jaco Pastorius - Trilogue (2015) [24-88.2]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 103536361,
+      "source_file_mtime_ns": 1787627564000000000,
+      "source_flac_sha256": "6f2269b8945ccd16707ac00178e694eba66797cb14f0334b93cfdea9c246be61",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 88200,
+      "source_streaminfo_md5": "b398a61e3556c914c4010b7f19da802e",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "58bc87fc4687534e8518666751d2770da9efe2fa8e8490b32c2b50de5ae0c0d5",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -2.22,
+            "rms_db": -20.64
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.0,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 20,
+              "min_ones": 7,
+              "one_bits": 169344389,
+              "ones_fraction": 0.5000011485496977,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 20,
+              "min_ones": 7,
+              "one_bits": 169343963,
+              "ones_fraction": 0.4999998907549131,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -2.22,
+            "rms_db": -20.64
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01. Trilogue.flac"
+    },
+    {
+      "clock_family": "44100-family",
+      "excerpt_bytes": 15876068,
+      "excerpt_frames": 2646000,
+      "excerpt_offset_frames": 1323000,
+      "excerpt_pcm_sha256": "ddf8ccb70cf8b7c82e0b27d592ec7c2db42bfcc764a2d88f29c7d57ee3896b5a",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "7c3bfb23cb80804f2ccbaaa5de1efe167cd1f869b8ef74ef1468c03276bc376f",
+      "flac_crc_test_passed": true,
+      "genre": "jazz",
+      "origin": "commercial-external",
+      "release": "1954. Thelonious Monk Trio - Thelonious Monk Trio (2014) [24-44.1]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 87890069,
+      "source_file_mtime_ns": 1707393243000000000,
+      "source_flac_sha256": "ca1298a16593c745b22a87d398473f9c5b8cbeb1cac323227c271f49c932ad47",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 44100,
+      "source_streaminfo_md5": "c047bc15e8ccd7593f083a09d6d22942",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "801b189efb099db7b2135f83149b7bc755f335b0f7210b26ced9d40f7ef5960b",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -0.14,
+            "rms_db": -15.69
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.04,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 22,
+              "min_ones": 6,
+              "one_bits": 170029848,
+              "ones_fraction": 0.5020250141723356,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 22,
+              "min_ones": 6,
+              "one_bits": 170005014,
+              "ones_fraction": 0.5019516900510204,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -0.18,
+            "rms_db": -15.69
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01. Blue Monk.flac"
+    },
+    {
+      "clock_family": "44100-family",
+      "excerpt_bytes": 15876068,
+      "excerpt_frames": 2646000,
+      "excerpt_offset_frames": 1323000,
+      "excerpt_pcm_sha256": "545e3f4cb3f6e8a62d31fcb7580b09281ad35e0cea58aeac3226e82254b71e81",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "f3db44a29cbbffedc42ab49e5b2376aeb283fc08887267b6329d09c8f0903547",
+      "flac_crc_test_passed": true,
+      "genre": "vocal-jazz",
+      "origin": "commercial-external",
+      "release": "1956. Anita O'Day - Pick Yourself Up With Anita O'Day (2019) [24-44.1]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 22583354,
+      "source_file_mtime_ns": 1790053331000000000,
+      "source_flac_sha256": "1da5299f4341cc78c19f05b3a86be3f306485547101017e52cb924d28949f3a0",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 44100,
+      "source_streaminfo_md5": "78524936d34fbf233aecf67f14535020",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "2e750e4b07a52a7d6f8f5e97bad6f4d3d5eeb754ca700944bd5388c9ba149d46",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -7.13,
+            "rms_db": -25.84
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.01,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 18,
+              "min_ones": 10,
+              "one_bits": 169344073,
+              "ones_fraction": 0.5000002155376039,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 18,
+              "min_ones": 10,
+              "one_bits": 169344073,
+              "ones_fraction": 0.5000002155376039,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -7.14,
+            "rms_db": -25.84
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01. Don't Be That Way.flac"
+    },
+    {
+      "clock_family": "48000-family",
+      "excerpt_bytes": 34560068,
+      "excerpt_frames": 5760000,
+      "excerpt_offset_frames": 2880000,
+      "excerpt_pcm_sha256": "f9b7b9e1da163b4c27d731e4031db3755d3b2bdcaac2f9b549ba47500d564cac",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "364bf6555dffb47f51e982910afaada1c76fc7ebe4ba90f1f2e283b098dedcdf",
+      "flac_crc_test_passed": true,
+      "genre": "rock",
+      "origin": "commercial-external",
+      "release": "10,000 Maniacs - In My Tribe (1987) [LP][24-96][FLAC]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 112808402,
+      "source_file_mtime_ns": 1791351338000000000,
+      "source_flac_sha256": "5b714d19b2ff20f4b96bd697c45f59ca9a8f2d2b7e4ffaf6a0eed5334e3bed5b",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 96000,
+      "source_streaminfo_md5": "1537f53fd3b436ba43c05fa2b313532a",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "dc65e1c7b22890b1463344fff592815189dbb0f92f4e988c9528d36f9bd1e535",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -2.9,
+            "rms_db": -20.87
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": -0.01,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 20,
+              "min_ones": 8,
+              "one_bits": 169343838,
+              "ones_fraction": 0.49999952168367345,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 19,
+              "min_ones": 8,
+              "one_bits": 169343642,
+              "ones_fraction": 0.4999989429799698,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -2.89,
+            "rms_db": -20.87
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "A1. What's the Matter Here.flac"
+    },
+    {
+      "clock_family": "48000-family",
+      "excerpt_bytes": 34560068,
+      "excerpt_frames": 5760000,
+      "excerpt_offset_frames": 2880000,
+      "excerpt_pcm_sha256": "6f01f047204eccbb721c147d2ac8bfe658995e2b282b14270878d62638a3332e",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "80990b90a43fa70bef02fdd3259aa885a40ac9db2c06fbb74cbd73792309c645",
+      "flac_crc_test_passed": true,
+      "genre": "classical-orchestral",
+      "origin": "commercial-external",
+      "release": "Bruno Walter - Beethoven- Symphony No. 9 (2019) [24-96]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 341376297,
+      "source_file_mtime_ns": 1707401276000000000,
+      "source_flac_sha256": "5ea79b046e592856a85b98a503a18150ddaed41b2383497ca2c2ad9672371f59",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 96000,
+      "source_streaminfo_md5": "93b169c9cdccb08db8d0a9fde461de9f",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "16571c19f82876e29c2f5fb59bc9e2cfde35417f37bfd1734fc636401c23d760",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -3.05,
+            "rms_db": -21.95
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.0,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 20,
+              "min_ones": 8,
+              "one_bits": 169343991,
+              "ones_fraction": 0.49999997342687075,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 19,
+              "min_ones": 8,
+              "one_bits": 169344046,
+              "ones_fraction": 0.5000001358182162,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -3.05,
+            "rms_db": -21.95
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01 - I. Allegro non troppo, un poco maestoso.flac"
+    },
+    {
+      "clock_family": "48000-family",
+      "excerpt_bytes": 34560068,
+      "excerpt_frames": 5760000,
+      "excerpt_offset_frames": 2880000,
+      "excerpt_pcm_sha256": "0eb4d0066bee5cf5895375327c21b6122b3d404fd3fce6acae7f83dad88ec6d2",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "cbf4080a9096412439352e94163e8cb88c9bf88e3d3910d1a67b41dafa92f936",
+      "flac_crc_test_passed": true,
+      "genre": "country-rock",
+      "origin": "commercial-external",
+      "release": "1983. Waylon Jennings - It's Only Rock & Roll (2019) [24-96]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 75275780,
+      "source_file_mtime_ns": 1790046928000000000,
+      "source_flac_sha256": "027254ea56b2bbd8fee176e0ad75cab4951d2c3811ce995ac4a19769b68e78f1",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 96000,
+      "source_streaminfo_md5": "23507d970ca2f0b9bf16c0af30ddc38d",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "31dc79a90a1e5e70cc52f386eb7e0a8e5dc75ed4a57fc983e94f5e76af8f98f6",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -1.68,
+            "rms_db": -20.64
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": -0.01,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 20,
+              "min_ones": 7,
+              "one_bits": 169343768,
+              "ones_fraction": 0.4999993150037793,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 20,
+              "min_ones": 7,
+              "one_bits": 169343831,
+              "ones_fraction": 0.4999995010156841,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -1.67,
+            "rms_db": -20.64
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01. It's Only Rock & Roll.flac"
+    },
+    {
+      "clock_family": "48000-family",
+      "excerpt_bytes": 34560068,
+      "excerpt_frames": 5760000,
+      "excerpt_offset_frames": 2880000,
+      "excerpt_pcm_sha256": "b6a1d9b269b704b7b089acfee5e035e5e72d23b72764a5abf7822299140341c3",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "f1b91e71e49fe83c4f8f669e0edca9db3d8f79ebed5c2095e2a5bb186162a849",
+      "flac_crc_test_passed": true,
+      "genre": "soul",
+      "origin": "commercial-external",
+      "release": "1958. Sam Cooke - Encore (2020) [24-96]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 33543831,
+      "source_file_mtime_ns": 1790037419000000000,
+      "source_flac_sha256": "85239109affbffe64256b8adbe0c5578e730468e99bd8d7313f55f92f86ed986",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 96000,
+      "source_streaminfo_md5": "04fe6ff0239c75e0b6160d857b7f5d37",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "000c4e04c5978ec49c3140fe8fe4324fb8fe79136f4ffce7a18561ec1a9161b8",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -0.88,
+            "rms_db": -13.28
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.03,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 22,
+              "min_ones": 6,
+              "one_bits": 169336956,
+              "ones_fraction": 0.4999792020975057,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 22,
+              "min_ones": 6,
+              "one_bits": 169337356,
+              "ones_fraction": 0.49998038312547244,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -0.91,
+            "rms_db": -13.28
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01. Oh, Look At Me Now.flac"
+    },
+    {
+      "clock_family": "48000-family",
+      "excerpt_bytes": 69120068,
+      "excerpt_frames": 11520000,
+      "excerpt_offset_frames": 5760000,
+      "excerpt_pcm_sha256": "6c2280e66e796748574688773f403760c61dfee115802fca4cdb855d70562909",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "ba4b6f0365697170922d6a91bca10c60ecd10992c471ac951de8281a4f0cbc05",
+      "flac_crc_test_passed": true,
+      "genre": "jazz-live",
+      "origin": "commercial-external",
+      "release": "1958. Thelonious Monk Quartet - Thelonious In Action (2017) [24-192]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 257283283,
+      "source_file_mtime_ns": 1707393278000000000,
+      "source_flac_sha256": "b7bdbe7751c3af3a4cbbfeb101987d6e3c42c2036a642d6f757959d35f9b8055",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 192000,
+      "source_streaminfo_md5": "ef312a45edf16981fb107340108a523d",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "f281b5edb5cea4050fa2183a374df8428ece3aaa83d522f73ac2d9cd9b78307d",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -0.64,
+            "rms_db": -17.92
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": -0.03,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 20,
+              "min_ones": 8,
+              "one_bits": 169343977,
+              "ones_fraction": 0.4999999320908919,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 21,
+              "min_ones": 6,
+              "one_bits": 169344048,
+              "ones_fraction": 0.500000141723356,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": -0.01,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -0.61,
+            "rms_db": -17.91
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01. Light Blue.flac"
+    },
+    {
+      "clock_family": "48000-family",
+      "excerpt_bytes": 69120068,
+      "excerpt_frames": 11520000,
+      "excerpt_offset_frames": 5760000,
+      "excerpt_pcm_sha256": "69203425ab626a53506cc94e171a4b0baad9c33a3c9617285fdc5b58c48efd49",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "0db9e7c105a4fd9bcf5220834d2d85b2e1b7c25406e64f514febc8625033ceaf",
+      "flac_crc_test_passed": true,
+      "genre": "jazz",
+      "origin": "commercial-external",
+      "release": "(1960) Nat Adderley - Work Song [Riverside 24-192]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 213470022,
+      "source_file_mtime_ns": 1734119254000000000,
+      "source_flac_sha256": "cdf14ad311b7f1842cbbe1950a9f124ea9ee654822a04085d016faf99a2f49e2",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 192000,
+      "source_streaminfo_md5": "46c9a79bbafc3f2ce95f832260463d69",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "52a20a49e78824aadf6e6546c2d68377ccff73bec84312f4e1f45ae29c8f4ecc",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -0.33,
+            "rms_db": -19.07
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": -0.03,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 21,
+              "min_ones": 6,
+              "one_bits": 169344181,
+              "ones_fraction": 0.5000005344151549,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 21,
+              "min_ones": 8,
+              "one_bits": 169343992,
+              "ones_fraction": 0.49999997637944066,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -0.3,
+            "rms_db": -19.07
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01-Work Song.flac"
+    },
+    {
+      "clock_family": "48000-family",
+      "excerpt_bytes": 34560068,
+      "excerpt_frames": 5760000,
+      "excerpt_offset_frames": 2880000,
+      "excerpt_pcm_sha256": "f160719a0e987f92d6027801269cdba4e5fe9de35c63699317b30ede80e26985",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "475cb6597cc7fee9333d7a3d232727275eec99a870dc9ee37fbf3766d1194ec9",
+      "flac_crc_test_passed": true,
+      "genre": "classical-chamber",
+      "origin": "commercial-external",
+      "release": "Isabelle Faust, Alexander Melnikov - Mozart - Sonatas for Fortepiano & Violin, Vol 2 (2020) [24-96]",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 94617772,
+      "source_file_mtime_ns": 1604474422000000000,
+      "source_flac_sha256": "a4930275769280e9253ed605398cc87f81083ee1400450051013c9902b336c6b",
+      "source_origin": "unspecified-commercial-master",
+      "source_rate_hz": 96000,
+      "source_streaminfo_md5": "2690cf9c02b8018cf78d8fc284947a1d",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "637e37d8d4f45847360019de508c28bd8d8bbeee2436ba5d4361fd80224f396b",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -1.14,
+            "rms_db": -23.99
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.0,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 20,
+              "min_ones": 7,
+              "one_bits": 169344020,
+              "ones_fraction": 0.5000000590513983,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 21,
+              "min_ones": 7,
+              "one_bits": 169343993,
+              "ones_fraction": 0.49999997933201057,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -1.14,
+            "rms_db": -23.99
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01. Violin Sonata in F Major, K. 376 I. Allegro.flac"
+    },
+    {
+      "clock_family": "44100-family",
+      "excerpt_bytes": 63504068,
+      "excerpt_frames": 10584000,
+      "excerpt_offset_frames": 5292000,
+      "excerpt_pcm_sha256": "5349a6a202375a6d912888ffc5e732776561df9376669cfac4bee3178b9a65b9",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "8abad424cc971b6a8938ec3afc899e8fdbd58334f818060efc6f9aee2dc1e33a",
+      "flac_crc_test_passed": true,
+      "genre": "folk-rock",
+      "origin": "commercial-external",
+      "release": "Neil Young - On the Beach (1974) [FLAC] {DVD-A  24-176.4}",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 93560253,
+      "source_file_mtime_ns": 1705777896000000000,
+      "source_flac_sha256": "e7ccaa9250e6b3797ed7685fdd58c5bc6993a561d7e9a0d7ae37a63e9a954965",
+      "source_origin": "DVD-Audio transfer",
+      "source_rate_hz": 176400,
+      "source_streaminfo_md5": "463b25e70ab7d34c8cef897e75f2444b",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "d6c6b5458b7f04b25b2208e69db4d8b082a4510da96b414f3ac1efe3e9c5ad9c",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -1.86,
+            "rms_db": -16.96
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.0,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 21,
+              "min_ones": 7,
+              "one_bits": 169343697,
+              "ones_fraction": 0.4999991053713152,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 20,
+              "min_ones": 8,
+              "one_bits": 169343939,
+              "ones_fraction": 0.49999981989323505,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -1.86,
+            "rms_db": -16.96
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01 - Walk on.flac"
+    },
+    {
+      "clock_family": "44100-family",
+      "excerpt_bytes": 63504068,
+      "excerpt_frames": 10584000,
+      "excerpt_offset_frames": 5292000,
+      "excerpt_pcm_sha256": "c584436102d7eaf14b7bc156e256eabefa996f8cf64e53c011669b0ed8b86d01",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "c411c1bcb1b80be4cb81666765a37dc0ff09c3dfc7921b5ed8186e6e71d21761",
+      "flac_crc_test_passed": true,
+      "genre": "folk-rock",
+      "origin": "commercial-external",
+      "release": "Neil Young - Hawks & Doves (1980) [FLAC] {DVD-A  24-176.4}",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 68703698,
+      "source_file_mtime_ns": 1707669371000000000,
+      "source_flac_sha256": "de5ab7dca499749aa6f6b6d9ee4659a95344a8eedf45d87165474bdce061bb2e",
+      "source_origin": "DVD-Audio transfer",
+      "source_rate_hz": 176400,
+      "source_streaminfo_md5": "6f9aae4ca724299940b418a7e2bc7d61",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "e7b64a22eb6f63164e7c995fe7e28dde47ba790fe0c6b71075f9c5323b935b8f",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -5.13,
+            "rms_db": -21.77
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.0,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 19,
+              "min_ones": 9,
+              "one_bits": 169344051,
+              "ones_fraction": 0.5000001505810657,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 19,
+              "min_ones": 9,
+              "one_bits": 169344525,
+              "ones_fraction": 0.5000015500992063,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -5.13,
+            "rms_db": -21.77
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01 - Little Wing.flac"
+    },
+    {
+      "clock_family": "44100-family",
+      "excerpt_bytes": 63504068,
+      "excerpt_frames": 10584000,
+      "excerpt_offset_frames": 5292000,
+      "excerpt_pcm_sha256": "5b0ac4c95c8f660061e4e957762be5b939666cfa9d8425c922b497c100a207d8",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "a994e10661163f33c882c6e9ed42f4799d28f024485ed52ebe413d8c94463144",
+      "flac_crc_test_passed": true,
+      "genre": "hard-rock",
+      "origin": "commercial-external",
+      "release": "Neil Young & Crazy Horse - re-ac-tor (1981) [FLAC] {DVD-A  24-176.4}",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 127787451,
+      "source_file_mtime_ns": 1707669150000000000,
+      "source_flac_sha256": "c64c243736a11cc3833ad1bbbfbe76d8b37282648dc1a5b79e98b0535fd29ab3",
+      "source_origin": "DVD-Audio transfer",
+      "source_rate_hz": 176400,
+      "source_streaminfo_md5": "b062e73d80238a57dd84a28dde3124b2",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "1cb1b88954069f0b073040f93de186669a4cd19a4787cf86527f2a8824fa55d0",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -0.81,
+            "rms_db": -18.09
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": -0.01,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 21,
+              "min_ones": 7,
+              "one_bits": 169344039,
+              "ones_fraction": 0.5000001151502268,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 21,
+              "min_ones": 7,
+              "one_bits": 169344285,
+              "ones_fraction": 0.5000008414824263,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -0.8,
+            "rms_db": -18.09
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01 - Opera Star.flac"
+    },
+    {
+      "clock_family": "44100-family",
+      "excerpt_bytes": 63504068,
+      "excerpt_frames": 10584000,
+      "excerpt_offset_frames": 5292000,
+      "excerpt_pcm_sha256": "e96ac35a4e838af857fa45bdc22bc552fe0cf29558a78a3a2d07ee35af33dac0",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "d02ea1d0e7c0982c4b671b5ccb368c280d15d2f40890012a95f6f559b7e20c77",
+      "flac_crc_test_passed": true,
+      "genre": "country-rock",
+      "origin": "commercial-external",
+      "release": "Neil Young - American Stars 'N Bars (1977) [FLAC] {DVD-A  24-176.4}",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 104332789,
+      "source_file_mtime_ns": 1707669237000000000,
+      "source_flac_sha256": "f3c594008dd1d58e1b274d72ca27b4077605864ab4dd739325d4e4f2fad9ae75",
+      "source_origin": "DVD-Audio transfer",
+      "source_rate_hz": 176400,
+      "source_streaminfo_md5": "bdee19c9fd5dd5ab43f2de1402dc70bc",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "327fc3cc430d1b7d458d82f77c9086a3ef8952eacc122f99630d6d58b917062f",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -2.05,
+            "rms_db": -18.51
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": 0.0,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 21,
+              "min_ones": 8,
+              "one_bits": 169345398,
+              "ones_fraction": 0.5000041276927437,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 20,
+              "min_ones": 8,
+              "one_bits": 169344195,
+              "ones_fraction": 0.5000005757511338,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": 0.0,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -2.05,
+            "rms_db": -18.51
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01 - The Old Country Waltz.flac"
+    },
+    {
+      "clock_family": "44100-family",
+      "excerpt_bytes": 63504068,
+      "excerpt_frames": 10584000,
+      "excerpt_offset_frames": 5292000,
+      "excerpt_pcm_sha256": "5ef636097ef4946c2d93857c1566b3a2b0fbcefe1687e26d14c6774d3b8b4778",
+      "excerpt_seconds": 60,
+      "excerpt_wav_sha256": "b05c8686dbe7aaf8c2325879e7fd51c68b25a51be6de0b58543517b4ebf9ba9d",
+      "flac_crc_test_passed": true,
+      "genre": "folk-live",
+      "origin": "commercial-external",
+      "release": "Neil Young - Songs for Judy (1976) [FLAC] {HDTracks  24-176.4}",
+      "source_domain": "PCM_AUDIO",
+      "source_file_bytes": 128949764,
+      "source_file_mtime_ns": 1772558054000000000,
+      "source_flac_sha256": "0e90f2890e8a1cdd92694a5b371b1c1b1d62f48a0e118570078d562583eb615a",
+      "source_origin": "HDTracks download",
+      "source_rate_hz": 176400,
+      "source_streaminfo_md5": "8c1c13e50f3a323cb36d1e29b0a1bdb8",
+      "streaminfo_md5_present": true,
+      "targets": [
+        {
+          "admitted": true,
+          "attempts": [
+            {
+              "admitted": true,
+              "diagnostic_tail": "",
+              "exit_code": 0,
+              "gain_db": 0.0,
+              "output_left_on_failure": false,
+              "overload_rejected": false
+            }
+          ],
+          "expected_frames": 338688000,
+          "explicit_gain_db": 0.0,
+          "frames_exact": true,
+          "levels_within_tolerance": true,
+          "native_hz": 5644800,
+          "output_bytes": 84672604,
+          "output_channels": 2,
+          "output_dsf_sha256": "ee340db73a7d115510fcf5817348e270bc53946714a13e0c0f171cd7dd672607",
+          "output_frames_per_channel": 338688000,
+          "output_level": {
+            "peak_db": -3.43,
+            "rms_db": -26.82
+          },
+          "output_rate_hz": 5644800,
+          "peak_delta_db": -0.29,
+          "per_channel": [
+            {
+              "channel": 0,
+              "max_ones": 19,
+              "min_ones": 8,
+              "one_bits": 169343924,
+              "ones_fraction": 0.49999977560468634,
+              "windows": 338687973
+            },
+            {
+              "channel": 1,
+              "max_ones": 19,
+              "min_ones": 8,
+              "one_bits": 169343966,
+              "ones_fraction": 0.4999998996126228,
+              "windows": 338687973
+            }
+          ],
+          "reconstructed_reference": "sacd",
+          "rejected_at_unity": false,
+          "rms_delta_db": -0.07,
+          "source_domain": "PCM_AUDIO",
+          "source_level": {
+            "peak_db": -3.14,
+            "rms_db": -26.75
+          },
+          "status": "pass",
+          "window_count_exact": true,
+          "windows_per_channel": 338687973,
+          "working_hz": 176400
+        }
+      ],
+      "track": "01 - Songs for Judy (Intro).flac"
+    }
+  ],
+  "run_sha256": "a9bbbe3bef4564888531a1695d19da722d869bb8d45a0c336db0d8998981ff10",
+  "schema": "P10/PCM_AUDIO-external-corpus/1",
+  "source_domain": "PCM_AUDIO"
+}
