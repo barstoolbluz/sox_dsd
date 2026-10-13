@@ -130,3 +130,18 @@ EXTRA_PROGRAMS += dsd_test_p14
 dsd_test_p14_SOURCES = ../tests/dsd/test_p14.c
 dsd_test_p14_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p14_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# Optional investigation executable: -pg at LINK only. Optimized production
+# objects are not instrumented; gprof -Q reads samples without call counts.
+# Requires a GNU-compatible profiling toolchain. Not part of the release build.
+EXTRA_PROGRAMS += sox_dsd_profile
+sox_dsd_profile_SOURCES = ../src/sox_ng.c
+sox_dsd_profile_CPPFLAGS = -I$(top_srcdir)/src
+sox_dsd_profile_LDFLAGS = -pg
+sox_dsd_profile_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# Fixed-order production half-band and public streaming/count regression.
+EXTRA_PROGRAMS += dsd_test_decode_optimization
+dsd_test_decode_optimization_SOURCES = ../tests/dsd/test_decode_optimization.c
+dsd_test_decode_optimization_CPPFLAGS = -I$(top_srcdir)/src -DDSD_OPTIMIZATION=1
+dsd_test_decode_optimization_LDADD = $(top_builddir)/src/libsox_ng.la

@@ -10,6 +10,10 @@
 /* The P06 one-window scalar reference remains callable on every host.
  * Oldest input sample is s[0], newest s[taps-1]. Odd tap count; center
  * first, then outer symmetric pairs in increasing index order. */
+/* Internal production-bank specialization. Reads only s[0..56]; h must
+ * be the reconstruction graph's 57-tap half-band bank. Fixed scalar order. */
+double lsx_dsd_fir_halfband57(const double *h, const double *s);
+
 double lsx_dsd_fir_scalar(const double *coeff, size_t taps,
                           const double *samples, int halfband);
 

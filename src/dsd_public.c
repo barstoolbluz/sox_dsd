@@ -21,6 +21,7 @@ struct sox_dsd_decoder {
   double *queue, *intermediate;
   unsigned qhead, qlen, front_done, src_done, finishing, done;
   uint64_t native_frames, intermediate_frames, delivered, target;
+  uint64_t native_limit; /* same finite-tail reserve as the reconstruction */
   uint32_t intermediate_hz;
   double pass_hz, gain;
   sox_dsd_status_t error;
@@ -109,6 +110,8 @@ sox_dsd_status_t sox_dsd_decoder_create(
   ctx = calloc(1, sizeof(*ctx));
   if (!ctx) return SOX_DSD_NUMERIC_ERROR;
   ctx->cfg = resolved;
+  ctx->native_limit = UINT64_MAX - profile->delay_native_frames -
+      resolved.native_hz / profile->intermediate_hz;
   ctx->intermediate_hz = profile->intermediate_hz;
   ctx->pass_hz = lsx_dsd_effective_bandwidth(profile->pass_hz,
       profile->intermediate_hz, resolved.output_hz);
@@ -207,16 +210,32 @@ sox_dsd_status_t sox_dsd_decoder_process(sox_dsd_decoder_t *ctx,
     if (used == avail) break;
     {
       size_t consumed = 1, produced = 1;
-      sox_dsd_status_t st = lsx_dsd_reconstruction_process(ctx->front,
+      sox_dsd_status_t st;
+      /* With no held PCM, the first new intermediate output is the next
+       * possible release event. Let the existing reconstruction consume up
+       * to that event, without any new buffering or lookahead. A held frame
+       * still advances one native clock at a time. Preserve the old valid
+       * prefix at the tail-reserve boundary instead of rejecting the whole
+       * offered input span early. At the limit, the one-frame call below
+       * triggers the reconstruction's unchanged sticky overflow error. */
+      if (!ctx->qlen && ctx->native_frames < ctx->native_limit) {
+        uint64_t remaining = ctx->native_limit - ctx->native_frames;
+        consumed = avail - used;
+        if (consumed > remaining) consumed = (size_t)remaining;
+      }
+      st = lsx_dsd_reconstruction_process(ctx->front,
           input + used * ctx->cfg.channels, &consumed,
           ctx->intermediate, &produced);
-      if ((st != SOX_DSD_NEED_INPUT && st != SOX_DSD_NEED_OUTPUT) ||
-          consumed != 1) return ctx->error = SOX_DSD_NUMERIC_ERROR;
-      ++ctx->native_frames;
-      ++used;
+      /* Invalid native data can follow an accepted prefix. Account for
+       * that prefix exactly as the former one-frame loop did, even though
+       * the public error return still exposes zero consumed/produced counts. */
+      ctx->native_frames += consumed;
+      used += consumed;
       if (!lsx_dsd_count_convert(ctx->native_frames,
            ctx->cfg.native_hz, ctx->cfg.output_hz, &ctx->target))
         return ctx->error = SOX_DSD_NUMERIC_ERROR;
+      if ((st != SOX_DSD_NEED_INPUT && st != SOX_DSD_NEED_OUTPUT) ||
+          !consumed) return ctx->error = SOX_DSD_NUMERIC_ERROR;
       if (produced && push_mid(ctx) != SOX_DSD_OK)
         return ctx->error;
     }

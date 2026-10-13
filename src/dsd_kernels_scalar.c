@@ -25,6 +25,23 @@ double lsx_dsd_fir_scalar(const double *h, size_t taps,
   return acc;
 }
 
+/* The reconstruction graph's immutable 57-tap half-band bank has zero
+ * even taps except the center. Keep the reference's center-first, ascending
+ * odd-pair order, but remove per-tap zero tests and loop bookkeeping.
+ * This is not a generic half-band kernel: callers must use that bank. */
+LSX_DSD_NO_CONTRACT
+double lsx_dsd_fir_halfband57(const double *h, const double *s)
+{
+  double acc = h[28] * s[28];
+#define PAIR(i) acc += h[i] * (s[i] + s[56 - (i)])
+  PAIR(1);  PAIR(3);  PAIR(5);  PAIR(7);
+  PAIR(9);  PAIR(11); PAIR(13); PAIR(15);
+  PAIR(17); PAIR(19); PAIR(21); PAIR(23);
+  PAIR(25); PAIR(27);
+#undef PAIR
+  return acc;
+}
+
 static void fir_scalar_block(const double *h, size_t taps, const double *s,
     size_t frames, size_t stride, int halfband, double *out)
 {
