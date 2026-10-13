@@ -33,11 +33,22 @@ HYP=$(grep -qw hypervisor /proc/cpuinfo && echo PRESENT || echo absent)
   printf 'cflags      -O2 -g\n'
 } | tee "$R/host.txt"
 
-if [ "${AVX1_SMOKE:-0}" != 1 ] && { [ "$HAVE_AVX" != yes ] || [ "$HAVE_AVX2" != no ]; }; then
+# AVX1_SMOKE permits diagnostic execution on a newer CPU; it MUST NEVER
+# bypass physical AVX1-only eligibility for the P15 older-AVX performance gate.
+GATE_HOST=yes
+if [ "${AVX1_SMOKE:-0}" = 1 ]; then
+  GATE_HOST=no
+  echo "  AVX1_SMOKE=1: this run is DIAGNOSTIC ONLY, not older-AVX evidence."
+fi
+if [ "$HAVE_AVX" != yes ] || { [ "$HAVE_AVX2" != no ] && [ "${AVX1_SMOKE:-0}" != 1 ]; }; then
   echo
   echo "FATAL: this gate needs AVX1 WITHOUT AVX2 (Sandy Bridge or Ivy Bridge era)."
   echo "  avx=$HAVE_AVX avx2=$HAVE_AVX2 — wrong host."
   exit 2
+fi
+if [ "$HAVE_AVX2" != no ]; then
+  GATE_HOST=no
+  echo "  AVX2 is present: no physical older-AVX qualification possible on this host."
 fi
 
 say "bench CPU validity"
@@ -70,7 +81,7 @@ taskset -c "$CPU" true 2>/dev/null || { echo "FATAL: taskset cannot pin to cpu $
 echo "  pinning to cpu $CPU (online set: $ONLINE)"
 
 say "can this host support a gate-relevant measurement?"
-GATE=yes
+GATE=$GATE_HOST
 G=/sys/devices/system/cpu/cpu$CPU/cpufreq
 if [ "$HYP" = PRESENT ] || { [ "$VIRT" != none ] && [ "$VIRT" != unknown ]; }; then
   echo "  virtualized -> DIAGNOSTIC only (host governor/boost not controllable)"; GATE=no

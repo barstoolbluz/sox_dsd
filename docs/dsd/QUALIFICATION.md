@@ -104,3 +104,7 @@ The CLI exposes explicit pinned IDs before promotion for source-compatible
 reproducible selection. Encoding with a pinned ID is still refused by the
 production path while the release gate is open; the P10 candidate harness is
 not a user-facing mastering output path.
+
+## 2026-10-13 P15 question follow-up (not a release promotion)
+
+See `P15_QUESTIONS_ADJUDICATION_2026-10-13.md` for the explicit 30-integer / 24-fractional independent-reference split, the 54-cell/tier functional qualification versus selected detailed cross-ISA comparison, the proper separation from P09 `analysis-v1`, and the reason cross-host scalar SDM file-hash equality is not promised. The supplied `P15_avx1_physical_2026-10-13` folder is **not** admissible older-AVX evidence: its `host.txt` names an AVX2-enabled Threadripper rather than the AVX1-only machine claimed by its README, and the raw performance receipts are absent. The six existing release gates stay open. No automatic default, encoder qualification bit or ISA preference changes in this follow-up.
