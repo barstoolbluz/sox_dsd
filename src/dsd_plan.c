@@ -60,13 +60,17 @@ void lsx_dsd_plan_free(lsx_dsd_plan *p)
   }
 }
 
-static int resolve_decode(lsx_dsd_plan *p, uint32_t native_rate,
+static int resolve_decode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
+    uint32_t native_rate,
     lsx_dsd_decode profile, lsx_dsd_level level,
     double destination, lsx_dsd_bandwidth bandwidth,
     char *error, size_t n)
 {
   double pass, stop, intermediate, effective;
   lsx_dsd_rate const *rate=lsx_dsd_rate_find(native_rate);
+  if (policy->decode_pinned_native_hz && policy->decode_pinned_native_hz != native_rate)
+    return fail(error,n,"versioned --dsd-decode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
+        native_rate,policy->decode_pinned_native_hz);
   if (!rate || !(rate->capabilities & LSX_DSD_RECONSTRUCT))
     return fail(error,n,"no qualified decoder rate for native DSD %u Hz",native_rate);
   if (profile == LSX_DSD_PROFILE_LEGACY) {
@@ -103,10 +107,14 @@ static int resolve_decode(lsx_dsd_plan *p, uint32_t native_rate,
   return 1;
 }
 
-static int resolve_encode(lsx_dsd_plan *p, uint32_t hz,
+static int resolve_encode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
+    uint32_t hz,
     lsx_dsd_encode profile, char *error, size_t n)
 {
   lsx_dsd_rate const *r=lsx_dsd_rate_find(hz);
+  if (policy->encode_pinned_native_hz && policy->encode_pinned_native_hz != hz)
+    return fail(error,n,"versioned --dsd-encode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
+        hz,policy->encode_pinned_native_hz);
   if (!r || !(r->capabilities & LSX_DSD_MODULATE))
     return fail(error,n,"no supported composite DSD encoder at %u Hz",hz);
   if (profile == LSX_DSD_ENCODE_MASTERING) p->encoder_id=r->encode_mastering_id;
@@ -145,6 +153,9 @@ static int decoder_selection(lsx_dsd_plan_spec const *spec,
   if (e->dsd.profile_specified && spec->policy.decode_specified &&
       e->dsd.profile!=spec->policy.decode)
     return fail(error,n,"conflicting --dsd-decode and dsdpcm -p selections");
+  if (e->dsd.pinned_native_hz && spec->policy.decode_pinned_native_hz &&
+      e->dsd.pinned_native_hz != spec->policy.decode_pinned_native_hz)
+    return fail(error,n,"conflicting versioned --dsd-decode and dsdpcm -p native clocks");
   if (e->dsd.level_specified && spec->policy.level_specified &&
       e->dsd.level!=spec->policy.level)
     return fail(error,n,"conflicting --dsd-level and dsdpcm -l selections");
@@ -168,7 +179,7 @@ static int append_norm(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
       return fail(error,n,"native mode forbids PCM normalization");
     if (p->encode_count)
       return fail(error,n,"normalization after modulation requires an explicit dsdpcm boundary");
-    if (!resolve_decode(p,(uint32_t)*rate,decoder,level,0,
+    if (!resolve_decode(p,&spec->policy,(uint32_t)*rate,decoder,level,0,
           spec->policy.bandwidth,error,n)) return 0;
     *rate=p->decoder_intermediate_hz;
     *domain=LSX_PCM_AUDIO;
@@ -374,7 +385,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
     }
     for (i=0;i<spec->input_count;i++) if (p->inputs[i].native_domain==LSX_DSD_NATIVE) {
       lsx_dsd_plan_input *in=&p->inputs[i];
-      if (!resolve_decode(p,(uint32_t)in->native_rate,decoder,level,rate,
+      if (!resolve_decode(p,&spec->policy,(uint32_t)in->native_rate,decoder,level,rate,
           spec->policy.bandwidth,error,n)) return 0;
       in->effective_rate=rate;
       in->effective_domain=LSX_PCM_AUDIO;
@@ -446,9 +457,9 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         return fail(error,n,"dsdpcm at effect %lu duplicates reconstruction or follows PCM",(unsigned long)(i+1));
       if (spec->policy.mode==LSX_DSD_MODE_NATIVE)
         return fail(error,n,"native mode forbids explicit dsdpcm");
+      if (!decoder_selection(spec,e,&decoder,&level,error,n)) return 0;
       if (e->dsd.pinned_native_hz && e->dsd.pinned_native_hz!=(uint32_t)rate)
         return fail(error,n,"versioned decoder ID is for a different native DSD clock");
-      if (!decoder_selection(spec,e,&decoder,&level,error,n)) return 0;
       if (level==LSX_DSD_LEVEL_SACD &&
           (spec->policy.guarded || spec->policy.normalizing))
         return fail(error,n,"sacd reconstruction cannot be combined with automatic guard or normalization");
@@ -461,7 +472,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
           return fail(error,n,"no PCM working rate for explicit dsdpcm");
         rate=intermediate;
       } else rate=e->dsd.rate_hz;
-      if (!resolve_decode(p,(uint32_t)before,decoder,level,rate,
+      if (!resolve_decode(p,&spec->policy,(uint32_t)before,decoder,level,rate,
           spec->policy.bandwidth,error,n)) return 0;
       domain=LSX_PCM_AUDIO;ref=1./p->decoder_gain;
       ++p->graph_decode_count;
@@ -479,6 +490,10 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         return fail(error,n,"native mode forbids PCM-to-DSD modulation");
       if (e->dsd.pinned_native_hz && e->dsd.pinned_native_hz!=target)
         return fail(error,n,"versioned encoder ID is for a different native DSD clock");
+      if (is(e->name,"pcmdsd") && e->dsd.pinned_native_hz &&
+          spec->policy.encode_pinned_native_hz &&
+          e->dsd.pinned_native_hz != spec->policy.encode_pinned_native_hz)
+        return fail(error,n,"conflicting versioned --dsd-encode and pcmdsd -p native clocks");
       if (is(e->name,"pcmdsd") && e->dsd.profile_specified &&
           spec->policy.encode_specified && (lsx_dsd_encode)e->dsd.profile!=spec->policy.encode)
         return fail(error,n,"conflicting --dsd-encode and pcmdsd -p selections");
@@ -504,7 +519,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         uint32_t integer_source;
         if (!lsx_dsd_integer_rate(rate,&integer_source))
           return fail(error,n,"pcmdsd requires integer source Hz; insert an explicit rate effect");
-        if (!resolve_encode(p,target,
+        if (!resolve_encode(p,&spec->policy,target,
           e->dsd.profile_specified?(lsx_dsd_encode)e->dsd.profile:spec->policy.encode,
           error,n)) return 0;
       }
@@ -526,7 +541,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         if (!append_norm(spec,p,&domain,&rate,&ref,channels,decoder,level,
               error,n)) return 0;
         norm_inserted=1;
-        if (!resolve_encode(p,target,spec->policy.encode,error,n)) return 0;
+        if (!resolve_encode(p,&spec->policy,target,spec->policy.encode,error,n)) return 0;
         append(p,"implicit_pcmdsd",domain,LSX_DSD_NATIVE,rate,target,
             channels,channels,1,-1,ref);
         domain=LSX_DSD_NATIVE;
@@ -566,7 +581,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
           return fail(error,n,"PCM effect '%s' after modulation requires an explicit dsdpcm boundary",e->name);
         if (spec->policy.mode==LSX_DSD_MODE_NATIVE)
           return fail(error,n,"native mode forbids PCM effect '%s'",e->name);
-        if (!resolve_decode(p,(uint32_t)rate,decoder,level,0,
+        if (!resolve_decode(p,&spec->policy,(uint32_t)rate,decoder,level,0,
             spec->policy.bandwidth,error,n)) return 0;
         old_domain=domain;
         rate=p->decoder_intermediate_hz;
@@ -619,7 +634,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
           "explicit modulator output conflicts with the native output clock or channels; use matching -r/-c or an explicit dsdpcm boundary");
       if (spec->policy.mode==LSX_DSD_MODE_NATIVE)
         return fail(error,n,"native mode cannot change DSD rate or channels without reconstruction");
-      if (!resolve_decode(p,(uint32_t)rate,decoder,level,0,
+      if (!resolve_decode(p,&spec->policy,(uint32_t)rate,decoder,level,0,
           spec->policy.bandwidth,error,n)) return 0;
       rate=p->decoder_intermediate_hz;
       append(p,"implicit_dsdpcm",domain,LSX_PCM_AUDIO,before,
@@ -644,7 +659,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         if (!lsx_dsd_integer_rate(rate,&integer_source))
           return fail(error,n,"pcmdsd requires integer source Hz; insert an explicit rate effect");
       }
-      if (!resolve_encode(p,output_hz,spec->policy.encode,error,n)) return 0;
+      if (!resolve_encode(p,&spec->policy,output_hz,spec->policy.encode,error,n)) return 0;
       append(p,"implicit_pcmdsd",domain,LSX_DSD_NATIVE,rate,output_hz,
           channels,channels,1,-1,ref);
       domain=LSX_DSD_NATIVE;rate=output_hz;
@@ -679,7 +694,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
           return fail(error,n,"no reconstruction working rate for %.0f Hz",rate);
         dest=inter;
       }
-      if (!resolve_decode(p,(uint32_t)rate,decoder,level,dest,
+      if (!resolve_decode(p,&spec->policy,(uint32_t)rate,decoder,level,dest,
           spec->policy.bandwidth,error,n)) return 0;
       append(p,"implicit_dsdpcm",domain,LSX_PCM_AUDIO,rate,dest,
           channels,channels,1,-1,1./p->decoder_gain);

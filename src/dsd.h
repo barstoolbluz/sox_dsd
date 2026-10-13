@@ -67,6 +67,9 @@ typedef struct {
   int normalizing;             /* --norm always inserts an automatic PCM gain. */
   int dither_disabled;
   int decode_specified, encode_specified, level_specified;
+  /* Explicit versioned CLI selections are tied to a native clock.  Zero
+   * denotes a human profile alias, not a versioned selection. */
+  uint32_t decode_pinned_native_hz, encode_pinned_native_hz;
   char const *kernel_fir, *kernel_sdm;
 } lsx_dsd_policy;
 
@@ -193,6 +196,7 @@ int lsx_dsdpcm_flow(sox_effect_t *, const sox_sample_t *, sox_sample_t *,
     size_t *, size_t *);
 int lsx_dsdpcm_drain(sox_effect_t *, sox_sample_t *, size_t *);
 int lsx_dsdpcm_stop(sox_effect_t *);
+int lsx_dsd_profile_parse(const char *name, int encode, int *profile, uint32_t *native_hz);
 void lsx_dsd_effect_apply_policy(sox_effect_t *, const lsx_dsd_policy *);
 /* P07 implements explicit reconstruction only; other composites remain future DSP. */
 const sox_effect_handler_t *lsx_dsdpcm_effect_fn(void);

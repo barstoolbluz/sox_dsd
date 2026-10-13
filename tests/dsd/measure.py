@@ -144,7 +144,7 @@ def main() -> int:
             except (subprocess.TimeoutExpired,OSError) as exc:
                 p09_runs.append(dict(name=name,status='fail',error=str(exc)))
         passed.extend(p09_runs)
-    if args.phase=='P14':
+    if args.phase in ('P14','P15'):
         command=[sys.executable,str(ROOT/'tests/dsd/test_p14_numeric.py'),
             '--unit',str(ROOT/'test/dsd_test_p14'),
             '--sox',str(args.sox), '--results',str(args.results/'native-sos')]
@@ -209,6 +209,24 @@ def main() -> int:
         result['independent_analysis']['candidate_qualification']=qualification['status']
         result['quality_measurements'].append(dict(status='unpromoted',path='numeric/qualification.json'))
         if cp.returncode not in (0,2):result['summary']['failed']+=1
+    if args.phase=='P15':
+        # P00-P14 historical report text predates the P10 positive review.
+        # Never substitute a frozen P10 certificate for a P15 release result.
+        certificate=ROOT/'tests/dsd/results/P10_certification_2026-10-11/certification.json'
+        revision=json.loads(certificate.read_text())
+        result['p15_p10_inherited_certificate']=dict(
+            decision=revision['decision'],
+            scope='original scalar composite candidates only',
+            evidence='tests/dsd/results/P10_certification_2026-10-11/certification.json',
+            sha256=hashlib.sha256(certificate.read_bytes()).hexdigest(),
+            current_source_lineage='see P15 release manifest; not P10 re-certification')
+        result['independent_analysis']['candidate_qualification']=(
+            'P10 scalar profiles certified on historical source; P15 current-revision release qualification OPEN')
+        result['summary']['unrun_gates']=[
+            'Full P15 3 native rates x 9 PCM rates x 2 decode profiles spectral release qualification',
+            'P15 full independent real-world corpus rerender (historical P10 receipts retained)',
+            'P15 physical Intel/older-AVX performance and current ISA release soaks',
+            'P15 controlled-reference 2x decode performance target and full hardware matrix']
     report_path=args.results/'measure.json'
     if report_path.exists():
         old=report_path.read_bytes()

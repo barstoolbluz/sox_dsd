@@ -1,0 +1,218 @@
+{
+  "arms": [
+    {
+      "command": [
+        "sox_ng",
+        "--dsd-mode",
+        "native",
+        "-D",
+        "AUDIO_INPUT",
+        "AUDIO_OUTPUT"
+      ],
+      "input_logical_frames": "564480",
+      "median_seconds": 0.006389597,
+      "name": "native_no_observer",
+      "relative_wall_overhead_ratio": 1.0,
+      "status": "PASS",
+      "timed": [
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 6389597,
+          "exit": 0,
+          "sample": 1,
+          "stderr_tail": ""
+        },
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 6768904,
+          "exit": 0,
+          "sample": 2,
+          "stderr_tail": ""
+        },
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 5648919,
+          "exit": 0,
+          "sample": 3,
+          "stderr_tail": ""
+        }
+      ],
+      "warmups": [
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 6134192,
+          "exit": 0,
+          "sample": null,
+          "stderr_tail": ""
+        }
+      ]
+    },
+    {
+      "command": [
+        "sox_ng",
+        "--dsd-mode",
+        "native",
+        "--dsd-report",
+        "REPORT_PATH",
+        "-D",
+        "AUDIO_INPUT",
+        "AUDIO_OUTPUT"
+      ],
+      "input_logical_frames": "564480",
+      "median_seconds": 0.012652561,
+      "name": "native_basic_report",
+      "relative_wall_overhead_ratio": 1.9801813792012233,
+      "status": "PASS",
+      "timed": [
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 12652561,
+          "exit": 0,
+          "sample": 1,
+          "stderr_tail": ""
+        },
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 12910801,
+          "exit": 0,
+          "sample": 2,
+          "stderr_tail": ""
+        },
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 12260636,
+          "exit": 0,
+          "sample": 3,
+          "stderr_tail": ""
+        }
+      ],
+      "warmups": [
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 12089546,
+          "exit": 0,
+          "sample": null,
+          "stderr_tail": ""
+        }
+      ]
+    },
+    {
+      "command": [
+        "sox_ng",
+        "--dsd-mode",
+        "native",
+        "--dsd-report",
+        "REPORT_PATH",
+        "-D",
+        "AUDIO_INPUT",
+        "AUDIO_OUTPUT",
+        "dsdstat"
+      ],
+      "input_logical_frames": "564480",
+      "median_seconds": 0.022760231,
+      "name": "native_dsdstat_basic",
+      "relative_wall_overhead_ratio": 3.5620761371961325,
+      "status": "PASS",
+      "timed": [
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 25486449,
+          "exit": 0,
+          "sample": 1,
+          "stderr_tail": "Native DSD: 2822400 Hz, 2 channel(s), 564480 frames/channel\n  Channel 1: one bits=282240, zero bits=282240, complete overlapping 28-bit windows=564453, excursions (<4 or >24 one bits)=0, longest identical-bit run=2\n    28-bit one-count min=13 max=15\n  Channel 2: one bits=282240, zero bits=282240, complete overlapping 28-bit windows=564453, excursions (<4 or >24 one bits)=0, longest identical-bit run=2\n    28-bit one-count min=13 max=15\n"
+        },
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 22082914,
+          "exit": 0,
+          "sample": 2,
+          "stderr_tail": "Native DSD: 2822400 Hz, 2 channel(s), 564480 frames/channel\n  Channel 1: one bits=282240, zero bits=282240, complete overlapping 28-bit windows=564453, excursions (<4 or >24 one bits)=0, longest identical-bit run=2\n    28-bit one-count min=13 max=15\n  Channel 2: one bits=282240, zero bits=282240, complete overlapping 28-bit windows=564453, excursions (<4 or >24 one bits)=0, longest identical-bit run=2\n    28-bit one-count min=13 max=15\n"
+        },
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 22760231,
+          "exit": 0,
+          "sample": 3,
+          "stderr_tail": "Native DSD: 2822400 Hz, 2 channel(s), 564480 frames/channel\n  Channel 1: one bits=282240, zero bits=282240, complete overlapping 28-bit windows=564453, excursions (<4 or >24 one bits)=0, longest identical-bit run=2\n    28-bit one-count min=13 max=15\n  Channel 2: one bits=282240, zero bits=282240, complete overlapping 28-bit windows=564453, excursions (<4 or >24 one bits)=0, longest identical-bit run=2\n    28-bit one-count min=13 max=15\n"
+        }
+      ],
+      "warmups": [
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 21345824,
+          "exit": 0,
+          "sample": null,
+          "stderr_tail": "Native DSD: 2822400 Hz, 2 channel(s), 564480 frames/channel\n  Channel 1: one bits=282240, zero bits=282240, complete overlapping 28-bit windows=564453, excursions (<4 or >24 one bits)=0, longest identical-bit run=2\n    28-bit one-count min=13 max=15\n  Channel 2: one bits=282240, zero bits=282240, complete overlapping 28-bit windows=564453, excursions (<4 or >24 one bits)=0, longest identical-bit run=2\n    28-bit one-count min=13 max=15\n"
+        }
+      ]
+    },
+    {
+      "command": [
+        "sox_ng",
+        "--dsd-mode",
+        "native",
+        "--dsd-report",
+        "REPORT_PATH",
+        "-D",
+        "AUDIO_INPUT",
+        "AUDIO_OUTPUT",
+        "dsdstat",
+        "-a"
+      ],
+      "input_logical_frames": "564480",
+      "median_seconds": 0.113030936,
+      "name": "native_dsdstat_full_analysis",
+      "relative_wall_overhead_ratio": 17.68983802890855,
+      "status": "PASS",
+      "timed": [
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 114617634,
+          "exit": 0,
+          "sample": 1,
+          "stderr_tail": "t run=2\n    28-bit one-count min=13 max=15\n    Native SACD-style digital fifth-order Butterworth SOS (uncertified), 50 kHz LP, 40-100 kHz HP/LP, alpha=2^-19\n    50 kHz LP digital peak: -21.7153 dB SACD\n    40-100 kHz band exponential max power: -57.3993 dB SACD\n    Integrated band power: 508032 frames after 56448 warm-up frames, dBFS sine-reference\n      20000-40000 Hz: -102.1675 dBFS\n      40000-100000 Hz: -62.2223 dBFS\n      100000-200000 Hz: -31.5837 dBFS\n      200000-1411200 Hz: 3.0088 dBFS\n"
+        },
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 113030936,
+          "exit": 0,
+          "sample": 2,
+          "stderr_tail": "t run=2\n    28-bit one-count min=13 max=15\n    Native SACD-style digital fifth-order Butterworth SOS (uncertified), 50 kHz LP, 40-100 kHz HP/LP, alpha=2^-19\n    50 kHz LP digital peak: -21.7153 dB SACD\n    40-100 kHz band exponential max power: -57.3993 dB SACD\n    Integrated band power: 508032 frames after 56448 warm-up frames, dBFS sine-reference\n      20000-40000 Hz: -102.1675 dBFS\n      40000-100000 Hz: -62.2223 dBFS\n      100000-200000 Hz: -31.5837 dBFS\n      200000-1411200 Hz: 3.0088 dBFS\n"
+        },
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 105514592,
+          "exit": 0,
+          "sample": 3,
+          "stderr_tail": "t run=2\n    28-bit one-count min=13 max=15\n    Native SACD-style digital fifth-order Butterworth SOS (uncertified), 50 kHz LP, 40-100 kHz HP/LP, alpha=2^-19\n    50 kHz LP digital peak: -21.7153 dB SACD\n    40-100 kHz band exponential max power: -57.3993 dB SACD\n    Integrated band power: 508032 frames after 56448 warm-up frames, dBFS sine-reference\n      20000-40000 Hz: -102.1675 dBFS\n      40000-100000 Hz: -62.2223 dBFS\n      100000-200000 Hz: -31.5837 dBFS\n      200000-1411200 Hz: 3.0088 dBFS\n"
+        }
+      ],
+      "warmups": [
+        {
+          "audio_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+          "elapsed_ns": 115422799,
+          "exit": 0,
+          "sample": null,
+          "stderr_tail": "t run=2\n    28-bit one-count min=13 max=15\n    Native SACD-style digital fifth-order Butterworth SOS (uncertified), 50 kHz LP, 40-100 kHz HP/LP, alpha=2^-19\n    50 kHz LP digital peak: -21.7153 dB SACD\n    40-100 kHz band exponential max power: -57.3993 dB SACD\n    Integrated band power: 508032 frames after 56448 warm-up frames, dBFS sine-reference\n      20000-40000 Hz: -102.1675 dBFS\n      40000-100000 Hz: -62.2223 dBFS\n      100000-200000 Hz: -31.5837 dBFS\n      200000-1411200 Hz: 3.0088 dBFS\n"
+        }
+      ]
+    }
+  ],
+  "automatic_fir": "inherited SSE2 when available",
+  "automatic_sdm": "inherited scalar",
+  "context": {
+    "OS_sched_affinity_recorded": false,
+    "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "duration_seconds": 0.2,
+    "note": "short development host measurement only, not physical dispatch qualification",
+    "os": "Linux",
+    "platform": "x86_64",
+    "source_sha256": "248cc5db831a04fe7d779f41562ddd126d243e36a97e8aeb1a83af9cd27e7244",
+    "virtualized": "undetermined",
+    "workload": "native stereo DSD64 passthrough; same input and output"
+  },
+  "physical_silicon_qualification": "OPEN",
+  "schema": "sox.dsd.P14.bench.v1",
+  "source_audio_equal": true,
+  "status": "PASS"
+}

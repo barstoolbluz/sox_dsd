@@ -1,0 +1,170 @@
+{
+  "cases": [
+    {
+      "detail": {
+        "frames_checked": [
+          0,
+          1,
+          27,
+          28,
+          29,
+          43,
+          128
+        ],
+        "golden": "reference/p14_report_golden.json",
+        "large_integer": "9223372036854788153"
+      },
+      "name": "bit_exact_chunk_continuity_and_golden",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "analysis_qualifier": "SACD-style, not certified",
+        "native_sha256": "9afaa2db9c99a3c82689a53d055e98049d527d467fa02e3d5810b2d0fb488a39",
+        "native_windows": 101,
+        "outputs_equal": true
+      },
+      "name": "native_audio_bit_hash_unchanged_with_dsdstat_and_a",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "bytes_identical": true,
+        "schema_version": 1
+      },
+      "name": "schema_order_and_repeatability",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "json_stdout_parseable": true,
+        "mixed_audio_stdout_rejected": true,
+        "path_aliases_guarded": true
+      },
+      "name": "stdout_report_and_audio_conflict",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "hardlink_guard": true,
+        "input_protection": true,
+        "no_clobber": true,
+        "output_collision": true
+      },
+      "name": "named_report_path_and_overwrite_policy",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "input_unchanged": true,
+        "no_clobber": true,
+        "plan_schema_preserved": true,
+        "stdout_dash": true
+      },
+      "name": "plan_only_report_destination_safety",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "absolute_alias_rejected": true,
+        "distinct_audio_bit_identical": true,
+        "no_partial_output": true,
+        "relative_alias_rejected": true
+      },
+      "name": "uncreated_output_aliases_do_not_replace_audio",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "rejected": true
+      },
+      "name": "dsdstat_rejects_pcm_without_implicit_modulation",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "bank_last_sha256": "76749b06a43bb529207e68abc8d71631d21013f547de74ecd7837638d6506139",
+        "kernel": "scalar",
+        "profile": "decode.mastering.v1.dsd64"
+      },
+      "name": "actual_forced_decoder_profile_coefficient_kernel",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "encoding": "Signed Integer PCM",
+        "native_bit_order_preserved": true,
+        "pcm_clock_hz": 88200,
+        "widths": [
+          16,
+          32
+        ]
+      },
+      "name": "pcm_source_encoding_clock_and_container",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "active_src_unknown_explained": true,
+        "audio_bit_identical": true,
+        "bypass_src_zero": true,
+        "master128_delay": 1636,
+        "master64_delay": 1348
+      },
+      "name": "decoder_latency_components_and_byte_identity",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "audio_removed": true,
+        "diagnostic": true,
+        "exit_code": 2,
+        "status": "failed"
+      },
+      "name": "fatal_clipping_status_and_partial_output_cleanup",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "transport_frames": "8"
+      },
+      "name": "dop_transport_completion_accounting",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "actual_kernel": "scalar",
+        "logical_native_frames": "65536",
+        "mastering_release_promoted": false,
+        "profile": "encode.mastering.v1.dsd64"
+      },
+      "name": "test_candidate_actual_encoder_and_monitor_provenance",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "actual_sdm_state_overloads": "0",
+        "failed": true,
+        "first_interpolation_error_frame": "6"
+      },
+      "name": "test_candidate_encoder_failure_and_first_event",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "logical_frames": 2500000,
+        "observed_source_frames": 131072,
+        "partial_audio_removed": true,
+        "status": "cancelled"
+      },
+      "name": "sigint_cancellation_preserves_final_status",
+      "status": "PASS"
+    }
+  ],
+  "note": "Commands executed on temporary files; published data contains no absolute machine paths.",
+  "schema": "sox.dsd.P14.integration.v1",
+  "summary": {
+    "failed": 0,
+    "passed": 16
+  }
+}

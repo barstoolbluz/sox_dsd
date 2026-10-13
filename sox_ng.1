@@ -1384,7 +1384,7 @@ The compression factor is interpreted differently for different
 compressed file formats; for details, see the description
 of the file formats that use this option in
 .BR soxformat_ng (7)
-.SS DSD domain routing and reconstruction (P08, opt-in)
+.SS DSD domain routing and reconstruction (P15 qualification build, opt-in)
 DSD processing has three distinct domains: native one-bit pulses, reconstructed
 PCM audio, and DoP transport in lossless 24-bit PCM words.  The default CLI
 behavior remains the prior legacy policy until the planned release migration.
@@ -1395,12 +1395,23 @@ Select planned domain conversion, strict native-only operation, or legacy
 routing.  Native-only refuses any effect, input gain, or combination needing
 PCM.  Legacy can process raw DSD pulses as if they were PCM.
 .TP
-.B \-\-dsd-decode mastering|wideband|legacy
-Select the versioned reconstruction profile.  Legacy reconstruction has no
-certified pass/stop edges; no mastering bandwidth is inferred for it.
+.B \-\-dsd-decode mastering|wideband|legacy|decode.PROFILE.v1.dsdRATE
+Select the reconstruction profile.  A pinned ID such as
+.B decode.mastering.v1.dsd64
+or
+.B decode.wideband.v1.dsd256
+identifies the DSD64 or DSD256 source clock and is rejected if an executed
+reconstruction encounters a different native clock.  The human-readable
+aliases remain valid.  Legacy reconstruction has no certified pass/stop edges;
+no mastering bandwidth is inferred for it.
 .TP
-.B \-\-dsd-encode mastering|legacy|experimental
-Select the composite PCM-to-DSD modulator profile.
+.B \-\-dsd-encode mastering|legacy|experimental|encode.mastering.v1.dsdRATE
+Select the composite PCM-to-DSD modulator profile.  A pinned ID such as
+.B encode.mastering.v1.dsd128
+identifies the native output clock for an executed composite encoding step;
+a mismatched selected clock is rejected.  A versioned
+identity is not authorization to bypass mastering qualification.  This
+P15 build refuses unqualified mastering output, even when its ID is explicit.
 .TP
 .B \-\-dsd-level preserve|sacd
 Preserve native full-scale reference, or apply the SACD 6.0206 dB decoder

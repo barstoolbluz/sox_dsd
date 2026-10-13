@@ -126,9 +126,11 @@ char const *lsx_dsd_domain_name(lsx_dsd_domain d)
 }
 
 /* Getopts has no stateful start, no allocations, and only records intent. */
-static int parse_profile(char const *text, int encode, int *out, uint32_t *native)
+int lsx_dsd_profile_parse(char const *text, int encode, int *out, uint32_t *native)
 {
   size_t i;
+  if (!text || !out || !native) return 0;
+  *native=0;
   for (i=0;i<sizeof(dsd_rates)/sizeof(dsd_rates[0]);i++) {
     char const *master=encode?dsd_rates[i].encode_mastering_id:dsd_rates[i].decode_mastering_id;
     char const *w=dsd_rates[i].decode_wideband_id;
@@ -163,7 +165,7 @@ static int dsd_getopts(sox_effect_t *eff, int argc, char **argv)
   opt->bandwidth=LSX_DSD_BANDWIDTH_ADAPT;
   for (i=1;i<argc;++i) {
     if (!strcmp(argv[i],"-p") && i+1<argc) {
-      if (seen_profile++ || !parse_profile(argv[++i],is_encode,&profile,&opt->pinned_native_hz)) goto invalid;
+      if (seen_profile++ || !lsx_dsd_profile_parse(argv[++i],is_encode,&profile,&opt->pinned_native_hz)) goto invalid;
       opt->profile=(lsx_dsd_decode)profile; opt->profile_specified=1;
     } else if (!is_encode && !strcmp(argv[i],"-l") && i+1<argc) {
       if (seen_level++ || (strcmp(argv[++i],"preserve") && strcmp(argv[i],"sacd"))) goto invalid;

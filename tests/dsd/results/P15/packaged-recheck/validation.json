@@ -1,0 +1,61 @@
+{
+  "commands": [
+    {
+      "evidence": "build/checksum.log",
+      "exit": 0,
+      "step": "checksum"
+    },
+    {
+      "evidence": "build/autoreconf.log",
+      "exit": 0,
+      "step": "autoreconf"
+    },
+    {
+      "evidence": "build/configure.log",
+      "exit": 0,
+      "step": "configure"
+    },
+    {
+      "evidence": "build/build.log",
+      "exit": 0,
+      "step": "build"
+    },
+    {
+      "evidence": "build/generic.log",
+      "exit": 0,
+      "step": "generic"
+    },
+    {
+      "evidence": "build/inherited.log",
+      "exit": 0,
+      "step": "inherited"
+    },
+    {
+      "evidence": "build/cli.log",
+      "exit": 0,
+      "step": "cli"
+    }
+  ],
+  "host_scope": "five-vCPU virtualized Intel x86_64; no physical-hardware qualification",
+  "note": "The tested archive is a source-only preliminary archive. The final continuation adds only this fresh-test evidence, updated handoff, and self-excluding P00 checksum index. No executable inputs changed.",
+  "preliminary_archive_is_final": false,
+  "preliminary_archive_sha256": "734905343f7dfe13b78c2037511da2496ebfbe9359c3df43b874beec32a24885",
+  "results": [
+    "runner/",
+    "release/"
+  ],
+  "schema": "P15/packaged-source-recheck/1",
+  "source_file_sha256_matching_current_tree": {
+    "Makefile.am": "7ecce59157e5e11f5a4507f02207efbeb120c1920e93a3743c9d4f213e0ba2fc",
+    "sox_ng.1": "751c67312876ec999af1bb652f26e67f6723fb012d7fe15feacb00adc14f5391",
+    "src/dsd.c": "9a98e57127c0f98cc2c273abc9202e067107d12572067f58f012f90b4f2277ff",
+    "src/dsd.h": "6d6f96c02dc5f6e8023465957c797707976a929b013217cdb359bcc17d7ad59a",
+    "src/dsd_plan.c": "2b7aded7e7825481c73d8fcbc4e602239bccfada1ca16e0ac4a2aacd9382e357",
+    "src/sox_ng.c": "1e06895549b714d8cb02d62f601400b30c17aa0d2a6126403523964d1cdc768d",
+    "tests/dsd/bench.py": "556ae6d40dbcf72e32ff1e993d67f78dcbcf202e51cf293410a22e52de595eb1",
+    "tests/dsd/measure.py": "3b6030e29e2fed1f76e86bedb301a58bc6053268b79ab706514799f98ec65897",
+    "tests/dsd/p15_release_manifest.py": "5734ff1ce852a1a37f5f82cce118945fc3f2942aa04a6e9122bcecf2a38268cd",
+    "tests/dsd/test_p15.py": "3257a2845fff6cf1af33f0b6727c507eca8cc9f5113a6814601f7d404782193c"
+  },
+  "status": "PASS"
+}

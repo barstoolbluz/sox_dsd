@@ -1,0 +1,317 @@
+{
+  "base_archive_sha256": "73454c06c4e071f9c1c3078846d325fdb6214a65eda3a9e4f49b38b192a42229",
+  "default_promotion_authorized": false,
+  "gates": [
+    {
+      "evidence": "tests/dsd/results/P10_certification_2026-10-11/certification.json",
+      "id": "P10-positive-scalar-mastering-certificate",
+      "scope": "original P10 scalar kernels and admitted corpus only",
+      "status": "PASS-INHERITED"
+    },
+    {
+      "evidence": "p10_source_lineage",
+      "id": "P10-current-source-lineage",
+      "scope": "31 original SHA matches; four later edited paths documented below; current tests separately required",
+      "status": "RECONCILED"
+    },
+    {
+      "evidence": "cli-qualification.json",
+      "id": "P15-current-source-regressions",
+      "status": "PASS"
+    },
+    {
+      "evidence": "P07 rendered PCM plus P15 54-cell versioned audio parity is not a complete independent spectral release matrix",
+      "id": "P15-full-3x9x2-numerical-release-matrix",
+      "status": "UNRUN"
+    },
+    {
+      "evidence": "Inherited Intel cross-vendor/virtual-machine receipts do not establish pinned physical throughput",
+      "id": "P15-physical-Intel-AVX512-performance",
+      "status": "UNRUN"
+    },
+    {
+      "evidence": "P11 AVX1-only QEMU confirms instruction compatibility, not physical throughput",
+      "id": "P15-physical-older-AVX-performance",
+      "status": "UNRUN"
+    },
+    {
+      "evidence": "tests/dsd/results/P13_amd_physical_avx512_2026-10-12/README.md",
+      "id": "P15-AMD-AVX512-preference",
+      "scope": "physical AMD measurement favors existing non-AVX512 defaults",
+      "status": "REJECTED"
+    },
+    {
+      "evidence": "No current-baseline physical reference-host 2x matched control certificate",
+      "id": "P15-2x-six-channel-DSD256-controlled-reference-target",
+      "status": "UNVERIFIED"
+    },
+    {
+      "evidence": "Historical P10/P11 scalar/ISA soak receipts are not full P15 physical qualification",
+      "id": "P15-current-full-release-soaks-every-profile-ISA",
+      "status": "UNRUN"
+    },
+    {
+      "evidence": "Historical external excerpts not present for independent rerender",
+      "id": "P15-current-independent-codec-and-hardware-corpus",
+      "status": "UNRUN"
+    },
+    {
+      "evidence": "cli-qualification.json",
+      "id": "P15-available-host-p15_cli",
+      "status": "PASS"
+    },
+    {
+      "evidence": "../run/run.json",
+      "id": "P15-available-host-p15_release_regression",
+      "status": "PASS"
+    },
+    {
+      "evidence": "../numeric/measure.json",
+      "id": "P15-available-host-p15_numeric",
+      "status": "PASS-SUBSET"
+    },
+    {
+      "evidence": "../bench/bench.json",
+      "id": "P15-available-host-p15_bench_development",
+      "status": "PASS-DEVELOPMENT-ONLY"
+    },
+    {
+      "evidence": "../preservation.json",
+      "id": "P15-available-host-p15_evidence_preservation",
+      "status": "PASS"
+    }
+  ],
+  "mandatory_unclosed": [
+    "P15-full-3x9x2-numerical-release-matrix",
+    "P15-physical-Intel-AVX512-performance",
+    "P15-physical-older-AVX-performance",
+    "P15-2x-six-channel-DSD256-controlled-reference-target",
+    "P15-current-full-release-soaks-every-profile-ISA",
+    "P15-current-independent-codec-and-hardware-corpus"
+  ],
+  "original_certificate_source_count": 35,
+  "p10_certificate_sha256": "c8f41043dee20afa62977a412a51366995cb7fb43f7c845a860b412944afe74d",
+  "p10_source_lineage": {
+    "errors": [],
+    "later_changes": [
+      {
+        "current_sha256": "2b7aded7e7825481c73d8fcbc4e602239bccfada1ca16e0ac4a2aacd9382e357",
+        "p10_certificate_sha256": "5bc05977247b96092efa721058d0c3e3c179cf6512a4799b38a3244192555d89",
+        "p15_has_additional_change": true,
+        "p15_input_sha256": "58c25eec815db5322f29a471ab94a7d6e87265f02a3957d2bc0808df9c8c3126",
+        "path": "src/dsd_plan.c"
+      },
+      {
+        "current_sha256": "cd38b6b39805fef7431997658100796f1e35eb0b1502bc19bda41a94a5761e92",
+        "p10_certificate_sha256": "62f9625ccb570a7b6fdb35f66e0a72db58292ac3c9bdde00e1cd618fce781d37",
+        "p15_has_additional_change": false,
+        "p15_input_sha256": "cd38b6b39805fef7431997658100796f1e35eb0b1502bc19bda41a94a5761e92",
+        "path": "src/pcmdsd.c"
+      },
+      {
+        "current_sha256": "ac149e4d771968b841d36ffae0380519cb11e50d649538716b8830b40e2bee04",
+        "p10_certificate_sha256": "74393d4341ce758f68b61bd6b9d33fafbb0baa6b6a2b11134f9c09651203b5c0",
+        "p15_has_additional_change": false,
+        "p15_input_sha256": "ac149e4d771968b841d36ffae0380519cb11e50d649538716b8830b40e2bee04",
+        "path": "src/pcmdsd.h"
+      },
+      {
+        "current_sha256": "3e8bbc8189b820196d4405a8da7f619ac59b5356810212acfd8b02b39e632a27",
+        "p10_certificate_sha256": "87521841741b89478038af103fec6bae8a2258191781a4aa3a9945d676930773",
+        "p15_has_additional_change": false,
+        "p15_input_sha256": "3e8bbc8189b820196d4405a8da7f619ac59b5356810212acfd8b02b39e632a27",
+        "path": "src/sdm.c"
+      }
+    ],
+    "note": "The unchanged P10 verifier intentionally fails on later source bytes; not a P15 code defect.",
+    "status": "RECONCILED-FOR-SCOPED-REVIEW",
+    "unchanged": [
+      {
+        "current_sha256": "a3cecb47019006375d0c760a57df97849900144dca36301585f63509dea347bb",
+        "p10_certificate_sha256": "a3cecb47019006375d0c760a57df97849900144dca36301585f63509dea347bb",
+        "path": "docs/dsd/DSD_DESIGN.md"
+      },
+      {
+        "current_sha256": "6d0f7ce27ebe7898eea27f733d2cbdaafe6cbac6dc0deeaf2ea2fdb0ab694783",
+        "p10_certificate_sha256": "6d0f7ce27ebe7898eea27f733d2cbdaafe6cbac6dc0deeaf2ea2fdb0ab694783",
+        "path": "docs/dsd/sows/P10.md"
+      },
+      {
+        "current_sha256": "620deb72a98e7f54b98e2e9a5c8ea051d2a08361ddbe8b4671d23f4404775885",
+        "p10_certificate_sha256": "620deb72a98e7f54b98e2e9a5c8ea051d2a08361ddbe8b4671d23f4404775885",
+        "path": "src/dsdiff.c"
+      },
+      {
+        "current_sha256": "bac79e8fac35fd1fadb3fb5ec9532101ae60286fb57c2cb75e061003eb548538",
+        "p10_certificate_sha256": "bac79e8fac35fd1fadb3fb5ec9532101ae60286fb57c2cb75e061003eb548538",
+        "path": "src/pcmdsd_coeffs.h"
+      },
+      {
+        "current_sha256": "a0c83042250a3d0b230c7675c236d00b7cc2291484ef9e8246a4da366c6fbe5e",
+        "p10_certificate_sha256": "a0c83042250a3d0b230c7675c236d00b7cc2291484ef9e8246a4da366c6fbe5e",
+        "path": "src/pcmdsd_guards.h"
+      },
+      {
+        "current_sha256": "12f92c1ef2d66cb7a72df97d56aee760ec17e962c3d566f9275979df774fe447",
+        "p10_certificate_sha256": "12f92c1ef2d66cb7a72df97d56aee760ec17e962c3d566f9275979df774fe447",
+        "path": "tests/dsd/reference/p10_guards.json"
+      },
+      {
+        "current_sha256": "df25a2a11855e8a380cd756cf38769701103338faf36b46271aa3df22bc5157e",
+        "p10_certificate_sha256": "df25a2a11855e8a380cd756cf38769701103338faf36b46271aa3df22bc5157e",
+        "path": "tests/dsd/reference/p10_profiles.json"
+      },
+      {
+        "current_sha256": "d0ec5d40f59190b972a5d916dcd38bf5ff2ee524423d1a2a1e7b966165de914e",
+        "p10_certificate_sha256": "d0ec5d40f59190b972a5d916dcd38bf5ff2ee524423d1a2a1e7b966165de914e",
+        "path": "tests/dsd/reference/p10_ratification_criteria.json"
+      },
+      {
+        "current_sha256": "d5993a642fe282ad405a9b41565cab9ecb6c108d695ecd7f135e09d20ed97c80",
+        "p10_certificate_sha256": "d5993a642fe282ad405a9b41565cab9ecb6c108d695ecd7f135e09d20ed97c80",
+        "path": "tests/dsd/results/P10_corrective/qualification.json"
+      },
+      {
+        "current_sha256": "79eaf5f0eb54c56ba7014e122b9af656b0900c9573db04ec2282aa643d2794ac",
+        "p10_certificate_sha256": "79eaf5f0eb54c56ba7014e122b9af656b0900c9573db04ec2282aa643d2794ac",
+        "path": "tests/dsd/results/P10_gate_assessment_2026-10-11/assessment.json"
+      },
+      {
+        "current_sha256": "2494cd153f4b70309d65dca4f22ff8f6753dc04e3421d485bbdb65d2e13c3015",
+        "p10_certificate_sha256": "2494cd153f4b70309d65dca4f22ff8f6753dc04e3421d485bbdb65d2e13c3015",
+        "path": "tests/dsd/results/P10_hotfix_throughput_2026-10-11/bench-read.json"
+      },
+      {
+        "current_sha256": "800d087806d9acab5dbf6cd8239f3d92c46a8f274147662fbeee0588ff7f24f5",
+        "p10_certificate_sha256": "800d087806d9acab5dbf6cd8239f3d92c46a8f274147662fbeee0588ff7f24f5",
+        "path": "tests/dsd/results/P10_ratification_2026-10-10/qualification.json"
+      },
+      {
+        "current_sha256": "9242ab74898d4552ee258d55897dda2f8b94d306a6fa64f028925c87d066aef9",
+        "p10_certificate_sha256": "9242ab74898d4552ee258d55897dda2f8b94d306a6fa64f028925c87d066aef9",
+        "path": "tests/dsd/results/P10_realworld_corpus_2026-10-10/corpus-ladder.json"
+      },
+      {
+        "current_sha256": "3ff6e7a5937158cea981a9971dd12b4972f45a7ab4d340d4c7ae70c2fbe9daa2",
+        "p10_certificate_sha256": "3ff6e7a5937158cea981a9971dd12b4972f45a7ab4d340d4c7ae70c2fbe9daa2",
+        "path": "tests/dsd/results/P10_realworld_corpus_2026-10-10/corpus-unity.json"
+      },
+      {
+        "current_sha256": "bcb907a44b0d51b6c6f9485feebb98e57af5a926cbcac7c7db45d4284c78bc39",
+        "p10_certificate_sha256": "bcb907a44b0d51b6c6f9485feebb98e57af5a926cbcac7c7db45d4284c78bc39",
+        "path": "tests/dsd/results/P10_realworld_corpus_2026-10-10/pcm-corpus.json"
+      },
+      {
+        "current_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "p10_certificate_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "path": "tests/dsd/results/P10_realworld_corpus_2026-10-10/pcm-ladder.json"
+      },
+      {
+        "current_sha256": "afa476871e79e767362cc501210a641d1b1b87981fc54fedd2c306ac0e2378e9",
+        "p10_certificate_sha256": "afa476871e79e767362cc501210a641d1b1b87981fc54fedd2c306ac0e2378e9",
+        "path": "tests/dsd/results/P10_realworld_corpus_2026-10-10/pcm-sources.json"
+      },
+      {
+        "current_sha256": "243ff548887d3d3a4257b0062bf1591f17b4903a4401b38174f1257ff3c019eb",
+        "p10_certificate_sha256": "243ff548887d3d3a4257b0062bf1591f17b4903a4401b38174f1257ff3c019eb",
+        "path": "tests/dsd/results/P10_realworld_corpus_2026-10-10/pcm-unity.json"
+      },
+      {
+        "current_sha256": "dc3067ffdaa1716a737a93c13d05749c137df790a79ef340597461f2b077a067",
+        "p10_certificate_sha256": "dc3067ffdaa1716a737a93c13d05749c137df790a79ef340597461f2b077a067",
+        "path": "tests/dsd/results/P10_realworld_corpus_2026-10-10/reader-self-check.json"
+      },
+      {
+        "current_sha256": "18353861b5bf0c3d0c5ef288e35eef258bfe81aa2d20d9567e36683e0642f50d",
+        "p10_certificate_sha256": "18353861b5bf0c3d0c5ef288e35eef258bfe81aa2d20d9567e36683e0642f50d",
+        "path": "tests/dsd/results/P10_realworld_corpus_2026-10-10/sources.json"
+      },
+      {
+        "current_sha256": "47059394b3acaadc18dee5a9a072c09162f8727a0a3a1d506e14b053ab0aec75",
+        "p10_certificate_sha256": "47059394b3acaadc18dee5a9a072c09162f8727a0a3a1d506e14b053ab0aec75",
+        "path": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-11289600-configuration.json"
+      },
+      {
+        "current_sha256": "d6eae5f5262fc2ad7ca70692ac32a50772e4478adcbfc83be58017ef3f1f2a94",
+        "p10_certificate_sha256": "d6eae5f5262fc2ad7ca70692ac32a50772e4478adcbfc83be58017ef3f1f2a94",
+        "path": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-11289600-execution.json"
+      },
+      {
+        "current_sha256": "5cb95dfd6d32e9ba788084b72f26007937d4eb15adb9c1e2e063cd04e019720e",
+        "p10_certificate_sha256": "5cb95dfd6d32e9ba788084b72f26007937d4eb15adb9c1e2e063cd04e019720e",
+        "path": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-11289600-result.json"
+      },
+      {
+        "current_sha256": "306930e07086a2d99d6c0eac001ec97cb8ab7ba60c96c2493c321c7de581f42a",
+        "p10_certificate_sha256": "306930e07086a2d99d6c0eac001ec97cb8ab7ba60c96c2493c321c7de581f42a",
+        "path": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-2822400-configuration.json"
+      },
+      {
+        "current_sha256": "ef54cdbb403cbb34dfa80f335a3721a3d9a6b29e843493f1a3a63b65a507bf03",
+        "p10_certificate_sha256": "ef54cdbb403cbb34dfa80f335a3721a3d9a6b29e843493f1a3a63b65a507bf03",
+        "path": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-2822400-execution.json"
+      },
+      {
+        "current_sha256": "5be64bbe130ad25caaa13b1e751655ed0f364058c383e4881cbd9d17e63a6e22",
+        "p10_certificate_sha256": "5be64bbe130ad25caaa13b1e751655ed0f364058c383e4881cbd9d17e63a6e22",
+        "path": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-2822400-result.json"
+      },
+      {
+        "current_sha256": "f07f41e206651b6764721babcfe2975d71affb9811bd750d5952944558f0dd4a",
+        "p10_certificate_sha256": "f07f41e206651b6764721babcfe2975d71affb9811bd750d5952944558f0dd4a",
+        "path": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-5644800-configuration.json"
+      },
+      {
+        "current_sha256": "5e452b8244db7110908a8a535e45b44afee30410c713fbb1863e8249cde01723",
+        "p10_certificate_sha256": "5e452b8244db7110908a8a535e45b44afee30410c713fbb1863e8249cde01723",
+        "path": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-5644800-execution.json"
+      },
+      {
+        "current_sha256": "c03e1d13274384efb07fae9778d8c1ef5ad16faf525d32368bd02192ba3e98ae",
+        "p10_certificate_sha256": "c03e1d13274384efb07fae9778d8c1ef5ad16faf525d32368bd02192ba3e98ae",
+        "path": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak-5644800-result.json"
+      },
+      {
+        "current_sha256": "bc5e242854e2baa03039fb21f8b2ba6d6432fa77e074418aca4c30fc95f828e6",
+        "p10_certificate_sha256": "bc5e242854e2baa03039fb21f8b2ba6d6432fa77e074418aca4c30fc95f828e6",
+        "path": "tests/dsd/results/P10_soak_1hour_sse2_2026-10-10/soak.json"
+      },
+      {
+        "current_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "p10_certificate_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "path": "tests/dsd/test_p10.c"
+      }
+    ]
+  },
+  "preserved_policy": "legacy CLI mode, scalar SDM and scalar/SSE2 FIR auto dispatch; no new automatic AVX512",
+  "schema": "P15/release-result-manifest/1",
+  "source_baseline": "f13dda14",
+  "status": "BLOCKED",
+  "tests": {
+    "p15_bench_development": {
+      "path": "../bench/bench.json",
+      "sha256": "40884e246ebcccb9b365597b52aee922d1ac5ae994fad765bad323da05068b15",
+      "status": "PASS-DEVELOPMENT-ONLY"
+    },
+    "p15_cli": {
+      "path": "cli-qualification.json",
+      "sha256": "1912b28af4f3cb1aa2207cdac1d09cd99afd73bdb3f59e29017a7fb5c8f74f20",
+      "status": "PASS"
+    },
+    "p15_evidence_preservation": {
+      "path": "../preservation.json",
+      "sha256": "cf30732a5de6ef3a8c2ae2342b51c0288a5ff56a8e14ce6f3beced4dbe1d2884",
+      "status": "PASS"
+    },
+    "p15_numeric": {
+      "path": "../numeric/measure.json",
+      "sha256": "4b8f6fbca48ed468181a2f9159b1663caef1ae8aa83210a296f977c4152bf034",
+      "status": "PASS-SUBSET"
+    },
+    "p15_release_regression": {
+      "path": "../run/run.json",
+      "sha256": "09e674619e11e81dc006255fa1cfe37063ab64ddb4c2ae30c63d98af3ad573cc",
+      "status": "PASS"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+%CPU COMMAND
+ 3.7 containerd
+ 1.3 tonepoet
+load: 0.26 0.73 0.71
+six-channel DSD256 decoder vs direct legacy ultra-quality path
+prepared host, CPU 8, 3 warmups + 15 timed reps
+
+  to 352800 Hz
+    reference (rate -v)  9.3411s   spread 0.8%
+    dsdpcm decoder       2.4400s   spread 5.7%
+    speedup              3.83x   95% CI [3.77x, 3.84x]   target >=2.00x
+    verdict              PASS
+
+  to 176400 Hz
+    reference (rate -v)  9.3304s   spread 0.5%
+    dsdpcm decoder       2.3665s   spread 2.3%
+    speedup              3.94x   95% CI [3.92x, 3.97x]   target >=2.00x
+    verdict              PASS
+
+
+[exited with code 0]

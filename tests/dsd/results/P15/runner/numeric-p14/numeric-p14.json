@@ -1,0 +1,183 @@
+{
+  "cases": [
+    {
+      "detail": [
+        {
+          "cutoff_hz": 20000,
+          "highpass": true,
+          "max_complex_gain_deviation": 1.1530890124107188e-13,
+          "rate_hz": 2822400,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 40000,
+          "highpass": true,
+          "max_complex_gain_deviation": 4.4884327337220225e-14,
+          "rate_hz": 2822400,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 50000,
+          "highpass": false,
+          "max_complex_gain_deviation": 2.147327467000144e-14,
+          "rate_hz": 2822400,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 100000,
+          "highpass": false,
+          "max_complex_gain_deviation": 8.905345185785885e-15,
+          "rate_hz": 2822400,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 100000,
+          "highpass": true,
+          "max_complex_gain_deviation": 6.7678088263037544e-15,
+          "rate_hz": 2822400,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 200000,
+          "highpass": false,
+          "max_complex_gain_deviation": 1.047382306668854e-15,
+          "rate_hz": 2822400,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 200000,
+          "highpass": true,
+          "max_complex_gain_deviation": 1.6653345369377348e-15,
+          "rate_hz": 2822400,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 20000,
+          "highpass": true,
+          "max_complex_gain_deviation": 1.5651184756894174e-13,
+          "rate_hz": 5644800,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 40000,
+          "highpass": true,
+          "max_complex_gain_deviation": 1.5579279754950188e-13,
+          "rate_hz": 5644800,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 50000,
+          "highpass": false,
+          "max_complex_gain_deviation": 7.13161678523027e-15,
+          "rate_hz": 5644800,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 100000,
+          "highpass": false,
+          "max_complex_gain_deviation": 2.088992011423036e-14,
+          "rate_hz": 5644800,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 100000,
+          "highpass": true,
+          "max_complex_gain_deviation": 1.3931418972511631e-14,
+          "rate_hz": 5644800,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 200000,
+          "highpass": false,
+          "max_complex_gain_deviation": 9.106129796358886e-15,
+          "rate_hz": 5644800,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 200000,
+          "highpass": true,
+          "max_complex_gain_deviation": 6.7678088263037544e-15,
+          "rate_hz": 5644800,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 20000,
+          "highpass": true,
+          "max_complex_gain_deviation": 2.4288146502185347e-12,
+          "rate_hz": 11289600,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 40000,
+          "highpass": true,
+          "max_complex_gain_deviation": 4.989640602215485e-13,
+          "rate_hz": 11289600,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 50000,
+          "highpass": false,
+          "max_complex_gain_deviation": 1.4973177453209133e-13,
+          "rate_hz": 11289600,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 100000,
+          "highpass": false,
+          "max_complex_gain_deviation": 4.2196691246884366e-15,
+          "rate_hz": 11289600,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 100000,
+          "highpass": true,
+          "max_complex_gain_deviation": 3.391892884280951e-14,
+          "rate_hz": 11289600,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 200000,
+          "highpass": false,
+          "max_complex_gain_deviation": 2.113604851726645e-14,
+          "rate_hz": 11289600,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        },
+        {
+          "cutoff_hz": 200000,
+          "highpass": true,
+          "max_complex_gain_deviation": 1.3931418972511631e-14,
+          "rate_hz": 11289600,
+          "reference": "scipy.signal.butter(order=5,output=sos)"
+        }
+      ],
+      "name": "independent_butterworth5_sos",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "alpha": 1.9073486328125e-06,
+        "frames_per_channel": 512,
+        "oracle": "SciPy independent SOS + explicit power recurrence",
+        "rate_hz": 2822400,
+        "tolerance_db": 1e-07
+      },
+      "name": "sacd_exponential_reference",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "band_advantage_db": 27.10567163846619,
+        "frames": 120000,
+        "input_hz": 2822400,
+        "native_20_40_dbfs": -25.446660071562377,
+        "native_40_100_dbfs": 1.6590115669038146,
+        "native_tone_hz": 80000,
+        "reference": "independent native-rate input before decoder"
+      },
+      "name": "original_native_ultrasonic_band",
+      "status": "PASS"
+    }
+  ],
+  "limitation": "not certified analog SACD metrology or physical silicon qualification",
+  "schema": "sox.dsd.P14.numeric.v1"
+}

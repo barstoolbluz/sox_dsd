@@ -1,0 +1,30 @@
+{
+  "cases": 1056,
+  "channels": [
+    1,
+    2,
+    5,
+    6
+  ],
+  "design_bound": "16 * DBL_EPSILON * sum(taps) * product(stage_L1) * max(1,input_peak)",
+  "elapsed_seconds": 10.357626020999987,
+  "frames_compared": 58408,
+  "high_precision_finite_samples_compared": 5656,
+  "independent_method": "75-digit equivalent polynomial; direct finite-signal convolution, longdouble for full streams and 75-digit boundary/interior checks",
+  "input": "canonical native +/-SOX_SAMPLE_MAX; 0 outside finite input",
+  "largest_fraction_of_design_bound": 3.334384823328043e-05,
+  "max_binary64_vs_75_digit_abs": 2.3302807027644143e-16,
+  "max_binary64_vs_direct_longdouble_abs": 4.225135866176011e-16,
+  "passed": true,
+  "profiles": [
+    "master128",
+    "master256",
+    "master64",
+    "wide128",
+    "wide256",
+    "wide64"
+  ],
+  "schema": "sox-ng/p06-scalar-oracle/1",
+  "unit_stdout": "P06 scalar unit PASS (93640 assertions; 6 profiles, 1/2/5/6 channels, lengths 0..33 and ring wrap)",
+  "vector_sha256": "093fcce8cfc2e92424bf16682f05b140e34bbe2a063309d8aab2db793787a2fd"
+}
