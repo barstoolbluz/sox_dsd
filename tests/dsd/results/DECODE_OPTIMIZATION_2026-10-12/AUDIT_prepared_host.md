@@ -105,3 +105,19 @@ needed. Nothing excluded was evidence we relied on for the claims here.
   supplied baseline, as the delivery states.
 - No default changed, no profile promoted, SDM remains scalar. P15 governs
   activation.
+
+## Addendum: read/repack gate run after integration
+
+16 of 16 pass, 0 errors, against baseline `d2bd98df` on the prepared host, 40
+randomised AB/BA pairs, CPU 8. Worst regression `dsf-6ch-null-small` +1.35%
+[+1.00%, +1.63%]; the backlog canary `dff-6ch-repack-small` is flat at -0.05%
+[-0.46%, +0.40%]. Worst noise 1.89%, inside the 2% admissibility limit but
+higher than we would like; another workload ran on the host during part of it.
+
+The same three 6-channel small-buffer workloads that moved under P14 move again
+by a similar amount, +0.85% to +1.35%, intervals excluding zero. That is the
+pattern already recorded in `OPTIMIZATION_BACKLOG.md` as an untested hypothesis
+about unaligned displacement of `lsx_readbuf`; this change neither confirms nor
+addresses it. Evidence: `read-repack-gate-prepared-host.json`.
+
+This closes the last gate we had listed as not run against this change.
