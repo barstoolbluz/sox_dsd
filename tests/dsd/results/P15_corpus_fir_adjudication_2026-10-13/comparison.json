@@ -1,0 +1,153 @@
+{
+  "errors": [],
+  "hashes": {
+    "attenuated": {
+      "P10": "62adc395b5ef4eed401a6e9b7e6736a19c2086e78ffbc5573de55389fe9ae279",
+      "P15": "a0f497c224dfe0deba965616a18f0ce60f0e70b44c67ffc71bf5c95596e28294"
+    },
+    "ladder": {
+      "P10": "9242ab74898d4552ee258d55897dda2f8b94d306a6fa64f028925c87d066aef9",
+      "P15": "876c71173994d9fdfed025eb29b9b79988544d222ccc28b93df7fe4d150b0158"
+    },
+    "unity": {
+      "P10": "3ff6e7a5937158cea981a9971dd12b4972f45a7ab4d340d4c7ae70c2fbe9daa2",
+      "P15": "640d46ac917f30d5a780c24789caf4085b79fad66053eddaef9bc21fb413e7c1"
+    }
+  },
+  "ladder_trial_scope_differences": [
+    {
+      "P10_trial_gains_db": [
+        0.0,
+        -0.1,
+        -0.25,
+        -0.5,
+        -1.0
+      ],
+      "P15_trial_gains_db": [
+        -0.1,
+        -0.25,
+        -1.0
+      ],
+      "arm": "ladder",
+      "native_hz": 2822400,
+      "source": "01 - Bone Machine.dsf"
+    },
+    {
+      "P10_trial_gains_db": [
+        0.0,
+        -0.1
+      ],
+      "P15_trial_gains_db": [
+        -0.1
+      ],
+      "arm": "ladder",
+      "native_hz": 2822400,
+      "source": "01 - Little Girl Blue.dsf"
+    },
+    {
+      "P10_trial_gains_db": [
+        0.0,
+        -0.1,
+        -0.25
+      ],
+      "P15_trial_gains_db": [
+        -0.1,
+        -0.25
+      ],
+      "arm": "ladder",
+      "native_hz": 2822400,
+      "source": "01 - ROCKIT.dsf"
+    },
+    {
+      "P10_trial_gains_db": [
+        0.0,
+        -0.1,
+        -0.25,
+        -0.5,
+        -1.0
+      ],
+      "P15_trial_gains_db": [
+        -0.1,
+        -0.25,
+        -1.0
+      ],
+      "arm": "ladder",
+      "native_hz": 5644800,
+      "source": "A1. Too Hot To Handle.dsf"
+    }
+  ],
+  "not_evidence_for": [
+    "re-encoding the private recordings",
+    "raw DSD byte equality",
+    "cross-ISA encode identity",
+    "P15 release qualification"
+  ],
+  "numeric_extrema_changes": [
+    {
+      "P10": 20,
+      "P15": 19,
+      "arm": "unity",
+      "channel": 1,
+      "field": "max_ones",
+      "native_hz": 5644800,
+      "source": "Pink_Floyd~Meddle~side1.dsf"
+    },
+    {
+      "P10": 8,
+      "P15": 7,
+      "arm": "attenuated",
+      "channel": null,
+      "field": "min_ones28",
+      "native_hz": 2822400,
+      "source": "01 - Cantata BWV 110_ 1. Chorus.dsf"
+    },
+    {
+      "P10": 8,
+      "P15": 7,
+      "arm": "attenuated",
+      "channel": 1,
+      "field": "min_ones",
+      "native_hz": 2822400,
+      "source": "01 - Cantata BWV 110_ 1. Chorus.dsf"
+    },
+    {
+      "P10": 8,
+      "P15": 7,
+      "arm": "attenuated",
+      "channel": 1,
+      "field": "min_ones",
+      "native_hz": 5644800,
+      "source": "Pink_Floyd~Meddle~side1.dsf"
+    },
+    {
+      "P10": 20,
+      "P15": 19,
+      "arm": "attenuated",
+      "channel": 1,
+      "field": "max_ones",
+      "native_hz": 5644800,
+      "source": "Pink_Floyd~Meddle~side1.dsf"
+    },
+    {
+      "P10": 6,
+      "P15": 7,
+      "arm": "ladder",
+      "channel": 0,
+      "field": "min_ones",
+      "native_hz": 2822400,
+      "source": "01 - Bone Machine.dsf"
+    }
+  ],
+  "schema": "P15/P10-P15-commercial-corpus-adjudication/1",
+  "scope": "Comparison of previously recorded manifests; commercial audio not supplied",
+  "status": "PASS-BOUNDED-DRIFT",
+  "summary": {
+    "arm_source_pairs_with_changed_extrema": 4,
+    "changed_numeric_fields": 6,
+    "errors": 0,
+    "ladder_trial_scope_differences": 4,
+    "records_compared": 40,
+    "source_rate_identities": 18,
+    "sources_with_changed_extrema": 3
+  }
+}
