@@ -35,12 +35,25 @@ project requires, this passes with roughly double the required margin.
 
 Required by the target's wording. Our decoder reports
 `effective_passband_hz: 20000`, so the matched reference adds `sinc -20000` to
-the `rate -v` arm. That measurement was still running when this was written and
-is **not yet recorded**; it will be added as `bandwidth-matched.json` beside
-this file. The unmatched comparison above already clears the target, and adding
-a lowpass to the reference arm can only increase the ratio, so the matched
-figure is expected to be the less conservative of the two. We report the
-unmatched one as the result.
+the `rate -v` arm. Recorded in `bandwidth-matched.json`, 9 repetitions after 2
+warmups, same host and pinning, output 352800 Hz:
+
+| arm | median |
+|---|---|
+| reference `rate -v`, unmatched | 9.3459 s |
+| reference `rate -v` + `sinc -20000`, matched to 20 kHz | 9.3829 s |
+| `dsdpcm` decoder | 2.4313 s |
+
+| framing | speedup |
+|---|---|
+| vs unmatched reference | 3.84x |
+| vs bandwidth-matched reference | 3.86x |
+
+The two framings are within 0.4% of each other. Matching costs the reference
+only 37 ms on a 9.35 s operation, because a 20 kHz lowpass applied to
+already-resampled 352800 Hz PCM is cheap next to resampling from the DSD rate.
+So the choice of framing does not affect the verdict here, and both clear the
+2.00x target by roughly the same large margin.
 
 ## What this does and does not establish
 
