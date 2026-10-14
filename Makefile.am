@@ -618,3 +618,11 @@ EXTRA_DIST += docs/dsd/handoffs/P15.md docs/dsd/handoffs/P15_CHECKPOINT.md \
   docs/dsd/QUALIFICATION.md docs/dsd/MIGRATION_P15.md \
   docs/dsd/P15_RELEASE_NOTES.md tests/dsd/test_p15.py \
   tests/dsd/p15_release_manifest.py
+
+# P15 closeout is an adjudication of retained source-bound receipts, not a
+# qualification bit or automatic-default migration.
+EXTRA_DIST += docs/dsd/handoffs/P15_CLOSEOUT_ADJUDICATION_2026-10-14.md \
+  docs/dsd/handoffs/P15_CLOSEOUT_CHECKPOINT_2026-10-14.md \
+  tests/dsd/p15_closeout_review.py tests/dsd/test_p15_closeout_review.py \
+  tests/dsd/results/P15_closeout_adjudication_2026-10-14/review.json \
+  tests/dsd/results/P15_closeout_adjudication_2026-10-14/preservation.json
