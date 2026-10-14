@@ -68,15 +68,23 @@ int main(int argc,char **argv)
   uint64_t expected;
   int iter=0;
   int is_impulse=argc==6 && !strcmp(argv[1],"--impulse");
+  int is_tone=argc==6 && !strcmp(argv[1],"--tone");
+  double tone_hz=0.0;
   size_t impulse_at=0;
   if (argc==6 && !strcmp(argv[1],"--dsd"))
     return export_dsd((uint32_t)strtoul(argv[2],NULL,10),
         (uint32_t)strtoul(argv[3],NULL,10),atoi(argv[4]),
         (size_t)strtoull(argv[5],NULL,10));
-  if (argc!=4 && !is_impulse) return 2;
-  cfg.input_hz=(uint32_t)strtoul(argv[is_impulse?2:1],NULL,10);
-  cfg.output_hz=(uint32_t)strtoul(argv[is_impulse?3:2],NULL,10);
-  length=(size_t)strtoull(argv[is_impulse?4:3],NULL,10);
+  if (argc!=4 && !is_impulse && !is_tone) return 2;
+  cfg.input_hz=(uint32_t)strtoul(argv[is_impulse||is_tone?2:1],NULL,10);
+  cfg.output_hz=(uint32_t)strtoul(argv[is_impulse||is_tone?3:2],NULL,10);
+  length=(size_t)strtoull(argv[is_impulse||is_tone?4:3],NULL,10);
+  if (is_tone) {
+    char *end=NULL;
+    tone_hz=strtod(argv[5],&end);
+    if (!end || *end || !isfinite(tone_hz) || tone_hz<=0 ||
+        tone_hz>=cfg.input_hz/2.0) return 2;
+  }
   if (is_impulse) {
     impulse_at=(size_t)strtoull(argv[5],NULL,10);
     if (impulse_at>=length) return 2;
@@ -91,7 +99,8 @@ int main(int argc,char **argv)
     if (in_count>128) in_count=128;
     for (size_t i=0;i<in_count;i++)
       in[i]=is_impulse ? (accepted+i==impulse_at ? .5 : 0.)
-                       : signal_at(cfg.input_hz,accepted+i);
+             : is_tone ? .5*sin(2*M_PI*tone_hz*(accepted+i)/cfg.input_hz)
+             : signal_at(cfg.input_hz,accepted+i);
     status=lsx_rate_f64_process(src,in,&in_count,out,&out_count);
     if ((status!=SOX_DSD_NEED_INPUT && status!=SOX_DSD_NEED_OUTPUT) ||
         fwrite(out,sizeof(*out),out_count,stdout)!=out_count) return 4;
