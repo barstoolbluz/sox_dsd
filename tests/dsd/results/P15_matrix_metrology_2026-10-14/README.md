@@ -1,5 +1,33 @@
 # P15 independent 3x9x2 metrology: executed
 
+> **CORRECTION, 2026-10-14. The "Cross-ISA" section below is wrong and is
+> preserved unedited on instruction.** We claimed all five tiers produce one
+> binary64 hash per cell, 54 of 54 agreeing. The closeout adjudication found
+> that false and we have reproduced its finding from these same committed
+> records: the tier's own output hash lives in
+> `cross_isa[].fir_receipt.binary64_sha256`, and comparing those against the
+> scalar baseline gives **216 comparisons with zero matches**, grouping as
+> scalar / `sse2` / `{avx1,avx2}` / `avx512` — four distinct hashes per cell.
+>
+> Our error was comparing `channel_and_partition.first_run.binary64_sha256`,
+> which is the partition-invariance sub-test and is tier-independent, so it
+> agrees across tiers by construction and says nothing about tier output. We
+> also compared across our five per-tier directories rather than reading the
+> `cross_isa` array inside each cell, which is where the instrument records
+> the comparison.
+>
+> The adjudication notes the largest scalar-versus-vector per-sample difference
+> is at most `4.440892098500626e-16`, which the contract permits as roundoff
+> and which is not a decoder defect. So the correction is to our claim of bit
+> identity, not to the code. See
+> `docs/dsd/handoffs/P15_CLOSEOUT_ADJUDICATION_2026-10-14.md`.
+>
+> A second consequence of our own curation: `arrays/*.npz`, `src-raw` and
+> `graph-raw` were excluded, so the adjudication's reviewer exits 1 on a
+> missing raw digest at the first cell. Row checksums cannot substitute for
+> recomputing waveforms, and the matrix gate therefore cannot be independently
+> verified from what we committed.
+
 The adjudication of 2026-10-13 specified this gate; the R2 bundle supplied the
 instrument. This directory is our execution of it. **No cell is qualified and
 no gate is closed by this run**: the instrument reports

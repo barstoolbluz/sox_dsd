@@ -1,33 +1,18 @@
 {
-  "fixture_version": "nominal-v2",
+  "fixture_version": "original-v1",
   "limitation": "A rejected prefix is not a completed 30-minute soak. A clean DSD64 prefix is not a guarantee over the unprocessed suffix.",
   "profiles": [
     {
-      "admission_checks": {
-        "admitted_peak": true,
-        "clean_terminal_status": true,
-        "complete_snapshots": true,
-        "complete_window_monitor": true,
-        "dsd64_28bit_population": true,
-        "exact_native_duration": true,
-        "observed_half_guard": true,
-        "original_configuration": true,
-        "release_sequence": true,
-        "reproducible_binary": true,
-        "source_and_native_identity": true,
-        "stable_state": true
-      },
       "completed_audio_seconds": 3600.0,
       "configuration": {
         "edge_ramp_seconds": 0.1,
-        "fixture_version": "nominal-v2",
-        "generator": "test_p10.c:soak_source_version; int32 graph-equivalent",
+        "generator": "test_p10.c:soak_source; int32 graph-equivalent",
         "minute_sequence": [
           "silence",
           "DC +0.7",
           "DC -0.7",
           "53/997/5501/17011 Hz multitone, each peak 0.15",
-          "SplitMix64-indexed uniform noise, peak 0.45",
+          "SplitMix64-indexed uniform noise, peak 0.7",
           "1000 Hz tone, peak 0.8"
         ],
         "native_hz": 2822400,
@@ -36,7 +21,7 @@
         "resets_between_segments": false,
         "resume": "deterministic prefix replay with byte-checked saved SDM/monitor states",
         "schema": "P10/continuous-soak/1",
-        "seconds": 3600,
+        "seconds": 1800,
         "segment_seconds": 60,
         "sequence_repeats": true,
         "source_hz": 88200
@@ -346,33 +331,19 @@
         }
       ],
       "state_bound_crossed": false,
-      "status": "PASS"
+      "status": "FAIL"
     },
     {
-      "admission_checks": {
-        "admitted_peak": true,
-        "clean_terminal_status": true,
-        "complete_snapshots": true,
-        "complete_window_monitor": true,
-        "exact_native_duration": true,
-        "observed_half_guard": true,
-        "original_configuration": true,
-        "release_sequence": true,
-        "reproducible_binary": true,
-        "source_and_native_identity": true,
-        "stable_state": true
-      },
       "completed_audio_seconds": 3600.0,
       "configuration": {
         "edge_ramp_seconds": 0.1,
-        "fixture_version": "nominal-v2",
-        "generator": "test_p10.c:soak_source_version; int32 graph-equivalent",
+        "generator": "test_p10.c:soak_source; int32 graph-equivalent",
         "minute_sequence": [
           "silence",
           "DC +0.7",
           "DC -0.7",
           "53/997/5501/17011 Hz multitone, each peak 0.15",
-          "SplitMix64-indexed uniform noise, peak 0.45",
+          "SplitMix64-indexed uniform noise, peak 0.7",
           "1000 Hz tone, peak 0.8"
         ],
         "native_hz": 5644800,
@@ -381,7 +352,7 @@
         "resets_between_segments": false,
         "resume": "deterministic prefix replay with byte-checked saved SDM/monitor states",
         "schema": "P10/continuous-soak/1",
-        "seconds": 3600,
+        "seconds": 1800,
         "segment_seconds": 60,
         "sequence_repeats": true,
         "source_hz": 176400
@@ -690,33 +661,19 @@
         }
       ],
       "state_bound_crossed": false,
-      "status": "PASS"
+      "status": "FAIL"
     },
     {
-      "admission_checks": {
-        "admitted_peak": true,
-        "clean_terminal_status": true,
-        "complete_snapshots": true,
-        "complete_window_monitor": true,
-        "exact_native_duration": true,
-        "observed_half_guard": true,
-        "original_configuration": true,
-        "release_sequence": true,
-        "reproducible_binary": true,
-        "source_and_native_identity": true,
-        "stable_state": true
-      },
       "completed_audio_seconds": 3600.0,
       "configuration": {
         "edge_ramp_seconds": 0.1,
-        "fixture_version": "nominal-v2",
-        "generator": "test_p10.c:soak_source_version; int32 graph-equivalent",
+        "generator": "test_p10.c:soak_source; int32 graph-equivalent",
         "minute_sequence": [
           "silence",
           "DC +0.7",
           "DC -0.7",
           "53/997/5501/17011 Hz multitone, each peak 0.15",
-          "SplitMix64-indexed uniform noise, peak 0.45",
+          "SplitMix64-indexed uniform noise, peak 0.7",
           "1000 Hz tone, peak 0.8"
         ],
         "native_hz": 11289600,
@@ -725,7 +682,7 @@
         "resets_between_segments": false,
         "resume": "deterministic prefix replay with byte-checked saved SDM/monitor states",
         "schema": "P10/continuous-soak/1",
-        "seconds": 3600,
+        "seconds": 1800,
         "segment_seconds": 60,
         "sequence_repeats": true,
         "source_hz": 176400
@@ -1034,11 +991,11 @@
         }
       ],
       "state_bound_crossed": false,
-      "status": "PASS"
+      "status": "FAIL"
     }
   ],
   "qualified": false,
   "representative_hardware_hour_per_profile_isa": "UNRUN",
   "schema": "P10/soak-summary/1",
-  "status": "PASS"
+  "status": "FAIL"
 }

@@ -1,5 +1,14 @@
 # P15 first-release qualification and release hold
 
+**2026-10-14 closeout:** The later independent adjudication is
+`docs/dsd/handoffs/P15_CLOSEOUT_ADJUDICATION_2026-10-14.md`, with a
+source-bound machine-readable record at
+`tests/dsd/results/P15_closeout_adjudication_2026-10-14/review.json`.
+It accepts physical older-AVX kernel observations and a software-only
+independent material corpus **in scoped form**, while leaving four release
+gates open. The originally generated `P15/release/release-manifest.json`
+remains an unedited historical inventory. **Release promotion remains blocked.**
+
 **Status: INCOMPLETE. Production default migration is BLOCKED.** This is a
 release-gate record, not a claim that P10 mastering failed. The authoritative
 machine-readable outcome is `tests/dsd/results/P15/release/release-manifest.json`.

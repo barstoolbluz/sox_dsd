@@ -1,0 +1,117 @@
+{
+  "baseline_ledger": "tests/dsd/results/P15/release/release-manifest.json",
+  "baseline_ledger_sha256": "17152d795c6d6ad2b426587fd64212ce4f0606d6790415b980cfd6ee9791d632",
+  "decision_date": "2026-10-14",
+  "default_promotion_authorized": false,
+  "evidence": {
+    "dsd256_target": {
+      "bandwidth_matched_reference_reported": true,
+      "fixed_host_and_exact_command_receipt_in_archive": false,
+      "individual_target_timing_samples_in_archive": false,
+      "logged_lower_95_percent_ci": [
+        3.77,
+        3.92
+      ],
+      "matched_control_repetitions": 9,
+      "note": "Promising reported speedup, but no raw 15-pair timing record to audit the CI or verify the staged bandwidth-matched comparator."
+    },
+    "independent_corpus": {
+      "distinct_changed_dsd_extrema_fields": 6,
+      "independent_dsd_source_excerpts": 18,
+      "independent_pcm_source_recordings": 17,
+      "original_private_audio_distributed": false,
+      "pcm_encode_rate_observations": 51,
+      "physical_player_or_dac_verified": false,
+      "recorded_dsd_source_arm_comparisons": 40,
+      "scope": "Software-only source-material/DSF/FLAC evidence. No independent DAC, player, digital transport or device-compatibility claim."
+    },
+    "matrix": {
+      "detailed_cross_isa_comparisons": 96,
+      "equal_binary64_forced_pairs": 0,
+      "forced_isa_jobs": 270,
+      "independent_complete_src_roundoff_envelope": false,
+      "independent_full_composite_spectral_certificate": false,
+      "max_recorded_cross_isa_binary64_difference": 4.440892098500626e-16,
+      "measured_scalar_cells": 54,
+      "missing_npz_vectors": 324,
+      "note": "All 324 written cell rows have valid digests; raw vectors are omitted. The claim of 54/54 full-binary64 bit identity is false: none of 216 forced-tier hashes matches scalar, though residuals are tiny and permitted.",
+      "required_src_graph_raw_files_in_archive": false
+    },
+    "older_avx": {
+      "controlled_clock_mhz": 3000,
+      "host_model": "Intel(R) Xeon(R) CPU E5-1680 v2 @ 3.00GHz",
+      "kernel_cpu_ns_per_frame_median": {
+        "fir-block": {
+          "avx1": 66.339,
+          "scalar": 85.544,
+          "sse2": 67.878
+        },
+        "fir-single": {
+          "avx1": 35.056,
+          "scalar": 86.161,
+          "sse2": 51.894
+        },
+        "sdm": {
+          "avx1": 44.4,
+          "scalar": 48.2,
+          "sse2": 43.433
+        }
+      },
+      "limitation": "Physical AVX1-only kernel timing and forced correctness; no new ISA preference or universal end-to-end performance claim.",
+      "no_avx2_reported": true,
+      "physical_older_avx_reported": true,
+      "repetitions_per_case": 15
+    },
+    "soaks": {
+      "clean_reported_hour_long_encode_runs": 15,
+      "complete_61_state_snapshot_sets": 0,
+      "execution_receipts_present_for": 0,
+      "note": "The 15 clean reported encoder observations are valuable; their continuation-state hashes and executable receipts are missing. Do not add an unmandated 1-hour decoder soak.",
+      "one_hour_decode_soak_new_requirement": false
+    }
+  },
+  "gates": [
+    {
+      "id": "P15-full-3x9x2-numerical-release-matrix",
+      "reason": "Full SRC spectral extrema/coherent-image proof and comparable numerical tolerance missing; independent raw vector validation blocked by omitted files.",
+      "status": "OPEN"
+    },
+    {
+      "id": "P15-physical-Intel-AVX512-performance",
+      "reason": "No physical Intel AVX-512 pinned performance receipt. Client-CPU availability does not remove the release requirement.",
+      "status": "UNRUN"
+    },
+    {
+      "id": "P15-physical-older-AVX-performance",
+      "reason": "Authentic-looking, coherent Ivy Bridge AVX1-only 15-repeat kernel throughput/correctness records. No AVX1 preference promoted.",
+      "status": "PASS-SCOPED"
+    },
+    {
+      "id": "P15-2x-six-channel-DSD256-controlled-reference-target",
+      "reason": "Reported 95% CI clears target, but no raw timed samples, exact benchmark commands or auditable matched staged control.",
+      "status": "UNVERIFIED"
+    },
+    {
+      "id": "P15-current-full-release-soaks-every-profile-ISA",
+      "reason": "15 one-hour encoder measurements clean; required 61-state snapshot sets and executable receipts absent. No extra 1-hour decoder criterion invented.",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "P15-current-independent-codec-and-hardware-corpus",
+      "reason": "Present-version independent DSD/PCM source material passes recorded criteria; physical device certification not required for software-only claims under DSD_DESIGN section 13, and is not asserted.",
+      "status": "PASS-SCOPED"
+    }
+  ],
+  "mandatory_unclosed": [
+    "P15-full-3x9x2-numerical-release-matrix",
+    "P15-physical-Intel-AVX512-performance",
+    "P15-2x-six-channel-DSD256-controlled-reference-target",
+    "P15-current-full-release-soaks-every-profile-ISA"
+  ],
+  "note": "A passing audit is evidence integrity, not permission to activate an unfinished release.",
+  "p16_authorized": false,
+  "policy": "Legacy defaults retained; no new ISA auto preference, device compatibility claim or P16 implementation.",
+  "release_status": "BLOCKED",
+  "schema": "P15/closeout-adjudication/1",
+  "source_archive_sha256": "6e7739527e3b976ead736db91cebd578c7908a02a00c49f348fabdb22863726c"
+}
