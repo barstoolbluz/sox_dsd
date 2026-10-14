@@ -145,3 +145,10 @@ EXTRA_PROGRAMS += dsd_test_decode_optimization
 dsd_test_decode_optimization_SOURCES = ../tests/dsd/test_decode_optimization.c
 dsd_test_decode_optimization_CPPFLAGS = -I$(top_srcdir)/src -DDSD_OPTIMIZATION=1
 dsd_test_decode_optimization_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P15 independent numerical matrix: production public F64 output exporter.
+# Qualification-only; no executable reference mathematics in this C probe.
+EXTRA_PROGRAMS += dsd_test_p15_instrument
+dsd_test_p15_instrument_SOURCES = ../tests/dsd/test_p15_instrument.c
+dsd_test_p15_instrument_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p15_instrument_LDADD = $(top_builddir)/src/libsox_ng.la
