@@ -44,7 +44,13 @@ The public ABI change is additive and safe: a new enum value
 `SOX_DSD_DECODE_MASTERING_V2 = 3`, with 0 and 1 unchanged and 2 reserved for
 the private legacy profile. No struct renumbering.
 
-Defaults are unchanged, which is the load-bearing claim and we checked it:
+Defaults are unchanged **for now**, and that is a temporary gate rather than
+settled policy. `DSD_DESIGN.md` names v2 as the intended default for DSD64,
+DSD128 and DSD256, with v1 reached by explicit conservative selection, and the
+operator has confirmed that in
+`docs/dsd/amendments/P15_V2_DEFAULT_POLICY_2026-10-15.md`. Our earlier wording
+here presented the v1 default as the settled outcome; it is not. We checked the
+current resolution by execution:
 
 | invocation | resolves to | passband |
 |---|---|---|
