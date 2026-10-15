@@ -626,3 +626,29 @@ EXTRA_DIST += docs/dsd/handoffs/P15_CLOSEOUT_ADJUDICATION_2026-10-14.md \
   tests/dsd/p15_closeout_review.py tests/dsd/test_p15_closeout_review.py \
   tests/dsd/results/P15_closeout_adjudication_2026-10-14/review.json \
   tests/dsd/results/P15_closeout_adjudication_2026-10-14/preservation.json
+
+# P15-R3 additive candidate: explicit, opt-in qualification runner.
+# Results go to the build directory; never mutate historical source receipts.
+.PHONY: check-dsd-p15-r3
+check-dsd-p15-r3: all
+	$(MAKE) -C test dsd_test_p15_instrument dsd_test_p07_reference
+	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/generate_coeffs.py --check
+	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/generate_p15_r3_coeffs.py --check
+	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/certify_p15_r3_filters.py --grid 8192 --results $(abs_builddir)/p15-r3-check/numeric
+	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3_numeric.py --probe $(abs_builddir)/test/dsd_test_p15_instrument --results $(abs_builddir)/p15-r3-check/numeric
+	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3.py --sox $(abs_builddir)/src/sox_ng --results $(abs_builddir)/p15-r3-check/integration
+	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3_src_spot.py --probe $(abs_builddir)/test/dsd_test_p07_reference --results $(abs_builddir)/p15-r3-check/numeric
+
+EXTRA_DIST += docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_HANDOFF.md \
+  docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_CHECKPOINT.md \
+  tests/dsd/generate_p15_r3_coeffs.py tests/dsd/certify_p15_r3_filters.py \
+  tests/dsd/test_p15_r3_numeric.py tests/dsd/test_p15_r3.py \
+  tests/dsd/test_p15_r3_src_spot.py tests/dsd/bench_p15_r3_local.py \
+  tests/dsd/reference/p15_r3_coefficients.json \
+  tests/dsd/results/P15_R3/numeric/fir-certificate.json \
+  tests/dsd/results/P15_R3/numeric/finite-and-isa.json \
+  tests/dsd/results/P15_R3/numeric/src-sampled-holdouts.json \
+  tests/dsd/results/P15_R3/integration/selection-and-audio.json \
+  tests/dsd/results/P15_R3/regression/cli-qualification.json \
+  tests/dsd/results/P15_R3/performance/local-unmatched-development-benchmark.json \
+  tests/dsd/results/P15_R3/preservation.json

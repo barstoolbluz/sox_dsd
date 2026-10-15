@@ -1,0 +1,279 @@
+{
+  "authority": "docs/dsd/DSD_DESIGN.md",
+  "benchmark": {
+    "disposition": "OPEN-CONTROL-NOT-BANDWIDTH-MATCHED",
+    "next_evidence": "Re-run only the properly bandwidth-matched staged legacy comparator, verify its transfer including passband and alias folding against the 40 kHz/80 kHz production mastering profile, and retain 15 timed repetitions with input/build binding. Preserve existing R2 measurements.",
+    "output_rates": {
+      "176400": {
+        "actual_bandwidth_matched_control_verified": false,
+        "direct_reference_median_speedup": 3.874289,
+        "direct_reference_reported_ci95": [
+          3.8739173690016133,
+          3.894891401484976
+        ],
+        "narrower_legacy_control_reported_ci95": [
+          3.915414014693341,
+          3.915910293751604
+        ],
+        "output_hz": 176400,
+        "production_mastering_guaranteed_passband_hz": 40000,
+        "recorded_staged_sinc_lowpass_hz": 20000,
+        "repetitions_per_arm": 15
+      },
+      "352800": {
+        "actual_bandwidth_matched_control_verified": false,
+        "direct_reference_median_speedup": 3.75947,
+        "direct_reference_reported_ci95": [
+          3.7593722178966473,
+          3.7599896030160562
+        ],
+        "narrower_legacy_control_reported_ci95": [
+          3.7797255611041174,
+          3.799930174740632
+        ],
+        "output_hz": 352800,
+        "production_mastering_guaranteed_passband_hz": 40000,
+        "recorded_staged_sinc_lowpass_hz": 20000,
+        "repetitions_per_arm": 15
+      }
+    },
+    "timed_direct_2x_observation": "PASS-SCOPED",
+    "timed_staged_lowpass_observation": "PASS-AS-MEASUREMENT-NOT-MATCHED-CONTROL",
+    "why_open": "The 20 kHz staged sinc narrows the legacy transfer below the DSD256 mastering 40 kHz passband. One quiet test fixture and comparable RMS cannot verify passband equivalence or pre-decimation alias rejection."
+  },
+  "default_promotion_authorized": false,
+  "gates": [
+    {
+      "evidence": "P15_matrix_metrology_R2_2026-10-14",
+      "id": "P15-full-3x9x2-numerical-release-matrix",
+      "scope": "Raw measurement coverage confirmed; composite full spectral extrema, coherent alias/image sum, and like-for-like SRC numerical acceptance proof absent.",
+      "status": "OPEN"
+    },
+    {
+      "evidence": "docs/dsd/amendments/P15_INTEL_AVX512_SCOPE_2026-10-14.md",
+      "id": "P15-physical-Intel-AVX512-performance",
+      "scope": "Conservative no-Intel-specific-preference first-release only; measurement never passed.",
+      "status": "UNRUN-SCOPE-EXEMPT"
+    },
+    {
+      "evidence": "P15_avx1_physical_2026-10-13",
+      "id": "P15-physical-older-AVX-performance",
+      "scope": "Earlier independent closeout; physical AVX1-only kernel evidence only.",
+      "status": "PASS-SCOPED"
+    },
+    {
+      "evidence": "P15_matrix_metrology_R2_2026-10-14/dsd256-2x.json",
+      "id": "P15-2x-six-channel-DSD256-controlled-reference-target",
+      "scope": "15 raw repetitions verify >2x relative to direct reference; claimed 20kHz staged comparator is not bandwidth-matched to 40kHz mastering.",
+      "status": "OPEN"
+    },
+    {
+      "evidence": "P15_soaks_every_profile_isa_2026-10-13",
+      "id": "P15-current-full-release-soaks-every-profile-ISA",
+      "scope": "15 clean encoder profile/SDM family one-hour soaks, 915 verified states and 15 receipts. Not a decode soak.",
+      "status": "PASS-SCOPED"
+    },
+    {
+      "evidence": "P15_corpus_independent_material_2026-10-13",
+      "id": "P15-current-independent-codec-and-hardware-corpus",
+      "scope": "Earlier accepted independent software material only; no physical DAC/player qualification.",
+      "status": "PASS-SCOPED"
+    }
+  ],
+  "historical_receipts_edited": false,
+  "intel": {
+    "amendment": "docs/dsd/amendments/P15_INTEL_AVX512_SCOPE_2026-10-14.md",
+    "disposition": "EXEMPT-FOR-CONSERVATIVE-P15-POLICY-ONLY",
+    "physical_test_execution": "UNRUN",
+    "restriction": "No Intel-specific AVX-512 performance, verified physical compatibility, cross-vendor parity, or automatic preference claim; restored as a blocking gate if any such claim/policy is proposed."
+  },
+  "matrix_coverage": {
+    "forced_isa_full_duration_jobs": 216,
+    "full_local_observation_coverage": true,
+    "graph_raw_verified_full_duration_cells": 54,
+    "scalar_full_duration_cells": 54,
+    "selected_detailed_isa_jobs": 96,
+    "source_reference_sha256": "5519e8816a734ccd3f0a579c809b37d5ca1f53c422ca40e9a8eedb5cd3862854",
+    "src_raw_verified_full_duration_cells": 6,
+    "worklist_sha256": "6dca1febdbbaf2b8112531e89bcf505b098a83d133ea24f0a9a0071969155576"
+  },
+  "p16_authorized": false,
+  "prior_closeout": "docs/dsd/handoffs/P15_CLOSEOUT_ADJUDICATION_2026-10-14.md",
+  "qualified": false,
+  "release_status": "BLOCKED",
+  "required_open_gates": [
+    "P15-full-3x9x2-numerical-release-matrix",
+    "P15-2x-six-channel-DSD256-controlled-reference-target"
+  ],
+  "schema": "P15/re-adjudication/1",
+  "soaks": {
+    "audio_seconds_per_run": 3600,
+    "caveat": "Serialized states and report cross-checks passed; physical host and executable remain operator-supplied provenance, not independently re-executed here. No decode-side one-hour soak is imposed by section 10.5.",
+    "continuation_states_verified": 915,
+    "disposition": "PASS-SCOPED",
+    "execution_receipts_verified": 15,
+    "run_count": 15,
+    "runs": [
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "f9da3e5d32a573df2ba6236d2ac62e2cde791a28322da302e467eed0da64211d",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 2822400,
+        "snapshots_inventory_sha256": "864ab5a0eda0f9cb9c4c49924be2e801e6b4546822bbbb1d261b8fe3d9402218",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "scalar"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "255351a21380017292a951e58926f6030e2a6fbe1f266295c8ded3b930f9f4ed",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 5644800,
+        "snapshots_inventory_sha256": "c8cd74bd067594ac87296e3ff6c8728b4819fd033d8d8b18d025bf5d56fba5db",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "scalar"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "f0520670b194e5b0f6e1136958d104ab53ddc9a7ad054bc378ae3f3a9f507503",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 11289600,
+        "snapshots_inventory_sha256": "51f5148097a8a05f759abe8eb5955c8142e5a66851f54257ae21d017a69119b9",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "scalar"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "f9da3e5d32a573df2ba6236d2ac62e2cde791a28322da302e467eed0da64211d",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 2822400,
+        "snapshots_inventory_sha256": "908c5656dd309b0a17535c2fe6549b2f6e8038f0f566fdcf26340e44bc0fe329",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "sse2"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "255351a21380017292a951e58926f6030e2a6fbe1f266295c8ded3b930f9f4ed",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 5644800,
+        "snapshots_inventory_sha256": "765d914dfe4768bdf8a4e2f7634f36e150ed9e249a968ab4e3f52c4a8d99ced7",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "sse2"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "f0520670b194e5b0f6e1136958d104ab53ddc9a7ad054bc378ae3f3a9f507503",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 11289600,
+        "snapshots_inventory_sha256": "3eb952ab2f76e1651c0e37fe50fb6b3b791feb9b5cebfb2592cc5ed2d6f17109",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "sse2"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "f9da3e5d32a573df2ba6236d2ac62e2cde791a28322da302e467eed0da64211d",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 2822400,
+        "snapshots_inventory_sha256": "908c5656dd309b0a17535c2fe6549b2f6e8038f0f566fdcf26340e44bc0fe329",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "avx1"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "255351a21380017292a951e58926f6030e2a6fbe1f266295c8ded3b930f9f4ed",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 5644800,
+        "snapshots_inventory_sha256": "765d914dfe4768bdf8a4e2f7634f36e150ed9e249a968ab4e3f52c4a8d99ced7",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "avx1"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "f0520670b194e5b0f6e1136958d104ab53ddc9a7ad054bc378ae3f3a9f507503",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 11289600,
+        "snapshots_inventory_sha256": "3eb952ab2f76e1651c0e37fe50fb6b3b791feb9b5cebfb2592cc5ed2d6f17109",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "avx1"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "f9da3e5d32a573df2ba6236d2ac62e2cde791a28322da302e467eed0da64211d",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 2822400,
+        "snapshots_inventory_sha256": "908c5656dd309b0a17535c2fe6549b2f6e8038f0f566fdcf26340e44bc0fe329",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "avx2"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "255351a21380017292a951e58926f6030e2a6fbe1f266295c8ded3b930f9f4ed",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 5644800,
+        "snapshots_inventory_sha256": "765d914dfe4768bdf8a4e2f7634f36e150ed9e249a968ab4e3f52c4a8d99ced7",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "avx2"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "f0520670b194e5b0f6e1136958d104ab53ddc9a7ad054bc378ae3f3a9f507503",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 11289600,
+        "snapshots_inventory_sha256": "3eb952ab2f76e1651c0e37fe50fb6b3b791feb9b5cebfb2592cc5ed2d6f17109",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "avx2"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "f9da3e5d32a573df2ba6236d2ac62e2cde791a28322da302e467eed0da64211d",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 2822400,
+        "snapshots_inventory_sha256": "908c5656dd309b0a17535c2fe6549b2f6e8038f0f566fdcf26340e44bc0fe329",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "avx512"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "255351a21380017292a951e58926f6030e2a6fbe1f266295c8ded3b930f9f4ed",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 5644800,
+        "snapshots_inventory_sha256": "765d914dfe4768bdf8a4e2f7634f36e150ed9e249a968ab4e3f52c4a8d99ced7",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "avx512"
+      },
+      {
+        "completed_seconds": 3600,
+        "execution_receipt_sha256": "f0520670b194e5b0f6e1136958d104ab53ddc9a7ad054bc378ae3f3a9f507503",
+        "harness_unqualified_is_activation_label_not_numerical_failure": true,
+        "profile_native_hz": 11289600,
+        "snapshots_inventory_sha256": "3eb952ab2f76e1651c0e37fe50fb6b3b791feb9b5cebfb2592cc5ed2d6f17109",
+        "snapshots_verified": 61,
+        "source_generator_sha256": "21932da61612638336e90b862c8f528657f051f4d2406da6ff60bc8a58eacc30",
+        "tier": "avx512"
+      }
+    ],
+    "scope": "PCM-to-DSD current P15 mastering profile/SDM family long-duration monitored runs"
+  },
+  "src_envelope": "Product-level spectral limits are already fixed by DSD_DESIGN 6.1/10.4; no universal sample epsilon against a different-filter SRC. Section 8.6 requires an independent like-for-like SRC numerical bound declared before comparison.",
+  "unsupported_claims": [
+    "Intel AVX-512 physical performance/compatibility",
+    "complete composite SRC qualification",
+    "bandwidth-matched DSD256 speedup",
+    "physical device compatibility",
+    "production mastering qualification",
+    "automatic ISA preference changes"
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "banks": {
+    "master128_v2": {
+      "dense_grid_stop_max_db": -188.13000815184085,
+      "hp_stop_peak_amplitude": "-3.9248957987489872995e-10",
+      "pass_extrema_checked": 59,
+      "pass_grid_peak_gain_db": 3.1120602416088617e-09,
+      "pass_ripple_db": 3.283941970425621e-09,
+      "passes": true,
+      "sha256": "8f84430b2f0113d4b2055073833b8ab9acba2cd145b300f0f75b7cccc0faaf1b",
+      "stop_extrema_checked": 132,
+      "stop_max_db": -188.12343737521044,
+      "stop_peak_cycles_per_input": 0.17018353286928423,
+      "taps": 377
+    },
+    "master256_v2": {
+      "dense_grid_stop_max_db": -188.43477791144676,
+      "hp_stop_peak_amplitude": "-3.7887279403102679988e-10",
+      "pass_extrema_checked": 69,
+      "pass_grid_peak_gain_db": 2.9893592148077173e-09,
+      "pass_ripple_db": 3.3028553250343016e-09,
+      "passes": true,
+      "sha256": "2b908ebaa0cacc23965d63e46b3838d7eff4149dee5dd01e2d8f12996ee20231",
+      "stop_extrema_checked": 96,
+      "stop_max_db": -188.43013158552193,
+      "stop_peak_cycles_per_input": 0.22678564014516545,
+      "taps": 325
+    },
+    "master64_v2": {
+      "dense_grid_stop_max_db": -188.6147390652488,
+      "hp_stop_peak_amplitude": "-3.7090531365583285992e-10",
+      "pass_extrema_checked": 28,
+      "pass_grid_peak_gain_db": 2.1868092529374734e-09,
+      "pass_ripple_db": 4.314181219768434e-09,
+      "passes": true,
+      "sha256": "1cf7807a6be4651bfd264873dd09075f7f532b22ab3b9638223857f4af09107b",
+      "stop_extrema_checked": 48,
+      "stop_max_db": -188.61473889692863,
+      "stop_peak_cycles_per_input": 0.22675736961451248,
+      "taps": 153
+    }
+  },
+  "elapsed_seconds": 7.381700568999918,
+  "limitations": "numerical extrema evidence, not exhaustive interval arithmetic; full production fractional SRC separately required",
+  "method": "independent P06 derivative-bracketed high-precision bank extrema, composite adaptive localized extrema, full coherent image-sum",
+  "profile_activation": "CANDIDATE_ONLY; FIRST_RELEASE_BLOCKED",
+  "profiles": {
+    "decode.mastering.v2.dsd128": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 4.082934720401602e-10,
+          "grid_points": 2049,
+          "localized_extrema": 43,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 4.312267991932939e-09,
+          "grid_points": 8193,
+          "localized_extrema": 38,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.3119612617969124e-10,
+          "grid_points": 8193,
+          "localized_extrema": 2067,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -187.7805335584825,
+      "delay_native_frames": 3428,
+      "discard_frames": 107,
+      "factor": 32,
+      "high_precision_alias_db": -187.78053712372778,
+      "high_precision_ripple_db": 4.312277635207599e-09,
+      "high_precision_stop_db": -189.30207930677253,
+      "incoherent_flat_image_sum_db": -193.93405036414907,
+      "intermediate_hz": 176400,
+      "native_hz": 5644800,
+      "pass_hz": 48000,
+      "pass_ripple_db": 4.312279563862532e-09,
+      "passes": true,
+      "phase_native_frames": 4,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master128_v2"
+      ],
+      "stop_hz": 60000,
+      "stop_max_db": -189.3020772090664,
+      "synthetic_f4_noise_weighted_image_db": -183.53518652985878,
+      "worst_alias_base_hz": 35347.08875355899,
+      "worst_pass_hz": 35163.271273483944,
+      "worst_stop_hz": 60593.71521681729
+    },
+    "decode.mastering.v2.dsd256": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 7.211530655270943e-10,
+          "grid_points": 2049,
+          "localized_extrema": 62,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 5.842133014971875e-09,
+          "grid_points": 8193,
+          "localized_extrema": 44,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.721623287746211e-10,
+          "grid_points": 8193,
+          "localized_extrema": 1738,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -182.83901862874717,
+      "delay_native_frames": 6052,
+      "discard_frames": 94,
+      "factor": 64,
+      "high_precision_alias_db": -182.83902080834648,
+      "high_precision_ripple_db": 5.842133014971875e-09,
+      "high_precision_stop_db": -188.5853497630896,
+      "incoherent_flat_image_sum_db": -189.2608711490438,
+      "intermediate_hz": 176400,
+      "native_hz": 11289600,
+      "pass_hz": 66000,
+      "pass_ripple_db": 5.842136872281738e-09,
+      "passes": true,
+      "phase_native_frames": 36,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master256_v2"
+      ],
+      "stop_hz": 80000,
+      "stop_max_db": -188.5853517876355,
+      "synthetic_f4_noise_weighted_image_db": -177.9142833611386,
+      "worst_alias_base_hz": 65762.80749152054,
+      "worst_pass_hz": 57226.23201618034,
+      "worst_stop_hz": 80000.0
+    },
+    "decode.mastering.v2.dsd64": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 4.4187634184187615e-10,
+          "grid_points": 2049,
+          "localized_extrema": 19,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 4.680136743222616e-09,
+          "grid_points": 8193,
+          "localized_extrema": 23,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.709053064990564e-10,
+          "grid_points": 8193,
+          "localized_extrema": 846,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -187.09397290991419,
+      "delay_native_frames": 1636,
+      "discard_frames": 51,
+      "factor": 32,
+      "high_precision_alias_db": -187.09397712135512,
+      "high_precision_ripple_db": -4.680137707550083e-09,
+      "high_precision_stop_db": -188.61473889620643,
+      "incoherent_flat_image_sum_db": -193.75585165129522,
+      "intermediate_hz": 88200,
+      "native_hz": 2822400,
+      "pass_hz": 25000,
+      "pass_ripple_db": 4.680140600532484e-09,
+      "passes": true,
+      "phase_native_frames": 4,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master64_v2"
+      ],
+      "stop_hz": 40000,
+      "stop_max_db": -188.6147390645266,
+      "synthetic_f4_noise_weighted_image_db": -183.30374932598832,
+      "worst_alias_base_hz": 17665.341673553303,
+      "worst_pass_hz": 23776.400959236373,
+      "worst_stop_hz": 40000.0
+    }
+  },
+  "schema": "sox-ng/p15-r3-fir-certificate/1",
+  "source": "C99 v2 header bytes, not generator output",
+  "summary": {
+    "bank_count": 3,
+    "banks_passed": 3,
+    "profile_count": 3,
+    "profiles_passed": 3
+  }
+}

@@ -242,7 +242,7 @@ def soaks_review() -> dict:
                 complete_61_state_snapshot_sets=15-absent_states,
                 execution_receipts_present_for=15-absent_exec,
                 one_hour_decode_soak_new_requirement=False,
-                note='The 15 clean reported encoder observations are valuable; their continuation-state hashes and executable receipts are missing. Do not add an unmandated 1-hour decoder soak.')
+                note='This closeout is historical and does not independently adjudicate later-added state/execution receipts. Current file-presence counters may increase as R2 receipts arrive. Consult the versioned P15 re-adjudication; no extra 1-hour decoder soak is required.')
 
 
 def corpus_review() -> dict:

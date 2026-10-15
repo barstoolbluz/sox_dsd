@@ -1,0 +1,192 @@
+{
+  "baseline": {
+    "name": "sox_ng-P15-R2-readjudicated-source-2026-10-14.tar.gz",
+    "sha256": "5662a845e3a21a38ec9219b91d5c33a8d5964ee5407099a82538ebd2657f0dd7",
+    "verified_inventory_entries": 7809
+  },
+  "built_executable_sha256": "7c5869d13943d57b21b11ac56de78a28863cfb693e951f1e108b130f1f5ccbb8",
+  "candidate": {
+    "name": "sox_ng_P15_R3_reconstruction_policy_candidate_2026-10-14.tar.gz",
+    "old_baseline_gap": "ported only decoder R3 delta; never overlaid obsolete R2 scripts/receipts",
+    "sha256": "b451ecc83b59ee9a516b598fe38d34dc4d5f2fda30b1bd16332d387537c16f77"
+  },
+  "date": "2026-10-15",
+  "gates": {
+    "dsd256_66k_bandwidth_matched_physical_2x": "OPEN",
+    "encoder_soak": "PASS_SCOPED_RETAINED_15_RUNS_915_STATES",
+    "intel_physical_avx512": "UNRUN_SCOPE_EXEMPT_CONSERVATIVE_POLICY_ONLY",
+    "p15_historical_r2_composite_src": "OPEN",
+    "p15_historical_r2_dsd256_matched_2x": "OPEN",
+    "v2_bank_decimation_cascade_numeric": "PASS_SCOPE_BOUND",
+    "v2_decoder_implementation": "PASS_SCOPE_BOUND",
+    "v2_full_27_cell_numerical_release_matrix": "OPEN",
+    "v2_full_production_composite_src_numeric": "OPEN"
+  },
+  "limitations": [
+    "3x9 new-v2 test matrix has functional observations, not full independent composite SRC numerical acceptance",
+    "Local tests cannot certify the physical matched-bandwidth performance gate",
+    "Original R2 reviewer is source-pinned and correctly refuses a changed R3 source; replay on the immutable, verified R2 baseline instead",
+    "Candidate R3 prior-host results are retained separately and are not rewritten as new R2-run evidence"
+  ],
+  "new_postmerge_receipt_sha256": {
+    "integration/selection-and-audio.json": "eed4a2e0b506a275d5ab005bdb27d1a1e288205a8d5a9ac4a460c7c980088cbf",
+    "numeric/finite-and-isa.json": "5338dc571b3a4141e1050a00fac31d507e0f50eb0ef24106108cfca04d51bac2",
+    "numeric/fir-certificate.json": "ef2f193cee5e2bf241e093b958c77874c551e52afcba9670b1f68baec9985d29",
+    "numeric/src-sampled-holdouts.json": "b4f2d05754757ffedba4ff20f4f37f9f74d9698272c4c0019e8671a7481a4cae"
+  },
+  "preservation": {
+    "intel_amendment_sha256": "35e6eeff5f8fa584ec85659d9c70b12b825000be2aca50cbbb431b9b97ea5e84",
+    "r2_modified_paths": [
+      "Makefile.am",
+      "docs/dsd/DSD_DESIGN.md",
+      "docs/dsd/MIGRATION_P15.md",
+      "docs/dsd/QUALIFICATION.md",
+      "src/Makefile.am",
+      "src/dsd.c",
+      "src/dsd.h",
+      "src/dsd_decode.c",
+      "src/dsd_plan.c",
+      "src/dsd_public.c",
+      "src/dsd_stats.c",
+      "src/dsdpcm.c",
+      "src/sox_dsd.h",
+      "src/sox_ng.c",
+      "tests/dsd/test_p15_instrument.c"
+    ],
+    "r2_new_paths_prior_to_receipt": [
+      "docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_CHECKPOINT.md",
+      "docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_HANDOFF.md",
+      "src/dsd_coeffs_v2.h",
+      "tests/dsd/bench_p15_r3_local.py",
+      "tests/dsd/certify_p15_r3_filters.py",
+      "tests/dsd/generate_p15_r3_coeffs.py",
+      "tests/dsd/reference/p15_r3_coefficients.json",
+      "tests/dsd/results/P15_R3/integration/selection-and-audio.json",
+      "tests/dsd/results/P15_R3/numeric/finite-and-isa.json",
+      "tests/dsd/results/P15_R3/numeric/fir-certificate.json",
+      "tests/dsd/results/P15_R3/numeric/src-sampled-holdouts.json",
+      "tests/dsd/results/P15_R3/performance/local-unmatched-development-benchmark.json",
+      "tests/dsd/results/P15_R3/preservation.json",
+      "tests/dsd/results/P15_R3/regression/cli-qualification.json",
+      "tests/dsd/results/P15_R3_R2_reconciliation_2026-10-15/integration/selection-and-audio.json",
+      "tests/dsd/results/P15_R3_R2_reconciliation_2026-10-15/numeric/finite-and-isa.json",
+      "tests/dsd/results/P15_R3_R2_reconciliation_2026-10-15/numeric/fir-certificate.json",
+      "tests/dsd/results/P15_R3_R2_reconciliation_2026-10-15/numeric/src-sampled-holdouts.json",
+      "tests/dsd/test_p15_r3.py",
+      "tests/dsd/test_p15_r3_numeric.py",
+      "tests/dsd/test_p15_r3_src_spot.py"
+    ],
+    "r2_old_gate_decision_sha256": "5217c16f64b93ecb5a8d6584c55846a68313e40f22636dad093da1fa8ba559ed",
+    "r2_paths_deleted": 0,
+    "r2_prior_handoffs_exact": 61,
+    "r2_prior_result_files_exact": 6847,
+    "r2_reference_coefficient_files_exact": 26,
+    "r3_candidate_new_result_files_exact": 7
+  },
+  "release": {
+    "automatic_isa_policy_changed": false,
+    "default_mastering_v2_promoted": false,
+    "encoder_v1_changed": false,
+    "p16_authorized": false,
+    "status": "BLOCKED"
+  },
+  "schema": "sox-ng/p15-r3-r2-reconciliation/1",
+  "source_sha256": {
+    "src/Makefile.am": "8855337cfbf04064477c0ef0c6bf3b540d33e00b84160c7a3ad9780a4e51ca3d",
+    "src/dsd.c": "376427406ba7f1e96463b82d308651d548ba4121bf4ad6a04148a415980aff5c",
+    "src/dsd.h": "908b6f7ae4f030b183aadb371f44a3afac1a285eea7128fe6e7de971f9d9e393",
+    "src/dsd_decode.c": "7194387ab5906a1f8cfcaef98a46922a12dd680d2420febc5dd7e993f70bfad7",
+    "src/dsd_plan.c": "be2e7ede019b38439acb5234ec9f8d02956698525e94e3d7be4a7408dd80c93b",
+    "src/dsd_public.c": "26b22da56992da1c3cf6151e309dac759235199449b1c2336476766600d8c8be",
+    "src/dsd_stats.c": "3ebbd4674b50c973d0b6ea630609a835fa06e0897150b5f1dfb88bb130a73c10",
+    "src/dsdpcm.c": "bc5e02a929306255023da0260a56e13f9a910776458de52e2703e24d0a518d4d",
+    "src/sox_dsd.h": "ba3ae4b8f2f9030118c3339bda35e75231642860ba537ff448432ddcc57fa835",
+    "src/sox_ng.c": "a07b7663314de4e964ba4729034121baa98c79949a889eb9b6a6d9dfc3f6d8fd"
+  },
+  "tests": [
+    {
+      "exit": 0,
+      "name": "R2-original P00 7809 checksum inventory",
+      "scope": "original R2 source only"
+    },
+    {
+      "cases": 4,
+      "exit": 0,
+      "name": "R2-original legacy closeout reviewer unit",
+      "scope": "original source-hash-bound R2 snapshot"
+    },
+    {
+      "cases": 7,
+      "exit": 0,
+      "name": "R2-original readjudication reviewer unit",
+      "scope": "R2 source-hash-bound tool (passes unchanged)"
+    },
+    {
+      "exit": 2,
+      "expected_exit": 2,
+      "name": "R2-original readjudication --require-release",
+      "result": "BLOCKED (byte-identical historical release decision)"
+    },
+    {
+      "exit": 0,
+      "name": "R2 raw matrix coverage --require-coverage",
+      "observations": "54 scalar, 216 forced ISA, 96 detailed, five sessions; coverage not release qualification"
+    },
+    {
+      "exit": 1,
+      "expected_exit": 1,
+      "name": "Merged-tree R2 original reader --require-release",
+      "result": "historical receipt source/reference hash mismatch, correct fail-closed behavior on newer source"
+    },
+    {
+      "exit": 0,
+      "name": "P15-R3 FIR generator --check twice",
+      "result": "byte-idempotent"
+    },
+    {
+      "exit": 0,
+      "name": "Merged-tree autoreconf and configure"
+    },
+    {
+      "exit": 0,
+      "name": "Merged-tree make -j4 (resume after first interrupted make -j2)"
+    },
+    {
+      "exit": 0,
+      "name": "Merged-tree make check"
+    },
+    {
+      "exit": 0,
+      "name": "Merged-tree make check-dsd"
+    },
+    {
+      "exit": 0,
+      "fir_banks": 3,
+      "fir_cascades": 3,
+      "integration_pass": 76,
+      "name": "Merged-tree make check-dsd-p15-r3",
+      "numeric_isa_pass": 36,
+      "src_sampled_pairs": 4
+    },
+    {
+      "exit": 0,
+      "failed": 0,
+      "name": "Merged-tree P15 CLI",
+      "passed": 134
+    }
+  ],
+  "v2_filters": {
+    "master128_v2": {
+      "bank_word_sha256": "8f84430b2f0113d4b2055073833b8ab9acba2cd145b300f0f75b7cccc0faaf1b",
+      "taps": 377
+    },
+    "master256_v2": {
+      "bank_word_sha256": "2b908ebaa0cacc23965d63e46b3838d7eff4149dee5dd01e2d8f12996ee20231",
+      "taps": 325
+    },
+    "master64_v2": {
+      "bank_word_sha256": "1cf7807a6be4651bfd264873dd09075f7f532b22ab3b9638223857f4af09107b",
+      "taps": 153
+    }
+  }
+}

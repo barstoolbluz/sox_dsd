@@ -321,7 +321,7 @@ The following names are the specified interface. Add them to CLI help/manpages t
 
 ```text
 --dsd-mode auto|native|legacy
---dsd-decode mastering|wideband|legacy
+--dsd-decode conservative|mastering|wideband|legacy|decode.mastering.v2.dsd64|128|256
 --dsd-encode mastering|legacy|experimental
 --dsd-level preserve|sacd
 --dsd-clip warn|error
@@ -330,14 +330,14 @@ The following names are the specified interface. Add them to CLI help/manpages t
 --dsd-layout-loss error|warn
 --dsd-report PATH
 
-dsdpcm [-p mastering|wideband|legacy] [-l preserve|sacd] [rate]
+dsdpcm [-p conservative|mastering|wideband|legacy|decode.mastering.v2.dsd64|128|256] [-l preserve|sacd] [rate]
 pcmdsd [-p mastering|legacy|experimental] [--reference auto|pcm|dsd] rate
 dsdstat
 ```
 
 `auto` is the new release domain policy. `native` rejects any requested operation requiring PCM rather than secretly converting. `legacy` restores the old automatic domain ordering/interpolation/selection policy where applicable, but **does not restore format corruption, seek bugs or layout falsification**. Warn that generic effects may act on native DSD pulses in legacy mode. `--dsd-decode legacy` alone selects direct generic reconstruction without restoring unsafe graph ordering; distinguish these two controls in help.
 
-The qualified release's defaults are `auto`, mastering decode, mastering encode, preserve level, clip warn, bandwidth adapt and layout-loss error. Before P15, new behavior remains opt-in while default migration tests run. Explicit `sdm -f ...` and trellis options remain available as low-level/experimental controls, not synonyms for a qualified mastering profile. Versioned IDs such as `decode.mastering.v1.dsd128` and `encode.mastering.v1.dsd128` are accepted for reproducible selection and emitted in reports; human aliases resolve to those IDs for a release.
+The intended qualified release's defaults are `auto`, **v2** mastering decode, **v1** mastering encode, preserve level, clip warn, bandwidth adapt and layout-loss error. **P15-R3 is a candidate only**: while the P15 first-release gate is blocked, the shipped `mastering` alias and automatic/default decoder choice remain v1; explicit `decode.mastering.v2.dsd*` IDs permit qualification without promotion. `conservative` selects v1 mastering for the matching native rate; `wideband` remains v1; `legacy` remains a separate algorithm. Exact versioned IDs survive future alias migration. Before P15 closes, new domain processing remains opt-in while default migration tests run. Explicit `sdm -f ...` and trellis options remain available as low-level/experimental controls, not synonyms for a qualified mastering profile. Versioned IDs such as `decode.mastering.v1.dsd128` and `encode.mastering.v1.dsd128` are accepted for reproducible selection and emitted in reports; human aliases resolve to those IDs for a release.
 
 A terminal DoP request with no explicit output rate chooses native Hz / 16 and a lossless 24-significant-bit transport representation; it does not inherit the native MHz rate as PCM transport.
 
@@ -355,8 +355,8 @@ Unsupported forced tiers fail before processing. They do not fall back silently.
 Examples, after the qualified release:
 
 ```sh
-# Conservative bandwidth remains conservative at 705.6 kHz.
-sox_ng --dsd-decode mastering in.dsf -r 705600 -b 24 out.wav
+# Explicit original conservative v1 remains at 20 kHz even at 705.6 kHz.
+sox_ng --dsd-decode conservative in.dsf -r 705600 -b 24 out.wav
 
 # Preserve higher-rate source bandwidth explicitly.
 sox_ng --dsd-decode wideband in128.dsf -r 352800 -b 24 out.wav
@@ -403,6 +403,21 @@ Profiles are linear-phase, unity-DC FIR reconstruction followed by optional PCM 
 * DSD128: P = 30,000 Hz; S = 60,000 Hz; R = 176,400 Hz; D = 32.
 * DSD256: P = 40,000 Hz; S = 80,000 Hz; R = 176,400 Hz; D = 64.
 
+**Decoder mastering v2 — P15-R3 candidate, *not promoted*** preserves more ultrasonic source information without changing the qualified attenuation/flatness contract:
+
+* DSD64: P = 25,000 Hz; S = 40,000 Hz; R = 88,200 Hz; D = 32.
+* DSD128: P = 48,000 Hz; S = 60,000 Hz; R = 176,400 Hz; D = 32.
+* DSD256: P = 66,000 Hz; S = 80,000 Hz; R = 176,400 Hz; D = 64.
+
+Here P is the end of the guaranteed flat response, not a brick-wall cutoff. The
+DSD256 14-kHz transition is an explicit policy decision, not a numerical
+certificate. Explicitly requested PCM rates below 176.4 kHz remain permitted:
+`adapt` intersects the passband with `0.475 * min(R, F_out)` and `strict`
+rejects an output that cannot preserve the selected profile. Neither a higher
+output rate nor automatic rate selection changes the chosen filter bank.
+DSD128/256 default to 176.4 kHz, DSD64 to 88.2 kHz, even though DSD256 can
+explicitly be rendered at 352.8 kHz or another supported clock.
+
 **Wideband v1** uses R = native Hz / 32, P = 0.4 R and S = 0.5 R:
 
 * DSD64: P = 35,280 Hz; S = 44,100 Hz; R = 88,200 Hz.
@@ -411,7 +426,7 @@ Profiles are linear-phase, unity-DC FIR reconstruction followed by optional PCM 
 
 These are explicit product transfer-function choices, not an inference that every recording contains useful audio through P. Wideband can preserve more source information and more shaped noise. It is not advertised as universally better sound. The independent source corpus remains necessary to evaluate practical consequences; it is not necessary to define an honest frequency response.
 
-Both profiles require absolute passband error no greater than 0.0001 dB and end-to-end undesired alias/stopband transfer at most -160 dB relative to unity passband, across the specified pass/stop regions. Internal stage design targets at least 185 dB stopband rejection to provide cascade and numerical margin. Phase is linear only in v1. Reject an unsupported minimum-phase request; do not relabel the current filter or silently change its response.
+All decoder reconstruction profiles require absolute passband error no greater than 0.0001 dB and end-to-end undesired alias/stopband transfer at most -160 dB relative to unity passband, across the specified pass/stop regions. Internal stage design targets at least 185 dB stopband rejection to provide cascade and numerical margin. All currently implemented v1 and candidate-v2 banks remain linear phase; no minimum-phase implementation is provided. Reject an unsupported minimum-phase request; do not relabel the current filter or silently change its response.
 
 ## 6.2 Exact filter construction
 
@@ -426,7 +441,17 @@ master256: 57, 57, 57, 57, 57, 117 taps
 wide64/128/256: 57, 57, 57, 57, 257 taps
 ```
 
-The 117-tap last stage is shared in normalized frequency by mastering64 and mastering256. The 153-tap last stage is specific to mastering128. All wideband profiles share the normalized 257-tap bank.
+The *v1* 117-tap last stage is shared in normalized frequency by mastering64 and mastering256. The *v1* 153-tap last stage is specific to mastering128. All wideband v1 profiles share the normalized 257-tap bank.
+
+P15-R3 adds independent *v2 decoder-only* final banks: 153 taps for DSD64,
+377 for DSD128 and 325 for DSD256, using unchanged 57-tap early stages and
+A=190 dB generation. These actual lengths were measured against the existing
+bank envelope, not assumed from an estimate. Their separately stored canonical
+IDs and rounded-word SHA-256 are in
+`tests/dsd/reference/p15_r3_coefficients.json`; additive C99 words are in
+`src/dsd_coeffs_v2.h`; independent P15-R3 FIR/cascade evidence is under
+`tests/dsd/results/P15_R3/numeric`. The previous P06 coefficient header,
+manifest, bank identities and frozen results remain unchanged.
 
 Generate a symmetric Kaiser-windowed sinc with midpoint cutoff `(P + S)/2` and attenuation design parameter A = 190 dB, beta = `0.1102 * (A - 8.7) = 19.97926`. Candidate length starts at:
 
@@ -478,7 +503,10 @@ For the candidate banks:
 * Master64: G = 1,348 frames; phase = 4; discard = 42; front-end lookahead about 0.477608 ms.
 * Master128: G = 1,636; phase = 4; discard = 51; about 0.289824 ms.
 * Master256: G = 2,724; phase = 36; discard = 42; about 0.241284 ms.
-* Wideband: G = 2,468 at each native rate; phase = 4; discard = 77; about 0.874433 / 0.437217 / 0.218608 ms for 64/128/256.
+* Wideband v1: G = 2,468 at each native rate; phase = 4; discard = 77; about 0.874433 / 0.437217 / 0.218608 ms for 64/128/256.
+* Mastering v2 DSD64: G = 1,636 native frames; phase = 4; discard = 51; front-end lookahead ~0.580 ms.
+* Mastering v2 DSD128: G = 3,428 native frames; phase = 4; discard = 107; front-end lookahead ~0.607 ms.
+* Mastering v2 DSD256: G = 6,052 native frames; phase = 36; discard = 94; front-end lookahead ~0.536 ms.
 
 Compensated timestamps do not eliminate streaming lookahead. Report front-end lookahead, final-SRC lookahead, buffering latency and total separately. Never emit these discarded priming samples as extra silence in the final file.
 
@@ -541,7 +569,7 @@ PCM graph samples
   -> chronological native bits
 ```
 
-Use the same mastering P/S/R policy as the corresponding decoder, but generate a **non-decimating** prefilter at R; do not accidentally reuse a last-stage decimation bank whose design input rate is 2R. The prefilter uses the documented Kaiser generator, linear phase, 185 dB stage rejection and the 0.0001 dB public passband envelope. The input-to-R SRC and R-to-native SRC use the private 180 dB, 95%-0-dB-bandwidth, linear-phase configuration. Bypass identity SRCs. A low-rate source necessarily narrows the effective passband; report this intersection.
+**Encoder version pinning:** `encode.mastering.v1.dsd64/128/256` uses the original **decoder mastering-v1 P/S/R values** (20/40/88.2, 30/60/176.4, 40/80/176.4 kHz), independent of decoder `decode.mastering.v2.*`. Generate the v1 **non-decimating** encoder prefilter at R; do not reuse a last-stage decimation bank whose design input rate is 2R. No encoder-v2 or encoder policy change is implied by P15-R3; that would require separate authorization and qualification. The 15 historical encoder soaks are retained for unchanged encoder bytes. The prefilter uses the documented Kaiser generator, linear phase, 185 dB stage rejection and the 0.0001 dB public passband envelope. The input-to-R SRC and R-to-native SRC use the private 180 dB, 95%-0-dB-bandwidth, linear-phase configuration. Bypass identity SRCs. A low-rate source necessarily narrows the effective passband; report this intersection.
 
 This first mastering profile deliberately does not preserve all ultrasonic information in a 384/705.6 kHz PCM source. That is its production bandwidth contract, not an SRC bug. Wideband PCM encoding remains an explicit experimental profile until separately qualified; a wideband decoder does not automatically authorize a wideband encoder.
 
@@ -726,7 +754,7 @@ DoP has hand-derived 1..33-frame vectors, marker continuity across buffers/chann
 
 ## 10.4 DSD-to-PCM numerical matrix
 
-Every release covers 3 native rates x 9 PCM rates x 2 profiles, including 352.8 and 705.6 kHz explicitly. Run scalar on every cell; run all available ISA tiers on a representative full grid in qualification and a selected smoke matrix in ordinary CI. Channels 1, 2 and 6 cover throughput/channel isolation; 5 channels cover awkward buffering. Test additional channel counts through format-supported limits with small vectors to exercise indexing, without pretending those counts received the same hardware benchmarks.
+The historical v1 release instrument covers 3 native rates x 9 PCM rates x 2 profiles (v1 mastering and v1 wideband), including 352.8 and 705.6 kHz explicitly. A **v2-promoting release** requires a new 3 x 9 v2 rate matrix plus channel/ISA and full composite SRC/alias coverage; earlier 54-cell records cannot certify new coefficients. Run scalar on every cell; run all available ISA tiers on a representative full grid in qualification and a selected smoke matrix in ordinary CI. Channels 1, 2 and 6 cover throughput/channel isolation; 5 channels cover awkward buffering. Test additional channel counts through format-supported limits with small vectors to exercise indexing, without pretending those counts received the same hardware benchmarks.
 
 Required tests: unity DC/normalization; impulse and delayed impulses; high-precision finite convolution; tone sweeps through pass/transition/stop regions; all alias-image families; output count and fractional-rate ratios; zero/tiny streams; startup/drain; channel isolation; level gain; clipping; buffer invariance; and count/phase invariance under threading. Use internal linear-kernel stimuli for transfer-function tests and independent one-bit streams for full API tests. Do not pass a floating sine to an alleged one-bit converter and call it a DSD end-to-end test.
 
@@ -765,6 +793,24 @@ Compare the new decoder both against the legacy ultra-quality direct path and ag
 Use warm-up plus at least 15 timed repetitions for short benchmarks, medians and dispersion/confidence intervals. Reference performance gates: no more than 5% median regression on unchanged native repacking or legacy paths when measurement noise is under 2%; otherwise rerun on a controlled host. A dispatch preference requires at least 10% reliable kernel benefit and no material end-to-end regression on its target workload class. The project target for the main six-channel DSD256 decoder is at least 2x the reviewed direct ultra-quality path on the fixed reference host, with the bandwidth-matched comparison also reported. This is a target to test, not a measured claim in this design; failure requires a documented optimization decision, not weakened quality.
 
 Required hardware evidence: AVX1-only execution or a validated feature-restricted environment for compatibility; an AVX2 machine; Intel AVX-512; and AMD AVX-512 when available. Physical older-AVX performance and vendor-specific dispatch selection require representative physical machines. A skipped run remains a named gap. Never infer all CPU classes from the design-session VM.
+
+**P15 first-release Intel AVX-512 feature-scoped amendment (2026-10-14).**
+For a first release that retains the existing section 8.4 conservative automatic
+policy (SSE2 when available on unknown CPUs, otherwise scalar), introduces
+**no** Intel-specific or automatic AVX-512 dispatch preference, and advertises
+**no** Intel AVX-512 physical-performance, physical-compatibility or cross-vendor
+equivalence claim, the preceding **physical Intel AVX-512 performance
+measurement** is not a prerequisite to releasing that limited feature scope.
+Its recorded execution status remains **UNRUN**, never PASS, and the evidence
+gap must remain visible in every new release adjudication. This exception is
+not a substitute for functional ISA correctness, runtime CPUID/OS-state
+validation, the other required hardware evidence, numerical qualification,
+or the six-channel benchmark contract. A future release that introduces an
+Intel-specific AVX-512 preference or makes a claim requiring physical Intel
+AVX-512 execution **must obtain representative physical Intel evidence first**.
+This amendment does not, by itself, close P15, promote any mastering/ISA
+default, or authorize P16. Rationale, exact scope and outstanding limitations:
+`docs/dsd/amendments/P15_INTEL_AVX512_SCOPE_2026-10-14.md`.
 
 # 11. Compatibility, integration budget and release policy
 

@@ -95,7 +95,9 @@ sox_dsd_status_t sox_dsd_decoder_create(
   resolved.size = sizeof(resolved);
   if (!resolved.channels || resolved.channels > DSD_MAX_CHANNELS ||
       !lsx_dsd_pcm_rate_supported(resolved.output_hz) ||
-      resolved.profile > SOX_DSD_DECODE_WIDEBAND ||
+      (resolved.profile != SOX_DSD_DECODE_MASTERING &&
+       resolved.profile != SOX_DSD_DECODE_WIDEBAND &&
+       resolved.profile != SOX_DSD_DECODE_MASTERING_V2) ||
       resolved.level > SOX_DSD_LEVEL_SACD ||
       resolved.bandwidth > SOX_DSD_BANDWIDTH_STRICT)
     return SOX_DSD_BAD_ARGUMENT;

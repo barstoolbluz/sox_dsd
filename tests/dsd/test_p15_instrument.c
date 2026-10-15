@@ -4,7 +4,7 @@
  * mathematics live here. stdout = native little-endian binary64 frames.
  * stderr carries the selected real FIR kernel and successful frame counts.
  *
- * Usage: native_hz pcm_hz mastering|wideband kernel channels frames chunk [preserve|sacd]
+ * Usage: native_hz pcm_hz mastering|wideband|mastering_v2 kernel channels frames chunk [preserve|sacd]
  * stdin: frames * channels bytes, each byte EXACTLY 0 or 1.
  */
 #include "sox_dsd.h"
@@ -65,7 +65,8 @@ int main(int argc, char **argv)
   native=(uint32_t)a[0];output=(uint32_t)a[1];channels=(unsigned)a[2];
   total=(uint64_t)a[3];chunk=(unsigned)a[4];
   profile=argv[3];tier=argv[4];
-  if (strcmp(profile,"mastering") && strcmp(profile,"wideband"))
+  if (strcmp(profile,"mastering") && strcmp(profile,"wideband") &&
+      strcmp(profile,"mastering_v2"))
     return fail("invalid profile");
   if (strcmp(tier,"scalar") && strcmp(tier,"sse2") && strcmp(tier,"avx1") &&
       strcmp(tier,"avx2") && strcmp(tier,"avx512"))
@@ -76,7 +77,9 @@ int main(int argc, char **argv)
   if (!bits || !source || !pcm) goto done;
   sox_dsd_decode_options_init_extended(&cfg);
   cfg.native_hz=native;cfg.output_hz=output;cfg.channels=channels;
-  cfg.profile=!strcmp(profile,"mastering")?SOX_DSD_DECODE_MASTERING:SOX_DSD_DECODE_WIDEBAND;
+  cfg.profile=!strcmp(profile,"mastering")?SOX_DSD_DECODE_MASTERING:
+      !strcmp(profile,"mastering_v2")?SOX_DSD_DECODE_MASTERING_V2:
+      SOX_DSD_DECODE_WIDEBAND;
   cfg.kernel_fir=tier;
   if (argc==9) {
     if (!strcmp(argv[8],"sacd")) cfg.level=SOX_DSD_LEVEL_SACD;
