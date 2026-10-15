@@ -1,0 +1,134 @@
+{
+  "arithmetic": "mpmath 95 decimal digits to IEEE 754 binary64",
+  "bank_sha256_algorithm": "sha256 of ASCII float.hex() words joined by newline, terminating newline",
+  "bank_source": "separate from unchanged src/dsd_coeffs.h",
+  "banks": {
+    "master128_v2": {
+      "group_delay_input_samples": 188,
+      "halfband": false,
+      "input_hz": 352800,
+      "length": 377,
+      "midpoint_cycles_per_input": 0.15306122448979592,
+      "pass_cycles_per_input": 0.1360544217687075,
+      "pass_hz": 48000,
+      "preliminary_ripple_db": 3.2839390774432205e-09,
+      "preliminary_stop_max_db": -188.1234660902656,
+      "rounded_dc_sum_hex": "0x1.0000000000000p+0",
+      "rounded_hex_sha256": "8f84430b2f0113d4b2055073833b8ab9acba2cd145b300f0f75b7cccc0faaf1b",
+      "stop_cycles_per_input": 0.17006802721088435,
+      "stop_hz": 60000
+    },
+    "master256_v2": {
+      "group_delay_input_samples": 162,
+      "halfband": false,
+      "input_hz": 352800,
+      "length": 325,
+      "midpoint_cycles_per_input": 0.20691609977324263,
+      "pass_cycles_per_input": 0.1870748299319728,
+      "pass_hz": 66000,
+      "preliminary_ripple_db": 3.302844717432166e-09,
+      "preliminary_stop_max_db": -188.43013073084308,
+      "rounded_dc_sum_hex": "0x1.0000000000000p+0",
+      "rounded_hex_sha256": "2b908ebaa0cacc23965d63e46b3838d7eff4149dee5dd01e2d8f12996ee20231",
+      "stop_cycles_per_input": 0.22675736961451248,
+      "stop_hz": 80000
+    },
+    "master64_v2": {
+      "group_delay_input_samples": 76,
+      "halfband": false,
+      "input_hz": 176400,
+      "length": 153,
+      "midpoint_cycles_per_input": 0.18424036281179137,
+      "pass_cycles_per_input": 0.1417233560090703,
+      "pass_hz": 25000,
+      "preliminary_ripple_db": 4.314180255440968e-09,
+      "preliminary_stop_max_db": -188.63136528078445,
+      "rounded_dc_sum_hex": "0x1.fffffffffffffp-1",
+      "rounded_hex_sha256": "1cf7807a6be4651bfd264873dd09075f7f532b22ab3b9638223857f4af09107b",
+      "stop_cycles_per_input": 0.22675736961451248,
+      "stop_hz": 40000
+    }
+  },
+  "beta_decimal": "19.97926",
+  "design_attenuation_db": 190,
+  "generator": "tests/dsd/generate_p15_r3_coeffs.py",
+  "generator_version": 1,
+  "mpmath_version": "1.3.0",
+  "profiles": {
+    "decode.mastering.v2.dsd128": {
+      "delay_native_frames": 3428,
+      "discard_output_frames": 107,
+      "factor": 32,
+      "intermediate_hz": 176400,
+      "native_hz": 5644800,
+      "pass_hz": 48000,
+      "phase_native_frames": 4,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master128_v2"
+      ],
+      "stage_phases": [
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "stop_hz": 60000
+    },
+    "decode.mastering.v2.dsd256": {
+      "delay_native_frames": 6052,
+      "discard_output_frames": 94,
+      "factor": 64,
+      "intermediate_hz": 176400,
+      "native_hz": 11289600,
+      "pass_hz": 66000,
+      "phase_native_frames": 36,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master256_v2"
+      ],
+      "stage_phases": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "stop_hz": 80000
+    },
+    "decode.mastering.v2.dsd64": {
+      "delay_native_frames": 1636,
+      "discard_output_frames": 51,
+      "factor": 32,
+      "intermediate_hz": 88200,
+      "native_hz": 2822400,
+      "pass_hz": 25000,
+      "phase_native_frames": 4,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master64_v2"
+      ],
+      "stage_phases": [
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "stop_hz": 40000
+    }
+  },
+  "schema": "sox-ng/p15-r3-coefficients/1"
+}

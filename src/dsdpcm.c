@@ -21,6 +21,10 @@ int lsx_dsdpcm_start(sox_effect_t *effect)
     lsx_fail("dsdpcm: native input sample rate must be integer Hz");
     return SOX_EOF;
   }
+  if (priv->options.pinned_native_hz && priv->options.pinned_native_hz!=input_hz) {
+    lsx_fail("dsdpcm: versioned decoder ID is for a different native DSD clock");
+    return SOX_EOF;
+  }
   profile=lsx_dsd_frontend_profile_find(input_hz,priv->options.profile);
   if (!profile) {
     lsx_fail("dsdpcm: unsupported reconstruction rate/profile");

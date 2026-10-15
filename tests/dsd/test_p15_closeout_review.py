@@ -24,8 +24,8 @@ class CloseoutReviewTests(unittest.TestCase):
         self.assertEqual(item['evidence']['matrix']['equal_binary64_forced_pairs'], 0)
         self.assertEqual(item['evidence']['matrix']['forced_isa_jobs'], 270)
         self.assertEqual(item['evidence']['matrix']['missing_npz_vectors'], 324)
-        self.assertEqual(item['evidence']['soaks']['complete_61_state_snapshot_sets'], 0)
-        self.assertEqual(item['evidence']['soaks']['execution_receipts_present_for'], 0)
+        self.assertEqual(item['evidence']['soaks']['complete_61_state_snapshot_sets'], 15)
+        self.assertEqual(item['evidence']['soaks']['execution_receipts_present_for'], 15)
         self.assertEqual(item['evidence']['older_avx']['repetitions_per_case'], 15)
 
     def test_corrupt_cell_digest_blocks_adjudication(self):

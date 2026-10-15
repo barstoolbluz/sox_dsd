@@ -64,3 +64,27 @@ sox_ng --dsd-plan --dsd-encode encode.mastering.v1.dsd128 \
 `executable` field; a plan that says `executable: false` does not authorize
 actual conversion. Output containers for DSD512/1024 remain unavailable.
 Generic SoX PCM commands without DSD policy keep their existing semantics.
+
+## P15-R3: additive decoder v2 candidate (2026-10-14)
+
+Before the full P15 release gate closes, `--dsd-decode mastering` continues to
+select the original `decode.mastering.v1.dsd64|128|256` bank.
+`--dsd-decode conservative` explicitly selects those same original v1 banks;
+`--dsd-decode wideband` selects the unchanged wideband v1 banks.
+The exact versioned `decode.mastering.v2.dsd64`, `.dsd128` and `.dsd256` IDs
+are *candidate-only* explicit selectors for verification, not a qualified
+mastering default. `dsdpcm -p` accepts the same selectors. A pinned ID must
+match the native input clock; v1 pins never resolve to v2.
+
+Candidate-v2 DSD64/128/256 guaranteed passbands are 25/48/66 kHz, stopbands
+40/60/80 kHz, implicit PCM clocks 88.2/176.4/176.4 kHz. DSD128 and DSD256
+may explicitly render to lower supported rates with `--dsd-bandwidth adapt`
+(reduced effective passband) or to higher supported rates without switching
+banks. `--dsd-bandwidth strict` rejects requests that cannot retain the selected
+passband. No high-rate output can recreate spectrum removed by its decoder
+bank. Legacy remains the unrelated generic processing mode.
+
+Existing encoder mastering v1 policies, coefficients, reporting identities and
+soak evidence are unchanged. Do not infer an encoder-v2 policy. This work
+**does not activate `auto` by default, qualify v2 or authorize P16**. See
+`handoffs/P15_R3_RECONSTRUCTION_POLICY_HANDOFF.md` and `QUALIFICATION.md`.

@@ -67,12 +67,15 @@ int lsx_dsd_count_convert(uint64_t frames, uint32_t input_hz,
  * These values are derived from the actual emitted bank lengths in the
  * separate P06 coefficient manifest, not the earlier feasibility probe. */
 static const lsx_dsd_frontend_profile dsd_frontends[] = {
-  { 2822400,  88200, LSX_DSD_PROFILE_MASTERING,  20000,  40000, 5, LSX_DSD_BANK_MASTER64_256, 1348},
-  { 5644800, 176400, LSX_DSD_PROFILE_MASTERING,  30000,  60000, 5, LSX_DSD_BANK_MASTER128, 1636},
-  {11289600, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 6, LSX_DSD_BANK_MASTER64_256, 2724},
-  { 2822400,  88200, LSX_DSD_PROFILE_WIDEBAND,  35280,  44100, 5, LSX_DSD_BANK_WIDEBAND, 2468},
-  { 5644800, 176400, LSX_DSD_PROFILE_WIDEBAND,  70560,  88200, 5, LSX_DSD_BANK_WIDEBAND, 2468},
-  {11289600, 352800, LSX_DSD_PROFILE_WIDEBAND, 141120, 176400, 5, LSX_DSD_BANK_WIDEBAND, 2468}
+  { 2822400,  88200, LSX_DSD_PROFILE_MASTERING,  20000,  40000, 5, LSX_DSD_BANK_MASTER64_256, 1348, "decode.mastering.v1.dsd64"},
+  { 5644800, 176400, LSX_DSD_PROFILE_MASTERING,  30000,  60000, 5, LSX_DSD_BANK_MASTER128, 1636, "decode.mastering.v1.dsd128"},
+  {11289600, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 6, LSX_DSD_BANK_MASTER64_256, 2724, "decode.mastering.v1.dsd256"},
+  { 2822400,  88200, LSX_DSD_PROFILE_WIDEBAND,  35280,  44100, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd64"},
+  { 5644800, 176400, LSX_DSD_PROFILE_WIDEBAND,  70560,  88200, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd128"},
+  {11289600, 352800, LSX_DSD_PROFILE_WIDEBAND, 141120, 176400, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd256"},
+  { 2822400,  88200, LSX_DSD_PROFILE_MASTERING_V2,  25000,  40000, 5, LSX_DSD_BANK_MASTER64_V2, 1636, "decode.mastering.v2.dsd64"},
+  { 5644800, 176400, LSX_DSD_PROFILE_MASTERING_V2,  48000,  60000, 5, LSX_DSD_BANK_MASTER128_V2, 3428, "decode.mastering.v2.dsd128"},
+  {11289600, 176400, LSX_DSD_PROFILE_MASTERING_V2,  66000,  80000, 6, LSX_DSD_BANK_MASTER256_V2, 6052, "decode.mastering.v2.dsd256"}
 };
 
 const lsx_dsd_frontend_profile *lsx_dsd_frontend_profile_find(
@@ -138,6 +141,17 @@ int lsx_dsd_profile_parse(char const *text, int encode, int *out, uint32_t *nati
     if (!encode && w && !strcmp(text,w)) {*out=1;*native=dsd_rates[i].hz;return 1;}
   }
 
+  if (!encode) {
+    for (i=0;i<sizeof(dsd_frontends)/sizeof(dsd_frontends[0]);++i)
+      if (dsd_frontends[i].kind == LSX_DSD_PROFILE_MASTERING_V2 &&
+          !strcmp(text,dsd_frontends[i].canonical_id)) {
+        *out=LSX_DSD_PROFILE_MASTERING_V2;
+        *native=dsd_frontends[i].native_hz;
+        return 1;
+      }
+    if (!strcmp(text,"conservative")) { *out=LSX_DSD_PROFILE_MASTERING; return 1; }
+  }
+  /* P15-R3 intentionally does not promote the mastering alias until release. */
   if (!strcmp(text,"mastering")) { *out=0; return 1; }
   if (!encode && !strcmp(text,"wideband")) { *out=1; return 1; }
   if (!strcmp(text,"legacy")) { *out=encode?1:2; return 1; }
@@ -222,7 +236,7 @@ void lsx_dsd_effect_apply_policy(sox_effect_t *effect, const lsx_dsd_policy *pol
 
 const sox_effect_handler_t *lsx_dsdpcm_effect_fn(void)
 {
-  static sox_effect_handler_t h={"dsdpcm", "[-p mastering|wideband|legacy] [-l preserve|sacd] [rate]",
+  static sox_effect_handler_t h={"dsdpcm", "[-p conservative|mastering|wideband|legacy|decode.mastering.v2.dsd64/128/256] [-l preserve|sacd] [rate]",
     SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, lsx_dsdpcm_start,
     lsx_dsdpcm_flow, lsx_dsdpcm_drain, lsx_dsdpcm_stop, NULL, sizeof(lsx_dsdpcm_private), NULL, NULL, NULL};
   return &h;

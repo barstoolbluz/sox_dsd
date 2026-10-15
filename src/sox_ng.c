@@ -1399,7 +1399,15 @@ static void dsd_insert_boundary(sox_effects_chain_t *chain,
     }
     snprintf(rate,sizeof(rate),"%.0f",destination);
     argv[0]="-p";
-    argv[1]=dsd_policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":"mastering";
+    if (dsd_policy.decode==LSX_DSD_PROFILE_MASTERING_V2) {
+      uint32_t native;
+      const lsx_dsd_frontend_profile *profile;
+      if (!lsx_dsd_integer_rate(signal->rate,&native) ||
+          !(profile=lsx_dsd_frontend_profile_find(native,dsd_policy.decode))) {
+        lsx_fail("P15-R3: missing v2 candidate for implicit decoder clock");exit(2);
+      }
+      argv[1]=(char *)profile->canonical_id;
+    } else argv[1]=dsd_policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":"mastering";
     argv[2]="-l";
     argv[3]=dsd_policy.level==LSX_DSD_LEVEL_SACD?"sacd":"preserve";
     argv[4]=rate;
@@ -3304,7 +3312,7 @@ static void usage(void)
 "--dsd-layout ROLES       Comma-separated output role assignment: FL,FR,FC,LFE,BL,BR,SL,SR,MONO",
 "--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
 "--dsd-mode auto|native|legacy  Opt in to P08 domain routing; default remains legacy",
-"--dsd-decode mastering|wideband|legacy|decode.<profile>.v1.dsd<rate>  Select reconstruction policy",
+"--dsd-decode conservative|mastering|wideband|legacy|decode.mastering.v2.dsd<rate>  v2 ID is an unqualified explicit candidate; mastering still v1",
 "--dsd-encode mastering|legacy|experimental|encode.mastering.v1.dsd<rate>  Select modulation policy",
 "--dsd-level preserve|sacd  Decoder level convention",
 "--dsd-clip warn|error    Graph-boundary clipping policy",
@@ -3866,7 +3874,7 @@ static char parse_gopts_and_fopts(file_t * f)
           int profile;
           if (!lsx_dsd_profile_parse(optstate.arg,0,&profile,
                 &dsd_policy.decode_pinned_native_hz)) {
-            lsx_fail("--dsd-decode requires mastering, wideband, legacy, or a supported decode.*.v1.dsd* ID");
+            lsx_fail("--dsd-decode requires conservative, mastering, wideband, legacy, or a supported exact versioned decode ID");
             exit(1);
           }
           dsd_policy.decode=(lsx_dsd_decode)profile;

@@ -1,5 +1,15 @@
 # P15 first-release qualification and release hold
 
+**2026-10-14 re-adjudication:** Read the later,
+`docs/dsd/handoffs/P15_READJUDICATION_2026-10-14.md` and
+`tests/dsd/results/P15_readjudication_2026-10-14/review.json`, **before** the
+historical closeout below. The operator-requested Intel performance gate
+exception is feature-scoped in `docs/dsd/DSD_DESIGN.md` section 10.7 and in
+`docs/dsd/amendments/P15_INTEL_AVX512_SCOPE_2026-10-14.md`;
+**the test remains UNRUN**. Two remaining mandatory release gates stay OPEN;
+production mastering migration and P16 remain BLOCKED. Older evidence and
+its decisions have not been rewritten.
+
 **2026-10-14 closeout:** The later independent adjudication is
 `docs/dsd/handoffs/P15_CLOSEOUT_ADJUDICATION_2026-10-14.md`, with a
 source-bound machine-readable record at
@@ -117,3 +127,25 @@ not a user-facing mastering output path.
 ## 2026-10-13 P15 question follow-up (not a release promotion)
 
 See `P15_QUESTIONS_ADJUDICATION_2026-10-13.md` for the explicit 30-integer / 24-fractional independent-reference split, the 54-cell/tier functional qualification versus selected detailed cross-ISA comparison, the proper separation from P09 `analysis-v1`, and the reason cross-host scalar SDM file-hash equality is not promised. The supplied `P15_avx1_physical_2026-10-13` folder is **not** admissible older-AVX evidence: its `host.txt` names an AVX2-enabled Threadripper rather than the AVX1-only machine claimed by its README, and the raw performance receipts are absent. The six existing release gates stay open. No automatic default, encoder qualification bit or ISA preference changes in this follow-up.
+
+## P15-R3 decoder reconstruction v2 candidate — 2026-10-14
+
+
+A separately versioned decoder-only candidate adds guaranteed 25/48/66 kHz
+passbands at DSD64/128/256. Its FIR bank/cascade certificate is independent
+of the coefficient generator, with new receipts under
+`tests/dsd/results/P15_R3/`; it **does not discharge** full composite SRC
+acceptance, 27-cell new-v2 output matrix/hardware acceptance, or P15's
+existing open first-release gates. `mastering` remains v1 in the shipped
+policy. `conservative` is an alias for v1 mastering; v1 wideband and encoder
+v1 are frozen. `release_status: BLOCKED`; not authorized: default migration,
+new CPU dispatch preferences, encoder-v2 changes or P16.
+
+**2026-10-15 R2-anchored integration:** The v2 candidate source and additive
+receipts have now been reconciled onto the SHA-verified P15 R2 adjudicated
+baseline (7,809 original inventory entries). The R2 Intel scope amendment,
+matrix raw arrays, soak continuation states, source-bound adjudication and
+historical receipts are retained byte-identically. The preceding candidate
+qualification observations remain candidate-host evidence, not new release
+certificates. Read `docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_HANDOFF.md`
+for newly executed merged-tree checks and open gates. **FIRST RELEASE BLOCKED.**

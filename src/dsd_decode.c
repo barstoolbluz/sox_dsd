@@ -10,6 +10,7 @@
  */
 #include "dsd_decode.h"
 #include "dsd_coeffs.h"
+#include "dsd_coeffs_v2.h"
 #include "dsd_kernels.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -48,6 +49,9 @@ static const bank hb = {lsx_dsd_coeff_halfband, 57, 1};
 static const bank m64 = {lsx_dsd_coeff_master64_256, 117, 0};
 static const bank m128 = {lsx_dsd_coeff_master128, 153, 0};
 static const bank wide = {lsx_dsd_coeff_wideband, 257, 0};
+static const bank master256_v2 = {lsx_dsd_coeff_master256_v2, 325, 0};
+static const bank master128_v2 = {lsx_dsd_coeff_master128_v2, 377, 0};
+static const bank master64_v2 = {lsx_dsd_coeff_master64_v2, 153, 0};
 
 /* Every individual channel/stage ring begins on a 64-byte boundary. The
  * mirrored halo occupies 2*L elements; only the end padding is unused. */
@@ -90,6 +94,9 @@ sox_dsd_status_t lsx_dsd_reconstruction_create_kernel(
     case LSX_DSD_BANK_MASTER64_256: last = &m64; break;
     case LSX_DSD_BANK_MASTER128: last = &m128; break;
     case LSX_DSD_BANK_WIDEBAND: last = &wide; break;
+    case LSX_DSD_BANK_MASTER64_V2: last = &master64_v2; break;
+    case LSX_DSD_BANK_MASTER128_V2: last = &master128_v2; break;
+    case LSX_DSD_BANK_MASTER256_V2: last = &master256_v2; break;
     default: return SOX_DSD_UNSUPPORTED;
   }
   ctx = calloc(1, sizeof(*ctx));

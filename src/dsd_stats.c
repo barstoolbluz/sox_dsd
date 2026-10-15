@@ -422,6 +422,9 @@ static const char *bank_hash(lsx_dsd_last_bank bank)
     case LSX_DSD_BANK_MASTER64_256:return "76749b06a43bb529207e68abc8d71631d21013f547de74ecd7837638d6506139";
     case LSX_DSD_BANK_MASTER128:return "306a836d730b97b8f8f8e82d01ea2fc87eeec7efc70939c76558ab8e8fc44673";
     case LSX_DSD_BANK_WIDEBAND:return "658f940a7fbc529a6f927e05c36b9d3c4b5858f001d2b21759e7a6e36ed658d0";
+    case LSX_DSD_BANK_MASTER64_V2:return "1cf7807a6be4651bfd264873dd09075f7f532b22ab3b9638223857f4af09107b";
+    case LSX_DSD_BANK_MASTER128_V2:return "8f84430b2f0113d4b2055073833b8ab9acba2cd145b300f0f75b7cccc0faaf1b";
+    case LSX_DSD_BANK_MASTER256_V2:return "2b908ebaa0cacc23965d63e46b3838d7eff4149dee5dd01e2d8f12996ee20231";
     default:return NULL;
   }
 }
@@ -429,19 +432,27 @@ static const char *bank_hash(lsx_dsd_last_bank bank)
 static void json_dec(FILE *f,const decode_record *r)
 {
   const lsx_dsd_frontend_profile *p=lsx_dsd_frontend_profile_find(r->base.native_hz,r->profile);
-  const lsx_dsd_rate *rate=lsx_dsd_rate_find(r->base.native_hz);
-  const char *id=p&&rate?(r->profile==LSX_DSD_PROFILE_WIDEBAND?rate->decode_wideband_id:rate->decode_mastering_id):NULL;
+  const char *id=p?p->canonical_id:NULL;
   fputs("{\"profile_id\":",f);if(id)jstr(f,id);else fputs("null",f);
   fputs(",\"fir_kernel_actual\":",f);jstr(f,r->kernel);
   fputs(",\"coefficients\":{\"bank_halfband_sha256\":\"140a07d78b4d31f55680554298b8f1a2d4e444643123af570e3f2f552361f125\",\"bank_last_sha256\":",f);
   if(p && bank_hash(p->last_bank))jstr(f,bank_hash(p->last_bank));else fputs("null",f);
   fputs("},\"source_native_hz\":",f);fprintf(f,"%u",r->base.native_hz);
   fputs(",\"output_pcm_hz\":",f);fprintf(f,"%u",r->base.output_hz);
+  fputs(",\"intermediate_pcm_hz\":",f);fprintf(f,"%u",r->base.intermediate_hz);
+  fputs(",\"guaranteed_passband_hz\":",f);if(p)jnumber(f,p->pass_hz);else fputs("null",f);
+  fputs(",\"guaranteed_stopband_hz\":",f);if(p)jnumber(f,p->stop_hz);else fputs("null",f);
+  fputs(",\"candidate_unqualified\":",f);
+  fputs(r->profile==LSX_DSD_PROFILE_MASTERING_V2?"true":"false",f);
   fputs(",\"frames_consumed\":",f);jint(f,r->base.native_frames);
   fputs(",\"frames_produced\":",f);jint(f,r->base.output_frames);
   fputs(",\"intermediate_frames\":",f);jint(f,r->base.intermediate_frames);
   fputs(",\"filter_delay_native_frames\":",f);
   if(p)jint(f,p->delay_native_frames);else fputs("null",f);
+  fputs(",\"filter_phase_native_frames\":",f);
+  if(p)jint(f,p->delay_native_frames%(p->native_hz/p->intermediate_hz));else fputs("null",f);
+  fputs(",\"filter_discard_intermediate_frames\":",f);
+  if(p)jint(f,p->delay_native_frames/(p->native_hz/p->intermediate_hz));else fputs("null",f);
   /* Decoder timestamps are compensated, but compensation is not zero
    * streaming lookahead. Keep frontend support separate from the private
    * SRC's unexposed multistage delay and from scheduling-dependent FIFOs.

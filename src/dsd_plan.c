@@ -101,7 +101,7 @@ static int resolve_decode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
   p->effective_bandwidth_hz=effective;
   p->decoder_gain=level==LSX_DSD_LEVEL_SACD?2.:1.;
   p->decoder_id=profile==LSX_DSD_PROFILE_LEGACY?"decode.legacy.generic":
-      profile==LSX_DSD_PROFILE_WIDEBAND?rate->decode_wideband_id:rate->decode_mastering_id;
+      lsx_dsd_frontend_profile_find(native_rate,profile)->canonical_id;
   p->needs_unimplemented_dsp=1;
   p->unavailable_reason="DSD reconstruction is scheduled for P06/P07/P08";
   return 1;
@@ -819,7 +819,8 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   if (p->unavailable_reason) json_string(fp,p->unavailable_reason); else fputs("null",fp);
   fprintf(fp,",\n  \"policy\": {\"decode\": ");
   json_string(fp,spec->policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":
-      spec->policy.decode==LSX_DSD_PROFILE_LEGACY?"legacy":"mastering");
+      spec->policy.decode==LSX_DSD_PROFILE_LEGACY?"legacy":
+      spec->policy.decode==LSX_DSD_PROFILE_MASTERING_V2?"mastering-v2-candidate":"mastering");
   fprintf(fp,", \"encode\": ");
   json_string(fp,spec->policy.encode==LSX_DSD_ENCODE_LEGACY?"legacy":
       spec->policy.encode==LSX_DSD_ENCODE_EXPERIMENTAL?"experimental":"mastering");
@@ -843,8 +844,11 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   fprintf(fp,", \"rate_hz\": %.9g, \"channels\": %u},\n",p->combiner_rate,p->combiner_channels);
   fprintf(fp,"  \"output\": {\"domain\": ");
   json_string(fp,lsx_dsd_domain_name(p->output_domain));
-  fprintf(fp,", \"rate_hz\": %.9g, \"channels\": %u, \"bits_per_sample\": %u, \"encoding\": %d},\n",
+  fprintf(fp,", \"rate_hz\": %.9g, \"channels\": %u, \"bits_per_sample\": %u, \"encoding\": %d, \"requested_rate_hz\": ",
       p->output_rate,p->output_channels,p->output_bits,(int)p->output_encoding);
+  if (spec->requested_output_rate) fprintf(fp,"%.9g",spec->requested_output_rate);
+  else fputs("null",fp);
+  fputs("},\n",fp);
   fprintf(fp,"  \"decoder\": {\"id\": ");
   if (p->decoder_id) json_string(fp,p->decoder_id); else fputs("null",fp);
   fprintf(fp,", \"gain\": %.17g, \"pass_hz\": %.9g, \"stop_hz\": %.9g, \"intermediate_hz\": %.9g, \"effective_bandwidth_hz\": %.9g},\n",
