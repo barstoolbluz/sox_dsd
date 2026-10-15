@@ -1,0 +1,623 @@
+{
+  "center_impulse_phase": {
+    "alias_free_samples": 4096,
+    "aligned_to_subsample_0_005": true,
+    "band_hz": [
+      2094.75,
+      33516.0
+    ],
+    "frequency_bins": 46695,
+    "max_phase_residual_radians": 9.787289729876505e-13,
+    "phase_offset_radians": -5.217733937809202e-16,
+    "relative_group_delay_pcm_frames": -1.4554187680435184e-16
+  },
+  "channel_and_partition": {
+    "clone_identity": true,
+    "first_run": {
+      "binary64_sha256": "a391ad5e450e7ed77bd37915fa68023757ed1707235bb68daeae8ae242319c73",
+      "channels": 6,
+      "exit_code": 0,
+      "forced_tier_verified": true,
+      "level": "preserve",
+      "output_frames": 4096,
+      "source_bit_chronology_sha256": "e98ed13a3d201bbe646577d16abb3c64f405e09385103211567b33538b94c2db"
+    },
+    "independent_channel_2": true,
+    "mono_channel_2": {
+      "binary64_sha256": "3f3680cdd0a28e84db1ac7c6607be7a321e8e2b2d80ef88e8e517175a412e5ab",
+      "channels": 1,
+      "exit_code": 0,
+      "forced_tier_verified": true,
+      "level": "preserve",
+      "output_frames": 4096,
+      "source_bit_chronology_sha256": "8480e29f55cd10f29bcce4ce421bb5f779c889165fef6ea60b657f15603b855d"
+    },
+    "mono_vs_six_same": true,
+    "same_bit_output_two_partitions": true,
+    "second_run": {
+      "binary64_sha256": "a391ad5e450e7ed77bd37915fa68023757ed1707235bb68daeae8ae242319c73",
+      "channels": 6,
+      "exit_code": 0,
+      "forced_tier_verified": true,
+      "level": "preserve",
+      "output_frames": 4096,
+      "source_bit_chronology_sha256": "e98ed13a3d201bbe646577d16abb3c64f405e09385103211567b33538b94c2db"
+    },
+    "status": "PASS",
+    "tested_channels": [
+      1,
+      2,
+      5,
+      6
+    ]
+  },
+  "cross_isa": [
+    {
+      "composite_tolerance": "REQUIRES_SEPARATE_NUMERICAL_ENVELOPE",
+      "count_and_chunk_invariant": true,
+      "detailed_cross_isa": false,
+      "fir_receipt": {
+        "binary64_sha256": "7d76bc0c23b433461c17a78ee2c7122cd182d37a470a2c1cc393f906d1352f62",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 8192,
+        "source_bit_chronology_sha256": "4f8be58252a572487913fe9f6d5460552799b8ca57c30b512f6235611ac95243"
+      },
+      "impulse_detail": [],
+      "large_chunk_receipt": {
+        "binary64_sha256": "9db2e4daa930f0afd7797ac8334b9ec2762a1f3a6189e570da8a11517e78c89b",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 4096,
+        "source_bit_chronology_sha256": "4f8be58252a572487913fe9f6d5460552799b8ca57c30b512f6235611ac95243"
+      },
+      "receipt": {
+        "binary64_sha256": "9db2e4daa930f0afd7797ac8334b9ec2762a1f3a6189e570da8a11517e78c89b",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 4096,
+        "source_bit_chronology_sha256": "4f8be58252a572487913fe9f6d5460552799b8ca57c30b512f6235611ac95243"
+      },
+      "same_cell_scalar_composite": {
+        "first_abs": 5.204170427930421e-17,
+        "frames": 4096,
+        "interior_max_abs": 2.220446049250313e-16,
+        "last_abs": 8.326672684688674e-17,
+        "max_abs": 2.220446049250313e-16,
+        "ref_peak": 0.27618691344048374,
+        "rms_abs": 5.552809095990862e-17
+      },
+      "scalar_relative_fir": {
+        "first_abs": 0.0,
+        "frames": 8192,
+        "interior_max_abs": 1.942890293094024e-16,
+        "last_abs": 0.0,
+        "max_abs": 1.942890293094024e-16,
+        "ref_peak": 0.276110770633318,
+        "rms_abs": 3.516630149919908e-17
+      },
+      "status": "MEASURED",
+      "tier": "avx512"
+    }
+  ],
+  "effective_passband_hz": 41895.0,
+  "finite_tiny_streams": [
+    {
+      "measured_receipt": {
+        "binary64_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 0,
+        "source_bit_chronology_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native_frames": 0,
+      "numerical_discrepancy": {
+        "first_abs": 0.0,
+        "frames": 0,
+        "interior_max_abs": 0.0,
+        "last_abs": 0.0,
+        "max_abs": 0.0,
+        "ref_peak": 0.0,
+        "rms_abs": 0.0
+      },
+      "output_frames": 0
+    },
+    {
+      "measured_receipt": {
+        "binary64_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 0,
+        "source_bit_chronology_sha256": "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a"
+      },
+      "native_frames": 1,
+      "numerical_discrepancy": {
+        "first_abs": 0.0,
+        "frames": 0,
+        "interior_max_abs": 0.0,
+        "last_abs": 0.0,
+        "max_abs": 0.0,
+        "ref_peak": 0.0,
+        "rms_abs": 0.0
+      },
+      "output_frames": 0
+    },
+    {
+      "measured_receipt": {
+        "binary64_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 0,
+        "source_bit_chronology_sha256": "9dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2"
+      },
+      "native_frames": 2,
+      "numerical_discrepancy": {
+        "first_abs": 0.0,
+        "frames": 0,
+        "interior_max_abs": 0.0,
+        "last_abs": 0.0,
+        "max_abs": 0.0,
+        "ref_peak": 0.0,
+        "rms_abs": 0.0
+      },
+      "output_frames": 0
+    },
+    {
+      "measured_receipt": {
+        "binary64_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 0,
+        "source_bit_chronology_sha256": "75c8fd04ad916aec3e3d5cb76a452b116b3d4d0912a0a485e9fb8e3d240e210c"
+      },
+      "native_frames": 3,
+      "numerical_discrepancy": {
+        "first_abs": 0.0,
+        "frames": 0,
+        "interior_max_abs": 0.0,
+        "last_abs": 0.0,
+        "max_abs": 0.0,
+        "ref_peak": 0.0,
+        "rms_abs": 0.0
+      },
+      "output_frames": 0
+    },
+    {
+      "measured_receipt": {
+        "binary64_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 0,
+        "source_bit_chronology_sha256": "cc5f6cf32f361e9fb50506c70a866c25bf5956ff095cd5c968ebb14f22412a63"
+      },
+      "native_frames": 31,
+      "numerical_discrepancy": {
+        "first_abs": 0.0,
+        "frames": 0,
+        "interior_max_abs": 0.0,
+        "last_abs": 0.0,
+        "max_abs": 0.0,
+        "ref_peak": 0.0,
+        "rms_abs": 0.0
+      },
+      "output_frames": 0
+    },
+    {
+      "measured_receipt": {
+        "binary64_sha256": "2d9ba5021b37470ca00e5dbcbb07348ce2f55e627b0bd47ae22ff0a75710443d",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 1,
+        "source_bit_chronology_sha256": "72cd6e8422c407fb6d098690f1130b7ded7ec2f7f5e1d30bd9d521f015363793"
+      },
+      "native_frames": 32,
+      "numerical_discrepancy": {
+        "first_abs": 6.629695585374205e-12,
+        "frames": 1,
+        "interior_max_abs": 6.629695585374205e-12,
+        "last_abs": 6.629695585374205e-12,
+        "max_abs": 6.629695585374205e-12,
+        "ref_peak": 0.24581773858391742,
+        "rms_abs": 6.629695585374205e-12
+      },
+      "output_frames": 1
+    },
+    {
+      "measured_receipt": {
+        "binary64_sha256": "b9f40be921fc49dfbd893a600a665557d5dc35bc1e445548d5bdf8c431929b8f",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 1,
+        "source_bit_chronology_sha256": "ce041765675ad4d93378e20bd3a7d0d97ddcf3385fb6341581b21d4bc9e3e69e"
+      },
+      "native_frames": 33,
+      "numerical_discrepancy": {
+        "first_abs": 2.953184198341513e-06,
+        "frames": 1,
+        "interior_max_abs": 2.953184198341513e-06,
+        "last_abs": 2.953184198341513e-06,
+        "max_abs": 2.953184198341513e-06,
+        "ref_peak": 0.41370146994398826,
+        "rms_abs": 2.953184198341513e-06
+      },
+      "output_frames": 1
+    },
+    {
+      "measured_receipt": {
+        "binary64_sha256": "448d46c72f8993f31b101176553796c95a84e4cc31e20ffbfd9a1c0ecb810cbd",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 2,
+        "source_bit_chronology_sha256": "b57444d0764cef85bc7ddc6e606adb6b64d5b9df9f5debc008f39ddc1760ff4b"
+      },
+      "native_frames": 127,
+      "numerical_discrepancy": {
+        "first_abs": 9.5793324718767e-06,
+        "frames": 2,
+        "interior_max_abs": 1.142027652584188e-05,
+        "last_abs": 1.142027652584188e-05,
+        "max_abs": 1.142027652584188e-05,
+        "ref_peak": 1.168552075825668,
+        "rms_abs": 1.0540074158502075e-05
+      },
+      "output_frames": 2
+    },
+    {
+      "measured_receipt": {
+        "binary64_sha256": "dbfbd0dbcd24b178f771fcc7e0d793b94456240540bf95af2d8d8fbb2c97298d",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 4,
+        "source_bit_chronology_sha256": "a72ae2671720d9d1a18980b8037351a2cb990db9e55075fe1055575d61b400f8"
+      },
+      "native_frames": 257,
+      "numerical_discrepancy": {
+        "first_abs": 2.321986588626595e-05,
+        "frames": 4,
+        "interior_max_abs": 2.4423413979888272e-05,
+        "last_abs": 2.4121456708077384e-05,
+        "max_abs": 2.4423413979888272e-05,
+        "ref_peak": 1.1130556536539666,
+        "rms_abs": 2.3975793363503972e-05
+      },
+      "output_frames": 4
+    }
+  ],
+  "fractional_src_mp_witness": {
+    "precision_digits": 75,
+    "window_witnesses": [
+      {
+        "high_precision_unnormalized": "-5.315854014602936478795495e-11",
+        "index": 0
+      },
+      {
+        "high_precision_unnormalized": "0.0000097165725794449982306027",
+        "index": 133
+      },
+      {
+        "high_precision_unnormalized": "0.4875",
+        "index": 401
+      },
+      {
+        "high_precision_unnormalized": "0.0004132233928333085407473014",
+        "index": 534
+      },
+      {
+        "high_precision_unnormalized": "-5.315854014602936478795495e-11",
+        "index": 802
+      }
+    ],
+    "witnesses": [
+      {
+        "longdouble_vs_75digit_abs": 2.0079537524078114e-20,
+        "output_frame": 0
+      },
+      {
+        "longdouble_vs_75digit_abs": 7.572648692892989e-20,
+        "output_frame": 2048
+      },
+      {
+        "longdouble_vs_75digit_abs": 3.102325148434251e-22,
+        "output_frame": 4095
+      }
+    ]
+  },
+  "frames_native": 262144,
+  "id": "dsd128.mastering_v2.pcm88200",
+  "intermediate_hz": 176400,
+  "isolated_fir": {
+    "metric": {
+      "first_abs": 3.351878778874717e-17,
+      "frames": 8192,
+      "interior_max_abs": 2.1811437204977135e-16,
+      "last_abs": 8.944667923005412e-18,
+      "max_abs": 2.1811437204977135e-16,
+      "ref_peak": 0.276110770633318,
+      "rms_abs": 4.9303576341787816e-17
+    },
+    "mp_witness": {
+      "precision_digits": 75,
+      "witnesses": [
+        {
+          "exact_75digit": "0.030228098527624079408719355487196469692",
+          "frame": 0,
+          "longdouble_vs_75digit_abs": 3.71935548719647e-21
+        },
+        {
+          "exact_75digit": "0.1816632411893869135807245542369272873",
+          "frame": 4096,
+          "longdouble_vs_75digit_abs": 4.192754457630727e-19
+        },
+        {
+          "exact_75digit": "0.1420316784535151554451110171360522199",
+          "frame": 8191,
+          "longdouble_vs_75digit_abs": 1.488898286394778e-20
+        }
+      ]
+    },
+    "receipt": {
+      "binary64_sha256": "3cea1524cf86c249d8b1c74084631eb189750f141cfde7263ea7d30b6cf7a1df",
+      "channels": 1,
+      "exit_code": 0,
+      "forced_tier_verified": true,
+      "level": "preserve",
+      "output_frames": 8192,
+      "source_bit_chronology_sha256": "4f8be58252a572487913fe9f6d5460552799b8ca57c30b512f6235611ac95243"
+    },
+    "roundoff_bound": 2.4789111141678354e-11
+  },
+  "native_fir_certificate": "tests/dsd/results/P15_R3_matrix_2026-10-15/v2-fir-certificate/fir-certificate.json",
+  "native_hz": 5644800,
+  "one_bit_program": {
+    "dc": 4.232758349769424e-07,
+    "finite_sample_count": 4096,
+    "fit_frequency_hz": [
+      997.3,
+      4231.7
+    ],
+    "measured_peak_amplitudes": [
+      0.22000106442754716,
+      0.055001786491928856
+    ],
+    "nominal_analog_peak_amplitudes": [
+      0.22,
+      0.055
+    ],
+    "note": "measured one-bit program residual; not the -160 dB filter alias ceiling",
+    "one_bit_input": true,
+    "peak_binary64": 0.27618691344048374,
+    "per_tone_gain_delta_db": [
+      4.202489925540255e-05,
+      0.00028212763136894895
+    ],
+    "residual_rms": 0.0012597601754339139,
+    "residual_rms_dbfs": -54.98394254417016,
+    "source_profile": "deterministic first-order 0/1 modulated two-tone"
+  },
+  "output_count_exact": 4096,
+  "output_frames_measured": 4096,
+  "p07_selected_example_limits": {
+    "authorization": "NOT a per-cell P15 combined-stage certificate",
+    "full_endpoint_abs": 0.0085,
+    "interior_abs": 2e-09,
+    "measured_within_P07_example_limits": false
+  },
+  "pcm_hz": 88200,
+  "production_graph": {
+    "reason": "--sox not supplied for real multithreaded graph/clip tests",
+    "status": "UNRUN"
+  },
+  "production_src_spectral": {
+    "checks": 10,
+    "passed": true,
+    "result_file": "src-spectral/dsd128.mastering_v2.pcm88200.json",
+    "sha256": "70ad76ca5036d426fae2f5951accaa1b0a853ae6f185b56956a53e1a7da41d44",
+    "status": "SAMPLED_PASS"
+  },
+  "profile": "mastering_v2",
+  "properties": {
+    "channel_buffer_invariance": "PASS",
+    "coherent_alias_families": "NATIVE_FIR_PASS_INHERITED_P06; SRC_IMAGES_SAMPLED_ONLY",
+    "combined_fractional_src_error": "MEASURED_REQUIRES_ADJUDICATED_ENVELOPE",
+    "delay_phase_and_linear_impulses": "MEASURED",
+    "effective_bandwidth": "POLICY_VALUE_NOT_INDEPENDENTLY_FULL_SPECTRAL_CERTIFIED",
+    "exact_output_count": "PASS",
+    "finite_end_behavior": "PASS",
+    "finite_startup_and_drain": "MEASURED",
+    "graph_clipping_policy": "REQUIRES_CLI_INTEGRATION_EVIDENCE",
+    "high_precision_fir": "PASS",
+    "level_preserve_vs_sacd": "PASS",
+    "one_bit_gain_noise": "MEASURED_SEPARATELY_NOT_CERTIFIED",
+    "passband_and_stopband_response": "NATIVE_FIR_PASS_INHERITED_P06; SRC_SAMPLED_ONLY",
+    "real_threaded_graph_invariance": "REQUIRES_CLI_INTEGRATION_EVIDENCE",
+    "src_selected_passband_images": "SAMPLED_PASS_NOT_COMPLETE_EXTREMA",
+    "zero_and_tiny_native_counts": "PASS"
+  },
+  "pulses": [
+    {
+      "actual_peak_output_frame": 0,
+      "first_abs": 3.317457553713636e-13,
+      "frames": 4096,
+      "interior_max_abs": 5.1181281435219717e-14,
+      "isolated_impulse_peak": 0.01228077168322067,
+      "last_abs": 0.0,
+      "max_abs": 9.569028237631967e-06,
+      "native_impulse_frame": 0,
+      "nominal_peak_output_frame": 0,
+      "receipt": {
+        "binary64_sha256": "591d914e943530507c4ce7c401d9cbb04487e6991df4db2c1db738e8a7346ae1",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 4096,
+        "source_bit_chronology_sha256": "7a718a5bc149eb3f723e7a96ac362b57a875efd2db27ae95b0609646a23c12ac"
+      },
+      "ref_peak": 0.012280771683552415,
+      "rms_abs": 8.297565295059216e-07
+    },
+    {
+      "actual_peak_output_frame": 2048,
+      "first_abs": 0.0,
+      "frames": 4096,
+      "interior_max_abs": 1.1117843507954701e-05,
+      "isolated_impulse_peak": 0.01523437499943664,
+      "last_abs": 0.0,
+      "max_abs": 1.1117843507954701e-05,
+      "native_impulse_frame": 131072,
+      "nominal_peak_output_frame": 2048,
+      "receipt": {
+        "binary64_sha256": "246a9ccfc9e5e26c840ecc0f094e9fa1af2280d50d4737a997b25b6d320fa73d",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 4096,
+        "source_bit_chronology_sha256": "b2566bbabe998b1ca29baf8f6147c66cb0d7ea989d3fd96050033d11ea967c46"
+      },
+      "ref_peak": 0.015234374999848569,
+      "relative_phase": {
+        "alias_free_samples": 4096,
+        "aligned_to_subsample_0_005": true,
+        "band_hz": [
+          2094.75,
+          33516.0
+        ],
+        "frequency_bins": 46695,
+        "max_phase_residual_radians": 9.787289729876505e-13,
+        "phase_offset_radians": -5.217733937809202e-16,
+        "relative_group_delay_pcm_frames": -1.4554187680435184e-16
+      },
+      "rms_abs": 1.3900114141075865e-06
+    },
+    {
+      "actual_peak_output_frame": 4095,
+      "first_abs": 0.0,
+      "frames": 4096,
+      "interior_max_abs": 2.1871393585115584e-14,
+      "isolated_impulse_peak": 0.001255982531046751,
+      "last_abs": 9.533306820175971e-08,
+      "max_abs": 3.875354113700403e-06,
+      "native_impulse_frame": 262143,
+      "nominal_peak_output_frame": 4095,
+      "receipt": {
+        "binary64_sha256": "b42ba6652a1466d5c4c943187f999cc09d39e2fd09dee84446979df5ad107411",
+        "channels": 1,
+        "exit_code": 0,
+        "forced_tier_verified": true,
+        "level": "preserve",
+        "output_frames": 4096,
+        "source_bit_chronology_sha256": "9da5bb09d259f3fc17ad4c2e2a20842c56d7b7af39e9f16638919b3d2a1f70c0"
+      },
+      "ref_peak": 0.0012558871979785492,
+      "rms_abs": 3.359231253149666e-07
+    }
+  ],
+  "qualified": false,
+  "raw_receipt": {
+    "contents": [
+      "baseline",
+      "fir_reference",
+      "fir_signal",
+      "graph_six_channel_bits",
+      "graph_six_channel_f64",
+      "impulse_0_measured",
+      "impulse_0_reference",
+      "impulse_131072_measured",
+      "impulse_131072_reference",
+      "impulse_262143_measured",
+      "impulse_262143_reference",
+      "isa_avx512_fir",
+      "isa_avx512_program",
+      "program_reference",
+      "program_signal",
+      "source_bits"
+    ],
+    "file": "arrays/dsd128.mastering_v2.pcm88200.npz",
+    "sha256": "53cb93e61f1ce128d66b874ddbc8cf7183b454f50f0d7b4df36dba9342ec303e"
+  },
+  "reference_type": "independent-high-precision-finite-decimated-convolution",
+  "sacd_level": {
+    "receipt": {
+      "binary64_sha256": "771dc7ab0923a16f542142bc81d03cc166cac53cc7a3914a2f8d4aac826005c3",
+      "channels": 1,
+      "exit_code": 0,
+      "forced_tier_verified": true,
+      "level": "sacd",
+      "output_frames": 4096,
+      "source_bit_chronology_sha256": "4f8be58252a572487913fe9f6d5460552799b8ca57c30b512f6235611ac95243"
+    },
+    "status": "PASS",
+    "twice_preserve_binary64_exact": true
+  },
+  "scalar_baseline": {
+    "binary64_sha256": "c010471193a4c4be6e5efdf01df7858b471e464c8634b773c5fd3951f8a222fc",
+    "channels": 1,
+    "exit_code": 0,
+    "forced_tier_verified": true,
+    "level": "preserve",
+    "output_frames": 4096,
+    "source_bit_chronology_sha256": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90"
+  },
+  "scalar_program": {
+    "metric": {
+      "first_abs": 1.4695122783339774e-05,
+      "frames": 4096,
+      "interior_max_abs": 4.0724757494071786e-05,
+      "last_abs": 2.304563906936239e-06,
+      "max_abs": 4.0724757494071786e-05,
+      "ref_peak": 0.27616696237813315,
+      "rms_abs": 1.3495253644474434e-05
+    },
+    "receipt": {
+      "binary64_sha256": "1696d553f6f5a1a072485a2f4ce710ee33c4d64e8e202819d7d4423724a4941a",
+      "channels": 1,
+      "exit_code": 0,
+      "forced_tier_verified": true,
+      "level": "preserve",
+      "output_frames": 4096,
+      "source_bit_chronology_sha256": "4f8be58252a572487913fe9f6d5460552799b8ca57c30b512f6235611ac95243"
+    },
+    "stimulus": "genuine first-order one-bit encoded two-tone"
+  },
+  "schema": "P15/independent-3x9-v2-instrument/1",
+  "src_reference": {
+    "accumulation": "numpy.longdouble with sampled 75-digit check",
+    "alignment": "zero-centered first output",
+    "beta": 18.9,
+    "cutoff_fraction": 0.975,
+    "down": 2,
+    "hashed_binary64_taps": "e15f79ada82ffda57f29537b84cba7cc4c701697b6e7ae14d83540bc2a2d34f6",
+    "input_hz": 176400,
+    "output_hz": 88200,
+    "taps": 803,
+    "type": "independently-designed-rational-polyphase-kaiser-sinc",
+    "up": 1,
+    "zero_extension": "numeric"
+  },
+  "status": "MEASURED_PENDING_INDEPENDENT_SPECTRAL_REVIEW"
+}

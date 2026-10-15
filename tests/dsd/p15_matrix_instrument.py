@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execute P15's 54-cell *independent* F64 decoder metrology.
+"""Execute P15's 54-cell v1 or 27-cell v2 *independent* F64 metrology.
 
 Not a release sign-off. Numerical receipts contain complete finite-stage high
 precision references, genuine one-bit source/output, linearly isolated
@@ -37,7 +37,7 @@ import numpy as np
 import scipy
 import mpmath
 
-from p15_matrix_contract import (NATIVE_RATES, PCM_RATES, PROFILES,
+from p15_matrix_contract import (NATIVE_RATES, PCM_RATES, PROFILES, V2_PROFILES, MATRICES,
                                  REQUIRED_TIERS, CROSS_ISA_DETAIL_ENDPOINTS,
                                  cell_key, make_plan, write_json_atomic)
 import p15_numerical_reference as ref
@@ -45,8 +45,17 @@ from p15_src_spectral import evaluate as evaluate_src_spectral
 from p15_graph_integration import measure as measure_graph
 
 ROOT = Path(__file__).resolve().parents[2]
-SPEC = 'P15/independent-3x9x2-instrument/1'
-PROBE_RE = re.compile(r'^P15_PROBE_OK native=(\d+) pcm=(\d+) profile=([a-z]+) '
+SPEC = 'P15/independent-3x9x2-instrument/1'  # Frozen v1 receipt identity.
+SPEC_V2 = 'P15/independent-3x9-v2-instrument/1'
+
+
+def schema_for_matrix(matrix: str) -> str:
+    if matrix not in MATRICES:
+        raise ValueError('invalid metrology matrix')
+    return SPEC if matrix == 'v1' else SPEC_V2
+
+
+PROBE_RE = re.compile(r'^P15_PROBE_OK native=(\d+) pcm=(\d+) profile=([a-z0-9_]+) '
                       r'tier=([a-z0-9]+) channels=(\d+) input=(\d+) output=(\d+) chunk=(\d+) level=(preserve|sacd)$')
 # These two error thresholds are P07's *selected* empirically tested composite
 # comparison envelopes, NOT a new section 8.6 bound and NOT certified for every
@@ -69,7 +78,7 @@ def bits_digest(bits: np.ndarray) -> str:
 
 
 
-def inherited_fir_certificate() -> dict:
+def inherited_fir_certificate(matrix: str = 'v1') -> dict:
     """Verify the P06 adaptive high-precision certificate matches exact banks.
 
     This *reuses* a narrower already-certified mathematical property only:
@@ -77,6 +86,8 @@ def inherited_fir_certificate() -> dict:
     choices. The current coefficient values, stage lists and profile limits
     must be the ones P06 certified; reject a stale certificate outright.
     """
+    if matrix not in MATRICES:
+        raise ValueError('invalid certificate matrix')
     path=ROOT/'tests/dsd/results/P06/numeric/filter-certificate.json'
     if not path.is_file():
         raise ValueError('required P06 FIR spectral certificate is absent')
@@ -103,10 +114,45 @@ def inherited_fir_certificate() -> dict:
             or c['pass_ripple_db']>1e-4 or c['stop_max_db']>-160 or \
             c['coherent_alias_sum_db']>-160:
             raise ValueError('P06 per-profile P/S/alias acceptance differs: '+profile)
-    return dict(status='P06_NATIVE_FIR_CERTIFICATE_VERIFIED',
+    inherited = dict(status='P06_NATIVE_FIR_CERTIFICATE_VERIFIED',
                 path='tests/dsd/results/P06/numeric/filter-certificate.json',
                 sha256=file_hash(path),six_profiles=6,four_banks=4,
                 scope='native FIR only, not final SRC nor new P15 54-cell graph')
+    if matrix == 'v1':
+        return inherited
+    v2path=ROOT/'tests/dsd/results/P15_R3_matrix_2026-10-15/v2-fir-certificate/fir-certificate.json'
+    if not v2path.is_file():
+        raise ValueError('required P15-R3 v2 FIR certificate absent')
+    v2=json.loads(v2path.read_text())
+    meta,banks=ref.bank_data('v2')
+    if (v2.get('schema')!='sox-ng/p15-r3-fir-certificate/1' or
+        v2.get('summary',{}).get('banks_passed')!=3 or
+        v2['summary'].get('profiles_passed')!=3 or
+        v2['summary'].get('bank_count')!=3 or
+        v2['summary'].get('profile_count')!=3 or
+        set(v2['banks'])!=set(meta['banks']) or
+        set(v2['profiles'])!=set(meta['profiles'])):
+        raise ValueError('P15-R3 v2 FIR certificate identity/acceptance mismatch')
+    for name,bank in meta['banks'].items():
+        proof=v2['banks'][name]
+        if (not proof['passes'] or proof['sha256']!=bank['rounded_hex_sha256'] or
+            proof['taps']!=len(banks[name])):
+            raise ValueError('P15-R3 v2 bank differs from certificate: '+name)
+    for name,profile in meta['profiles'].items():
+        proof=v2['profiles'][name]
+        for field in ('native_hz','intermediate_hz','factor','pass_hz','stop_hz',
+                      'delay_native_frames','stage_banks','phase_native_frames'):
+            if proof.get(field)!=profile[field]:
+                raise ValueError('P15-R3 v2 profile differs from certificate: '+name+'/'+field)
+        if proof.get('discard_frames')!=profile['discard_output_frames']:
+            raise ValueError('P15-R3 v2 discard/phase certificate mismatch: '+name)
+        if (not proof['passes'] or proof['pass_ripple_db']>1e-4 or
+            proof['stop_max_db']>-160 or proof['coherent_alias_sum_db']>-160):
+            raise ValueError('P15-R3 v2 profile certificate failed envelope: '+name)
+    return dict(status='P15_R3_V2_NATIVE_FIR_CERTIFICATE_VERIFIED',
+                path=str(v2path.relative_to(ROOT)),sha256=file_hash(v2path),
+                v1_halfband=inherited,three_profiles=3,three_new_banks=3,
+                scope='native FIR only; combined production SRC and graph still unqualified')
 
 
 def native_bits(frames: int, rate: int, channels: int = 1) -> np.ndarray:
@@ -271,7 +317,7 @@ def phase_alignment(measured: np.ndarray, reference: np.ndarray, pcm_hz: int,
 
 def finite_count_edges(probe: Path, cell: dict, family: str) -> list[dict]:
     native,pcm,profile=cell['native_hz'],cell['pcm_hz'],cell['profile']
-    meta,_=ref.bank_data()
+    meta,_=ref.bank_data_for_profile(family)
     D=meta['profiles'][family]['factor']
     counts=sorted({0,1,2,3,D-1,D,D+1,127,257})
     rows=[]
@@ -303,8 +349,8 @@ def make_one_cell(probe: Path, cell: dict, frames: int, src_probe: Path | None =
                   *, tiers: tuple[str,...]=('scalar',), arrays: Path | None = None) -> dict:
     """Run actual binary64 scalar cell; ISA comparisons are supplementary."""
     native=cell['native_hz']; pcm=cell['pcm_hz'];profile=cell['profile']
-    family=('master' if profile=='mastering' else 'wide')+str(native//44100)
-    manifest,_=ref.bank_data()
+    family=ref.profile_name(profile,native)
+    manifest,_=ref.bank_data_for_profile(family)
     front_meta=manifest['profiles'][family]
     rate=front_meta['intermediate_hz']
     bits=native_bits(frames,native)
@@ -323,7 +369,7 @@ def make_one_cell(probe: Path, cell: dict, frames: int, src_probe: Path | None =
                      dict(status='UNRUN_SHORT_DEVELOPMENT_CAPTURE',
                           available_pcm_frames=len(signal),required_frames=64,
                           note='Not evidence of gain/noise stability'))
-    # The existing P06 75-digit FIR oracle is required for every native/rate
+    # The independent 75-digit FIR oracle is required for every native/rate
     # pair. We run it through the public no-SRC profile, once per cell here
     # to make isolated FIR errors distinguishable from SRC filter differences.
     fir_out,fir_receipt=run_probe(probe,native=native,pcm=rate,profile=profile,
@@ -468,11 +514,14 @@ def make_one_cell(probe: Path, cell: dict, frames: int, src_probe: Path | None =
     # only. One failed candidate bound must be diagnosed, not auto-ratified.
     empiric_ok=(program_metrics['interior_max_abs']<=P07_COMPOSITE_INTERIOR_LIMIT and
                 program_metrics['max_abs']<=P07_COMPOSITE_ENDPOINT_LIMIT)
-    row=dict(schema=SPEC,id=cell['id'],native_hz=native,pcm_hz=pcm,
+    row=dict(schema=(SPEC_V2 if profile=='mastering_v2' else SPEC),
+             id=cell['id'],native_hz=native,pcm_hz=pcm,
              profile=profile,intermediate_hz=rate,frames_native=frames,
              output_count_exact=(frames*pcm+native//2)//native,
              output_frames_measured=len(signal),
-             native_fir_certificate='tests/dsd/results/P06/numeric/filter-certificate.json',
+             native_fir_certificate=('tests/dsd/results/P06/numeric/filter-certificate.json'
+                if profile != 'mastering_v2' else
+                'tests/dsd/results/P15_R3_matrix_2026-10-15/v2-fir-certificate/fir-certificate.json'),
              effective_passband_hz=min(front_meta['pass_hz'],
                   .475*min(rate,pcm)) if rate!=pcm else front_meta['pass_hz'],
              scalar_program=dict(receipt=signal_receipt,metric=program_metrics,
@@ -554,6 +603,10 @@ def write_digest_atomic(target: Path) -> None:
 
 
 def execute(options: argparse.Namespace) -> int:
+    # Keep older programmatic v1 callers usable; the CLI always supplies this.
+    options.matrix=getattr(options, 'matrix', 'v1')
+    if options.matrix not in MATRICES:
+        raise ValueError('invalid matrix revision')
     output=options.results.resolve()
     if np.finfo(np.longdouble).eps >= np.finfo(np.float64).eps:
         raise ValueError('this host has no extra-precision longdouble; install an independent mpmath long-file engine before certifying')
@@ -571,10 +624,11 @@ def execute(options: argparse.Namespace) -> int:
         if (options.src_probe is None or options.sox is None or
             options.frames < 262144 or options.src_frames < 131072 or
             any(x is not None for x in (options.native,options.pcm,options.profile))):
-            raise ValueError('--require-all-observations requires all 54 cells, '
+            label=('all 54 cells' if options.matrix=='v1' else 'all 27 v2 cells')
+            raise ValueError('--require-all-observations requires '+label+', '
                 '--src-probe, --sox, >=262144 native frames and >=131072 SRC frames')
-    front_certificate=inherited_fir_certificate()
-    plan=make_plan()
+    front_certificate=inherited_fir_certificate(options.matrix)
+    plan=make_plan(options.matrix)
     cells=[x for x in plan['scalar_cells'] if
            (options.native is None or x['native_hz']==options.native) and
            (options.pcm is None or x['pcm_hz']==options.pcm) and
@@ -596,7 +650,7 @@ def execute(options: argparse.Namespace) -> int:
         cellsdir=output/'cells';arraysdir=output/'arrays';spectradir=output/'src-spectral'
         cellsdir.mkdir(exist_ok=True)
         spectradir.mkdir(exist_ok=True)
-        refs=ref.reference_input_hashes()
+        refs=ref.reference_input_hashes(options.matrix)
         refs['tests/dsd/p15_matrix_instrument.py']=file_hash(Path(__file__))
         refs['tests/dsd/p15_matrix_contract.py']=file_hash(ROOT/'tests/dsd/p15_matrix_contract.py')
         refs['tests/dsd/certify_filters.py']=file_hash(ROOT/'tests/dsd/certify_filters.py')
@@ -605,6 +659,11 @@ def execute(options: argparse.Namespace) -> int:
         refs['tests/dsd/test_p15_instrument.c']=file_hash(ROOT/'tests/dsd/test_p15_instrument.c')
         refs['tests/dsd/p15_graph_integration.py']=file_hash(ROOT/'tests/dsd/p15_graph_integration.py')
         refs['tests/dsd/test_p07_reference.c']=file_hash(ROOT/'tests/dsd/test_p07_reference.c')
+        if options.matrix == 'v2':
+            refs['tests/dsd/certify_p15_r3_filters.py']=file_hash(
+                ROOT/'tests/dsd/certify_p15_r3_filters.py')
+            refs[front_certificate['path']]=front_certificate['sha256']
+            refs['src/dsd.c']=file_hash(ROOT/'src/dsd.c')
         for name in ('src/dsd_decode.c','src/dsd_public.c','src/rate.c','src/dsd_dispatch.c',
                      'src/dsd_kernels_scalar.c','src/dsd_plan.c'):
             refs[name]=file_hash(ROOT/name)
@@ -616,17 +675,21 @@ def execute(options: argparse.Namespace) -> int:
                      mpmath=mpmath.__version__,
                      longdouble_epsilon=float(np.finfo(np.longdouble).eps),
                      public_f64_byteorder=sys.byteorder)
-        bind=dict(runtime=runtime,schema=SPEC,mode='full' if options.frames>=262144 else 'development-subset',
+        bind=dict(runtime=runtime,schema=schema_for_matrix(options.matrix),mode='full' if options.frames>=262144 else 'development-subset',
                   frames=options.frames,src_frames=options.src_frames,tiers=list(options.tiers),
                   capture_src_raw=options.capture_src_raw,
                   capture_graph_raw=options.capture_graph_raw,
                   cells=[c['id'] for c in cells],
-                  reference_inputs=refs,verified_p06_fir_certificate=front_certificate,
+                  reference_inputs=refs,verified_p06_fir_certificate=(
+                      front_certificate if options.matrix=='v1' else
+                      front_certificate['v1_halfband']),
                   production_exporter_sha256=file_hash(options.probe),
                   src_exporter_sha256=file_hash(options.src_probe) if options.src_probe else None,
                   graph_executable_sha256=file_hash(options.sox) if options.sox else None,
                   worklist_sha256=hashlib.sha256(
                       json.dumps(plan,sort_keys=True).encode()).hexdigest())
+        if options.matrix == 'v2':
+            bind['verified_v2_fir_certificate'] = front_certificate
         target=output/'session.json'
         if options.resume and not target.is_file():
             raise ValueError('cannot resume missing original session.json; '
@@ -704,7 +767,7 @@ def execute(options: argparse.Namespace) -> int:
                         b=output/raw['file']
                         if not b.is_file() or b.stat().st_size!=raw.get('bytes') or file_hash(b)!=raw['sha256']:
                             raise ValueError('tampered/missing SRC raw tone: '+cell['id'])
-                if stored.get('schema')!=SPEC or stored.get('id')!=cell['id']:
+                if stored.get('schema')!=schema_for_matrix(options.matrix) or stored.get('id')!=cell['id']:
                     raise ValueError('wrong existing row: '+cell['id'])
                 if {t.get('tier') for t in stored.get('cross_isa',[])}!=set(options.tiers)-{'scalar'}:
                     raise ValueError('missing/changed forced ISA observation: '+cell['id'])
@@ -777,26 +840,31 @@ def execute(options: argparse.Namespace) -> int:
                           for t in x.get('cross_isa',[]))
         tier_unsupported=sum(t.get('status')=='UNSUPPORTED_ON_THIS_HOST'
                             for x in completed for t in x.get('cross_isa',[]))
-        all_observed=(len(cells)==54 and measured==54 and not failures and
-                      src_observed==54 and graph_observed==54 and
+        required=len(plan['scalar_cells'])
+        all_observed=(len(cells)==required and measured==required and not failures and
+                      src_observed==required and graph_observed==required and
                       options.frames>=262144 and options.src_frames>=131072)
-        summary=dict(schema=SPEC,status='INCOMPLETE' if failures or measured<len(cells)
+        summary=dict(schema=schema_for_matrix(options.matrix),status='INCOMPLETE' if failures or measured<len(cells)
                      else ('DEVELOPMENT_SAMPLE_ONLY' if options.frames<262144 or options.src_frames<131072
                            else ('MEASURED_PENDING_INDEPENDENT_SPECTRAL_REVIEW' if all_observed
                                  else 'INCOMPLETE_OBSERVATIONS')),
                      qualified=False,
                      requested_cells=len(cells),measured_cells=measured,
                      failed_cells=len(failures),unmeasured_cells=len(cells)-measured,
-                     expected_scalar_full_matrix=54,
-                     all_54_rows_sampled=len(cells)==54 and measured==54 and not failures,
+                     expected_scalar_full_matrix=required,
+                     all_required_rows_sampled=len(cells)==required and measured==required and not failures,
                      sampled_src_rows=src_observed,real_graph_rows=graph_observed,
                      measured_forced_isa_jobs=tier_measured,
                      unsupported_forced_isa_jobs=tier_unsupported,
                      all_required_local_observations_present=all_observed,
-                     complete_54_cell_matrix=False,
+                     complete_required_matrix=False,
                      release_gate_closed=False,
                      note='This instrument does not substitute for full spectral extrema/coherent-alias certification, a justified combined-stage SRC numerical envelope, real graph-thread and clipping evidence, or independent review.',
                      failures=failures)
+        if options.matrix=='v1':
+            # Retain the legacy v1 public summary keys for existing consumers.
+            summary['all_54_rows_sampled']=summary.pop('all_required_rows_sampled')
+            summary['complete_54_cell_matrix']=summary.pop('complete_required_matrix')
         write_json_atomic(output/'summary.json',summary)
         print(json.dumps({k:v for k,v in summary.items() if k!='failures'},sort_keys=True),flush=True)
         return 1 if failures else (2 if options.require_qualified or
@@ -825,15 +893,19 @@ def main() -> int:
                     help='additionally force this tier; default scalar; repeat for full ISA grid')
     ap.add_argument('--native',type=int,choices=NATIVE_RATES)
     ap.add_argument('--pcm',type=int,choices=PCM_RATES)
-    ap.add_argument('--profile',choices=PROFILES)
+    ap.add_argument('--matrix',choices=MATRICES,default='v1',
+                    help='v1: frozen 54 cells; v2: separate 27 mastering-v2 cells')
+    ap.add_argument('--profile',choices=PROFILES+V2_PROFILES)
     ap.add_argument('--resume',action='store_true')
     ap.add_argument('--stop-on-fail',action='store_true')
     ap.add_argument('--require-all-observations',action='store_true',
-                    help='exit nonzero unless 54 full-length scalar/SRC/real-graph measurement rows are present (still NOT a release certificate)')
+                    help='exit nonzero unless all selected full-length scalar/SRC/real-graph rows are present (still NOT a release certificate)')
     ap.add_argument('--require-qualified',action='store_true',
                     help='return 2 unless a separately adjudicated release certificate exists; measurement alone never suffices')
     opt=ap.parse_args()
     opt.tiers=tuple(dict.fromkeys(['scalar']+(opt.tiers or [])))
+    if opt.profile and opt.profile not in (PROFILES if opt.matrix=='v1' else V2_PROFILES):
+        ap.error('--profile does not belong to the selected --matrix')
     if not 8192<=opt.frames<=50000000:
         ap.error('--frames must be between 8192 and 50000000')
     if not 8192<=opt.src_frames<=4000000:

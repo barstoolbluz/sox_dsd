@@ -106,3 +106,78 @@ The operator must likewise supply, separately, current physical forced-tier, the
 - `2` with `--require-qualified`: measurement completed without detected error, but no separately signed-off complete release certificate exists. No instrument execution alone can return a qualified release status.
 
 The detailed checkpoint and next steps are in `docs/dsd/handoffs/P15_INSTRUMENT_CHECKPOINT_2026-10-13.md`. This section is not a replacement for `docs/dsd/DSD_DESIGN.md` or the previously frozen evidence.
+
+## Additive P15-R3 decoder mastering-v2 matrix (2026-10-15)
+
+**The historical 54-cell count above applies to v1 only.** Under
+`DSD_DESIGN.md` section 10.4, v2 promotion additionally requires a **3 native
+rates x 9 PCM rates x 1 new mastering-v2 profile = 27-cell** end-to-end
+matrix. There is no v2 wideband profile and no reason to demand 54 additional
+v2 cells. The new mandatory v2 observation worklist contains 27 scalar
+cells, 135 total scalar/forced-tier functional jobs (27 + 108 non-scalar),
+and 48 selected detailed ISA comparisons. As with v1, the minimum detail
+set is not a waiver of all-tier functional/count/phase requirements. Unsupported
+tiers are left unmeasured, not called successful.
+
+The C binary64 exporter already supported `mastering_v2`; the test-only
+extension now selects that profile through the Python instrument, constructs
+the **independent finite high-precision v2 FIR** from the checked C99 hex
+words plus the unchanged P06 halfband, binds the existing independently
+certified v2 FIR metadata, and measures the production SRC and the actual SoX
+graph via **explicit** `decode.mastering.v2.dsd64/128/256` identifiers. It
+uses the same source-bit chronology, counts, impulses, finite start/drain,
+channels, partitioning, selected SRC tones, roundoff witnesses and forced
+ISA comparisons as the v1 matrix. Neither aliases/defaults nor production
+coefficients or DSP code have been changed.
+
+**Worklists and sessions are intentionally disjoint.** Default invocation
+without `--matrix` remains v1 and reproduces the original v1 worklist
+content. Select `--matrix v2` for all three operations below; it generates
+new v2-specific worklist, session and cell schemas so a v1 receipt cannot
+masquerade as a v2 observation. Do not pass `--profile` for the complete
+v2 run; selecting a native rate or PCM destination similarly makes the run
+partial and incompatible with `--require-all-observations`.
+
+```sh
+# From the configured source tree, after building the unchanged test probes.
+python3 tests/dsd/p15_matrix_contract.py --matrix v2 \
+  --output /NEW/WORKLIST/v2-plan.json
+
+python3 tests/dsd/p15_matrix_instrument.py \
+  --matrix v2 \
+  --probe test/dsd_test_p15_instrument \
+  --src-probe test/dsd_test_p07_reference \
+  --sox src/sox_ng \
+  --tier sse2 --tier avx1 --tier avx2 --tier avx512 \
+  --capture-src-raw --capture-graph-raw \
+  --require-all-observations \
+  --results /NEW/P15-V2-27-CELL-SESSION
+
+# On interruption, repeat the identical command with --resume.
+# The binaries, source inputs, flags, runtime and selected cells must match.
+python3 tests/dsd/p15_matrix_receipt_review.py \
+  --matrix v2 \
+  --session /NEW/P15-V2-27-CELL-SESSION \
+  --output /NEW/V2-CROSS-HOST-REVIEW.json \
+  --require-coverage
+```
+
+The v2 reviewer can also receive several `--session` options from separately
+identified hosts, provided their pinned source/reference revisions match.
+The 27/108/48 observation-coverage report is **not** a release certificate;
+it always sets `qualified: false` and `release_gate_closed: false`. A complete
+SRC numerical acceptance envelope, continuous composite SRC transfer and
+coherent-image proof, physical/performance/corpus acceptance and independent
+provenance review remain external gates. In particular, the v2 FIR certificate
+and the archived R3 v1 observations do **not** authorize promoting the v2
+default. The policy itself remains in `DSD_DESIGN.md` and the operator's
+`P15_V2_DEFAULT_POLICY_2026-10-15.md` amendment.
+
+The existing v1 R3 receipt files were not modified or rebound. Because the
+instrument and reference Python sources have changed, those older sessions
+retain the *original* source digests and should be replayed with their pinned
+source revision and full raw payloads, not relabeled as sessions from this
+instrument. V2 sessions use a new result directory. The source-only export
+omits the same historical bulk raw payloads as the supplied source snapshot,
+while keeping their original SHA-256 inventory entries. See
+`docs/dsd/handoffs/P15_V2_METROLOGY_EXTENSION_HANDOFF_2026-10-15.md`.

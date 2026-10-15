@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline P15 54/270/96 cross-host evidence-coverage and integrity review.
+"""Offline P15 v1 (54/270/96) or v2 (27/135/48) cross-host review.
 
 Read-only: rechecks the original session binding and per-cell raw data, then
 counts *observed* tests across separately captured physical/virtual hosts.
@@ -19,9 +19,9 @@ import wave
 
 import numpy as np
 
-from p15_matrix_contract import (REQUIRED_TIERS, CROSS_ISA_DETAIL_ENDPOINTS,
+from p15_matrix_contract import (REQUIRED_TIERS, CROSS_ISA_DETAIL_ENDPOINTS, MATRICES,
                                  make_plan, write_json_atomic)
-from p15_matrix_instrument import SPEC, ROOT, errors, file_hash, impulse_positions
+from p15_matrix_instrument import ROOT, schema_for_matrix, errors, file_hash, impulse_positions
 from p15_graph_integration import dsf_payload
 from p15_src_spectral import tone_fit, DB_RIPPLE_LIMIT, ALIAS_DB_LIMIT
 
@@ -50,7 +50,7 @@ def check_cell(directory: Path, cell: dict, session: dict) -> dict:
     if row_path.with_suffix('.sha256').read_text().strip()!=file_hash(row_path):
         raise ValueError('cell digest mismatch: '+ident)
     row=json.loads(row_path.read_text())
-    if row.get('schema')!=SPEC or row.get('id')!=ident or row.get('qualified') is not False:
+    if row.get('schema')!=session['schema'] or row.get('id')!=ident or row.get('qualified') is not False:
         raise ValueError('invalid row identity or unauthorized qualification: '+ident)
     for field in ('native_hz','pcm_hz','profile'):
         if row.get(field)!=cell[field]:
@@ -284,10 +284,10 @@ def check_cell(directory: Path, cell: dict, session: dict) -> dict:
         native_hz=cell['native_hz'],pcm_hz=cell['pcm_hz'],profile=cell['profile'])
 
 
-def review(paths: list[Path]) -> dict:
+def review(paths: list[Path], matrix: str = 'v1') -> dict:
     if not paths:
         raise ValueError('at least one session is required')
-    plan=make_plan()
+    plan=make_plan(matrix)
     expected={cell['id']:cell for cell in plan['scalar_cells']}
     expected_plan=hashlib.sha256(json.dumps(plan,sort_keys=True).encode()).hexdigest()
     trusted_inputs=None
@@ -299,7 +299,7 @@ def review(paths: list[Path]) -> dict:
         if not file.is_file():
             raise ValueError(f'session {i}: missing original session binding')
         session=json.loads(file.read_text())
-        if (session.get('schema')!=SPEC or session.get('worklist_sha256')!=expected_plan or
+        if (session.get('schema')!=schema_for_matrix(matrix) or session.get('worklist_sha256')!=expected_plan or
             session.get('mode') not in ('full','development-subset') or
             not isinstance(session.get('tiers'),list) or not session['tiers'] or
             session['tiers'][0]!='scalar'):
@@ -354,21 +354,26 @@ def review(paths: list[Path]) -> dict:
                     observed_fir_isa.add(key)
                     if item['pcm_hz'] in CROSS_ISA_DETAIL_ENDPOINTS:
                         observed_detail.add(key)
-    covered=(len(complete_cells)==54 and len(src_cells)==54 and len(graph_cells)==54 and
-             len(observed_fir_isa)==216 and len(observed_detail)==96 and not failed)
-    return dict(schema='P15/cross-host-instrument-coverage/1',
+    required=len(plan['scalar_cells'])
+    required_isa=len(required_fir_isa)
+    required_detail_count=len(required_detail)
+    covered=(len(complete_cells)==required and len(src_cells)==required and
+             len(graph_cells)==required and len(observed_fir_isa)==required_isa and
+             len(observed_detail)==required_detail_count and not failed)
+    return dict(schema=('P15/cross-host-instrument-coverage/1' if matrix=='v1'
+                        else 'P15/cross-host-v2-instrument-coverage/1'),
                 status='OBSERVATION_COVERAGE_COMPLETE_NOT_RELEASE_CERTIFICATE' if covered else
                        'INCOMPLETE_OR_FAILED_OBSERVATIONS',
                 release_gate_closed=False,qualified=False,
-                qualification_note='Even complete 54/270/96 coverage requires independent full composite spectral extrema/coherent-alias proof, justified complete SRC numerical tolerance, physical/corpus gates and external provenance review.',
+                qualification_note='Even complete observation coverage requires independent full composite spectral extrema/coherent-alias proof, justified complete SRC numerical tolerance, physical/corpus gates and external provenance review.',
                 sessions=sessions,session_count=len(sessions),
-                scalar_full_duration_cells=len(complete_cells),expected_scalar_cells=54,
+                scalar_full_duration_cells=len(complete_cells),expected_scalar_cells=required,
                 sampled_src_full_duration_cells=len(src_cells),
                 src_raw_verified_full_duration_cells=len(src_raw_cells),
                 graph_full_duration_cells=len(graph_cells),
                 graph_raw_verified_full_duration_cells=len(graph_raw_cells),
-                forced_isa_full_duration_jobs=len(observed_fir_isa),expected_forced_isa_jobs=216,
-                selected_detailed_isa_jobs=len(observed_detail),expected_detailed_jobs=96,
+                forced_isa_full_duration_jobs=len(observed_fir_isa),expected_forced_isa_jobs=required_isa,
+                selected_detailed_isa_jobs=len(observed_detail),expected_detailed_jobs=required_detail_count,
                 failed_scalar_cells=sorted(failed),
                 remaining_scalar_cells=sorted(set(expected)-complete_cells),
                 remaining_forced_isa=[dict(cell=a,tier=b) for a,b in sorted(required_fir_isa-observed_fir_isa)],
@@ -381,15 +386,17 @@ def review(paths: list[Path]) -> dict:
 
 def main() -> int:
     ap=argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('--matrix',choices=MATRICES,default='v1',
+                    help='review only the separately recorded selected v1 or v2 matrix')
     ap.add_argument('--session',type=Path,required=True,action='append',
                     help='one measured result directory; repeat for each host, in stable order')
     ap.add_argument('--output',type=Path,required=True,
                     help='new JSON path (do not place inside an input session)')
     ap.add_argument('--require-coverage',action='store_true',
-                    help='exit 2 until the 54/270/96 *observation coverage* is complete; not a release certificate')
+                    help='exit 2 until the selected matrix *observation coverage* is complete; not a release certificate')
     args=ap.parse_args()
     try:
-        result=review(args.session)
+        result=review(args.session, args.matrix)
         if any(args.output.resolve().is_relative_to(p.resolve()) for p in args.session):
             raise ValueError('write the cross-host review outside its input session directories')
         if args.output.exists():

@@ -20,6 +20,7 @@ from fractions import Fraction
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 
 import mpmath as mp
@@ -29,33 +30,75 @@ from scipy.special import i0
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / 'tests/dsd/reference/p06_coefficients.json'
 BANKS = ROOT / 'src/dsd_coeffs.h'
+V2_MANIFEST = ROOT / 'tests/dsd/reference/p15_r3_coefficients.json'
+V2_BANKS = ROOT / 'src/dsd_coeffs_v2.h'
 MP_DIGITS = 75
 KAISER_BETA = 18.9
 RATIO_TAPS = 401
 CUTOFF_NYQUIST_FRACTION = 0.975
 
 
-def reference_input_hashes() -> dict[str, str]:
+def reference_input_hashes(matrix: str = 'v1') -> dict[str, str]:
+    if matrix not in ('v1', 'v2'):
+        raise ValueError('invalid reference matrix')
     paths = (Path(__file__), BANKS, MANIFEST)
+    if matrix == 'v2':
+        paths += (V2_BANKS, V2_MANIFEST)
     return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
 
 
-@lru_cache(maxsize=1)
-def bank_data() -> tuple[dict, dict]:
-    # The stored bank metadata is independent of the compiled decoder code.
+def profile_name(profile: str, native: int) -> str:
+    if native not in (2822400, 5644800, 11289600):
+        raise ValueError('unsupported native DSD rate')
+    if profile == 'mastering_v2':
+        return f'decode.mastering.v2.dsd{native//44100}'
+    if profile in ('mastering', 'wideband'):
+        return ('master' if profile == 'mastering' else 'wide')+str(native//44100)
+    raise ValueError('unknown metrology profile: ' + profile)
+
+
+def bank_data_for_profile(profile: str) -> tuple[dict, dict]:
+    return bank_data('v2' if profile.startswith('decode.mastering.v2.dsd') else 'v1')
+
+
+@lru_cache(maxsize=2)
+def bank_data(matrix: str = 'v1') -> tuple[dict, dict]:
+    # Read the independently authored exact C hexadecimal bank words, never
+    # the candidate's coefficient generator. P06's halfband is shared unchanged.
     from certify_filters import load_coefficients
-    banks = load_coefficients()   # read exact C hexadecimal coefficient values
-    obj = json.loads(MANIFEST.read_text())
+    if matrix not in ('v1', 'v2'):
+        raise ValueError('invalid reference matrix')
+    banks = load_coefficients()
+    p06 = json.loads(MANIFEST.read_text())
     for name, values in banks.items():
         digest = hashlib.sha256(('\n'.join(x.hex() for x in values)+'\n').encode()).hexdigest()
-        if obj['banks'][name]['rounded_hex_sha256'] != digest:
+        if p06['banks'][name]['rounded_hex_sha256'] != digest:
             raise ValueError('P06 certified coefficient/manifest discrepancy: ' + name)
-        if len(values) != obj['banks'][name]['length'] or not np.array_equal(values,values[::-1]):
+        if len(values) != p06['banks'][name]['length'] or not np.array_equal(values,values[::-1]):
             raise ValueError('P06 coefficient symmetry/length mismatch: ' + name)
+    if matrix == 'v1':
+        return p06, banks
+    obj = json.loads(V2_MANIFEST.read_text())
+    if obj.get('schema') != 'sox-ng/p15-r3-coefficients/1' or len(obj.get('profiles', {})) != 3:
+        raise ValueError('invalid P15-R3 v2 reference manifest')
+    code = V2_BANKS.read_text()
+    for name, details in obj['banks'].items():
+        match = re.search(r'\blsx_dsd_coeff_'+re.escape(name)+r'\[(\d+)\]\s*=\s*\{(.*?)\};',
+                          code, re.S)
+        if match is None:
+            raise ValueError('missing P15 v2 production C bank: ' + name)
+        values = np.array([float.fromhex(w.strip()) for w in match.group(2).split(',')
+                           if w.strip()], dtype=np.float64)
+        digest = hashlib.sha256(('\n'.join(x.hex() for x in values)+'\n').encode()).hexdigest()
+        if (len(values) != int(match.group(1)) or len(values) != details['length'] or
+            digest != details['rounded_hex_sha256'] or
+            not np.array_equal(values, values[::-1])):
+            raise ValueError('P15 v2 production coefficient/manifest discrepancy: ' + name)
+        banks[name] = values
     return obj, banks
 
 
-@lru_cache(maxsize=6)
+@lru_cache(maxsize=9)
 def equivalent_exact(profile: str) -> tuple[tuple, int, int]:
     """75-digit composition from *exact binary64* certified bank inputs.
 
@@ -64,7 +107,7 @@ def equivalent_exact(profile: str) -> tuple[tuple, int, int]:
     witness values and roundoff attribution. The public numerical reference
     intentionally uses a separate longdouble reduction of these exact taps.
     """
-    manifest, banks = bank_data()
+    manifest, banks = bank_data_for_profile(profile)
     meta = manifest['profiles'][profile]
     delay, down = meta['delay_native_frames'], meta['factor']
     with mp.workdps(MP_DIGITS):
@@ -89,10 +132,10 @@ def equivalent_exact(profile: str) -> tuple[tuple, int, int]:
     return tuple(taps), delay, down
 
 
-@lru_cache(maxsize=6)
+@lru_cache(maxsize=9)
 def equivalent(profile: str) -> tuple[np.ndarray, tuple, int, int]:
     """Longdouble vector made from the independently composed 75-digit taps."""
-    manifest, _ = bank_data()
+    manifest, _ = bank_data_for_profile(profile)
     taps,delay,down=equivalent_exact(profile)
     coeff=np.array([np.longdouble(mp.nstr(t,45)) for t in taps],dtype=np.longdouble)
     return coeff, tuple(manifest['profiles'][profile]['stage_banks']), delay, down
@@ -267,7 +310,7 @@ def polyphase_mp_witness(values: np.ndarray, source_hz: int, target_hz: int,
 
 def reference(bits: np.ndarray, profile: str, native_hz: int,
               pcm_hz: int, *, impulse_at: int | None = None) -> tuple[np.ndarray, np.ndarray]:
-    manifest,_=bank_data()
+    manifest,_=bank_data_for_profile(profile)
     meta=manifest['profiles'][profile]
     if meta['native_hz']!=native_hz:
         raise ValueError('profile/native mismatch')
@@ -282,7 +325,7 @@ def reference(bits: np.ndarray, profile: str, native_hz: int,
 
 
 def fir_roundoff_bound(profile: str) -> float:
-    meta,banks=bank_data()
+    meta,banks=bank_data_for_profile(profile)
     names=meta['profiles'][profile]['stage_banks']
     return (16*(2.**-52)*sum(len(banks[n]) for n in names)*
             math.prod(float(np.sum(np.abs(banks[n]),dtype=np.longdouble)) for n in names))

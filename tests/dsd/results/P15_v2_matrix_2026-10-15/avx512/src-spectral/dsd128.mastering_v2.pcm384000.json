@@ -1,0 +1,256 @@
+{
+  "aliases": [
+    {
+      "alias_limit_db": -160.0,
+      "kind": "upsampling-replica",
+      "measured": {
+        "amplitude_db_relative_to_input": -231.69741489877552,
+        "dc": -2.0193510617830968e-15,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 1.3004667699226387e-12,
+        "phase_rad": 3.1412182795510346,
+        "residual_rms": 3.049869168191981e-11
+      },
+      "output_alias_hz": 164052.0,
+      "pass_alias": true,
+      "receipt": {
+        "binary64_sha256": "db369ec34917555002661325cd44b254931cd2f13802ee9cf5cf286127d13de3",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 12348.000000000002
+      },
+      "source_hz": 12348.000000000002
+    },
+    {
+      "alias_limit_db": -160.0,
+      "kind": "upsampling-replica",
+      "measured": {
+        "amplitude_db_relative_to_input": -241.51241682855758,
+        "dc": -1.8954407515224867e-15,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 4.200965963868425e-13,
+        "phase_rad": 0.0051407981838564485,
+        "residual_rms": 3.0511076335889594e-11
+      },
+      "output_alias_hz": 188748.0,
+      "pass_alias": true,
+      "receipt": {
+        "binary64_sha256": "db369ec34917555002661325cd44b254931cd2f13802ee9cf5cf286127d13de3",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 12348.000000000002
+      },
+      "source_hz": 12348.000000000002
+    },
+    {
+      "alias_limit_db": -160.0,
+      "kind": "upsampling-replica",
+      "measured": {
+        "amplitude_db_relative_to_input": -225.0153515384742,
+        "dc": 9.807154563858035e-16,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 2.806741573157177e-12,
+        "phase_rad": 0.0006659553916194095,
+        "residual_rms": 6.760668903960937e-11
+      },
+      "output_alias_hz": 127008.0,
+      "pass_alias": true,
+      "receipt": {
+        "binary64_sha256": "c802a70c5cc7e39f4d7d4b6d982b5f0ebd9168fff47fe6b3ca0625b076eb2143",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 49392.00000000001
+      },
+      "source_hz": 49392.00000000001
+    },
+    {
+      "alias_limit_db": -160.0,
+      "kind": "upsampling-replica",
+      "measured": {
+        "amplitude_db_relative_to_input": -202.88774933638496,
+        "dc": -2.3401973992888988e-14,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 3.585770892536297e-11,
+        "phase_rad": 0.00042456515317883833,
+        "residual_rms": 9.546261929538019e-11
+      },
+      "output_alias_hz": 100548.0,
+      "pass_alias": true,
+      "receipt": {
+        "binary64_sha256": "a4be6b7123b43462c22bf9ab6efcb0d987a550e1e7dcb2b48576d41884186478",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 75852.0
+      },
+      "source_hz": 75852.0
+    }
+  ],
+  "checks": 11,
+  "effective_pass_hz": 48000,
+  "frames_input": 131072,
+  "input_hz": 176400,
+  "limiting_note": "finite sampled tones; not a proof of all extrema/images or of the full native FIR",
+  "method": "actual private SRC F64 output; independent least-squares tone fit; separate finite-boundary tests",
+  "output_hz": 384000,
+  "passband": [
+    {
+      "measured": {
+        "amplitude_db_relative_to_input": 2.1685950357537816e-09,
+        "dc": -1.7944740308668343e-16,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 0.5000000001248344,
+        "phase_rad": 1.3133938378036467e-13,
+        "residual_rms": 3.5265441594238044e-11
+      },
+      "pass_ripple": true,
+      "passband_limit_db": 0.0001,
+      "receipt": {
+        "binary64_sha256": "d64292720357bba745723b17b84c02f84d8695e5709ff72d13ee4a9116dee14a",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 960.0
+      },
+      "tone_hz": 960.0
+    },
+    {
+      "measured": {
+        "amplitude_db_relative_to_input": 1.5165206604377913e-10,
+        "dc": 2.3918782582669685e-15,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 0.5000000000087298,
+        "phase_rad": -8.407718965339515e-13,
+        "residual_rms": 9.098205990104332e-11
+      },
+      "pass_ripple": true,
+      "passband_limit_db": 0.0001,
+      "receipt": {
+        "binary64_sha256": "19253e94fecbbae5329e7375dac7920f2f9398a3720758fde8771bc7af50e5c0",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 5760.0
+      },
+      "tone_hz": 5760.0
+    },
+    {
+      "measured": {
+        "amplitude_db_relative_to_input": -3.3237667655821396e-10,
+        "dc": -9.41855164121082e-16,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 0.49999999998086686,
+        "phase_rad": -6.25832719005149e-13,
+        "residual_rms": 8.676566181436537e-11
+      },
+      "pass_ripple": true,
+      "passband_limit_db": 0.0001,
+      "receipt": {
+        "binary64_sha256": "237bd0fa5cb3c7b62a8a97f78cd3afe41e8a1a4195fd258996add28b8fe456f7",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 16800.0
+      },
+      "tone_hz": 16800.0
+    },
+    {
+      "measured": {
+        "amplitude_db_relative_to_input": -6.372401261788528e-10,
+        "dc": -1.0387897491182725e-15,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 0.4999999999633175,
+        "phase_rad": 1.5484280525583062e-12,
+        "residual_rms": 8.649774392240369e-11
+      },
+      "pass_ripple": true,
+      "passband_limit_db": 0.0001,
+      "receipt": {
+        "binary64_sha256": "df7357ff8e3caf699da70b2e30be034ea9ba9d43f804819c11b2d7699a1a269b",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 29760.0
+      },
+      "tone_hz": 29760.0
+    },
+    {
+      "measured": {
+        "amplitude_db_relative_to_input": -3.2989256900427804e-10,
+        "dc": -4.309659802720193e-15,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 0.49999999998100986,
+        "phase_rad": -1.281197370466091e-12,
+        "residual_rms": 7.870269850877973e-11
+      },
+      "pass_ripple": true,
+      "passband_limit_db": 0.0001,
+      "receipt": {
+        "binary64_sha256": "815ad1b9eee0cdada9ee1e0172c71954d844b2441e815a574ad4631123b63d90",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 40320.0
+      },
+      "tone_hz": 40320.0
+    },
+    {
+      "measured": {
+        "amplitude_db_relative_to_input": 2.4762347840513553e-09,
+        "dc": -6.439177410591682e-16,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 0.5000000001425435,
+        "phase_rad": -6.7978955778418414e-12,
+        "residual_rms": 4.5796006114015164e-11
+      },
+      "pass_ripple": true,
+      "passband_limit_db": 0.0001,
+      "receipt": {
+        "binary64_sha256": "16757418bf1eca53f7dbc66573e9f69077056c1509ebf27b403e47ffdf4e1d2b",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 46080.0
+      },
+      "tone_hz": 46080.0
+    },
+    {
+      "measured": {
+        "amplitude_db_relative_to_input": 1.7250391170274823e-09,
+        "dc": -2.195959579580239e-17,
+        "interior_output_samples": 142665,
+        "peak_amplitude": 0.5000000000993012,
+        "phase_rad": -1.6923129561000287e-12,
+        "residual_rms": 5.84589603225012e-11
+      },
+      "pass_ripple": true,
+      "passband_limit_db": 0.0001,
+      "receipt": {
+        "binary64_sha256": "a9b0345a454aa4a1c7f310f30e62a8fa0617ad09cf702ebc848936f10e36a63a",
+        "input_hz": 176400,
+        "output_frames": 285327,
+        "output_hz": 384000,
+        "source_frames": 131072,
+        "tone_hz": 48000.0
+      },
+      "tone_hz": 48000.0
+    }
+  ],
+  "passed": true,
+  "schema": "P15/production-private-src-spectral-v1",
+  "status": "SAMPLED_PASS",
+  "threshold_policy": "section 6.1 composite 0.0001 dB / -160 dB, applied only to actually tested tones/images"
+}
