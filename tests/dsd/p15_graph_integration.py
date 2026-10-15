@@ -43,6 +43,16 @@ def invoke(sox: Path, argv: list[str], threads: int=1, timeout: int=180) -> dict
                 stderr_contains_error='error' in run.stderr.lower())
 
 
+def pinned_decoder_profile(native: int, profile: str) -> str:
+    if native not in (2822400, 5644800, 11289600):
+        raise ValueError('invalid DSD native rate')
+    if profile == 'mastering_v2':
+        return f'decode.mastering.v2.dsd{native//44100}'
+    if profile in ('mastering', 'wideband'):
+        return f'decode.{profile}.v1.dsd{native//44100}'
+    raise ValueError('invalid decoder metrology profile')
+
+
 def measure(sox: Path, native: int, pcm: int, profile: str,
             bits: np.ndarray, *, reference_f64: np.ndarray,
             raw_dir: Path | None = None, raw_prefix: str | None = None) -> dict:
@@ -55,7 +65,7 @@ def measure(sox: Path, native: int, pcm: int, profile: str,
         raise ValueError('unsafe graph raw receipt path')
     n=bits.shape[0]
     expected=(n*pcm+native//2)//native
-    pinned=f'decode.{profile}.v1.dsd{native//44100}'
+    pinned=pinned_decoder_profile(native, profile)
     with tempfile.TemporaryDirectory(prefix='p15-graph-') as workspace:
         t=Path(workspace)
         source=t/'source.dsf';source.write_bytes(dsf_payload(bits,native))

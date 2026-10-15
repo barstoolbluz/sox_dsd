@@ -16,7 +16,9 @@ import tempfile
 
 NATIVE_RATES = (2822400, 5644800, 11289600)
 PCM_RATES = (44100, 48000, 88200, 96000, 176400, 192000, 352800, 384000, 705600)
-PROFILES = ('mastering', 'wideband')
+PROFILES = ('mastering', 'wideband')  # Frozen v1 worklist; do not enlarge in place.
+V2_PROFILES = ('mastering_v2',)  # Additive mastering-only candidate (3 x 9).
+MATRICES = ('v1', 'v2')
 REQUIRED_TIERS = ('scalar', 'sse2', 'avx1', 'avx2', 'avx512')
 # Each native/profile gets 44.1- and 48-family representation, high fractional
 # SRC, and the maximum PCM rate. This is MINIMUM detailed cross-ISA metrology,
@@ -28,12 +30,15 @@ def cell_key(native_hz: int, profile: str, pcm_hz: int) -> str:
     return f'dsd{native_hz//44100}.{profile}.pcm{pcm_hz}'
 
 
-def make_plan() -> dict:
+def make_plan(matrix: str = 'v1') -> dict:
+    if matrix not in MATRICES:
+        raise ValueError('unknown matrix revision: ' + matrix)
+    profiles = PROFILES if matrix == 'v1' else V2_PROFILES
     scalar = []
     tier_functional = []
     tier_metrology = []
     for native in NATIVE_RATES:
-        for profile in PROFILES:
+        for profile in profiles:
             for pcm in PCM_RATES:
                 ident = cell_key(native, profile, pcm)
                 integer = native % pcm == 0
@@ -55,7 +60,7 @@ def make_plan() -> dict:
                         'valid_one_bit_audio_gain_clipping_and_buffer_thread_invariance',
                     ),
                     status='UNRUN'))
-                # Every available tier must traverse all 54 conversion choices
+                # Every available tier must traverse every choice in its worklist
                 # during release qualification. Unsupported tiers are UNRUN with
                 # a named hardware/build reason, not recorded as PASS.
                 for tier in REQUIRED_TIERS:
@@ -65,7 +70,8 @@ def make_plan() -> dict:
                                                    comparator='same-cell-scalar',
                                                    status='UNRUN'))
     return dict(
-        schema='P15/decode-numerical-worklist/1',
+        schema=('P15/decode-numerical-worklist/1' if matrix == 'v1'
+                else 'P15/decode-v2-numerical-worklist/1'),
         status='PLAN_ONLY_NOT_EXECUTED', qualified=False,
         normative_authority='docs/dsd/DSD_DESIGN.md sections 6, 8.6, 10.4 and 10.6',
         scalar_cells=scalar,
@@ -111,8 +117,10 @@ def write_json_atomic(output: Path, data: dict) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--matrix', choices=MATRICES, default='v1',
+                        help='v1: preserved 54 cells; v2: 27 new mastering_v2 cells')
     args = parser.parse_args()
-    obj = make_plan()
+    obj = make_plan(args.matrix)
     write_json_atomic(args.output, obj)
     print(json.dumps({'status': obj['status'], **obj['summary']}, sort_keys=True))
     return 0  # successful planning, NOT a passing qualification
