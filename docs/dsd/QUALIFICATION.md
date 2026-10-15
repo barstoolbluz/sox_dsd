@@ -1,5 +1,30 @@
 # P15 first-release qualification and release hold
 
+**2026-10-15 code-side SRC disposition:** In the additive
+`docs/dsd/handoffs/P15_NUMERICAL_CODE_CORRECTIVE_2026-10-15.md`,
+`docs/dsd/DSD_DESIGN.md` §8.6.1 rules that unlike-SRC samplewise comparisons
+cannot use the native-FIR roundoff bound or a retrospective numerical epsilon.
+`tests/dsd/p15_src_envelope_review.py` implements that decision on the
+source-bound 81 scalar cells and 324 forced ISA comparisons; all 36 native/
+output fractional residuals are diagnostics, while 36 additional integer-
+ratio cells also run SRC. The same-transfer full-chain numerical and
+composite spectral/alias proof remains OPEN for the 72 SRC-active cells.
+The current reviewers have `--current-evidence` opt-in bridges; no frozen
+manifest or earlier measured cell has been rewritten. **P15 and P16 remain
+BLOCKED**; this code adjudicates an invalid comparison, not missing proof.
+
+**2026-10-15 current-source closeout: BLOCKED.** The current evidence index is
+`docs/dsd/handoffs/P15_CURRENT_CLOSEOUT_2026-10-15.md` and the new,
+source-bound machine receipt is
+`tests/dsd/results/P15_current_closeout_2026-10-15/review.json`.
+The original `P15/release` manifest and 2026-10-14 reviewers are **historical**
+and must not be repointed to current measurements. The 54-cell v1 and 27-cell
+v2 observations now bind to the same source revision, but independently
+accepted composite SRC proof and the DSD256 bandwidth-matched comparison
+remain OPEN. First release, v2 default promotion, and P16 are not authorized.
+The numerical method is described in
+`docs/dsd/amendments/P15_SRC_ACCEPTANCE_METHOD_2026-10-15.md`.
+
 **2026-10-14 re-adjudication:** Read the later,
 `docs/dsd/handoffs/P15_READJUDICATION_2026-10-14.md` and
 `tests/dsd/results/P15_readjudication_2026-10-14/review.json`, **before** the

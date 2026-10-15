@@ -1,0 +1,164 @@
+{
+  "benchmark_r2_status": "OPEN-CONTROL-NOT-BANDWIDTH-MATCHED",
+  "date": "2026-10-15",
+  "default_promotion_authorized": false,
+  "earlier_scoped_review_sha256": "5217c16f64b93ecb5a8d6584c55846a68313e40f22636dad093da1fa8ba559ed",
+  "gates": [
+    {
+      "evidence": [
+        "tests/dsd/results/P15_v1_matrix_rebound_2026-10-15",
+        "tests/dsd/results/P15_v2_matrix_2026-10-15"
+      ],
+      "id": "P15-v1-and-v2-composite-SRC-acceptance",
+      "issue": "72 SRC-active cells; sampled tones and changed-transfer per-sample differences do not prove full composite extrema/coherent-alias or same-transfer arithmetic bound",
+      "status": "OPEN"
+    },
+    {
+      "evidence": "tests/dsd/results/P15_matrix_metrology_R2_2026-10-14/dsd256-2x.json",
+      "id": "P15-DSD256-direct-2x-and-matched-comparator",
+      "issue": "R2 staged control sinc -20000 is not matched to v1 40 kHz nor v2 66 kHz; v2 needs a qualified 66/80 kHz comparison and direct 2x measurement. Section 10.7 does not require a separate 2x against the matched control",
+      "status": "OPEN"
+    },
+    {
+      "evidence": "docs/dsd/amendments/P15_INTEL_AVX512_SCOPE_2026-10-14.md",
+      "id": "P15-Intel-AVX512-physical-performance",
+      "issue": "Only under unchanged conservative dispatch and no Intel physical performance claim",
+      "status": "UNRUN-SCOPE-EXEMPT"
+    },
+    {
+      "evidence": "tests/dsd/results/P15_avx1_physical_2026-10-13",
+      "id": "P15-older-AVX1-physical-observation",
+      "status": "PASS-SCOPED-INHERITED"
+    },
+    {
+      "evidence": "tests/dsd/results/P15_readjudication_2026-10-14/review.json",
+      "id": "P15-encoder-one-hour-soaks",
+      "issue": "Previously verified 915 state records and 15 execution receipts; removed .state payloads cannot be independently replayed from this archive",
+      "status": "PASS-SCOPED-INHERITED"
+    },
+    {
+      "evidence": "tests/dsd/results/P15_readjudication_2026-10-14/review.json",
+      "id": "P15-independent-source-corpus",
+      "issue": "Software-source-material tests, not DAC/device certification",
+      "status": "PASS-SCOPED-INHERITED"
+    }
+  ],
+  "input_archive_sha256": "a9cc4fccd4dfe3627d02e2a56dba3b9dbb7f1678da9c84ec93fbc57f400ef3e5",
+  "matrices": {
+    "v1": {
+      "absent_array_payloads_in_stripped_archive": 270,
+      "absent_graph_payloads_in_stripped_archive": 216,
+      "binding": "CURRENT_SOURCE_SHA256_MATCH",
+      "detailed_isa_jobs": 96,
+      "disposition": "MEASURED_SOURCE_BOUND_NOT_SPECTRALLY_QUALIFIED",
+      "evidence_directory": "tests/dsd/results/P15_v1_matrix_rebound_2026-10-15",
+      "forced_isa_jobs": 216,
+      "full_raw_replay_completed": false,
+      "graph_cells": 54,
+      "matrix": "v1",
+      "native_fractional_ratio_cells": 24,
+      "sampled_src_cells": 54,
+      "scalar_cells": 54,
+      "source_pins_per_session": 17,
+      "src_active_cells": 48,
+      "src_bypass_cells": 6
+    },
+    "v2": {
+      "absent_array_payloads_in_stripped_archive": 135,
+      "absent_graph_payloads_in_stripped_archive": 108,
+      "binding": "CURRENT_SOURCE_SHA256_MATCH",
+      "detailed_isa_jobs": 48,
+      "disposition": "MEASURED_SOURCE_BOUND_NOT_SPECTRALLY_QUALIFIED",
+      "evidence_directory": "tests/dsd/results/P15_v2_matrix_2026-10-15",
+      "forced_isa_jobs": 108,
+      "full_raw_replay_completed": false,
+      "graph_cells": 27,
+      "matrix": "v2",
+      "native_fractional_ratio_cells": 12,
+      "sampled_src_cells": 27,
+      "scalar_cells": 27,
+      "source_pins_per_session": 22,
+      "src_active_cells": 24,
+      "src_bypass_cells": 3
+    }
+  },
+  "no_hardware_device_compatibility_claim": true,
+  "no_new_intel_preference": true,
+  "note": "This is an indexed current-source evidence review, not re-execution of raw DSP metrology. The SRC and bandwidth-matched performance gates require independent new evidence before any future promotion decision.",
+  "old_p15_manifest_unchanged_sha256": "17152d795c6d6ad2b426587fd64212ce4f0606d6790415b980cfd6ee9791d632",
+  "p10_lineage": {
+    "byte_identical": 30,
+    "current_changed_inputs": [
+      {
+        "current_sha256": "698a916658ae56a2c003fc65cc921f4ce5b91b0ec4795d033a5a6a9931e72409",
+        "p10_sha256": "a3cecb47019006375d0c760a57df97849900144dca36301585f63509dea347bb",
+        "path": "docs/dsd/DSD_DESIGN.md",
+        "scope": "current reviewed P15 design with Intel and v2 amendments; NOT a P10-certified document"
+      },
+      {
+        "current_sha256": "be2e7ede019b38439acb5234ec9f8d02956698525e94e3d7be4a7408dd80c93b",
+        "p10_sha256": "5bc05977247b96092efa721058d0c3e3c179cf6512a4799b38a3244192555d89",
+        "path": "src/dsd_plan.c",
+        "post_p10_binding_sha256": "58c25eec815db5322f29a471ab94a7d6e87265f02a3957d2bc0808df9c8c3126"
+      },
+      {
+        "current_sha256": "cd38b6b39805fef7431997658100796f1e35eb0b1502bc19bda41a94a5761e92",
+        "p10_sha256": "62f9625ccb570a7b6fdb35f66e0a72db58292ac3c9bdde00e1cd618fce781d37",
+        "path": "src/pcmdsd.c",
+        "post_p10_binding_sha256": "cd38b6b39805fef7431997658100796f1e35eb0b1502bc19bda41a94a5761e92"
+      },
+      {
+        "current_sha256": "ac149e4d771968b841d36ffae0380519cb11e50d649538716b8830b40e2bee04",
+        "p10_sha256": "74393d4341ce758f68b61bd6b9d33fafbb0baa6b6a2b11134f9c09651203b5c0",
+        "path": "src/pcmdsd.h",
+        "post_p10_binding_sha256": "ac149e4d771968b841d36ffae0380519cb11e50d649538716b8830b40e2bee04"
+      },
+      {
+        "current_sha256": "3e8bbc8189b820196d4405a8da7f619ac59b5356810212acfd8b02b39e632a27",
+        "p10_sha256": "87521841741b89478038af103fec6bae8a2258191781a4aa3a9945d676930773",
+        "path": "src/sdm.c",
+        "post_p10_binding_sha256": "3e8bbc8189b820196d4405a8da7f619ac59b5356810212acfd8b02b39e632a27"
+      }
+    ],
+    "disposition": "RECONCILED-SCOPED-NOT-RECERTIFIED",
+    "intel_physical_performance": "UNRUN-SCOPE-EXEMPT",
+    "later_executable_source_changes": 4,
+    "original_p10_certificate_sha256": "c8f41043dee20afa62977a412a51366995cb7fb43f7c845a860b412944afe74d",
+    "original_p10_inputs": 35,
+    "reviewed_design_changes": 1
+  },
+  "p16_authorized": false,
+  "reported_source_revision": "fb612f2b",
+  "schema": "P15/current-closeout-review/1",
+  "status": "BLOCKED",
+  "substantive_open_gates": [
+    "P15-v1-and-v2-composite-SRC-acceptance",
+    "P15-DSD256-direct-2x-and-matched-comparator"
+  ],
+  "transport": {
+    "full_raw_replay_possible": false,
+    "inventory_entries": 11129,
+    "missing_expected_bulk_payloads": {
+      "arrays_npz": 945,
+      "graph_raw": 756,
+      "state": 1807
+    },
+    "omitted_bulk_sha256_still_recorded": true
+  },
+  "v2_native_fir_certificate": {
+    "path": "tests/dsd/results/P15_R3_matrix_2026-10-15/v2-fir-certificate/fir-certificate.json",
+    "scope": "native FIR only; combined production SRC and graph still unqualified",
+    "sha256": "08c18ef63433ee3ef3c6715869780af31157bd7e35d14474980a1e66d2fd7b84",
+    "status": "P15_R3_V2_NATIVE_FIR_CERTIFICATE_VERIFIED",
+    "three_new_banks": 3,
+    "three_profiles": 3,
+    "v1_halfband": {
+      "four_banks": 4,
+      "path": "tests/dsd/results/P06/numeric/filter-certificate.json",
+      "scope": "native FIR only, not final SRC nor new P15 54-cell graph",
+      "sha256": "f78ebb4c0387c5e65243652b7a44723c06b50cc26dc299926ce947aa306be011",
+      "six_profiles": 6,
+      "status": "P06_NATIVE_FIR_CERTIFICATE_VERIFIED"
+    }
+  }
+}
