@@ -26,7 +26,31 @@ def main():
     ap.add_argument('--results',type=Path,default=ROOT/'tests/dsd/results/P15/release')
     ap.add_argument('--require-qualified',action='store_true',
                     help='exit 2 unless all mandatory release gates have passing evidence')
+    ap.add_argument('--current-evidence', action='store_true',
+                    help='use current-source v1/v2 evidence instead of the frozen original ledger')
+    ap.add_argument('--current-output', type=Path,
+                    help='required with --current-evidence; never overwrite a historical ledger')
     args=ap.parse_args()
+    if args.current_evidence:
+        if args.current_output is None:
+            ap.error('--current-evidence requires --current-output')
+        from p15_current_closeout import report, RESULTS as results_base, ROOT as source_root
+        from p15_readjudication import write_new
+        historical=(source_root/results_base/'P15/release').resolve()
+        output=args.current_output.resolve()
+        if output.is_relative_to(historical):
+            ap.error('current review output cannot overwrite or live inside the historical release ledger')
+        try:
+            current=report()
+            write_new(output,current)
+        except (OSError, ValueError, KeyError, TypeError, AssertionError) as exc:
+            ap.exit(1,'current P15 evidence INVALID: '+str(exc)+'\n')
+        print(json.dumps(dict(status=current['status'],
+                              mandatory_unclosed=current['substantive_open_gates'],
+                              current_evidence=True,output=args.current_output.name), sort_keys=True))
+        return 2 if args.require_qualified and current['status'] != 'READY' else 0
+    if args.current_output is not None:
+        ap.error('--current-output requires --current-evidence')
     args.results.mkdir(parents=True,exist_ok=True)
     cert=stored(ROOT,CERT)
     assert cert['decision']=='CERTIFIED' and cert['p10_phase']=='CLOSED', 'unexpected P10 reviewer decision'

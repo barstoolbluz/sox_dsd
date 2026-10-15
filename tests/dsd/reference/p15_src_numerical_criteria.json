@@ -1,0 +1,32 @@
+{
+  "schema": "P15/src-numerical-disposition-criteria/1",
+  "authority": [
+    "docs/dsd/DSD_DESIGN.md:6.1",
+    "docs/dsd/DSD_DESIGN.md:6.5",
+    "docs/dsd/DSD_DESIGN.md:8.6",
+    "docs/dsd/DSD_DESIGN.md:8.6.1",
+    "docs/dsd/DSD_DESIGN.md:10.4"
+  ],
+  "policy": {
+    "src_activity": "intermediate_hz != pcm_hz",
+    "native_ratio_classification": "native_hz % pcm_hz != 0 is historical naming only; never an SRC-bypass test",
+    "different_transfer_samplewise_disposition": "DIAGNOSTIC_NOT_AN_ACCEPTANCE_THRESHOLD",
+    "different_transfer_reference_type": "independently-designed-rational-polyphase-kaiser-sinc",
+    "true_identity_disposition": "FIR_ONLY_BOUND_CHECKED_SEPARATELY",
+    "same_transfer_arithmetic": "PER_OUTPUT_BOUND_IN_DSD_DESIGN_8.6.1; REQUIRES_OPERATOR_AND_HIGHPRECISION_WITNESS",
+    "composite_transfer": "ALL_EXTREMA_AND_COHERENT_ALIASES_IN_DSD_DESIGN_6.1_AND_6.5",
+    "unknown_or_missing_bound_terms": "OPEN_NOT_PASS",
+    "current_record_numerical_qualification": "OPEN_PENDING_INDEPENDENT_SAME_TRANSFER_CERTIFICATE"
+  },
+  "expected_source_bound_sessions": {
+    "v1": "tests/dsd/results/P15_v1_matrix_rebound_2026-10-15",
+    "v2": "tests/dsd/results/P15_v2_matrix_2026-10-15"
+  },
+  "requires": {
+    "cell_digest_sidecar": true,
+    "scalar_session_source_pins": true,
+    "all_five_tier_receipts": true,
+    "raw_payload_presence_for_independent_replay": true,
+    "raw_payload_absence_does_not_mean_measured_failure": true
+  }
+}

@@ -692,6 +692,80 @@ The initial graph still expands native bits to int32. Its per-pass traffic at DS
 
 For FIR kernels, output count, phase and endpoint behavior are identical. Bit equality is desirable but not mandatory. Bound binary64 differences against the scalar implementation by a conservative accumulated-roundoff envelope proportional to machine epsilon, total tap count, the product of stage L1 norms and input peak. Initial acceptance uses `16 * DBL_EPSILON * sum(L_j) * product(sum(abs(h_j))) * max(1,input_peak)` per finite cascade sample, supplemented by the independent high-precision oracle. Graph samples may differ by at most one int32 LSB; no extra clipping is allowed. Final SRC comparisons have their own measured numerical tolerance, not a claimed FIR-only proof.
 
+
+### 8.6.1 P15 full-chain SRC numerical acceptance and comparator scope (2026-10-15)
+
+**Normative scope ruling.** The independent rational/polyphase Kaiser reference in
+P15's v1/v2 cell records and the private production SoX SRC are *different
+transfer functions*. Their samplewise residuals measure filter-design and
+finite-boundary differences as well as arithmetic. There is **no valid
+fixed absolute error tolerance** for treating those residuals as binary64
+roundoff. Their 24 v1 and 12 v2 fractional native/output-ratio measurements
+are **DIAGNOSTIC, NOT AN ACCEPTANCE TEST**, irrespective of observed magnitude;
+none may be marked `PASS` or `FAIL` from such a residual. This excludes
+*unlike-operator sample equality*, not §§6.1, 6.5, 10.4 independent
+frequency/alias qualification or a high-precision **same-operator** numerical
+test. Do not substitute the FIR-only tolerance above or invent a wider
+post-measurement constant. Retain the measured residuals and source hashes.
+
+The operative SRC test is determined by **intermediate R != F_out**, not
+whether native DSD Hz divided by final PCM Hz is integral. Of the recorded
+54 v1 and 27 v2 cells, 48 and 24 respectively execute the private SRC:
+**72 SRC-active cells**, including 36 cells erroneously described as
+'integer-reference' by the native/output-ratio-only worklist, and 9 true
+identity-bypass cells. These historical labels and records remain immutable.
+
+**Normative numerical bound for a same-transfer reference.** Independently
+construct the production SRC's finite, zero-extended effective binary64
+coefficient/phase operator and evaluate it with at least 75 decimal digits,
+using the same independently calculated native-FIR input and exact output
+count. For each output sample n, with u = 2^-53 and gamma(k) = (k*u)/(1-k*u)
+(requiring k*u < 1), the following *per-output* bound must hold:
+
+```
+W[n,j]     := source-audited finite effective SRC operator
+x[j]       := independently computed exact native-FIR sample
+B_fir[j]   := verified native-FIR forward-error bound (§8.6)
+A[n]       := sum_j abs(W[n,j]) * (abs(x[j]) + B_fir[j])
+B_src[n]   := gamma(N_ops[n]) * A[n] + B_coeff[n] + B_other[n]
+T[n]       := B_src[n] + sum_j abs(W[n,j]) * B_fir[j]
+PASS(n)    iff abs(y_production[n] - y_exact_same_operator[n]) <= T[n]
+```
+
+`N_ops[n]` is an independently audited conservative count of *all* relevant
+rounding operations including coefficient interpolation and phase arithmetic,
+not just FIR taps. `B_coeff[n]` bounds errors not already represented in
+`W` from binary64 coefficient realization/generation; `B_other[n]` bounds
+non-standard primitive/subnormal/phase errors. Both may be zero only when
+independently justified. A non-applicable arithmetic model requires an
+independently justified interval or forward-error bound for that primitive.
+All terms and the coefficient/phase operator must be bound to independently
+hashed source and raw inputs **before** judging residuals; include the first
+and last output frames and all tested impulse positions. Unknown terms,
+unbound coefficients/phase, missing exact-edge proof or unavailable matching
+raw vectors produce **OPEN**, never implicit zero or `PASS`. The current
+cell JSONs do *not* supply W, N_ops or B_coeff/B_other, so a checker over only
+those records cannot certify this bound without inventing evidence.
+
+The independently certified **complete-chain transfer** remains separately
+mandatory: absolute passband error <= 0.0001 dB across the effective profile
+passband, and unwanted composite stopband/folded-alias transfer <= -160 dB
+relative to unity (including coherent potentially folding families). Dense
+sampled tone PASS values are supporting observations, not bounds on all
+frequency extrema. Apply §6.5 adapt/strict intersection without expanding
+source bandwidth. A source-bound, isolated-FIR PASS is not automatically a
+full-chain PASS. Exact count, phase, boundaries, channels, ISA and graph
+behavior remain independent required checks.
+
+The P15 code-side comparator disposition and criteria are recorded in
+`tests/dsd/reference/p15_src_numerical_criteria.json` and
+`tests/dsd/p15_src_envelope_review.py`; the numerical and transfer limits
+**are defined by this section and §6.1, not duplicated by a new policy
+copy**. The first release remains blocked until both the same-transfer
+arithmetic and complete-chain transfer evidence exist, plus other named
+release gates. This section does not require rerunning 81 already source-bound
+scalar measurements merely to reclassify an invalid cross-design comparator.
+
 For SDM, raw bytes need not match. Within one kernel/profile, changing buffer sizes or thread scheduling must not change a channel's bitstream. Across kernels, compare independently reconstructed signal, spectra and stability under section 10. A CPU-wide reproducible-byte mode is not delivered. Forcing scalar helps reproducibility under a pinned build but is not advertised as universal cross-compiler determinism.
 
 # 9. Production diagnostics

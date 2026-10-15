@@ -303,8 +303,22 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--require-qualified',action='store_true')
+    parser.add_argument('--current-evidence', action='store_true',
+                        help='review the new source-bound v1/v2 evidence without changing historical decisions')
     args = parser.parse_args()
     try:
+        if args.current_evidence:
+            from p15_current_closeout import report as current_report, RESULTS as results_dir, ROOT as source_root
+            historic=(source_root/results_dir/'P15_closeout_adjudication_2026-10-14').resolve()
+            check(not args.output.resolve().is_relative_to(historic),
+                  'cannot overwrite original dated adjudication')
+            from p15_readjudication import write_new
+            obj=current_report()
+            write_new(args.output,obj)
+            print(json.dumps(dict(status=obj['status'],
+                                  mandatory_unclosed=obj['substantive_open_gates'],
+                                  current_evidence=True,output=args.output.name),sort_keys=True))
+            return 2 if args.require_qualified and obj['status']!='READY' else 0
         obj = report()
         out = args.output.resolve()
         out.parent.mkdir(parents=True,exist_ok=True)
