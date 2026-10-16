@@ -16,7 +16,21 @@ class P15CurrentCloseoutTests(unittest.TestCase):
         self.assertEqual(result['status'], 'BLOCKED')
         self.assertFalse(result['p16_authorized'])
         self.assertFalse(result['default_promotion_authorized'])
-        self.assertEqual(len(result['substantive_open_gates']), 2)
+        # Was 2. The DSD256 bandwidth-matched gate has since been supplied
+        # with its evidence and its status is derived from that evidence
+        # rather than hardcoded, so it is no longer open. The composite SRC
+        # gate remains, and BLOCKED above does not move with either.
+        self.assertEqual(result['substantive_open_gates'],
+                         ['P15-v1-and-v2-composite-SRC-acceptance'])
+        dsd256 = next(g for g in result['gates']
+                      if g['id'] == 'P15-DSD256-direct-2x-and-matched-comparator')
+        self.assertEqual(dsd256['status'], 'PASS-SCOPED')
+        self.assertEqual(dsd256['measured']['comparisons_meeting_2x_at_ci_lower_bound'], 8)
+        self.assertEqual(dsd256['measured']['control_bandwidth_match'],
+                         'CONTROL-BANDWIDTH-MATCH-VERIFIED')
+        # The superseded R2 receipt is still reviewed and still fails.
+        self.assertEqual(result['benchmark_r2_status'],
+                         'OPEN-CONTROL-NOT-BANDWIDTH-MATCHED')
         self.assertEqual(result['p10_lineage']['byte_identical'], 30)
         self.assertEqual(result['p10_lineage']['later_executable_source_changes'], 4)
         self.assertEqual(result['p10_lineage']['reviewed_design_changes'], 1)

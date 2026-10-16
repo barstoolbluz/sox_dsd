@@ -1,12 +1,21 @@
 # DSD256 2x target, matched per profile to its own passband
 
 Supplies the evidence `P15-DSD256-direct-2x-and-matched-comparator` asked for.
-**It does not close the gate and we do not claim it does.**
-`p15_current_closeout.py:280` carries that gate's status as a hardcoded `OPEN`
-with its `evidence` field pointing at the superseded R2 file, so the reviewer
-will keep reporting it open regardless of what we measure. Whether this
-evidence discharges it, and whether the reviewer should be repointed here, is
-for the design authority.
+
+**2026-10-16 update.** The hardcoded `OPEN` described below has been removed.
+`p15_current_closeout.py` now derives this gate's status from the evidence via
+`p15_readjudication.inspect_per_profile_benchmark`, and the gate reads
+`PASS-SCOPED`. Release stays `BLOCKED` and v2 stays off by default; a
+throughput result authorises neither. The superseded R2 receipt is still
+reviewed by `inspect_benchmark` and still fails, which is why it remains in
+the tree.
+
+The original note, kept for the record: *it does not close the gate and we do
+not claim it does; `p15_current_closeout.py:280` carries that gate's status as
+a hardcoded `OPEN` with its `evidence` field pointing at the superseded R2
+file, so the reviewer will keep reporting it open regardless of what we
+measure. Whether this evidence discharges it, and whether the reviewer should
+be repointed here, is for the design authority.*
 
 ## Our error
 
@@ -67,3 +76,40 @@ bandwidth artefact.
 Measurement only. Nothing here qualifies v2 or authorises promotion, and
 `P15-v1-and-v2-composite-SRC-acceptance` remains open and is not ours to close.
 Figures are from one host and are not a property of the code alone.
+
+
+## The comparator is now verified spectrally, not asserted
+
+`p15_readjudication.py` carried the standing objection: *"Even if another
+syntactic cutoff is used in future, independent spectral verification must
+precede calling the control matched."* The table above was prose in this
+README; nothing in the receipt let a reviewer check it. `dsd256-control-match.json`,
+produced by `tests/dsd/verify_dsd256_control_match.py`, now does.
+
+Decoder and control read the same native DSD256 file built from broadband
+noise, and their spectra are compared band by band. Result, over each
+profile's passband proper:
+
+| cell | compared to | max abs difference | incl. transition |
+|---|---|---|---|
+| mastering @ 352800 | 38000 Hz | 0.000 dB | 0.000 dB |
+| mastering @ 176400 | 38000 Hz | 0.003 dB | 0.003 dB |
+| v2 @ 352800 | 62700 Hz | 0.017 dB | 6.014 dB |
+| v2 @ 176400 | 62700 Hz | 0.007 dB | 6.012 dB |
+
+The comparison runs to 95% of each passband. Two filters of different design
+each turn down on their own schedule in the transition region, so a few dB
+there says nothing about whether the control is matched; the full-passband
+figure is recorded anyway, ungated, which is where v2's 6 dB appears. For v2
+the divergence is 0.0000 dB below 20 kHz and under 0.15 dB through 63 kHz,
+rising only in the last 3 kHz as the two corners part.
+
+Two false starts are worth recording. The first version used the six-tone
+timing fixture, whose content stops at 2.3 kHz; it compared only the tone
+bins, reported 0.000 dB, and would have passed a 20 kHz control without
+noticing. The second compared into the transition region and failed v2 on the
+single last bin.
+
+The self-test under `selftest/` forces a 20 kHz cutoff, the exact error this
+gate was opened for. It is detected on all four cells by 72 to 153 dB, well
+inside the 5% margin, so the exclusion does not blunt the check.

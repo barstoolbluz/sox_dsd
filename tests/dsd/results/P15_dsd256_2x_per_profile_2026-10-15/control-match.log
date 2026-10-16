@@ -1,0 +1,15 @@
+########## SELF-TEST: forced 20 kHz control, detection is the pass
+mastering                        352800 Hz  max|diff| 139.929 dB to  38000 Hz  (139.929 dB incl. transition)  matched=False
+mastering                        176400 Hz  max|diff| 152.543 dB to  38000 Hz  (152.543 dB incl. transition)  matched=False
+decode.mastering.v2.dsd256       352800 Hz  max|diff|  72.404 dB to  62700 Hz  (76.399 dB incl. transition)  matched=False
+decode.mastering.v2.dsd256       176400 Hz  max|diff| 150.499 dB to  62700 Hz  (150.499 dB incl. transition)  matched=False
+status NOT-MATCHED -> /var/tmp/sox-ng-bench/ctlmatch-st/dsd256-control-match.json
+self-test with a forced 20000 Hz cutoff: DETECTED
+selftest exit=0
+########## REAL RUN
+mastering                        352800 Hz  max|diff|   0.000 dB to  38000 Hz  (0.000 dB incl. transition)  matched=True
+mastering                        176400 Hz  max|diff|   0.003 dB to  38000 Hz  (0.003 dB incl. transition)  matched=True
+decode.mastering.v2.dsd256       352800 Hz  max|diff|   0.017 dB to  62700 Hz  (6.014 dB incl. transition)  matched=True
+decode.mastering.v2.dsd256       176400 Hz  max|diff|   0.007 dB to  62700 Hz  (6.012 dB incl. transition)  matched=True
+status MATCHED -> /var/tmp/sox-ng-bench/ctlmatch/dsd256-control-match.json
+real exit=0
