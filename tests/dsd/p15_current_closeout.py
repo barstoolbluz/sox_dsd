@@ -309,9 +309,26 @@ def report() -> dict:
                    'fails. This is throughput on one prepared host; it is not an '
                    'audio quality result, does not qualify v2 and authorises no '
                    'promotion.'),
+        # Status deliberately NOT derived, unlike the DSD256 gate above. The
+        # Intel amendment reserves this one: "Do not write PASS ... retain a
+        # visibly scoped UNRUN-SCOPE-EXEMPT status", and "readjudication
+        # creates a new ledger rather than rewriting old UNRUN labels". The
+        # arm has since been run on physical Tiger Lake-H and that ledger
+        # entry is listed below; reclassifying the gate is the authority's.
         dict(id='P15-Intel-AVX512-physical-performance', status='UNRUN-SCOPE-EXEMPT',
-             evidence=str(INTEL),
-             issue='Only under unchanged conservative dispatch and no Intel physical performance claim'),
+             evidence=[str(INTEL),
+                       'tests/dsd/results/P15_intel_physical_avx512_2026-10-16'],
+             measured_not_adjudicated=dict(
+                 host='11th Gen Intel Core i9-11900H, physical, no hypervisor',
+                 gate_relevant=True,
+                 clock_licence_downclock='none: -0.00% avx512 against avx2, '
+                                         'p10 equal to p90 on all four tiers',
+                 kernel_fir_block_speedup=1.915,
+                 end_to_end_range='0.987x to 1.010x across twelve cases',
+                 agrees_with='tests/dsd/results/P13_amd_physical_avx512_2026-10-12'),
+             issue='Only under unchanged conservative dispatch and no Intel physical '
+                   'performance claim. The measurement now exists and is recorded; it '
+                   'is not read as a status change here.'),
         dict(id='P15-older-AVX1-physical-observation', status='PASS-SCOPED-INHERITED',
              evidence='tests/dsd/results/P15_avx1_physical_2026-10-13'),
         dict(id='P15-encoder-one-hour-soaks', status='PASS-SCOPED-INHERITED',
