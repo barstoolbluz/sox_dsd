@@ -7,10 +7,10 @@
  "fixture": {
   "channels": 1,
   "native_hz": 11289600,
-  "native_sha256": "85077a734b073dd151a7352427f570eba9bc161badcc55fd9d992b579d875229",
+  "native_sha256": "cc3aa28461edd074d2fdfcb803e49deb0dd6b835fb0880e209abff7c686ecd51",
   "probe": "whitenoise at -20 dBFS, broadband to Nyquist",
   "seconds": 6.0,
-  "source_sha256": "dd012bff7ebb3ada32d1fffde30d2cf20b2d532c72e26ae23510ef1340edf2c4"
+  "source_sha256": "6e6a70e23de80ccc98414866beabc5e5145ceaa5e155c0d714fd864704b8dd3a"
  },
  "passband_source": "decoder --dsd-report effective_passband_hz, per profile",
  "probe_signal": "broadband noise encoded to DSD256, decoded by both arms",
@@ -21,70 +21,124 @@
    "rates": {
     "176400": {
      "agreement_limit_db": 1.0,
-     "compared_bins": 6323,
+     "compared_bins": 6339,
      "comparison_band_hz": [
       1000.0,
       62700.0
      ],
-     "control_minus3db_hz": 22792.8955078125,
-     "decoder_minus3db_hz": 22792.8955078125,
+     "control_minus3db_hz": 22809.04541015625,
+     "decoder_minus3db_hz": 22809.04541015625,
      "difference_profile": [
       {
        "from_hz": 1000.0,
-       "max_abs_difference_db": 4.89401186243299e-07,
-       "mean_difference_db": -3.2327657989843758e-09,
-       "to_hz": 7500.0
+       "max_abs_difference_db": 4.887630780103791e-07,
+       "mean_difference_db": -3.0091065279830564e-09,
+       "to_hz": 7488.9
       },
       {
-       "from_hz": 7500.0,
-       "max_abs_difference_db": 5.034476675547239e-07,
-       "mean_difference_db": -1.7155777540546572e-08,
-       "to_hz": 14000.0
+       "from_hz": 7488.9,
+       "max_abs_difference_db": 5.031985175207865e-07,
+       "mean_difference_db": -1.890168007064243e-08,
+       "to_hz": 13977.8
       },
       {
-       "from_hz": 14000.0,
-       "max_abs_difference_db": 5.284970150398749e-07,
-       "mean_difference_db": -2.0544224330562043e-08,
-       "to_hz": 20500.0
+       "from_hz": 13977.8,
+       "max_abs_difference_db": 5.245122007835334e-07,
+       "mean_difference_db": -2.067122437960434e-08,
+       "to_hz": 20466.7
       },
       {
-       "from_hz": 20500.0,
-       "max_abs_difference_db": 0.003584062795027876,
-       "mean_difference_db": -5.2947675638970476e-06,
-       "to_hz": 27000.0
+       "from_hz": 20466.7,
+       "max_abs_difference_db": 0.0024576469704697956,
+       "mean_difference_db": 1.4247518567470265e-05,
+       "to_hz": 26955.6
       },
       {
-       "from_hz": 46500.0,
-       "max_abs_difference_db": 0.006649150499697498,
-       "mean_difference_db": 0.00015674427679458156,
-       "to_hz": 53000.0
+       "from_hz": 46422.2,
+       "max_abs_difference_db": 0.006897115303075907,
+       "mean_difference_db": 0.0003829678943865791,
+       "to_hz": 52911.1
       },
       {
-       "from_hz": 53000.0,
-       "max_abs_difference_db": 0.00572273748738894,
-       "mean_difference_db": 6.527717106705195e-05,
-       "to_hz": 59500.0
+       "from_hz": 52911.1,
+       "max_abs_difference_db": 0.006633888539354871,
+       "mean_difference_db": 6.03032467893007e-05,
+       "to_hz": 59400.0
       },
       {
-       "from_hz": 59500.0,
-       "max_abs_difference_db": 6.011645634950838,
-       "mean_difference_db": -0.3987764456588875,
+       "from_hz": 59400.0,
+       "max_abs_difference_db": 0.0021435969385095177,
+       "mean_difference_db": -8.242760551373991e-05,
+       "to_hz": 60060.0
+      },
+      {
+       "from_hz": 60060.0,
+       "max_abs_difference_db": 0.0024042950505531735,
+       "mean_difference_db": -1.0746731277784538e-05,
+       "to_hz": 60720.0
+      },
+      {
+       "from_hz": 60720.0,
+       "max_abs_difference_db": 0.0016160261918827246,
+       "mean_difference_db": -1.7409599140997393e-05,
+       "to_hz": 61380.0
+      },
+      {
+       "from_hz": 61380.0,
+       "max_abs_difference_db": 0.0019814572891192483,
+       "mean_difference_db": -2.723869050276416e-05,
+       "to_hz": 62040.0
+      },
+      {
+       "from_hz": 62040.0,
+       "max_abs_difference_db": 0.0017354197511849634,
+       "mean_difference_db": -0.00011160813354988902,
+       "to_hz": 62700.0
+      },
+      {
+       "from_hz": 62700.0,
+       "max_abs_difference_db": 0.0010609218437593881,
+       "mean_difference_db": 9.489644155944479e-05,
+       "to_hz": 63360.0
+      },
+      {
+       "from_hz": 63360.0,
+       "max_abs_difference_db": 0.001571804879404226,
+       "mean_difference_db": -8.811173037712691e-05,
+       "to_hz": 64020.0
+      },
+      {
+       "from_hz": 64020.0,
+       "max_abs_difference_db": 0.1206034262453386,
+       "mean_difference_db": -0.03267411190484392,
+       "to_hz": 64680.0
+      },
+      {
+       "from_hz": 64680.0,
+       "max_abs_difference_db": 1.3607472239312273,
+       "mean_difference_db": -0.5711901942552674,
+       "to_hz": 65340.0
+      },
+      {
+       "from_hz": 65340.0,
+       "max_abs_difference_db": 6.013514811216652,
+       "mean_difference_db": -3.3127060628506344,
        "to_hz": 66000.0
       }
      ],
      "full_passband_max_abs_difference_at_hz": 65999.267578125,
-     "full_passband_max_abs_difference_db": 6.011645634950838,
+     "full_passband_max_abs_difference_db": 6.013514811216652,
      "matched": true,
-     "max_abs_difference_at_hz": 52255.70068359375,
-     "max_abs_difference_db": 0.006649150499697498,
-     "mean_difference_db": 1.8468850093722226e-05,
+     "max_abs_difference_at_hz": 51884.2529296875,
+     "max_abs_difference_db": 0.006897115303075907,
+     "mean_difference_db": 2.338858919218602e-05,
      "output_hz": 176400,
      "passband_hz": 66000,
      "transition_excluded_fraction": 0.05
     },
     "352800": {
      "agreement_limit_db": 1.0,
-     "compared_bins": 3203,
+     "compared_bins": 3218,
      "comparison_band_hz": [
       1000.0,
       62700.0
@@ -94,53 +148,107 @@
      "difference_profile": [
       {
        "from_hz": 1000.0,
-       "max_abs_difference_db": 8.093189585167693e-07,
-       "mean_difference_db": 1.0561090656895337e-08,
-       "to_hz": 7500.0
+       "max_abs_difference_db": 8.085060478890682e-07,
+       "mean_difference_db": 1.176076577860329e-08,
+       "to_hz": 7488.9
       },
       {
-       "from_hz": 7500.0,
-       "max_abs_difference_db": 8.435407643503368e-07,
-       "mean_difference_db": 4.733894589056213e-09,
-       "to_hz": 14000.0
+       "from_hz": 7488.9,
+       "max_abs_difference_db": 8.427952842282593e-07,
+       "mean_difference_db": 4.51247872530576e-09,
+       "to_hz": 13977.8
       },
       {
-       "from_hz": 14000.0,
-       "max_abs_difference_db": 9.047857787436442e-07,
-       "mean_difference_db": -2.2529474327333092e-09,
-       "to_hz": 20500.0
+       "from_hz": 13977.8,
+       "max_abs_difference_db": 9.031683916305155e-07,
+       "mean_difference_db": -4.305771172609104e-09,
+       "to_hz": 20466.7
       },
       {
-       "from_hz": 20500.0,
-       "max_abs_difference_db": 0.0012853092543991806,
-       "mean_difference_db": -6.396749538665734e-06,
-       "to_hz": 27000.0
+       "from_hz": 20466.7,
+       "max_abs_difference_db": 0.0005601609236833838,
+       "mean_difference_db": 3.4898054750061767e-06,
+       "to_hz": 26955.6
       },
       {
-       "from_hz": 46500.0,
-       "max_abs_difference_db": 0.00376888092020522,
-       "mean_difference_db": 0.00016309365109431643,
-       "to_hz": 53000.0
+       "from_hz": 46422.2,
+       "max_abs_difference_db": 0.004280850751484877,
+       "mean_difference_db": 0.0003030425153200368,
+       "to_hz": 52911.1
       },
       {
-       "from_hz": 53000.0,
-       "max_abs_difference_db": 0.0020220605312601947,
-       "mean_difference_db": -1.6234194941539545e-05,
-       "to_hz": 59500.0
+       "from_hz": 52911.1,
+       "max_abs_difference_db": 0.0027414041547899615,
+       "mean_difference_db": -3.9277065177416704e-05,
+       "to_hz": 59400.0
       },
       {
-       "from_hz": 59500.0,
-       "max_abs_difference_db": 6.013999109800366,
-       "mean_difference_db": -0.793932751943349,
+       "from_hz": 59400.0,
+       "max_abs_difference_db": 0.001095270604892562,
+       "mean_difference_db": 1.4201900029786243e-05,
+       "to_hz": 60060.0
+      },
+      {
+       "from_hz": 60060.0,
+       "max_abs_difference_db": 0.0008910865427651515,
+       "mean_difference_db": 1.777583963245411e-05,
+       "to_hz": 60720.0
+      },
+      {
+       "from_hz": 60720.0,
+       "max_abs_difference_db": 0.0007713222568526135,
+       "mean_difference_db": -3.9431164643972015e-05,
+       "to_hz": 61380.0
+      },
+      {
+       "from_hz": 61380.0,
+       "max_abs_difference_db": 0.0010433501464177652,
+       "mean_difference_db": -0.00025783825633301523,
+       "to_hz": 62040.0
+      },
+      {
+       "from_hz": 62040.0,
+       "max_abs_difference_db": 0.017687398739028026,
+       "mean_difference_db": -0.006447889766711628,
+       "to_hz": 62700.0
+      },
+      {
+       "from_hz": 62700.0,
+       "max_abs_difference_db": 0.11701662235036281,
+       "mean_difference_db": -0.05601580417134721,
+       "to_hz": 63360.0
+      },
+      {
+       "from_hz": 63360.0,
+       "max_abs_difference_db": 0.4749208705012222,
+       "mean_difference_db": -0.26710918920002974,
+       "to_hz": 64020.0
+      },
+      {
+       "from_hz": 64020.0,
+       "max_abs_difference_db": 1.3492413159046777,
+       "mean_difference_db": -0.8631970256729509,
+       "to_hz": 64680.0
+      },
+      {
+       "from_hz": 64680.0,
+       "max_abs_difference_db": 3.066053139356214,
+       "mean_difference_db": -2.13943723949093,
+       "to_hz": 65340.0
+      },
+      {
+       "from_hz": 65340.0,
+       "max_abs_difference_db": 6.017473504542238,
+       "mean_difference_db": -4.451471431530689,
        "to_hz": 66000.0
       }
      ],
      "full_passband_max_abs_difference_at_hz": 65999.267578125,
-     "full_passband_max_abs_difference_db": 6.013999109800366,
+     "full_passband_max_abs_difference_db": 6.017473504542238,
      "matched": true,
      "max_abs_difference_at_hz": 62693.9208984375,
-     "max_abs_difference_db": 0.016956455715629204,
-     "mean_difference_db": -0.00012083932921276574,
+     "max_abs_difference_db": 0.017687398739028026,
+     "mean_difference_db": -0.0001179515823927038,
      "output_hz": 352800,
      "passband_hz": 66000,
      "transition_excluded_fraction": 0.05
@@ -158,59 +266,59 @@
       1000.0,
       38000.0
      ],
-     "control_minus3db_hz": 22792.8955078125,
-     "decoder_minus3db_hz": 22792.8955078125,
+     "control_minus3db_hz": 22809.04541015625,
+     "decoder_minus3db_hz": 22809.04541015625,
      "difference_profile": [
       {
        "from_hz": 1000.0,
-       "max_abs_difference_db": 4.828605852935652e-07,
-       "mean_difference_db": -7.039344761347695e-09,
-       "to_hz": 4900.0
+       "max_abs_difference_db": 4.850323556127023e-07,
+       "mean_difference_db": -7.901673362646524e-09,
+       "to_hz": 4888.9
       },
       {
-       "from_hz": 4900.0,
-       "max_abs_difference_db": 4.992266475767337e-07,
-       "mean_difference_db": -6.404243949150384e-09,
-       "to_hz": 8800.0
+       "from_hz": 4888.9,
+       "max_abs_difference_db": 4.951149552567813e-07,
+       "mean_difference_db": -5.842980784343531e-09,
+       "to_hz": 8777.8
       },
       {
-       "from_hz": 8800.0,
-       "max_abs_difference_db": 5.259754747299894e-07,
-       "mean_difference_db": -7.412799647979761e-09,
-       "to_hz": 12700.0
+       "from_hz": 8777.8,
+       "max_abs_difference_db": 5.264846052455141e-07,
+       "mean_difference_db": -5.5438694964355824e-09,
+       "to_hz": 12666.7
       },
       {
-       "from_hz": 12700.0,
-       "max_abs_difference_db": 5.660837203436131e-07,
-       "mean_difference_db": -5.739538418508367e-09,
-       "to_hz": 16600.0
+       "from_hz": 12666.7,
+       "max_abs_difference_db": 5.655942576510142e-07,
+       "mean_difference_db": -4.078257503027229e-09,
+       "to_hz": 16555.6
       },
       {
-       "from_hz": 16600.0,
-       "max_abs_difference_db": 6.362593332198685e-07,
-       "mean_difference_db": -7.323509851273919e-09,
-       "to_hz": 20500.0
+       "from_hz": 16555.6,
+       "max_abs_difference_db": 6.315295095760121e-07,
+       "mean_difference_db": -3.996292638759594e-09,
+       "to_hz": 20444.4
       },
       {
-       "from_hz": 20500.0,
-       "max_abs_difference_db": 0.0025524936006888765,
-       "mean_difference_db": -1.2159044609968061e-06,
-       "to_hz": 24400.0
+       "from_hz": 20444.4,
+       "max_abs_difference_db": 0.0059376133544049026,
+       "mean_difference_db": -6.4524548880432795e-06,
+       "to_hz": 24333.3
       }
      ],
      "full_passband_max_abs_difference_at_hz": 23955.6884765625,
-     "full_passband_max_abs_difference_db": 0.0025524936006888765,
+     "full_passband_max_abs_difference_db": 0.0059376133544049026,
      "matched": true,
      "max_abs_difference_at_hz": 23955.6884765625,
-     "max_abs_difference_db": 0.0025524936006888765,
-     "mean_difference_db": -1.8927160080971737e-07,
+     "max_abs_difference_db": 0.0059376133544049026,
+     "mean_difference_db": -9.95108055043857e-07,
      "output_hz": 176400,
      "passband_hz": 40000,
      "transition_excluded_fraction": 0.05
     },
     "352800": {
      "agreement_limit_db": 1.0,
-     "compared_bins": 2134,
+     "compared_bins": 2135,
      "comparison_band_hz": [
       1000.0,
       38000.0
@@ -220,47 +328,47 @@
      "difference_profile": [
       {
        "from_hz": 1000.0,
-       "max_abs_difference_db": 4.783839813171653e-07,
-       "mean_difference_db": -6.9841107002382855e-09,
-       "to_hz": 4900.0
+       "max_abs_difference_db": 4.798156503227347e-07,
+       "mean_difference_db": -7.917679221896049e-09,
+       "to_hz": 4888.9
       },
       {
-       "from_hz": 4900.0,
-       "max_abs_difference_db": 4.970704488016509e-07,
-       "mean_difference_db": -6.406402980851503e-09,
-       "to_hz": 8800.0
+       "from_hz": 4888.9,
+       "max_abs_difference_db": 4.930808081837768e-07,
+       "mean_difference_db": -5.781789486085487e-09,
+       "to_hz": 8777.8
       },
       {
-       "from_hz": 8800.0,
-       "max_abs_difference_db": 5.211355471601564e-07,
-       "mean_difference_db": -7.36305354808611e-09,
-       "to_hz": 12700.0
+       "from_hz": 8777.8,
+       "max_abs_difference_db": 5.243578904412516e-07,
+       "mean_difference_db": -5.747688257011946e-09,
+       "to_hz": 12666.7
       },
       {
-       "from_hz": 12700.0,
-       "max_abs_difference_db": 5.588639240272641e-07,
-       "mean_difference_db": -5.721859671153446e-09,
-       "to_hz": 16600.0
+       "from_hz": 12666.7,
+       "max_abs_difference_db": 5.626353640764137e-07,
+       "mean_difference_db": -3.600927605342063e-09,
+       "to_hz": 16555.6
       },
       {
-       "from_hz": 16600.0,
-       "max_abs_difference_db": 6.309902040868565e-07,
-       "mean_difference_db": -7.66722385367083e-09,
-       "to_hz": 20500.0
+       "from_hz": 16555.6,
+       "max_abs_difference_db": 6.302368440458395e-07,
+       "mean_difference_db": -4.006576256361262e-09,
+       "to_hz": 20444.4
       },
       {
-       "from_hz": 20500.0,
-       "max_abs_difference_db": 0.00033407348135483517,
-       "mean_difference_db": 6.223901187683647e-07,
-       "to_hz": 24400.0
+       "from_hz": 20444.4,
+       "max_abs_difference_db": 0.0015145588481573213,
+       "mean_difference_db": -1.376713291777799e-06,
+       "to_hz": 24333.3
       }
      ],
      "full_passband_max_abs_difference_at_hz": 23955.6884765625,
-     "full_passband_max_abs_difference_db": 0.00033407348135483517,
+     "full_passband_max_abs_difference_db": 0.0015145588481573213,
      "matched": true,
      "max_abs_difference_at_hz": 23955.6884765625,
-     "max_abs_difference_db": 0.00033407348135483517,
-     "mean_difference_db": 8.811402405619093e-08,
+     "max_abs_difference_db": 0.0015145588481573213,
+     "mean_difference_db": -2.1672755186536549e-07,
      "output_hz": 352800,
      "passband_hz": 40000,
      "transition_excluded_fraction": 0.05

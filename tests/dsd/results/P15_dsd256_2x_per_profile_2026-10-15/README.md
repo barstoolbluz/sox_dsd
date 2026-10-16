@@ -92,17 +92,32 @@ profile's passband proper:
 
 | cell | compared to | max abs difference | incl. transition |
 |---|---|---|---|
-| mastering @ 352800 | 38000 Hz | 0.000 dB | 0.000 dB |
-| mastering @ 176400 | 38000 Hz | 0.003 dB | 0.003 dB |
-| v2 @ 352800 | 62700 Hz | 0.017 dB | 6.014 dB |
-| v2 @ 176400 | 62700 Hz | 0.007 dB | 6.012 dB |
+| mastering @ 352800 | 38000 Hz | 0.002 dB | 0.002 dB |
+| mastering @ 176400 | 38000 Hz | 0.006 dB | 0.006 dB |
+| v2 @ 352800 | 62700 Hz | 0.018 dB | 6.017 dB |
+| v2 @ 176400 | 62700 Hz | 0.007 dB | 6.014 dB |
 
 The comparison runs to 95% of each passband. Two filters of different design
 each turn down on their own schedule in the transition region, so a few dB
 there says nothing about whether the control is matched; the full-passband
-figure is recorded anyway, ungated, which is where v2's 6 dB appears. For v2
-the divergence is 0.0000 dB below 20 kHz and under 0.15 dB through 63 kHz,
-rising only in the last 3 kHz as the two corners part.
+figure is recorded anyway, ungated, which is where v2's 6 dB appears.
+
+The recorded `difference_profile` is deliberately finer across the top tenth,
+because that is where the two transitions part and where the decision to
+exclude the last 5% has to be judged. For v2 at 352800 it reads:
+
+| band | max abs difference |
+|---|---|
+| 62040-62700 Hz | 0.018 dB |
+| 62700-63360 Hz | 0.117 dB |
+| 63360-64020 Hz | 0.475 dB |
+| 64020-64680 Hz | 1.349 dB |
+| 64680-65340 Hz | 3.066 dB |
+| 65340-66000 Hz | 6.017 dB |
+
+The divergence climbs smoothly rather than stepping, and at the 62700 Hz cut
+it is 0.018 dB, so the exclusion is not concealing a cliff immediately beyond
+it. A reader can check that from the receipt instead of taking our word.
 
 Two false starts are worth recording. The first version used the six-tone
 timing fixture, whose content stops at 2.3 kHz; it compared only the tone
@@ -111,5 +126,5 @@ noticing. The second compared into the transition region and failed v2 on the
 single last bin.
 
 The self-test under `selftest/` forces a 20 kHz cutoff, the exact error this
-gate was opened for. It is detected on all four cells by 72 to 153 dB, well
+gate was opened for. It is detected on all four cells by 73 to 152 dB, well
 inside the 5% margin, so the exclusion does not blunt the check.

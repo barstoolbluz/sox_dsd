@@ -107,10 +107,14 @@ def compare(dec: Path, ctl: Path, passband_hz: int) -> dict:
     full_diff = sc[full] - sd[full]
     worst = int(np.argmax(np.abs(diff)))
     full_worst = int(np.argmax(np.abs(full_diff)))
-    # A coarse profile so a reader can see where any divergence sits rather
-    # than having to trust one summary number.
+    # A profile so a reader can see where any divergence sits rather than
+    # having to trust one summary number. Deliberately finer across the top
+    # tenth: that is where the two filters' transitions part, and where the
+    # decision to exclude the last 5% has to be judged. A uniform grid put
+    # the whole edge in one 6.5 kHz bucket, which is not enough to judge it.
     profile = []
-    bounds = np.linspace(1000.0, top, 11)
+    bounds = np.concatenate([np.linspace(1000.0, top * 0.9, 10),
+                             np.linspace(top * 0.9, top, 11)[1:]])
     for lo_hz, hi_hz in zip(bounds, bounds[1:]):
         band = carries & (f >= lo_hz) & (f < hi_hz)
         if band.sum():
