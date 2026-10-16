@@ -114,7 +114,9 @@ G=/sys/devices/system/cpu/cpu$CPU/cpufreq
 if [ "$HYP" = PRESENT ] || { [ "$VIRT" != none ] && [ "$VIRT" != unknown ]; }; then
   echo "  virtualized -> DIAGNOSTIC only (host governor/turbo not controllable,"
   echo "  and AVX-512 licence downclocking cannot be attributed from inside a guest)"
-  GATE=no; PREP_OK=no
+  # Not a preparation failure: no amount of preparing fixes being a guest, so
+  # do not print the prepare advice for this alone.
+  GATE=no
 fi
 if [ ! -r "$G/scaling_governor" ]; then
   echo "  no cpufreq exposed -> DIAGNOSTIC only"; GATE=no; PREP_OK=no
