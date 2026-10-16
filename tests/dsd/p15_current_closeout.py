@@ -15,7 +15,8 @@ import sys
 
 from p15_matrix_contract import CROSS_ISA_DETAIL_ENDPOINTS, make_plan
 from p15_matrix_instrument import inherited_fir_certificate
-from p15_readjudication import inspect_amendment, inspect_benchmark, write_new
+from p15_readjudication import (inspect_amendment, inspect_benchmark,
+                                inspect_per_profile_benchmark, write_new)
 
 ROOT = Path(__file__).resolve().parents[2]
 RESULTS = Path('tests/dsd/results')
@@ -265,9 +266,19 @@ def report() -> dict:
     require(fir['status'] == 'P15_R3_V2_NATIVE_FIR_CERTIFICATE_VERIFIED' and
             fir['three_profiles'] == 3 and fir['three_new_banks'] == 3,
             'v2 native FIR certificate not source-bound')
+    # The R2 receipt is still reviewed, and still fails: its 20 kHz staged
+    # sinc matched the passband of neither profile. It is kept because the
+    # per-profile receipt supersedes it rather than erasing it.
     indexed_benchmark = inspect_benchmark()
     require(indexed_benchmark['disposition'] == 'OPEN-CONTROL-NOT-BANDWIDTH-MATCHED',
             'benchmark unexpectedly reclassified')
+    # The measurement the gate asked for, with its comparator verified
+    # spectrally rather than asserted from a command line. This raises on any
+    # failure, so reaching the gate table at all means it holds.
+    dsd256 = inspect_per_profile_benchmark()
+    require(dsd256['cells_measured'] == 4 and
+            dsd256['comparisons_meeting_2x_at_ci_lower_bound'] == 8,
+            'DSD256 per-profile matrix is not the expected 2 profiles x 2 rates x 2 controls')
     gates = [
         dict(id='P15-v1-and-v2-composite-SRC-acceptance', status='OPEN',
              evidence=[str(V1), str(V2),
@@ -277,11 +288,27 @@ def report() -> dict:
                    'the further 36 integer-native-ratio cells also execute SRC. The 72 '
                    'SRC-active cells lack independent same-transfer arithmetic and '
                    'all-extrema/coherent-alias certificates; no tolerance can be fabricated.'),
-        dict(id='P15-DSD256-direct-2x-and-matched-comparator', status='OPEN',
-             evidence='tests/dsd/results/P15_matrix_metrology_R2_2026-10-14/dsd256-2x.json',
-             issue='R2 staged control sinc -20000 is not matched to v1 40 kHz nor v2 66 kHz; '
-                   'v2 needs a qualified 66/80 kHz comparison and direct 2x measurement. '
-                   'Section 10.7 does not require a separate 2x against the matched control'),
+        # Status is derived from the evidence above, not written here. The
+        # earlier hardcoded OPEN reported this gate shut regardless of what
+        # was measured, and pointed at the superseded R2 receipt while doing
+        # it; a status that cannot change is not a review.
+        dict(id='P15-DSD256-direct-2x-and-matched-comparator',
+             status=('PASS-SCOPED' if dsd256['disposition'] ==
+                     'DIRECT-2X-AND-MATCHED-COMPARATOR-MEASURED' else 'OPEN'),
+             evidence=['tests/dsd/results/P15_dsd256_2x_per_profile_2026-10-15/dsd256-2x.json',
+                       'tests/dsd/results/P15_dsd256_2x_per_profile_2026-10-15/'
+                       'dsd256-control-match.json',
+                       'tests/dsd/verify_dsd256_control_match.py',
+                       'tests/dsd/results/P15_matrix_metrology_R2_2026-10-14/dsd256-2x.json'],
+             measured=dsd256,
+             issue='Discharged as a timed observation: 8 of 8 cells clear 2x at the '
+                   'CI lower bound, both profiles against both the direct and the '
+                   'matched control, with the control cut at each profile\'s own '
+                   'declared passband and that match verified spectrally rather than '
+                   'asserted. The superseded R2 receipt remains reviewed and still '
+                   'fails. This is throughput on one prepared host; it is not an '
+                   'audio quality result, does not qualify v2 and authorises no '
+                   'promotion.'),
         dict(id='P15-Intel-AVX512-physical-performance', status='UNRUN-SCOPE-EXEMPT',
              evidence=str(INTEL),
              issue='Only under unchanged conservative dispatch and no Intel physical performance claim'),
@@ -306,12 +333,16 @@ def report() -> dict:
                 earlier_scoped_review_sha256=digest(PRIOR),
                 old_p15_manifest_unchanged_sha256=digest(RESULTS/'P15/release/release-manifest.json'),
                 benchmark_r2_status=indexed_benchmark['disposition'],
+                benchmark_per_profile_status=dsd256['disposition'],
+                dsd256_control_bandwidth_match=dsd256['control_bandwidth_match'],
                 gates=gates, substantive_open_gates=open_gates,
                 status='BLOCKED', p16_authorized=False, default_promotion_authorized=False,
                 no_new_intel_preference=True, no_hardware_device_compatibility_claim=True,
                 note='This is an indexed current-source evidence review, not re-execution of raw DSP metrology. '
-                     'The SRC and bandwidth-matched performance gates require independent new evidence '
-                     'before any future promotion decision.')
+                     'The bandwidth-matched DSD256 gate has since been supplied with that evidence and its '
+                     'status is now derived from it rather than written in; the composite SRC gate still '
+                     'requires independent new evidence before any future promotion decision. A throughput '
+                     'result authorises nothing on its own: release stays BLOCKED and v2 stays off by default.')
 
 
 def main() -> int:

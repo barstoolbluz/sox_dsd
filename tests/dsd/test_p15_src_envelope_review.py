@@ -112,7 +112,12 @@ class SRCDispositions(unittest.TestCase):
                     self.assertEqual(run.returncode, 2, run.stderr)
                     got = json.loads(output.read_text())
                     self.assertEqual(got['status'], 'BLOCKED')
-                    self.assertEqual(len(got['substantive_open_gates']), 2)
+                    # Was 2. The DSD256 bandwidth-matched gate is now derived
+                    # from its evidence instead of hardcoded open. Closing it
+                    # does not unblock anything: --require-qualified still
+                    # exits 2 above and status is still BLOCKED.
+                    self.assertEqual(got['substantive_open_gates'],
+                                     ['P15-v1-and-v2-composite-SRC-acceptance'])
                     self.assertEqual(got['src_numerical_disposition']
                                       ['fractional_diagnostic_cases_disposed'],36)
                     before = output.read_bytes()
