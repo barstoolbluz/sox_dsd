@@ -1,0 +1,604 @@
+{
+ "bootstrap": {
+  "iterations": 10000,
+  "method": "independent bootstrap of median ratio",
+  "note": "recomputable from the saved repetitions alone",
+  "seed": 20261014
+ },
+ "executables": {
+  "candidate_sha256": "37d43082af316d65fd0598ff93067cdf46d2f78177597bc763637d7e3c54d528",
+  "sox_sha256": "aa888225ea3c7943cfd21648bf4799bd0d50836d9824c68212dd1022f5bca150"
+ },
+ "fixture": {
+  "channels": 6,
+  "native_hz": 11289600,
+  "native_sha256": "8ecd82b4433ed139733fa3fb25ee1aa16b04ba0c4f5941ff8e5a5cf76a78c4f7",
+  "seconds": 2.0,
+  "source_sha256": "f731f2fca8f49f562703f27f39c44b38bd526f60b849531e917b09825525f6bb"
+ },
+ "host": {
+  "boost": "0",
+  "cpu_model": "AMD Ryzen Threadripper 7970X 32-Cores",
+  "governor": "performance",
+  "kernel": "6.12.85+deb13-amd64",
+  "logical_cpus": 63,
+  "microcode": "0xa10810c",
+  "no_turbo": "unavailable",
+  "python": "3.13.5"
+ },
+ "matched_control": {
+  "construction": "decimate to an intermediate rate, band-limit there, then rate to the declared output rate",
+  "passband_source": "decoder --dsd-report effective_passband_hz, per profile",
+  "supersedes": "rate -v followed by sinc, which cannot undo prior aliasing",
+  "supersedes_2": "a 20 kHz match, which is the passband of neither profile at DSD256: v1 declares 40 kHz, v2 declares 66 kHz"
+ },
+ "note": "Measurement only. Closing this gate is not ours to decide.",
+ "pinned_cpu": 8,
+ "qualified": false,
+ "repetitions": 15,
+ "rows": {
+  "decode.mastering.v2.dsd256": {
+   "effective_passband_hz": 66000,
+   "profile_id": "decode.mastering.v2.dsd256",
+   "rates": {
+    "176400": {
+     "decoder": {
+      "clock_busy_samples": 742,
+      "clock_mhz_median": 3969.195,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "--dsd-layout-loss",
+       "warn",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-b",
+       "32",
+       "-e",
+       "signed-integer",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/dec176400.wav",
+       "dsdpcm",
+       "-p",
+       "decode.mastering.v2.dsd256",
+       "-l",
+       "preserve",
+       "176400"
+      ],
+      "median": 2.5066456510685384,
+      "repetitions": [
+       2.5064607930835336,
+       2.506719575030729,
+       2.457033304963261,
+       2.5071817541029304,
+       2.506795525085181,
+       2.5067609259858727,
+       2.5066569200716913,
+       2.5069245300255716,
+       2.4565037610009313,
+       2.456770985852927,
+       2.456447455100715,
+       2.5066456510685384,
+       2.506685601081699,
+       2.4563613440841436,
+       2.4562799220439047
+      ],
+      "spread_pct": 2.0306752187859987
+     },
+     "legacy_direct": {
+      "clock_busy_samples": 2804,
+      "clock_mhz_median": 3968.784,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "-D",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-r",
+       "176400",
+       "-e",
+       "floating-point",
+       "-b",
+       "64",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/ref176400.wav",
+       "rate",
+       "-v"
+      ],
+      "median": 9.37317537306808,
+      "repetitions": [
+       9.372772481059656,
+       9.37274642009288,
+       9.373449510196224,
+       9.373934183968231,
+       9.37317537306808,
+       9.323610959108919,
+       9.474831826984882,
+       9.37391037819907,
+       9.373943720012903,
+       9.323463294887915,
+       9.373161612078547,
+       9.373969017993659,
+       9.373424620134756,
+       9.373027769150212,
+       9.372962287859991
+      ],
+      "spread_pct": 1.614911980969586
+     },
+     "legacy_staged_matched": {
+      "clock_busy_samples": 2806,
+      "clock_mhz_median": 3968.792,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "-D",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-r",
+       "176400",
+       "-e",
+       "floating-point",
+       "-b",
+       "64",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/stg176400.wav",
+       "rate",
+       "-v",
+       "176400",
+       "sinc",
+       "-66000",
+       "rate",
+       "-v"
+      ],
+      "median": 9.373871891060844,
+      "repetitions": [
+       9.373081831960008,
+       9.374519322998822,
+       9.373464422067627,
+       9.373596451012418,
+       9.373104996979237,
+       9.374370495788753,
+       9.374277086928487,
+       9.424152750056237,
+       9.373692579101771,
+       9.37396592204459,
+       9.374230535933748,
+       9.374079643981531,
+       9.373387365136296,
+       9.372995418030769,
+       9.373871891060844
+      ],
+      "spread_pct": 0.5457438785167658
+     },
+     "speedup_vs_legacy_direct": {
+      "ci95": [
+       3.739158080813688,
+       3.8155506711643477
+      ],
+      "meets_2x_at_ci_lower_bound": true,
+      "point": 3.7393300361670434
+     },
+     "speedup_vs_legacy_staged_matched": {
+      "ci95": [
+       3.7393857522549845,
+       3.8157282668063646
+      ],
+      "meets_2x_at_ci_lower_bound": true,
+      "point": 3.7396079047171784
+     }
+    },
+    "352800": {
+     "decoder": {
+      "clock_busy_samples": 772,
+      "clock_mhz_median": 3966.716,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "--dsd-layout-loss",
+       "warn",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-b",
+       "32",
+       "-e",
+       "signed-integer",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/dec352800.wav",
+       "dsdpcm",
+       "-p",
+       "decode.mastering.v2.dsd256",
+       "-l",
+       "preserve",
+       "352800"
+      ],
+      "median": 2.5626420581247658,
+      "repetitions": [
+       2.561144812963903,
+       2.563179685967043,
+       2.610153804998845,
+       2.610453410074115,
+       2.5626420581247658,
+       2.5622319648973644,
+       2.560866540996358,
+       2.5623207099270076,
+       2.6113144101109356,
+       2.562292667105794,
+       2.6102209771052003,
+       2.608311766991392,
+       2.5606620779726654,
+       2.6587017870042473,
+       2.5566362279932946
+      ],
+      "spread_pct": 3.982825408150837
+     },
+     "legacy_direct": {
+      "clock_busy_samples": 2828,
+      "clock_mhz_median": 3968.747,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "-D",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-r",
+       "352800",
+       "-e",
+       "floating-point",
+       "-b",
+       "64",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/ref352800.wav",
+       "rate",
+       "-v"
+      ],
+      "median": 9.473907148931175,
+      "repetitions": [
+       9.422991820145398,
+       9.473138961009681,
+       9.422888051951304,
+       9.373701089061797,
+       9.474336754065007,
+       9.474397586192936,
+       9.372788922162727,
+       9.473123870091513,
+       9.473907148931175,
+       9.474823900964111,
+       9.474012179998681,
+       9.47418447304517,
+       9.47493625502102,
+       9.429988332092762,
+       9.480014997068793
+      ],
+      "spread_pct": 1.1318041566215167
+     },
+     "legacy_staged_matched": {
+      "clock_busy_samples": 2836,
+      "clock_mhz_median": 3968.73,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "-D",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-r",
+       "352800",
+       "-e",
+       "floating-point",
+       "-b",
+       "64",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/stg352800.wav",
+       "rate",
+       "-v",
+       "352800",
+       "sinc",
+       "-66000",
+       "rate",
+       "-v"
+      ],
+      "median": 9.473559732083231,
+      "repetitions": [
+       9.473559732083231,
+       9.523684920975938,
+       9.473818965954706,
+       9.423889845144004,
+       9.473920501070097,
+       9.47393136494793,
+       9.473182247951627,
+       9.473339427961037,
+       9.473042904864997,
+       9.523100722813979,
+       9.423617291031405,
+       9.523527531186119,
+       9.573525328887627,
+       9.423352268058807,
+       9.47344399499707
+      ],
+      "spread_pct": 1.5851809148386178
+     },
+     "speedup_vs_legacy_direct": {
+      "ci95": [
+       3.6292421037078024,
+       3.697712664580099
+      ],
+      "meets_2x_at_ci_lower_bound": true,
+      "point": 3.69692954928859
+     },
+     "speedup_vs_legacy_staged_matched": {
+      "ci95": [
+       3.629409086501804,
+       3.6991002293166533
+      ],
+      "meets_2x_at_ci_lower_bound": true,
+      "point": 3.6967939794977007
+     }
+    }
+   }
+  },
+  "mastering": {
+   "effective_passband_hz": 40000,
+   "profile_id": "decode.mastering.v1.dsd256",
+   "rates": {
+    "176400": {
+     "decoder": {
+      "clock_busy_samples": 727,
+      "clock_mhz_median": 3969.195,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "--dsd-layout-loss",
+       "warn",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-b",
+       "32",
+       "-e",
+       "signed-integer",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/dec176400.wav",
+       "dsdpcm",
+       "-p",
+       "mastering",
+       "-l",
+       "preserve",
+       "176400"
+      ],
+      "median": 2.406644835136831,
+      "repetitions": [
+       2.4563028649426997,
+       2.4062036341056228,
+       2.406437700148672,
+       2.4063760659191757,
+       2.5065106281545013,
+       2.4566965128760785,
+       2.4063282238785177,
+       2.4064364989753813,
+       2.406644835136831,
+       2.506832718849182,
+       2.4067288010846823,
+       2.406737847952172,
+       2.406575139146298,
+       2.4565537360031158,
+       2.4064612060319632
+      ],
+      "spread_pct": 4.181301838741738
+     },
+     "legacy_direct": {
+      "clock_busy_samples": 2804,
+      "clock_mhz_median": 3968.783,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "-D",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-r",
+       "176400",
+       "-e",
+       "floating-point",
+       "-b",
+       "64",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/ref176400.wav",
+       "rate",
+       "-v"
+      ],
+      "median": 9.373171763960272,
+      "repetitions": [
+       9.374274379806593,
+       9.373212656006217,
+       9.372943958034739,
+       9.372972931014374,
+       9.373241238994524,
+       9.37321277312003,
+       9.373056687880307,
+       9.373016928089783,
+       9.372666626004502,
+       9.372905689990148,
+       9.373295091092587,
+       9.373266387963668,
+       9.374743945896626,
+       9.37308215815574,
+       9.373171763960272
+      ],
+      "spread_pct": 0.022162400779964477
+     },
+     "legacy_staged_matched": {
+      "clock_busy_samples": 2826,
+      "clock_mhz_median": 3968.82,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "-D",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-r",
+       "176400",
+       "-e",
+       "floating-point",
+       "-b",
+       "64",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/stg176400.wav",
+       "rate",
+       "-v",
+       "88200",
+       "sinc",
+       "-40000",
+       "rate",
+       "-v"
+      ],
+      "median": 9.423537540016696,
+      "repetitions": [
+       9.423231094144285,
+       9.423123169923201,
+       9.423498088959605,
+       9.473516806960106,
+       9.42344156303443,
+       9.423537540016696,
+       9.424136789049953,
+       9.423170051071793,
+       9.423457958037034,
+       9.425371086923406,
+       9.431019902927801,
+       9.42305631795898,
+       9.52331613888964,
+       9.523747246013954,
+       9.473306216998026
+      ],
+      "spread_pct": 1.0685045570985765
+     },
+     "speedup_vs_legacy_direct": {
+      "ci95": [
+       3.8155944385611202,
+       3.895057317519978
+      ],
+      "meets_2x_at_ci_lower_bound": true,
+      "point": 3.8947050379485497
+     },
+     "speedup_vs_legacy_staged_matched": {
+      "ci95": [
+       3.836433078969787,
+       3.9190791859457423
+      ],
+      "meets_2x_at_ci_lower_bound": true,
+      "point": 3.9156328355699883
+     }
+    },
+    "352800": {
+     "decoder": {
+      "clock_busy_samples": 758,
+      "clock_mhz_median": 3969.2065000000002,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "--dsd-layout-loss",
+       "warn",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-b",
+       "32",
+       "-e",
+       "signed-integer",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/dec352800.wav",
+       "dsdpcm",
+       "-p",
+       "mastering",
+       "-l",
+       "preserve",
+       "352800"
+      ],
+      "median": 2.5071413470432162,
+      "repetitions": [
+       2.5569646200165153,
+       2.5070834890939295,
+       2.557267843047157,
+       2.507108727004379,
+       2.5070768990553916,
+       2.50670832907781,
+       2.607222495833412,
+       2.5573913177940995,
+       2.5071413470432162,
+       2.6073080969508737,
+       2.4564562721643597,
+       2.607018555048853,
+       2.5067299511283636,
+       2.5063619818538427,
+       2.55666127987206
+      ],
+      "spread_pct": 6.016885524400942
+     },
+     "legacy_direct": {
+      "clock_busy_samples": 2875,
+      "clock_mhz_median": 3968.658,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "-D",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-r",
+       "352800",
+       "-e",
+       "floating-point",
+       "-b",
+       "64",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/ref352800.wav",
+       "rate",
+       "-v"
+      ],
+      "median": 9.474156454904005,
+      "repetitions": [
+       9.625620430102572,
+       9.576123552862555,
+       9.524572839029133,
+       9.626236255047843,
+       9.58847908093594,
+       11.214214295847341,
+       9.43123152316548,
+       9.474156454904005,
+       9.423777833813801,
+       9.423618643078953,
+       9.473856823984534,
+       9.4735965160653,
+       9.423932930920273,
+       9.423829283099622,
+       9.475153535138816
+      ],
+      "spread_pct": 18.899789773278883
+     },
+     "legacy_staged_matched": {
+      "clock_busy_samples": 2843,
+      "clock_mhz_median": 3968.757,
+      "command": [
+       "/var/tmp/sox-ng-bench/pb/src/sox_ng",
+       "-D",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/d256_6ch.dsf",
+       "-r",
+       "352800",
+       "-e",
+       "floating-point",
+       "-b",
+       "64",
+       "/var/tmp/sox-ng-bench/d2x-v2/work/stg352800.wav",
+       "rate",
+       "-v",
+       "88200",
+       "sinc",
+       "-40000",
+       "rate",
+       "-v"
+      ],
+      "median": 9.523586783092469,
+      "repetitions": [
+       9.523365546017885,
+       9.52440341305919,
+       9.47361820214428,
+       9.47352267592214,
+       9.473368459148332,
+       9.523921822896227,
+       9.574029030976817,
+       9.473579342011362,
+       9.524484727997333,
+       9.52483426895924,
+       9.423350194934756,
+       9.523909921990708,
+       9.5237473170273,
+       9.523437663912773,
+       9.523586783092469
+      ],
+      "spread_pct": 1.5821647817560338
+     },
+     "speedup_vs_legacy_direct": {
+      "ci95": [
+       3.6884481894413397,
+       3.8196269069297752
+      ],
+      "meets_2x_at_ci_lower_bound": true,
+      "point": 3.778868098552681
+     },
+     "speedup_vs_legacy_staged_matched": {
+      "ci95": [
+       3.705449531619393,
+       3.7991190641541173
+      ],
+      "meets_2x_at_ci_lower_bound": true,
+      "point": 3.7985839108449393
+     }
+    }
+   }
+  }
+ },
+ "schema": "P15/dsd256-2x-reference-target/2",
+ "target": 2.0,
+ "warmups": 3
+}
