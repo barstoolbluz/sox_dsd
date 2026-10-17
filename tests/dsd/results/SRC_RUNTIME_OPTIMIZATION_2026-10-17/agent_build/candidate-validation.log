@@ -1,0 +1,15 @@
+p07: exit=0 0.118s
+p11: exit=0 0.032s
+p12_bounds: exit=0 0.004s
+Traceback (most recent call last):
+  File "/workspace/scratch/4dd8292178b8/agent_build/validate_existing.py", line 43, in <module>
+    cp=subprocess.run(command,cwd=source,stdout=stream,stderr=subprocess.STDOUT,
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_p13'

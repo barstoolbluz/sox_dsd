@@ -1,0 +1,200 @@
+[
+  {
+    "id": "pcm_buffer32_44100_48000",
+    "kind": "pcm",
+    "input_hz": 44100,
+    "output_hz": 48000,
+    "channels": 2,
+    "seconds": 10,
+    "buffer": 32,
+    "quality": "-v"
+  },
+  {
+    "id": "pcm_buffer128_48000_44100",
+    "kind": "pcm",
+    "input_hz": 48000,
+    "output_hz": 44100,
+    "channels": 2,
+    "seconds": 10,
+    "buffer": 128,
+    "quality": "-v"
+  },
+  {
+    "id": "pcm_buffer256_44100_48000",
+    "kind": "pcm",
+    "input_hz": 44100,
+    "output_hz": 48000,
+    "channels": 2,
+    "seconds": 30,
+    "buffer": 256,
+    "quality": "-v"
+  },
+  {
+    "id": "pcm_buffer256_48000_44100",
+    "kind": "pcm",
+    "input_hz": 48000,
+    "output_hz": 44100,
+    "channels": 2,
+    "seconds": 30,
+    "buffer": 256,
+    "quality": "-v"
+  },
+  {
+    "id": "pcm_qualityl_44100_48000",
+    "kind": "pcm",
+    "input_hz": 44100,
+    "output_hz": 48000,
+    "channels": 2,
+    "seconds": 30,
+    "quality": "-l"
+  },
+  {
+    "id": "pcm_qualityl_48000_44100",
+    "kind": "pcm",
+    "input_hz": 48000,
+    "output_hz": 44100,
+    "channels": 2,
+    "seconds": 30,
+    "quality": "-l"
+  },
+  {
+    "id": "pcm_qualitym_44100_48000",
+    "kind": "pcm",
+    "input_hz": 44100,
+    "output_hz": 48000,
+    "channels": 2,
+    "seconds": 30,
+    "quality": "-m"
+  },
+  {
+    "id": "pcm_qualitym_48000_44100",
+    "kind": "pcm",
+    "input_hz": 48000,
+    "output_hz": 44100,
+    "channels": 2,
+    "seconds": 30,
+    "quality": "-m"
+  },
+  {
+    "id": "pcm_qualityh_44100_48000",
+    "kind": "pcm",
+    "input_hz": 44100,
+    "output_hz": 48000,
+    "channels": 2,
+    "seconds": 30,
+    "quality": "-h"
+  },
+  {
+    "id": "pcm_qualityh_48000_44100",
+    "kind": "pcm",
+    "input_hz": 48000,
+    "output_hz": 44100,
+    "channels": 2,
+    "seconds": 30,
+    "quality": "-h"
+  },
+  {
+    "id": "pcm_qualityu_44100_48000",
+    "kind": "pcm",
+    "input_hz": 44100,
+    "output_hz": 48000,
+    "channels": 2,
+    "seconds": 30,
+    "quality": "-u"
+  },
+  {
+    "id": "pcm_qualityu_48000_44100",
+    "kind": "pcm",
+    "input_hz": 48000,
+    "output_hz": 44100,
+    "channels": 2,
+    "seconds": 30,
+    "quality": "-u"
+  },
+  {
+    "id": "dsd256_v2_384000_scalar",
+    "kind": "dsd",
+    "input_hz": 11289600,
+    "output_hz": 384000,
+    "channels": 2,
+    "seconds": 2,
+    "profile": "decode.mastering.v2.dsd256",
+    "fir_kernel": "scalar"
+  },
+  {
+    "id": "dsd256_v2_384000_sse2",
+    "kind": "dsd",
+    "input_hz": 11289600,
+    "output_hz": 384000,
+    "channels": 2,
+    "seconds": 2,
+    "profile": "decode.mastering.v2.dsd256",
+    "fir_kernel": "sse2"
+  },
+  {
+    "id": "dsd256_v2_384000_avx1",
+    "kind": "dsd",
+    "input_hz": 11289600,
+    "output_hz": 384000,
+    "channels": 2,
+    "seconds": 2,
+    "profile": "decode.mastering.v2.dsd256",
+    "fir_kernel": "avx1"
+  },
+  {
+    "id": "dsd256_v2_384000_avx2",
+    "kind": "dsd",
+    "input_hz": 11289600,
+    "output_hz": 384000,
+    "channels": 2,
+    "seconds": 2,
+    "profile": "decode.mastering.v2.dsd256",
+    "fir_kernel": "avx2"
+  },
+  {
+    "id": "dsd256_v2_384000_avx512",
+    "kind": "dsd",
+    "input_hz": 11289600,
+    "output_hz": 384000,
+    "channels": 2,
+    "seconds": 2,
+    "profile": "decode.mastering.v2.dsd256",
+    "fir_kernel": "avx512"
+  },
+  {
+    "id": "dsd256_mastering_v1_176400_stereo_continuity",
+    "kind": "dsd",
+    "input_hz": 11289600,
+    "output_hz": 176400,
+    "channels": 2,
+    "seconds": 2,
+    "profile": "decode.mastering.v1.dsd256"
+  },
+  {
+    "id": "dsd256_mastering_v1_352800_stereo_continuity",
+    "kind": "dsd",
+    "input_hz": 11289600,
+    "output_hz": 352800,
+    "channels": 2,
+    "seconds": 2,
+    "profile": "decode.mastering.v1.dsd256"
+  },
+  {
+    "id": "dsd256_mastering_v2_176400_stereo_continuity",
+    "kind": "dsd",
+    "input_hz": 11289600,
+    "output_hz": 176400,
+    "channels": 2,
+    "seconds": 2,
+    "profile": "decode.mastering.v2.dsd256"
+  },
+  {
+    "id": "dsd256_mastering_v2_352800_stereo_continuity",
+    "kind": "dsd",
+    "input_hz": 11289600,
+    "output_hz": 352800,
+    "channels": 2,
+    "seconds": 2,
+    "profile": "decode.mastering.v2.dsd256"
+  }
+]

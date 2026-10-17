@@ -1,0 +1,10 @@
+{
+  "schema": "src-optimization/control-corpus-revision/1",
+  "original": "work-evidence/controls-cases.json",
+  "original_sha256": "b86dc100b79bc02280d4ed1ca2a29fb7cc5dba22e2ff74bc15e67d847bf0c015",
+  "revised": "work-evidence/controls-cases-validated.json",
+  "reason": "Frozen baseline truncates 48k to44.1k stereo10s at32and64byte buffers; candidate reproduces same bytes. Retainfailedreceipt; use128byte reverse control wherebothbuildsproduce expectedlength. Original32byte forwardcasepassed andremainsplanned.",
+  "failed_receipt": "work-evidence/final-controls/measurements.json",
+  "diagnosis": "work-evidence/small-buffer-diagnosis/diagnosis.json",
+  "scope": "No expectedlength or equalitycheck relaxed. Failedtruncated conversions excludedfromthroughput claims."
+}

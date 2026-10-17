@@ -1,0 +1,733 @@
+{
+  "schema": "production-src-opt/staged-dsd-evidence/1",
+  "staged_utc": "2026-10-17T15:55:35.295695+00:00",
+  "original_prefix": "/workspace/scratch/4dd8292178b8/agent_dsd",
+  "repository_destination": "tests/dsd/results/SRC_RUNTIME_OPTIMIZATION_2026-10-17/agent_dsd",
+  "path_mapping": "Original /workspace/scratch/4dd8292178b8/agent_dsd/<relative path> maps to this directory/<relative path>. Original command strings and hashes are preserved; no receipt fields or raw rows are rewritten.",
+  "copied_files_count": 147,
+  "copied_payload_bytes": 16191154,
+  "copied": [
+    {
+      "path": "P15_SRC_OPT_ASSESSMENT.md",
+      "bytes": 23334
+    },
+    {
+      "path": "affected_p15_snapshots.json",
+      "bytes": 2911
+    },
+    {
+      "path": "analyze_real_fifo.py",
+      "bytes": 3980
+    },
+    {
+      "path": "correctness/gcc-asan-ubsan-no-lsan.run.log",
+      "bytes": 247
+    },
+    {
+      "path": "correctness/gcc-asan-ubsan.build.log",
+      "bytes": 0
+    },
+    {
+      "path": "correctness/gcc-asan-ubsan.run.log",
+      "bytes": 266
+    },
+    {
+      "path": "correctness/gcc-default.build.log",
+      "bytes": 0
+    },
+    {
+      "path": "correctness/gcc-default.run.log",
+      "bytes": 247
+    },
+    {
+      "path": "correctness/gcc-ordered-o3.build.log",
+      "bytes": 0
+    },
+    {
+      "path": "correctness/gcc-ordered-o3.run.log",
+      "bytes": 247
+    },
+    {
+      "path": "correctness/gcc-ordered.build.log",
+      "bytes": 0
+    },
+    {
+      "path": "correctness/gcc-ordered.run.log",
+      "bytes": 247
+    },
+    {
+      "path": "correctness/gcc-x87-fallback.build.log",
+      "bytes": 0
+    },
+    {
+      "path": "correctness/gcc-x87-fallback.run.log",
+      "bytes": 247
+    },
+    {
+      "path": "correctness/results.json",
+      "bytes": 7333
+    },
+    {
+      "path": "correctness/sanitizer-followup.json",
+      "bytes": 1102
+    },
+    {
+      "path": "correctness-final/gcc-ordered",
+      "bytes": 2185984
+    },
+    {
+      "path": "correctness-final/gcc-ordered-o3",
+      "bytes": 2265376
+    },
+    {
+      "path": "correctness-final/gcc-ordered-o3.build.log",
+      "bytes": 0
+    },
+    {
+      "path": "correctness-final/gcc-ordered-o3.run.log",
+      "bytes": 247
+    },
+    {
+      "path": "correctness-final/gcc-ordered.build.log",
+      "bytes": 0
+    },
+    {
+      "path": "correctness-final/gcc-ordered.run.log",
+      "bytes": 247
+    },
+    {
+      "path": "correctness-final/gcc-x87-fallback",
+      "bytes": 2172696
+    },
+    {
+      "path": "correctness-final/gcc-x87-fallback.build.log",
+      "bytes": 0
+    },
+    {
+      "path": "correctness-final/gcc-x87-fallback.run.log",
+      "bytes": 247
+    },
+    {
+      "path": "correctness-final/results.json",
+      "bytes": 4743
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/diagnostic/conversion.json",
+      "bytes": 4464
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/diagnostic/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/diagnostic/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/normal/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/normal/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/profile-1/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/profile-1/gprof.txt",
+      "bytes": 2978
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/profile-1/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/profile-1/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/profile-2/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/profile-2/gprof.txt",
+      "bytes": 2986
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/profile-2/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/profile-2/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/diagnostic/conversion.json",
+      "bytes": 4693
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/diagnostic/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/diagnostic/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/normal/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/normal/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/profile-1/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/profile-1/gprof.txt",
+      "bytes": 3471
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/profile-1/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/profile-1/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/profile-2/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/profile-2/gprof.txt",
+      "bytes": 3464
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/profile-2/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/profile-2/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/diagnostic/conversion.json",
+      "bytes": 4464
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/diagnostic/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/diagnostic/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/normal/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/normal/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/profile-1/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/profile-1/gprof.txt",
+      "bytes": 3183
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/profile-1/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/profile-1/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/profile-2/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/profile-2/gprof.txt",
+      "bytes": 3131
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/profile-2/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/profile-2/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/diagnostic/conversion.json",
+      "bytes": 4471
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/diagnostic/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/diagnostic/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/normal/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/normal/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/profile-1/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/profile-1/gprof.txt",
+      "bytes": 2983
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/profile-1/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/profile-1/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/profile-2/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/profile-2/gprof.txt",
+      "bytes": 2902
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/profile-2/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/profile-2/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/diagnostic/conversion.json",
+      "bytes": 4701
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/diagnostic/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/diagnostic/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/normal/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/normal/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/profile-1/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/profile-1/gprof.txt",
+      "bytes": 3514
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/profile-1/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/profile-1/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/profile-2/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/profile-2/gprof.txt",
+      "bytes": 3699
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/profile-2/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/profile-2/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/diagnostic/conversion.json",
+      "bytes": 4467
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/diagnostic/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/diagnostic/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/normal/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/normal/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/profile-1/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/profile-1/gprof.txt",
+      "bytes": 3112
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/profile-1/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/profile-1/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/profile-2/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/profile-2/gprof.txt",
+      "bytes": 3125
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/profile-2/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/profile-2/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/diagnostic/conversion.json",
+      "bytes": 4453
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/diagnostic/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/diagnostic/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/normal/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/normal/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/profile-1/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/profile-1/gprof.txt",
+      "bytes": 2893
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/profile-1/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/profile-1/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/profile-2/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/profile-2/gprof.txt",
+      "bytes": 2839
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/profile-2/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v1-native/profile-2/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/diagnostic/conversion.json",
+      "bytes": 4450
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/diagnostic/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/diagnostic/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/normal/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/normal/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/profile-1/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/profile-1/gprof.txt",
+      "bytes": 2992
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/profile-1/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/profile-1/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/profile-2/gmon.out",
+      "bytes": 366925
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/profile-2/gprof.txt",
+      "bytes": 3124
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/profile-2/stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/dsd64-v2-native/profile-2/stdout.txt",
+      "bytes": 0
+    },
+    {
+      "path": "profile-screens/screen.json",
+      "bytes": 233987
+    },
+    {
+      "path": "profile_dsd_screens.py",
+      "bytes": 6871
+    },
+    {
+      "path": "real-fifo-final/metadata.json",
+      "bytes": 1657
+    },
+    {
+      "path": "real-fifo-final/summary.json",
+      "bytes": 67441
+    },
+    {
+      "path": "real-fifo-final/timing.jsonl",
+      "bytes": 297431
+    },
+    {
+      "path": "real-fifo-final/timing.stderr",
+      "bytes": 0
+    },
+    {
+      "path": "real_fifo_O2.jsonl",
+      "bytes": 297178
+    },
+    {
+      "path": "real_fifo_O2_summary.json",
+      "bytes": 57592
+    },
+    {
+      "path": "threshold/build.log",
+      "bytes": 0
+    },
+    {
+      "path": "threshold/metadata.json",
+      "bytes": 2836
+    },
+    {
+      "path": "threshold/production-threshold1.h",
+      "bytes": 4533
+    },
+    {
+      "path": "threshold/summary.json",
+      "bytes": 34037
+    },
+    {
+      "path": "threshold/threshold2.h",
+      "bytes": 4533
+    },
+    {
+      "path": "threshold/threshold_test",
+      "bytes": 2194456
+    },
+    {
+      "path": "threshold/threshold_test.c",
+      "bytes": 25882
+    },
+    {
+      "path": "threshold/timing.jsonl",
+      "bytes": 335660
+    },
+    {
+      "path": "threshold/timing.stderr",
+      "bytes": 0
+    }
+  ],
+  "omitted_counts": {
+    "older redundant correctness executable": 6,
+    "deterministic generated audio fixture or output": 16
+  },
+  "omitted_bytes": {
+    "older redundant correctness executable": 15066080,
+    "deterministic generated audio fixture or output": 165802260
+  },
+  "omitted": [
+    {
+      "path": "correctness/gcc-asan-ubsan",
+      "bytes": 4090000,
+      "reason": "older redundant correctness executable"
+    },
+    {
+      "path": "correctness/gcc-default",
+      "bytes": 2165152,
+      "reason": "older redundant correctness executable"
+    },
+    {
+      "path": "correctness/gcc-ordered",
+      "bytes": 2186184,
+      "reason": "older redundant correctness executable"
+    },
+    {
+      "path": "correctness/gcc-ordered-o3",
+      "bytes": 2265864,
+      "reason": "older redundant correctness executable"
+    },
+    {
+      "path": "correctness/gcc-x87-fallback",
+      "bytes": 2172696,
+      "reason": "older redundant correctness executable"
+    },
+    {
+      "path": "profile-screens/dsd128-v1-native/profile-2/out.wav",
+      "bytes": 7479296,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/diagnostic/out.wav",
+      "bytes": 11603968,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd128-v2-192k/profile-2/out.wav",
+      "bytes": 4947968,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/normal/out.wav",
+      "bytes": 8962048,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd128-v2-native/profile-2/out.wav",
+      "bytes": 7155712,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/diagnostic/out.wav",
+      "bytes": 7520256,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd256-v1-native/profile-2/out.wav",
+      "bytes": 11227136,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/diagnostic/out.wav",
+      "bytes": 14483456,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/normal/out.wav",
+      "bytes": 19488768,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/profile-1/out.wav",
+      "bytes": 18898944,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd256-v2-384k/profile-2/out.wav",
+      "bytes": 19275776,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/normal/out.wav",
+      "bytes": 4218880,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/dsd256-v2-native/profile-1/out.wav",
+      "bytes": 10764288,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/seeded-dsd128.dsf",
+      "bytes": 5652572,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/seeded-dsd256.dsf",
+      "bytes": 11296860,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "profile-screens/seeded-dsd64.dsf",
+      "bytes": 2826332,
+      "reason": "deterministic generated audio fixture or output"
+    },
+    {
+      "path": "test_src_optimization_opt",
+      "bytes": 2186184,
+      "reason": "older redundant correctness executable"
+    }
+  ],
+  "retained_executables": [
+    "correctness-final/gcc-ordered",
+    "correctness-final/gcc-ordered-o3",
+    "correctness-final/gcc-x87-fallback",
+    "threshold/threshold_test"
+  ],
+  "assessment_copy": "docs/dsd/SRC_RUNTIME_OPTIMIZATION_P15_ASSESSMENT_2026-10-17.md",
+  "audio_omission_reason": "Generated deterministic DSF fixtures and decoded WAV outputs are omitted to avoid duplicating reproducible audio. profile_dsd_screens.py retains the fixture-generation procedure and uses tests/dsd/profile_decode.py; profile-screens/screen.json and raw logs retain original commands, fixture/output hashes, sample rates, parameters and results. The final C benchmark uses deterministic in-memory fixtures and has no external audio dependency.",
+  "anomalies_preserved": [
+    "Temporary threshold timing retains861/867 expected raw rows. Its finalcase has13 measured rounds, first16cases15; metadata explicitly marks it incomplete. No missing rows reconstructed.",
+    "Original LeakSanitizer teardown failure and subsequent address/UB sanitizer result with leak detection disabled both retained."
+  ],
+  "final_primary_completeness": "real-fifo-final retains765/765 rows,15cases each2warmup+15measured rounds for3arms, plus executable/source/raw hashes and final correctness O2/O3/x87 binaries.",
+  "byte_copy_policy": "Source evidence copied with shutil.copy2, preserving original contents and timestamps. No tests, benchmarks or compression run during staging."
+}

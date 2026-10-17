@@ -1,0 +1,141 @@
+{
+  "schema": "production-src-opt/functional-configurations/1",
+  "date_utc": "2026-10-17T15:49:53.373679+00:00",
+  "source_sha256": "01daf4e39b151f63eb579b8e5dea329eb262c068b652352e6d1b749ccee01215",
+  "production_header_sha256": "c1626c26f7ba8d64f2b69752906948b527923745313d13c41f78c47046552591",
+  "library_sha256": "016039ad2daaf0520ba16a3ed790d093b047ddd7831e7081f3918d117df765be",
+  "scope": "Final >2 dispatch, actual production rate.c test translation unit; supporting baseline static library. Prior sanitizer results are retained separately.",
+  "runs": [
+    {
+      "name": "gcc-ordered",
+      "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "compile_command": [
+        "taskset",
+        "-c",
+        "4",
+        "gcc",
+        "-g",
+        "-ffp-contract=off",
+        "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+        "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+        "-O2",
+        "-DLSX_RATE_ORDERED_OPT=1",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_src_optimization.c",
+        "/workspace/scratch/4dd8292178b8/build-baseline/libsox_ng.a",
+        "-lm",
+        "-o",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness-final/gcc-ordered"
+      ],
+      "compile_exit": 0,
+      "run_command": [
+        "taskset",
+        "-c",
+        "4",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness-final/gcc-ordered"
+      ],
+      "run_exit": 0,
+      "executable_sha256": "fd1095d818517b00c4ad1eadb61a56005cbab2bb683623bb5869bbb411f2debe",
+      "result": {
+        "schema": "production-src-opt/exact-regression/1",
+        "status": "PASS",
+        "checks": 768060,
+        "direct_cases": 53856,
+        "stream_cases": 288,
+        "api_cases": 50,
+        "sample_words_compared": 5409850,
+        "rounding_modes": 4,
+        "flt_eval_method": 0,
+        "effective_ordered": 1,
+        "ordered_opt": 1
+      }
+    },
+    {
+      "name": "gcc-ordered-o3",
+      "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "compile_command": [
+        "taskset",
+        "-c",
+        "4",
+        "gcc",
+        "-g",
+        "-ffp-contract=off",
+        "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+        "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+        "-O3",
+        "-DLSX_RATE_ORDERED_OPT=1",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_src_optimization.c",
+        "/workspace/scratch/4dd8292178b8/build-baseline/libsox_ng.a",
+        "-lm",
+        "-o",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness-final/gcc-ordered-o3"
+      ],
+      "compile_exit": 0,
+      "run_command": [
+        "taskset",
+        "-c",
+        "4",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness-final/gcc-ordered-o3"
+      ],
+      "run_exit": 0,
+      "executable_sha256": "d3209b94391ec1cf90477f8c203e713d27f6af5f64fa87eefe0fcadef0fe74b1",
+      "result": {
+        "schema": "production-src-opt/exact-regression/1",
+        "status": "PASS",
+        "checks": 768060,
+        "direct_cases": 53856,
+        "stream_cases": 288,
+        "api_cases": 50,
+        "sample_words_compared": 5409850,
+        "rounding_modes": 4,
+        "flt_eval_method": 0,
+        "effective_ordered": 1,
+        "ordered_opt": 1
+      }
+    },
+    {
+      "name": "gcc-x87-fallback",
+      "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "compile_command": [
+        "taskset",
+        "-c",
+        "4",
+        "gcc",
+        "-g",
+        "-ffp-contract=off",
+        "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+        "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+        "-O2",
+        "-DLSX_RATE_ORDERED_OPT=1",
+        "-mfpmath=387",
+        "-fexcess-precision=standard",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_src_optimization.c",
+        "/workspace/scratch/4dd8292178b8/build-baseline/libsox_ng.a",
+        "-lm",
+        "-o",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness-final/gcc-x87-fallback"
+      ],
+      "compile_exit": 0,
+      "run_command": [
+        "taskset",
+        "-c",
+        "4",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness-final/gcc-x87-fallback"
+      ],
+      "run_exit": 0,
+      "executable_sha256": "396c30e1d919c25d2ad9f7f648c933e73ce7ce5b7b28c524d07bb76d7d33bc7d",
+      "result": {
+        "schema": "production-src-opt/exact-regression/1",
+        "status": "PASS",
+        "checks": 768060,
+        "direct_cases": 53856,
+        "stream_cases": 288,
+        "api_cases": 50,
+        "sample_words_compared": 5409850,
+        "rounding_modes": 4,
+        "flt_eval_method": 2,
+        "effective_ordered": 0,
+        "ordered_opt": 1
+      }
+    }
+  ]
+}

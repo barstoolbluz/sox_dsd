@@ -1,0 +1,1009 @@
+{
+  "schema": "production-src-opt/threshold-summary/1",
+  "metadata": {
+    "schema": "production-src-opt/threshold-experiment/1",
+    "compile_command": [
+      "taskset",
+      "-c",
+      "4",
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-DLSX_RATE_ORDERED_OPT=1",
+      "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+      "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+      "/workspace/scratch/4dd8292178b8/agent_dsd/threshold/threshold_test.c",
+      "/workspace/scratch/4dd8292178b8/build-baseline/libsox_ng.a",
+      "-lm",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/agent_dsd/threshold/threshold_test"
+    ],
+    "compile_exit": 0,
+    "production_header_sha256": "c0930b64c37267c6e5ac3e651477be14392987dc16dd5d0b6633937345c31753",
+    "threshold2_header_sha256": "54f5f4bb74da48d71835227b6b3e32fc7141e0da6b6865c03fdccd746f726d13",
+    "test_sha256": "2f2414fed812a71a9a8789e58cba5566b13774a7c3b9b322e34ff1cca0791b31",
+    "changes": "Temporary TU adds an extra instantiation of actual production header with max_num_out > 2; unchanged actual production > 1 in same executable; randomized three-arm timings with original reference. Production unmodified.",
+    "run_command": [
+      "taskset",
+      "-c",
+      "3",
+      "/workspace/scratch/4dd8292178b8/agent_dsd/threshold/threshold_test",
+      "--benchmark"
+    ],
+    "executable_sha256": "8148b7e343fb50a6bb8156847ef12d6a311df7d6838ac944641c8c0914ecd34c",
+    "run_exit": 0,
+    "raw_sha256": "3e6a34fb3d84783e3917cf0e34c97da8d94f3a5435c16461f4b0a06bcc6fdf04",
+    "observed_rows": 861,
+    "expected_rows": 867,
+    "rows_per_case": {
+      "0": 51,
+      "1": 51,
+      "2": 51,
+      "3": 51,
+      "4": 51,
+      "5": 51,
+      "6": 51,
+      "7": 51,
+      "8": 51,
+      "9": 51,
+      "10": 51,
+      "11": 51,
+      "12": 51,
+      "13": 51,
+      "14": 51,
+      "15": 51,
+      "16": 45
+    },
+    "measured_rounds_per_case": {
+      "0": 15,
+      "1": 15,
+      "2": 15,
+      "3": 15,
+      "4": 15,
+      "5": 15,
+      "6": 15,
+      "7": 15,
+      "8": 15,
+      "9": 15,
+      "10": 15,
+      "11": 15,
+      "12": 15,
+      "13": 15,
+      "14": 15,
+      "15": 15,
+      "16": 13
+    },
+    "complete": false,
+    "anomaly": "Temporary experiment process reported exit0 but retained output has861 of867 expected rows: cases0..15 each retain2warmups+15measured rounds; finalcase16(n26,L160,M147,num_in3) retains2warmups+13measured rounds, missing rounds15and16. Raw output has not been replaced or reconstructed. Finalcase excluded from threshold decision; summary uses actual13 paired repetitions for that case.",
+    "source_archive_note": "production-threshold1.h preserves the exact header used by the compiled actual vpoly0 arm (hash verified), recovered by the inverse one-character substitution from threshold2.h. Current production source later advanced to final >2. Reproducing this temporary comparison requires an isolated source tree using that archived >1 header for rate.c; never overwrite current production."
+  },
+  "host": {
+    "system": "Linux",
+    "node": "82f2ee412ddd",
+    "release": "6.18.55",
+    "version": "#1 SMP Wed Oct 14 19:45:18 UTC 2026",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "cases": [
+    {
+      "case": 0,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 0,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 14.798799133300781,
+          "mad": 0.8332427978515629,
+          "min": 13.307135772705076,
+          "max": 18.568951416015626
+        },
+        "threshold1": {
+          "median": 14.525656890869138,
+          "mad": 1.037044525146488,
+          "min": 12.725564575195312,
+          "max": 19.675953674316407
+        },
+        "threshold2": {
+          "median": 14.444732666015625,
+          "mad": 0.8964614868164062,
+          "min": 13.33685073852539,
+          "max": 16.652711486816408
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.0134401441469536,
+        "bootstrap95": [
+          0.9789162530172815,
+          1.047140483855587
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 0.9983762865990566,
+        "bootstrap95": [
+          0.9541656291043065,
+          1.0661086325451905
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.030397901735338,
+        "bootstrap95": [
+          0.9805083175121624,
+          1.0443400119364548
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 1,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 1,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 28.9242919921875,
+          "mad": 0.6371726989746094,
+          "min": 27.586712646484372,
+          "max": 41.7412109375
+        },
+        "threshold1": {
+          "median": 27.71987609863281,
+          "mad": 0.758377075195309,
+          "min": 26.777141571044922,
+          "max": 36.438647460937496
+        },
+        "threshold2": {
+          "median": 28.110488891601562,
+          "mad": 0.510749053955081,
+          "min": 27.59093780517578,
+          "max": 31.815494537353516
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.032067985047454,
+        "bootstrap95": [
+          1.0033995453497841,
+          1.0567211589537795
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 0.9818472957650135,
+        "bootstrap95": [
+          0.960159348709105,
+          1.004352804109496
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.0425790331171738,
+        "bootstrap95": [
+          1.0208508006680348,
+          1.0990358068100219
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 2,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 2,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 33.81504821777344,
+          "mad": 1.2546463012695312,
+          "min": 31.581356811523438,
+          "max": 36.05355224609375
+        },
+        "threshold1": {
+          "median": 37.1485366821289,
+          "mad": 1.0779464721679588,
+          "min": 33.863888549804685,
+          "max": 40.69486541748047
+        },
+        "threshold2": {
+          "median": 34.11968536376953,
+          "mad": 2.355026245117184,
+          "min": 31.05108795166016,
+          "max": 39.53083953857422
+        }
+      },
+      "original_over_threshold2": {
+        "median": 0.9934139292830894,
+        "bootstrap95": [
+          0.9120360879488196,
+          1.0471920364590215
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 1.0881529099021565,
+        "bootstrap95": [
+          1.046413222182098,
+          1.1444820934668585
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 0.9115807906826032,
+        "bootstrap95": [
+          0.8753090950688758,
+          0.9343513927827235
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 3,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 3,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 44.1554672241211,
+          "mad": 1.4714843750000028,
+          "min": 37.69086456298828,
+          "max": 103.4246337890625
+        },
+        "threshold1": {
+          "median": 39.678506469726564,
+          "mad": 2.12159881591797,
+          "min": 35.45804443359375,
+          "max": 60.38782958984374
+        },
+        "threshold2": {
+          "median": 43.899041748046876,
+          "mad": 1.4643997192382798,
+          "min": 36.16072082519531,
+          "max": 57.662760925292964
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.048977501767298,
+        "bootstrap95": [
+          1.008022973916953,
+          1.072866124797227
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 0.9206890100752861,
+        "bootstrap95": [
+          0.9014152910206247,
+          0.9350498689912146
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.1354814797336972,
+        "bootstrap95": [
+          1.0868999553900822,
+          1.1961729297617727
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 4,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 4,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 49.6480712890625,
+          "mad": 1.4283996582031264,
+          "min": 43.67162322998047,
+          "max": 53.813427734375004
+        },
+        "threshold1": {
+          "median": 40.60438537597656,
+          "mad": 0.788177490234375,
+          "min": 38.97310943603516,
+          "max": 46.484667968749996
+        },
+        "threshold2": {
+          "median": 40.966864013671874,
+          "mad": 1.0565521240234332,
+          "min": 39.44329071044922,
+          "max": 43.028588867187494
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.2093910908391785,
+        "bootstrap95": [
+          1.175707995979373,
+          1.2555537104096408
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 0.9924219010199765,
+        "bootstrap95": [
+          0.9471528769748562,
+          1.0327490222627553
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.242089748218597,
+        "bootstrap95": [
+          1.1787020920999813,
+          1.26631330947255
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 5,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 8,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 87.89687805175781,
+          "mad": 8.410623168945321,
+          "min": 72.22364196777343,
+          "max": 99.30833740234375
+        },
+        "threshold1": {
+          "median": 67.45863647460938,
+          "mad": 2.846191406250014,
+          "min": 64.21695861816407,
+          "max": 78.79418029785157
+        },
+        "threshold2": {
+          "median": 65.0801544189453,
+          "mad": 1.8440582275390511,
+          "min": 62.58525390625,
+          "max": 73.96689758300782
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.3591388042417833,
+        "bootstrap95": [
+          1.155112374957571,
+          1.4526824004577006
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 1.0178388157144074,
+        "bootstrap95": [
+          0.9867364205188494,
+          1.047523212477355
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.2911242179673712,
+        "bootstrap95": [
+          1.162717831593118,
+          1.3774081669420046
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 6,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 4096,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 41079.7390625,
+          "mad": 2576.8015625000044,
+          "min": 27086.9375,
+          "max": 43861.11875
+        },
+        "threshold1": {
+          "median": 24026.83125,
+          "mad": 1066.4328124999993,
+          "min": 18536.2890625,
+          "max": 37164.1328125
+        },
+        "threshold2": {
+          "median": 23794.46875,
+          "mad": 1639.159375000003,
+          "min": 18732.881250000002,
+          "max": 27420.803125000002
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.632140878440087,
+        "bootstrap95": [
+          1.5587376040124863,
+          1.732266263193236
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 1.0226123916372154,
+        "bootstrap95": [
+          0.9863098435429454,
+          1.1014711392952112
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.6150280161643884,
+        "bootstrap95": [
+          1.4123078800611566,
+          1.8138121375409788
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 7,
+      "taps": 11,
+      "L": 80,
+      "M": 147,
+      "num_in": 2,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 24.89810638427734,
+          "mad": 1.0650939941406214,
+          "min": 22.63910903930664,
+          "max": 28.58356704711914
+        },
+        "threshold1": {
+          "median": 26.207452392578126,
+          "mad": 1.1830520629882777,
+          "min": 23.74551010131836,
+          "max": 31.090917968750002
+        },
+        "threshold2": {
+          "median": 23.722335052490234,
+          "mad": 0.7591110229492166,
+          "min": 22.649324798583983,
+          "max": 26.80681076049805
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.0449458506384484,
+        "bootstrap95": [
+          1.0052212814711534,
+          1.057305719378636
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 1.101782703617441,
+        "bootstrap95": [
+          1.0292119250634033,
+          1.1381911643881424
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 0.9376568457639004,
+        "bootstrap95": [
+          0.9123589235615597,
+          1.0135234103422472
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 8,
+      "taps": 11,
+      "L": 80,
+      "M": 147,
+      "num_in": 3,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 29.680897521972653,
+          "mad": 1.3391220092773395,
+          "min": 27.458317565917966,
+          "max": 31.980924987792964
+        },
+        "threshold1": {
+          "median": 30.036178588867188,
+          "mad": 0.41790466308593466,
+          "min": 27.27177581787109,
+          "max": 34.2977783203125
+        },
+        "threshold2": {
+          "median": 29.38778228759766,
+          "mad": 0.8039627075195312,
+          "min": 27.93589630126953,
+          "max": 32.950555419921876
+        }
+      },
+      "original_over_threshold2": {
+        "median": 0.9971912517732966,
+        "bootstrap95": [
+          0.96593408159579,
+          1.0507162517876814
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 1.0193351754405293,
+        "bootstrap95": [
+          0.9654174312582725,
+          1.0426513094906336
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.0266812571972075,
+        "bootstrap95": [
+          0.9589192212556981,
+          1.0585522983402629
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 9,
+      "taps": 11,
+      "L": 80,
+      "M": 147,
+      "num_in": 4096,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 19060.360937499998,
+          "mad": 1155.6757812499964,
+          "min": 17189.228906250002,
+          "max": 23122.796875
+        },
+        "threshold1": {
+          "median": 10614.91796875,
+          "mad": 667.90234375,
+          "min": 9352.48984375,
+          "max": 13114.5171875
+        },
+        "threshold2": {
+          "median": 11085.3296875,
+          "mad": 455.13906250000036,
+          "min": 9760.778124999999,
+          "max": 12702.6765625
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.785590065104251,
+        "bootstrap95": [
+          1.6796524268382116,
+          1.894063994617274
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 0.9527898788322691,
+        "bootstrap95": [
+          0.9222180750995368,
+          1.07887455584164
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.7794587437564835,
+        "bootstrap95": [
+          1.6814120331293503,
+          2.047879982798937
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 10,
+      "taps": 88,
+      "L": 80,
+      "M": 147,
+      "num_in": 2,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 89.73294677734376,
+          "mad": 2.5672424316406364,
+          "min": 84.96451721191407,
+          "max": 97.4536163330078
+        },
+        "threshold1": {
+          "median": 81.64258422851563,
+          "mad": 1.5048370361328125,
+          "min": 77.08672180175782,
+          "max": 89.44085388183593
+        },
+        "threshold2": {
+          "median": 92.03230285644531,
+          "mad": 1.4665679931640625,
+          "min": 86.90484924316405,
+          "max": 102.9560791015625
+        }
+      },
+      "original_over_threshold2": {
+        "median": 0.9810884846856561,
+        "bootstrap95": [
+          0.9379732605237387,
+          1.012083285481653
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 0.8829635071741538,
+        "bootstrap95": [
+          0.8779645240577721,
+          0.9070461165056598
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.069199820668319,
+        "bootstrap95": [
+          1.0563307514520521,
+          1.1393990305312696
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 11,
+      "taps": 88,
+      "L": 80,
+      "M": 147,
+      "num_in": 3,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 145.2445495605469,
+          "mad": 4.924023437500011,
+          "min": 133.33771362304685,
+          "max": 171.88232421875
+        },
+        "threshold1": {
+          "median": 98.0475830078125,
+          "mad": 4.221319580078131,
+          "min": 91.54900512695312,
+          "max": 129.065478515625
+        },
+        "threshold2": {
+          "median": 149.16218872070314,
+          "mad": 4.214959716796898,
+          "min": 136.33521728515626,
+          "max": 166.36715087890624
+        }
+      },
+      "original_over_threshold2": {
+        "median": 0.9590196835285867,
+        "bootstrap95": [
+          0.8939109486567899,
+          1.0618616727813075
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 0.6662017895942934,
+        "bootstrap95": [
+          0.6137547719842923,
+          0.6955809281007693
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.4830868974867353,
+        "bootstrap95": [
+          1.4394267163528107,
+          1.520543638921172
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 12,
+      "taps": 88,
+      "L": 80,
+      "M": 147,
+      "num_in": 4,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 178.80811157226563,
+          "mad": 7.229583740234403,
+          "min": 155.05934448242186,
+          "max": 216.27188720703126
+        },
+        "threshold1": {
+          "median": 119.53742675781248,
+          "mad": 2.311737060546861,
+          "min": 111.97781982421874,
+          "max": 137.1582275390625
+        },
+        "threshold2": {
+          "median": 120.52730102539061,
+          "mad": 4.546447753906222,
+          "min": 114.85827026367187,
+          "max": 153.00648193359373
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.4923893740239436,
+        "bootstrap95": [
+          1.4219881484814645,
+          1.5503930019885384
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 0.9745635679803935,
+        "bootstrap95": [
+          0.9553092031200703,
+          1.0281187343500733
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.4926964680141566,
+        "bootstrap95": [
+          1.4388983787069762,
+          1.5429478230372695
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 13,
+      "taps": 88,
+      "L": 80,
+      "M": 147,
+      "num_in": 4096,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 164254.2375,
+          "mad": 18736.98125000001,
+          "min": 133983.1375,
+          "max": 199159.18125
+        },
+        "threshold1": {
+          "median": 94689.3375,
+          "mad": 5403.737500000003,
+          "min": 86313.35625,
+          "max": 116827.5125
+        },
+        "threshold2": {
+          "median": 89241.46874999999,
+          "mad": 6114.675000000003,
+          "min": 82401.65625,
+          "max": 106418.875
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.7595186944045405,
+        "bootstrap95": [
+          1.709221004328532,
+          1.9879673273215834
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 1.0231663982305441,
+        "bootstrap95": [
+          0.9671888804497069,
+          1.0790525814793233
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.7346645550244766,
+        "bootstrap95": [
+          1.5202385219476837,
+          1.8753317731415922
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 14,
+      "taps": 26,
+      "L": 160,
+      "M": 147,
+      "num_in": 1,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 31.79195251464844,
+          "mad": 0.5304382324218757,
+          "min": 31.03139038085937,
+          "max": 39.12500762939454
+        },
+        "threshold1": {
+          "median": 35.889642333984376,
+          "mad": 1.147705078124993,
+          "min": 32.68049926757813,
+          "max": 38.57846221923828
+        },
+        "threshold2": {
+          "median": 33.0642807006836,
+          "mad": 0.9012069702148438,
+          "min": 29.63323516845703,
+          "max": 39.44961853027344
+        }
+      },
+      "original_over_threshold2": {
+        "median": 0.976705948073337,
+        "bootstrap95": [
+          0.9523995147285113,
+          1.008844072939964
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 1.1122147140403877,
+        "bootstrap95": [
+          1.0306953680337663,
+          1.136252285692342
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 0.913404097349328,
+        "bootstrap95": [
+          0.8820084626963318,
+          0.9578131607329137
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 15,
+      "taps": 26,
+      "L": 160,
+      "M": 147,
+      "num_in": 2,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 47.60972595214844,
+          "mad": 1.256465148925784,
+          "min": 45.415461730957034,
+          "max": 55.2710678100586
+        },
+        "threshold1": {
+          "median": 40.81551513671875,
+          "mad": 1.3244689941406236,
+          "min": 39.151123046875,
+          "max": 49.61429138183594
+        },
+        "threshold2": {
+          "median": 41.218458557128905,
+          "mad": 2.0141540527343764,
+          "min": 38.872326660156254,
+          "max": 50.29025726318359
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.1652442216062258,
+        "bootstrap95": [
+          1.0855456928726313,
+          1.2058259963114173
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 0.9956587104615573,
+        "bootstrap95": [
+          0.9813330820279912,
+          1.0163865552531202
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.163941784990611,
+        "bootstrap95": [
+          1.1582766713281607,
+          1.1703249410292949
+        ],
+        "replicates": 15,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    },
+    {
+      "case": 16,
+      "taps": 26,
+      "L": 160,
+      "M": 147,
+      "num_in": 3,
+      "nanoseconds_per_call": {
+        "original": {
+          "median": 65.08498229980468,
+          "mad": 1.1665008544921776,
+          "min": 59.717181396484385,
+          "max": 69.54667968749999
+        },
+        "threshold1": {
+          "median": 50.62676391601562,
+          "mad": 1.304281616210929,
+          "min": 49.29060668945312,
+          "max": 77.2436004638672
+        },
+        "threshold2": {
+          "median": 50.74169616699219,
+          "mad": 0.5627166748046832,
+          "min": 48.87589721679688,
+          "max": 76.95533142089845
+        }
+      },
+      "original_over_threshold2": {
+        "median": 1.2711870435769,
+        "bootstrap95": [
+          1.211023585596933,
+          1.3039196526098777
+        ],
+        "replicates": 13,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "threshold1_over_threshold2": {
+        "median": 1.0020377505680742,
+        "bootstrap95": [
+          0.9766865073680145,
+          1.030029886740813
+        ],
+        "replicates": 13,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      },
+      "original_over_threshold1": {
+        "median": 1.2834585224054207,
+        "bootstrap95": [
+          1.1570635937083356,
+          1.3222672874895178
+        ],
+        "replicates": 13,
+        "method": "Paired per-repeat CPU time ratio, bootstrap median,4000 resamples. Descriptive for this controlled virtual-host microbenchmark, not a prepared-host gate."
+      }
+    }
+  ]
+}

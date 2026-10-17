@@ -1,0 +1,36 @@
+{
+  "schema": "sox/local-existing-validation/1",
+  "source": "/workspace/scratch/4dd8292178b8/sox_ng",
+  "build": "/workspace/scratch/4dd8292178b8/build-candidate",
+  "binary_sha256": "b99b93d916b5484bc199a143a07dd03af5c738bca1290cc2cef74fd92b3e2807",
+  "status": "RUNNING",
+  "checks": [
+    {
+      "name": "p07",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_p07"
+      ],
+      "exit": 0,
+      "seconds": 0.11801309600002696,
+      "log": "00_p07.log"
+    },
+    {
+      "name": "p11",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_p11"
+      ],
+      "exit": 0,
+      "seconds": 0.03242482299992844,
+      "log": "01_p11.log"
+    },
+    {
+      "name": "p12_bounds",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_p12_bounds"
+      ],
+      "exit": 0,
+      "seconds": 0.003841443999931471,
+      "log": "02_p12_bounds.log"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "src-optimization/diagnostic-repeat-policy/1",
+  "created_utc": "2026-10-17T16:04:31.436259+00:00",
+  "selection": "After the primary and planned control matrices finish, repeat each case of at least one second audio whose per-case paired CPU speedup 95% interval lies entirely below 1.0. Preserve every original result.",
+  "repetitions": 30,
+  "warmups": 2,
+  "interpretation": "Diagnostic stability check, not replacement evidence or a family-wise significance test. Repeated configurations use repeat_of and a distinct case ID; the original and repeat estimates will both be reported.",
+  "first_observed_case": "dsd64_mastering.v2_176400",
+  "primary_status_when_policy_written": "RUNNING; 38 cases complete at prior inspection"
+}

@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "exit": 0,
+  "checks_reported_ok": 148,
+  "skipped_optional_formats": [
+    "wv",
+    "w64",
+    "paf",
+    "mat5",
+    "mat4",
+    "flac",
+    "caf"
+  ],
+  "script": "src/tests.sh",
+  "log": "candidate-guard2-generic.log",
+  "binary_sha256": "750ea8d25c563ee5f12ebb587b4613f8669c441a3f7b8c8057ef92ce76774f42",
+  "sample_test": {
+    "status": "PASS",
+    "exit": 0,
+    "sha256": "c8b42a3aff1877b82922c20774e6baa6eee9abcfc701ebf7a7d766fcc5211205",
+    "stdout_empty": true,
+    "stderr_empty": true,
+    "dependency_note": "Only sample-conversion macros are tested. nm -u shows libc startup and weak CRT symbols, with no libSoX dependencies. Final explicit execution returned zero."
+  },
+  "note": "Missing optional codecs are unrun, not passes."
+}

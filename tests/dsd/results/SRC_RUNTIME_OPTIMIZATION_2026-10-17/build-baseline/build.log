@@ -1,0 +1,20 @@
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c: In function ‘mod_loadsamples’:
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c:234:17: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  234 |                 fread(_Sample[0][i],1,_ModuleHead.Sample[i].Size,ft->fp);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c: In function ‘mod_loadmodule’:
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c:265:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  265 |     fread(Buffer,1,sizeof(_ModuleHead),ft->fp);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c:295:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  295 |     fread(_Pattern,sizeof(*_Pattern)*NumPatterns-AlreadyRead,1,ft->fp);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c:275:45: warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]
+  275 |             ((char*)&_ModuleHead.NumRows)[i]=
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+  276 |             ((char*)&_ModuleHead.Sample[15])[i];
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /workspace/scratch/4dd8292178b8/sox_ng/src/mod.c:89:
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.h:91:29: note: at offset 129 into destination object ‘NumRows’ of size 1
+   91 |         u8                  NumRows;    /* Tells how many entries of 'Row' */
+      |                             ^~~~~~~

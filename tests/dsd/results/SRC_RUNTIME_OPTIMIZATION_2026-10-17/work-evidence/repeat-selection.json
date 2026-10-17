@@ -1,0 +1,734 @@
+{
+  "schema": "src-optimization/diagnostic-repeat-selection/1",
+  "policy": {
+    "schema": "src-optimization/diagnostic-repeat-policy/1",
+    "created_utc": "2026-10-17T16:04:31.436259+00:00",
+    "selection": "After the primary and planned control matrices finish, repeat each case of at least one second audio whose per-case paired CPU speedup 95% interval lies entirely below 1.0. Preserve every original result.",
+    "repetitions": 30,
+    "warmups": 2,
+    "interpretation": "Diagnostic stability check, not replacement evidence or a family-wise significance test. Repeated configurations use repeat_of and a distinct case ID; the original and repeat estimates will both be reported.",
+    "first_observed_case": "dsd64_mastering.v2_176400",
+    "primary_status_when_policy_written": "RUNNING; 38 cases complete at prior inspection"
+  },
+  "policy_sha256": "f1cc4161658f5e15d62f0541531eb692e51a3739fa24d037748a98b2d5b4390f",
+  "inputs": [
+    {
+      "path": "work-evidence/primary-completed/measurements.json",
+      "sha256": "532d0f65a67bf951dc4bc845abf657a9dcdf1e8862dfee701395adb9c5e3d1a8"
+    },
+    {
+      "path": "work-evidence/primary-last-case/measurements.json",
+      "sha256": "7bf3d329ed160ee0b4f23fd0264e25398911427f25b8e09240b0a7cddc6b21f4"
+    },
+    {
+      "path": "work-evidence/final-controls-validated/measurements.json",
+      "sha256": "6f353add9e47df1dd2eb5765a08cd21b041f40b0954ba3abe47d7feb60570f04"
+    }
+  ],
+  "examined": [
+    {
+      "id": "pcm_44100_88200_stereo",
+      "seconds": 60.0,
+      "cpu_speedup": 1.0248626909571117,
+      "cpu_ci95": [
+        0.9766138462158785,
+        1.0557155475962876
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_48000_96000_stereo",
+      "seconds": 60.0,
+      "cpu_speedup": 0.9884075730653759,
+      "cpu_ci95": [
+        0.9629985325872991,
+        1.1287134790081021
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_44100_96000_stereo",
+      "seconds": 60.0,
+      "cpu_speedup": 1.37576579858712,
+      "cpu_ci95": [
+        1.3260631395109093,
+        1.4148105240243953
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_48000_88200_stereo",
+      "seconds": 60.0,
+      "cpu_speedup": 1.3116777610765158,
+      "cpu_ci95": [
+        1.2562164327197916,
+        1.403619341694337
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_88200_176400_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 1.0056027730982449,
+      "cpu_ci95": [
+        0.9741795044977221,
+        1.0233137193675408
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_96000_192000_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 0.9931831066252551,
+      "cpu_ci95": [
+        0.9377755532363528,
+        1.036823565828295
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_176400_352800_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 1.0061449001753315,
+      "cpu_ci95": [
+        0.9256542406185436,
+        1.0943951543194725
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_192000_384000_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 0.9887842124107082,
+      "cpu_ci95": [
+        0.9736107474009911,
+        1.0274777556469779
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_352800_88200_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 0.9808320140029303,
+      "cpu_ci95": [
+        0.9637732334397772,
+        1.0374819642364994
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_384000_96000_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 0.9933964735238567,
+      "cpu_ci95": [
+        0.9689630780225632,
+        1.0163628795236954
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_44100_48000_stereo",
+      "seconds": 60.0,
+      "cpu_speedup": 1.2675589858824678,
+      "cpu_ci95": [
+        1.2111787482421836,
+        1.3020557994214537
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_48000_44100_stereo",
+      "seconds": 60.0,
+      "cpu_speedup": 1.2829534411167065,
+      "cpu_ci95": [
+        1.183653312910978,
+        1.346081009714124
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_352800_384000_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 1.2426413398340894,
+      "cpu_ci95": [
+        1.1425475612097535,
+        1.3284650348830036
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_384000_352800_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 1.257273051500099,
+      "cpu_ci95": [
+        1.1663898749321138,
+        1.3297640766871894
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_176400_192000_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 1.2527719746281683,
+      "cpu_ci95": [
+        1.1706259206860843,
+        1.3307729272866042
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_192000_176400_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 1.1792932837711954,
+      "cpu_ci95": [
+        1.1616146639679743,
+        1.2378864989798761
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_384000_44100_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 1.0636686886541673,
+      "cpu_ci95": [
+        0.9970196527208341,
+        1.0819904944045748
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_352800_44100_stereo",
+      "seconds": 45.0,
+      "cpu_speedup": 0.9947497751214869,
+      "cpu_ci95": [
+        0.9749678432420693,
+        1.0100957948287128
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_48000_44100_1ch",
+      "seconds": 60.0,
+      "cpu_speedup": 1.2544181628416966,
+      "cpu_ci95": [
+        1.2287225435864244,
+        1.3145522976719028
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_176400_192000_1ch",
+      "seconds": 45.0,
+      "cpu_speedup": 1.2552171339185252,
+      "cpu_ci95": [
+        1.1713503074255085,
+        1.3043043537766692
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_48000_44100_6ch",
+      "seconds": 60.0,
+      "cpu_speedup": 1.2529269567009098,
+      "cpu_ci95": [
+        1.183033971105037,
+        1.286075540085264
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_176400_192000_6ch",
+      "seconds": 45.0,
+      "cpu_speedup": 1.24336436182791,
+      "cpu_ci95": [
+        1.1208752255736012,
+        1.32820748912515
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_short_88200",
+      "seconds": 0.021104166666666667,
+      "cpu_speedup": 0.9735434007134364,
+      "cpu_ci95": [
+        0.9131652661064426,
+        1.0011799410029498
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_short_96000",
+      "seconds": 0.022970521541950114,
+      "cpu_speedup": 1.009873949579832,
+      "cpu_ci95": [
+        0.8912267518316739,
+        1.062346185397867
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_short_176400",
+      "seconds": 0.021104166666666667,
+      "cpu_speedup": 0.9568494931115155,
+      "cpu_ci95": [
+        0.9261538461538461,
+        1.0734716769489625
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_short_192000",
+      "seconds": 0.022970521541950114,
+      "cpu_speedup": 1.0224940805051301,
+      "cpu_ci95": [
+        0.9514285714285713,
+        1.0712667353244079
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_short_352800",
+      "seconds": 0.021104166666666667,
+      "cpu_speedup": 1.0097864768683273,
+      "cpu_ci95": [
+        0.9275953008870773,
+        1.1170212765957446
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_short_384000",
+      "seconds": 0.022970521541950114,
+      "cpu_speedup": 0.9705031810294967,
+      "cpu_ci95": [
+        0.9517780673989945,
+        1.0303354746609565
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd64_mastering.v1_88200",
+      "seconds": 2.0,
+      "cpu_speedup": 0.998250527469722,
+      "cpu_ci95": [
+        0.9809526754379182,
+        1.0222060659701917
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd64_wideband.v1_96000",
+      "seconds": 2.0,
+      "cpu_speedup": 1.0117627742020228,
+      "cpu_ci95": [
+        1.0043116870673343,
+        1.0504953702453905
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd64_mastering.v2_176400",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9757064922358614,
+      "cpu_ci95": [
+        0.9283247653406379,
+        0.9973038158773643
+      ],
+      "selected": true
+    },
+    {
+      "id": "dsd64_mastering.v1_192000",
+      "seconds": 2.0,
+      "cpu_speedup": 1.0618657305069792,
+      "cpu_ci95": [
+        1.0083890811477254,
+        1.0910683179269394
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd64_wideband.v1_352800",
+      "seconds": 2.0,
+      "cpu_speedup": 1.0031908555733948,
+      "cpu_ci95": [
+        0.9806408968148783,
+        1.025997185955957
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd64_mastering.v2_384000",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9974114393106628,
+      "cpu_ci95": [
+        0.993350207383363,
+        1.0500721814622185
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd64_short",
+      "seconds": 0.011611040249433107,
+      "cpu_speedup": 0.9597627031209699,
+      "cpu_ci95": [
+        0.9355657026889903,
+        1.029475982532751
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd128_mastering.v1_88200",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9969875012610057,
+      "cpu_ci95": [
+        0.9541141224831046,
+        1.0181777852119591
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd128_wideband.v1_96000",
+      "seconds": 2.0,
+      "cpu_speedup": 1.0158558250768703,
+      "cpu_ci95": [
+        0.9484820592799335,
+        1.0450487434368474
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd128_mastering.v2_176400",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9953953072412121,
+      "cpu_ci95": [
+        0.9385070568521984,
+        1.0528363031727697
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd128_mastering.v1_192000",
+      "seconds": 2.0,
+      "cpu_speedup": 1.010964072405924,
+      "cpu_ci95": [
+        0.9804377785334598,
+        1.0448256552224562
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd128_wideband.v1_352800",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9995805859420657,
+      "cpu_ci95": [
+        0.9840398880791255,
+        1.0238734089007129
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd128_mastering.v2_384000",
+      "seconds": 2.0,
+      "cpu_speedup": 1.0107259960174275,
+      "cpu_ci95": [
+        0.9982229311234109,
+        1.0491417390530966
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd128_short",
+      "seconds": 0.005805520124716554,
+      "cpu_speedup": 1.0037066454858352,
+      "cpu_ci95": [
+        0.9965675057208238,
+        1.0538461538461539
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_mastering.v1_88200",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9766635015703747,
+      "cpu_ci95": [
+        0.9734424626514527,
+        1.0125417087692006
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_wideband.v1_96000",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9954451571768834,
+      "cpu_ci95": [
+        0.9472453264852624,
+        1.0463948647875687
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_mastering.v2_176400",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9960323798807033,
+      "cpu_ci95": [
+        0.9752897127849524,
+        1.041728665828457
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_mastering.v1_192000",
+      "seconds": 2.0,
+      "cpu_speedup": 1.0314148016840239,
+      "cpu_ci95": [
+        1.0120961631320695,
+        1.0693501327651893
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_wideband.v1_352800",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9961684550287413,
+      "cpu_ci95": [
+        0.9670942497179689,
+        1.0128231616392087
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_mastering.v2_384000",
+      "seconds": 2.0,
+      "cpu_speedup": 0.97707563321352,
+      "cpu_ci95": [
+        0.9524957603415161,
+        1.009294206337943
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_short",
+      "seconds": 0.002902760062358277,
+      "cpu_speedup": 1.0792192881745122,
+      "cpu_ci95": [
+        0.9891336270190896,
+        1.1491326245103524
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_buffer32_44100_48000",
+      "seconds": 10.0,
+      "cpu_speedup": 1.1048137405077731,
+      "cpu_ci95": [
+        1.0998299505452507,
+        1.1164040748668267
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_buffer128_48000_44100",
+      "seconds": 10.0,
+      "cpu_speedup": 1.1315082151992024,
+      "cpu_ci95": [
+        1.0802644776974883,
+        1.179689229270884
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_buffer256_44100_48000",
+      "seconds": 30.0,
+      "cpu_speedup": 1.1941992191256514,
+      "cpu_ci95": [
+        1.116365175954905,
+        1.2202992192607978
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_buffer256_48000_44100",
+      "seconds": 30.0,
+      "cpu_speedup": 1.1694222828749388,
+      "cpu_ci95": [
+        1.1017895843957164,
+        1.2511170280670398
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_qualityl_44100_48000",
+      "seconds": 30.0,
+      "cpu_speedup": 1.2934873574887842,
+      "cpu_ci95": [
+        1.2797162162162163,
+        1.3172099447513812
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_qualityl_48000_44100",
+      "seconds": 30.0,
+      "cpu_speedup": 1.1630649709251306,
+      "cpu_ci95": [
+        1.086686592092829,
+        1.2081190516489382
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_qualitym_44100_48000",
+      "seconds": 30.0,
+      "cpu_speedup": 1.053038139634859,
+      "cpu_ci95": [
+        1.00082585725114,
+        1.085352769247845
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_qualitym_48000_44100",
+      "seconds": 30.0,
+      "cpu_speedup": 1.1796125404876858,
+      "cpu_ci95": [
+        1.1508021006543612,
+        1.2195605165561314
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_qualityh_44100_48000",
+      "seconds": 30.0,
+      "cpu_speedup": 1.2948813438907285,
+      "cpu_ci95": [
+        1.2024967321829019,
+        1.3655492856563503
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_qualityh_48000_44100",
+      "seconds": 30.0,
+      "cpu_speedup": 1.1980486583102792,
+      "cpu_ci95": [
+        1.1690905743740796,
+        1.2798331172126063
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_qualityu_44100_48000",
+      "seconds": 30.0,
+      "cpu_speedup": 1.2329575375885307,
+      "cpu_ci95": [
+        1.1042971923080018,
+        1.2691182709268314
+      ],
+      "selected": false
+    },
+    {
+      "id": "pcm_qualityu_48000_44100",
+      "seconds": 30.0,
+      "cpu_speedup": 1.212285456187895,
+      "cpu_ci95": [
+        1.1996482062733036,
+        1.2246819948119056
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_v2_384000_scalar",
+      "seconds": 2.0,
+      "cpu_speedup": 1.0221224019319626,
+      "cpu_ci95": [
+        0.9824062270892914,
+        1.0281279272940584
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_v2_384000_sse2",
+      "seconds": 2.0,
+      "cpu_speedup": 1.0121269555719747,
+      "cpu_ci95": [
+        0.9498768429273644,
+        1.0350280677893784
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_v2_384000_avx1",
+      "seconds": 2.0,
+      "cpu_speedup": 1.0294114813131061,
+      "cpu_ci95": [
+        1.00220681547523,
+        1.0712777658481092
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_v2_384000_avx2",
+      "seconds": 2.0,
+      "cpu_speedup": 1.0183834575554254,
+      "cpu_ci95": [
+        0.9357346599205406,
+        1.0322860585428362
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_v2_384000_avx512",
+      "seconds": 2.0,
+      "cpu_speedup": 1.017238949729308,
+      "cpu_ci95": [
+        1.0072335134887638,
+        1.0719001391370677
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_mastering_v1_176400_stereo_continuity",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9907305574445181,
+      "cpu_ci95": [
+        0.9700258486107438,
+        0.9969707061458741
+      ],
+      "selected": true
+    },
+    {
+      "id": "dsd256_mastering_v1_352800_stereo_continuity",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9940800466479288,
+      "cpu_ci95": [
+        0.9600090465586125,
+        1.0231865091008867
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_mastering_v2_176400_stereo_continuity",
+      "seconds": 2.0,
+      "cpu_speedup": 0.9956589006799433,
+      "cpu_ci95": [
+        0.9123504434419849,
+        1.0376639964749463
+      ],
+      "selected": false
+    },
+    {
+      "id": "dsd256_mastering_v2_352800_stereo_continuity",
+      "seconds": 2.0,
+      "cpu_speedup": 1.002990163647781,
+      "cpu_ci95": [
+        0.9721971209414731,
+        1.0133261260368598
+      ],
+      "selected": false
+    }
+  ],
+  "selected_count": 2,
+  "repetitions": 30,
+  "warmups": 2,
+  "interpretation": "Diagnostic repeats remain additional observations; original results are retained."
+}

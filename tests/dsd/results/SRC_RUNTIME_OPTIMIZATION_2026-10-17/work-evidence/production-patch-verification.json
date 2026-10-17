@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "scope": "Production patch applies to exact frozen header and reverses to exact original bytes",
+  "steps": [
+    {
+      "exit": 0,
+      "stderr": "",
+      "apply_command": [
+        "git",
+        "apply",
+        "/workspace/scratch/4dd8292178b8/SRC_RUNTIME_OPTIMIZATION_PRODUCTION_2026-10-17.patch"
+      ],
+      "check_command": [
+        "git",
+        "apply",
+        "--check",
+        "/workspace/scratch/4dd8292178b8/SRC_RUNTIME_OPTIMIZATION_PRODUCTION_2026-10-17.patch"
+      ]
+    },
+    {
+      "exit": 0,
+      "stderr": "",
+      "apply_command": [
+        "git",
+        "apply",
+        "--reverse",
+        "/workspace/scratch/4dd8292178b8/SRC_RUNTIME_OPTIMIZATION_PRODUCTION_2026-10-17.patch"
+      ],
+      "check_command": [
+        "git",
+        "apply",
+        "--check",
+        "--reverse",
+        "/workspace/scratch/4dd8292178b8/SRC_RUNTIME_OPTIMIZATION_PRODUCTION_2026-10-17.patch"
+      ]
+    }
+  ],
+  "insertions": 68,
+  "deletions": 0,
+  "patch_sha256": "354f6c0c824587c9a5767e544bdd139105541810b5fa45cea5de78dbb05d81e8",
+  "original_header_sha256": "928f005912f35ca0612a37c99a9a6343be8dea51e23cd41f5286b9f85fede6ff",
+  "candidate_header_sha256": "c1626c26f7ba8d64f2b69752906948b527923745313d13c41f78c47046552591"
+}

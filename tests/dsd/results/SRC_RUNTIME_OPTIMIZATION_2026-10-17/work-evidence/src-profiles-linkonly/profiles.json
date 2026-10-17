@@ -1,0 +1,977 @@
+{
+  "cases": [
+    {
+      "case": {
+        "buffer": 8192,
+        "channels": 2,
+        "fir_kernel": "auto",
+        "frames": 23040000,
+        "id": "384k44-v",
+        "input_hz": 384000,
+        "kind": "pcm",
+        "output_hz": 44100,
+        "quality": "-v",
+        "seconds": 60.0
+      },
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+        "-D",
+        "--single-threaded",
+        "--buffer",
+        "8192",
+        "-t",
+        "raw",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "-L",
+        "-r",
+        "384000",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k44-v/input.s32",
+        "-t",
+        "raw",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "-L",
+        "-r",
+        "44100",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k44-v/output.s32",
+        "rate",
+        "-v",
+        "44100"
+      ],
+      "gprof_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k44-v/gmon.0",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k44-v/gmon.1",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k44-v/gmon.2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k44-v/gmon.3"
+      ],
+      "input_sha256": "6c52dc23b4573fc25dd5396923255b5709d001905bdf589d3e4ece6fd88da005",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 29.81,
+            "sampled_self_seconds": 0.62,
+            "symbol": "h12"
+          },
+          {
+            "sampled_percent": 11.54,
+            "sampled_self_seconds": 0.24,
+            "symbol": "stop_rate"
+          },
+          {
+            "sampled_percent": 11.54,
+            "sampled_self_seconds": 0.24,
+            "symbol": "vpoly0"
+          },
+          {
+            "sampled_percent": 7.69,
+            "sampled_self_seconds": 0.16,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 7.69,
+            "sampled_self_seconds": 0.16,
+            "symbol": "sox_read_sdw_samples"
+          },
+          {
+            "sampled_percent": 6.73,
+            "sampled_self_seconds": 0.14,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 5.29,
+            "sampled_self_seconds": 0.11,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 4.81,
+            "sampled_self_seconds": 0.1,
+            "symbol": "sox_flow_effects"
+          },
+          {
+            "sampled_percent": 4.33,
+            "sampled_self_seconds": 0.09,
+            "symbol": "lsx_read_dw_buf"
+          },
+          {
+            "sampled_percent": 3.37,
+            "sampled_self_seconds": 0.07,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 1.92,
+            "sampled_self_seconds": 0.04,
+            "symbol": "cftfsub"
+          },
+          {
+            "sampled_percent": 1.92,
+            "sampled_self_seconds": 0.04,
+            "symbol": "dft_stage_fn"
+          },
+          {
+            "sampled_percent": 1.44,
+            "sampled_self_seconds": 0.03,
+            "symbol": "lsx_write_dw_buf"
+          },
+          {
+            "sampled_percent": 0.96,
+            "sampled_self_seconds": 0.02,
+            "symbol": "cftbsub"
+          },
+          {
+            "sampled_percent": 0.96,
+            "sampled_self_seconds": 0.02,
+            "symbol": "combiner_drain"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 2.08
+      },
+      "runs": [
+        {
+          "cpu_seconds": 0.57804,
+          "cpu_system_seconds": 0.022768,
+          "cpu_user_seconds": 0.555272,
+          "exit": 0,
+          "involuntary_context_switches": 5,
+          "major_faults": 0,
+          "max_rss_kib": 26660,
+          "minor_faults": 1518,
+          "output_sha256": "f270c1f61a725499da2187ff31d219338436b69156a085fff42879024df3fc31",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.5786137650000001
+        },
+        {
+          "cpu_seconds": 0.600291,
+          "cpu_system_seconds": 0.032139,
+          "cpu_user_seconds": 0.568152,
+          "exit": 0,
+          "involuntary_context_switches": 3,
+          "major_faults": 0,
+          "max_rss_kib": 27172,
+          "minor_faults": 1518,
+          "output_sha256": "f270c1f61a725499da2187ff31d219338436b69156a085fff42879024df3fc31",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.600660226
+        },
+        {
+          "cpu_seconds": 0.7042930000000001,
+          "cpu_system_seconds": 0.02214,
+          "cpu_user_seconds": 0.682153,
+          "exit": 0,
+          "involuntary_context_switches": 7,
+          "major_faults": 0,
+          "max_rss_kib": 27184,
+          "minor_faults": 1519,
+          "output_sha256": "f270c1f61a725499da2187ff31d219338436b69156a085fff42879024df3fc31",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.7048910310000001
+        },
+        {
+          "cpu_seconds": 0.8419979999999999,
+          "cpu_system_seconds": 0.039438999999999995,
+          "cpu_user_seconds": 0.8025589999999999,
+          "exit": 0,
+          "involuntary_context_switches": 8,
+          "major_faults": 0,
+          "max_rss_kib": 27188,
+          "minor_faults": 1520,
+          "output_sha256": "f270c1f61a725499da2187ff31d219338436b69156a085fff42879024df3fc31",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.842898684
+        }
+      ]
+    },
+    {
+      "case": {
+        "buffer": 8192,
+        "channels": 2,
+        "fir_kernel": "auto",
+        "frames": 21168000,
+        "id": "352k44-v",
+        "input_hz": 352800,
+        "kind": "pcm",
+        "output_hz": 44100,
+        "quality": "-v",
+        "seconds": 60.0
+      },
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+        "-D",
+        "--single-threaded",
+        "--buffer",
+        "8192",
+        "-t",
+        "raw",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "-L",
+        "-r",
+        "352800",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/352k44-v/input.s32",
+        "-t",
+        "raw",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "-L",
+        "-r",
+        "44100",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/352k44-v/output.s32",
+        "rate",
+        "-v",
+        "44100"
+      ],
+      "gprof_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/352k44-v/gmon.0",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/352k44-v/gmon.1",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/352k44-v/gmon.2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/352k44-v/gmon.3"
+      ],
+      "input_sha256": "90b530f64a979645d51c51c8c1d1ad071b51b7ffeafa30a30fb16ebd56fec7bd",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 42.24,
+            "sampled_self_seconds": 0.68,
+            "symbol": "h12"
+          },
+          {
+            "sampled_percent": 13.04,
+            "sampled_self_seconds": 0.21,
+            "symbol": "stop_rate"
+          },
+          {
+            "sampled_percent": 11.18,
+            "sampled_self_seconds": 0.18,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 5.59,
+            "sampled_self_seconds": 0.09,
+            "symbol": "lsx_read_dw_buf"
+          },
+          {
+            "sampled_percent": 5.59,
+            "sampled_self_seconds": 0.09,
+            "symbol": "sox_read_sdw_samples"
+          },
+          {
+            "sampled_percent": 4.97,
+            "sampled_self_seconds": 0.08,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 4.97,
+            "sampled_self_seconds": 0.08,
+            "symbol": "sox_flow_effects"
+          },
+          {
+            "sampled_percent": 3.73,
+            "sampled_self_seconds": 0.06,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 3.73,
+            "sampled_self_seconds": 0.06,
+            "symbol": "cftfsub"
+          },
+          {
+            "sampled_percent": 3.11,
+            "sampled_self_seconds": 0.05,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 1.24,
+            "sampled_self_seconds": 0.02,
+            "symbol": "sox_write_sdw_samples"
+          },
+          {
+            "sampled_percent": 0.62,
+            "sampled_self_seconds": 0.01,
+            "symbol": "dft_stage_fn"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 1.61
+      },
+      "runs": [
+        {
+          "cpu_seconds": 0.48412999999999995,
+          "cpu_system_seconds": 0.01558,
+          "cpu_user_seconds": 0.46854999999999997,
+          "exit": 0,
+          "involuntary_context_switches": 4,
+          "major_faults": 0,
+          "max_rss_kib": 27320,
+          "minor_faults": 1424,
+          "output_sha256": "bc69170dab8f3314719f982c8d1c3802bbe63b8892f6af6b20dc5b5be916e325",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.484509693
+        },
+        {
+          "cpu_seconds": 0.508474,
+          "cpu_system_seconds": 0.029092,
+          "cpu_user_seconds": 0.479382,
+          "exit": 0,
+          "involuntary_context_switches": 3,
+          "major_faults": 0,
+          "max_rss_kib": 27320,
+          "minor_faults": 1422,
+          "output_sha256": "bc69170dab8f3314719f982c8d1c3802bbe63b8892f6af6b20dc5b5be916e325",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.509083276
+        },
+        {
+          "cpu_seconds": 0.501497,
+          "cpu_system_seconds": 0.043983,
+          "cpu_user_seconds": 0.457514,
+          "exit": 0,
+          "involuntary_context_switches": 7,
+          "major_faults": 0,
+          "max_rss_kib": 27332,
+          "minor_faults": 1421,
+          "output_sha256": "bc69170dab8f3314719f982c8d1c3802bbe63b8892f6af6b20dc5b5be916e325",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.50191775
+        },
+        {
+          "cpu_seconds": 0.515468,
+          "cpu_system_seconds": 0.028037,
+          "cpu_user_seconds": 0.487431,
+          "exit": 0,
+          "involuntary_context_switches": 3,
+          "major_faults": 0,
+          "max_rss_kib": 27336,
+          "minor_faults": 1424,
+          "output_sha256": "bc69170dab8f3314719f982c8d1c3802bbe63b8892f6af6b20dc5b5be916e325",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.5158343710000001
+        }
+      ]
+    },
+    {
+      "case": {
+        "buffer": 8192,
+        "channels": 2,
+        "fir_kernel": "auto",
+        "frames": 23040000,
+        "id": "384k48-m",
+        "input_hz": 384000,
+        "kind": "pcm",
+        "output_hz": 48000,
+        "quality": "-m",
+        "seconds": 60.0
+      },
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+        "-D",
+        "--single-threaded",
+        "--buffer",
+        "8192",
+        "-t",
+        "raw",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "-L",
+        "-r",
+        "384000",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k48-m/input.s32",
+        "-t",
+        "raw",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "-L",
+        "-r",
+        "48000",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k48-m/output.s32",
+        "rate",
+        "-m",
+        "48000"
+      ],
+      "gprof_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k48-m/gmon.0",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k48-m/gmon.1",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k48-m/gmon.2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/384k48-m/gmon.3"
+      ],
+      "input_sha256": "6c52dc23b4573fc25dd5396923255b5709d001905bdf589d3e4ece6fd88da005",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 34.46,
+            "sampled_self_seconds": 0.51,
+            "symbol": "h8"
+          },
+          {
+            "sampled_percent": 17.57,
+            "sampled_self_seconds": 0.26,
+            "symbol": "stop_rate"
+          },
+          {
+            "sampled_percent": 11.49,
+            "sampled_self_seconds": 0.17,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 8.78,
+            "sampled_self_seconds": 0.13,
+            "symbol": "sox_read_sdw_samples"
+          },
+          {
+            "sampled_percent": 6.08,
+            "sampled_self_seconds": 0.09,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 5.41,
+            "sampled_self_seconds": 0.08,
+            "symbol": "sox_flow_effects"
+          },
+          {
+            "sampled_percent": 4.73,
+            "sampled_self_seconds": 0.07,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 4.73,
+            "sampled_self_seconds": 0.07,
+            "symbol": "lsx_read_dw_buf"
+          },
+          {
+            "sampled_percent": 1.35,
+            "sampled_self_seconds": 0.02,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 1.35,
+            "sampled_self_seconds": 0.02,
+            "symbol": "cftfsub"
+          },
+          {
+            "sampled_percent": 1.35,
+            "sampled_self_seconds": 0.02,
+            "symbol": "lsx_write_dw_buf"
+          },
+          {
+            "sampled_percent": 0.68,
+            "sampled_self_seconds": 0.01,
+            "symbol": "_init"
+          },
+          {
+            "sampled_percent": 0.68,
+            "sampled_self_seconds": 0.01,
+            "symbol": "dft_stage_fn"
+          },
+          {
+            "sampled_percent": 0.68,
+            "sampled_self_seconds": 0.01,
+            "symbol": "lsx_save_samples"
+          },
+          {
+            "sampled_percent": 0.68,
+            "sampled_self_seconds": 0.01,
+            "symbol": "sox_write_sdw_samples"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 1.48
+      },
+      "runs": [
+        {
+          "cpu_seconds": 0.5038539999999999,
+          "cpu_system_seconds": 0.027604,
+          "cpu_user_seconds": 0.47624999999999995,
+          "exit": 0,
+          "involuntary_context_switches": 4,
+          "major_faults": 0,
+          "max_rss_kib": 27336,
+          "minor_faults": 1485,
+          "output_sha256": "ca7982e85b592c171a12f88dfdcfbea6a063ea939fffef7c90845659660606d1",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.504227737
+        },
+        {
+          "cpu_seconds": 0.5021,
+          "cpu_system_seconds": 0.026497,
+          "cpu_user_seconds": 0.475603,
+          "exit": 0,
+          "involuntary_context_switches": 5,
+          "major_faults": 0,
+          "max_rss_kib": 27340,
+          "minor_faults": 1485,
+          "output_sha256": "ca7982e85b592c171a12f88dfdcfbea6a063ea939fffef7c90845659660606d1",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.502517663
+        },
+        {
+          "cpu_seconds": 0.452737,
+          "cpu_system_seconds": 0.011848,
+          "cpu_user_seconds": 0.440889,
+          "exit": 0,
+          "involuntary_context_switches": 9,
+          "major_faults": 0,
+          "max_rss_kib": 27368,
+          "minor_faults": 1484,
+          "output_sha256": "ca7982e85b592c171a12f88dfdcfbea6a063ea939fffef7c90845659660606d1",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.45320122700000004
+        },
+        {
+          "cpu_seconds": 0.441496,
+          "cpu_system_seconds": 0.015606,
+          "cpu_user_seconds": 0.42589,
+          "exit": 0,
+          "involuntary_context_switches": 8,
+          "major_faults": 0,
+          "max_rss_kib": 27372,
+          "minor_faults": 1486,
+          "output_sha256": "ca7982e85b592c171a12f88dfdcfbea6a063ea939fffef7c90845659660606d1",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.442285242
+        }
+      ]
+    },
+    {
+      "case": {
+        "buffer": 8192,
+        "channels": 2,
+        "fir_kernel": "auto",
+        "frames": 2646000,
+        "id": "44k48-v",
+        "input_hz": 44100,
+        "kind": "pcm",
+        "output_hz": 48000,
+        "quality": "-v",
+        "seconds": 60.0
+      },
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+        "-D",
+        "--single-threaded",
+        "--buffer",
+        "8192",
+        "-t",
+        "raw",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "-L",
+        "-r",
+        "44100",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/44k48-v/input.s32",
+        "-t",
+        "raw",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "-L",
+        "-r",
+        "48000",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/44k48-v/output.s32",
+        "rate",
+        "-v",
+        "48000"
+      ],
+      "gprof_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/44k48-v/gmon.0",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/44k48-v/gmon.1",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/44k48-v/gmon.2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/44k48-v/gmon.3"
+      ],
+      "input_sha256": "d376481d0607a15d10a9ced38cf459ed2dda686c3e11e30af91f32a8d2f3e788",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 48.05,
+            "sampled_self_seconds": 0.37,
+            "symbol": "vpoly0"
+          },
+          {
+            "sampled_percent": 16.88,
+            "sampled_self_seconds": 0.13,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 9.09,
+            "sampled_self_seconds": 0.07,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 5.19,
+            "sampled_self_seconds": 0.04,
+            "symbol": "dft_stage_fn"
+          },
+          {
+            "sampled_percent": 3.9,
+            "sampled_self_seconds": 0.03,
+            "symbol": "cftfsub"
+          },
+          {
+            "sampled_percent": 3.9,
+            "sampled_self_seconds": 0.03,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 3.9,
+            "sampled_self_seconds": 0.03,
+            "symbol": "lsx_write_dw_buf"
+          },
+          {
+            "sampled_percent": 2.6,
+            "sampled_self_seconds": 0.02,
+            "symbol": "lsx_read_dw_buf"
+          },
+          {
+            "sampled_percent": 2.6,
+            "sampled_self_seconds": 0.02,
+            "symbol": "stop_rate"
+          },
+          {
+            "sampled_percent": 1.3,
+            "sampled_self_seconds": 0.01,
+            "symbol": "cftbsub"
+          },
+          {
+            "sampled_percent": 1.3,
+            "sampled_self_seconds": 0.01,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 1.3,
+            "sampled_self_seconds": 0.01,
+            "symbol": "sox_write_sdw_samples"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 0.77
+      },
+      "runs": [
+        {
+          "cpu_seconds": 0.229895,
+          "cpu_system_seconds": 0.008348999999999999,
+          "cpu_user_seconds": 0.221546,
+          "exit": 0,
+          "involuntary_context_switches": 2,
+          "major_faults": 0,
+          "max_rss_kib": 27372,
+          "minor_faults": 713,
+          "output_sha256": "2dfae721518dbc1408702dc1cff104df9d5dc13c268218c5c8aabaff7b88cd7a",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.23025924800000003
+        },
+        {
+          "cpu_seconds": 0.22839199999999998,
+          "cpu_system_seconds": 0.015813,
+          "cpu_user_seconds": 0.212579,
+          "exit": 0,
+          "involuntary_context_switches": 2,
+          "major_faults": 0,
+          "max_rss_kib": 27372,
+          "minor_faults": 711,
+          "output_sha256": "2dfae721518dbc1408702dc1cff104df9d5dc13c268218c5c8aabaff7b88cd7a",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.22877992300000002
+        },
+        {
+          "cpu_seconds": 0.273815,
+          "cpu_system_seconds": 0.011713,
+          "cpu_user_seconds": 0.262102,
+          "exit": 0,
+          "involuntary_context_switches": 4,
+          "major_faults": 0,
+          "max_rss_kib": 27404,
+          "minor_faults": 713,
+          "output_sha256": "2dfae721518dbc1408702dc1cff104df9d5dc13c268218c5c8aabaff7b88cd7a",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.27419644000000004
+        },
+        {
+          "cpu_seconds": 0.254373,
+          "cpu_system_seconds": 0.00793,
+          "cpu_user_seconds": 0.246443,
+          "exit": 0,
+          "involuntary_context_switches": 5,
+          "major_faults": 0,
+          "max_rss_kib": 27404,
+          "minor_faults": 714,
+          "output_sha256": "2dfae721518dbc1408702dc1cff104df9d5dc13c268218c5c8aabaff7b88cd7a",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.254773227
+        }
+      ]
+    },
+    {
+      "case": {
+        "buffer": 8192,
+        "channels": 2,
+        "fir_kernel": "auto",
+        "frames": 2880000,
+        "id": "48k44-l",
+        "input_hz": 48000,
+        "kind": "pcm",
+        "output_hz": 44100,
+        "quality": "-l",
+        "seconds": 60.0
+      },
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+        "-D",
+        "--single-threaded",
+        "--buffer",
+        "8192",
+        "-t",
+        "raw",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "-L",
+        "-r",
+        "48000",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/48k44-l/input.s32",
+        "-t",
+        "raw",
+        "-e",
+        "signed-integer",
+        "-b",
+        "32",
+        "-L",
+        "-r",
+        "44100",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/48k44-l/output.s32",
+        "rate",
+        "-l",
+        "44100"
+      ],
+      "gprof_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/48k44-l/gmon.0",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/48k44-l/gmon.1",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/48k44-l/gmon.2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles-linkonly/48k44-l/gmon.3"
+      ],
+      "input_sha256": "e3b3babdb5aa27255502bccdb197590b9082523b6fdf361f0cc31b4c6506f9cb",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 29.51,
+            "sampled_self_seconds": 0.18,
+            "symbol": "vpoly0"
+          },
+          {
+            "sampled_percent": 14.75,
+            "sampled_self_seconds": 0.09,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 13.11,
+            "sampled_self_seconds": 0.08,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 9.84,
+            "sampled_self_seconds": 0.06,
+            "symbol": "cftfsub"
+          },
+          {
+            "sampled_percent": 6.56,
+            "sampled_self_seconds": 0.04,
+            "symbol": "dft_stage_fn"
+          },
+          {
+            "sampled_percent": 4.92,
+            "sampled_self_seconds": 0.03,
+            "symbol": "lsx_write_dw_buf"
+          },
+          {
+            "sampled_percent": 4.92,
+            "sampled_self_seconds": 0.03,
+            "symbol": "sox_flow_effects"
+          },
+          {
+            "sampled_percent": 3.28,
+            "sampled_self_seconds": 0.02,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 3.28,
+            "sampled_self_seconds": 0.02,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 3.28,
+            "sampled_self_seconds": 0.02,
+            "symbol": "lsx_read_dw_buf"
+          },
+          {
+            "sampled_percent": 1.64,
+            "sampled_self_seconds": 0.01,
+            "symbol": "cftbsub"
+          },
+          {
+            "sampled_percent": 1.64,
+            "sampled_self_seconds": 0.01,
+            "symbol": "sox_read_sdw_samples"
+          },
+          {
+            "sampled_percent": 1.64,
+            "sampled_self_seconds": 0.01,
+            "symbol": "sox_write_sdw_samples"
+          },
+          {
+            "sampled_percent": 1.64,
+            "sampled_self_seconds": 0.01,
+            "symbol": "stop_rate"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 0.61
+      },
+      "runs": [
+        {
+          "cpu_seconds": 0.192595,
+          "cpu_system_seconds": 0.020926,
+          "cpu_user_seconds": 0.171669,
+          "exit": 0,
+          "involuntary_context_switches": 3,
+          "major_faults": 0,
+          "max_rss_kib": 27408,
+          "minor_faults": 698,
+          "output_sha256": "8d3d6f02b6e4bd428f65a558e0274ac951df6e2d0ba7c9616b4517d721f2ea1d",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.19497103400000002
+        },
+        {
+          "cpu_seconds": 0.23662999999999998,
+          "cpu_system_seconds": 0.032824,
+          "cpu_user_seconds": 0.203806,
+          "exit": 0,
+          "involuntary_context_switches": 3,
+          "major_faults": 0,
+          "max_rss_kib": 27408,
+          "minor_faults": 700,
+          "output_sha256": "8d3d6f02b6e4bd428f65a558e0274ac951df6e2d0ba7c9616b4517d721f2ea1d",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.237015686
+        },
+        {
+          "cpu_seconds": 0.206006,
+          "cpu_system_seconds": 0.011796,
+          "cpu_user_seconds": 0.19421,
+          "exit": 0,
+          "involuntary_context_switches": 4,
+          "major_faults": 0,
+          "max_rss_kib": 27436,
+          "minor_faults": 700,
+          "output_sha256": "8d3d6f02b6e4bd428f65a558e0274ac951df6e2d0ba7c9616b4517d721f2ea1d",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.20642453500000002
+        },
+        {
+          "cpu_seconds": 0.19311699999999998,
+          "cpu_system_seconds": 0.008092,
+          "cpu_user_seconds": 0.185025,
+          "exit": 0,
+          "involuntary_context_switches": 5,
+          "major_faults": 0,
+          "max_rss_kib": 27436,
+          "minor_faults": 699,
+          "output_sha256": "8d3d6f02b6e4bd428f65a558e0274ac951df6e2d0ba7c9616b4517d721f2ea1d",
+          "timed_out": false,
+          "voluntary_context_switches": 1,
+          "wall_seconds": 0.19381387300000003
+        }
+      ]
+    }
+  ],
+  "executable": "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile_linkonly",
+  "executable_sha256": "028da9b4e98d77b2f4ed31e7fba01fc5cb111f628341655e7afddfb91325f244",
+  "host": {
+    "affinity": [
+      0
+    ],
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "cpu_vendor": "AuthenticAMD",
+    "governor_and_boost": "not changed by this tool; record externally",
+    "hypervisor_flag_observed": true,
+    "io": "input and WAV output included; filesystem is the selected results directory",
+    "machine": "x86_64",
+    "microcode": "0x1000065",
+    "physical_host_status": "not established by this tool",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39"
+  },
+  "schema": "sox/src-production-attribution/1",
+  "scope": "statistical production-code samples; no physical qualification"
+}

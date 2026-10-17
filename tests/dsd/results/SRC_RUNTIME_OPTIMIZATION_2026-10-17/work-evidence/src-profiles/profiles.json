@@ -1,0 +1,1771 @@
+{
+  "binary_sha256": "d8b0d0d2a6cc04bc60b5f107e2cc036a333b354f0c059802b8a1a85a1cb8a2e7",
+  "cases": [
+    {
+      "audio_seconds": 90,
+      "channels": 2,
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "-D",
+        "-V4",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "384000",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/384k-44k-v/input.s32",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "44100",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/384k-44k-v/output.s32",
+        "rate",
+        "-v",
+        "44100"
+      ],
+      "cpu_seconds": 1.09236,
+      "environment": {
+        "GMON_OUT_PREFIX": "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/384k-44k-v/gmon",
+        "LC_ALL": "C",
+        "OMP_NUM_THREADS": "1",
+        "SOX_OPTS": ""
+      },
+      "input_hz": 384000,
+      "input_sha256": "1bc62cfec481b42c1df9794fd2d772e0322e489f20edbe27f1863fd84745ffc0",
+      "name": "384k-44k-v",
+      "output_hz": 44100,
+      "output_sha256": "8cd84553d7b741d424eb69352d522198e427504ddd2dd4fff4d1110ae1a33124",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 34.44,
+            "sampled_self_seconds": 0.31,
+            "symbol": "h12"
+          },
+          {
+            "sampled_percent": 16.67,
+            "sampled_self_seconds": 0.15,
+            "symbol": "vpoly0"
+          },
+          {
+            "sampled_percent": 14.44,
+            "sampled_self_seconds": 0.13,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 5.56,
+            "sampled_self_seconds": 0.05,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 5.56,
+            "sampled_self_seconds": 0.05,
+            "symbol": "lsx_read_dw_buf"
+          },
+          {
+            "sampled_percent": 5.56,
+            "sampled_self_seconds": 0.05,
+            "symbol": "sox_read_sdw_samples"
+          },
+          {
+            "sampled_percent": 5.56,
+            "sampled_self_seconds": 0.05,
+            "symbol": "stop_rate"
+          },
+          {
+            "sampled_percent": 3.33,
+            "sampled_self_seconds": 0.03,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 3.33,
+            "sampled_self_seconds": 0.03,
+            "symbol": "sox_flow_effects"
+          },
+          {
+            "sampled_percent": 2.22,
+            "sampled_self_seconds": 0.02,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 1.11,
+            "sampled_self_seconds": 0.01,
+            "symbol": "cftbsub"
+          },
+          {
+            "sampled_percent": 1.11,
+            "sampled_self_seconds": 0.01,
+            "symbol": "dft_stage_fn"
+          },
+          {
+            "sampled_percent": 1.11,
+            "sampled_self_seconds": 0.01,
+            "symbol": "sox_write_sdw_samples"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "update_status"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "balance_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_drain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_observe_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "sox_read_wide"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_flow"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_message"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "str_time"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_file_info"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_adapter_destroy"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_boundary"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_publish"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "init_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "is_pseudo_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_gopts_and_fopts"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "cleanup"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "close_output_checked"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_start"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_stop"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "delete_eff_chains"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_SoX_version"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_plan_output"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_prepare_explicit_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_validate_destination"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "free_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "ostart"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_effects"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_options_and_filenames"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "preflight_dsd"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "process"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "progress_to_next_input_file"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 0.9
+      },
+      "profile_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/384k-44k-v/gmon.14"
+      ],
+      "quality": "-v",
+      "wall_seconds": 1.1192135530000087
+    },
+    {
+      "audio_seconds": 90,
+      "channels": 2,
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "-D",
+        "-V4",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "352800",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/352k-44k-v/input.s32",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "44100",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/352k-44k-v/output.s32",
+        "rate",
+        "-v",
+        "44100"
+      ],
+      "cpu_seconds": 0.908326,
+      "environment": {
+        "GMON_OUT_PREFIX": "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/352k-44k-v/gmon",
+        "LC_ALL": "C",
+        "OMP_NUM_THREADS": "1",
+        "SOX_OPTS": ""
+      },
+      "input_hz": 352800,
+      "input_sha256": "feac4c794ab08f4d8519678dc4fe2f42417ab5a139034fe0195a1f4ef429b48d",
+      "name": "352k-44k-v",
+      "output_hz": 44100,
+      "output_sha256": "d624e53c3bd7b5bbc9f6d5c0b9223789abf158b56746fba9c5ffb5c38027c01c",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 36.05,
+            "sampled_self_seconds": 0.31,
+            "symbol": "h12"
+          },
+          {
+            "sampled_percent": 11.63,
+            "sampled_self_seconds": 0.1,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 11.63,
+            "sampled_self_seconds": 0.1,
+            "symbol": "lsx_read_dw_buf"
+          },
+          {
+            "sampled_percent": 10.47,
+            "sampled_self_seconds": 0.09,
+            "symbol": "sox_read_sdw_samples"
+          },
+          {
+            "sampled_percent": 6.98,
+            "sampled_self_seconds": 0.06,
+            "symbol": "sox_flow_effects"
+          },
+          {
+            "sampled_percent": 6.98,
+            "sampled_self_seconds": 0.06,
+            "symbol": "stop_rate"
+          },
+          {
+            "sampled_percent": 4.65,
+            "sampled_self_seconds": 0.04,
+            "symbol": "cftfsub"
+          },
+          {
+            "sampled_percent": 4.65,
+            "sampled_self_seconds": 0.04,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 3.49,
+            "sampled_self_seconds": 0.03,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 2.33,
+            "sampled_self_seconds": 0.02,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 1.16,
+            "sampled_self_seconds": 0.01,
+            "symbol": "cftbsub"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "update_status"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "balance_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_drain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_observe_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "sox_read_wide"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_flow"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_message"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "str_time"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_file_info"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_adapter_destroy"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_boundary"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_publish"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "init_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "is_pseudo_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_gopts_and_fopts"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "cleanup"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "close_output_checked"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_start"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_stop"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "delete_eff_chains"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_SoX_version"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_plan_output"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_prepare_explicit_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_validate_destination"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "free_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "ostart"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_effects"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_options_and_filenames"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "preflight_dsd"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "process"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "progress_to_next_input_file"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 0.86
+      },
+      "profile_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/352k-44k-v/gmon.16"
+      ],
+      "quality": "-v",
+      "wall_seconds": 0.9193363330000466
+    },
+    {
+      "audio_seconds": 90,
+      "channels": 2,
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "-D",
+        "-V4",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "384000",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/384k-48k-m/input.s32",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "48000",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/384k-48k-m/output.s32",
+        "rate",
+        "-m",
+        "48000"
+      ],
+      "cpu_seconds": 0.9238860000000004,
+      "environment": {
+        "GMON_OUT_PREFIX": "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/384k-48k-m/gmon",
+        "LC_ALL": "C",
+        "OMP_NUM_THREADS": "1",
+        "SOX_OPTS": ""
+      },
+      "input_hz": 384000,
+      "input_sha256": "1bc62cfec481b42c1df9794fd2d772e0322e489f20edbe27f1863fd84745ffc0",
+      "name": "384k-48k-m",
+      "output_hz": 48000,
+      "output_sha256": "02e324a41c69484fc1b5b8b418d3d159a2b89e48a5c1b9c5e5f1663026218e26",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 30.49,
+            "sampled_self_seconds": 0.25,
+            "symbol": "h8"
+          },
+          {
+            "sampled_percent": 12.2,
+            "sampled_self_seconds": 0.1,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 10.98,
+            "sampled_self_seconds": 0.09,
+            "symbol": "lsx_read_dw_buf"
+          },
+          {
+            "sampled_percent": 9.76,
+            "sampled_self_seconds": 0.08,
+            "symbol": "sox_flow_effects"
+          },
+          {
+            "sampled_percent": 8.54,
+            "sampled_self_seconds": 0.07,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 7.32,
+            "sampled_self_seconds": 0.06,
+            "symbol": "sox_read_sdw_samples"
+          },
+          {
+            "sampled_percent": 7.32,
+            "sampled_self_seconds": 0.06,
+            "symbol": "stop_rate"
+          },
+          {
+            "sampled_percent": 3.66,
+            "sampled_self_seconds": 0.03,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 3.66,
+            "sampled_self_seconds": 0.03,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 2.44,
+            "sampled_self_seconds": 0.02,
+            "symbol": "cftfsub"
+          },
+          {
+            "sampled_percent": 2.44,
+            "sampled_self_seconds": 0.02,
+            "symbol": "lsx_write_dw_buf"
+          },
+          {
+            "sampled_percent": 1.22,
+            "sampled_self_seconds": 0.01,
+            "symbol": "dft_stage_fn"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "update_status"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "balance_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_drain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_observe_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "sox_read_wide"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_flow"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_message"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "str_time"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_file_info"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_adapter_destroy"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_boundary"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_publish"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "init_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "is_pseudo_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_gopts_and_fopts"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "cleanup"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "close_output_checked"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_start"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_stop"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "delete_eff_chains"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_SoX_version"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_plan_output"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_prepare_explicit_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_validate_destination"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "free_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "ostart"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_effects"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_options_and_filenames"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "preflight_dsd"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "process"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "progress_to_next_input_file"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 0.82
+      },
+      "profile_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/384k-48k-m/gmon.18"
+      ],
+      "quality": "-m",
+      "wall_seconds": 0.9675369429999705
+    },
+    {
+      "audio_seconds": 300,
+      "channels": 2,
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "-D",
+        "-V4",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "44100",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/44k-48k-v/input.s32",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "48000",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/44k-48k-v/output.s32",
+        "rate",
+        "-v",
+        "48000"
+      ],
+      "cpu_seconds": 1.5777939999999997,
+      "environment": {
+        "GMON_OUT_PREFIX": "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/44k-48k-v/gmon",
+        "LC_ALL": "C",
+        "OMP_NUM_THREADS": "1",
+        "SOX_OPTS": ""
+      },
+      "input_hz": 44100,
+      "input_sha256": "c7ad3c3b0450aa3a70bb168e5a474a4e427272c3126c7df2eb01a074a3fe2d98",
+      "name": "44k-48k-v",
+      "output_hz": 48000,
+      "output_sha256": "8ba83a0eb9cfd8489bfc8eafbb98d1dceea7c8c30cc421fc5641f574b3dada08",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 50.0,
+            "sampled_self_seconds": 0.64,
+            "symbol": "vpoly0"
+          },
+          {
+            "sampled_percent": 13.28,
+            "sampled_self_seconds": 0.17,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 10.16,
+            "sampled_self_seconds": 0.13,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 6.25,
+            "sampled_self_seconds": 0.08,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 4.69,
+            "sampled_self_seconds": 0.06,
+            "symbol": "dft_stage_fn"
+          },
+          {
+            "sampled_percent": 3.91,
+            "sampled_self_seconds": 0.05,
+            "symbol": "cftbsub"
+          },
+          {
+            "sampled_percent": 3.12,
+            "sampled_self_seconds": 0.04,
+            "symbol": "cftfsub"
+          },
+          {
+            "sampled_percent": 2.34,
+            "sampled_self_seconds": 0.03,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 2.34,
+            "sampled_self_seconds": 0.03,
+            "symbol": "sox_read_sdw_samples"
+          },
+          {
+            "sampled_percent": 1.56,
+            "sampled_self_seconds": 0.02,
+            "symbol": "sox_write_sdw_samples"
+          },
+          {
+            "sampled_percent": 0.78,
+            "sampled_self_seconds": 0.01,
+            "symbol": "lsx_read_dw_buf"
+          },
+          {
+            "sampled_percent": 0.78,
+            "sampled_self_seconds": 0.01,
+            "symbol": "lsx_save_samples"
+          },
+          {
+            "sampled_percent": 0.78,
+            "sampled_self_seconds": 0.01,
+            "symbol": "lsx_write_dw_buf"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "update_status"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_flow"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "balance_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_drain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_observe_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "sox_read_wide"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_message"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "str_time"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_file_info"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_adapter_destroy"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_boundary"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_publish"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "init_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "is_pseudo_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_gopts_and_fopts"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "cleanup"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "close_output_checked"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_start"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_stop"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "delete_eff_chains"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_SoX_version"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_plan_output"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_prepare_explicit_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_validate_destination"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "free_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "ostart"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_effects"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_options_and_filenames"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "preflight_dsd"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "process"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "progress_to_next_input_file"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 1.28
+      },
+      "profile_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/44k-48k-v/gmon.20"
+      ],
+      "quality": "-v",
+      "wall_seconds": 1.6178802079999741
+    },
+    {
+      "audio_seconds": 300,
+      "channels": 2,
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "-D",
+        "-V4",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "48000",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/48k-44k-l/input.s32",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "44100",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/48k-44k-l/output.s32",
+        "rate",
+        "-l",
+        "44100"
+      ],
+      "cpu_seconds": 0.9797600000000011,
+      "environment": {
+        "GMON_OUT_PREFIX": "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/48k-44k-l/gmon",
+        "LC_ALL": "C",
+        "OMP_NUM_THREADS": "1",
+        "SOX_OPTS": ""
+      },
+      "input_hz": 48000,
+      "input_sha256": "e437ee7b7c610c65f139748232a90dc2d5541aa9071878b875bc477cc1847e43",
+      "name": "48k-44k-l",
+      "output_hz": 44100,
+      "output_sha256": "bcb3032962d0eaad4484818b2501d97e37b41ab590f832d79db4a835493f427f",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 25.3,
+            "sampled_self_seconds": 0.21,
+            "symbol": "vpoly0"
+          },
+          {
+            "sampled_percent": 18.07,
+            "sampled_self_seconds": 0.15,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 13.25,
+            "sampled_self_seconds": 0.11,
+            "symbol": "cftfsub"
+          },
+          {
+            "sampled_percent": 10.84,
+            "sampled_self_seconds": 0.09,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 6.02,
+            "sampled_self_seconds": 0.05,
+            "symbol": "lsx_write_dw_buf"
+          },
+          {
+            "sampled_percent": 4.82,
+            "sampled_self_seconds": 0.04,
+            "symbol": "dft_stage_fn"
+          },
+          {
+            "sampled_percent": 4.82,
+            "sampled_self_seconds": 0.04,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 4.82,
+            "sampled_self_seconds": 0.04,
+            "symbol": "sox_flow_effects"
+          },
+          {
+            "sampled_percent": 4.82,
+            "sampled_self_seconds": 0.04,
+            "symbol": "sox_read_sdw_samples"
+          },
+          {
+            "sampled_percent": 2.41,
+            "sampled_self_seconds": 0.02,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 1.2,
+            "sampled_self_seconds": 0.01,
+            "symbol": "cftbsub"
+          },
+          {
+            "sampled_percent": 1.2,
+            "sampled_self_seconds": 0.01,
+            "symbol": "lsx_fifo_read"
+          },
+          {
+            "sampled_percent": 1.2,
+            "sampled_self_seconds": 0.01,
+            "symbol": "lsx_save_samples"
+          },
+          {
+            "sampled_percent": 1.2,
+            "sampled_self_seconds": 0.01,
+            "symbol": "sox_write_sdw_samples"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "update_status"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_flow"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "balance_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_drain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_observe_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "sox_read_wide"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_message"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "str_time"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_file_info"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_adapter_destroy"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_boundary"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_publish"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "init_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "is_pseudo_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_gopts_and_fopts"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "cleanup"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "close_output_checked"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_start"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_stop"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "delete_eff_chains"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_SoX_version"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_plan_output"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_prepare_explicit_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_validate_destination"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "free_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "ostart"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_effects"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_options_and_filenames"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "preflight_dsd"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "process"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "progress_to_next_input_file"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 0.83
+      },
+      "profile_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/48k-44k-l/gmon.22"
+      ],
+      "quality": "-l",
+      "wall_seconds": 1.0199069759999588
+    },
+    {
+      "audio_seconds": 60,
+      "channels": 2,
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "-D",
+        "-V4",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "48000",
+        "-c",
+        "2",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/48k-384k-v/input.s32",
+        "-t",
+        "s32",
+        "-L",
+        "-r",
+        "384000",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/48k-384k-v/output.s32",
+        "rate",
+        "-v",
+        "384000"
+      ],
+      "cpu_seconds": 0.616653,
+      "environment": {
+        "GMON_OUT_PREFIX": "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/48k-384k-v/gmon",
+        "LC_ALL": "C",
+        "OMP_NUM_THREADS": "1",
+        "SOX_OPTS": ""
+      },
+      "input_hz": 48000,
+      "input_sha256": "27c10389b46a644db9e0375e23286ec4e8994b9fca33c7618c5a30653c356100",
+      "name": "48k-384k-v",
+      "output_hz": 384000,
+      "output_sha256": "31ba3a65c9edf25e22f61a22d699b534f925f25fa38d4772feeab6f0eb87dbc4",
+      "profile": {
+        "caveat": "statistical samples; adjacent symbols may share histogram bins; absence of samples is not proof that a function did not run",
+        "denominator": "sampled executable CPU time, not total wall time; shared libraries and kernel time are not attributed",
+        "functions": [
+          {
+            "sampled_percent": 28.89,
+            "sampled_self_seconds": 0.13,
+            "symbol": "cftmdl"
+          },
+          {
+            "sampled_percent": 15.56,
+            "sampled_self_seconds": 0.07,
+            "symbol": "cft1st"
+          },
+          {
+            "sampled_percent": 15.56,
+            "sampled_self_seconds": 0.07,
+            "symbol": "dft_stage_fn"
+          },
+          {
+            "sampled_percent": 11.11,
+            "sampled_self_seconds": 0.05,
+            "symbol": "cftfsub"
+          },
+          {
+            "sampled_percent": 8.89,
+            "sampled_self_seconds": 0.04,
+            "symbol": "lsx_rdft"
+          },
+          {
+            "sampled_percent": 4.44,
+            "sampled_self_seconds": 0.02,
+            "symbol": "cftbsub"
+          },
+          {
+            "sampled_percent": 4.44,
+            "sampled_self_seconds": 0.02,
+            "symbol": "lsx_write_dw_buf"
+          },
+          {
+            "sampled_percent": 4.44,
+            "sampled_self_seconds": 0.02,
+            "symbol": "sox_flow_effects"
+          },
+          {
+            "sampled_percent": 2.22,
+            "sampled_self_seconds": 0.01,
+            "symbol": "lsx_load_samples"
+          },
+          {
+            "sampled_percent": 2.22,
+            "sampled_self_seconds": 0.01,
+            "symbol": "lsx_save_samples"
+          },
+          {
+            "sampled_percent": 2.22,
+            "sampled_self_seconds": 0.01,
+            "symbol": "sox_write_sdw_samples"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "update_status"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_flow"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "balance_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_drain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_observe_input"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "sox_read_wide"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "output_message"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "str_time"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_file_info"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_adapter_destroy"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_insert_boundary"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_publish"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "init_file"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "is_pseudo_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_gopts_and_fopts"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "add_effect"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "cleanup"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "close_output_checked"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_start"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "combiner_stop"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "delete_eff_chains"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "display_SoX_version"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_plan_output"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_prepare_explicit_encoder"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "dsd_report_validate_destination"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "free_eff_chain"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "ostart"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_effects"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "parse_options_and_filenames"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "preflight_dsd"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "process"
+          },
+          {
+            "sampled_percent": 0.0,
+            "sampled_self_seconds": 0.0,
+            "symbol": "progress_to_next_input_file"
+          }
+        ],
+        "sample_period_seconds": 0.01,
+        "sampled_executable_seconds": 0.45
+      },
+      "profile_command": [
+        "gprof",
+        "-b",
+        "-p",
+        "/workspace/scratch/4dd8292178b8/build-baseline/sox_dsd_profile",
+        "/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/48k-384k-v/gmon.24"
+      ],
+      "quality": "-v",
+      "wall_seconds": 0.6677759519999995
+    }
+  ],
+  "host": {
+    "affinity": [
+      0
+    ],
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "cpu_vendor": "AuthenticAMD",
+    "governor_and_boost": "not changed by this tool; record externally",
+    "hypervisor_flag_observed": true,
+    "io": "input and WAV output included; filesystem is the selected results directory",
+    "machine": "x86_64",
+    "microcode": "0x1000065",
+    "physical_host_status": "not established by this tool",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39"
+  },
+  "qualification": "local virtual-machine source attribution; no physical gate",
+  "schema": "src-optimization/baseline-attribution/1"
+}

@@ -1,0 +1,37 @@
+{
+  "name": "pair2",
+  "commands": [
+    [
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+      "-I/workspace/scratch/4dd8292178b8/screen-variants/pair2/src",
+      "-c",
+      "/workspace/scratch/4dd8292178b8/screen-variants/pair2/src/rate.c",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/screen-variants/pair2/src__rate.c.o"
+    ],
+    [
+      "ar",
+      "rcs",
+      "/workspace/scratch/4dd8292178b8/screen-variants/pair2/libsox_ng.a",
+      "/workspace/scratch/4dd8292178b8/screen-variants/pair2/src__rate.c.o"
+    ],
+    [
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+      "-I/workspace/scratch/4dd8292178b8/screen-variants/pair2/src",
+      "/workspace/scratch/4dd8292178b8/sox_ng/src/sox_ng.c",
+      "/workspace/scratch/4dd8292178b8/screen-variants/pair2/libsox_ng.a",
+      "-lm",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/screen-variants/pair2/sox_ng"
+    ]
+  ],
+  "binary_sha256": "a26befa05971e16a548f91c51eb53ed40a8c4e6eb3f64027e9513b3405cdea68"
+}

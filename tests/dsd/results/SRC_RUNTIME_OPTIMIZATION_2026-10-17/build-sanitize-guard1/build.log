@@ -1,0 +1,42 @@
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c: In function ‘mod_loadsamples’:
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c:234:17: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  234 |                 fread(_Sample[0][i],1,_ModuleHead.Sample[i].Size,ft->fp);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c: In function ‘mod_loadmodule’:
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c:265:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  265 |     fread(Buffer,1,sizeof(_ModuleHead),ft->fp);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/scratch/4dd8292178b8/sox_ng/src/mod.c:295:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  295 |     fread(_Pattern,sizeof(*_Pattern)*NumPatterns-AlreadyRead,1,ft->fp);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/scratch/4dd8292178b8/sox_ng/src/libsox_i.c: In function ‘lsx_tmpfile’:
+/workspace/scratch/4dd8292178b8/sox_ng/src/libsox_i.c:140:43: warning: ‘%s’ directive argument is null [-Wformat-overflow=]
+  140 |     lsx_debug(FAKE_MKSTEMP "mkstemp, name=%s (unlinked)", name);
+      |                                           ^~
+In file included from /usr/include/stdio.h:980,
+                 from /workspace/scratch/4dd8292178b8/sox_ng/src/util.h:20,
+                 from /workspace/scratch/4dd8292178b8/sox_ng/src/sox_i.h:23,
+                 from /workspace/scratch/4dd8292178b8/sox_ng/src/saturation.c:18:
+In function ‘sprintf’,
+    inlined from ‘set_saturation’ at /workspace/scratch/4dd8292178b8/sox_ng/src/saturation.c:188:5:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: warning: null destination pointer [-Wformat-overflow=]
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+In file included from /usr/include/stdio.h:980,
+                 from /workspace/scratch/4dd8292178b8/sox_ng/src/dsd.h:11,
+                 from /workspace/scratch/4dd8292178b8/sox_ng/src/sox_ng.c:27:
+In function ‘sprintf’,
+    inlined from ‘fndup_with_count’ at /workspace/scratch/4dd8292178b8/sox_ng/src/sox_ng.c:2085:9,
+    inlined from ‘open_output_file’ at /workspace/scratch/4dd8292178b8/sox_ng/src/sox_ng.c:2341:17:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: warning: null destination pointer [-Wformat-overflow=]
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: warning: null destination pointer [-Wformat-overflow=]

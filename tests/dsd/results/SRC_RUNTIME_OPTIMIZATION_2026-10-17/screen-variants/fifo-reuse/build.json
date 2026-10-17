@@ -1,0 +1,37 @@
+{
+  "name": "fifo-reuse",
+  "commands": [
+    [
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+      "-I/workspace/scratch/4dd8292178b8/screen-variants/fifo-reuse/src",
+      "-c",
+      "/workspace/scratch/4dd8292178b8/screen-variants/fifo-reuse/src/fifo.c",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/screen-variants/fifo-reuse/src__fifo.c.o"
+    ],
+    [
+      "ar",
+      "rcs",
+      "/workspace/scratch/4dd8292178b8/screen-variants/fifo-reuse/libsox_ng.a",
+      "/workspace/scratch/4dd8292178b8/screen-variants/fifo-reuse/src__fifo.c.o"
+    ],
+    [
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+      "-I/workspace/scratch/4dd8292178b8/screen-variants/fifo-reuse/src",
+      "/workspace/scratch/4dd8292178b8/sox_ng/src/sox_ng.c",
+      "/workspace/scratch/4dd8292178b8/screen-variants/fifo-reuse/libsox_ng.a",
+      "-lm",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/screen-variants/fifo-reuse/sox_ng"
+    ]
+  ],
+  "binary_sha256": "15e0ea19a02d230a99da35c2cdf0230751676919b7f37dfe8223546f8a870355"
+}

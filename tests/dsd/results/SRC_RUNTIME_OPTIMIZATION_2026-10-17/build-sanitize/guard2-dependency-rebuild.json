@@ -1,0 +1,81 @@
+{
+  "header_before": "c0930b64c37267c6e5ac3e651477be14392987dc16dd5d0b6633937345c31753",
+  "header_after": "c1626c26f7ba8d64f2b69752906948b527923745313d13c41f78c47046552591",
+  "commands": [
+    [
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-DLSX_RATE_ORDERED_OPT=1",
+      "-I/workspace/scratch/4dd8292178b8/build-sanitize/src",
+      "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+      "-c",
+      "/workspace/scratch/4dd8292178b8/sox_ng/src/rate.c",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/obj/src__rate.c.o"
+    ],
+    [
+      "ar",
+      "r",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/libsox_ng.a",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/obj/src__rate.c.o"
+    ],
+    [
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-DLSX_RATE_ORDERED_OPT=1",
+      "-I/workspace/scratch/4dd8292178b8/build-sanitize/src",
+      "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/obj/src__sox_ng.c.o",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/libsox_ng.a",
+      "-lm",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/sox_ng"
+    ],
+    [
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-DLSX_RATE_ORDERED_OPT=1",
+      "-I/workspace/scratch/4dd8292178b8/build-sanitize/src",
+      "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/obj/src__sox_ng.c.o",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/libsox_ng.a",
+      "-lm",
+      "-pg",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/sox_dsd_profile_linkonly"
+    ],
+    [
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-DLSX_RATE_ORDERED_OPT=1",
+      "-I/workspace/scratch/4dd8292178b8/build-sanitize/src",
+      "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+      "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_src_optimization.c",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/libsox_ng.a",
+      "-lm",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/build-sanitize/test/dsd_test_src_optimization"
+    ]
+  ],
+  "binaries": {
+    "sox_ng": "f1b3e9edb9e5094a21b518c3b681661f34efbafd68b73e35419fcccd5cc36641",
+    "sox_dsd_profile_linkonly": "3ce17c6729ddd551e7b82cbf7bb69a3281a02796e7c141bdceda24eb73ed1683",
+    "test/dsd_test_src_optimization": "ce0c254611a043ce38708bf0ad0b81288a8b1aead6f0bee72dd7e95ade295b8b"
+  }
+}

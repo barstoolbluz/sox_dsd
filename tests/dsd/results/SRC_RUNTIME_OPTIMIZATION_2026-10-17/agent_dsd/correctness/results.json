@@ -1,0 +1,215 @@
+{
+  "schema": "production-src-opt/functional-configurations/1",
+  "source_sha256": "01daf4e39b151f63eb579b8e5dea329eb262c068b652352e6d1b749ccee01215",
+  "production_header_sha256": "c0930b64c37267c6e5ac3e651477be14392987dc16dd5d0b6633937345c31753",
+  "library_sha256": "016039ad2daaf0520ba16a3ed790d093b047ddd7831e7081f3918d117df765be",
+  "scope": "Real production rate.c test translation unit; supporting baseline static library. ASan/UBSan instruments the test and included rate.c, not all linked library objects.",
+  "runs": [
+    {
+      "name": "gcc-default",
+      "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "compile_command": [
+        "taskset",
+        "-c",
+        "4",
+        "gcc",
+        "-g",
+        "-ffp-contract=off",
+        "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+        "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+        "-O2",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_src_optimization.c",
+        "/workspace/scratch/4dd8292178b8/build-baseline/libsox_ng.a",
+        "-lm",
+        "-o",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-default"
+      ],
+      "compile_exit": 0,
+      "run_command": [
+        "taskset",
+        "-c",
+        "4",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-default"
+      ],
+      "run_exit": 0,
+      "executable_sha256": "f4512fbcd27b9c737a49252059ff2ebc24026c86b328c0e6ad0690a17a1509dc",
+      "result": {
+        "schema": "production-src-opt/exact-regression/1",
+        "status": "PASS",
+        "checks": 768060,
+        "direct_cases": 53856,
+        "stream_cases": 288,
+        "api_cases": 50,
+        "sample_words_compared": 5409850,
+        "rounding_modes": 4,
+        "flt_eval_method": 0,
+        "effective_ordered": 0,
+        "ordered_opt": 0
+      }
+    },
+    {
+      "name": "gcc-ordered",
+      "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "compile_command": [
+        "taskset",
+        "-c",
+        "4",
+        "gcc",
+        "-g",
+        "-ffp-contract=off",
+        "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+        "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+        "-O2",
+        "-DLSX_RATE_ORDERED_OPT=1",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_src_optimization.c",
+        "/workspace/scratch/4dd8292178b8/build-baseline/libsox_ng.a",
+        "-lm",
+        "-o",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-ordered"
+      ],
+      "compile_exit": 0,
+      "run_command": [
+        "taskset",
+        "-c",
+        "4",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-ordered"
+      ],
+      "run_exit": 0,
+      "executable_sha256": "5550ac2256a6a27956fcfef8d72eeedf85ea0c23c11d48be3bf7c1d7e42758d1",
+      "result": {
+        "schema": "production-src-opt/exact-regression/1",
+        "status": "PASS",
+        "checks": 768060,
+        "direct_cases": 53856,
+        "stream_cases": 288,
+        "api_cases": 50,
+        "sample_words_compared": 5409850,
+        "rounding_modes": 4,
+        "flt_eval_method": 0,
+        "effective_ordered": 1,
+        "ordered_opt": 1
+      }
+    },
+    {
+      "name": "gcc-ordered-o3",
+      "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "compile_command": [
+        "taskset",
+        "-c",
+        "4",
+        "gcc",
+        "-g",
+        "-ffp-contract=off",
+        "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+        "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+        "-O3",
+        "-DLSX_RATE_ORDERED_OPT=1",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_src_optimization.c",
+        "/workspace/scratch/4dd8292178b8/build-baseline/libsox_ng.a",
+        "-lm",
+        "-o",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-ordered-o3"
+      ],
+      "compile_exit": 0,
+      "run_command": [
+        "taskset",
+        "-c",
+        "4",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-ordered-o3"
+      ],
+      "run_exit": 0,
+      "executable_sha256": "6d0fa5196237411782db30a9f1f3244ac03dd2cb2d966431f5c21661625f4207",
+      "result": {
+        "schema": "production-src-opt/exact-regression/1",
+        "status": "PASS",
+        "checks": 768060,
+        "direct_cases": 53856,
+        "stream_cases": 288,
+        "api_cases": 50,
+        "sample_words_compared": 5409850,
+        "rounding_modes": 4,
+        "flt_eval_method": 0,
+        "effective_ordered": 1,
+        "ordered_opt": 1
+      }
+    },
+    {
+      "name": "gcc-x87-fallback",
+      "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "compile_command": [
+        "taskset",
+        "-c",
+        "4",
+        "gcc",
+        "-g",
+        "-ffp-contract=off",
+        "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+        "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+        "-O2",
+        "-DLSX_RATE_ORDERED_OPT=1",
+        "-mfpmath=387",
+        "-fexcess-precision=standard",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_src_optimization.c",
+        "/workspace/scratch/4dd8292178b8/build-baseline/libsox_ng.a",
+        "-lm",
+        "-o",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-x87-fallback"
+      ],
+      "compile_exit": 0,
+      "run_command": [
+        "taskset",
+        "-c",
+        "4",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-x87-fallback"
+      ],
+      "run_exit": 0,
+      "executable_sha256": "396c30e1d919c25d2ad9f7f648c933e73ce7ce5b7b28c524d07bb76d7d33bc7d",
+      "result": {
+        "schema": "production-src-opt/exact-regression/1",
+        "status": "PASS",
+        "checks": 768060,
+        "direct_cases": 53856,
+        "stream_cases": 288,
+        "api_cases": 50,
+        "sample_words_compared": 5409850,
+        "rounding_modes": 4,
+        "flt_eval_method": 2,
+        "effective_ordered": 0,
+        "ordered_opt": 1
+      }
+    },
+    {
+      "name": "gcc-asan-ubsan",
+      "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "compile_command": [
+        "taskset",
+        "-c",
+        "4",
+        "gcc",
+        "-g",
+        "-ffp-contract=off",
+        "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+        "-I/workspace/scratch/4dd8292178b8/sox_ng/src",
+        "-O1",
+        "-DLSX_RATE_ORDERED_OPT=1",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_src_optimization.c",
+        "/workspace/scratch/4dd8292178b8/build-baseline/libsox_ng.a",
+        "-lm",
+        "-o",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-asan-ubsan"
+      ],
+      "compile_exit": 0,
+      "run_command": [
+        "taskset",
+        "-c",
+        "4",
+        "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-asan-ubsan"
+      ],
+      "run_exit": 1,
+      "executable_sha256": "4a9b8914ea118c283339609ce66fd4cac6045cb37a07f289545f1e9f0ba59066",
+      "error_tail": "==41==Can't open /proc/40/task for reading.\n==40==LeakSanitizer has encountered a fatal error.\n==40==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1\n==40==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)\n"
+    }
+  ]
+}

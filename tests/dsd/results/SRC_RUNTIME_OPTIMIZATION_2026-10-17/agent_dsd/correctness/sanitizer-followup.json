@@ -1,0 +1,30 @@
+{
+  "schema": "production-src-opt/sanitizer-followup/1",
+  "utc": "2026-10-17T15:47:31.731384+00:00",
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "/workspace/scratch/4dd8292178b8/agent_dsd/correctness/gcc-asan-ubsan"
+  ],
+  "environment": {
+    "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  "executable_sha256": "4a9b8914ea118c283339609ce66fd4cac6045cb37a07f289545f1e9f0ba59066",
+  "exit": 0,
+  "scope": "ASan and UBSan for test translation unit and included real rate.c. Linked baseline library is not fully instrumented. Leak checks unavailable in this sandbox: original run could not read /proc task state at teardown. Original failure retained in results.json and gcc-asan-ubsan.run.log.",
+  "result": {
+    "schema": "production-src-opt/exact-regression/1",
+    "status": "PASS",
+    "checks": 768060,
+    "direct_cases": 53856,
+    "stream_cases": 288,
+    "api_cases": 50,
+    "sample_words_compared": 5409850,
+    "rounding_modes": 4,
+    "flt_eval_method": 0,
+    "effective_ordered": 1,
+    "ordered_opt": 1
+  }
+}

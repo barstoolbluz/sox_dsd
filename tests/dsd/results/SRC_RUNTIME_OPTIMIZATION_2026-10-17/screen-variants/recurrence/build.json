@@ -1,0 +1,37 @@
+{
+  "name": "recurrence",
+  "commands": [
+    [
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+      "-I/workspace/scratch/4dd8292178b8/screen-variants/recurrence/src",
+      "-c",
+      "/workspace/scratch/4dd8292178b8/screen-variants/recurrence/src/rate.c",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/screen-variants/recurrence/src__rate.c.o"
+    ],
+    [
+      "ar",
+      "rcs",
+      "/workspace/scratch/4dd8292178b8/screen-variants/recurrence/libsox_ng.a",
+      "/workspace/scratch/4dd8292178b8/screen-variants/recurrence/src__rate.c.o"
+    ],
+    [
+      "gcc",
+      "-O2",
+      "-g",
+      "-ffp-contract=off",
+      "-I/workspace/scratch/4dd8292178b8/build-baseline/src",
+      "-I/workspace/scratch/4dd8292178b8/screen-variants/recurrence/src",
+      "/workspace/scratch/4dd8292178b8/sox_ng/src/sox_ng.c",
+      "/workspace/scratch/4dd8292178b8/screen-variants/recurrence/libsox_ng.a",
+      "-lm",
+      "-o",
+      "/workspace/scratch/4dd8292178b8/screen-variants/recurrence/sox_ng"
+    ]
+  ],
+  "binary_sha256": "9e67fb76e55ed1b863f703ee6538d25c06229a3b29830552a78db0702e0c9f15"
+}

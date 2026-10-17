@@ -1,0 +1,45 @@
+sox_dsd_profile:      SoX_ng v14.8.0+git
+uname:    Linux 82f2ee412ddd 6.18.55 #1 SMP Wed Oct 14 19:45:18 UTC 2026 x86_64
+compiler: gcc 13.3.0
+arch:     1288 48 88 L 
+
+Input File     : '/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/384k-44k-v/input.s32'
+Channels       : 2
+Sample Rate    : 384000
+Precision      : 32-bit
+Duration       : 00:01:30.00 = 34560000 samples ~ 6750 CDDA sectors
+File Size      : 276M
+Bit Rate       : 24.6M
+Sample Encoding: 32-bit Signed Integer PCM
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+
+
+Output File    : '/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/384k-44k-v/output.s32'
+Channels       : 2
+Sample Rate    : 44100
+Precision      : 32-bit
+Duration       : 00:01:30.00 = 3969000 samples = 6750 CDDA sectors
+Sample Encoding: 32-bit Signed Integer PCM
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+Comment        : 'Processed by SoX'
+
+sox_dsd_profile DBUG effects_i_dsp: make_lpf(n=637 Fc=0.43905 beta=20.187 rho=0.5 dc-norm=0 scale=1)
+sox_dsd_profile DBUG rate: fir_len=637 dft_length=4096 Fp=0.91151 Fs=1 Fn=2.17687 att=190.16 1/1
+sox_dsd_profile DBUG effects_i_dsp: make_lpf(n=2939 Fc=0.005947939 beta=19.6063 rho=0.75 dc-norm=0 scale=147)
+sox_dsd_profile DBUG rate: fir_len=20 phases=147 coef_interp=0 size=23.5k
+sox_dsd_profile DBUG rate:    24|24    preload=24 remL=0
+sox_dsd_profile DBUG rate:    24|24    preload=24 remL=0
+sox_dsd_profile DBUG rate:     0|0     preload=318 remL=0
+sox_dsd_profile DBUG rate:     0|19    preload=9 remL=0
+sox_dsd_profile DBUG rate:    24|24    preload=24 remL=0
+sox_dsd_profile DBUG rate:    24|24    preload=24 remL=0
+sox_dsd_profile DBUG rate:     0|0     preload=318 remL=0
+sox_dsd_profile DBUG rate:     0|19    preload=9 remL=0
+sox_dsd_profile INFO sox_ng: effects chain: input       384000Hz  2 channels (multi) 32 bits 00:01:30.00
+sox_dsd_profile INFO sox_ng: effects chain: rate         44100Hz  2 channels         32 bits 00:01:30.00
+sox_dsd_profile INFO sox_ng: effects chain: output       44100Hz  2 channels (multi) 32 bits 00:01:30.00
+sox_dsd_profile DBUG sox_ng: start-up time = 0.000983

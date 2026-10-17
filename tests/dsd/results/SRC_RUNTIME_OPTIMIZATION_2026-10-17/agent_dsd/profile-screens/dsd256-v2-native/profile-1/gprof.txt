@@ -1,0 +1,47 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  Ts/call  Ts/call  name    
+ 45.19      0.94     0.94                             lsx_dsd_fir_halfband57
+ 29.33      1.55     0.61                             accept_frame_sse2
+ 11.54      1.79     0.24                             lsx_dsd_reconstruction_process
+  5.77      1.91     0.12                             dsf_read
+  5.29      2.02     0.11                             lsx_dsd_fir_sse2_direct
+  0.96      2.04     0.02                             lsx_rate_f64_process
+  0.48      2.05     0.01                             lsx_read_b_buf
+  0.48      2.06     0.01                             pcm_convert
+  0.48      2.07     0.01                             push_mid
+  0.48      2.08     0.01                             sox_flow_effects
+  0.00      2.08     0.00    44105     0.00     0.00  update_status
+  0.00      2.08     0.00    11026     0.00     0.00  balance_input
+  0.00      2.08     0.00    11026     0.00     0.00  combiner_drain
+  0.00      2.08     0.00    11026     0.00     0.00  dsd_observe_input
+  0.00      2.08     0.00    11026     0.00     0.00  output_flow
+  0.00      2.08     0.00    11026     0.00     0.00  sox_read_wide
+  0.00      2.08     0.00        9     0.00     0.00  output_message
+  0.00      2.08     0.00        3     0.00     0.00  str_time
+  0.00      2.08     0.00        2     0.00     0.00  add_file
+  0.00      2.08     0.00        2     0.00     0.00  atexit_cleanup
+  0.00      2.08     0.00        2     0.00     0.00  dsd_adapter_destroy
+  0.00      2.08     0.00        2     0.00     0.00  dsd_insert_encoder
+  0.00      2.08     0.00        2     0.00     0.00  dsd_plan_output
+  0.00      2.08     0.00        2     0.00     0.00  dsd_report_publish
+  0.00      2.08     0.00        2     0.00     0.00  init_file
+  0.00      2.08     0.00        2     0.00     0.00  parse_gopts_and_fopts
+  0.00      2.08     0.00        1     0.00     0.00  add_eff_chain
+  0.00      2.08     0.00        1     0.00     0.00  add_effect
+  0.00      2.08     0.00        1     0.00     0.00  cleanup
+  0.00      2.08     0.00        1     0.00     0.00  close_output_checked
+  0.00      2.08     0.00        1     0.00     0.00  combiner_start
+  0.00      2.08     0.00        1     0.00     0.00  combiner_stop
+  0.00      2.08     0.00        1     0.00     0.00  delete_eff_chains
+  0.00      2.08     0.00        1     0.00     0.00  dsd_insert_boundary
+  0.00      2.08     0.00        1     0.00     0.00  enum_option
+  0.00      2.08     0.00        1     0.00     0.00  free_eff_chain
+  0.00      2.08     0.00        1     0.00     0.00  ostart
+  0.00      2.08     0.00        1     0.00     0.00  parse_effects
+  0.00      2.08     0.00        1     0.00     0.00  parse_options_and_filenames
+  0.00      2.08     0.00        1     0.00     0.00  preflight_dsd
+  0.00      2.08     0.00        1     0.00     0.00  process
+  0.00      2.08     0.00        1     0.00     0.00  progress_to_next_input_file

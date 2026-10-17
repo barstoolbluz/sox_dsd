@@ -1,0 +1,1970 @@
+{
+  "schema": "production-src-opt/real-fifo-summary/1",
+  "status": "COMPLETE-LOCAL-STAGE-BENCHMARK",
+  "qualification": "Local same-executable baseline/recurrence/paired comparison, no prepared-physical-host claim. Other agents performed work on other CPUs.",
+  "command": [
+    "taskset",
+    "-c",
+    "3",
+    "/workspace/scratch/4dd8292178b8/agent_dsd/test_src_optimization_opt",
+    "--benchmark"
+  ],
+  "affinity_during_invocation": [
+    3
+  ],
+  "host": {
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "cpu_vendor": "AuthenticAMD",
+    "microcode": "0x1000065",
+    "hypervisor_flag_observed": true,
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "physical_host_status": "not established by this tool",
+    "governor_and_boost": "not changed by this tool; record externally",
+    "io": "input and WAV output included; filesystem is the selected results directory"
+  },
+  "source_sha256": "01daf4e39b151f63eb579b8e5dea329eb262c068b652352e6d1b749ccee01215",
+  "production_header_sha256": "c0930b64c37267c6e5ac3e651477be14392987dc16dd5d0b6633937345c31753",
+  "executable_sha256": "5550ac2256a6a27956fcfef8d72eeedf85ea0c23c11d48be3bf7c1d7e42758d1",
+  "raw_sha256": "fed8ea640e9b8024e713705b8dee2bc2183094772e15461e74cf43e59f2320e7",
+  "raw_rows": 765,
+  "build_flags": [
+    "-O2",
+    "-g",
+    "-ffp-contract=off",
+    "-DLSX_RATE_ORDERED_OPT=1"
+  ],
+  "cases": [
+    {
+      "case": 0,
+      "taps": 11,
+      "L": 80,
+      "M": 147,
+      "num_in": 4096,
+      "iterations": 2560,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.047322481,
+            "mad": 0.0016576309999999997,
+            "min": 0.035942354,
+            "max": 0.058530501
+          },
+          "wall_seconds": {
+            "median": 0.047324045,
+            "mad": 0.001658020000000003,
+            "min": 0.035943531,
+            "max": 0.058532093
+          },
+          "output_samples_per_cpu_second": {
+            "median": 120595748.13924062,
+            "mad": 4377617.589542016,
+            "min": 97502838.7336032,
+            "max": 158778971.4608008
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 54096.91009226672,
+            "mad": 1963.7142172404856,
+            "min": 43737.87950320125,
+            "max": 71225.16238085018
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.039974822,
+            "mad": 0.006198706999999998,
+            "min": 0.025811469,
+            "max": 0.050523791
+          },
+          "wall_seconds": {
+            "median": 0.03998422,
+            "mad": 0.006190993999999998,
+            "min": 0.025812937,
+            "max": 0.050524815
+          },
+          "output_samples_per_cpu_second": {
+            "median": 142762111.61115363,
+            "mad": 19165537.478819057,
+            "min": 112954508.8966107,
+            "max": 221099000.60318148
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 64040.31017323855,
+            "mad": 8597.287830285291,
+            "min": 50669.19859596442,
+            "max": 99180.71691309007
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.027506906,
+            "mad": 0.000381318000000002,
+            "min": 0.026408138,
+            "max": 0.030585823
+          },
+          "wall_seconds": {
+            "median": 0.027508383,
+            "mad": 0.0003813580000000018,
+            "min": 0.026419361,
+            "max": 0.030599819
+          },
+          "output_samples_per_cpu_second": {
+            "median": 207471171.05791542,
+            "mad": 2916526.344257027,
+            "min": 186586118.67334744,
+            "max": 216103460.22881278
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 93067.53729408898,
+            "mad": 1308.2970657044352,
+            "min": 83698.90847795724,
+            "max": 96939.81453747326
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.7741302129726986,
+          "mad": 0.07575888446139922,
+          "min": 1.3538756125189055,
+          "max": 1.9136480649874943
+        },
+        "paired_median_bootstrap_ci95": [
+          1.6919767229881406,
+          1.8207363339116798
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 1.2283381459653553,
+          "mad": 0.15233866456320322,
+          "min": 0.9041125199809333,
+          "max": 1.5785988198974261
+        },
+        "paired_median_bootstrap_ci95": [
+          1.1838071724246828,
+          1.4510860918701098
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.4434092412905346,
+          "mad": 0.18866884779315263,
+          "min": 0.9722657119894746,
+          "max": 1.8171268474445137
+        },
+        "paired_median_bootstrap_ci95": [
+          1.254740393497382,
+          1.5764376445659216
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 1,
+      "taps": 18,
+      "L": 40,
+      "M": 147,
+      "num_in": 4096,
+      "iterations": 1280,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.011193048,
+            "mad": 1.670500000000054e-05,
+            "min": 0.011156003,
+            "max": 0.014609898
+          },
+          "wall_seconds": {
+            "median": 0.011193697,
+            "mad": 1.6625000000001014e-05,
+            "min": 0.011156321,
+            "max": 0.014610828
+          },
+          "output_samples_per_cpu_second": {
+            "median": 127507717.29023229,
+            "mad": 190582.59193848073,
+            "min": 97687198.08995244,
+            "max": 127931123.71877275
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 114356.69712128457,
+            "mad": 170.92609142464062,
+            "min": 87611.83685197528,
+            "max": 114736.43382849575
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.009684519,
+            "mad": 2.0601999999999773e-05,
+            "min": 0.009656779,
+            "max": 0.010965118
+          },
+          "wall_seconds": {
+            "median": 0.00968535,
+            "mad": 2.0219999999999613e-05,
+            "min": 0.009657378,
+            "max": 0.010965477
+          },
+          "output_samples_per_cpu_second": {
+            "median": 147369218.85330597,
+            "mad": 312834.9092005789,
+            "min": 130158198.02395196,
+            "max": 147792550.70453614
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 132169.7030074493,
+            "mad": 280.56942529202206,
+            "min": 116733.80988695243,
+            "max": 132549.37282918041
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.007912519,
+            "mad": 9.824999999999764e-06,
+            "min": 0.007887252,
+            "max": 0.007991558
+          },
+          "wall_seconds": {
+            "median": 0.007912999,
+            "mad": 1.0735999999999038e-05,
+            "min": 0.007887571,
+            "max": 0.007992567
+          },
+          "output_samples_per_cpu_second": {
+            "median": 180372394.6824014,
+            "mad": 223691.21787118912,
+            "min": 178588455.46763223,
+            "max": 180950221.95309594
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 161768.96384071873,
+            "mad": 200.61992634186754,
+            "min": 160169.01835662083,
+            "max": 162287.19457676765
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.4130730634964392,
+          "mad": 0.0028099347767236438,
+          "min": 1.4021516204975302,
+          "max": 1.8433365002100737
+        },
+        "paired_median_bootstrap_ci95": [
+          1.4112433488523628,
+          1.4158829982731629
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 1.155912962911132,
+          "mad": 0.00397108536409041,
+          "min": 1.0219111185123588,
+          "max": 1.4928651582867059
+        },
+        "paired_median_bootstrap_ci95": [
+          1.1519418775470416,
+          1.1609064885920153
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.2244340003039025,
+          "mad": 0.003547475055297733,
+          "min": 1.218099014315113,
+          "max": 1.3720876454879012
+        },
+        "paired_median_bootstrap_ci95": [
+          1.220980175074777,
+          1.2278424641459922
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 2,
+      "taps": 20,
+      "L": 80,
+      "M": 147,
+      "num_in": 4096,
+      "iterations": 1280,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.024826822,
+            "mad": 0.000685891999999997,
+            "min": 0.024108221,
+            "max": 0.028184505
+          },
+          "wall_seconds": {
+            "median": 0.02482796,
+            "mad": 0.000686163,
+            "min": 0.024108939,
+            "max": 0.028185933
+          },
+          "output_samples_per_cpu_second": {
+            "median": 114933961.34229344,
+            "mad": 3265503.218516767,
+            "min": 101241621.94794622,
+            "max": 118359832.52351968
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 51557.142513044964,
+            "mad": 1464.8413127645617,
+            "min": 45415.02502882347,
+            "max": 53093.92177879903
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.022113999,
+            "mad": 0.0006574089999999977,
+            "min": 0.021450971,
+            "max": 0.027557561
+          },
+          "wall_seconds": {
+            "median": 0.022115148,
+            "mad": 0.0006579100000000011,
+            "min": 0.02145155,
+            "max": 0.027558707
+          },
+          "output_samples_per_cpu_second": {
+            "median": 129033423.57933544,
+            "mad": 3953458.3063696027,
+            "min": 103544903.70174631,
+            "max": 133021717.2919585
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 57881.88739630494,
+            "mad": 1773.4446019296302,
+            "min": 46448.23248327382,
+            "max": 59670.95848481638
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.018307398,
+            "mad": 0.0006672039999999976,
+            "min": 0.017616729,
+            "max": 0.020605622
+          },
+          "wall_seconds": {
+            "median": 0.018308497,
+            "mad": 0.0006678360000000015,
+            "min": 0.017617206,
+            "max": 0.020606921
+          },
+          "output_samples_per_cpu_second": {
+            "median": 155862946.7715729,
+            "mad": 5895194.890587956,
+            "min": 138478954.9182257,
+            "max": 161973599.07165512
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 69917.09034784736,
+            "mad": 2644.4699161723984,
+            "min": 62118.969279354926,
+            "max": 72658.21027274699
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.3666641648045366,
+          "mad": 0.04711480272088209,
+          "min": 1.2436272003824975,
+          "max": 1.5178189115256135
+        },
+        "paired_median_bootstrap_ci95": [
+          1.3229075384578877,
+          1.409274554161244
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 1.0901791665994016,
+          "mad": 0.050884741478521844,
+          "min": 0.9948567505891975,
+          "max": 1.30859693950451
+        },
+        "paired_median_bootstrap_ci95": [
+          1.0558752649999237,
+          1.1372096556229514
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.2210934844941985,
+          "mad": 0.04909395511641512,
+          "min": 1.153384861244362,
+          "max": 1.4222964389017227
+        },
+        "paired_median_bootstrap_ci95": [
+          1.179491552799327,
+          1.3069520310860123
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 3,
+      "taps": 24,
+      "L": 160,
+      "M": 147,
+      "num_in": 4096,
+      "iterations": 640,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.031259557,
+            "mad": 0.00023898699999999953,
+            "min": 0.03102057,
+            "max": 0.045030384
+          },
+          "wall_seconds": {
+            "median": 0.031260567,
+            "mad": 0.00023936600000000127,
+            "min": 0.031021201,
+            "max": 0.045031577
+          },
+          "output_samples_per_cpu_second": {
+            "median": 91276693.3965187,
+            "mad": 703208.9714906514,
+            "min": 63363194.94854852,
+            "max": 91979902.36800936
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 20473.738639354357,
+            "mad": 157.73267145650243,
+            "min": 14212.62585724341,
+            "max": 20631.47131081086
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.028145727,
+            "mad": 0.00011644400000000027,
+            "min": 0.028029283,
+            "max": 0.035059549
+          },
+          "wall_seconds": {
+            "median": 0.028146422,
+            "mad": 0.00011632300000000151,
+            "min": 0.028030099,
+            "max": 0.035072063
+          },
+          "output_samples_per_cpu_second": {
+            "median": 101374855.23113331,
+            "mad": 421148.61241845787,
+            "min": 81383505.53225884,
+            "max": 101796003.84355177
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 22738.797971002845,
+            "mad": 94.46537005372375,
+            "min": 18254.655814311813,
+            "max": 22833.26334105657
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.0235841,
+            "mad": 0.00014234200000000016,
+            "min": 0.023441758,
+            "max": 0.028686283
+          },
+          "wall_seconds": {
+            "median": 0.023584919,
+            "mad": 0.00014250299999999869,
+            "min": 0.023442416,
+            "max": 0.028687409
+          },
+          "output_samples_per_cpu_second": {
+            "median": 120982738.37034273,
+            "mad": 734626.0013908148,
+            "min": 99464576.850197,
+            "max": 121717364.37173355
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 27136.92699742623,
+            "mad": 164.77964078750665,
+            "min": 22310.314654568527,
+            "max": 27301.70663821374
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.3266507998248256,
+          "mad": 0.008906387275692929,
+          "min": 1.2787472489059724,
+          "max": 1.5697531813375751
+        },
+        "paired_median_bootstrap_ci95": [
+          1.3222092163335508,
+          1.3511717750800292
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 1.108366820183712,
+          "mad": 0.009858538334646783,
+          "min": 0.970884365911267,
+          "max": 1.6020908477026932
+        },
+        "paired_median_bootstrap_ci95": [
+          1.105022213111825,
+          1.1182253585183588
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.1965928531006684,
+          "mad": 0.0020623263450820772,
+          "min": 0.9798153354340121,
+          "max": 1.3916917632223136
+        },
+        "paired_median_bootstrap_ci95": [
+          1.1945305267555864,
+          1.2038608552414516
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 4,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 4096,
+      "iterations": 640,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.024532283,
+            "mad": 0.0025123739999999978,
+            "min": 0.018721005,
+            "max": 0.031003665
+          },
+          "wall_seconds": {
+            "median": 0.024533813,
+            "mad": 0.002511526,
+            "min": 0.018721715,
+            "max": 0.031004775
+          },
+          "output_samples_per_cpu_second": {
+            "median": 58156959.95354367,
+            "mad": 5603450.130391277,
+            "min": 46017882.07942513,
+            "max": 76209744.0815811
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 26088.073417382315,
+            "mad": 2513.5980028712074,
+            "min": 20642.72078801006,
+            "max": 34186.198871267865
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.021922264,
+            "mad": 0.002337673000000002,
+            "min": 0.016125577,
+            "max": 0.028567045
+          },
+          "wall_seconds": {
+            "median": 0.02192359,
+            "mad": 0.0023269799999999993,
+            "min": 0.016126494,
+            "max": 0.028568352
+          },
+          "output_samples_per_cpu_second": {
+            "median": 65081006.2318381,
+            "mad": 7688770.218544416,
+            "min": 49942967.49978866,
+            "max": 88475779.8124061
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 29194.064992557338,
+            "mad": 3449.0317601022944,
+            "min": 22403.437247359678,
+            "max": 39688.502309095675
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.014126168,
+            "mad": 0.001327257,
+            "min": 0.01191291,
+            "max": 0.016067871
+          },
+          "wall_seconds": {
+            "median": 0.014127091,
+            "mad": 0.001326878,
+            "min": 0.01191363,
+            "max": 0.016068817
+          },
+          "output_samples_per_cpu_second": {
+            "median": 100998586.45316975,
+            "mad": 10003503.947912127,
+            "min": 88793530.8915537,
+            "max": 119762761.57546729
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 45305.98814908615,
+            "mad": 4487.375984450911,
+            "min": 39831.039221064195,
+            "max": 53723.22967268283
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.7381949383549762,
+          "mad": 0.22137326359794085,
+          "min": 1.5131870567375887,
+          "max": 2.0433025180245634
+        },
+        "paired_median_bootstrap_ci95": [
+          1.5274974269780357,
+          1.9754900611462962
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 1.198121796839414,
+          "mad": 0.20350866838137216,
+          "min": 0.8129901430126918,
+          "max": 1.6835370294036611
+        },
+        "paired_median_bootstrap_ci95": [
+          0.9687134730014274,
+          1.3922551432462673
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.4011541753466803,
+          "mad": 0.20058780011476984,
+          "min": 1.1878835789012279,
+          "max": 2.048311540547027
+        },
+        "paired_median_bootstrap_ci95": [
+          1.3124005203462892,
+          1.6985926632706057
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 5,
+      "taps": 26,
+      "L": 160,
+      "M": 147,
+      "num_in": 4096,
+      "iterations": 320,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.024246047,
+            "mad": 0.0019266609999999997,
+            "min": 0.017707965,
+            "max": 0.034812831
+          },
+          "wall_seconds": {
+            "median": 0.024247406,
+            "mad": 0.0019266229999999988,
+            "min": 0.017708864,
+            "max": 0.034829421
+          },
+          "output_samples_per_cpu_second": {
+            "median": 58839900.788776,
+            "mad": 5079196.268822268,
+            "min": 40980148.957147434,
+            "max": 80564593.39060135
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 13198.027703237563,
+            "mad": 1139.2842640360886,
+            "min": 9192.013140212584,
+            "max": 18070.964111347635
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.025119748,
+            "mad": 0.0018205820000000011,
+            "min": 0.017184985,
+            "max": 0.028471873
+          },
+          "wall_seconds": {
+            "median": 0.025120488,
+            "mad": 0.0018196740000000003,
+            "min": 0.017185574,
+            "max": 0.02847315
+          },
+          "output_samples_per_cpu_second": {
+            "median": 56793364.32833641,
+            "mad": 4301450.408842295,
+            "min": 50106819.456521176,
+            "max": 83016365.74020867
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 12738.981298697741,
+            "mad": 964.832722335801,
+            "min": 11239.162242680697,
+            "max": 18620.906564655135
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.015406025,
+            "mad": 0.000595277,
+            "min": 0.013686943,
+            "max": 0.016300628
+          },
+          "wall_seconds": {
+            "median": 0.01540688,
+            "mad": 0.0005953869999999993,
+            "min": 0.013688057,
+            "max": 0.016302005
+          },
+          "output_samples_per_cpu_second": {
+            "median": 92602407.17511493,
+            "mad": 3721897.3097091913,
+            "min": 87520247.68616275,
+            "max": 104233282.77176283
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 20771.094425719806,
+            "mad": 834.8366184111183,
+            "min": 19631.14549942493,
+            "max": 23379.946858842035
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.6073663855776215,
+          "mad": 0.17842873035415208,
+          "min": 1.195615846005887,
+          "max": 2.161678610299608
+        },
+        "paired_median_bootstrap_ci95": [
+          1.3814259794162531,
+          1.7609924407519084
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 0.9942187951195378,
+          "mad": 0.09027336434572741,
+          "min": 0.8457097909330668,
+          "max": 1.4941664006342545
+        },
+        "paired_median_bootstrap_ci95": [
+          0.8924498039378422,
+          1.0844921594652652
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.6086207555919507,
+          "mad": 0.1618751927269293,
+          "min": 1.1122094427149505,
+          "max": 1.9632052516388445
+        },
+        "paired_median_bootstrap_ci95": [
+          1.4794706787593732,
+          1.777532061030721
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 6,
+      "taps": 42,
+      "L": 80,
+      "M": 147,
+      "num_in": 4096,
+      "iterations": 640,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.036728967,
+            "mad": 0.0033269169999999987,
+            "min": 0.028367127,
+            "max": 0.047138526
+          },
+          "wall_seconds": {
+            "median": 0.036730087,
+            "mad": 0.0033270889999999984,
+            "min": 0.02836832,
+            "max": 0.047140529
+          },
+          "output_samples_per_cpu_second": {
+            "median": 38844626.36806529,
+            "mad": 3477004.6199587137,
+            "min": 30266601.887381885,
+            "max": 50294941.747185044
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 17424.938741130398,
+            "mad": 1559.7161865152357,
+            "min": 13577.004932228894,
+            "max": 22561.326002453476
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.039797688,
+            "mad": 0.0033661160000000023,
+            "min": 0.02693935,
+            "max": 0.056610639
+          },
+          "wall_seconds": {
+            "median": 0.039798561,
+            "mad": 0.0033663269999999954,
+            "min": 0.026940578,
+            "max": 0.056612648
+          },
+          "output_samples_per_cpu_second": {
+            "median": 35849394.0653035,
+            "mad": 2795703.987385433,
+            "min": 25202382.894847736,
+            "max": 52960557.697197594
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 16081.336182142039,
+            "mad": 1254.0980638334677,
+            "min": 11305.29545868578,
+            "max": 23757.06912007899
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.023827683,
+            "mad": 0.0015939849999999992,
+            "min": 0.019387027,
+            "max": 0.02824819
+          },
+          "wall_seconds": {
+            "median": 0.023830502,
+            "mad": 0.0015957329999999985,
+            "min": 0.019387635,
+            "max": 0.028252548
+          },
+          "output_samples_per_cpu_second": {
+            "median": 59876698.880037986,
+            "mad": 4225413.023334436,
+            "min": 50506705.03136661,
+            "max": 73591634.24077348
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 26859.514624229305,
+            "mad": 1895.4375410882385,
+            "min": 22656.318865031706,
+            "max": 33011.7660639767
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.5172779493499222,
+          "mad": 0.0901158890829945,
+          "min": 1.1804627674958243,
+          "max": 2.214829276617146
+        },
+        "paired_median_bootstrap_ci95": [
+          1.4632015006736203,
+          1.6321493207754063
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 0.9601121301317805,
+          "mad": 0.10389790075185457,
+          "min": 0.5488950407360709,
+          "max": 1.1977740413366407
+        },
+        "paired_median_bootstrap_ci95": [
+          0.856214229379926,
+          1.0920846086688745
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.6619527798821228,
+          "mad": 0.19325265513618306,
+          "min": 1.3697641418015143,
+          "max": 2.15061656580613
+        },
+        "paired_median_bootstrap_ci95": [
+          1.5569082120302256,
+          1.9779621986399838
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 7,
+      "taps": 44,
+      "L": 80,
+      "M": 147,
+      "num_in": 4096,
+      "iterations": 640,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.041041081,
+            "mad": 0.0015188429999999989,
+            "min": 0.037838099,
+            "max": 0.054384733
+          },
+          "wall_seconds": {
+            "median": 0.04104205,
+            "mad": 0.0015180080000000012,
+            "min": 0.037839006,
+            "max": 0.054386236
+          },
+          "output_samples_per_cpu_second": {
+            "median": 34763289.98254213,
+            "mad": 1335956.2190520242,
+            "min": 26233888.10238344,
+            "max": 37705990.46215297
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 15594.131158484835,
+            "mad": 599.2837994434067,
+            "min": 11768.008496060835,
+            "max": 16914.168970275172
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.039840542,
+            "mad": 0.004698740999999999,
+            "min": 0.033324684,
+            "max": 0.048368499
+          },
+          "wall_seconds": {
+            "median": 0.039842475,
+            "mad": 0.004699399,
+            "min": 0.033325554,
+            "max": 0.048369981
+          },
+          "output_samples_per_cpu_second": {
+            "median": 35810833.09559393,
+            "mad": 4752220.895186722,
+            "min": 29496945.935824882,
+            "max": 42812799.065101415
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 16064.038486223406,
+            "mad": 2131.7532365564293,
+            "min": 13231.75234360694,
+            "max": 19204.983309069037
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.025217574,
+            "mad": 0.0006001139999999988,
+            "min": 0.022632061,
+            "max": 0.027665372
+          },
+          "wall_seconds": {
+            "median": 0.025219468,
+            "mad": 0.0005996540000000015,
+            "min": 0.022632961,
+            "max": 0.027666697
+          },
+          "output_samples_per_cpu_second": {
+            "median": 56576536.66447058,
+            "mad": 1321703.8368932307,
+            "min": 51570714.46572271,
+            "max": 63039906.08720965
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 25379.126477431968,
+            "mad": 592.8904598942245,
+            "min": 23133.612662067222,
+            "max": 28278.467436085473
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.616885776236892,
+          "mad": 0.07854669299593664,
+          "min": 1.5199718259972193,
+          "max": 2.207001885324942
+        },
+        "paired_median_bootstrap_ci95": [
+          1.540759188041935,
+          1.7462942504440937
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 1.1405048652513814,
+          "mad": 0.13050766190008156,
+          "min": 0.8272887062115668,
+          "max": 1.3522480995705057
+        },
+        "paired_median_bootstrap_ci95": [
+          0.9514596483221975,
+          1.206344973611341
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.5938387608392264,
+          "mad": 0.19932706715837267,
+          "min": 1.3054999947478707,
+          "max": 1.9544395615421317
+        },
+        "paired_median_bootstrap_ci95": [
+          1.32526103174241,
+          1.790495656103042
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 8,
+      "taps": 88,
+      "L": 80,
+      "M": 147,
+      "num_in": 4096,
+      "iterations": 160,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.02239582,
+            "mad": 0.0017898769999999987,
+            "min": 0.019652242,
+            "max": 0.028423611
+          },
+          "wall_seconds": {
+            "median": 0.022396959,
+            "mad": 0.0017896789999999989,
+            "min": 0.019653478,
+            "max": 0.028425669
+          },
+          "output_samples_per_cpu_second": {
+            "median": 15926230.877011871,
+            "mad": 1268495.1371646281,
+            "min": 12548757.439721504,
+            "max": 18149634.021400712
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 7144.1902997970155,
+            "mad": 569.0216802866998,
+            "min": 5629.1229147485865,
+            "max": 8141.564713074467
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.022323642,
+            "mad": 0.0020546209999999995,
+            "min": 0.018717659,
+            "max": 0.025191616
+          },
+          "wall_seconds": {
+            "median": 0.022325021,
+            "mad": 0.002054104000000001,
+            "min": 0.018719515,
+            "max": 0.025193029
+          },
+          "output_samples_per_cpu_second": {
+            "median": 15977724.423281828,
+            "mad": 1566519.2334500793,
+            "min": 14158718.51968528,
+            "max": 19055855.222065963
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 7167.289280127319,
+            "mad": 702.7093603304156,
+            "min": 6351.319423096954,
+            "max": 8548.077513325785
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.013404052,
+            "mad": 0.0006121519999999995,
+            "min": 0.011933441,
+            "max": 0.015313317
+          },
+          "wall_seconds": {
+            "median": 0.01340481,
+            "mad": 0.0006115019999999999,
+            "min": 0.011934467,
+            "max": 0.015314107
+          },
+          "output_samples_per_cpu_second": {
+            "median": 26609938.54694088,
+            "mad": 1273409.5092509277,
+            "min": 23292210.30296702,
+            "max": 29889199.603031516
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 11936.688995238157,
+            "mad": 571.2261698272359,
+            "min": 10448.422115208612,
+            "max": 13407.700260134525
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.720964985654985,
+          "mad": 0.10417951584861873,
+          "min": 1.4629172159528618,
+          "max": 1.9119517955794902
+        },
+        "paired_median_bootstrap_ci95": [
+          1.648541488374455,
+          1.8251445015036036
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 1.0499305495414784,
+          "mad": 0.06316136555259344,
+          "min": 0.8901989858752446,
+          "max": 1.4241329199563615
+        },
+        "paired_median_bootstrap_ci95": [
+          0.9731429147842282,
+          1.0944869495786747
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.6433597871542396,
+          "mad": 0.07280745839210723,
+          "min": 1.3033451864151968,
+          "max": 1.8058000412024786
+        },
+        "paired_median_bootstrap_ci95": [
+          1.5723942494860028,
+          1.7161672455463468
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 9,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 0,
+      "iterations": 2621440,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.038287964,
+            "mad": 0.0016110059999999982,
+            "min": 0.035143143,
+            "max": 0.043166308
+          },
+          "wall_seconds": {
+            "median": 0.038288813,
+            "mad": 0.0016110479999999969,
+            "min": 0.035144238,
+            "max": 0.043169004
+          },
+          "output_samples_per_cpu_second": {
+            "median": 0.0,
+            "mad": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 68466424.59233403,
+            "mad": 3007332.855052963,
+            "min": 60728844.357038826,
+            "max": 74593214.38608949
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.043797257,
+            "mad": 0.0008165860000000011,
+            "min": 0.042626192,
+            "max": 0.050670444
+          },
+          "wall_seconds": {
+            "median": 0.043798854,
+            "mad": 0.000816958999999999,
+            "min": 0.042635701,
+            "max": 0.05067253
+          },
+          "output_samples_per_cpu_second": {
+            "median": 0.0,
+            "mad": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 59853976.69995635,
+            "mad": 1096458.4681222737,
+            "min": 51735090.38128815,
+            "max": 61498338.86170268
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.036923836,
+            "mad": 0.0011002380000000034,
+            "min": 0.034841514,
+            "max": 0.042586734
+          },
+          "wall_seconds": {
+            "median": 0.036925755,
+            "mad": 0.0010926289999999977,
+            "min": 0.034842849,
+            "max": 0.04258831
+          },
+          "output_samples_per_cpu_second": {
+            "median": 0.0,
+            "mad": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 70995873.77649494,
+            "mad": 2139294.378817305,
+            "min": 61555319.08128949,
+            "max": 75238980.71708366
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.0302413510952824,
+          "mad": 0.029377761613727182,
+          "min": 0.8990584720584583,
+          "max": 1.2042904641052248
+        },
+        "paired_median_bootstrap_ci95": [
+          0.9810053976152815,
+          1.056746495543009
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 0.8587204564766799,
+          "mad": 0.03509319658210208,
+          "min": 0.7238333652651633,
+          "max": 0.9675388829463826
+        },
+        "paired_median_bootstrap_ci95": [
+          0.8205235159320818,
+          0.8851962931916889
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.2011211994953719,
+          "mad": 0.03282997136250487,
+          "min": 1.0376000848589197,
+          "max": 1.3316579171875296
+        },
+        "paired_median_bootstrap_ci95": [
+          1.181442280674358,
+          1.2339511708578768
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 10,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 1,
+      "iterations": 655360,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.019376081,
+            "mad": 0.001203504000000001,
+            "min": 0.017852991,
+            "max": 0.027183874
+          },
+          "wall_seconds": {
+            "median": 0.019377586,
+            "mad": 0.0012036739999999983,
+            "min": 0.01786474,
+            "max": 0.027185019
+          },
+          "output_samples_per_cpu_second": {
+            "median": 33823145.14477928,
+            "mad": 2239984.4818003774,
+            "min": 24108410.743810833,
+            "max": 36708694.91840331
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 33823145.14477928,
+            "mad": 2239984.4818003774,
+            "min": 24108410.743810833,
+            "max": 36708694.91840331
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.018782786,
+            "mad": 0.0006251309999999975,
+            "min": 0.017868323,
+            "max": 0.020539353
+          },
+          "wall_seconds": {
+            "median": 0.018783901,
+            "mad": 0.0006242199999999982,
+            "min": 0.017869137,
+            "max": 0.020541031
+          },
+          "output_samples_per_cpu_second": {
+            "median": 34891522.482341014,
+            "mad": 1201243.9018644318,
+            "min": 31907528.927517824,
+            "max": 36677196.847180344
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 34891522.482341014,
+            "mad": 1201243.9018644318,
+            "min": 31907528.927517824,
+            "max": 36677196.847180344
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.018984998,
+            "mad": 0.0007119509999999989,
+            "min": 0.017871569,
+            "max": 0.026275565
+          },
+          "wall_seconds": {
+            "median": 0.018986233,
+            "mad": 0.0007119119999999986,
+            "min": 0.017872492,
+            "max": 0.026277261
+          },
+          "output_samples_per_cpu_second": {
+            "median": 34519887.7555847,
+            "mad": 1247729.7173017152,
+            "min": 24941804.296120748,
+            "max": 36670535.19475542
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 34519887.7555847,
+            "mad": 1247729.7173017152,
+            "min": 24941804.296120748,
+            "max": 36670535.19475542
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.0146014377548638,
+          "mad": 0.04821326467491782,
+          "min": 0.8241895845056044,
+          "max": 1.3464781661143905
+        },
+        "paired_median_bootstrap_ci95": [
+          0.9825785995044762,
+          1.0628147024297816
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 1.0238979497269276,
+          "mad": 0.045150311760802975,
+          "min": 0.9321090830794522,
+          "max": 1.513714593982489
+        },
+        "paired_median_bootstrap_ci95": [
+          0.9923231014910265,
+          1.0825420780135062
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 0.9998183707317471,
+          "mad": 0.025346420947963244,
+          "min": 0.7233880984100628,
+          "max": 1.087275736360043
+        },
+        "paired_median_bootstrap_ci95": [
+          0.9634586046803493,
+          1.0150052590873266
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 11,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 2,
+      "iterations": 655360,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.020309621,
+            "mad": 0.000287809,
+            "min": 0.019725521,
+            "max": 0.026142302
+          },
+          "wall_seconds": {
+            "median": 0.020315656,
+            "mad": 0.0002946559999999973,
+            "min": 0.019726491,
+            "max": 0.026143351
+          },
+          "output_samples_per_cpu_second": {
+            "median": 38529522.53515711,
+            "mad": 538375.0958891958,
+            "min": 29933094.644840382,
+            "max": 39670435.06734245
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 32268450.504320096,
+            "mad": 450888.7988063507,
+            "min": 25068947.63896462,
+            "max": 33223964.021026365
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.020008052,
+            "mad": 0.00035706199999999827,
+            "min": 0.019207048,
+            "max": 0.032706953
+          },
+          "wall_seconds": {
+            "median": 0.020009319,
+            "mad": 0.00035778100000000146,
+            "min": 0.019207699,
+            "max": 0.032707955
+          },
+          "output_samples_per_cpu_second": {
+            "median": 39110254.21165439,
+            "mad": 710640.308163695,
+            "min": 23925188.017361324,
+            "max": 40741294.54979234
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 32754812.9123215,
+            "mad": 595160.8040154353,
+            "min": 20037329.677270763,
+            "max": 34120808.15334038
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.021578041,
+            "mad": 0.000298764,
+            "min": 0.020891578,
+            "max": 0.024936852
+          },
+          "wall_seconds": {
+            "median": 0.021579946,
+            "mad": 0.0003000309999999992,
+            "min": 0.020892052,
+            "max": 0.025040076
+          },
+          "output_samples_per_cpu_second": {
+            "median": 36264645.154766366,
+            "mad": 509160.64700030535,
+            "min": 31380063.53007188,
+            "max": 37456241.936343916
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 30371617.145411856,
+            "mad": 426421.7165288031,
+            "min": 26280783.155788872,
+            "max": 31369578.68859882
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 0.9483093947221624,
+          "mad": 0.018713532729541682,
+          "min": 0.8897302602808277,
+          "max": 1.1340166447185376
+        },
+        "paired_median_bootstrap_ci95": [
+          0.9327541504690128,
+          0.9737414571455694
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 1.019297262617557,
+          "mad": 0.02262119197576329,
+          "min": 0.6879451781325887,
+          "max": 1.3179103674014587
+        },
+        "paired_median_bootstrap_ci95": [
+          0.9966760706417936,
+          1.031605629062454
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 0.9369314727970255,
+          "mad": 0.028694182625701115,
+          "min": 0.8061785024027892,
+          "max": 1.5016881676930842
+        },
+        "paired_median_bootstrap_ci95": [
+          0.8961358545901604,
+          0.9537629018315427
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 12,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 8,
+      "iterations": 327680,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.03119466,
+            "mad": 0.001599312999999998,
+            "min": 0.027934633,
+            "max": 0.037082353
+          },
+          "wall_seconds": {
+            "median": 0.031195692,
+            "mad": 0.0015991680000000015,
+            "min": 0.027935635,
+            "max": 0.037083708
+          },
+          "output_samples_per_cpu_second": {
+            "median": 50170093.214672,
+            "mad": 2446720.3863782138,
+            "min": 42204414.59041178,
+            "max": 56025042.46252313
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 10504361.964515721,
+            "mad": 512282.0173864104,
+            "min": 8836548.209332887,
+            "max": 11730241.811302837
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.031617801,
+            "mad": 0.001458061999999996,
+            "min": 0.028660734,
+            "max": 0.034427287
+          },
+          "wall_seconds": {
+            "median": 0.031619302,
+            "mad": 0.001459209000000003,
+            "min": 0.028671369,
+            "max": 0.034428259
+          },
+          "output_samples_per_cpu_second": {
+            "median": 49498666.9060255,
+            "mad": 2182017.9043048173,
+            "min": 45459260.266427614,
+            "max": 54605684.557834424
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 10363782.098571625,
+            "mad": 456859.9420733936,
+            "min": 9518031.438260006,
+            "max": 11433063.786852075
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.023410051,
+            "mad": 0.0009076020000000004,
+            "min": 0.021137885,
+            "max": 0.02562409
+          },
+          "wall_seconds": {
+            "median": 0.023411238,
+            "mad": 0.0009086719999999993,
+            "min": 0.02113911,
+            "max": 0.025625842
+          },
+          "output_samples_per_cpu_second": {
+            "median": 66853293.0577554,
+            "mad": 2495149.6135669425,
+            "min": 61076861.65635541,
+            "max": 74039526.66030684
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 13997406.498601818,
+            "mad": 522421.88557193615,
+            "min": 12787966.323877258,
+            "max": 15502023.97259707
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.3886118836325543,
+          "mad": 0.12063461546915066,
+          "min": 1.1550068021636102,
+          "max": 1.6230765924487431
+        },
+        "paired_median_bootstrap_ci95": [
+          1.2497932399694285,
+          1.487350660464242
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 1.0274205261092866,
+          "mad": 0.05003678760098729,
+          "min": 0.8817465306676956,
+          "max": 1.1614752882213175
+        },
+        "paired_median_bootstrap_ci95": [
+          0.964052085722217,
+          1.0607363558278224
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.3946499732102249,
+          "mad": 0.059136580664677973,
+          "min": 1.1479622886120053,
+          "max": 1.49343230237748
+        },
+        "paired_median_bootstrap_ci95": [
+          1.309907963333851,
+          1.4403909334341405
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 13,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 32,
+      "iterations": 81920,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.024260646,
+            "mad": 0.003112666,
+            "min": 0.018143153,
+            "max": 0.032551131
+          },
+          "wall_seconds": {
+            "median": 0.024597652,
+            "mad": 0.003448958000000002,
+            "min": 0.018143938,
+            "max": 0.032552069
+          },
+          "output_samples_per_cpu_second": {
+            "median": 60477532.2141051,
+            "mad": 7404931.371482819,
+            "min": 45074439.96339175,
+            "max": 80869295.43062334
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 3376661.9404940824,
+            "mad": 413441.96792846406,
+            "min": 2516656.026483381,
+            "max": 4515201.960761727
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.025559444,
+            "mad": 0.005946741000000002,
+            "min": 0.017117215,
+            "max": 0.0368763
+          },
+          "wall_seconds": {
+            "median": 0.025560504,
+            "mad": 0.005946695000000002,
+            "min": 0.017117931,
+            "max": 0.036877495
+          },
+          "output_samples_per_cpu_second": {
+            "median": 57404378.592898965,
+            "mad": 11088811.349490017,
+            "min": 39787722.737910256,
+            "max": 85716280.36453359
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 3205077.543940314,
+            "mad": 619125.2499619843,
+            "min": 2221481.0054154024,
+            "max": 4785825.264215002
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.016855515,
+            "mad": 0.001771029000000002,
+            "min": 0.013645933,
+            "max": 0.019744064
+          },
+          "wall_seconds": {
+            "median": 0.01685614,
+            "mad": 0.0017698909999999991,
+            "min": 0.013646353,
+            "max": 0.023227882
+          },
+          "output_samples_per_cpu_second": {
+            "median": 87047117.81277522,
+            "mad": 10219968.384261921,
+            "min": 74312157.82120642,
+            "max": 107520973.46513426
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 4860130.349028196,
+            "mad": 570614.8550178679,
+            "min": 4149095.1406964646,
+            "max": 6003253.86325728
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.4330943965081693,
+          "mad": 0.11939148387142517,
+          "min": 1.202769056897265,
+          "max": 1.9794633706189246
+        },
+        "paired_median_bootstrap_ci95": [
+          1.3068189208796326,
+          1.5179489917691626
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 0.9537385912329315,
+          "mad": 0.11386142430697954,
+          "min": 0.7496848111117438,
+          "max": 1.5684516216274171
+        },
+        "paired_median_bootstrap_ci95": [
+          0.8076622221032504,
+          1.0355483382377229
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.4196035616469709,
+          "mad": 0.1652213951802295,
+          "min": 1.1075217055270015,
+          "max": 2.070851452995744
+        },
+        "paired_median_bootstrap_ci95": [
+          1.2543821664667414,
+          1.513897284105823
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    },
+    {
+      "case": 14,
+      "taps": 26,
+      "L": 80,
+      "M": 147,
+      "num_in": 128,
+      "iterations": 20480,
+      "effective_ordered": 1,
+      "variants": {
+        "original": {
+          "cpu_seconds": {
+            "median": 0.02729474,
+            "mad": 0.0026724209999999977,
+            "min": 0.020558933,
+            "max": 0.033371393
+          },
+          "wall_seconds": {
+            "median": 0.027296742,
+            "mad": 0.0026716529999999995,
+            "min": 0.020560169,
+            "max": 0.03337299
+          },
+          "output_samples_per_cpu_second": {
+            "median": 52522940.317438446,
+            "mad": 4685678.917658851,
+            "min": 42958949.900593005,
+            "max": 69731245.29371247
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 750327.7188205493,
+            "mad": 66938.27025226923,
+            "min": 613699.2842941858,
+            "max": 996160.6470530352
+          }
+        },
+        "recurrence": {
+          "cpu_seconds": {
+            "median": 0.029369069,
+            "mad": 0.0023806060000000004,
+            "min": 0.023311724,
+            "max": 0.034008743
+          },
+          "wall_seconds": {
+            "median": 0.029370063,
+            "mad": 0.002380409,
+            "min": 0.023325102,
+            "max": 0.034010321
+          },
+          "output_samples_per_cpu_second": {
+            "median": 48813259.964079894,
+            "mad": 3898542.160469748,
+            "min": 42153866.13965709,
+            "max": 61496953.20689281
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 697332.2852011414,
+            "mad": 55693.45943528216,
+            "min": 602198.087709387,
+            "max": 878527.9029556116
+          }
+        },
+        "ordered": {
+          "cpu_seconds": {
+            "median": 0.016480817,
+            "mad": 0.0013816680000000026,
+            "min": 0.013790898,
+            "max": 0.02310063
+          },
+          "wall_seconds": {
+            "median": 0.016482361,
+            "mad": 0.0013813090000000007,
+            "min": 0.01379187,
+            "max": 0.023102229
+          },
+          "output_samples_per_cpu_second": {
+            "median": 86985978.91111831,
+            "mad": 6728388.771784395,
+            "min": 62058913.54478211,
+            "max": 103952621.50441545
+          },
+          "stage_calls_per_cpu_second": {
+            "median": 1242656.8415874045,
+            "mad": 96119.83959691995,
+            "min": 886555.9077826015,
+            "max": 1485037.450063078
+          }
+        }
+      },
+      "ordered_vs_original": {
+        "speedup": {
+          "median": 1.6008358794754698,
+          "mad": 0.16761688407664477,
+          "min": 1.2338091212231008,
+          "max": 2.027506410028626
+        },
+        "paired_median_bootstrap_ci95": [
+          1.5046969668553956,
+          1.8656523952215847
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "recurrence_vs_original": {
+        "speedup": {
+          "median": 0.9376546586503139,
+          "mad": 0.10453761513979598,
+          "min": 0.689276916352978,
+          "max": 1.3282293493179655
+        },
+        "paired_median_bootstrap_ci95": [
+          0.8288114814096675,
+          1.04219227379011
+        ],
+        "bootstrap_repetitions": 4000
+      },
+      "ordered_vs_recurrence": {
+        "speedup": {
+          "median": 1.8521836614029183,
+          "mad": 0.1445572698705695,
+          "min": 1.183859401237109,
+          "max": 2.297486601327633
+        },
+        "paired_median_bootstrap_ci95": [
+          1.6191490992224478,
+          1.9837720679686037
+        ],
+        "bootstrap_repetitions": 4000
+      }
+    }
+  ]
+}

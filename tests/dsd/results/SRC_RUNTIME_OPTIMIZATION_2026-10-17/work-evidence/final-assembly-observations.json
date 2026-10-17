@@ -1,0 +1,41 @@
+{
+  "scope": "Mnemonic evidence supplements source operation-order reasoning; counts are static, not hardware counters. The baseline-target build has no FMA or horizontal-add mnemonics in these functions.",
+  "functions": [
+    {
+      "function": "0000000000001f90 <u100_0>:",
+      "instruction_counts": {
+        "add": 20,
+        "addpd": 11,
+        "addsd": 23,
+        "imul": 1,
+        "mulsd": 45,
+        "sub": 10
+      },
+      "fma_mnemonic_present": false
+    },
+    {
+      "function": "0000000000002640 <U100_0>:",
+      "instruction_counts": {
+        "add": 20,
+        "addpd": 42,
+        "addsd": 85,
+        "imul": 5,
+        "mulsd": 169,
+        "sub": 10
+      },
+      "fma_mnemonic_present": false
+    },
+    {
+      "function": "0000000000003650 <vpoly0>:",
+      "instruction_counts": {
+        "add": 19,
+        "addpd": 1,
+        "addsd": 3,
+        "imul": 5,
+        "mulsd": 5,
+        "sub": 10
+      },
+      "fma_mnemonic_present": false
+    }
+  ]
+}

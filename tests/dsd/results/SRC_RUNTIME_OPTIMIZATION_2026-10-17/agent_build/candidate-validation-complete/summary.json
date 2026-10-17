@@ -1,0 +1,180 @@
+{
+  "schema": "sox/local-existing-validation/1",
+  "source": "/workspace/scratch/4dd8292178b8/sox_ng",
+  "build": "/workspace/scratch/4dd8292178b8/build-candidate",
+  "binary_sha256": "b99b93d916b5484bc199a143a07dd03af5c738bca1290cc2cef74fd92b3e2807",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "p07",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_p07"
+      ],
+      "exit": 0,
+      "seconds": 0.11446772799990867,
+      "log": "00_p07.log"
+    },
+    {
+      "name": "p11",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_p11"
+      ],
+      "exit": 0,
+      "seconds": 0.032386379000058696,
+      "log": "01_p11.log"
+    },
+    {
+      "name": "p12_bounds",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_p12_bounds"
+      ],
+      "exit": 0,
+      "seconds": 0.0038426070000241452,
+      "log": "02_p12_bounds.log"
+    },
+    {
+      "name": "p13",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_p13"
+      ],
+      "exit": 0,
+      "seconds": 0.1644021240000484,
+      "log": "03_p13.log"
+    },
+    {
+      "name": "plan",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_plan"
+      ],
+      "exit": 0,
+      "seconds": 0.0036930040000697772,
+      "log": "04_plan.log"
+    },
+    {
+      "name": "decode_faults",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_decode_faults"
+      ],
+      "exit": 0,
+      "seconds": 0.003759482999953434,
+      "log": "05_decode_faults.log"
+    },
+    {
+      "name": "dop_capacity",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_dop_capacity"
+      ],
+      "exit": 0,
+      "seconds": 0.0017709189999095543,
+      "log": "06_dop_capacity.log"
+    },
+    {
+      "name": "decode_optimization_scalar",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_decode_optimization",
+        "scalar"
+      ],
+      "exit": 0,
+      "seconds": 0.41483816700008447,
+      "log": "07_decode_optimization_scalar.log"
+    },
+    {
+      "name": "decode_optimization_sse2",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_decode_optimization",
+        "sse2"
+      ],
+      "exit": 0,
+      "seconds": 0.3662546030000158,
+      "log": "08_decode_optimization_sse2.log"
+    },
+    {
+      "name": "decode_optimization_avx1",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_decode_optimization",
+        "avx1"
+      ],
+      "exit": 0,
+      "seconds": 0.4187087400000564,
+      "log": "09_decode_optimization_avx1.log"
+    },
+    {
+      "name": "decode_optimization_avx2",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_decode_optimization",
+        "avx2"
+      ],
+      "exit": 0,
+      "seconds": 0.3682423850000305,
+      "log": "10_decode_optimization_avx2.log"
+    },
+    {
+      "name": "decode_optimization_avx512",
+      "command": [
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_decode_optimization",
+        "avx512"
+      ],
+      "exit": 0,
+      "seconds": 0.36849305399994137,
+      "log": "11_decode_optimization_avx512.log"
+    },
+    {
+      "name": "p07",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_p07.py",
+        "--sox",
+        "/workspace/scratch/4dd8292178b8/build-candidate/sox_ng",
+        "--results",
+        "/workspace/scratch/4dd8292178b8/agent_build/candidate-validation-complete/p07"
+      ],
+      "exit": 0,
+      "seconds": 0.21625084400000105,
+      "log": "12_p07.log"
+    },
+    {
+      "name": "p15",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_p15.py",
+        "--sox",
+        "/workspace/scratch/4dd8292178b8/build-candidate/sox_ng",
+        "--results",
+        "/workspace/scratch/4dd8292178b8/agent_build/candidate-validation-complete/p15"
+      ],
+      "exit": 0,
+      "seconds": 1.5748321959999885,
+      "log": "13_p15.log"
+    },
+    {
+      "name": "p15_r3",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_p15_r3.py",
+        "--sox",
+        "/workspace/scratch/4dd8292178b8/build-candidate/sox_ng",
+        "--results",
+        "/workspace/scratch/4dd8292178b8/agent_build/candidate-validation-complete/p15_r3"
+      ],
+      "exit": 0,
+      "seconds": 1.474984199000005,
+      "log": "14_p15_r3.log"
+    },
+    {
+      "name": "p14_numeric",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/4dd8292178b8/sox_ng/tests/dsd/test_p14_numeric.py",
+        "--sox",
+        "/workspace/scratch/4dd8292178b8/build-candidate/sox_ng",
+        "--unit",
+        "/workspace/scratch/4dd8292178b8/build-candidate/test/dsd_test_p14",
+        "--results",
+        "/workspace/scratch/4dd8292178b8/agent_build/candidate-validation-complete/p14_numeric"
+      ],
+      "exit": 0,
+      "seconds": 1.722617487999969,
+      "log": "15_p14_numeric.log"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+sox_dsd_profile:      SoX_ng v14.8.0+git
+uname:    Linux 82f2ee412ddd 6.18.55 #1 SMP Wed Oct 14 19:45:18 UTC 2026 x86_64
+compiler: gcc 13.3.0
+arch:     1288 48 88 L 
+
+Input File     : '/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/48k-384k-v/input.s32'
+Channels       : 2
+Sample Rate    : 48000
+Precision      : 32-bit
+Duration       : 00:01:00.00 = 2880000 samples ~ 4500 CDDA sectors
+File Size      : 23.0M
+Bit Rate       : 3.07M
+Sample Encoding: 32-bit Signed Integer PCM
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+
+
+Output File    : '/workspace/scratch/4dd8292178b8/work-evidence/src-profiles/48k-384k-v/output.s32'
+Channels       : 2
+Sample Rate    : 384000
+Precision      : 32-bit
+Duration       : 00:01:00.00 = 23040000 samples ~ 4500 CDDA sectors
+Sample Encoding: 32-bit Signed Integer PCM
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+Comment        : 'Processed by SoX'
+
+sox_dsd_profile DBUG rate: postL=4
+sox_dsd_profile DBUG effects_i_dsp: make_lpf(n=553 Fc=0.4778775 beta=19.1111 rho=0.5 dc-norm=0 scale=1)
+sox_dsd_profile DBUG rate: fir_len=553 dft_length=2048 Fp=0.91151 Fs=1 Fn=2 att=180.618 2/1
+sox_dsd_profile DBUG effects_i_dsp: make_lpf(n=185 Fc=0.1819694 beta=19.4257 rho=0.5 dc-norm=0 scale=1)
+sox_dsd_profile DBUG rate: fir_len=185 dft_length=1024 Fp=0.455755 Fs=1 Fn=4 att=180.618 4/1
+sox_dsd_profile DBUG rate:     0|0     preload=138 remL=0
+sox_dsd_profile DBUG rate:     0|0     preload=23 remL=0
+sox_dsd_profile DBUG rate: postL=4
+sox_dsd_profile DBUG rate:     0|0     preload=138 remL=0
+sox_dsd_profile DBUG rate:     0|0     preload=23 remL=0
+sox_dsd_profile INFO sox_ng: effects chain: input        48000Hz  2 channels (multi) 32 bits 00:01:00.00
+sox_dsd_profile INFO sox_ng: effects chain: rate        384000Hz  2 channels         32 bits 00:01:00.00
+sox_dsd_profile INFO sox_ng: effects chain: output      384000Hz  2 channels (multi) 32 bits 00:01:00.00
+sox_dsd_profile DBUG sox_ng: start-up time = 0.000467

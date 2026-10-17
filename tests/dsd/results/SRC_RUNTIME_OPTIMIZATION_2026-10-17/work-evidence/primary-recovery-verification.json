@@ -1,0 +1,30 @@
+{
+  "schema": "src-optimization/primary-recovery-verification/1",
+  "status": "PASS",
+  "sources": [
+    {
+      "path": "work-evidence/final-paired/measurements.json",
+      "sha256": "8f7d6edbd8d50edc905eff86b185c06b74093e3ee20001fe1f2f3a033cc70419"
+    },
+    {
+      "path": "work-evidence/primary-completed/measurements.json",
+      "sha256": "532d0f65a67bf951dc4bc845abf657a9dcdf1e8862dfee701395adb9c5e3d1a8"
+    },
+    {
+      "path": "work-evidence/primary-last-case/measurements.json",
+      "sha256": "7bf3d329ed160ee0b4f23fd0264e25398911427f25b8e09240b0a7cddc6b21f4"
+    }
+  ],
+  "recovered_cases_match_original_corpus": true,
+  "original_case_count": 49,
+  "recovered_case_count": 49,
+  "last_case_fixture_matches_original": true,
+  "fixture": {
+    "bytes": 16476,
+    "generator": "profile_decode.make_fixture",
+    "sha256": "7b8efd943e9bf8dd357d26cadb2d73cf8233586ef55c11d5e300c0c92a6456fe"
+  },
+  "accepted_rows": 1764,
+  "original_partial_rows_excluded": 33,
+  "scope": "Verify identical corpus and fixture, retaining48completecases plus a full15-pair last-case rerun; no reconstruction of missing rows."
+}
