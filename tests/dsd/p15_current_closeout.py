@@ -15,6 +15,7 @@ import sys
 
 from p15_matrix_contract import CROSS_ISA_DETAIL_ENDPOINTS, make_plan
 from p15_matrix_instrument import inherited_fir_certificate
+from p15_intel_receipt_review import review as review_intel_physical
 from p15_readjudication import (inspect_amendment, inspect_benchmark,
                                 inspect_per_profile_benchmark, write_new)
 
@@ -64,7 +65,7 @@ def inventory() -> dict:
     """Retain omitted measured payload identities; refuse other absence/drift."""
     lines = (ROOT / RESULTS / 'P00/P00_SHA256SUMS.txt').read_text().splitlines()
     seen = set()
-    omitted = {'arrays_npz': 0, 'graph_raw': 0, 'state': 0}
+    omitted = {'arrays_npz': 0, 'supplemental_npz': 0, 'graph_raw': 0, 'state': 0}
     for line in lines:
         require(len(line) > 66 and line[64:66] == '  ', 'malformed P00 SHA line')
         expected, relative = line[:64], line[66:]
@@ -83,6 +84,11 @@ def inventory() -> dict:
             parts = p.parts
             if 'arrays' in parts and p.suffix == '.npz':
                 omitted['arrays_npz'] += 1
+            elif relative == 'docs/dsd/evidence/candidate_filter_coefficients.npz':
+                # The transport explicitly omits this one independently indexed
+                # historical artifact along with its 945 measured arrays.
+                # Do not broaden this exemption to arbitrary missing files.
+                omitted['supplemental_npz'] += 1
             elif 'graph-raw' in parts:
                 omitted['graph_raw'] += 1
             elif p.suffix == '.state':
@@ -276,8 +282,11 @@ def report() -> dict:
     # spectrally rather than asserted from a command line. This raises on any
     # failure, so reaching the gate table at all means it holds.
     dsd256 = inspect_per_profile_benchmark()
+    intel_measurement = review_intel_physical()
     require(dsd256['cells_measured'] == 4 and
-            dsd256['comparisons_meeting_2x_at_ci_lower_bound'] == 8,
+            dsd256['comparisons_meeting_2x_at_ci_lower_bound'] == 8 and
+            dsd256['control_bandwidth_match'] in
+            ('CONTROL-EDGE-MISMATCH', 'CONTROL-FULL-PASSBAND-MATCH-VERIFIED'),
             'DSD256 per-profile matrix is not the expected 2 profiles x 2 rates x 2 controls')
     gates = [
         dict(id='P15-v1-and-v2-composite-SRC-acceptance', status='OPEN',
@@ -288,10 +297,9 @@ def report() -> dict:
                    'the further 36 integer-native-ratio cells also execute SRC. The 72 '
                    'SRC-active cells lack independent same-transfer arithmetic and '
                    'all-extrema/coherent-alias certificates; no tolerance can be fabricated.'),
-        # Status is derived from the evidence above, not written here. The
-        # earlier hardcoded OPEN reported this gate shut regardless of what
-        # was measured, and pointed at the superseded R2 receipt while doing
-        # it; a status that cannot change is not a review.
+        # Keep the whole guaranteed passband in scope.  A historical verifier
+        # excluded its last 5% after finding a 6 dB discrepancy there.  That
+        # evidence is useful but NOT a matched-comparator qualification.
         dict(id='P15-DSD256-direct-2x-and-matched-comparator',
              status=('PASS-SCOPED' if dsd256['disposition'] ==
                      'DIRECT-2X-AND-MATCHED-COMPARATOR-MEASURED' else 'OPEN'),
@@ -301,34 +309,23 @@ def report() -> dict:
                        'tests/dsd/verify_dsd256_control_match.py',
                        'tests/dsd/results/P15_matrix_metrology_R2_2026-10-14/dsd256-2x.json'],
              measured=dsd256,
-             issue='Discharged as a timed observation: 8 of 8 cells clear 2x at the '
-                   'CI lower bound, both profiles against both the direct and the '
-                   'matched control, with the control cut at each profile\'s own '
-                   'declared passband and that match verified spectrally rather than '
-                   'asserted. The superseded R2 receipt remains reviewed and still '
-                   'fails. This is throughput on one prepared host; it is not an '
-                   'audio quality result, does not qualify v2 and authorises no '
-                   'promotion.'),
-        # Status deliberately NOT derived, unlike the DSD256 gate above. The
-        # Intel amendment reserves this one: "Do not write PASS ... retain a
-        # visibly scoped UNRUN-SCOPE-EXEMPT status", and "readjudication
-        # creates a new ledger rather than rewriting old UNRUN labels". The
-        # arm has since been run on physical Tiger Lake-H and that ledger
-        # entry is listed below; reclassifying the gate is the authority's.
-        dict(id='P15-Intel-AVX512-physical-performance', status='UNRUN-SCOPE-EXEMPT',
-             evidence=[str(INTEL),
+             issue=('Eight timed comparisons exceed 2x at the bootstrap CI lower bound. '
+                    'The original 95%-of-passband control verdict is not accepted: '
+                    'the full v2 66 kHz guaranteed passband contains approximately '
+                    '6 dB of decoder/control divergence at its edge. Direct speed '
+                    'observation stands; the matched-control conjunct remains open. '
+                    'Do not shift the passband or retroactively weaken the match rule.')),
+        # Historical 2026-10-14 UNRUN-SCOPE-EXEMPT remains in the old ledger
+        # and normative amendment.  A later physical run is MEASURED in this
+        # new ledger, neither UNRUN nor PASS for a new dispatch preference.
+        dict(id='P15-Intel-AVX512-physical-performance', status=intel_measurement['status'],
+             historical_2026_10_14_status='UNRUN-SCOPE-EXEMPT',
+             evidence=['docs/dsd/amendments/P15_INTEL_AVX512_SCOPE_2026-10-14.md',
                        'tests/dsd/results/P15_intel_physical_avx512_2026-10-16'],
-             measured_not_adjudicated=dict(
-                 host='11th Gen Intel Core i9-11900H, physical, no hypervisor',
-                 gate_relevant=True,
-                 clock_licence_downclock='none: -0.00% avx512 against avx2, '
-                                         'p10 equal to p90 on all four tiers',
-                 kernel_fir_block_speedup=1.915,
-                 end_to_end_range='0.987x to 1.010x across twelve cases',
-                 agrees_with='tests/dsd/results/P13_amd_physical_avx512_2026-10-12'),
-             issue='Only under unchanged conservative dispatch and no Intel physical '
-                   'performance claim. The measurement now exists and is recorded; it '
-                   'is not read as a status change here.'),
+             measured=intel_measurement,
+             issue='Physical Intel observation is now present and checked against raw '
+                   'timings/source pins; no new Intel ISA preference or compatibility '
+                   'claim, no change to the frozen historical UNRUN ledger.'),
         dict(id='P15-older-AVX1-physical-observation', status='PASS-SCOPED-INHERITED',
              evidence='tests/dsd/results/P15_avx1_physical_2026-10-13'),
         dict(id='P15-encoder-one-hour-soaks', status='PASS-SCOPED-INHERITED',
@@ -340,9 +337,9 @@ def report() -> dict:
              issue='Software-source-material tests, not DAC/device certification'),
     ]
     open_gates = [g['id'] for g in gates if g['status'] == 'OPEN']
-    return dict(schema='P15/current-closeout-review/1', date='2026-10-15',
-                input_archive_sha256='a9cc4fccd4dfe3627d02e2a56dba3b9dbb7f1678da9c84ec93fbc57f400ef3e5',
-                reported_source_revision='fb612f2b',
+    return dict(schema='P15/current-closeout-review/1', date='2026-10-16',
+                input_archive_sha256='e119c315d192cb44f8abb1bf3ae61f4e30a4cef9394e5a7f089ebdecd24b5cde',
+                reported_source_revision='ab7f0f56',
                 transport=files, p10_lineage=code,
                 matrices={'v1': first, 'v2': second},
                 v2_native_fir_certificate=fir,
@@ -351,13 +348,15 @@ def report() -> dict:
                 old_p15_manifest_unchanged_sha256=digest(RESULTS/'P15/release/release-manifest.json'),
                 benchmark_r2_status=indexed_benchmark['disposition'],
                 benchmark_per_profile_status=dsd256['disposition'],
+                intel_physical_measurement=intel_measurement,
                 dsd256_control_bandwidth_match=dsd256['control_bandwidth_match'],
                 gates=gates, substantive_open_gates=open_gates,
                 status='BLOCKED', p16_authorized=False, default_promotion_authorized=False,
                 no_new_intel_preference=True, no_hardware_device_compatibility_claim=True,
                 note='This is an indexed current-source evidence review, not re-execution of raw DSP metrology. '
-                     'The bandwidth-matched DSD256 gate has since been supplied with that evidence and its '
-                     'status is now derived from it rather than written in; the composite SRC gate still '
+                     'DSD256 direct timing is sound but the control differs materially within the '
+                     'guaranteed v2 passband; the composite SRC gate also remains OPEN. Intel physical '
+                     'measurements are now recorded separately from the immutable earlier UNRUN entry; '
                      'requires independent new evidence before any future promotion decision. A throughput '
                      'result authorises nothing on its own: release stays BLOCKED and v2 stays off by default.')
 

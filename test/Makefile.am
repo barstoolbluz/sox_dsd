@@ -87,6 +87,12 @@ dsd_test_p07_reference_SOURCES = ../tests/dsd/test_p07_reference.c
 dsd_test_p07_reference_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p07_reference_LDADD = $(top_builddir)/src/libsox_ng.la
 
+# P15 source-bound stage coefficients/clock dump (test-only; no production API).
+EXTRA_PROGRAMS += dsd_test_p15_src_stage_export
+dsd_test_p15_src_stage_export_SOURCES = ../tests/dsd/test_p15_src_stage_export.c
+dsd_test_p15_src_stage_export_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p15_src_stage_export_LDADD = $(top_builddir)/src/libsox_ng.la
+
 # P09 strict profile registry and independent coefficient-bit oracle.
 EXTRA_PROGRAMS += dsd_test_p09
 dsd_test_p09_SOURCES = ../tests/dsd/test_p09.c

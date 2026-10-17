@@ -1,0 +1,437 @@
+{
+  "executable_sha256": {
+    "candidate": "ab17513bf92c3ea5cf91cff8b908518e889d61af90210ad24cf614b4f2522383",
+    "sox": "fb50ea225094de13734ebc1b02ff0791fb144e2d0404150ab32bbc3e89c06d37"
+  },
+  "file_sha256": {
+    "control-v1-176400.wav": "73440692d76e5c007a8c55752e62a572a95468744b6b038dd0df3fb88e2e30a2",
+    "control-v1-352800.wav": "0bc2d4c66319b523a0d956c8d3cde5f10b9b5da9de76fc4d9d284538b8f61eb2",
+    "control-v2-176400.wav": "d2f98ab7831c133b0c2ae87dee3742200728ec3be810dd6acc90c720e2868f1e",
+    "control-v2-352800.wav": "c83ae452fb678974b24f6b9b54148057ba2cf2dcb9749f6c5f95b9f5258c1e98",
+    "decoder-v1-176400.wav": "ae69f194fa0c69c5f187b590682aac8409ff3cc6b34f0c0087e7543e6876c9fd",
+    "decoder-v1-352800.wav": "9a09fcac06012770460d85e4b190a0dc495f6c6e8dfedb6fcccbec509afb4928",
+    "decoder-v2-176400.wav": "e4e4bcac7d940312f5fe0c4d3bb3f060d70e67be4f4cab8adb6721366e339c1e",
+    "decoder-v2-352800.wav": "d93289f9bbc88b989f8048c33ed780e24c1dc136d0104c2088f4a0231219e94e",
+    "noise-dsd256.dsf": "11102ccc96aae1a58c58d434845986251a6120bbf61ab83a875485443f3c9eb6",
+    "noise-pcm.wav": "da0cf77df5e4520ac4fc686e4dd77c2728e7000e0c99e1704ebd2560bd0d64a9",
+    "profile-decode.mastering.v2.dsd256.json": "1953f0433b88079cd148d282fa7818e07aa65b2af497720706f2c19b53f01b49",
+    "profile-mastering.json": "fe0feb1a0cbf904f4057727c25a2fb60f9351609bf5856f9c05f05a9d3a9a6d6"
+  },
+  "fixture_seconds": 6.0,
+  "initial_intermediate_hz": 352800,
+  "limitations": "Spectral diagnostic from SAME native one-channel broadband signal; not a proof of absolute 0.0001 dB/-160 dB product limits. Control configuration changed from historical timed arm; none of the earlier 15-repetition physical speedups transfers to it.",
+  "native_sha256": "11102ccc96aae1a58c58d434845986251a6120bbf61ab83a875485443f3c9eb6",
+  "qualified_release": false,
+  "rows": [
+    {
+      "control_wav_sha256": "73440692d76e5c007a8c55752e62a572a95468744b6b038dd0df3fb88e2e30a2",
+      "decoder_wav_sha256": "ae69f194fa0c69c5f187b590682aac8409ff3cc6b34f0c0087e7543e6876c9fd",
+      "initial_intermediate_hz": 352800,
+      "label": "v1-176400",
+      "pass_hz": 40000,
+      "profile": "mastering",
+      "proposed_control": "sinc -a 180 -t 40000 -60000",
+      "rate": 176400,
+      "reported_id": "decode.mastering.v1.dsd256",
+      "stop_hz": 80000,
+      "verification": {
+        "agreement_limit_db": 1.0,
+        "compared_bins": 4266,
+        "comparison_band_hz": [
+          1000.0,
+          40000.0
+        ],
+        "control_minus3db_hz": 22798.27880859375,
+        "decoder_minus3db_hz": 22798.27880859375,
+        "difference_profile": [
+          {
+            "from_hz": 1000.0,
+            "max_abs_difference_db": 1.8286101521880482e-08,
+            "mean_difference_db": -6.031804802058263e-09,
+            "to_hz": 4888.9
+          },
+          {
+            "from_hz": 4888.9,
+            "max_abs_difference_db": 1.7806453200819305e-08,
+            "mean_difference_db": -6.97448895559024e-09,
+            "to_hz": 8777.8
+          },
+          {
+            "from_hz": 8777.8,
+            "max_abs_difference_db": 1.7525795925621424e-08,
+            "mean_difference_db": -7.753341008924855e-09,
+            "to_hz": 12666.7
+          },
+          {
+            "from_hz": 12666.7,
+            "max_abs_difference_db": 1.591826936930829e-08,
+            "mean_difference_db": -5.841355470019615e-09,
+            "to_hz": 16555.6
+          },
+          {
+            "from_hz": 16555.6,
+            "max_abs_difference_db": 1.563823026629052e-08,
+            "mean_difference_db": -5.0673489461161045e-09,
+            "to_hz": 20444.4
+          },
+          {
+            "from_hz": 20444.4,
+            "max_abs_difference_db": 0.001872374232476659,
+            "mean_difference_db": -5.13741782107703e-06,
+            "to_hz": 24333.3
+          }
+        ],
+        "full_passband_max_abs_difference_at_hz": 23939.53857421875,
+        "full_passband_max_abs_difference_db": 0.001872374232476659,
+        "matched": true,
+        "max_abs_difference_at_hz": 23939.53857421875,
+        "max_abs_difference_db": 0.001872374232476659,
+        "mean_difference_db": -7.92955384208759e-07,
+        "output_hz": 176400,
+        "passband_hz": 40000,
+        "transition_excluded_fraction": 0.0
+      }
+    },
+    {
+      "control_wav_sha256": "0bc2d4c66319b523a0d956c8d3cde5f10b9b5da9de76fc4d9d284538b8f61eb2",
+      "decoder_wav_sha256": "9a09fcac06012770460d85e4b190a0dc495f6c6e8dfedb6fcccbec509afb4928",
+      "initial_intermediate_hz": 352800,
+      "label": "v1-352800",
+      "pass_hz": 40000,
+      "profile": "mastering",
+      "proposed_control": "sinc -a 180 -t 40000 -60000",
+      "rate": 352800,
+      "reported_id": "decode.mastering.v1.dsd256",
+      "stop_hz": 80000,
+      "verification": {
+        "agreement_limit_db": 1.0,
+        "compared_bins": 2134,
+        "comparison_band_hz": [
+          1000.0,
+          40000.0
+        ],
+        "control_minus3db_hz": 22825.1953125,
+        "decoder_minus3db_hz": 22825.1953125,
+        "difference_profile": [
+          {
+            "from_hz": 1000.0,
+            "max_abs_difference_db": 1.1526697818453613e-08,
+            "mean_difference_db": -6.001687250309562e-09,
+            "to_hz": 4888.9
+          },
+          {
+            "from_hz": 4888.9,
+            "max_abs_difference_db": 1.4374570866948488e-08,
+            "mean_difference_db": -7.183340041600159e-09,
+            "to_hz": 8777.8
+          },
+          {
+            "from_hz": 8777.8,
+            "max_abs_difference_db": 1.3956967137573884e-08,
+            "mean_difference_db": -7.736901517728381e-09,
+            "to_hz": 12666.7
+          },
+          {
+            "from_hz": 12666.7,
+            "max_abs_difference_db": 1.0897231561557419e-08,
+            "mean_difference_db": -5.833387830027121e-09,
+            "to_hz": 16555.6
+          },
+          {
+            "from_hz": 16555.6,
+            "max_abs_difference_db": 1.181290798513146e-08,
+            "mean_difference_db": -5.027495829310681e-09,
+            "to_hz": 20444.4
+          },
+          {
+            "from_hz": 20444.4,
+            "max_abs_difference_db": 0.0008976137498422077,
+            "mean_difference_db": 1.7525610208651167e-06,
+            "to_hz": 24333.3
+          }
+        ],
+        "full_passband_max_abs_difference_at_hz": 23966.455078125,
+        "full_passband_max_abs_difference_db": 0.0008976137498422077,
+        "matched": true,
+        "max_abs_difference_at_hz": 23966.455078125,
+        "max_abs_difference_db": 0.0008976137498422077,
+        "mean_difference_db": 2.6399269815145623e-07,
+        "output_hz": 352800,
+        "passband_hz": 40000,
+        "transition_excluded_fraction": 0.0
+      }
+    },
+    {
+      "control_wav_sha256": "d2f98ab7831c133b0c2ae87dee3742200728ec3be810dd6acc90c720e2868f1e",
+      "decoder_wav_sha256": "e4e4bcac7d940312f5fe0c4d3bb3f060d70e67be4f4cab8adb6721366e339c1e",
+      "initial_intermediate_hz": 352800,
+      "label": "v2-176400",
+      "pass_hz": 66000,
+      "profile": "decode.mastering.v2.dsd256",
+      "proposed_control": "sinc -a 180 -t 14000 -73000",
+      "rate": 176400,
+      "reported_id": "decode.mastering.v2.dsd256",
+      "stop_hz": 80000,
+      "verification": {
+        "agreement_limit_db": 1.0,
+        "compared_bins": 6947,
+        "comparison_band_hz": [
+          1000.0,
+          66000.0
+        ],
+        "control_minus3db_hz": 22798.27880859375,
+        "decoder_minus3db_hz": 22798.27880859375,
+        "difference_profile": [
+          {
+            "from_hz": 1000.0,
+            "max_abs_difference_db": 1.7639623095533352e-08,
+            "mean_difference_db": -7.590891049695621e-09,
+            "to_hz": 7488.9
+          },
+          {
+            "from_hz": 7488.9,
+            "max_abs_difference_db": 1.7477661984344195e-08,
+            "mean_difference_db": -7.304415633526951e-09,
+            "to_hz": 13977.8
+          },
+          {
+            "from_hz": 13977.8,
+            "max_abs_difference_db": 1.656919579318128e-08,
+            "mean_difference_db": -6.59170677727963e-09,
+            "to_hz": 20466.7
+          },
+          {
+            "from_hz": 20466.7,
+            "max_abs_difference_db": 0.004893286521550522,
+            "mean_difference_db": 2.7975343518633206e-06,
+            "to_hz": 26955.6
+          },
+          {
+            "from_hz": 46422.2,
+            "max_abs_difference_db": 0.00657102313270741,
+            "mean_difference_db": -6.187088250276722e-05,
+            "to_hz": 52911.1
+          },
+          {
+            "from_hz": 52911.1,
+            "max_abs_difference_db": 0.005592876176635286,
+            "mean_difference_db": 1.499402381963051e-05,
+            "to_hz": 59400.0
+          },
+          {
+            "from_hz": 59400.0,
+            "max_abs_difference_db": 0.0024814558358201566,
+            "mean_difference_db": 2.668417678796127e-05,
+            "to_hz": 60060.0
+          },
+          {
+            "from_hz": 60060.0,
+            "max_abs_difference_db": 0.001985294880824995,
+            "mean_difference_db": 2.922600147049093e-05,
+            "to_hz": 60720.0
+          },
+          {
+            "from_hz": 60720.0,
+            "max_abs_difference_db": 0.0020635621256843706,
+            "mean_difference_db": -0.00010714633282759213,
+            "to_hz": 61380.0
+          },
+          {
+            "from_hz": 61380.0,
+            "max_abs_difference_db": 0.001424611729405001,
+            "mean_difference_db": 3.3550661642635065e-05,
+            "to_hz": 62040.0
+          },
+          {
+            "from_hz": 62040.0,
+            "max_abs_difference_db": 0.0017271087799599627,
+            "mean_difference_db": 5.953672993299035e-05,
+            "to_hz": 62700.0
+          },
+          {
+            "from_hz": 62700.0,
+            "max_abs_difference_db": 0.0013199122105191918,
+            "mean_difference_db": -1.8678001268895396e-05,
+            "to_hz": 63360.0
+          },
+          {
+            "from_hz": 63360.0,
+            "max_abs_difference_db": 0.001157231394728342,
+            "mean_difference_db": 7.52879215465272e-06,
+            "to_hz": 64020.0
+          },
+          {
+            "from_hz": 64020.0,
+            "max_abs_difference_db": 0.0013158972845133121,
+            "mean_difference_db": -5.220474697282162e-06,
+            "to_hz": 64680.0
+          },
+          {
+            "from_hz": 64680.0,
+            "max_abs_difference_db": 0.0009904823889712588,
+            "mean_difference_db": -5.320884525340853e-05,
+            "to_hz": 65340.0
+          },
+          {
+            "from_hz": 65340.0,
+            "max_abs_difference_db": 0.0009767960380457907,
+            "mean_difference_db": -3.9498332683143505e-05,
+            "to_hz": 66000.0
+          }
+        ],
+        "full_passband_max_abs_difference_at_hz": 52444.1162109375,
+        "full_passband_max_abs_difference_db": 0.00657102313270741,
+        "matched": true,
+        "max_abs_difference_at_hz": 52444.1162109375,
+        "max_abs_difference_db": 0.00657102313270741,
+        "mean_difference_db": -5.318771183711488e-07,
+        "output_hz": 176400,
+        "passband_hz": 66000,
+        "transition_excluded_fraction": 0.0
+      }
+    },
+    {
+      "control_wav_sha256": "c83ae452fb678974b24f6b9b54148057ba2cf2dcb9749f6c5f95b9f5258c1e98",
+      "decoder_wav_sha256": "d93289f9bbc88b989f8048c33ed780e24c1dc136d0104c2088f4a0231219e94e",
+      "initial_intermediate_hz": 352800,
+      "label": "v2-352800",
+      "pass_hz": 66000,
+      "profile": "decode.mastering.v2.dsd256",
+      "proposed_control": "sinc -a 180 -t 14000 -73000",
+      "rate": 352800,
+      "reported_id": "decode.mastering.v2.dsd256",
+      "stop_hz": 80000,
+      "verification": {
+        "agreement_limit_db": 1.0,
+        "compared_bins": 3507,
+        "comparison_band_hz": [
+          1000.0,
+          66000.0
+        ],
+        "control_minus3db_hz": 22825.1953125,
+        "decoder_minus3db_hz": 22825.1953125,
+        "difference_profile": [
+          {
+            "from_hz": 1000.0,
+            "max_abs_difference_db": 1.2921560710310587e-08,
+            "mean_difference_db": -7.620591114472793e-09,
+            "to_hz": 7488.9
+          },
+          {
+            "from_hz": 7488.9,
+            "max_abs_difference_db": 1.2416958128369515e-08,
+            "mean_difference_db": -7.312931600981786e-09,
+            "to_hz": 13977.8
+          },
+          {
+            "from_hz": 13977.8,
+            "max_abs_difference_db": 1.3523120401259803e-08,
+            "mean_difference_db": -6.578122651979544e-09,
+            "to_hz": 20466.7
+          },
+          {
+            "from_hz": 20466.7,
+            "max_abs_difference_db": 0.0021746969274403227,
+            "mean_difference_db": 3.5873070958877663e-06,
+            "to_hz": 26955.6
+          },
+          {
+            "from_hz": 46422.2,
+            "max_abs_difference_db": 0.00330113966447243,
+            "mean_difference_db": 3.8913938131555036e-05,
+            "to_hz": 52911.1
+          },
+          {
+            "from_hz": 52911.1,
+            "max_abs_difference_db": 0.002856237763324998,
+            "mean_difference_db": 1.642649654168736e-05,
+            "to_hz": 59400.0
+          },
+          {
+            "from_hz": 59400.0,
+            "max_abs_difference_db": 0.0010264592652475812,
+            "mean_difference_db": 7.782520583742128e-05,
+            "to_hz": 60060.0
+          },
+          {
+            "from_hz": 60060.0,
+            "max_abs_difference_db": 0.0012912042684405378,
+            "mean_difference_db": 1.5452209256459654e-05,
+            "to_hz": 60720.0
+          },
+          {
+            "from_hz": 60720.0,
+            "max_abs_difference_db": 0.0010284792201531445,
+            "mean_difference_db": -3.040911576404216e-05,
+            "to_hz": 61380.0
+          },
+          {
+            "from_hz": 61380.0,
+            "max_abs_difference_db": 0.0005970560362982269,
+            "mean_difference_db": 1.0513757611271735e-05,
+            "to_hz": 62040.0
+          },
+          {
+            "from_hz": 62040.0,
+            "max_abs_difference_db": 0.0006886306488524951,
+            "mean_difference_db": 8.729606671024015e-05,
+            "to_hz": 62700.0
+          },
+          {
+            "from_hz": 62700.0,
+            "max_abs_difference_db": 0.0005094476019706917,
+            "mean_difference_db": 1.751853077198426e-05,
+            "to_hz": 63360.0
+          },
+          {
+            "from_hz": 63360.0,
+            "max_abs_difference_db": 0.000547058626807484,
+            "mean_difference_db": 2.5104630114378043e-06,
+            "to_hz": 64020.0
+          },
+          {
+            "from_hz": 64020.0,
+            "max_abs_difference_db": 0.0005950815596378334,
+            "mean_difference_db": -1.0908397517702545e-05,
+            "to_hz": 64680.0
+          },
+          {
+            "from_hz": 64680.0,
+            "max_abs_difference_db": 0.00040391049881804975,
+            "mean_difference_db": -6.702972929743834e-05,
+            "to_hz": 65340.0
+          },
+          {
+            "from_hz": 65340.0,
+            "max_abs_difference_db": 0.0003592116749047136,
+            "mean_difference_db": 5.0981608912402705e-06,
+            "to_hz": 66000.0
+          }
+        ],
+        "full_passband_max_abs_difference_at_hz": 51485.888671875,
+        "full_passband_max_abs_difference_db": 0.00330113966447243,
+        "matched": true,
+        "max_abs_difference_at_hz": 51485.888671875,
+        "max_abs_difference_db": 0.00330113966447243,
+        "mean_difference_db": 6.777639433759415e-06,
+        "output_hz": 352800,
+        "passband_hz": 66000,
+        "transition_excluded_fraction": 0.0
+      }
+    }
+  ],
+  "schema": "P15/new-dsd256-ps-matched-control/1",
+  "selftest_wrong_cutoff": false,
+  "source_sha256": {
+    "src/dsd_coeffs.h": "853c3e4c1902124513d99706a40a08c9b33363f7e18810ec41a955ab0b598d17",
+    "src/dsd_coeffs_v2.h": "a356b080cf7d90403bbcc684c4df047c1f190212f7156d0a6fcfed6fcbf9884c",
+    "src/dsd_decode.c": "7194387ab5906a1f8cfcaef98a46922a12dd680d2420febc5dd7e993f70bfad7",
+    "src/effects_i_dsp.c": "e576e050ee8b61c39d8f87f0295e1d115c2cc0d27ef2d3b6940e50cf1abd651a",
+    "src/fft4g.c": "fc547db7fc3d0938c53357f98c16ec8a1b999c8d94352faa6ea1547df084e39b",
+    "src/rate.c": "aefcbff631e391531e00dabcdf7a1d328fa110baa7379a33dc6cb2465eeaafa6",
+    "src/sinc.c": "31e49e5510db6d2570d6bd4d3bbeb84814fd41b68335bf3278f87cede838c30f",
+    "tests/dsd/verify_dsd256_control_match.py": "7e286957aed817078ca7b875fd2b8587a61c5374e39524b1b676a816a743923e"
+  },
+  "spectrally_matched_on_fixture": true,
+  "status": "SPECTRALLY_MATCHED_DIAGNOSTIC"
+}

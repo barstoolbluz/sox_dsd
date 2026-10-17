@@ -1,0 +1,136 @@
+{
+  "affected_release_gates": {
+    "composite_src_acceptance": "OPEN",
+    "dsd256_direct2x_matched_comparator": "OPEN"
+  },
+  "authority": {
+    "dsd_design_sha256": "458537dbe9a2ea1e687b68f998f43a90de10c369b604f809c78cf80c2389b94b",
+    "source_fft_sha256": "fc547db7fc3d0938c53357f98c16ec8a1b999c8d94352faa6ea1547df084e39b",
+    "source_rate_sha256": "aefcbff631e391531e00dabcdf7a1d328fa110baa7379a33dc6cb2465eeaafa6"
+  },
+  "changed_production_DSP": false,
+  "continuous_frequency_local": {
+    "full_passband_stopband_all_72_cells": "OPEN",
+    "number_of_tested_local_intervals": 7,
+    "receipts": [
+      {
+        "band_kind": "pass",
+        "file": "master256v2-176400-705600-pass-1000hz.json",
+        "interval_hz": [
+          "1000",
+          "1000001/1000"
+        ],
+        "output_hz": 705600,
+        "profile": "decode.mastering.v2.dsd256",
+        "sha256": "d7f3dde85a5ad27f18951a2a61bf1d54330e9dba817944f876e9d32b080c1c3f",
+        "status": "PASS-LOCAL-BAND"
+      },
+      {
+        "band_kind": "stop",
+        "file": "master256v2-176400-705600-stop-100000-101000hz.json",
+        "interval_hz": [
+          "100000",
+          "101000"
+        ],
+        "output_hz": 705600,
+        "profile": "decode.mastering.v2.dsd256",
+        "sha256": "9199a9d91f4bdffdf0c0911a993612d5a2defd265f62ace041a57e5a05e5f86f",
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      {
+        "band_kind": "stop",
+        "file": "master256v2-176400-705600-stop-100000hz.json",
+        "interval_hz": [
+          "100000",
+          "100000001/1000"
+        ],
+        "output_hz": 705600,
+        "profile": "decode.mastering.v2.dsd256",
+        "sha256": "7d815b27932b1900e1562af4a9a712bb46d6bc5d8de16685d5dba517f8b29933",
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      {
+        "band_kind": "stop",
+        "file": "master64-88200-176400-stop-70000-71000hz.json",
+        "interval_hz": [
+          "70000",
+          "71000"
+        ],
+        "output_hz": 176400,
+        "profile": "master64",
+        "sha256": "1f86575e8315bb9602bc46315e2b72460f427be7df42e853a6ae54e02ee8f7bb",
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      {
+        "band_kind": "stop",
+        "file": "master64-88200-176400-stop-70000hz.json",
+        "interval_hz": [
+          "70000",
+          "70000001/1000"
+        ],
+        "output_hz": 176400,
+        "profile": "master64",
+        "sha256": "efe29e3637e240dc16a6810fb21984141156ae7ca18075bbf01d2ba36c1d9bf9",
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      {
+        "band_kind": "pass",
+        "file": "master64-88200-44100-pass-1000-2000hz.json",
+        "interval_hz": [
+          "1000",
+          "2000"
+        ],
+        "output_hz": 44100,
+        "profile": "master64",
+        "sha256": "210d75c7897f14e69bc8ba50f653bf587d0074768433b2bd5f0839ad314679ee",
+        "status": "PASS-LOCAL-BAND"
+      },
+      {
+        "band_kind": "pass",
+        "file": "master64-88200-44100-pass-1000hz.json",
+        "interval_hz": [
+          "1000",
+          "1000001/1000"
+        ],
+        "output_hz": 44100,
+        "profile": "master64",
+        "sha256": "3b44a4877dab514ad86c672fe02b44adb7e28d963dd6d477a0ff6dd4e91b770e",
+        "status": "PASS-LOCAL-BAND"
+      }
+    ]
+  },
+  "control": {
+    "full_passband_exclusion_fraction": 0,
+    "matched_cells": 4,
+    "matched_control_speedup_new_measurement": "OPEN",
+    "maximum_agreement_deviation_db": 0.00657102313270741,
+    "negative_audio_receipt_sha256": "af6a36e9ee7f888d335ec6f2e413ddf66289b67b6ab28fc8ce3e6ecd19f1ed1b",
+    "negative_control_max_error_db": 77.49709552971049,
+    "positive_audio_receipt_sha256": "327ee64ec7901ebeb8abd79908ee78b1585998eddc98bf917e701370e614d8f7"
+  },
+  "date": "2026-10-16",
+  "explicitly_missing_evidence": [
+    "Actual FFT4G arbitrary-input execution roundoff arithmetic certificate",
+    "Independent SoX SRC analytic Kaiser design and libm rounding certificate if claiming ideal-design equality",
+    "72-cell full continuous pass/stop/folded-coherent-alias extrema and endpoints",
+    "Source-pinned raw same-operator native vectors and missing R5 checker sources",
+    "Physical six-channel timing of the newly P/S-matched comparator"
+  ],
+  "fft_precomputed_coefficients": {
+    "fft4g_runtime_execution_arithmetic": "OPEN",
+    "maximum_bin_absolute_deviation": 2.0426784240402102e-18,
+    "maximum_single_impulse_coefficient_bound": 5.44461047454657e-16,
+    "rate_pairs": 24,
+    "receipt_sha256": "179c20e8152c6b81a26ac9d38389839d407cf22fbf35fb6dca3cd707dfd75e16"
+  },
+  "native_coefficients": {
+    "bank_count": 7,
+    "bounded_sinc_zero_artifacts": 18,
+    "receipt_sha256": "60b6e3cad777788aad4b4235355b4322a41d4aeabc4c4c19244921eafd9c3b72",
+    "strictly_rounded": 1421
+  },
+  "overall_disposition": "PARTIAL_CERTIFICATES_RELEASE_BLOCKED",
+  "qualified_release": false,
+  "schema": "P15/remaining-rigorous-math-R1/1",
+  "v2_default_enabled": false
+}
