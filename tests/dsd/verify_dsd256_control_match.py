@@ -45,18 +45,13 @@ from scipy.io import wavfile
 # guards against (a control matched to 20 kHz against a 40 or 66 kHz decoder)
 # is tens of dB, not tenths.
 PASSBAND_AGREEMENT_DB = 1.0
-# Two filters of different design cannot be compared inside their transition
-# regions: each turns down on its own schedule there, so a few dB of
-# divergence in the last percent of the band says nothing about whether the
-# control is bandwidth-matched. The comparison therefore runs over the
-# passband proper, excluding the top 5%, and the full-passband figure
-# including the transition is recorded alongside it, ungated.
-#
-# This margin cannot hide the error the check exists to catch. A control cut
-# at 20 kHz against a 40 or 66 kHz decoder diverges by 140 dB or more from
-# 22 kHz upward, which is nowhere near any profile's top 5%; the recorded
-# self-test demonstrates exactly that.
-TRANSITION_EXCLUSION = 0.05
+# The decoder's effective passband (queried from the decoder) is the
+# guaranteed passband, *not* its transition. Historical 2026-10-15 receipts
+# excluded the upper 5% after a measured 6 dB control divergence there.
+# Preserve those immutable receipts for provenance, but new match verdicts
+# must include 100% of the guaranteed passband. The separate absolute
+# section 6.1 composite-response requirement is stricter and unchanged.
+TRANSITION_EXCLUSION = 0.0
 NATIVE_HZ = 11289600
 
 
@@ -93,7 +88,8 @@ def compare(dec: Path, ctl: Path, passband_hz: int) -> dict:
     rate_c, _, sc = spectrum(ctl)
     if rate_d != rate_c:
         raise RuntimeError(f'rate mismatch: decoder {rate_d}, control {rate_c}')
-    # Compare only where the decoder itself carries usable signal: bins far
+    # Compare the entire guaranteed passband where the probe has usable signal:
+    # bins far
     # below the noise floor say nothing about either filter.
     ref = np.max(sd)
     top = min(passband_hz, rate_d / 2 * 0.98)
@@ -137,7 +133,7 @@ def compare(dec: Path, ctl: Path, passband_hz: int) -> dict:
         max_abs_difference_db=float(np.max(np.abs(diff))),
         max_abs_difference_at_hz=float(f[usable][worst]),
         mean_difference_db=float(np.mean(diff)),
-        # Ungated, reported so the transition-region behaviour stays visible.
+        # Full-passband result retained separately for cross-receipt comparisons.
         full_passband_max_abs_difference_db=float(np.max(np.abs(full_diff))),
         full_passband_max_abs_difference_at_hz=float(f[full][full_worst]),
         difference_profile=profile,

@@ -213,19 +213,17 @@ def checked_per_profile_arm(row: dict, label: str) -> np.ndarray:
 
 
 def inspect_control_match(data: dict | None = None) -> dict:
-    """The spectral half: is the staged control actually bandwidth-matched?
+    """Read the *whole guaranteed passband*, not a post-hoc 95% crop.
 
-    R2's control was asserted matched from its command line and was not. This
-    reads the independent comparison of the two transfers on a shared native
-    file. Nothing here is taken on the producer's word: the declared verdict
-    is recomputed from the recorded per-band differences.
+    The original receipt and its truncated comparison are preserved as
+    historical observations.  They cannot establish the benchmark's
+    bandwidth-matched control when the same receipt shows a >1 dB mismatch
+    inside the decoder's published passband.  Distinguish a negative finding
+    from missing/corrupt evidence: only the latter is an exception.
     """
     data = read_json(PER_PROFILE / 'dsd256-control-match.json') if data is None else data
     need(data.get('schema') == 'P15/dsd256-control-bandwidth-match/1',
          'DSD256 control-match receipt shape wrong')
-    # One channel, not the timing run's six: a filter's transfer does not
-    # depend on channel count, and the probe signal must be broadband, which
-    # the six-tone timing fixture is not.
     need(all(HEX64.fullmatch(v) for v in data['executables'].values()) and
          HEX64.fullmatch(data['fixture']['native_sha256']) and
          HEX64.fullmatch(data['fixture']['source_sha256']) and
@@ -236,59 +234,62 @@ def inspect_control_match(data: dict | None = None) -> dict:
     need(set(data['rows']) == set(DSD256_PROFILES),
          'DSD256 control-match does not cover both profiles')
     limit = data['agreement_limit_db']
-    need(isinstance(limit, (int, float)) and 0 < limit <= 1.0,
-         'DSD256 control-match agreement limit is not a stated tight bound')
+    need(type(limit) in (int, float) and math.isfinite(limit) and 0 < limit <= 1.0,
+         'DSD256 control-match agreement limit invalid')
     cells = {}
+    all_matched = True
     for profile, row in data['rows'].items():
         passband = row['effective_passband_hz']
-        need(row['profile_id'] and passband >= 20000,
+        need(row['profile_id'] and type(passband) is int and passband >= 20000,
              'DSD256 control-match profile identity or passband missing: ' + profile)
         need(set(row['rates']) == {str(x) for x in RATE_TARGETS},
              'DSD256 control-match rate grid differs: ' + profile)
         for rate, cell in row['rates'].items():
-            # Recompute the verdict rather than trust the recorded boolean.
+            name = profile + '@' + rate
             need(cell['passband_hz'] == passband and cell['agreement_limit_db'] == limit,
-                 'DSD256 control-match cell disagrees with its profile: ' + profile)
-            need(cell['compared_bins'] >= 16,
-                 'DSD256 control-match compared too few bins: ' + profile + ' ' + rate)
-            # The transition exclusion is a stated rule, not an adjustable
-            # dial: cap it here so a later widening cannot quietly turn a
-            # mismatch into a match.
+                 'DSD256 control-match cell disagrees with its profile: ' + name)
+            need(type(cell['compared_bins']) is int and cell['compared_bins'] >= 16,
+                 'DSD256 control-match too few bins: ' + name)
             excluded = cell['transition_excluded_fraction']
-            need(0 <= excluded <= 0.05,
-                 'DSD256 control-match excludes more than the stated 5%% transition: '
-                 + profile + ' ' + rate)
+            need(type(excluded) in (float, int) and math.isfinite(excluded) and
+                 0 <= excluded <= 0.05,
+                 'DSD256 receipt exclusion out of bounds: ' + name)
             lo_hz, hi_hz = cell['comparison_band_hz']
-            need(lo_hz <= 1000 and
-                 math.isclose(hi_hz, passband * (1 - excluded), rel_tol=1e-6, abs_tol=1.0),
-                 'DSD256 control-match comparison band is not the stated passband rule: '
-                 + profile + ' ' + rate)
-            recomputed = cell['max_abs_difference_db'] <= limit
-            need(recomputed is bool(cell['matched']),
-                 'DSD256 control-match verdict not reproducible: ' + profile + ' ' + rate)
-            need(recomputed, 'DSD256 staged control is NOT bandwidth-matched to the '
-                 'decoder: %s at %s, max difference %.3f dB exceeds %.3f dB'
-                 % (profile, rate, cell['max_abs_difference_db'], limit))
-            cells['%s@%s' % (profile, rate)] = dict(
-                passband_hz=passband,
-                comparison_band_hz=cell['comparison_band_hz'],
-                max_abs_difference_db=cell['max_abs_difference_db'],
-                max_abs_difference_at_hz=cell['max_abs_difference_at_hz'],
-                compared_bins=cell['compared_bins'],
-                # Ungated. The two filters' transitions differ, most visibly
-                # on v2 at its 66 kHz edge; recorded so that is not lost.
-                full_passband_max_abs_difference_db=cell[
-                    'full_passband_max_abs_difference_db'],
-                full_passband_max_abs_difference_at_hz=cell[
-                    'full_passband_max_abs_difference_at_hz'])
-    need(data['status'] == 'MATCHED', 'DSD256 control-match status is not MATCHED')
-    need(data.get('selftest_mismatch_hz') is None,
-         'DSD256 control-match receipt is a self-test run, not evidence')
-    return dict(disposition='CONTROL-BANDWIDTH-MATCH-VERIFIED',
+            need(lo_hz <= 1000 and math.isclose(hi_hz, passband * (1-excluded),
+                                              rel_tol=1e-6, abs_tol=1.0),
+                 'DSD256 receipt comparison band inconsistent: ' + name)
+            sampled = cell['max_abs_difference_db']
+            full = cell['full_passband_max_abs_difference_db']
+            full_at = cell['full_passband_max_abs_difference_at_hz']
+            need(all(type(v) in (float, int) and math.isfinite(v) for v in
+                     (sampled, full, full_at)) and 0 <= sampled <= full+1e-8 and
+                 1000 <= full_at <= passband+1.0,
+                 'DSD256 full-passband evidence invalid: ' + name)
+            # The historical producer compared *only* 95% of the passband.
+            # Validate its own verdict, but do not adopt its truncated scope.
+            need((sampled <= limit) is bool(cell['matched']),
+                 'DSD256 historical cropped verdict inconsistent: ' + name)
+            full_matched = full <= limit
+            all_matched &= full_matched
+            cells[name] = dict(
+                passband_hz=passband, measured_full_passband=True,
+                full_passband_max_abs_difference_db=full,
+                full_passband_max_abs_difference_at_hz=full_at,
+                full_passband_match=full_matched,
+                historical_cropped_band_hz=cell['comparison_band_hz'],
+                historical_cropped_max_abs_difference_db=sampled,
+                historical_excluded_fraction=excluded,
+                compared_bins=cell['compared_bins'])
+    need(data.get('status') == 'MATCHED' and data.get('selftest_mismatch_hz') is None,
+         'DSD256 historical match receipt is invalid or is a selftest')
+    return dict(disposition=('CONTROL-FULL-PASSBAND-MATCH-VERIFIED' if all_matched
+                             else 'CONTROL-EDGE-MISMATCH'),
                 agreement_limit_db=limit, cells=cells,
-                executables=data['executables'],
-                probe_signal=data['probe_signal'],
-                scope=data['scope'])
+                all_full_passbands_matched=bool(all_matched),
+                executables=data['executables'], probe_signal=data['probe_signal'],
+                scope=('Read-only re-adjudication of spectral comparator evidence; '
+                       'historical cropped match remains immutable. Not an absolute '
+                       'transfer or hardware qualification.'))
 
 
 def inspect_per_profile_benchmark(data: dict | None = None,
@@ -322,8 +323,9 @@ def inspect_per_profile_benchmark(data: dict | None = None,
          'DSD256 per-profile receipt does not cover both profiles')
 
     verified = inspect_control_match() if match is None else match
-    need(verified['disposition'] == 'CONTROL-BANDWIDTH-MATCH-VERIFIED',
-         'DSD256 control match not verified; the comparator claim stands unsupported')
+    need(verified['disposition'] in ('CONTROL-FULL-PASSBAND-MATCH-VERIFIED',
+                                      'CONTROL-EDGE-MISMATCH'),
+         'DSD256 control-match evidence not reviewed')
     # The two receipts use different fixtures on purpose: the transfer probe
     # needs broadband content and one channel, the timing run needs the
     # six-channel realism. They bind through the build instead.
@@ -391,10 +393,14 @@ def inspect_per_profile_benchmark(data: dict | None = None,
                 direct_reference_reported_ci95=cell['speedup_vs_legacy_direct']['ci95'],
                 matched_control_reported_ci95=cell[
                     'speedup_vs_legacy_staged_matched']['ci95'],
-                matched_control_verified_spectrally=True)
-    return dict(disposition='DIRECT-2X-AND-MATCHED-COMPARATOR-MEASURED',
+                matched_control_verified_spectrally=verified['cells'][
+                    '%s@%s' % (profile, rate)]['full_passband_match'])
+    matched = verified['all_full_passbands_matched']
+    return dict(disposition=('DIRECT-2X-AND-MATCHED-COMPARATOR-MEASURED' if matched
+                             else 'DIRECT-2X-MEASURED-CONTROL-EDGE-MISMATCH'),
                 timed_direct_2x_observation='PASS-SCOPED',
-                timed_matched_control_observation='PASS-SCOPED',
+                timed_matched_control_observation=('PASS-SCOPED' if matched else
+                                                   'MEASURED-NOT-MATCHED'),
                 control_bandwidth_match=verified['disposition'],
                 control_agreement_limit_db=verified['agreement_limit_db'],
                 # 2 profiles x 2 output rates = 4 cells, each timed against
@@ -405,9 +411,10 @@ def inspect_per_profile_benchmark(data: dict | None = None,
                 supersedes=('tests/dsd/results/P15_matrix_metrology_R2_2026-10-14/'
                             'dsd256-2x.json, whose 20 kHz staged sinc matched the '
                             'passband of neither profile'),
-                scope=('a timed throughput observation on one prepared host with a '
-                       'spectrally verified comparator; it is not an audio quality '
-                       'result, does not qualify v2, and authorises no promotion'))
+                scope=('A timed throughput observation on one prepared host; the '
+                       'staged comparator is NOT bandwidth-matched at the v2 66 kHz '
+                       'passband edge in the recorded full-band evidence. No audio '
+                       'quality qualification, v2 activation or promotion.'))
 
 
 def checked_arm(row: dict, label: str) -> np.ndarray:

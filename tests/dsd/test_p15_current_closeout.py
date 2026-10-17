@@ -16,18 +16,20 @@ class P15CurrentCloseoutTests(unittest.TestCase):
         self.assertEqual(result['status'], 'BLOCKED')
         self.assertFalse(result['p16_authorized'])
         self.assertFalse(result['default_promotion_authorized'])
-        # Was 2. The DSD256 bandwidth-matched gate has since been supplied
-        # with its evidence and its status is derived from that evidence
-        # rather than hardcoded, so it is no longer open. The composite SRC
-        # gate remains, and BLOCKED above does not move with either.
-        self.assertEqual(result['substantive_open_gates'],
-                         ['P15-v1-and-v2-composite-SRC-acceptance'])
+        self.assertEqual(result['substantive_open_gates'], [
+            'P15-v1-and-v2-composite-SRC-acceptance',
+            'P15-DSD256-direct-2x-and-matched-comparator'])
         dsd256 = next(g for g in result['gates']
                       if g['id'] == 'P15-DSD256-direct-2x-and-matched-comparator')
-        self.assertEqual(dsd256['status'], 'PASS-SCOPED')
+        self.assertEqual(dsd256['status'], 'OPEN')
         self.assertEqual(dsd256['measured']['comparisons_meeting_2x_at_ci_lower_bound'], 8)
         self.assertEqual(dsd256['measured']['control_bandwidth_match'],
-                         'CONTROL-BANDWIDTH-MATCH-VERIFIED')
+                         'CONTROL-EDGE-MISMATCH')
+        intel = next(g for g in result['gates']
+                     if g['id'] == 'P15-Intel-AVX512-physical-performance')
+        self.assertEqual(intel['status'], 'MEASURED-SCOPED')
+        self.assertEqual(intel['historical_2026_10_14_status'], 'UNRUN-SCOPE-EXEMPT')
+        self.assertFalse(intel['measured']['intel_preference_authorized'])
         # The superseded R2 receipt is still reviewed and still fails.
         self.assertEqual(result['benchmark_r2_status'],
                          'OPEN-CONTROL-NOT-BANDWIDTH-MATCHED')
@@ -37,14 +39,12 @@ class P15CurrentCloseoutTests(unittest.TestCase):
         self.assertEqual(result['src_numerical_disposition']['fractional_diagnostic_cases_disposed'], 36)
         self.assertEqual(result['src_numerical_disposition']['integer_ratio_additional_src_cells'], 36)
         self.assertGreaterEqual(result['transport']['inventory_entries'], 11124 + 5)
-        # Written against the stripped 23 MB snapshot we sent, where 3508 bulk
-        # payloads were absent: 945 arrays/*.npz + 1807 *.state + 756 graph-raw.
-        # On the full branch those files are present, so the reviewer correctly
-        # reports 0 missing and full_raw_replay_possible True. Accept either the
-        # complete tree or the known stripped count; requiring 3508 would mean
-        # asserting our evidence is incomplete.
+        # The attached 2026-10-16 snapshot omits 945 measured arrays plus the
+        # separately indexed candidate_filter_coefficients.npz; its state
+        # snapshots and graph-raw payloads are actually present. An operator
+        # with the exact indexed omitted files restored should report zero.
         missing = sum(result['transport']['missing_expected_bulk_payloads'].values())
-        self.assertIn(missing, (0, 3508))
+        self.assertIn(missing, (0, 946))
         if missing == 0:
             self.assertTrue(result['transport']['full_raw_replay_possible'])
         self.assertEqual((result['matrices']['v1']['scalar_cells'],
