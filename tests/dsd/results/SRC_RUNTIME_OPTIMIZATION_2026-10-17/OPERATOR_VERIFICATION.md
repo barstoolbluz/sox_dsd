@@ -32,9 +32,9 @@ accumulator still visits `j` in order.
 
 ## check-dsd: unchanged by the patch
 
-In-tree, both builds: 208 PASS, 11 FAIL, identical failure sets. All 11 are
-`No module named 'jsonschema'` or a cascade from it, and are P14 report
-schema tests. `bit_exact_chunk_continuity_and_golden` and
+In-tree, both builds: 208 PASS, 11 FAIL, identical failure sets. Ten are
+`No module named 'jsonschema'`; the eleventh is a cascade from it, a file an
+earlier step did not write. All are P14 report schema tests. `bit_exact_chunk_continuity_and_golden` and
 `decoder_latency_components_and_byte_identity` both PASS. Logs are beside
 this file.
 
@@ -57,15 +57,17 @@ same scope as the delivered tables.
 | 48000 -> 192000 | not tabulated | 1.004x |
 | 44100 -> 192000 | not tabulated | 1.051x |
 
-Direction agrees in every case; magnitude is about 60% of the delivered
-figure in all three comparable cases. That the ratio is consistent suggests
-something systematic rather than noise. The delivered report labels its own
+Direction agrees in every case, but the improvement is about a third of the
+delivered one: the gain over unity is 35.4%, 36.4% and 35.9% of the delivered
+gain in the three comparable cases. Read as speedup figures instead, that is
+86%, 86% and 83%. Either ratio is consistent, which suggests something
+systematic rather than noise. The delivered report labels its own
 numbers "Local virtual-host CLI measurements; no physical qualification", so
 the scope was stated correctly.
 
-Our per-arm spreads were 1.2% to 4.9%. The AMD performance record treats
-under 2% as the threshold for a gate-grade timing, so these are indicative
-and not gate-grade either. We did not instrument where the difference goes.
+Our per-arm spreads were 1.2% to 4.9%, straddling the 2% the AMD
+performance record treats as the threshold for a gate-grade timing, so these
+are indicative and not gate-grade either. We did not instrument where the difference goes.
 
 The delivered counts already say the win is case-specific: of 72 CPU cases,
 41 have intervals including 1.0 and 2 fall below it.
@@ -74,8 +76,11 @@ The delivered counts already say the win is case-specific: of 72 CPU cases,
 
 `p15_src_bound_operator.py:37` pins `src/rate_poly_fir0.h` in the SRC
 operator source identity. Changing that file, even behaviour-preservingly,
-makes `source_identity()` report `c1626c26...` while the frozen
-`operator-binding.json` receipts pin `928f0059...`. Verified consequences:
+changes the per-file digest map `source_identity()` returns, which
+`verify_pair` requires to equal the frozen `operator-binding.json`
+`source_sha256` map. The current map carries `rate_poly_fir0.h` at
+`c1626c26...`, the frozen receipts carry `928f0059...`. Verified
+consequences:
 
 - `source_operators(canonical_plan('1000'))` returns 24 realizations on the
   unpatched tree and raises `UnboundOperator` on the patched one. The
