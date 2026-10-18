@@ -40,6 +40,7 @@ class FIRStage:
     taps:tuple[tuple[int,float], ...]
 
 
+@lru_cache(maxsize=32)
 def make_src_stages(op:SRCOperator):
     result=[]
     clock=Fraction(op.input_hz)
@@ -76,6 +77,7 @@ def make_src_stages(op:SRCOperator):
     return tuple(result)
 
 
+@lru_cache(maxsize=16)
 def make_native_stages(profile):
     native,R,names,banks=native_profile(profile)
     clock=native
@@ -161,7 +163,7 @@ def point_bounds(profile,op:SRCOperator,frequency_hz, *, max_paths=100000):
     families=alias_families(native_profile(profile)[0],op,f)
     expected=[x.source_hz for x in families]
     represented={freq for freq,_,_ in paths}
-    if len(paths)!=len(families) or represented!=set(expected):
+    if len(paths)<len(families) or represented!=set(expected):
         raise AliasProofError('native alias coverage does not match stage-true lattice')
     primary=[amp for x,amp,p in paths if p]
     other=[amp for x,amp,p in paths if not p]

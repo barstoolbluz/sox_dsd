@@ -1,0 +1,374 @@
+{
+  "accounting_json": "tests/dsd/results/P15_high_rate_2026-10-18/report_preparation/FINAL_CAMPAIGN_ADDENDUM_2026-10-18.json",
+  "accounting_json_sha256": "4dfddb16667ec52d33516611d9b441e90c5ac279007af3385ad33e5f5b81457d",
+  "checks": {
+    "all_949_receipt_and_supervision_log_hashes_match_accounting": true,
+    "all_receipts_retain_same_source_binding_proof_map_and_harness": true,
+    "current_source_proof_harness_files_rehashed": 46,
+    "each_request_job_set_exactly_covered_once": true,
+    "every_request_hash_matches_accounting": true,
+    "exit_code_zero_for_pass_and_two_for_open_no_external_kills": true,
+    "expected_cpu_equals_cpu_start_plus_request_job_position_modulo_workers": true,
+    "expected_cpu_matches_supervision_command_receipt_resources_accounting_resources_and_measured_affinity": true,
+    "numerical_markdown_table_lines_identical": true,
+    "preserved_existing_files_rehashed_after_new_report_write": true,
+    "request_cpu_set_matches_workers_and_cpu_start": true,
+    "signal_and_external_limits_match_requests": true
+  },
+  "corrected_report": "tests/dsd/results/P15_high_rate_2026-10-18/report_preparation/P15_final_campaign_report_2026-10-18.md",
+  "corrected_report_sha256": "935514180d9d6c93bf49d9a1c201c6e0b577326f14b074d12d80496fd96b17c3",
+  "corrected_statement": "The main campaign uses seven workers on CPUs 0\u20136. The dedicated retry and retry slices 01\u201304 use one worker pinned to CPU 7: respectively 1, 1, 4, 5 and 2 jobs, totaling 13 retries. Retry slice 05 uses eight workers on CPUs 0\u20137 for the remaining nine jobs. In that final slice, CPU 0 executes indices 6743 and 6755; CPUs 1\u20137 execute indices 5195, 10363, 6744, 6746, 6749, 6750 and 6752 respectively. Every job runs in a fresh process.",
+  "date": "2026-10-18",
+  "incorrect_prior_statement": "The main campaign uses seven workers on CPUs 0\u20136; retries run in fresh processes on CPU 7.",
+  "interpretation": "The previous validation and byte-reproducible accounting remain preserved. They did not establish the incorrect all-retries-on-CPU7 prose statement. This correction independently checks execution topology against raw supervision and receipt metadata; it does not claim a numerical proof replay or a causal explanation for runtime variability.",
+  "main_per_cpu_job_count": {
+    "0": 133,
+    "1": 133,
+    "2": 133,
+    "3": 132,
+    "4": 132,
+    "5": 132,
+    "6": 132
+  },
+  "old_report": "tests/dsd/results/P15_high_rate_2026-10-18/report_preparation/P15_final_campaign_addendum_2026-10-18.md",
+  "old_report_sha256": "ce25cfe4c48e1aab3dfcca4a366f221f8949d55fa01def69c1e386c98b53c319",
+  "preserved_existing_files_sha256": {
+    "tests/dsd/results/P15_high_rate_2026-10-18/report_preparation/FINAL_CAMPAIGN_ADDENDUM_2026-10-18.json": "4dfddb16667ec52d33516611d9b441e90c5ac279007af3385ad33e5f5b81457d",
+    "tests/dsd/results/P15_high_rate_2026-10-18/report_preparation/FINAL_CAMPAIGN_ADDENDUM_2026-10-18.sha256": "e802525f100578ab2e4dcf563b33c0a21480724955a0aba4a641a7ab8fcaf56e",
+    "tests/dsd/results/P15_high_rate_2026-10-18/report_preparation/FINAL_CAMPAIGN_ADDENDUM_VALIDATION_2026-10-18.json": "86e66ed3956db81859afda0fed77836d3fe48f90723364c209edd17312a0967e",
+    "tests/dsd/results/P15_high_rate_2026-10-18/report_preparation/P15_final_campaign_addendum_2026-10-18.md": "ce25cfe4c48e1aab3dfcca4a366f221f8949d55fa01def69c1e386c98b53c319",
+    "tests/dsd/results/P15_high_rate_2026-10-18/report_preparation/summarize_final_campaign.py": "b0e29ec0ecaf9509fff34c59823c387087ed94a3124a6c4f8dcfcd046213db18"
+  },
+  "retry_per_cpu_job_count": {
+    "0": 2,
+    "1": 1,
+    "2": 1,
+    "3": 1,
+    "4": 1,
+    "5": 1,
+    "6": 1,
+    "7": 14
+  },
+  "retry_topology": {
+    "dedicated_and_slices_01_through_04": {
+      "cpu_set": [
+        7
+      ],
+      "jobs": 13,
+      "workers_per_request": 1
+    },
+    "slice_05": {
+      "cpu_set": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "jobs": 9,
+      "workers": 8
+    }
+  },
+  "schema": "p15_final_campaign_report_correction_v1",
+  "scope": "Evidence-only correction of retry execution-topology prose; no numerical computation, receipt, proof, test, harness, integration patch, or existing report changed.",
+  "source_proof_harness_files_sha256": {
+    "src/dft_filter.c": "7ccefda8f6c2bbf6f4fed25232b20b9fc9b8c6598d56b4451b9047a5cbfd7ae5",
+    "src/dft_filter.h": "1ad5c20762bf7c418f6bd509d5d63977038381dab342c2f7064ea517a9ad9821",
+    "src/dsd.c": "376427406ba7f1e96463b82d308651d548ba4121bf4ad6a04148a415980aff5c",
+    "src/dsd.h": "908b6f7ae4f030b183aadb371f44a3afac1a285eea7128fe6e7de971f9d9e393",
+    "src/dsd_coeffs.h": "853c3e4c1902124513d99706a40a08c9b33363f7e18810ec41a955ab0b598d17",
+    "src/dsd_coeffs_v2.h": "a356b080cf7d90403bbcc684c4df047c1f190212f7156d0a6fcfed6fcbf9884c",
+    "src/dsd_decode.c": "7194387ab5906a1f8cfcaef98a46922a12dd680d2420febc5dd7e993f70bfad7",
+    "src/dsd_decode.h": "f1380afc40e5caf42654aaed30c24405e2fde28290c22d807a02a40cb811a560",
+    "src/dsd_kernels.h": "49efde7e3f8e4bd2c3c40286c8a5cf4a1ad24ffa484c34eaf8f1639770fd35b1",
+    "src/dsd_kernels_scalar.c": "9661303075f0965c0e319ed94c5037da72963aebf4499ba3206b3e8dd3344c26",
+    "src/dsd_public.c": "26b22da56992da1c3cf6151e309dac759235199449b1c2336476766600d8c8be",
+    "src/effects_i_dsp.c": "e576e050ee8b61c39d8f87f0295e1d115c2cc0d27ef2d3b6940e50cf1abd651a",
+    "src/fft4g.c": "fc547db7fc3d0938c53357f98c16ec8a1b999c8d94352faa6ea1547df084e39b",
+    "src/fft4g.h": "a4e19b04d9c00c23503f252db8a86735c2decf114e6995ce80b704b62e9fed65",
+    "src/rate.c": "aefcbff631e391531e00dabcdf7a1d328fa110baa7379a33dc6cb2465eeaafa6",
+    "src/rate_filters.h": "01fb08a228cf829abc58b67eff9a0772d39ad7a5396e7d72c7fb30895e18fe69",
+    "src/rate_half_fir.h": "ce6a146f1a80395bde0c1954c16fb167d11e25d986a4895ebd64e65c9b76bc6e",
+    "src/rate_internal.h": "cf225186b75a472b3ca87d2668e21cbf15895026888379e54d77d6ee35fa4edd",
+    "src/rate_poly_fir.h": "da5f8658b9b0a99e20ee8d25da9ba661076e3567d12f15cc9ad7c260ce520982",
+    "src/rate_poly_fir0.h": "bd86a881e1e27718854e0e61451c118dc1f8f2cc7748974e8db0e00846de23b7",
+    "src/sox_i.h": "6118cf28c80ecbb80f2b475f69af89971209d7539d241400299a7dbafe096918",
+    "test/Makefile.am": "49fb31d45f2e019395743a3937f7692cb44552547a9e4380ce40abc9eb1b9429",
+    "tests/dsd/certify_filters.py": "3d8facc789f3cc9e0c5adc8411365d6b8813d71bcc039fb6f3e831da92caa80d",
+    "tests/dsd/p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+    "tests/dsd/p15_high_rate_experiment.py": "1dbaf498e8127facf0bab4a72916a1bba5f7d3785f8d1babb028e071a68bcd57",
+    "tests/dsd/p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+    "tests/dsd/p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+    "tests/dsd/p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+    "tests/dsd/p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+    "tests/dsd/p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+    "tests/dsd/p15_src_continuum_bounds.py": "2656e0fafac58a6d4cffd19002f6ff22d5a851f4e730afd9ab6e70c684f7f1b5",
+    "tests/dsd/p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+    "tests/dsd/p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+    "tests/dsd/p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+    "tests/dsd/p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+    "tests/dsd/p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+    "tests/dsd/p15_src_operator_observations.py": "4bc869f647141530c3a638537aa9766c35b6e72f7ad96170b69edd055302868a",
+    "tests/dsd/p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+    "tests/dsd/p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d",
+    "tests/dsd/p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368",
+    "tests/dsd/reference/p06_coefficients.json": "d54b130fb8fd9687023a0090fe966275070e4778c7e5a133f0b42ff05cdc1f38",
+    "tests/dsd/reference/p15_r3_coefficients.json": "d70be389ee36174373f8eb5f572033d2a50c089fed481a974d5bea1e23971aad",
+    "tests/dsd/results/P15_v1_matrix_rebound_2026-10-15/scalar/worklist.json": "a70cd7d43056b07d46af8b928e6ce5db0b082d6eef831c5dcde906880fe0d8c4",
+    "tests/dsd/results/P15_v2_matrix_2026-10-15/scalar/worklist.json": "0393a0d1b746cad73133ba4fe16f35d0399b25bb097f4a31bc89123f67e9604a",
+    "tests/dsd/test_p07_reference.c": "1961ba97e02832c7ce6a8ebede0009e19a18b976855a2dbc9965aa8595e4ae0b",
+    "tests/dsd/test_p15_src_stage_export.c": "e5738d41b154fd6adea97b29b5a830f134b87e59fda47f9d87f74029e5395af2"
+  },
+  "status": "PASS",
+  "supervisor_request_checks": [
+    {
+      "cpu_set": [
+        7
+      ],
+      "cpu_start": 7,
+      "external_seconds": 205.0,
+      "job_count": 1,
+      "jobs_by_cpu": {
+        "7": [
+          6678
+        ]
+      },
+      "label": "candidate_final_retry_180s",
+      "per_cpu_job_count": {
+        "7": 1
+      },
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/FINAL_RETRY_180S_SLICE_01_PLAN.json",
+      "plan_sha256": "5ac99156e47cbdbe6555a20adfd82952bf318999f640204f0b53c1a1f2eb42da",
+      "request": "tests/dsd/results/P15_high_rate_2026-10-18/campaign_final_retry_180s/supervision/run-1792357300311158987-2/request.json",
+      "request_ordered_jobs": [
+        6678
+      ],
+      "request_sha256": "55131cc782879aa66ce5678ba2fcbdbfeaf41f13594e9eaab492227fe6d05ba6",
+      "signal_seconds": 180.0,
+      "workers": 1
+    },
+    {
+      "cpu_set": [
+        7
+      ],
+      "cpu_start": 7,
+      "external_seconds": 205.0,
+      "job_count": 4,
+      "jobs_by_cpu": {
+        "7": [
+          6704,
+          6707,
+          6710,
+          6722
+        ]
+      },
+      "label": "candidate_final_retry_180s",
+      "per_cpu_job_count": {
+        "7": 4
+      },
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/FINAL_RETRY_180S_SLICE_02_PLAN.json",
+      "plan_sha256": "3e3d4a404fe6becc63512980e010b1eb59b7af77ecbb39a3c4c73144d85d6d47",
+      "request": "tests/dsd/results/P15_high_rate_2026-10-18/campaign_final_retry_180s/supervision/run-1792357404078995156-2/request.json",
+      "request_ordered_jobs": [
+        6704,
+        6707,
+        6710,
+        6722
+      ],
+      "request_sha256": "3d5858f37658770195514488f17cc5c27f6b4559f89eb7b8c49b09377dae2cb0",
+      "signal_seconds": 180.0,
+      "workers": 1
+    },
+    {
+      "cpu_set": [
+        7
+      ],
+      "cpu_start": 7,
+      "external_seconds": 205.0,
+      "job_count": 5,
+      "jobs_by_cpu": {
+        "7": [
+          6719,
+          6725,
+          6728,
+          6731,
+          6734
+        ]
+      },
+      "label": "candidate_final_retry_180s",
+      "per_cpu_job_count": {
+        "7": 5
+      },
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/FINAL_RETRY_180S_SLICE_03_PLAN.json",
+      "plan_sha256": "a941c8971e4c55820041a33b71db224d503e8fd565eaf8a25f21eb1c552fc0b8",
+      "request": "tests/dsd/results/P15_high_rate_2026-10-18/campaign_final_retry_180s/supervision/run-1792357685394735174-2/request.json",
+      "request_ordered_jobs": [
+        6719,
+        6725,
+        6728,
+        6731,
+        6734
+      ],
+      "request_sha256": "d92f0a0ee36239e8f84c924eaaae4ae24d75dea960860b108dbd8e7c37233947",
+      "signal_seconds": 180.0,
+      "workers": 1
+    },
+    {
+      "cpu_set": [
+        7
+      ],
+      "cpu_start": 7,
+      "external_seconds": 205.0,
+      "job_count": 2,
+      "jobs_by_cpu": {
+        "7": [
+          6737,
+          6740
+        ]
+      },
+      "label": "candidate_final_retry_180s",
+      "per_cpu_job_count": {
+        "7": 2
+      },
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/FINAL_RETRY_180S_SLICE_04_PLAN.json",
+      "plan_sha256": "37429b9c7882d50f069a59068019a3a7931ee5f8b0050e7556232d7c7c6d8c11",
+      "request": "tests/dsd/results/P15_high_rate_2026-10-18/campaign_final_retry_180s/supervision/run-1792358072148125778-2/request.json",
+      "request_ordered_jobs": [
+        6737,
+        6740
+      ],
+      "request_sha256": "7d5f764b64820325ed8861205c7354cdf3eb265a0e2d491b025f0aade016e5a0",
+      "signal_seconds": 180.0,
+      "workers": 1
+    },
+    {
+      "cpu_set": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "cpu_start": 0,
+      "external_seconds": 205.0,
+      "job_count": 9,
+      "jobs_by_cpu": {
+        "0": [
+          6743,
+          6755
+        ],
+        "1": [
+          5195
+        ],
+        "2": [
+          10363
+        ],
+        "3": [
+          6744
+        ],
+        "4": [
+          6746
+        ],
+        "5": [
+          6749
+        ],
+        "6": [
+          6750
+        ],
+        "7": [
+          6752
+        ]
+      },
+      "label": "candidate_final_retry_180s",
+      "per_cpu_job_count": {
+        "0": 2,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1,
+        "6": 1,
+        "7": 1
+      },
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/FINAL_RETRY_180S_SLICE_05_PLAN.json",
+      "plan_sha256": "cf68dcc32dd6c54eca72cdc48dfbd222999b01844b9549df9e8cbde20517dd81",
+      "request": "tests/dsd/results/P15_high_rate_2026-10-18/campaign_final_retry_180s/supervision/run-1792358391517317666-2/request.json",
+      "request_ordered_jobs": [
+        6743,
+        5195,
+        10363,
+        6744,
+        6746,
+        6749,
+        6750,
+        6752,
+        6755
+      ],
+      "request_sha256": "b80d232b5dec15a71c2ad6d3047b5ad848382d0befa7ae66f6c5d5372287f844",
+      "signal_seconds": 180.0,
+      "workers": 8
+    },
+    {
+      "cpu_set": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "cpu_start": 0,
+      "external_seconds": 85,
+      "job_count": 927,
+      "label": "candidate_final_campaign_60s",
+      "per_cpu_job_count": {
+        "0": 133,
+        "1": 133,
+        "2": 133,
+        "3": 132,
+        "4": 132,
+        "5": 132,
+        "6": 132
+      },
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/CAMPAIGN_FINAL_STRICT_PLAN.json",
+      "plan_sha256": "6ac416e71b214b72bae8efc92da8155f3c3cadd251eed735087243b2e706770d",
+      "request": "tests/dsd/results/P15_high_rate_2026-10-18/campaign_final_strict_60s/supervision/run-1792355820792895531-2/request.json",
+      "request_sha256": "86c7d85d87f9ca6a1d8195ec15005423b6d7ffc9857ff8031642eb6f6955347d",
+      "signal_seconds": 60,
+      "workers": 7
+    },
+    {
+      "cpu_set": [
+        7
+      ],
+      "cpu_start": 7,
+      "external_seconds": 205.0,
+      "job_count": 1,
+      "jobs_by_cpu": {
+        "7": [
+          6673
+        ]
+      },
+      "label": "candidate_final_wide256_192000_6000_7000_180s",
+      "per_cpu_job_count": {
+        "7": 1
+      },
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/WIDE256_192000_6000_7000_RETRY_PLAN.json",
+      "plan_sha256": "cc23e6bfaa2b151c9be8ca40a97aad79a632601b83a902c0ccd24cd150ae39e7",
+      "request": "tests/dsd/results/P15_high_rate_2026-10-18/diagnostics/wide256_192000_6000_7000_final_180s/supervision/run-1792357106455952458-2/request.json",
+      "request_ordered_jobs": [
+        6673
+      ],
+      "request_sha256": "83e59d44c99f10be5c1a16b46937ef4a0a72fc60fd52f829c27b789449438150",
+      "signal_seconds": 180.0,
+      "workers": 1
+    }
+  ]
+}

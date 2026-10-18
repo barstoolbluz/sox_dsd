@@ -1,0 +1,1134 @@
+--- a/tests/dsd/p15_src_stagewise_continuum.py
++++ b/tests/dsd/p15_src_stagewise_continuum.py
+@@ -269,33 +269,41 @@
+     pmin,pmax=db_band('0.0001')
+     hi_ref=iv.mpf(pmax);lo_ref=iv.mpf(pmin)
+     alias_ref=iv.mpf('1e-8')
+-    todo=[(lo,hi)]
++    # Only a full, exact-rational stationary alias schedule may be reused.
++    # A subinterval cannot introduce a new transition absent in its parent.
++    todo=[(lo,hi,None)]
+     complete=examined=exact_splits=0
++    fir_evaluations=path_enumerations=0
+     max_alias=0.;min_wanted=1.;max_total=0.
+     def opened(reason):
+         return dict(status='OPEN',reason=reason,qualified_release=False,
+             proven_subintervals=complete,pending_intervals=len(todo),
+-            nodes_examined=examined,exact_branch_splits=exact_splits)
++            nodes_examined=examined,exact_branch_splits=exact_splits,
++            fir_interval_evaluations=fir_evaluations,
++            exact_path_enumerations=path_enumerations)
+     while todo:
+         if examined>=max_nodes:
+             return opened('subdivision_node_budget')
+-        l,h=todo.pop()
++        l,h,paths=todo.pop()
+         examined+=1
+-        try:
+-            paths=complete_paths(profile,op,l,h,max_paths=max_paths,
+-                                 require_direct=(mode=='pass'))
+-        except (AliasProofError,Unproved) as exc:
+-            return opened('operator_path_precondition:'+str(exc))
++        if paths is None:
++            try:
++                path_enumerations+=1
++                paths=complete_paths(profile,op,l,h,max_paths=max_paths,
++                                     require_direct=(mode=='pass'))
++            except (AliasProofError,Unproved) as exc:
++                return opened('operator_path_precondition:'+str(exc))
+         if isinstance(paths,BranchBoundary):
+             if not l<paths.at<h:
+                 return opened('noninterior_exact_branch_boundary')
+             exact_splits+=1
+-            todo.extend(((l,paths.at),(paths.at,h)))
++            todo.extend(((l,paths.at,None),(paths.at,h,None)))
+             continue
+         try:
+             result=bound_segment(paths,l,h,stop_source_hz=S,mode=mode)
+         except (AliasProofError,Unproved) as exc:
+             return opened('operator_bound_precondition:'+str(exc))
++        fir_evaluations+=result['amplitudes_evaluated']
+         wanted_lower=result['wanted_lower']
+         wanted_upper=result['wanted_upper']
+         aliases=result['unwanted_upper']
+@@ -313,7 +321,7 @@
+         if l==h:
+             return opened('insufficient_interval_information_at_point')
+         mid=(l+h)/2
+-        todo.extend(((l,mid),(mid,h)))
++        todo.extend(((l,mid,paths),(mid,h,paths)))
+     return dict(status='PASS-LOCAL-BAND' if mode=='pass' else 'PASS-LOCAL-STOP-SOURCE',
+         qualified_release=False,profile=profile,input_hz=op.input_hz,
+         output_hz=op.output_hz,band_kind=mode,
+@@ -321,12 +329,15 @@
+         certified_hz=[str(lo),str(hi)],native_hz=native,
+         fully_proven_subintervals=complete,nodes_examined=examined,
+         exact_branch_splits=exact_splits,
++        fir_interval_evaluations=fir_evaluations,
++        exact_path_enumerations=path_enumerations,
+         max_coherent_alias_upper=max_alias if mode=='pass' else None,
+         max_native_stop_source_transfer_upper=max_alias if mode=='stop' else None,
+         min_wanted_transfer_lower=min_wanted if mode=='pass' else None,
+         max_total_transfer_upper=max_total if mode=='pass' else None,
+-        method=('75-digit directed interval Taylor recurrence, exact fractional '
+-                'branch splits, complete L1-majorized stagewise inverse aliases'),
++        method=('288-bit outward dyadic Taylor recurrence for exact-even binary64 FIRs; '
++                '75-digit directed complex fallback; exact rational branch splits; '
++                'complete L1-majorized stagewise inverse aliases'),
+         limits=dict(passband_db='0.0001',coherent_alias_db='-160'),
+         limitations=('Local stationary coefficient operator only. Stop mode bounds native input '
+           'frequencies beyond S folding into the named output interval; does not infer '
+--- a/tests/dsd/p15_src_interval_recurrence.py
++++ b/tests/dsd/p15_src_interval_recurrence.py
+@@ -16,7 +16,7 @@
+ iv.dps=75
+ 
+ 
+-def magnitude_bounds(poly: TrigPoly,lo:Fraction,hi:Fraction,order=8):
++def general_magnitude_bounds(poly: TrigPoly,lo:Fraction,hi:Fraction,order=8):
+     if not 1 <= order <= 12 or not Fraction(0)<=lo<=hi<=Fraction(1,2) or not poly.taps:
+         raise BadWitness('invalid interval/order/coefficient witness')
+     theta=2*iv.pi*scalar((lo+hi)/2)
+@@ -69,3 +69,12 @@
+     for j in range(1,order+1):
+         variation+=iv.sqrt(re[j]**2+im[j]**2)*radius**j/math.factorial(j)
+     return center.a-variation.b,center.b+variation.b,center
++
++
++def magnitude_bounds(poly: TrigPoly,lo:Fraction,hi:Fraction,order=8):
++    """Exact-symmetry numerical fast path with conservative general fallback."""
++    from p15_src_symmetric_interval import even_taps
++    from p15_src_fixed_interval import fixed_symmetric_magnitude_bounds
++    if even_taps(poly) is not None:
++        return fixed_symmetric_magnitude_bounds(poly,lo,hi,order)
++    return general_magnitude_bounds(poly,lo,hi,order)
+--- a/tests/dsd/p15_src_stagewise_alias_proof.py
++++ b/tests/dsd/p15_src_stagewise_alias_proof.py
+@@ -40,6 +40,7 @@
+     taps:tuple[tuple[int,float], ...]
+ 
+ 
++@lru_cache(maxsize=32)
+ def make_src_stages(op:SRCOperator):
+     result=[]
+     clock=Fraction(op.input_hz)
+@@ -76,6 +77,7 @@
+     return tuple(result)
+ 
+ 
++@lru_cache(maxsize=16)
+ def make_native_stages(profile):
+     native,R,names,banks=native_profile(profile)
+     clock=native
+--- /dev/null
++++ b/tests/dsd/p15_src_fixed_interval.py
+@@ -0,0 +1,153 @@
++#!/usr/bin/env python3
++"""Rigorous fixed-point Taylor evaluation of exact even binary64 FIRs.
++
++Python integers perform all recurrence, moment, and interval accumulation
++operations exactly. Trigonometric anchor intervals are provided by mpmath.iv
++at >=75 decimal digits, then widened to an enclosing dyadic grid. No binary64
++cosine, FFT, or heuristic forward-error assumption enters the certificate.
++"""
++from __future__ import annotations
++
++from fractions import Fraction
++import math
++
++from mpmath import iv
++from p15_src_continuum_bounds import TrigPoly, BadWitness, scalar
++from p15_src_symmetric_interval import even_taps, _absolute_moment
++
++iv.dps = 75
++_BITS = 288             # dyadic grid finer than the 75-digit IV anchors
++_Q = 1 << _BITS
++
++
++def _ceil_div(num: int, den: int) -> int:
++    return -((-num) // den)
++
++
++def _mpf_dyadic(raw: tuple, *, up: bool):
++    """Round one exact mpmath endpoint to our integer grid, outward."""
++    sign, mantissa, exponent, _bits = raw
++    if (not isinstance(mantissa, int) or not isinstance(exponent, int) or
++        _bits < 0 or sign not in (0, 1) or mantissa < 0):
++        raise BadWitness('nonfinite multiprecision interval endpoint')
++    num = -mantissa if sign else mantissa
++    exponent += _BITS
++    if exponent >= 0:
++        return num << exponent
++    divisor = 1 << (-exponent)
++    return _ceil_div(num, divisor) if up else num // divisor
++
++
++def _from_iv(value):
++    a, b = value._mpi_
++    return _mpf_dyadic(a, up=False), _mpf_dyadic(b, up=True)
++
++
++def _add(a, b):
++    return a[0] + b[0], a[1] + b[1]
++
++
++def _neg(a):
++    return -a[1], -a[0]
++
++
++def _mul(a, b):
++    products = (a[0]*b[0], a[0]*b[1], a[1]*b[0], a[1]*b[1])
++    return min(products) // _Q, _ceil_div(max(products), _Q)
++
++
++def _mul_positive(a, b):
++    if a[0] < 0 or b[0] < 0:
++        raise BadWitness('positive-factor optimization given signed interval')
++    return a[0]*b[0] // _Q, _ceil_div(a[1]*b[1], _Q)
++
++
++def _multiply_exact_coefficient(x, coefficient: float):
++    numerator, denominator = coefficient.as_integer_ratio()  # exact binary64
++    if numerator < 0:
++        x = _neg(x)
++        numerator = -numerator
++    return (x[0]*numerator // denominator,
++            _ceil_div(x[1]*numerator, denominator))
++
++
++def _as_iv(lower: int, upper: int):
++    return iv.mpf([scalar(Fraction(lower, _Q)).a,
++                   scalar(Fraction(upper, _Q)).b])
++
++
++def fixed_symmetric_magnitude_bounds(poly: TrigPoly, lo: Fraction,
++                                     hi: Fraction, order: int = 8):
++    """Uniform directed enclosure using a real Taylor series at the midpoint.
++
++    For an even real coefficient sequence, H(x) is real. The signed Taylor
++    coefficients are enclosed on a dyadic grid by exact integer interval
++    operations, with outward rounding after multiplication. The remainder
++    is bounded by the exact (order+1) binary64 absolute coefficient moment.
++    """
++    if not 1 <= order <= 12 or not Fraction(0) <= lo <= hi <= Fraction(1, 2):
++        raise BadWitness('invalid frequency/order for fixed symmetric bound')
++    symmetrical = even_taps(poly)
++    if symmetrical is None:
++        raise BadWitness('non-even finite FIR')
++    central, pairs = symmetrical
++    midpoint = (lo + hi) / 2
++    radius = (hi - lo) / 2
++    two_pi_iv = 2 * iv.pi
++    theta = two_pi_iv * scalar(midpoint)
++    two_pi = _from_iv(two_pi_iv)
++    d = [(0, 0) for _ in range(order + 1)]
++    d[0] = _multiply_exact_coefficient((_Q, _Q), central)
++    previous = None
++    since_anchor = 0
++    zr = zi = None
++    rotations = {}
++    for k, coefficient in pairs:
++        if previous is None or since_anchor == 48:
++            angle = theta * k
++            zr, zi = _from_iv(iv.cos(angle)), _from_iv(iv.sin(angle))
++            since_anchor = 0
++        else:
++            step = k - previous
++            if step <= 0:
++                raise BadWitness('unsorted coefficient position')
++            if step not in rotations:
++                angle = theta * step
++                rotations[step] = (_from_iv(iv.cos(angle)),
++                                   _from_iv(iv.sin(angle)))
++            cr, ci = rotations[step]
++            oldr, oldi = zr, zi
++            zr = _add(_mul(oldr, cr), _neg(_mul(oldi, ci)))
++            zi = _add(_mul(oldr, ci), _mul(oldi, cr))
++            since_anchor += 1
++        previous = k
++        t = (two_pi[0]*k, two_pi[1]*k)
++        power = (_Q, _Q)
++        for j in range(order + 1):
++            angle_component = zr if j%2 == 0 else zi
++            component = _mul(power, angle_component)
++            term = _multiply_exact_coefficient(component, coefficient)
++            term = (2*term[0], 2*term[1])
++            if j % 4 in (1, 2):
++                term = _neg(term)
++            d[j] = _add(d[j], term)
++            power = _mul_positive(power, t)
++
++    variation = 0
++    for j in range(1, order + 1):
++        numerator = max(abs(d[j][0]), abs(d[j][1])) * radius.numerator**j
++        denominator = radius.denominator**j * math.factorial(j)
++        variation += _ceil_div(numerator, denominator)
++    p = order + 1
++    moment = _absolute_moment(poly, p)
++    mnum, mden = moment.numerator, moment.denominator
++    variation += _ceil_div(mnum * two_pi[1]**p * radius.numerator**p,
++                           mden * (_Q**(p-1)) * radius.denominator**p * math.factorial(p))
++
++    dmin, dmax = d[0]
++    center_upper = max(abs(dmin), abs(dmax))
++    center_lower = (dmin if dmin >= 0 else -dmax if dmax <= 0 else 0)
++    low = scalar(Fraction(center_lower-variation, _Q)).a
++    high = scalar(Fraction(center_upper+variation, _Q)).b
++    center = _as_iv(center_lower, center_upper)
++    return low, high, center
+--- /dev/null
++++ b/tests/dsd/p15_src_symmetric_interval.py
+@@ -0,0 +1,116 @@
++#!/usr/bin/env python3
++"""Validated real cosine Taylor enclosure for exactly even source FIRs.
++
++This is an optional numerical fast path; a non-even witness uses the
++independent general complex evaluator. All identities are checked from the
++actual binary64 tap values before using symmetry. No approximate equality,
++truncation, or cancellation-based alias exclusion is allowed.
++"""
++from __future__ import annotations
++
++from fractions import Fraction
++from functools import lru_cache
++import math
++
++from mpmath import iv
++from p15_src_continuum_bounds import TrigPoly, BadWitness, scalar
++
++iv.dps = 75
++
++
++@lru_cache(maxsize=128)
++def even_taps(poly: TrigPoly):
++    """Return (central coefficient, positive taps) iff H has exact real parity.
++
++    Zero coefficients may be unpaired. Negative zero is also exactly zero;
++    signs of zero cannot influence the mathematical FIR response.
++    """
++    if poly.center != 0 or not poly.taps:
++        return None
++    taps = dict(poly.taps)
++    if len(taps) != len(poly.taps):
++        return None
++    for k, value in poly.taps:
++        if not isinstance(k, int) or not math.isfinite(value):
++            return None
++        if value and taps.get(-k) != value:
++            return None
++    return taps.get(0, 0.0), tuple((k, value) for k, value in poly.taps
++                                      if k > 0 and value != 0)
++
++
++@lru_cache(maxsize=128)
++def _absolute_moment(poly: TrigPoly, order: int) -> Fraction:
++    """Exact moment of the signed binary64 coefficient witness.
++
++    Both members of each nonzero symmetric pair contribute. The order is
++    fixed and small (<=12). The moment is frequency-independent and can be
++    safely reused across subdivisions of the same source stage.
++    """
++    symmetrical = even_taps(poly)
++    if symmetrical is None:
++        raise BadWitness('non-even response has no real-cosine moment')
++    return sum((2 * abs(Fraction.from_float(value)) * k**order
++                for k, value in symmetrical[1]), Fraction(0))
++
++
++def symmetric_magnitude_bounds(poly: TrigPoly, lo: Fraction, hi: Fraction,
++                               order: int = 8):
++    """Outward interval bound on |H(f)| for every f in closed [lo,hi].
++
++    For the exact even FIR, H(f) = h[0] + 2 sum_{k>0} h[k] cos(2*pi*k*f)
++    is REAL. Taylor coefficients and a global absolute derivative remainder
++    enclose H uniformly. All endpoint operations, including trig, use
++    directed 75-digit mpmath intervals. The independent complex evaluator
++    remains available to check this reduction.
++    """
++    if not 1 <= order <= 12 or not Fraction(0) <= lo <= hi <= Fraction(1, 2):
++        raise BadWitness('invalid interval/order')
++    symmetrical = even_taps(poly)
++    if symmetrical is None:
++        raise BadWitness('non-even source coefficient witness')
++    central, pairs = symmetrical
++    theta = 2 * iv.pi * scalar((lo + hi) / 2)
++    radius = scalar((hi - lo) / 2)
++    two_pi = 2 * iv.pi
++    derivative = [iv.mpf(0) for _ in range(order + 1)]
++    derivative[0] += iv.mpf(central)
++
++    previous = None
++    since_anchor = 0
++    zr = zi = None
++    rotations = {}
++    for k, coefficient in pairs:
++        if previous is None or since_anchor == 48:
++            angle = theta * k
++            zr, zi = iv.cos(angle), iv.sin(angle)
++            since_anchor = 0
++        else:
++            step = k - previous
++            if step <= 0:
++                raise BadWitness('unordered real cosine witness')
++            if step not in rotations:
++                angle = theta * step
++                rotations[step] = (iv.cos(angle), iv.sin(angle))
++            cr, ci = rotations[step]
++            zr, zi = zr*cr - zi*ci, zr*ci + zi*cr
++            since_anchor += 1
++        previous = k
++        coeff = 2 * iv.mpf(coefficient)
++        power = iv.mpf(1)
++        t = two_pi * k
++        for j in range(order + 1):
++            signed = (zr if j % 2 == 0 else zi) * (-1 if j % 4 in (1, 2) else 1)
++            derivative[j] += coeff * power * signed
++            power *= t
++
++    # The exact moment includes every coefficient: no omitted tap term, even
++    # when a response vanishes by cancellation at the midpoint.
++    rem = (scalar(_absolute_moment(poly, order + 1)) *
++           (two_pi * radius)**(order + 1) / math.factorial(order + 1))
++    variation = rem.b
++    for j in range(1, order + 1):
++        variation += (iv.fabs(derivative[j]).b * radius**j /
++                      math.factorial(j)).b
++    center = iv.fabs(derivative[0])
++    return center.a - variation.b, center.b + variation.b, center
+--- /dev/null
++++ b/tests/dsd/test_p15_prover_fixed_interval.py
+@@ -0,0 +1,194 @@
++#!/usr/bin/env python3
++"""Independent enclosures for the P15 even-FIR dyadic interval evaluator."""
++from __future__ import annotations
++from fractions import Fraction
++import math
++import random
++import unittest
++
++from mpmath import iv
++from p15_src_continuum_bounds import TrigPoly, magnitude_bounds as direct_reference
++from p15_src_fixed_interval import (_Q, _from_iv, _mul, _mul_positive,
++    _multiply_exact_coefficient, fixed_symmetric_magnitude_bounds)
++from p15_src_symmetric_interval import even_taps, symmetric_magnitude_bounds
++from p15_src_interval_recurrence import (magnitude_bounds,
++    general_magnitude_bounds)
++from p15_src_branch_bound import bound_population
++from p15_src_stagewise_alias_proof import FIRStage
++from p15_src_stagewise_continuum import (AliasPath, bounds_single,
++    BranchBoundary, complete_paths)
++from p15_src_capture_matrix import verify_pair, DEFAULT
++
++
++def truth_contained(frequency, poly, lo, hi, order):
++    fast_lo,fast_hi,_ = fixed_symmetric_magnitude_bounds(poly,lo,hi,order)
++    # The point response is evaluated through the independent DIRECT
++    # complex interval evaluator, rather than via the fixed-point recurrence.
++    ref_lo,ref_hi,_=direct_reference(poly,frequency,frequency,order)
++    assert bool(fast_lo.a <= ref_lo.a), (lo,hi,frequency,fast_lo,ref_lo)
++    assert bool(fast_hi.b >= ref_hi.b), (lo,hi,frequency,fast_hi,ref_hi)
++
++
++class FixedAlgebra(unittest.TestCase):
++    def test_directed_dyadic_endpoints_and_products(self):
++        random_gen=random.Random(2173)
++        for _ in range(120):
++            a=Fraction(random_gen.randint(-100000,100000),random_gen.randint(1,9000))
++            b=Fraction(random_gen.randint(-100000,100000),random_gen.randint(1,9000))
++            x=(a.numerator*_Q//a.denominator,
++               -((-a.numerator*_Q)//a.denominator))
++            y=(b.numerator*_Q//b.denominator,
++               -((-b.numerator*_Q)//b.denominator))
++            self.assertLessEqual(Fraction(x[0],_Q),a)
++            self.assertGreaterEqual(Fraction(x[1],_Q),a)
++            prod=_mul(x,y)
++            self.assertLessEqual(Fraction(prod[0],_Q),a*b)
++            self.assertGreaterEqual(Fraction(prod[1],_Q),a*b)
++            coeff=math.ldexp(random_gen.randint(-500,500),-20)
++            scaled=_multiply_exact_coefficient(x,coeff)
++            expected=a*Fraction.from_float(coeff)
++            self.assertLessEqual(Fraction(scaled[0],_Q),expected)
++            self.assertGreaterEqual(Fraction(scaled[1],_Q),expected)
++        x=_from_iv(iv.pi)
++        def dyadic(raw):
++            sign,mantissa,exponent,_ = raw
++            return Fraction(-mantissa if sign else mantissa) * Fraction(2)**exponent
++        self.assertLessEqual(Fraction(x[0],_Q),dyadic(iv.pi._mpi_[0]))
++        self.assertGreaterEqual(Fraction(x[1],_Q),dyadic(iv.pi._mpi_[1]))
++
++    def test_exact_symmetry_guard_and_complex_fallback(self):
++        even=TrigPoly(((-3,0.),(-2,.125),(-1,-.25),(0,1.),
++                       (1,-.25),(2,.125)),Fraction(0))
++        self.assertIsNotNone(even_taps(even))
++        empty=TrigPoly((),Fraction(0))
++        self.assertIsNone(even_taps(empty))
++        with self.assertRaises(Exception):
++            magnitude_bounds(empty,Fraction(0),Fraction(1,2))
++        odd=TrigPoly(((-1,.25),(0,1.),(1,.125)),Fraction(0))
++        self.assertIsNone(even_taps(odd))
++        for poly in (odd,TrigPoly(((0,1.0),(7,-.125)),Fraction(1,4))):
++            self.assertIsNone(even_taps(poly))
++            bounds=magnitude_bounds(poly,Fraction(1,17),Fraction(2,17))
++            ref=general_magnitude_bounds(poly,Fraction(1,17),Fraction(2,17))
++            self.assertEqual(bounds,ref)
++
++
++class ContinuousPointEnclosures(unittest.TestCase):
++    def test_adversarial_rational_nyquist_zero_and_cancellation(self):
++        cases=[
++            (TrigPoly(((-1,-.5),(0,1.),(1,-.5)),Fraction(0)),
++                Fraction(0),Fraction(1,300)),
++            (TrigPoly(((-2,.5),(0,-1.),(2,.5)),Fraction(0)),
++                Fraction(1,4)-Fraction(1,100000),Fraction(1,4)+Fraction(1,100000)),
++            (TrigPoly(((-3,.125),(-2,-.25),(0,.25),(2,-.25),(3,.125)),Fraction(0)),
++                Fraction(499,1000),Fraction(1,2)),
++            (TrigPoly(tuple((k, math.ldexp((-1)**k, -13)) for k in range(-800,801)),
++                      Fraction(0)),Fraction(1,5),Fraction(1,5)+Fraction(1,30000)),
++            (TrigPoly(((0,5e-200),),Fraction(0)),Fraction(0),Fraction(1,2)),
++        ]
++        for poly,lo,hi in cases:
++            for order in (2,4,8,12):
++                with self.subTest(n=len(poly.taps),lo=lo,order=order):
++                    fixed=fixed_symmetric_magnitude_bounds(poly,lo,hi,order)
++                    independent=symmetric_magnitude_bounds(poly,lo,hi,order)
++                    # Two separately implemented directed interval algorithms
++                    # need not produce nested interval widths.
++                    for t in (lo, (lo*3+hi)/4,(lo+hi)/2,(lo+hi*3)/4,hi):
++                        reflow,refhigh,_=direct_reference(poly,t,t,order)
++                        for result in (fixed,independent):
++                            self.assertTrue(bool(result[0].a<=reflow.a))
++                            self.assertTrue(bool(result[1].b>=refhigh.b))
++                    self.assertAlmostEqual(float(fixed[1].b),float(independent[1].b),places=9)
++
++    def test_150_digit_independent_point_enclosures(self):
++        # Independently increase reference precision beyond the numerical
++        # evaluator's 75-digit transcendental anchor arithmetic.
++        source = TrigPoly(tuple((k,math.ldexp((-1)**(abs(k)//2),-12))
++                         for k in range(-240,241)),Fraction(0))
++        a=Fraction(1,7)-Fraction(1,100000)
++        b=Fraction(1,7)+Fraction(1,100000)
++        fast=fixed_symmetric_magnitude_bounds(source,a,b,order=12)
++        old=iv.dps
++        try:
++            iv.dps=150
++            for f in (a,(3*a+b)/4,(a+b)/2,(a+3*b)/4,b):
++                ref=direct_reference(source,f,f,order=12)
++                self.assertTrue(bool(fast[0].a <= ref[0].a))
++                self.assertTrue(bool(fast[1].b >= ref[1].b))
++        finally:
++            iv.dps=old
++
++    def test_randomized_high_order_endpoints(self):
++        rnd=random.Random(857)
++        for i in range(24):
++            coeff=[math.ldexp(rnd.uniform(-1,1),-rnd.randint(0,20))
++                   for _ in range(rnd.randint(4,100))]
++            taps=[(0,math.ldexp(rnd.uniform(-1,1),-10))]
++            for k,c in enumerate(coeff,1): taps.extend(((-k,c),(k,c)))
++            poly=TrigPoly(tuple(sorted(taps)),Fraction(0))
++            lo=Fraction(rnd.randrange(0,10000),20000)
++            hi=min(Fraction(1,2),lo+Fraction(rnd.randint(0,500),10000000))
++            order=rnd.choice((1,3,7,8,12))
++            for f in (lo,(lo+hi)/2,hi):
++                with self.subTest(i=i,f=f):truth_contained(f,poly,lo,hi,order)
++
++
++class AliasAndTransitionValidation(unittest.TestCase):
++    def test_complete_multi_alias_hierarchical_upper(self):
++        s1=FIRStage('first',1000,Fraction(1000),1,1,
++                    ((-2,.125),(0,.75),(2,.125)))
++        s2=FIRStage('second',1000,Fraction(1000),1,1,
++                    ((-3,-.0625),(0,.625),(3,-.0625)))
++        shifts=[Fraction(-300),Fraction(-150),Fraction(0),Fraction(150)]
++        paths=[AliasPath(f,((s1,f),(s2,f)),f==0) for f in shifts]
++        lo,hi=Fraction(150),Fraction(151)
++        bound,_=bound_population(paths,lo,hi,include=lambda p:not p.direct,
++                         limit='1e-10',evaluate=lambda term,l,h:
++                          bounds_single(term[0],term[1],l,h)[1])
++        for f in (lo,(lo+hi)/2,hi):
++            total=iv.mpf(0)
++            for path in paths:
++                if path.direct:continue
++                term=iv.mpf(1)
++                for stage,offset in path.terms:
++                    p=TrigPoly(stage.taps,Fraction(0))
++                    fn=abs(f+offset)/stage.input_hz
++                    term*=direct_reference(p,fn,fn)[2]
++                total+=term
++            self.assertTrue(bool(total.b<=bound.b))
++
++    def test_long_real_source_fir_encloses_direct_analytic_reference(self):
++        # Exercise the actual bound, not only synthetic symmetric filters.
++        from p15_src_stagewise_alias_proof import make_src_stages
++        _,op=verify_pair(DEFAULT/'88200-192000',88200,192000)
++        stage=next(s for s in make_src_stages(op) if len(s.taps)==4160)
++        self.assertEqual(stage.taps[0][1],0.0)  # exact unpaired zero
++        poly=TrigPoly(stage.taps,Fraction(0))
++        lo=Fraction(1374,10000)
++        hi=lo+Fraction(1,10000000)
++        fast=fixed_symmetric_magnitude_bounds(poly,lo,hi)
++        for f in (lo,(lo+hi)/2,hi):
++            ref=direct_reference(poly,f,f)
++            self.assertTrue(bool(fast[0].a<=ref[0].a))
++            self.assertTrue(bool(fast[1].b>=ref[1].b))
++
++    def test_one_sided_rational_branch_splits(self):
++        _,op=verify_pair(DEFAULT/'176400-48000',176400,48000)
++        l,h=Fraction(0),Fraction(1000)
++        whole=complete_paths('master128',op,l,h)
++        self.assertIsInstance(whole,BranchBoundary)
++        self.assertEqual(whole.at,600)
++        for low,high in ((l,whole.at),(whole.at,h)):
++            sub=complete_paths('master128',op,low,high)
++            self.assertEqual(len(sub),4704)
++            self.assertEqual(sum(x.direct for x in sub),1)
++            for k in (0,1,2):
++                # The relevant analytic response at a branch's one-sided
++                # endpoint is covered by the interval carrying that branch.
++                p=sub[k]
++                stage,shift=p.terms[0]
++                bounded=bounds_single(stage,shift,low,high)
++                self.assertGreaterEqual(float(bounded[1].b),0)
++
++
++if __name__=='__main__':unittest.main()
+--- /dev/null
++++ b/tests/dsd/p15_prover_build_corpus.py
+@@ -0,0 +1,47 @@
++import sys,json,collections,random
++from pathlib import Path
++sys.path.insert(0,'tests/dsd')
++from p15_full_band_campaign import canonical_plan,receipt_path
++base=Path('tests/dsd/results/P15_full_band_campaign_complete_2026-10-18/receipts')
++replay=Path('tests/dsd/results/P15_campaign_dispatch_corrective_2026-10-17/SCHEDULE_REPLAY.json')
++master=json.loads(replay.read_text())['stationary_schedule_results']
++jobs=canonical_plan(); by_identity={(j['cell_id'],j['mode'],j['lo'],j['hi']):i for i,j in enumerate(jobs)}
++indices={};res=[]
++def add(index,group):
++ if index in indices:indices[index].append(group);return
++ j=jobs[index];r=json.loads(receipt_path(base,j).read_text());idx=len(res)
++ indices[index]=[group]
++ res.append(dict(index=index,job=j,prior_status=r['certificate']['status'],prior_reason=r['certificate'].get('reason'),groups=indices[index]))
++for row in master:
++ key=(row['cell_id'],row['mode'],row['lo'],row['hi'])
++ assert key in by_identity,key
++ add(by_identity[key],'historical_43')
++print('historical',len(res),collections.Counter(r['prior_status'] for r in res),collections.Counter(r['prior_reason'] for r in res))
++# Select by independent reproducible grouping. Find earliest source job for each group.
++categories={}
++for idx,j in enumerate(jobs):
++ if idx in indices:continue
++ receipt=json.loads(receipt_path(base,j).read_text())['certificate']
++ st=receipt['status']; reason=receipt.get('reason','')
++ if st=='OPEN':
++  kind='structural' if str(reason).startswith('operator_path') else 'timeout'
++ elif st.startswith('PASS-LOCAL-'):kind='cheap'
++ else:kind='other'
++ rate='48' if j['output_hz'] in (48000,96000,192000,384000) else '44'
++ dsd=j['cell_id'].split('.')[0]
++ label=(kind,rate,dsd,j['mode'])
++ categories.setdefault(label,idx)
++for (kind,rate,dsd,mode),idx in sorted(categories.items()):
++ add(idx,f'representative_{kind}_{rate}_{dsd}_{mode}')
++# Archived 10x-budget sample, particularly useful for testing whether the
++# new mathematical method converts real historical 60-second timeouts.
++budget=Path('tests/dsd/results/P15_full_band_campaign_complete_2026-10-18/budget-sample')
++by_job_id={json.dumps(j,sort_keys=True):i for i,j in enumerate(jobs)}
++for file in sorted(budget.glob('*.json')):
++ r=json.loads(file.read_text())
++ job=r['job']; idx=by_job_id[json.dumps(job,sort_keys=True)]
++ add(idx,'600s_sample_'+r['certificate']['status'])
++print('budget statuses',collections.Counter(r['certificate']['status'] for r in (json.loads(f.read_text()) for f in budget.glob('*.json'))))
++print('full corpus',len(res),collections.Counter(x['prior_status'] for x in res))
++output=Path('tests/dsd/results/P15_prover_optimization_2026-10-18/CORPUS.json')
++output.write_text(json.dumps(dict(schema='P15/numerical-profiling-corpus/1',source='original-2026-10-18-11516-receipt-full-campaign',cases=res),indent=2,sort_keys=True)+'\n')
+--- /dev/null
++++ b/tests/dsd/p15_prover_benchmark.py
+@@ -0,0 +1,129 @@
++#!/usr/bin/env python3
++"""Reproducible same-host P15 proof benchmark; append-only resumable results.
++
++Baseline numerical modules are exact bytes from the input archive, retained
++in the evidence directory. Historical campaign receipts are never modified.
++"""
++from __future__ import annotations
++import argparse
++from collections import defaultdict
++from contextlib import contextmanager
++import json
++import math
++import os
++from pathlib import Path
++import resource
++import signal
++import sys
++import time
++
++ROOT=Path(__file__).resolve().parents[2]
++EVIDENCE=ROOT/'tests/dsd/results/P15_prover_optimization_2026-10-18'
++SCHEMA='P15/paired-source-bound-prover-benchmark/1'
++
++
++def run():
++    p=argparse.ArgumentParser()
++    p.add_argument('--variant',choices=('baseline','optimized'),required=True)
++    p.add_argument('--seconds',type=float,default=5)
++    p.add_argument('--output',type=Path,required=True)
++    p.add_argument('--first',type=int,default=0)
++    p.add_argument('--limit',type=int,default=0)
++    p.add_argument('--max-nodes',type=int,default=128)
++    a=p.parse_args()
++    if not (0<a.seconds<=3600 and math.isfinite(a.seconds)):
++        raise ValueError('invalid bounded benchmark duration')
++    if a.variant=='baseline':sys.path.insert(0,str(EVIDENCE/'baseline_code'))
++    sys.path.insert(1,str(ROOT/'tests/dsd'))
++    import p15_src_stagewise_continuum as stagewise
++    from p15_src_capture_matrix import verify_pair,DEFAULT
++    from p15_src_bound_operator import source_identity,sha_file
++    from p15_full_band_campaign import canonical_plan
++
++    corpus=json.loads((EVIDENCE/'CORPUS.json').read_text())['cases']
++    canonical=canonical_plan()
++    source=source_identity()
++    source_digest=__import__('hashlib').sha256(json.dumps(source,sort_keys=True).encode()).hexdigest()
++    code_digest=sha_file(Path(stagewise.__file__))
++    assert all(c['job']==canonical[c['index']] for c in corpus), 'corpus not canonical'
++    if a.first<0 or a.first>=len(corpus) or a.limit<0:
++        raise ValueError('invalid benchmark index')
++    args_id=dict(variant=a.variant,seconds=a.seconds,max_nodes=a.max_nodes,
++                 source_digest=source_digest,code_digest=code_digest)
++    a.output.parent.mkdir(parents=True,exist_ok=True)
++    existing={}
++    if a.output.exists():
++        if a.output.is_symlink():raise ValueError('unsafe benchmark output')
++        for line in a.output.read_text().splitlines():
++            doc=json.loads(line)
++            if doc['run_parameters']!=args_id or doc['schema']!=SCHEMA:
++                raise ValueError('benchmark output identity conflict')
++            if doc['index'] in existing:raise ValueError('duplicate completed benchmark job')
++            existing[doc['index']]=doc
++    op_cache={}
++    count=0
++    for entry in corpus[a.first:]:
++        if a.limit and count>=a.limit:break
++        count+=1
++        index=entry['index'];job=entry['job']
++        if index in existing:
++            print('SKIP',index,flush=True)
++            continue
++        key=(job['intermediate_hz'],job['output_hz'])
++        if key not in op_cache:
++            _,op_cache[key]=verify_pair(DEFAULT/f'{key[0]}-{key[1]}',*key)
++        op=op_cache[key]
++        clocks=defaultdict(float)
++        calls=defaultdict(int)
++        def timed(name,func):
++            def wrapper(*args,**kwargs):
++                started=time.perf_counter()
++                try:
++                    result=func(*args,**kwargs)
++                    if name=='paths' and isinstance(result,stagewise.BranchBoundary):
++                        calls['exact_boundaries']+=1
++                    return result
++                finally:
++                    clocks[name]+=time.perf_counter()-started
++                    calls[name]+=1
++            return wrapper
++        originals={n:getattr(stagewise,n) for n in ('complete_paths','bounds_single','bound_population')}
++        for name,orig in originals.items():
++            setattr(stagewise,name,timed({'complete_paths':'paths','bounds_single':'fir',
++                'bound_population':'population'}[name],orig))
++        def expire(s,f):raise TimeoutError('benchmark wall budget')
++        old_handler=signal.getsignal(signal.SIGALRM)
++        start=time.perf_counter()
++        signal.signal(signal.SIGALRM,expire)
++        try:
++            signal.setitimer(signal.ITIMER_REAL,a.seconds)
++            try:
++                result=stagewise.certificate(job['profile'],op,job['lo'],job['hi'],
++                                              mode=job['mode'],max_nodes=a.max_nodes)
++            except TimeoutError:
++                result=dict(status='OPEN',reason='benchmark_interval_seconds_exhausted',
++                    qualified_release=False)
++        finally:
++            signal.setitimer(signal.ITIMER_REAL,0)
++            signal.signal(signal.SIGALRM,old_handler)
++            for name,orig in originals.items():setattr(stagewise,name,orig)
++        elapsed=time.perf_counter()-start
++        peak=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
++        rss=int(next(line.split()[1] for line in Path('/proc/self/status').read_text().splitlines()
++                 if line.startswith('VmRSS:')))
++        doc=dict(schema=SCHEMA,index=index,cell_id=job['cell_id'],
++                 job=job,run_parameters=args_id,original_receipt_status=entry['prior_status'],
++                 original_receipt_reason=entry['prior_reason'],groups=entry['groups'],
++                 result=result,elapsed_s=elapsed,process_high_water_kib=peak,
++                 process_rss_kib=rss,profile_s=dict(clocks),profile_calls=dict(calls),
++                 machine=dict(python=sys.version.split()[0],cpu=os.uname().machine))
++        # One complete JSON line written and fsynced for resumability; never
++        # rewrite an existing record (even when OPEN).
++        data=(json.dumps(doc,sort_keys=True,allow_nan=False)+'\n').encode()
++        with a.output.open('ab') as f:
++            f.write(data);f.flush();os.fsync(f.fileno())
++        print(a.variant,index,job['cell_id'],job['mode'],result['status'],
++              result.get('reason',''),f'{elapsed:.3f}s',flush=True)
++
++
++if __name__=='__main__':run()
+--- /dev/null
++++ b/tests/dsd/p15_prover_cost_profile.py
+@@ -0,0 +1,65 @@
++#!/usr/bin/env python3
++"""Machine-readable cProfile breakdown for the independent source FIR hotspot."""
++from __future__ import annotations
++import cProfile
++from fractions import Fraction
++import json
++from pathlib import Path
++import resource
++import time
++
++from p15_src_capture_matrix import verify_pair,DEFAULT
++from p15_src_stagewise_alias_proof import make_src_stages
++from p15_src_continuum_bounds import TrigPoly
++from p15_src_interval_recurrence import general_magnitude_bounds
++from p15_src_fixed_interval import fixed_symmetric_magnitude_bounds
++
++ROOT=Path(__file__).resolve().parents[2]
++DEST=ROOT/'tests/dsd/results/P15_prover_optimization_2026-10-18/PROFILE_COSTS.json'
++
++
++def profile(fn,poly,lo,hi):
++    p=cProfile.Profile()
++    started=time.monotonic()
++    p.enable()
++    result=fn(poly,lo,hi)
++    p.disable()
++    elapsed=time.monotonic()-started
++    methods=[]
++    for (filename,line,func),(primitive,number,own_time,cumulative,callers) in pstats_dict(p).items():
++        if ('p15_' in filename or ('mpmath/' in filename and func in
++            ('mpi_cos','mpi_sin','sin','cos','mpi_mul','mpi_add','mpi_sub'))):
++            methods.append(dict(module=Path(filename).name,function=func,line=line,
++                                calls=number,self_s=own_time,inclusive_s=cumulative))
++    return dict(elapsed_s=elapsed,bounds=[float(result[0].a),float(result[1].b)],
++                relevant_functions=sorted(methods,key=lambda x:-x['self_s'])[:30])
++
++
++def pstats_dict(p):
++    import pstats
++    return pstats.Stats(p).stats
++
++
++def run():
++    _,op=verify_pair(DEFAULT/'88200-192000',88200,192000)
++    stage=next(s for s in make_src_stages(op) if len(s.taps)==4160)
++    poly=TrigPoly(stage.taps,Fraction(0))
++    lo,hi=Fraction(1374,10000),Fraction(1374,10000)+Fraction(1,10000000)
++    # Warm both before profiling caches to avoid misclassifying one-off
++    # source moment setup as per-evaluation numerical work.
++    general_magnitude_bounds(poly,lo,hi)
++    fixed_symmetric_magnitude_bounds(poly,lo,hi)
++    result=dict(schema='P15/source-fir-cprofile-costs/1',taps=len(stage.taps),
++        normalized_interval=[str(lo),str(hi)],
++        baseline_complex_iv=profile(general_magnitude_bounds,poly,lo,hi),
++        optimized_real_dyadic=profile(fixed_symmetric_magnitude_bounds,poly,lo,hi),
++        peak_process_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
++        caveat='Profiler self/inclusive times are instrumentation-perturbed; nested cumulative times overlap')
++    DEST.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
++    for variant in ('baseline_complex_iv','optimized_real_dyadic'):
++        print(variant,round(result[variant]['elapsed_s'],3),'seconds')
++        for item in result[variant]['relevant_functions'][:8]:
++            print('  ',item['function'],item['calls'],round(item['self_s'],4))
++
++
++if __name__=='__main__':run()
+--- /dev/null
++++ b/tests/dsd/p15_prover_evidence_integrity.py
+@@ -0,0 +1,61 @@
++#!/usr/bin/env python3
++"""Byte-level comparison with the submitted tarball's immutable P15 evidence."""
++from __future__ import annotations
++import argparse
++from hashlib import sha256
++import json
++from pathlib import Path
++import tarfile
++from p15_src_bound_operator import ROOT, SOURCES, source_identity, sha_file
++
++OUT=ROOT/'tests/dsd/results/P15_prover_optimization_2026-10-18/SOURCE_INTEGRITY.json'
++PREFIXES=('tests/dsd/results/P15_full_band_campaign_complete_2026-10-18/receipts/',
++          'tests/dsd/results/P15_full_band_campaign_partial_2026-10-17/receipts/',
++          'tests/dsd/results/P15_full_band_campaign_complete_2026-10-18/budget-sample/')
++
++
++def verify(tar_path):
++    original=sha256(tar_path.read_bytes()).hexdigest()
++    if original!='82c6e31d24b37b18ff5c60bb18f7c1dd266988da6cace9687005c2c6384365c2':
++        raise ValueError('submitted source archive digest mismatch')
++    counter={name:0 for name in PREFIXES}
++    counter['pinned_sources']=0
++    inventory=sha256()
++    checked=set()
++    with tarfile.open(tar_path,mode='r|gz') as tar:
++        for member in tar:
++            if not member.isfile() or not member.name.startswith('sox_ng/'):
++                continue
++            rel=member.name[len('sox_ng/'):]
++            tag=(next((name for name in PREFIXES if rel.startswith(name)),None)
++                 or ('pinned_sources' if rel in SOURCES else None))
++            if not tag:continue
++            with tar.extractfile(member) as stream:
++                original_bytes=stream.read()
++            now=ROOT/rel
++            if now.is_symlink() or not now.is_file():
++                raise ValueError('original evidence file removed or converted to symlink: '+rel)
++            if len(original_bytes)!=now.stat().st_size or sha256(original_bytes).hexdigest()!=sha_file(now):
++                raise ValueError('original historical evidence/source modified: '+rel)
++            checked.add(rel)
++            counter[tag]+=1
++            inventory.update(rel.encode()+b'\0'+sha256(original_bytes).hexdigest().encode()+b'\n')
++    expected={rel for name in PREFIXES for rel in (
++        str(p.relative_to(ROOT)) for p in (ROOT/name).glob('*.json'))} | set(SOURCES)
++    if expected!=checked:
++        raise ValueError('archive/checkout evidence set inconsistent: '+str(len(expected^checked)))
++    return dict(schema='P15/original-archive-immutability/1',
++        archive_sha256=original,counts=counter,verified_files=len(checked),
++        original_evidence_inventory_sha256=inventory.hexdigest(),
++        current_pinned_source_identity=source_identity(),
++        status='ALL_CHECKED_FILES_BYTE_IDENTICAL',
++        scope='submitted archive pinned sources + original full, partial and budget receipts')
++
++
++if __name__=='__main__':
++    a=argparse.ArgumentParser()
++    a.add_argument('--submitted',required=True,type=Path)
++    args=a.parse_args()
++    result=verify(args.submitted)
++    OUT.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
++    print(json.dumps({k:v for k,v in result.items() if k!='current_pinned_source_identity'},indent=2))
+--- /dev/null
++++ b/tests/dsd/p15_prover_fir_microbenchmark.py
+@@ -0,0 +1,65 @@
++#!/usr/bin/env python3
++"""Warm same-process baseline vs exact dyadic interval magnitude arithmetic."""
++from __future__ import annotations
++from fractions import Fraction
++from pathlib import Path
++import importlib.metadata
++import json
++import platform
++import resource
++import statistics
++import time
++from p15_src_capture_matrix import verify_pair, DEFAULT
++from p15_src_stagewise_alias_proof import make_native_stages,make_src_stages
++from p15_src_continuum_bounds import TrigPoly
++from p15_src_interval_recurrence import general_magnitude_bounds
++from p15_src_fixed_interval import fixed_symmetric_magnitude_bounds
++
++ROOT=Path(__file__).resolve().parents[2]
++OUT=ROOT/'tests/dsd/results/P15_prover_optimization_2026-10-18/FIR_MICROBENCH.json'
++
++
++def run():
++    _,op_a=verify_pair(DEFAULT/'176400-48000',176400,48000)
++    _,op_b=verify_pair(DEFAULT/'88200-192000',88200,192000)
++    kinds={}
++    for s in make_native_stages('master128')+make_src_stages(op_a)+make_src_stages(op_b):
++        kinds.setdefault(len(s.taps),s)
++    results=[]
++    low=Fraction(1374,10000)
++    high=low+Fraction(1,10000000)
++    for size in (57,153,720,1005,1845,4160):
++        stage=kinds[size]
++        poly=TrigPoly(stage.taps,Fraction(0))
++        outputs={};times={}
++        for name,fn in (('baseline_complex_iv',general_magnitude_bounds),
++                        ('optimized_real_fixed',fixed_symmetric_magnitude_bounds)):
++            fn(poly,low,high)  # prepare caches / warm interpreter
++            samples=[]
++            for _ in range(4):
++                t=time.perf_counter()
++                result=fn(poly,low,high)
++                samples.append(time.perf_counter()-t)
++            times[name]=samples
++            outputs[name]=[float(result[0].a),float(result[1].b)]
++        results.append(dict(stage=stage.kind,taps=size,timing_s=times,
++            baseline_median_s=statistics.median(times['baseline_complex_iv']),
++            optimized_median_s=statistics.median(times['optimized_real_fixed']),
++            speedup=statistics.median(times['baseline_complex_iv'])/
++                    statistics.median(times['optimized_real_fixed']),
++            baseline_bounds=outputs['baseline_complex_iv'],
++            optimized_bounds=outputs['optimized_real_fixed']))
++        print(size,'baseline',results[-1]['baseline_median_s'],
++              'optimized',results[-1]['optimized_median_s'],
++              'speedup',results[-1]['speedup'],flush=True)
++    doc=dict(schema='P15/source-fir-rigorous-arithmetic-microbenchmark/1',
++        interval_normalized=[str(low),str(high)],repeats=4,
++        mpmath=importlib.metadata.version('mpmath'),
++        python=platform.python_version(),platform=platform.platform(),
++        process_peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
++        results=results,limitations=('Warm single-process arithmetic-only microbenchmarks; '
++          'not a 72-cell certificate or physical DSP benchmark'))
++    OUT.write_text(json.dumps(doc,indent=2,sort_keys=True)+'\n')
++
++
++if __name__=='__main__':run()
+--- /dev/null
++++ b/tests/dsd/p15_prover_stage_parity_audit.py
+@@ -0,0 +1,49 @@
++#!/usr/bin/env python3
++"""Source-bound exact binary64 stage parity audit for the P15 72-cell matrix."""
++from __future__ import annotations
++from collections import Counter
++import json
++from pathlib import Path
++from p15_src_capture_matrix import verify_pair, DEFAULT
++from p15_src_complete_aliases import all_active_cells
++from p15_src_stagewise_alias_proof import make_native_stages,make_src_stages
++from p15_src_continuum_bounds import TrigPoly
++from p15_src_symmetric_interval import even_taps
++from p15_src_bound_operator import source_identity
++
++ROOT=Path(__file__).resolve().parents[2]
++OUT=ROOT/'tests/dsd/results/P15_prover_optimization_2026-10-18/STAGE_PARITY_AUDIT.json'
++
++
++def audit():
++    cells=all_active_cells()
++    if len(cells)!=72:raise ValueError('not the P15 72-cell matrix')
++    pairs={};counts=Counter();asymmetric=[]
++    unique=set()
++    for c in cells:
++        clock=(c['intermediate_hz'],c['output_hz'])
++        if clock not in pairs:
++            _,pairs[clock]=verify_pair(DEFAULT/f'{clock[0]}-{clock[1]}',*clock)
++        stages=make_native_stages(c['profile'])+make_src_stages(pairs[clock])
++        for stage in stages:
++            poly=TrigPoly(stage.taps,0)
++            is_even=even_taps(poly) is not None
++            counts['stage_occurrences']+=1
++            counts['exact_even_stage_occurrences']+=int(is_even)
++            key=(stage.kind,stage.input_hz,stage.output_hz,stage.L,stage.M,stage.taps)
++            if key not in unique:
++                unique.add(key)
++                counts['unique_stage_witnesses']+=1
++                counts['unique_even_stage_witnesses']+=int(is_even)
++            if not is_even:
++                asymmetric.append(dict(cell=c['id'],stage_kind=stage.kind,
++                                        stage_taps=len(stage.taps)))
++    return dict(schema='P15/source-stage-even-parity/1',cells=len(cells),
++        verified_pairs=len(pairs),counts=dict(counts),non_even=asymmetric,
++        source_identity=source_identity(),scope='exact coefficient symmetry only; not a spectral certificate')
++
++
++if __name__=='__main__':
++    result=audit()
++    OUT.write_text(json.dumps(result,sort_keys=True,indent=2)+'\n')
++    print(json.dumps({k:v for k,v in result.items() if k!='source_identity'},indent=2))
+--- /dev/null
++++ b/tests/dsd/p15_prover_summarize.py
+@@ -0,0 +1,103 @@
++#!/usr/bin/env python3
++"""Mechanical, provenance-preserving paired local P15 benchmark summary."""
++from __future__ import annotations
++from collections import Counter
++import json
++from pathlib import Path
++import statistics
++
++ROOT=Path(__file__).resolve().parents[2]
++E=ROOT/'tests/dsd/results/P15_prover_optimization_2026-10-18'
++
++
++def read(file):
++    return [json.loads(line) for line in (E/file).read_text().splitlines()]
++
++
++def result_counts(rows):
++    return dict(Counter(x['result']['status'] for x in rows))
++
++
++def main():
++    corpus=json.loads((E/'CORPUS.json').read_text())['cases']
++    assert len(corpus)==104 and sum('historical_43' in r['groups'] for r in corpus)==43
++    assert sum(any(g.startswith('600s_sample_') for g in r['groups']) for r in corpus)==48
++    before4=read('BASELINE_4S.jsonl'); after4=read('OPTIMIZED_4S.jsonl')
++    before2=read('BASELINE_2S.jsonl'); after2=read('OPTIMIZED_2S.jsonl')
++    before60=read('BASELINE_60S.jsonl'); after60=read('OPTIMIZED_60S.jsonl')
++    for rows,expected in ((before4,43),(after4,43),(before2,25),(after2,25),
++                          (before60,1),(after60,7)):
++        assert len(rows)==expected, (len(rows),expected)
++        assert len({x['index'] for x in rows})==expected
++        assert all(x['job']==next(c['job'] for c in corpus if c['index']==x['index']) for x in rows)
++    assert {x['index'] for x in before4}=={x['index'] for x in after4}
++    assert {x['index'] for x in before2}=={x['index'] for x in after2}
++    join4={x['index']:x for x in before4}
++    fir_ratios=[]
++    for x in after4:
++        original=join4[x['index']]
++        f1=original['profile_calls'].get('fir',0)
++        f2=x['profile_calls'].get('fir',0)
++        if f1 and f2:
++            fir_ratios.append(f2/f1)
++    measured=[]
++    for row in sorted(after60,key=lambda r:r['index']):
++        candidate=dict(index=row['index'],cell=row['cell_id'],mode=row['job']['mode'],
++             band_hz=[row['job']['lo'],row['job']['hi']],
++             archived_60s_status=row['original_receipt_status'],
++             archived_60s_reason=row['original_receipt_reason'],
++             result=row['result']['status'],
++             unresolved_reason=row['result'].get('reason'),
++             elapsed_s=row['elapsed_s'],
++             process_high_water_kib=row['process_high_water_kib'],
++             fir_interval_evaluations=row['result'].get('fir_interval_evaluations'),
++             certified_max_alias_upper=row['result'].get('max_coherent_alias_upper'),
++             certified_total_upper=row['result'].get('max_total_transfer_upper'))
++        matching=[b for b in before60 if b['index']==row['index']]
++        if matching:
++            candidate['same_host_baseline_60s']=dict(status=matching[0]['result']['status'],
++                       elapsed_s=matching[0]['elapsed_s'],
++                       process_high_water_kib=matching[0]['process_high_water_kib'])
++        measured.append(candidate)
++    micro=json.loads((E/'FIR_MICROBENCH.json').read_text())
++    audit=json.loads((E/'STAGE_PARITY_AUDIT.json').read_text())
++    integrity=json.loads((E/'SOURCE_INTEGRITY.json').read_text())
++    dispatch=list((E/'optimized_dispatch_receipts').glob('*.json'))
++    assert len(dispatch)==1
++    verified=json.loads(dispatch[0].read_text())
++    assert verified['certificate']['status']=='PASS-LOCAL-BAND'
++    assert verified['job']['cell_id']=='dsd128.mastering.pcm384000'
++    report=dict(schema='P15/prover-optimized-quantified-outcomes/1',
++        original_campaign=dict(total_intervals=11516,passes=6835,open=4681,
++              open_time_budget=3907,open_structural_precondition=774),
++        optimized_full_campaign_reexecuted=False,
++        corpus=dict(size=len(corpus),historical_43=43,
++            source_bound_historical_extended_budget_sample=48),
++        short_historical_benchmark=dict(seconds_per_job=4,case_count=43,
++             baseline=result_counts(before4),optimized=result_counts(after4),
++             source_fir_interval_evaluations_baseline=sum(x['profile_calls'].get('fir',0) for x in before4),
++             source_fir_interval_evaluations_optimized=sum(x['profile_calls'].get('fir',0) for x in after4),
++             per_case_fir_evaluation_median_ratio=statistics.median(fir_ratios)),
++        short_representative_benchmark=dict(seconds_per_job=2,case_count=25,
++             baseline=result_counts(before2),optimized=result_counts(after2)),
++        actual_sixty_second_selected=dict(cases=measured,optimized_counts=result_counts(after60),
++             baseline_same_host_counts=result_counts(before60),
++             nonrepresentative_selection=True),
++        warm_fir_microbenchmark=dict(taps_to_speedup={str(x['taps']):x['speedup']
++             for x in micro['results']},process_peak_rss_kib=micro['process_peak_rss_kib']),
++        exact_binary64_symmetry_audit=audit['counts'],
++        historical_evidence_byte_integrity=dict(status=integrity['status'],
++             verified_files=integrity['verified_files'],
++             inventory_sha256=integrity['original_evidence_inventory_sha256']),
++        new_dispatch_receipt=dict(file=str(dispatch[0].relative_to(ROOT)),
++             status=verified['certificate']['status'],
++             proof_interval=verified['certificate']['certified_hz'],
++             alias_upper=verified['certificate']['max_coherent_alias_upper'],
++             source_bindings_count=len(verified['binding']['source'])),
++        release_disposition='BLOCKED; no full-campaign or FFT4G roundoff closure',
++        caution='OPEN is not FAIL. Alias routing schedules and spectral inequality proofs are distinct.')
++    (E/'RESULTS_SUMMARY.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
++    print(json.dumps({k:v for k,v in report.items() if k not in ('actual_sixty_second_selected',)},indent=2))
++
++
++if __name__=='__main__':main()

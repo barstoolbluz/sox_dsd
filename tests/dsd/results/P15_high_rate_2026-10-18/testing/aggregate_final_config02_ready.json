@@ -1,0 +1,16 @@
+{
+  "command": [
+    "python3",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/aggregate_final.py",
+    "--config",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/FINAL_AGGREGATION_CONFIG_02.json",
+    "--readjudication",
+    "tests/dsd/results/P15_high_rate_2026-10-18/complete_cell/normative_readjudication_02/verification.json",
+    "--check-only"
+  ],
+  "elapsed_s": 0.8184247899998809,
+  "numerical_proofs_run": false,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"measurements\": [{\"expected\": 383, \"label\": \"candidate_v1_campaign_60s\", \"missing_indices\": [], \"observed\": 383}, {\"expected\": 24, \"label\": \"baseline_matched_v1_60s\", \"missing_indices\": [], \"observed\": 24}, {\"expected\": 24, \"label\": \"candidate_v1_matched_60s\", \"missing_indices\": [], \"observed\": 24}, {\"expected\": 1, \"label\": \"candidate_v1_diagnostic_180s\", \"missing_indices\": [], \"observed\": 1}, {\"expected\": 1, \"label\": \"candidate_v2b_diagnostic_60s\", \"missing_indices\": [], \"observed\": 1}, {\"expected\": 26, \"label\": \"baseline_matched_v2b_60s\", \"missing_indices\": [], \"observed\": 26}, {\"expected\": 26, \"label\": \"candidate_v2b_matched_60s\", \"missing_indices\": [], \"observed\": 26}, {\"expected\": 927, \"label\": \"candidate_final_campaign_60s\", \"missing_indices\": [], \"observed\": 927}, {\"expected\": 8, \"label\": \"baseline_matched_final_60s\", \"missing_indices\": [], \"observed\": 8}, {\"expected\": 8, \"label\": \"candidate_final_matched_60s\", \"missing_indices\": [], \"observed\": 8}, {\"expected\": 1, \"label\": \"candidate_final_wide256_192000_6000_7000_180s\", \"missing_indices\": [], \"observed\": 1}, {\"expected\": 21, \"label\": \"candidate_final_retry_180s\", \"missing_indices\": [], \"observed\": 21}], \"status\": \"READY\"}\n"
+}

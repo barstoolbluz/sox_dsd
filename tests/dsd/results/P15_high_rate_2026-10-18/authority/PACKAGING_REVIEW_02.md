@@ -1,0 +1,15 @@
+# Packaging review closure before final execution
+
+Date: 2026-10-18. Reviewed final utility SHA-256: `de3f65a0cd900cf3c31374fadf255a90c332b8c5a04e1eaeaec9ed0fa0632771` (`execution/package_final.py`).
+
+The root agent corrected the guard gaps recorded in `PACKAGING_REVIEW_01.md`. The current utility recaptures the complete non-cache path/hash inventory before reporting success and rejects any difference. It explicitly rejects unreviewed working symlinks. It checks the delivered census/report manifests, code/source/design identities, final readjudication identity, all configured plans and proof snapshots, candidate label sets, and every independently verified complete cell named by the coverage report.
+
+The field names and relative-path conventions match the actual census, coverage, and complete-cell generators. Census/report SHA-256 manifests contain basenames relative to their own directories. Complete-cell manifests contain safe nested paths relative to the cell directory. The selected/all-attempt raw receipt manifests instead contain repository-relative paths. The new manifest checker was executed against all three available complete-cell directories and all **824** selected raw receipt entries; every check succeeded. `PACKAGE_GUARD_SCHEMA_REVIEW.json` retains that concrete test of the unchanged manifest checker, its then-current utility hash, and its explicit limited scope.
+
+The optional aggregation configuration is passed consistently to the current-input preflight and the stored-report identity checks. The final containment guard requires a regular file inside the resolved new-evidence tree. Its bytes are therefore included in the payload inventory and archive; the delivery validation records its repository-relative path and SHA-256. A retry-inclusive configuration can be selected without altering the frozen numerical proof or integration patch.
+
+No obvious schema-based false rejection was found for the current evidence. The independent-cell allowlist intentionally contains the four reviewed target cells. An unexpected additional complete cell would require a corresponding independently reviewed verification artifact, rather than being silently admitted by the packager.
+
+This review does not claim a successful final archive build. The fourth cell and its longer-budget retry evidence, the final exact-normative scan, and the completed census/report were still pending. The final packaging invocation must follow those publications and stop concurrent evidence writers. It will itself reread both completed archives, check every packaged payload/hash and retained original link, and verify that the captured worktree inventory stayed unchanged. No frozen proof, harness, integration patch, original source pin, or historical receipt was modified by this review.
+
+The final inherited-integrity rerun and the new v2 mastering → 384-kHz complete-cell manifest both succeeded during this review. Their exact results are preserved under `authority/final_integrity_2026-10-18/` and `complete_cell/mastering_v2_256_384000_final_complete/`. P15 remains BLOCKED.

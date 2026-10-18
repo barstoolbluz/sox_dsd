@@ -1,0 +1,95 @@
+{
+  "additions": [
+    {
+      "canonical_index": 4294,
+      "job": {
+        "cell_id": "dsd128.wideband.pcm384000",
+        "effective_p": "70560",
+        "hi": "2000",
+        "intermediate_hz": 176400,
+        "lo": "1000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "wide128",
+        "source_s": 88200
+      },
+      "native_nyquist_alias_event_output_hz": "1200",
+      "work_sha256": "9810220660a0d9991e946322071fafacb5a76497d60c02be3041b28fea464f95"
+    },
+    {
+      "canonical_index": 5197,
+      "job": {
+        "cell_id": "dsd256.mastering.pcm96000",
+        "effective_p": "40000",
+        "hi": "2000",
+        "intermediate_hz": 176400,
+        "lo": "1000",
+        "mode": "stop",
+        "output_hz": 96000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "native_nyquist_alias_event_output_hz": "1200",
+      "work_sha256": "af48f841233c032fa8aa366825051c8a9b2f108534e3320b2ec342b0bcc6a8e6"
+    },
+    {
+      "canonical_index": 9522,
+      "job": {
+        "cell_id": "dsd128.mastering_v2.pcm384000",
+        "effective_p": "48000",
+        "hi": "2000",
+        "intermediate_hz": 176400,
+        "lo": "1000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd128",
+        "source_s": 60000
+      },
+      "native_nyquist_alias_event_output_hz": "1200",
+      "work_sha256": "3d462c274a23f3e493c6417a15c4a951a9fcf37708bbf9cf6d0716c5e18f9930"
+    },
+    {
+      "canonical_index": 10341,
+      "job": {
+        "cell_id": "dsd256.mastering_v2.pcm96000",
+        "effective_p": "45600",
+        "hi": "2000",
+        "intermediate_hz": 176400,
+        "lo": "1000",
+        "mode": "pass",
+        "output_hz": 96000,
+        "profile": "decode.mastering.v2.dsd256",
+        "source_s": 80000
+      },
+      "native_nyquist_alias_event_output_hz": "1200",
+      "work_sha256": "29d645a128ed0c7711068caf684221896ecf737b75c0834089b52b3c81df980d"
+    },
+    {
+      "canonical_index": 10387,
+      "job": {
+        "cell_id": "dsd256.mastering_v2.pcm96000",
+        "effective_p": "45600",
+        "hi": "2000",
+        "intermediate_hz": 176400,
+        "lo": "1000",
+        "mode": "stop",
+        "output_hz": 96000,
+        "profile": "decode.mastering.v2.dsd256",
+        "source_s": 80000
+      },
+      "native_nyquist_alias_event_output_hz": "1200",
+      "work_sha256": "92402e1edbf267a80d53f5786e0a3967f737dec7e126fd3ae0c4ccb43db29292"
+    }
+  ],
+  "description": "Add exact two-sided native-Nyquist alias relabeling at output 1200 Hz in five previously one-sided band selections; preserve all existing normative acceptance bands.",
+  "job_indices": [
+    4294,
+    5197,
+    9522,
+    10341,
+    10387
+  ],
+  "rationale": "For each selected cell the primitive native-source lattice spacing is 1200 Hz and native Nyquist is congruent to output 0 modulo that spacing. The closed 1000\u20132000 Hz canonical interval contains the 1200 Hz relabeling and both neighboring open intervals. Existing sparse selections in these individual bands had no such two-sided event. This extends the measurement corpus only, without a spectral disposition or a new acceptance band.",
+  "source_plan": "execution/CAMPAIGN_FINAL_MAXPOP_PLAN.json",
+  "source_plan_sha256": "db8cf23cc829d7147980edb6ef699b55a4b2f53bcd87b3f6c0a4fdde98943b8f"
+}

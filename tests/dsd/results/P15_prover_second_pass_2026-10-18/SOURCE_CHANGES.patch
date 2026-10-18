@@ -1,0 +1,526 @@
+--- a/tests/dsd/p15_src_fixed_interval.py
++++ b/tests/dsd/p15_src_fixed_interval.py
+@@ -9,6 +9,7 @@
+ from __future__ import annotations
+ 
+ from fractions import Fraction
++from functools import lru_cache
+ import math
+ 
+ from mpmath import iv
+@@ -71,6 +72,41 @@
+             _ceil_div(x[1]*numerator, denominator))
+ 
+ 
++@lru_cache(maxsize=48)
++def _derivative_weights(poly: TrigPoly, order: int):
++    """Precompute the exact per-tap, frequency-independent FIR derivative.
++
++    Returns (k, ((numerator, denominator), ...)) where weight j is exactly
++    2*binary64_coefficient*k**j. All values are integers, with no floating
++    evaluation or rounding. Reuse across subdivisions never changes a bound.
++    """
++    symmetry = even_taps(poly)
++    if symmetry is None:
++        raise BadWitness('derivative weight requested for non-even FIR')
++    rows=[]
++    for k,c in symmetry[1]:
++        coeff=2*Fraction.from_float(c)
++        power=1
++        values=[]
++        for j in range(order+1):
++            w=coeff*power
++            values.append((w.numerator,w.denominator))
++            power*=k
++        rows.append((k,tuple(values)))
++    return tuple(rows)
++
++
++def _multiply_ratio(x, numerator: int, denominator: int):
++    """Multiply a signed outward dyadic interval by an EXACT rational."""
++    if denominator<=0:
++        raise BadWitness('invalid exact rational weight')
++    if numerator<0:
++        x=_neg(x)
++        numerator=-numerator
++    return (x[0]*numerator // denominator,
++            _ceil_div(x[1]*numerator, denominator))
++
++
+ def _as_iv(lower: int, upper: int):
+     return iv.mpf([scalar(Fraction(lower, _Q)).a,
+                    scalar(Fraction(upper, _Q)).b])
+@@ -102,7 +138,12 @@
+     since_anchor = 0
+     zr = zi = None
+     rotations = {}
+-    for k, coefficient in pairs:
++    # The exact coefficient and integer k powers have no midpoint dependence.
++    # In contrast, the shared 2*pi powers are outward dyadic enclosures.
++    two_pi_powers=[(_Q,_Q)]
++    for j in range(order):
++        two_pi_powers.append(_mul_positive(two_pi_powers[-1],two_pi))
++    for k, weights in _derivative_weights(poly,order):
+         if previous is None or since_anchor == 48:
+             angle = theta * k
+             zr, zi = _from_iv(iv.cos(angle)), _from_iv(iv.sin(angle))
+@@ -121,17 +162,12 @@
+             zi = _add(_mul(oldr, ci), _mul(oldi, cr))
+             since_anchor += 1
+         previous = k
+-        t = (two_pi[0]*k, two_pi[1]*k)
+-        power = (_Q, _Q)
+-        for j in range(order + 1):
+-            angle_component = zr if j%2 == 0 else zi
+-            component = _mul(power, angle_component)
+-            term = _multiply_exact_coefficient(component, coefficient)
+-            term = (2*term[0], 2*term[1])
++        for j, (num,den) in enumerate(weights):
++            component = _mul(two_pi_powers[j],zr if j%2==0 else zi)
++            term = _multiply_ratio(component,num,den)
+             if j % 4 in (1, 2):
+                 term = _neg(term)
+             d[j] = _add(d[j], term)
+-            power = _mul_positive(power, t)
+ 
+     variation = 0
+     for j in range(1, order + 1):
+--- a/tests/dsd/p15_src_stagewise_continuum.py
++++ b/tests/dsd/p15_src_stagewise_continuum.py
+@@ -112,7 +112,7 @@
+     return TrigPoly(tuple(stage.taps),Fraction(0))
+ 
+ 
+-def complete_paths(profile,op,lo:Fraction,hi:Fraction,*,max_paths=12000,require_direct=True):
++def complete_paths(profile,op,lo:Fraction,hi:Fraction,*,max_paths=20000,require_direct=True):
+     if not Fraction(0)<=lo<=hi<=Fraction(op.output_hz,2):
+         raise Unproved('frequency band outside output Nyquist')
+     stages=make_native_stages(profile)+make_src_stages(op)
+@@ -172,13 +172,35 @@
+         if len(paths)>max_paths:
+             raise Unproved('explicit path population exceeds allocated budget')
+     native,_,_,_=native_profile(profile)
+-    # In a valid stage-true period, each harmonic has exactly one reverse path.
+-    # No frequency branch may be omitted or duplicated.
+-    expected=Fraction(native*op.U,op.output_hz)
+-    if expected.denominator!=1 or len(paths)!=int(expected):
+-        raise Unproved('whole-chain harmonic coverage/count inconsistent')
+-    if len({p.upstream_shift for p in paths})!=len(paths):
+-        raise Unproved('frequency families collide; must coherently regroup explicitly')
++    # A factorized rate converter can have MULTIPLE reverse paths feeding the
++    # same primitive native harmonic. Neither deduplication nor a uniqueness
++    # assumption is sound: the physical transfer is the COHERENT sum of all
++    # those paths. bound_population includes every path separately and bounds
++    # that sum by the triangle inequality, including duplicate families.
++    # Check the complete, exact native lattice instead of its path count.
++    spacing=Fraction(op.output_hz,op.U)
++    expected=Fraction(native,1)/spacing
++    if expected.denominator!=1 or expected<1 or len(paths)<int(expected):
++        raise Unproved('whole-chain primitive harmonic count inconsistent')
++    # Existing single-path-per-family fixture support uses synthetic native
++    # stages whose source clock deliberately differs from native_profile.
++    # Preserve that legacy unit-test behavior. For all REAL (source-clock-
++    # consistent) topologies, check the lattice regardless of multiplicity.
++    if stages[0].input_hz==native:
++        lower=ceil((-Fraction(native,2)-midpoint)/spacing)
++        upper=ceil((Fraction(native,2)-midpoint)/spacing)-1
++        represented=set()
++        for path in paths:
++            shifted=path.upstream_shift/spacing
++            if shifted.denominator!=1 or not lower<=shifted.numerator<=upper:
++                raise Unproved('inverse path leaves exact primitive native lattice')
++            represented.add(shifted.numerator)
++        if len(represented)!=int(expected) or min(represented)!=lower or max(represented)!=upper:
++            raise Unproved('incomplete primitive native source lattice')
++    elif len(paths)!=int(expected) or len({p.upstream_shift for p in paths})!=len(paths):
++        # An incoherent injected topology must never gain the new path-
++        # collision admission without a physically consistent native lattice.
++        raise Unproved('native source-stage clock mismatch in colliding topology')
+     if require_direct and sum(p.direct for p in paths)!=1:
+         raise Unproved('no unique zero-shift wanted branch')
+     return tuple(paths)
+@@ -249,7 +271,7 @@
+                 amplitudes_evaluated=len(cache))
+ 
+ 
+-def certificate(profile,op,lo_hz,hi_hz,*,mode="pass",max_nodes=32,max_paths=12000):
++def certificate(profile,op,lo_hz,hi_hz,*,mode="pass",max_nodes=32,max_paths=20000):
+     lo,hi=fraction(lo_hz),fraction(hi_hz)
+     if mode not in ('pass','stop') or profile not in PROFILE_BANDS:
+         raise Unproved('unreviewed profile or spectral band classification')
+@@ -335,7 +357,7 @@
+         max_native_stop_source_transfer_upper=max_alias if mode=='stop' else None,
+         min_wanted_transfer_lower=min_wanted if mode=='pass' else None,
+         max_total_transfer_upper=max_total if mode=='pass' else None,
+-        method=('288-bit outward dyadic Taylor recurrence for exact-even binary64 FIRs; '
++        method=('cached exact binary64 FIR derivative weights with 288-bit outward dyadic Taylor recurrence; '
+                 '75-digit directed complex fallback; exact rational branch splits; '
+                 'complete L1-majorized stagewise inverse aliases'),
+         limits=dict(passband_db='0.0001',coherent_alias_db='-160'),
+@@ -366,10 +388,13 @@
+     r['stage_snapshot_sha256']=sha_file(snapshot)
+     r['verified_operator_binding_sha256']=sha_file(snapshot.parent/'operator-binding.json')
+     if args.output:
+-        output=args.output.resolve()
++        # Do not follow a symlink in an existing receipt pathname.
++        output=args.output.absolute()
+         data=json.dumps(r,indent=2,sort_keys=True,allow_nan=False)+'\n'
++        if output.is_symlink():
++            raise Unproved('unsafe source-bound local spectral receipt path')
+         if output.exists():
+-            if output.is_symlink() or output.read_text()!=data:
++            if output.read_text()!=data:
+                 raise Unproved('source-bound local spectral receipt conflict')
+         else:
+             output.parent.mkdir(parents=True,exist_ok=True)
+@@ -377,8 +402,13 @@
+             try:
+                 with os.fdopen(fd,'w') as f:
+                     f.write(data);f.flush();os.fsync(f.fileno())
+-                if output.exists():raise Unproved('output appeared during publication')
+-                os.replace(temp,output)
++                # The file system creates at most one winner. os.replace()
++                # would silently OVERWRITE a concurrent source-bound receipt.
++                try:
++                    os.link(temp,output)
++                except FileExistsError:
++                    if output.is_symlink() or output.read_text()!=data:
++                        raise Unproved('concurrent source-bound receipt conflict')
+             finally:
+                 if os.path.exists(temp):os.unlink(temp)
+     print(json.dumps({k:v for k,v in r.items() if k!='source_sha256'},indent=2,sort_keys=True))
+--- a/tests/dsd/p15_src_stagewise_alias_proof.py
++++ b/tests/dsd/p15_src_stagewise_alias_proof.py
+@@ -163,7 +163,7 @@
+     families=alias_families(native_profile(profile)[0],op,f)
+     expected=[x.source_hz for x in families]
+     represented={freq for freq,_,_ in paths}
+-    if len(paths)!=len(families) or represented!=set(expected):
++    if len(paths)<len(families) or represented!=set(expected):
+         raise AliasProofError('native alias coverage does not match stage-true lattice')
+     primary=[amp for x,amp,p in paths if p]
+     other=[amp for x,amp,p in paths if not p]
+--- a/tests/dsd/p15_full_band_campaign.py
++++ b/tests/dsd/p15_full_band_campaign.py
+@@ -73,7 +73,12 @@
+         raise IntervalBudgetExpired('interval wall-clock budget exhausted')
+     signal.signal(signal.SIGALRM,expired)
+     try:
+-        signal.setitimer(signal.ITIMER_REAL,budget)
++        # One-shot SIGALRM can be caught and suppressed deep in numerical
++        # code (e.g. broad exception handling). Once the initial budget has
++        # expired, periodically re-deliver until the context unwinds. Before
++        # its deadline this has exactly the same timer cost as one-shot.
++        # Uninterruptible native calls are explicitly NOT hard-bounded.
++        signal.setitimer(signal.ITIMER_REAL,budget,0.05)
+         yield
+     finally:
+         signal.setitimer(signal.ITIMER_REAL,0)
+@@ -290,7 +295,7 @@
+ 
+ 
+ def run_campaign(output,*,chunk_hz='1000',start=0,limit=0,
+-                 max_nodes=128,max_paths=12000,only_cell=None,only_mode=None,
++                 max_nodes=128,max_paths=20000,only_cell=None,only_mode=None,
+                  interval_seconds=60.0):
+     try:
+         budget=float(interval_seconds)
+@@ -377,7 +382,7 @@
+     ap.add_argument('--start',type=int,default=0)
+     ap.add_argument('--limit',type=int,default=1)
+     ap.add_argument('--max-nodes',type=int,default=128)
+-    ap.add_argument('--max-paths',type=int,default=12000)
++    ap.add_argument('--max-paths',type=int,default=20000)
+     ap.add_argument('--interval-seconds',type=float,default=60.0)
+     ap.add_argument('--summary-only',action='store_true')
+     ap.add_argument('--import-existing',action='store_true')
+--- /dev/null
++++ b/tests/dsd/test_p15_prover_second_pass.py
+@@ -0,0 +1,113 @@
++#!/usr/bin/env python3
++"""Second-pass independent enclosure, path-population, and deadline tests."""
++from __future__ import annotations
++
++from fractions import Fraction
++import random
++import time
++import unittest
++
++from mpmath import iv
++from p15_src_continuum_bounds import TrigPoly, magnitude_bounds as independent_complex
++from p15_src_fixed_interval import (
++    _Q, _derivative_weights, _multiply_ratio, fixed_symmetric_magnitude_bounds)
++from p15_src_stagewise_continuum import complete_paths, BranchBoundary
++from p15_src_stagewise_alias_proof import make_native_stages, make_src_stages, branches
++from p15_src_capture_matrix import verify_pair, DEFAULT
++from p15_src_complete_aliases import native_profile, alias_families
++from p15_src_branch_bound import bound_population
++from p15_src_stagewise_continuum import AliasPath, bounds_single
++from p15_src_stagewise_alias_proof import FIRStage
++from p15_full_band_campaign import interval_deadline, IntervalBudgetExpired
++
++
++class ExactDerivativeWeights(unittest.TestCase):
++    def test_exact_rational_identity_and_cache(self):
++        poly=TrigPoly(((-13,0.125),(-7,-2**-40),(-1,0.375),
++                       (0,-0.5),(1,0.375),(7,-2**-40),(13,0.125)),Fraction(0))
++        weights=_derivative_weights(poly,12)
++        self.assertIs(weights,_derivative_weights(poly,12))
++        for k, items in weights:
++            val=dict(poly.taps)[k]
++            for j,(n,d) in enumerate(items):
++                self.assertEqual(Fraction(n,d),2*Fraction.from_float(val)*k**j)
++
++    def test_directed_signed_rational_multiplication(self):
++        rng=random.Random(0xF15)
++        for _ in range(300):
++            a=Fraction(rng.randrange(-10000,10000),rng.randrange(1,10000))
++            b=Fraction(rng.randrange(-10000,10000),rng.randrange(1,10000))
++            lo=a.numerator*_Q//a.denominator
++            hi=-((-a.numerator*_Q)//a.denominator)
++            result=_multiply_ratio((lo,hi),b.numerator,b.denominator)
++            self.assertLessEqual(Fraction(result[0],_Q),a*b)
++            self.assertGreaterEqual(Fraction(result[1],_Q),a*b)
++
++    def test_optimized_encloses_independent_direct_complex_at_dense_adversarial_points(self):
++        rng=random.Random(0x177)
++        for size in (3,27,143,701):
++            taps={0:0.5 if size%3 else -0.5}
++            for k in range(1,size+1):
++                x=rng.choice((-1,1))*rng.randrange(1,10000)*2**-35
++                taps[k]=taps[-k]=x
++            poly=TrigPoly(tuple(sorted(taps.items())),Fraction(0))
++            for lo,hi in ((Fraction(0),Fraction(1,10**7)),
++                          (Fraction(1,4)-Fraction(1,10**6),Fraction(1,4)+Fraction(1,10**6)),
++                          (Fraction(1,2)-Fraction(1,10**7),Fraction(1,2))):
++                b=fixed_symmetric_magnitude_bounds(poly,lo,hi,order=8)
++                for f in (lo,(2*lo+hi)/3,(lo+hi)/2,(lo+2*hi)/3,hi):
++                    independent=independent_complex(poly,f,f,order=8)
++                    self.assertTrue(bool(b[0].a<=independent[0].a))
++                    self.assertTrue(bool(b[1].b>=independent[1].b))
++
++
++class CollidingNativeLattice(unittest.TestCase):
++    def test_source_bound_factorized_routes_cover_every_primitive_family(self):
++        for profile,inp,out,want_paths,want_unique in (
++            ('master64',88200,48000,9408,4704),
++            ('master128',176400,96000,9408,4704),
++            ('master256',176400,96000,18816,9408),
++        ):
++            with self.subTest(profile=profile):
++                _,op=verify_pair(DEFAULT/f'{inp}-{out}',inp,out)
++                paths=complete_paths(profile,op,Fraction(0),Fraction(1),max_paths=20000)
++                self.assertIsInstance(paths,tuple)
++                self.assertEqual(len(paths),want_paths)
++                self.assertEqual(len({p.upstream_shift for p in paths}),want_unique)
++                self.assertEqual(sum(p.direct for p in paths),1)
++                native,*_=native_profile(profile)
++                freq=Fraction(1,2)
++                reference={fam.source_hz-freq for fam in alias_families(native,op,freq)}
++                self.assertEqual({p.upstream_shift for p in paths},reference)
++                self.assertEqual(len(paths),len(make_native_stages(profile)) and
++                    __import__('math').prod(s.M for s in
++                       make_native_stages(profile)+make_src_stages(op)))
++
++    def test_triangle_bound_cannot_discard_coherent_duplicate_paths(self):
++        a=FIRStage('identity',100,Fraction(100),1,1,((0,1.0),))
++        paths=[AliasPath(Fraction(1),((a,Fraction(1)),),False),
++               AliasPath(Fraction(1),((a,Fraction(1)),),False),
++               AliasPath(Fraction(2),((a,Fraction(2)),),False)]
++        upper,n=bound_population(paths,Fraction(0),Fraction(1),include=lambda p:True,
++                                 limit='1e-12',evaluate=lambda term,l,h:
++                                 bounds_single(term[0],term[1],l,h)[1])
++        self.assertTrue(bool(upper.b>=iv.mpf(3).b))
++        self.assertGreaterEqual(n,2)
++
++
++class RepeatDeadline(unittest.TestCase):
++    def test_first_swallowed_expiration_is_redelivered(self):
++        caught=0
++        started=time.monotonic()
++        with interval_deadline(0.012):
++            while time.monotonic()-started<0.30 and caught<2:
++                try:
++                    while time.monotonic()-started<0.30:
++                        pass
++                except IntervalBudgetExpired:
++                    caught+=1
++        self.assertGreaterEqual(caught,2,'one-shot delivery must not be suppressible')
++        self.assertLess(time.monotonic()-started,0.31)
++
++
++if __name__=='__main__':unittest.main()
+--- /dev/null
++++ b/tests/dsd/p15_second_pass_benchmark.py
+@@ -0,0 +1,92 @@
++#!/usr/bin/env python3
++"""Replay exact P15 continuum intervals against the delivered first and second passes.
++
++Each variant is a separate fresh process with an identical timer and recording
++contract. Outputs are independent immutable JSON documents keyed by inputs.
++Do NOT read new results as full-band certification.
++"""
++from __future__ import annotations
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import platform
++import resource
++import signal
++import sys
++import time
++
++BASE=Path(__file__).resolve().parent
++RESULTS=BASE/'results/P15_prover_second_pass_2026-10-18'
++
++
++def main():
++    p=argparse.ArgumentParser()
++    p.add_argument('--variant',choices=('first_pass','second_pass'),required=True)
++    p.add_argument('--profile',required=True)
++    p.add_argument('--input-hz',type=int,required=True)
++    p.add_argument('--output-hz',type=int,required=True)
++    p.add_argument('--lo',required=True)
++    p.add_argument('--hi',required=True)
++    p.add_argument('--mode',choices=('pass','stop'),default='pass')
++    p.add_argument('--seconds',type=float,default=60)
++    p.add_argument('--max-nodes',type=int,default=128)
++    p.add_argument('--max-paths',type=int,default=20000)
++    p.add_argument('--directory',type=Path,default=RESULTS/'benchmarks')
++    a=p.parse_args()
++    if not (0<a.seconds<=3600 and a.max_nodes>=1 and 1<=a.max_paths<=100000):
++        raise ValueError('invalid resource budget')
++    if a.variant=='first_pass':sys.path.insert(0,str(RESULTS/'first_pass_code'))
++    else:sys.path.insert(0,str(BASE))
++    if str(BASE) not in sys.path:sys.path.insert(1,str(BASE))
++    import p15_src_stagewise_continuum as stagewise
++    from p15_src_capture_matrix import verify_pair, DEFAULT
++    from p15_src_bound_operator import source_identity
++    code_sha=hashlib.sha256(Path(stagewise.__file__).read_bytes()).hexdigest()
++    import p15_src_fixed_interval
++    fir_sha=hashlib.sha256(Path(p15_src_fixed_interval.__file__).read_bytes()).hexdigest()
++    inputs=dict(profile=a.profile,input_hz=a.input_hz,output_hz=a.output_hz,
++        lo=a.lo,hi=a.hi,mode=a.mode,seconds=a.seconds,max_nodes=a.max_nodes,
++        max_paths=a.max_paths,variant=a.variant,code_sha256=code_sha,fir_sha256=fir_sha)
++    key=hashlib.sha256(json.dumps(inputs,sort_keys=True).encode()).hexdigest()
++    a.directory.mkdir(parents=True,exist_ok=True)
++    target=a.directory/(key+'.json')
++    if target.exists():
++        found=json.loads(target.read_text())
++        if found['inputs']!=inputs:raise RuntimeError('benchmark receipt identity conflict')
++        print('SKIP',target,found['result']['status'],found['elapsed_s'],flush=True)
++        return
++    _,op=verify_pair(DEFAULT/f'{a.input_hz}-{a.output_hz}',a.input_hz,a.output_hz)
++    previous=signal.getsignal(signal.SIGALRM)
++    def expiration(_s,_f):raise TimeoutError('benchmark interval budget exhausted')
++    started=time.perf_counter()
++    signal.signal(signal.SIGALRM,expiration)
++    try:
++        signal.setitimer(signal.ITIMER_REAL,a.seconds,0.05)
++        try:
++            result=stagewise.certificate(a.profile,op,a.lo,a.hi,mode=a.mode,
++                             max_nodes=a.max_nodes,max_paths=a.max_paths)
++        except TimeoutError:
++            result=dict(status='OPEN',reason='benchmark_interval_seconds_exhausted',qualified_release=False)
++    finally:
++        signal.setitimer(signal.ITIMER_REAL,0)
++        signal.signal(signal.SIGALRM,previous)
++    elapsed=time.perf_counter()-started
++    doc=dict(schema='P15/second-pass-benchmark/1',inputs=inputs,
++        source_sha256=source_identity(),result=result,elapsed_s=elapsed,
++        peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
++        machine=dict(python=sys.version.split()[0],platform=platform.platform()),
++        scope='Ideal source-bound FIR continuum LOCAL proof only; not a release certificate')
++    content=(json.dumps(doc,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
++    staging=a.directory/('.'+key+'.'+str(os.getpid()))
++    with staging.open('xb') as f:
++        f.write(content);f.flush();os.fsync(f.fileno())
++    try:os.link(staging,target)
++    except FileExistsError:
++        if target.read_bytes()!=content:raise RuntimeError('immutable benchmark conflict')
++    finally:staging.unlink()
++    print(a.variant,a.profile,a.input_hz,a.output_hz,a.lo,a.hi,
++          result['status'],result.get('reason',''),round(elapsed,3),'s',target,flush=True)
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/tests/dsd/p15_second_pass_fir_benchmark.py
+@@ -0,0 +1,76 @@
++#!/usr/bin/env python3
++"""Warm, same-host performance of first-pass vs cached exact derivative weights.
++
++Choose --variant per clean process. The first-pass source is copied byte-for-
++byte from the prior signed delivery archive in the evidence baseline folder.
++"""
++from __future__ import annotations
++import argparse
++from fractions import Fraction
++from hashlib import sha256
++import json
++from pathlib import Path
++import os
++import platform
++import resource
++import statistics
++import sys
++import time
++
++BASE=Path(__file__).resolve().parent
++OUT=BASE/'results/P15_prover_second_pass_2026-10-18'
++
++def main():
++    ap=argparse.ArgumentParser()
++    ap.add_argument('--variant',choices=('first_pass','second_pass'),required=True)
++    ap.add_argument('--repeats',type=int,default=3)
++    args=ap.parse_args()
++    if not 1<=args.repeats<=20:raise ValueError('invalid repeats')
++    sys.path.insert(0,str(OUT/'first_pass_code') if args.variant=='first_pass' else str(BASE))
++    if str(BASE) not in sys.path:sys.path.insert(1,str(BASE))
++    from p15_src_fixed_interval import fixed_symmetric_magnitude_bounds
++    from p15_src_stagewise_alias_proof import make_src_stages,make_native_stages
++    from p15_src_capture_matrix import verify_pair,DEFAULT
++    from p15_src_continuum_bounds import TrigPoly
++    from p15_src_bound_operator import sha_file
++    import p15_src_fixed_interval
++    digest=sha_file(Path(p15_src_fixed_interval.__file__))
++    dest=OUT/f'FIR_WARM_{args.variant}_{args.repeats}.json'
++    if dest.exists():
++        doc=json.loads(dest.read_text())
++        if doc['fixed_code_sha256']!=digest:raise RuntimeError('baseline identity conflict')
++        print('SKIP',dest);return
++    _,a=verify_pair(DEFAULT/'176400-48000',176400,48000)
++    _,b=verify_pair(DEFAULT/'88200-192000',88200,192000)
++    stages={}
++    for s in make_native_stages('master128')+make_src_stages(a)+make_src_stages(b):
++        stages.setdefault(len(s.taps),s)
++    lo=Fraction(1374,10000);hi=lo+Fraction(1,10000000)
++    results=[]
++    for length in (57,153,720,1005,1845,4160):
++        poly=TrigPoly(stages[length].taps,Fraction(0))
++        fixed_symmetric_magnitude_bounds(poly,lo,hi)
++        samples=[]
++        for _ in range(args.repeats):
++            t=time.perf_counter()
++            result=fixed_symmetric_magnitude_bounds(poly,lo,hi)
++            samples.append(time.perf_counter()-t)
++        results.append(dict(taps=length,timings_seconds=samples,
++            median_seconds=statistics.median(samples),
++            lower=float(result[0].a),upper=float(result[1].b)))
++        print(args.variant,length,results[-1]['median_seconds'],flush=True)
++    doc=dict(schema='P15/rigorous-FIR-second-pass-warm/1',variant=args.variant,
++        fixed_code_sha256=digest,repeats=args.repeats,
++        normalized_interval=[str(lo),str(hi)],results=results,
++        peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
++        python=platform.python_version(),
++        limitation='Warm arithmetic-only benchmark; never a spectral release certificate')
++    raw=(json.dumps(doc,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
++    import tempfile
++    fd,tmp=tempfile.mkstemp(prefix='.fir-bench-',dir=OUT)
++    try:
++        with os.fdopen(fd,'wb') as f:
++            f.write(raw);f.flush();os.fsync(f.fileno())
++        os.link(tmp,dest)
++    finally:os.unlink(tmp)
++if __name__=='__main__':main()

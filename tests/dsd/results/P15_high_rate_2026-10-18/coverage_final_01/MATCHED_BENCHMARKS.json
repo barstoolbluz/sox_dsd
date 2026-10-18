@@ -1,0 +1,3744 @@
+{
+  "baseline_matched_final_60s:candidate_final_matched_60s": [
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 322,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 15
+        },
+        "cpu_s": 0.872758157,
+        "elapsed_s": 0.9104762710003342,
+        "peak_rss_kib": 104576,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_final_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/baseline/d1376087cbef1aa39493ca386ab94c78b91fb2147981d3178561a744f92baf53.json",
+          "sha256": "a530d54cb2e17844ae6bae94722139ae9f7e17b566fba13ec135528b3251ed9f"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 313,
+            "frontier_insertions": 421,
+            "subtree_caps_used": 387,
+            "terminal_saturation_returns": 1,
+            "trie_nodes": 1890
+          },
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 218,
+          "interval_subdivisions": 7,
+          "max_alias_path_population": 64,
+          "nodes_examined": 15
+        },
+        "cpu_s": 0.8518527279999999,
+        "elapsed_s": 0.8849277240001356,
+        "peak_rss_kib": 104924,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_final_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/candidate/d1376087cbef1aa39493ca386ab94c78b91fb2147981d3178561a744f92baf53.json",
+          "sha256": "9530423d09cfc9a1debf3805651b2768f88124c53de9efdfca374651d1e70403"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering.pcm44100",
+        "effective_p": "20000",
+        "hi": "1000",
+        "intermediate_hz": 88200,
+        "lo": "0",
+        "mode": "pass",
+        "output_hz": 44100,
+        "profile": "master64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": 1.0288707725018622,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 57.765600535000004,
+        "elapsed_s": 60.008725613000024,
+        "peak_rss_kib": 217372,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "baseline_matched_final_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/baseline/47fedf8f01e1885497f2fc4b70c9b74528d337acf119e6e92b7efcf07758c55c.json",
+          "sha256": "56b8a8f2fba3cdf307a9b05c9fc56c8005e22688ebb9979582785469b9421b69"
+        },
+        "status": "OPEN"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 3466,
+            "frontier_insertions": 5504,
+            "subtree_caps_used": 5416,
+            "terminal_saturation_returns": 4,
+            "trie_nodes": 112908
+          },
+          "cheap_difference_majorants_used": 624,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 2624,
+          "interval_subdivisions": 4,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 15
+        },
+        "cpu_s": 57.020608515,
+        "elapsed_s": 59.08675713399998,
+        "peak_rss_kib": 209336,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_final_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/candidate/47fedf8f01e1885497f2fc4b70c9b74528d337acf119e6e92b7efcf07758c55c.json",
+          "sha256": "317dad99a5d5537695cc5a73875112748f347028f9971548fff0bed962d91066"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering.pcm384000",
+        "effective_p": "20000",
+        "hi": "20000",
+        "intermediate_hz": 88200,
+        "lo": "19000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "master64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": null,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 8223,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 31
+        },
+        "cpu_s": 10.732637684,
+        "elapsed_s": 11.172074368999802,
+        "peak_rss_kib": 108204,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_final_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/baseline/e78cc386118b6567221cb36f57fdfc076fb86853ad125012c0e46680f8ca6ef5.json",
+          "sha256": "ea6da8509b6c824f1c9ba0531b2e1d4a0661c7ee4af2a379fef5d3515113c892"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 1067,
+            "frontier_insertions": 1414,
+            "subtree_caps_used": 1294,
+            "terminal_saturation_returns": 15,
+            "trie_nodes": 15810
+          },
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 729,
+          "interval_subdivisions": 15,
+          "max_alias_path_population": 256,
+          "nodes_examined": 31
+        },
+        "cpu_s": 2.49402585,
+        "elapsed_s": 2.606388677000268,
+        "peak_rss_kib": 111300,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_final_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/candidate/e78cc386118b6567221cb36f57fdfc076fb86853ad125012c0e46680f8ca6ef5.json",
+          "sha256": "dc271e3745af1d254a71e688462267d689da93b55c758a5dc4ec7806671b564d"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm44100",
+        "effective_p": "41895/2",
+        "hi": "1000",
+        "intermediate_hz": 176400,
+        "lo": "0",
+        "mode": "pass",
+        "output_hz": 44100,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 4.286419162109739,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 57.759395587,
+        "elapsed_s": 60.03145784700018,
+        "peak_rss_kib": 140356,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "baseline_matched_final_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/baseline/6b6f0f8706e65477de68f460911dd2dde99cebd72f2cb0b92068573d61b9cf05.json",
+          "sha256": "a0e7af5bdd8f7280c78360a483af372ea4bdbb60608d6c7dfe8ba5d0b1ab7737"
+        },
+        "status": "OPEN"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 1688,
+            "frontier_insertions": 2690,
+            "subtree_caps_used": 2658,
+            "terminal_saturation_returns": 2,
+            "trie_nodes": 112896
+          },
+          "cheap_difference_majorants_used": 312,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1296,
+          "interval_subdivisions": 2,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 7
+        },
+        "cpu_s": 30.247057693,
+        "elapsed_s": 31.360378133000268,
+        "peak_rss_kib": 123612,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_final_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/candidate/6b6f0f8706e65477de68f460911dd2dde99cebd72f2cb0b92068573d61b9cf05.json",
+          "sha256": "f80c59f0601e91b3708706f78cdd628866b83699e4a928f0de51f5e1bea6783d"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm192000",
+        "effective_p": "40000",
+        "hi": "40000",
+        "intermediate_hz": 176400,
+        "lo": "39000",
+        "mode": "pass",
+        "output_hz": 192000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": null,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1324,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.126213653999997,
+        "elapsed_s": 16.884440066000025,
+        "peak_rss_kib": 125516,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_final_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/baseline/2d02eeabf8ea5f04c01885cf211fe63dfd3ea1e35cf7ec45769819fab43ba357.json",
+          "sha256": "34d483747fae8dcf5ca1dd34b30c4b6c5db02c9836d50466fe7da5ed3eb58fb0"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 388,
+            "frontier_insertions": 694,
+            "subtree_caps_used": 690,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37632
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 346,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 9.069172687,
+        "elapsed_s": 9.377110095000262,
+        "peak_rss_kib": 125492,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_final_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/candidate/2d02eeabf8ea5f04c01885cf211fe63dfd3ea1e35cf7ec45769819fab43ba357.json",
+          "sha256": "31edcbb38ce9b578c69453bca035233f7446c1d2695cd13271ea248bd476427b"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm384000",
+        "effective_p": "40000",
+        "hi": "40000",
+        "intermediate_hz": 176400,
+        "lo": "39000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.8006016667120675,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1290,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 15.846577711,
+        "elapsed_s": 16.42527008199977,
+        "peak_rss_kib": 125532,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_final_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/baseline/7a0884b2507988726d1c0f4f3fa1ff66018104e4c561cd1a6a55d4b9266ec43b.json",
+          "sha256": "f6a7e38fb7f63f63161073071fdbe3a2ddfc83d70b9c4556cb21997bcadf4d36"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 430,
+            "frontier_insertions": 748,
+            "subtree_caps_used": 740,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37368
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 369,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.607867588,
+        "elapsed_s": 11.093001256000207,
+        "peak_rss_kib": 128124,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_final_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/candidate/7a0884b2507988726d1c0f4f3fa1ff66018104e4c561cd1a6a55d4b9266ec43b.json",
+          "sha256": "e9de81076fb44b8e8de1dbc6d73c37986cfda957c46f5053e355247e0ff9fb87"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm384000",
+        "effective_p": "40000",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.4806876608902697,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 56.435720364000005,
+        "elapsed_s": 60.01638269199975,
+        "peak_rss_kib": 215904,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "baseline_matched_final_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/baseline/afa1a991c90f2098c360c811f7fb422a0338d8270eef23d0e0f07ea81bfd9ae7.json",
+          "sha256": "32e79e4969c1075da55dd39afbb0d61713aaf751e6f3d23db135bf670741009f"
+        },
+        "status": "OPEN"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 3195,
+            "frontier_insertions": 4959,
+            "subtree_caps_used": 4843,
+            "terminal_saturation_returns": 3,
+            "trie_nodes": 94090
+          },
+          "cheap_difference_majorants_used": 520,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 2362,
+          "interval_subdivisions": 3,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 13
+        },
+        "cpu_s": 50.324416150999994,
+        "elapsed_s": 52.11828749699998,
+        "peak_rss_kib": 207848,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_final_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/candidate/afa1a991c90f2098c360c811f7fb422a0338d8270eef23d0e0f07ea81bfd9ae7.json",
+          "sha256": "3867583b34ef3924dd1f0f1fcf81e763434ca9a54be784f0d8dae522d8aa2e63"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering_v2.pcm384000",
+        "effective_p": "25000",
+        "hi": "25000",
+        "intermediate_hz": 88200,
+        "lo": "24000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": null,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1459,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 18.826685707,
+        "elapsed_s": 19.43287049599985,
+        "peak_rss_kib": 128988,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_final_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/baseline/667456faddc83437c1ff9278d1d1e5d24add641a33c79ea5dad6eb6e99ee2da1.json",
+          "sha256": "e9d1147fa41a232d6c7edab84e9eb17b8022fbcf1f745c3f60d411438a76e2ec"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 462,
+            "frontier_insertions": 776,
+            "subtree_caps_used": 764,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37632
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 386,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 11.233082908,
+        "elapsed_s": 11.57028955099986,
+        "peak_rss_kib": 128748,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_final_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/candidate/667456faddc83437c1ff9278d1d1e5d24add641a33c79ea5dad6eb6e99ee2da1.json",
+          "sha256": "59b30c69d2575d1175733ad47301f03a052330f1b453c34ffdeeb2f3a007acc0"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering_v2.pcm384000",
+        "effective_p": "66000",
+        "hi": "66000",
+        "intermediate_hz": 176400,
+        "lo": "65000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.6795491945420273,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    }
+  ],
+  "baseline_matched_v1_60s:candidate_v1_matched_60s": [
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 322,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 15
+        },
+        "cpu_s": 0.9785109060000001,
+        "elapsed_s": 0.9786750169998868,
+        "peak_rss_kib": 101716,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/d1376087cbef1aa39493ca386ab94c78b91fb2147981d3178561a744f92baf53.json",
+          "sha256": "a54a3c986b7b11d75034c539c43dd7fe4e77465667565dedae5bd3c4f1291b7e"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 531,
+            "frontier_insertions": 629,
+            "subtree_caps_used": 475,
+            "trie_nodes": 1890
+          },
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 322,
+          "interval_subdivisions": 7,
+          "max_alias_path_population": 64,
+          "nodes_examined": 15
+        },
+        "cpu_s": 0.8925521170000001,
+        "elapsed_s": 0.8927068049999889,
+        "peak_rss_kib": 104896,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/d1376087cbef1aa39493ca386ab94c78b91fb2147981d3178561a744f92baf53.json",
+          "sha256": "3389f1c7e9d2bd1dc5cf83a6ad6ce4419db118718c4b5f52fd0dc4967f51aed3"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering.pcm44100",
+        "effective_p": "20000",
+        "hi": "1000",
+        "intermediate_hz": 88200,
+        "lo": "0",
+        "mode": "pass",
+        "output_hz": 44100,
+        "profile": "master64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": 1.0963006123829189,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 59.067235356000005,
+        "elapsed_s": 60.00650005499983,
+        "peak_rss_kib": 216044,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/47fedf8f01e1885497f2fc4b70c9b74528d337acf119e6e92b7efcf07758c55c.json",
+          "sha256": "feb5f6b63db9041aa203b536f050a03361c2b4d228df45b21f5e4ce8907986e4"
+        },
+        "status": "OPEN"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 59.896144499,
+        "elapsed_s": 60.007999574999985,
+        "peak_rss_kib": 217052,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/47fedf8f01e1885497f2fc4b70c9b74528d337acf119e6e92b7efcf07758c55c.json",
+          "sha256": "0cc970647df9f190fe19b973d5678a00c2ae25072edbb6f84526e656c762f062"
+        },
+        "status": "OPEN"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering.pcm384000",
+        "effective_p": "20000",
+        "hi": "20000",
+        "intermediate_hz": 88200,
+        "lo": "19000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "master64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": null,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 208,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 611,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 7
+        },
+        "cpu_s": 16.101024819,
+        "elapsed_s": 16.496271848999868,
+        "peak_rss_kib": 209272,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/105e3125317f8e0fcb9aa0ac39f7250a8cb0754c119ccee83fe94bf0879d03f8.json",
+          "sha256": "8c0759773e42535b47e00bdd8c0c4fbbc6c8a45d9d0ce7d1cac4c93fc036ff79"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 544,
+            "frontier_insertions": 1132,
+            "subtree_caps_used": 1132,
+            "trie_nodes": 37108
+          },
+          "cheap_difference_majorants_used": 173,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 536,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 7
+        },
+        "cpu_s": 16.176910988,
+        "elapsed_s": 16.469611385000007,
+        "peak_rss_kib": 206668,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/105e3125317f8e0fcb9aa0ac39f7250a8cb0754c119ccee83fe94bf0879d03f8.json",
+          "sha256": "87018779e3e7c2930a56d2a4c4f3c047546d769c7a0e79c1f811253d07aee9ed"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering.pcm384000",
+        "effective_p": "20000",
+        "hi": "192000",
+        "intermediate_hz": 88200,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "master64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": 1.0016187670356413,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 208,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 11524,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 5
+        },
+        "cpu_s": 41.947188902,
+        "elapsed_s": 41.96837766800013,
+        "peak_rss_kib": 215752,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/c910bb31a65e0c65894fdbf55b01cb1192e79b2da545019dd19927f584fcf47d.json",
+          "sha256": "8a1fc4501099f41c15696b32d88aa0588ddad27c90699fd34bbabce901c1e578"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 19885,
+            "frontier_insertions": 20431,
+            "subtree_caps_used": 10995,
+            "trie_nodes": 37636
+          },
+          "cheap_difference_majorants_used": 208,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 10158,
+          "interval_subdivisions": 1,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 5
+        },
+        "cpu_s": 34.511814635,
+        "elapsed_s": 34.515299343999914,
+        "peak_rss_kib": 216932,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/c910bb31a65e0c65894fdbf55b01cb1192e79b2da545019dd19927f584fcf47d.json",
+          "sha256": "26b29f711439c3149f9f099d2af5798f85f7b6a59063f6c7e6773fe2f94f439f"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd64.wideband.pcm384000",
+        "effective_p": "35280",
+        "hi": "35280",
+        "intermediate_hz": 88200,
+        "lo": "35000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "wide64",
+        "source_s": 44100
+      },
+      "speedup_if_both_pass": 1.2159354971752794,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 208,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 611,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 7
+        },
+        "cpu_s": 17.017429935,
+        "elapsed_s": 17.018410988999904,
+        "peak_rss_kib": 207464,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/0390a3d2b34ee6514c153f7f37a049423e0b21644ca3509cf01ac43d41defbe6.json",
+          "sha256": "bd4ad2131a076e51dc8e7daff7505581e2fb15dd09c04425b791cf16a90fcb04"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 557,
+            "frontier_insertions": 1145,
+            "subtree_caps_used": 1145,
+            "trie_nodes": 37056
+          },
+          "cheap_difference_majorants_used": 176,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 549,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 7
+        },
+        "cpu_s": 16.074055355000002,
+        "elapsed_s": 16.074396365999974,
+        "peak_rss_kib": 206340,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/0390a3d2b34ee6514c153f7f37a049423e0b21644ca3509cf01ac43d41defbe6.json",
+          "sha256": "fdbf5226ba2b211cec620ba317f94b1cdd6be0cce441b066d332e5077c9c0c01"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd64.wideband.pcm384000",
+        "effective_p": "35280",
+        "hi": "192000",
+        "intermediate_hz": 88200,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "wide64",
+        "source_s": 44100
+      },
+      "speedup_if_both_pass": 1.0587278428070044,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 985,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.325592045,
+        "elapsed_s": 16.598709783999993,
+        "peak_rss_kib": 118496,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/8c791b695d25a0a0aa892482f22755b6d2a2b1c7801fa05f10df2ea4be9c17b5.json",
+          "sha256": "957907e76e721c6320f6eaf975b1cfe3035f996604b89b9e43c96c7960ccd1fc"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 376,
+            "frontier_insertions": 678,
+            "subtree_caps_used": 674,
+            "trie_nodes": 18816
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 340,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.848714072,
+        "elapsed_s": 10.96508794500005,
+        "peak_rss_kib": 121488,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/8c791b695d25a0a0aa892482f22755b6d2a2b1c7801fa05f10df2ea4be9c17b5.json",
+          "sha256": "40519767098e38ef871a100a1316d7ddb3c685c1da36a99b2e411cae516612ee"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd128.mastering.pcm384000",
+        "effective_p": "30000",
+        "hi": "30000",
+        "intermediate_hz": 176400,
+        "lo": "29000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "master128",
+        "source_s": 60000
+      },
+      "speedup_if_both_pass": 1.5137780806918935,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 992,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 18.194095819,
+        "elapsed_s": 18.439485859,
+        "peak_rss_kib": 118116,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/8655d0b48b864ddb62c18bf00905498fa34ea08accbf7047dad2c87b6cbf80d7.json",
+          "sha256": "baf45fc5d353e44a9dad68aff7a8dcccfa47cff04cf40fdea1fb23d899d13d32"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 418,
+            "frontier_insertions": 732,
+            "subtree_caps_used": 724,
+            "trie_nodes": 18619
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 361,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.463118075999999,
+        "elapsed_s": 10.618913972999962,
+        "peak_rss_kib": 120832,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/8655d0b48b864ddb62c18bf00905498fa34ea08accbf7047dad2c87b6cbf80d7.json",
+          "sha256": "8bfde7169d9ae8bd751fbd35efc1923566c56ff06403d534322beee6d1ed4cee"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd128.mastering.pcm384000",
+        "effective_p": "30000",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "master128",
+        "source_s": 60000
+      },
+      "speedup_if_both_pass": 1.736475679705562,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1217,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 17.245850016000002,
+        "elapsed_s": 17.31782685600001,
+        "peak_rss_kib": 118460,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/a36d506b8939326e5ba7249cc0280f8323b108f4f56e55285de28fa9dbd7e10f.json",
+          "sha256": "e408f26f26b83f1fb94ce468811fb25d5f532bc017c640c905c1472479773234"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 436,
+            "frontier_insertions": 746,
+            "subtree_caps_used": 742,
+            "trie_nodes": 18816
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 370,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 9.40575649,
+        "elapsed_s": 9.405958010000177,
+        "peak_rss_kib": 118696,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/a36d506b8939326e5ba7249cc0280f8323b108f4f56e55285de28fa9dbd7e10f.json",
+          "sha256": "75e376c64f54f5fd436bf32b31c5e813e1560b5cf3b0e3b00b3aab69910b9ba3"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd128.wideband.pcm384000",
+        "effective_p": "70560",
+        "hi": "70560",
+        "intermediate_hz": 176400,
+        "lo": "70000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "wide128",
+        "source_s": 88200
+      },
+      "speedup_if_both_pass": 1.8411550251009132,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1157,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 15.683602746999998,
+        "elapsed_s": 15.695248336000077,
+        "peak_rss_kib": 118356,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/bc709ec191daa0f435baf8025d98cf5ed66dacbd0e8a07b49f4946a515aa1db9.json",
+          "sha256": "9e805a6a06a458f6649e1e45c1a8d5d23d244c29db9d27031dc5fa95b1895091"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 462,
+            "frontier_insertions": 784,
+            "subtree_caps_used": 776,
+            "trie_nodes": 18526
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 379,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 11.493968296,
+        "elapsed_s": 11.529751830999885,
+        "peak_rss_kib": 117912,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/bc709ec191daa0f435baf8025d98cf5ed66dacbd0e8a07b49f4946a515aa1db9.json",
+          "sha256": "410811eaaddf24faf51f6b28f2a30e1044c74bf79386412284576acfb643fe67"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd128.wideband.pcm384000",
+        "effective_p": "70560",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "wide128",
+        "source_s": 88200
+      },
+      "speedup_if_both_pass": 1.3612824079873496,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 8223,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 31
+        },
+        "cpu_s": 11.185710167,
+        "elapsed_s": 11.187153523000006,
+        "peak_rss_kib": 108164,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/e78cc386118b6567221cb36f57fdfc076fb86853ad125012c0e46680f8ca6ef5.json",
+          "sha256": "a08309e1b8d129b82552181fab57da3c4e674ccc8885a3265a7e9313f7bc6f70"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 15653,
+            "frontier_insertions": 15781,
+            "subtree_caps_used": 8099,
+            "trie_nodes": 15810
+          },
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 7906,
+          "interval_subdivisions": 15,
+          "max_alias_path_population": 256,
+          "nodes_examined": 31
+        },
+        "cpu_s": 12.030922986,
+        "elapsed_s": 12.298945770000046,
+        "peak_rss_kib": 111500,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/e78cc386118b6567221cb36f57fdfc076fb86853ad125012c0e46680f8ca6ef5.json",
+          "sha256": "5c13beb90cfc8436c193d6eed8bb56138f40d407bd6b499d08965c5dd5bb2f02"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm44100",
+        "effective_p": "41895/2",
+        "hi": "1000",
+        "intermediate_hz": 176400,
+        "lo": "0",
+        "mode": "pass",
+        "output_hz": 44100,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 0.9096026384869542,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1280,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 15.346588057999998,
+        "elapsed_s": 15.354068417000008,
+        "peak_rss_kib": 125368,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/99aeac40dbc6ed92352dd7cc46e506094653584eba212bbd3c60bac22099a127.json",
+          "sha256": "456bb55e4b2a479fd03add4d57c7ca2dc35fad32d289369840ce6ab011425ef3"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 384,
+            "frontier_insertions": 692,
+            "subtree_caps_used": 688,
+            "trie_nodes": 37632
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 343,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 9.802760501,
+        "elapsed_s": 9.805335423000088,
+        "peak_rss_kib": 125492,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/99aeac40dbc6ed92352dd7cc46e506094653584eba212bbd3c60bac22099a127.json",
+          "sha256": "a0a84f977ca1d4eb0e74074861a698776852ecba2dd2fc8e4933774352c15dcc"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm384000",
+        "effective_p": "40000",
+        "hi": "1000",
+        "intermediate_hz": 176400,
+        "lo": "0",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.5658891567324071,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1324,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.330159169,
+        "elapsed_s": 16.498919225999998,
+        "peak_rss_kib": 125500,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/2d02eeabf8ea5f04c01885cf211fe63dfd3ea1e35cf7ec45769819fab43ba357.json",
+          "sha256": "6247df9174bcaae3db616e3d9642f6a58caa88dbfa52a07abcd882f0547fbae8"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 388,
+            "frontier_insertions": 694,
+            "subtree_caps_used": 690,
+            "trie_nodes": 37632
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 346,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 9.822749964000002,
+        "elapsed_s": 9.954343921999907,
+        "peak_rss_kib": 125564,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/2d02eeabf8ea5f04c01885cf211fe63dfd3ea1e35cf7ec45769819fab43ba357.json",
+          "sha256": "a3a208c25cc0068b549c282e48b2d01318f2c3b3749ded08c2535c318fd8f2c3"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm384000",
+        "effective_p": "40000",
+        "hi": "40000",
+        "intermediate_hz": 176400,
+        "lo": "39000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.6574592313950545,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1273,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.199675985,
+        "elapsed_s": 16.20364286600011,
+        "peak_rss_kib": 128732,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/a2d1eb552ec0f3ad00280dd03f54a1f88c820a3c597a6800ae91ca1ecc4b7f76.json",
+          "sha256": "28f7b9cf4e9fe87b7c18f0eb5926f56a29ed120e3c586229e2f0e43c6e432f69"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 400,
+            "frontier_insertions": 708,
+            "subtree_caps_used": 700,
+            "trie_nodes": 37368
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 350,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.061055183,
+        "elapsed_s": 10.06407494999985,
+        "peak_rss_kib": 125044,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/a2d1eb552ec0f3ad00280dd03f54a1f88c820a3c597a6800ae91ca1ecc4b7f76.json",
+          "sha256": "693b289d2f4de33e3418506ddccbb1cbe3e61bf7da26cb462409e206ce5385a3"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm384000",
+        "effective_p": "40000",
+        "hi": "81000",
+        "intermediate_hz": 176400,
+        "lo": "80000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.61004791264997,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1290,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 15.960752563,
+        "elapsed_s": 16.17691658900003,
+        "peak_rss_kib": 125560,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/7a0884b2507988726d1c0f4f3fa1ff66018104e4c561cd1a6a55d4b9266ec43b.json",
+          "sha256": "027cce79382b6c5dc1e3334ca89628688a430357a48abeeb5891d6cdccdda935"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 430,
+            "frontier_insertions": 748,
+            "subtree_caps_used": 740,
+            "trie_nodes": 37368
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 369,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.945495198,
+        "elapsed_s": 11.099730474000125,
+        "peak_rss_kib": 125100,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/7a0884b2507988726d1c0f4f3fa1ff66018104e4c561cd1a6a55d4b9266ec43b.json",
+          "sha256": "bb418a821812ecad0b453d38737d57e0b0d45f01b3fb4dcdea2a9882a474a5e1"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm384000",
+        "effective_p": "40000",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.4574152612887892,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 1065,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 1
+        },
+        "cpu_s": 9.765980082999999,
+        "elapsed_s": 9.766166956999996,
+        "peak_rss_kib": 125660,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/adf6b4316d9889ca4d04db93b5e6028c5d242406da1543388de2d3a7228c134a.json",
+          "sha256": "bffe2c40f66ed3f0664e0bcfe0181353cfe19822de105d3d06dc644a2a09b4d8"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 313,
+            "frontier_insertions": 611,
+            "subtree_caps_used": 609,
+            "trie_nodes": 18524
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 306,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 1
+        },
+        "cpu_s": 7.560114947,
+        "elapsed_s": 7.561381775999962,
+        "peak_rss_kib": 125088,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/adf6b4316d9889ca4d04db93b5e6028c5d242406da1543388de2d3a7228c134a.json",
+          "sha256": "2a310a7fe0d1f64d752ce63f50d95d5ffaf4f25395dca87e97a111bc0f5879be"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.wideband.pcm192000",
+        "effective_p": "91200",
+        "hi": "91200",
+        "intermediate_hz": 352800,
+        "lo": "91000",
+        "mode": "pass",
+        "output_hz": 192000,
+        "profile": "wide256",
+        "source_s": 176400
+      },
+      "speedup_if_both_pass": 1.2915849571302012,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 314,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 1
+        },
+        "cpu_s": 8.811333207,
+        "elapsed_s": 8.999898101000099,
+        "peak_rss_kib": 127688,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/2935e7f2b23037d1d422988edf8d7679e1dad282bd46178463dbacef708351b9.json",
+          "sha256": "02f3f32d207a41ef9902b09cf5408c0123aea44250ec00746bb4f73b995b436e"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 327,
+            "frontier_insertions": 629,
+            "subtree_caps_used": 625,
+            "trie_nodes": 18231
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 314,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 1
+        },
+        "cpu_s": 8.205914425,
+        "elapsed_s": 8.347635631999992,
+        "peak_rss_kib": 124496,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/2935e7f2b23037d1d422988edf8d7679e1dad282bd46178463dbacef708351b9.json",
+          "sha256": "6504648d690a1b2c57dd49045ae599b5e1ab186c8993c3b2916ee6eac26630b7"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.wideband.pcm192000",
+        "effective_p": "91200",
+        "hi": "96000",
+        "intermediate_hz": 352800,
+        "lo": "95000",
+        "mode": "stop",
+        "output_hz": 192000,
+        "profile": "wide256",
+        "source_s": 176400
+      },
+      "speedup_if_both_pass": 1.0781373909637013,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 52,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 700,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 1
+        },
+        "cpu_s": 9.177493169,
+        "elapsed_s": 9.378717824000205,
+        "peak_rss_kib": 116564,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/c913e2a24ad02f21e0a3f827252e7132b30fab17b05ccf0ca860aa46c67a8331.json",
+          "sha256": "8052d1d1455f23e727ef6dca08f60d5c40af80fd7633cc1ab63bf10149d078ca"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 351,
+            "frontier_insertions": 532,
+            "subtree_caps_used": 522,
+            "trie_nodes": 9408
+          },
+          "cheap_difference_majorants_used": 52,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 247,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 1
+        },
+        "cpu_s": 6.051323359,
+        "elapsed_s": 6.233843869999873,
+        "peak_rss_kib": 119448,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/c913e2a24ad02f21e0a3f827252e7132b30fab17b05ccf0ca860aa46c67a8331.json",
+          "sha256": "f2d650386c71f9e9ac03f22de886ef923da625fc47220e48b6f72155672adce5"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.wideband.pcm384000",
+        "effective_p": "141120",
+        "hi": "141120",
+        "intermediate_hz": 352800,
+        "lo": "141000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "wide256",
+        "source_s": 176400
+      },
+      "speedup_if_both_pass": 1.5044839138713295,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 51,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 639,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 1
+        },
+        "cpu_s": 8.378740936,
+        "elapsed_s": 8.67969942700006,
+        "peak_rss_kib": 119564,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/8bbdda6f8833d69a6afedfe47a42d6733895bb1e72ddff7a652298d3310258c0.json",
+          "sha256": "e8a4680569c3f7685d582dc21c02b782ac6774ddf69a9e8585a1799ba7a2e700"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 334,
+            "frontier_insertions": 514,
+            "subtree_caps_used": 510,
+            "trie_nodes": 9262
+          },
+          "cheap_difference_majorants_used": 51,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 237,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 1
+        },
+        "cpu_s": 6.729841089000001,
+        "elapsed_s": 6.81786434300011,
+        "peak_rss_kib": 119172,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/8bbdda6f8833d69a6afedfe47a42d6733895bb1e72ddff7a652298d3310258c0.json",
+          "sha256": "9ea22eeea614f209fc7d8e20505d80bf01653822c6e95d4c718a236d7987efe7"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.wideband.pcm384000",
+        "effective_p": "141120",
+        "hi": "192000",
+        "intermediate_hz": 352800,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "wide256",
+        "source_s": 176400
+      },
+      "speedup_if_both_pass": 1.2730818611713053,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 59.314408813,
+        "elapsed_s": 60.008611870000095,
+        "peak_rss_kib": 217308,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/afa1a991c90f2098c360c811f7fb422a0338d8270eef23d0e0f07ea81bfd9ae7.json",
+          "sha256": "bd2348879221a0c1c3b02932b44d2ef98755fd1373d62bb46a5caf5220ee2c88"
+        },
+        "status": "OPEN"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 59.999304959,
+        "elapsed_s": 60.006266417999996,
+        "peak_rss_kib": 217452,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/afa1a991c90f2098c360c811f7fb422a0338d8270eef23d0e0f07ea81bfd9ae7.json",
+          "sha256": "3b5e483227e1e95af38fe033762ef7f248e5df5d4424cd2dd82ff9fae8562cc0"
+        },
+        "status": "OPEN"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering_v2.pcm384000",
+        "effective_p": "25000",
+        "hi": "25000",
+        "intermediate_hz": 88200,
+        "lo": "24000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": null,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 208,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 611,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 7
+        },
+        "cpu_s": 16.693852753,
+        "elapsed_s": 16.85854756400022,
+        "peak_rss_kib": 207916,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/7033f8d215e7a46eaed4950fc3d83608492afb664696c54c0880cf7239a4d2f9.json",
+          "sha256": "b1892911890605fb475b0f3565f46e6fb763e71380a7d5c5815cd3fdcafba628"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 548,
+            "frontier_insertions": 1136,
+            "subtree_caps_used": 1136,
+            "trie_nodes": 37108
+          },
+          "cheap_difference_majorants_used": 173,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 540,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 7
+        },
+        "cpu_s": 17.178098852999998,
+        "elapsed_s": 17.21149939599991,
+        "peak_rss_kib": 208200,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/7033f8d215e7a46eaed4950fc3d83608492afb664696c54c0880cf7239a4d2f9.json",
+          "sha256": "ddc6fa32c8a21d9732131e8a791d069f983bd42e501a92613d7cc963e97f2119"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering_v2.pcm384000",
+        "effective_p": "25000",
+        "hi": "192000",
+        "intermediate_hz": 88200,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": 0.9794932548362568,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1046,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 20.087670191,
+        "elapsed_s": 20.313897457000053,
+        "peak_rss_kib": 118304,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/236436774d654484fc9ed68b01c55cde79bc5a9a7fc8d00151ac1e3a4852b946.json",
+          "sha256": "af9ca6e051dad487cad10e17dcc06e86bfc149e5a1d013a4aa99242a0011082c"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 426,
+            "frontier_insertions": 732,
+            "subtree_caps_used": 728,
+            "trie_nodes": 18816
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 365,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.973400180999999,
+        "elapsed_s": 11.18751360400006,
+        "peak_rss_kib": 118356,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/236436774d654484fc9ed68b01c55cde79bc5a9a7fc8d00151ac1e3a4852b946.json",
+          "sha256": "87821fad74397e280b3b91e609bc99403940a192966990a896373b69cf7cbdaa"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd128.mastering_v2.pcm384000",
+        "effective_p": "48000",
+        "hi": "48000",
+        "intermediate_hz": 176400,
+        "lo": "47000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd128",
+        "source_s": 60000
+      },
+      "speedup_if_both_pass": 1.815765162487658,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1031,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 19.316363185,
+        "elapsed_s": 19.65493220299993,
+        "peak_rss_kib": 118424,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/6bd3893bceb1cc061071d4588b5ffa6eaf1031a575a24e85069aaf0b9f15709e.json",
+          "sha256": "9a1da4c87d272f688e8bece9bad320fc45f752e32c47254b7046e94ce771df55"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 462,
+            "frontier_insertions": 784,
+            "subtree_caps_used": 776,
+            "trie_nodes": 18619
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 379,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 11.45251566,
+        "elapsed_s": 11.52251775000002,
+        "peak_rss_kib": 118064,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/6bd3893bceb1cc061071d4588b5ffa6eaf1031a575a24e85069aaf0b9f15709e.json",
+          "sha256": "6e930ef4fda6d651b603631afbfb70b2b3d4016db39dba2d89d30f1e6e782904"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd128.mastering_v2.pcm384000",
+        "effective_p": "48000",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd128",
+        "source_s": 60000
+      },
+      "speedup_if_both_pass": 1.705784502089389,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1459,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 17.896680339,
+        "elapsed_s": 18.123705149999978,
+        "peak_rss_kib": 125856,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/667456faddc83437c1ff9278d1d1e5d24add641a33c79ea5dad6eb6e99ee2da1.json",
+          "sha256": "32fe0c214d5e00e2da68e3524b96cd03ed0a1ba6493450ca495f7118ea6f4f96"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 462,
+            "frontier_insertions": 776,
+            "subtree_caps_used": 764,
+            "trie_nodes": 37632
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 386,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 11.760716921,
+        "elapsed_s": 12.032319396000048,
+        "peak_rss_kib": 125304,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/667456faddc83437c1ff9278d1d1e5d24add641a33c79ea5dad6eb6e99ee2da1.json",
+          "sha256": "fb092bc5e1c701c453622c56042fc50325eaab3dbb01a24eff69e1a80d4a503f"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering_v2.pcm384000",
+        "effective_p": "66000",
+        "hi": "66000",
+        "intermediate_hz": 176400,
+        "lo": "65000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.5062519995957648,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1386,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 18.914078169,
+        "elapsed_s": 19.33513363399993,
+        "peak_rss_kib": 125824,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v1_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline/89cb320d48fb1fa416af188faf96a2ac9f0941fd4d4e2dcc09e7bc6f7970f91a.json",
+          "sha256": "f912fc543f9a53e8db41a3f82ad5e74204345f74629c7e260b3b4e254704fed5"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 484,
+            "frontier_insertions": 814,
+            "subtree_caps_used": 806,
+            "trie_nodes": 37368
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 390,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 11.766666671,
+        "elapsed_s": 11.91862632199991,
+        "peak_rss_kib": 125272,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v1_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate/89cb320d48fb1fa416af188faf96a2ac9f0941fd4d4e2dcc09e7bc6f7970f91a.json",
+          "sha256": "30d09c53fb55b9446c12f9d9f046f52519a69ab2ae7673da3706530e76445c98"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering_v2.pcm384000",
+        "effective_p": "66000",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.6222619210999438,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    }
+  ],
+  "baseline_matched_v2b_60s:candidate_v2b_matched_60s": [
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 322,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 15
+        },
+        "cpu_s": 0.8582027489999999,
+        "elapsed_s": 0.8582891800001562,
+        "peak_rss_kib": 104684,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/d1376087cbef1aa39493ca386ab94c78b91fb2147981d3178561a744f92baf53.json",
+          "sha256": "a3db15338bbfdadbe7536c2bb57699b89dec93b8d51dade1acb50da8ef207b22"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 313,
+            "frontier_insertions": 421,
+            "subtree_caps_used": 387,
+            "terminal_saturation_returns": 1,
+            "trie_nodes": 1890
+          },
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 218,
+          "interval_subdivisions": 7,
+          "max_alias_path_population": 64,
+          "nodes_examined": 15
+        },
+        "cpu_s": 0.8528460420000001,
+        "elapsed_s": 0.8528695949999019,
+        "peak_rss_kib": 104924,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/d1376087cbef1aa39493ca386ab94c78b91fb2147981d3178561a744f92baf53.json",
+          "sha256": "6a4459f4aea2456f757245544dd04ec158b7a9ac8c02bb5a995dd9fb34f75bc7"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering.pcm44100",
+        "effective_p": "20000",
+        "hi": "1000",
+        "intermediate_hz": 88200,
+        "lo": "0",
+        "mode": "pass",
+        "output_hz": 44100,
+        "profile": "master64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": 1.006354529499032,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 59.52935676,
+        "elapsed_s": 60.00845120600002,
+        "peak_rss_kib": 217236,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/47fedf8f01e1885497f2fc4b70c9b74528d337acf119e6e92b7efcf07758c55c.json",
+          "sha256": "f35781ea5c451554d772d9fee330e64c4f301f29943346e54756cb21a25d0add"
+        },
+        "status": "OPEN"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 3466,
+            "frontier_insertions": 5504,
+            "subtree_caps_used": 5416,
+            "terminal_saturation_returns": 4,
+            "trie_nodes": 112908
+          },
+          "cheap_difference_majorants_used": 624,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 2624,
+          "interval_subdivisions": 4,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 15
+        },
+        "cpu_s": 59.541755789,
+        "elapsed_s": 59.65274891100012,
+        "peak_rss_kib": 209420,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/47fedf8f01e1885497f2fc4b70c9b74528d337acf119e6e92b7efcf07758c55c.json",
+          "sha256": "e5bc1606ed68d2573ca97e7e99fa5cd2b900817e18c4dac3c81a2a198a05edf8"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering.pcm384000",
+        "effective_p": "20000",
+        "hi": "20000",
+        "intermediate_hz": 88200,
+        "lo": "19000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "master64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": null,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 208,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 611,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 7
+        },
+        "cpu_s": 16.683517344000002,
+        "elapsed_s": 16.74148682000009,
+        "peak_rss_kib": 207724,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/105e3125317f8e0fcb9aa0ac39f7250a8cb0754c119ccee83fe94bf0879d03f8.json",
+          "sha256": "cd49a6cc93a56060ffff04fdb700bd171609c2e3ee51723b288286f98c78cd1c"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 544,
+            "frontier_insertions": 1132,
+            "subtree_caps_used": 1132,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37108
+          },
+          "cheap_difference_majorants_used": 173,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 536,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 7
+        },
+        "cpu_s": 14.796251353000002,
+        "elapsed_s": 15.12625326699981,
+        "peak_rss_kib": 206460,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/105e3125317f8e0fcb9aa0ac39f7250a8cb0754c119ccee83fe94bf0879d03f8.json",
+          "sha256": "3158eae8ca18465c61119ad7d9f67b413e4dc1112e828726b9f7ac0faa67f057"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering.pcm384000",
+        "effective_p": "20000",
+        "hi": "192000",
+        "intermediate_hz": 88200,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "master64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": 1.106783452880837,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 208,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 11524,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 5
+        },
+        "cpu_s": 43.017442664,
+        "elapsed_s": 43.03308468299974,
+        "peak_rss_kib": 217284,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/c910bb31a65e0c65894fdbf55b01cb1192e79b2da545019dd19927f584fcf47d.json",
+          "sha256": "def3cf0ac4a07f3ef742fd889843cfb7491e09b32d51bd9b13396ea82a9d5033"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 1252,
+            "frontier_insertions": 1953,
+            "subtree_caps_used": 1917,
+            "terminal_saturation_returns": 1,
+            "trie_nodes": 37636
+          },
+          "cheap_difference_majorants_used": 208,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 919,
+          "interval_subdivisions": 1,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 5
+        },
+        "cpu_s": 19.552221269,
+        "elapsed_s": 19.555452678000165,
+        "peak_rss_kib": 207740,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/c910bb31a65e0c65894fdbf55b01cb1192e79b2da545019dd19927f584fcf47d.json",
+          "sha256": "1e872fcd49e7c415a37b7c0db7845c52add68db03aba5531eaeccd848f41bfe8"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd64.wideband.pcm384000",
+        "effective_p": "35280",
+        "hi": "35280",
+        "intermediate_hz": 88200,
+        "lo": "35000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "wide64",
+        "source_s": 44100
+      },
+      "speedup_if_both_pass": 2.2005670434523794,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 208,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 611,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 7
+        },
+        "cpu_s": 16.942203444,
+        "elapsed_s": 16.982430596000086,
+        "peak_rss_kib": 209372,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/0390a3d2b34ee6514c153f7f37a049423e0b21644ca3509cf01ac43d41defbe6.json",
+          "sha256": "9d6bd4cb314aeff5244ffec04495d968fe6953ae13f9e5fc5f7b2fb8722230be"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 557,
+            "frontier_insertions": 1145,
+            "subtree_caps_used": 1145,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37056
+          },
+          "cheap_difference_majorants_used": 176,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 549,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 7
+        },
+        "cpu_s": 16.120344015,
+        "elapsed_s": 16.14832821999994,
+        "peak_rss_kib": 206640,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/0390a3d2b34ee6514c153f7f37a049423e0b21644ca3509cf01ac43d41defbe6.json",
+          "sha256": "4de9f64a254b1cb3ca8ec8ed1c29be222e115739d426c9feda7670805cf196bd"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd64.wideband.pcm384000",
+        "effective_p": "35280",
+        "hi": "192000",
+        "intermediate_hz": 88200,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "wide64",
+        "source_s": 44100
+      },
+      "speedup_if_both_pass": 1.051652552799063,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 985,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.379810452,
+        "elapsed_s": 16.452566364000177,
+        "peak_rss_kib": 121464,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/8c791b695d25a0a0aa892482f22755b6d2a2b1c7801fa05f10df2ea4be9c17b5.json",
+          "sha256": "01cddf199db2c0a182264e01ba0237063822623e64e9932102bf62c317c0cf9e"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 376,
+            "frontier_insertions": 678,
+            "subtree_caps_used": 674,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 18816
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 340,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 9.286103301999999,
+        "elapsed_s": 9.296579797999811,
+        "peak_rss_kib": 118176,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/8c791b695d25a0a0aa892482f22755b6d2a2b1c7801fa05f10df2ea4be9c17b5.json",
+          "sha256": "2c3fe74d889d2ad9b63a886b1f8856d2e34d1139563dbaba607480800df23a92"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd128.mastering.pcm384000",
+        "effective_p": "30000",
+        "hi": "30000",
+        "intermediate_hz": 176400,
+        "lo": "29000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "master128",
+        "source_s": 60000
+      },
+      "speedup_if_both_pass": 1.7697440049447,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 992,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.527950264999998,
+        "elapsed_s": 16.539390025000102,
+        "peak_rss_kib": 118116,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/8655d0b48b864ddb62c18bf00905498fa34ea08accbf7047dad2c87b6cbf80d7.json",
+          "sha256": "0dee6312a0d52e57b83ce2c5fce857346f48dea3788a0508375a17308523341f"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 418,
+            "frontier_insertions": 732,
+            "subtree_caps_used": 724,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 18619
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 361,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 9.967926094,
+        "elapsed_s": 10.02785899100013,
+        "peak_rss_kib": 117732,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/8655d0b48b864ddb62c18bf00905498fa34ea08accbf7047dad2c87b6cbf80d7.json",
+          "sha256": "2505c50028ae273a86af8640c4965dd8b462b5108c6015e5ce17ad3507666376"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd128.mastering.pcm384000",
+        "effective_p": "30000",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "master128",
+        "source_s": 60000
+      },
+      "speedup_if_both_pass": 1.6493440962666093,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1217,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.319405894,
+        "elapsed_s": 16.366302107000138,
+        "peak_rss_kib": 118248,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/a36d506b8939326e5ba7249cc0280f8323b108f4f56e55285de28fa9dbd7e10f.json",
+          "sha256": "0c81e2c91b6a67f1c0c47ffebd52badc4dd75d000718dcf56b5c2cb24b958cf2"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 436,
+            "frontier_insertions": 746,
+            "subtree_caps_used": 742,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 18816
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 370,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 9.232183540000001,
+        "elapsed_s": 9.321630401999982,
+        "peak_rss_kib": 118376,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/a36d506b8939326e5ba7249cc0280f8323b108f4f56e55285de28fa9dbd7e10f.json",
+          "sha256": "ec304a3b36e61023deedfa4bbad8428866c92c31a53afb194008127c6ef7bfde"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd128.wideband.pcm384000",
+        "effective_p": "70560",
+        "hi": "70560",
+        "intermediate_hz": 176400,
+        "lo": "70000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "wide128",
+        "source_s": 88200
+      },
+      "speedup_if_both_pass": 1.7557338578333572,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1157,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 14.864069668,
+        "elapsed_s": 14.931698703999928,
+        "peak_rss_kib": 118484,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/bc709ec191daa0f435baf8025d98cf5ed66dacbd0e8a07b49f4946a515aa1db9.json",
+          "sha256": "979602c9792f0b6172e93f4a925a53156196aeece6a0afd69078b3d49643c270"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 462,
+            "frontier_insertions": 784,
+            "subtree_caps_used": 776,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 18526
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 379,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.178410584,
+        "elapsed_s": 10.205919139000116,
+        "peak_rss_kib": 121016,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/bc709ec191daa0f435baf8025d98cf5ed66dacbd0e8a07b49f4946a515aa1db9.json",
+          "sha256": "8643e6a8fd74910d3e9ffe47021ec06360d06423fe80da34dc7f2ce3a3342e50"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd128.wideband.pcm384000",
+        "effective_p": "70560",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "wide128",
+        "source_s": 88200
+      },
+      "speedup_if_both_pass": 1.4630430146111073,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 8223,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 31
+        },
+        "cpu_s": 9.779504952,
+        "elapsed_s": 9.794050149000213,
+        "peak_rss_kib": 111436,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/e78cc386118b6567221cb36f57fdfc076fb86853ad125012c0e46680f8ca6ef5.json",
+          "sha256": "876fb8dccdcab9de987faca44734552c8954d923cfd1a7dbf805c13cf6b5df5e"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 1067,
+            "frontier_insertions": 1414,
+            "subtree_caps_used": 1294,
+            "terminal_saturation_returns": 15,
+            "trie_nodes": 15810
+          },
+          "cheap_difference_majorants_used": 0,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 729,
+          "interval_subdivisions": 15,
+          "max_alias_path_population": 256,
+          "nodes_examined": 31
+        },
+        "cpu_s": 2.5989261559999997,
+        "elapsed_s": 2.6029979150002873,
+        "peak_rss_kib": 111148,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/e78cc386118b6567221cb36f57fdfc076fb86853ad125012c0e46680f8ca6ef5.json",
+          "sha256": "fa8f0bfb17b863b03779b62cbf9de231f05b3c9ce8a30b63d0bdfb51512be399"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm44100",
+        "effective_p": "41895/2",
+        "hi": "1000",
+        "intermediate_hz": 176400,
+        "lo": "0",
+        "mode": "pass",
+        "output_hz": 44100,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 3.7626039162613516,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 60.021816580999996,
+        "elapsed_s": 60.03141247599979,
+        "peak_rss_kib": 140092,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/6b6f0f8706e65477de68f460911dd2dde99cebd72f2cb0b92068573d61b9cf05.json",
+          "sha256": "2c6a36ef2dc1e25ff0dd66249be35d89a62131476e119615b78effc15563d897"
+        },
+        "status": "OPEN"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 1688,
+            "frontier_insertions": 2690,
+            "subtree_caps_used": 2658,
+            "terminal_saturation_returns": 2,
+            "trie_nodes": 112896
+          },
+          "cheap_difference_majorants_used": 312,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1296,
+          "interval_subdivisions": 2,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 7
+        },
+        "cpu_s": 27.264069916,
+        "elapsed_s": 27.267609628000173,
+        "peak_rss_kib": 126772,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/6b6f0f8706e65477de68f460911dd2dde99cebd72f2cb0b92068573d61b9cf05.json",
+          "sha256": "3bc1295b77b1db008616650a6175c3ea14298ccc9f61f194ce3ec35bece29708"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm192000",
+        "effective_p": "40000",
+        "hi": "40000",
+        "intermediate_hz": 176400,
+        "lo": "39000",
+        "mode": "pass",
+        "output_hz": 192000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": null,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1280,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.189358778,
+        "elapsed_s": 16.19211637999979,
+        "peak_rss_kib": 125408,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/99aeac40dbc6ed92352dd7cc46e506094653584eba212bbd3c60bac22099a127.json",
+          "sha256": "bd88023fe9929861a70ad9c895fdfe125a89b41dab9c785bc92f2b6d8ffd6d69"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 384,
+            "frontier_insertions": 692,
+            "subtree_caps_used": 688,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37632
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 343,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 9.511522304,
+        "elapsed_s": 9.512444236000192,
+        "peak_rss_kib": 125340,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/99aeac40dbc6ed92352dd7cc46e506094653584eba212bbd3c60bac22099a127.json",
+          "sha256": "e975812e6ce51ea2bf2af2e56116df8181bbcbaebe9127787a8666adfa51485f"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm384000",
+        "effective_p": "40000",
+        "hi": "1000",
+        "intermediate_hz": 176400,
+        "lo": "0",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.702203553395891,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1324,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 15.119238949000001,
+        "elapsed_s": 15.132613315000071,
+        "peak_rss_kib": 125272,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/2d02eeabf8ea5f04c01885cf211fe63dfd3ea1e35cf7ec45769819fab43ba357.json",
+          "sha256": "1a07a2b3cdcbdb41227bf0625bdcec3d83e9828f7def95917a74cec89e9558bc"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 388,
+            "frontier_insertions": 694,
+            "subtree_caps_used": 690,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37632
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 346,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.554517652,
+        "elapsed_s": 10.563374014000146,
+        "peak_rss_kib": 128736,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/2d02eeabf8ea5f04c01885cf211fe63dfd3ea1e35cf7ec45769819fab43ba357.json",
+          "sha256": "2a3f8d255a081ee401a57901f8bc5883a55c7191a98cc06f862ce0449400b45b"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm384000",
+        "effective_p": "40000",
+        "hi": "40000",
+        "intermediate_hz": 176400,
+        "lo": "39000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.4325549104806943,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1273,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.709604847999998,
+        "elapsed_s": 16.710541750000175,
+        "peak_rss_kib": 128472,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/a2d1eb552ec0f3ad00280dd03f54a1f88c820a3c597a6800ae91ca1ecc4b7f76.json",
+          "sha256": "38f9ca5627d4c22b987504da51562fe3129bc7d72a3b6ad1fc417ca4e3ccca16"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 400,
+            "frontier_insertions": 708,
+            "subtree_caps_used": 700,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37368
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 350,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.040851342,
+        "elapsed_s": 10.04796081600034,
+        "peak_rss_kib": 128248,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/a2d1eb552ec0f3ad00280dd03f54a1f88c820a3c597a6800ae91ca1ecc4b7f76.json",
+          "sha256": "e5a776c1e11f1cc9e8cab22e3f46d9b1ac4bc9fb7ff5b63b01bc361a933e7371"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm384000",
+        "effective_p": "40000",
+        "hi": "81000",
+        "intermediate_hz": 176400,
+        "lo": "80000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.6630779175999932,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1290,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.425239002,
+        "elapsed_s": 16.431159790000038,
+        "peak_rss_kib": 128500,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/7a0884b2507988726d1c0f4f3fa1ff66018104e4c561cd1a6a55d4b9266ec43b.json",
+          "sha256": "76ba7dcff0b8f3b4356cbee25bbb01c5061ccc339e6a5112a8d30b8b390a8340"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 430,
+            "frontier_insertions": 748,
+            "subtree_caps_used": 740,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37368
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 369,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 9.821382641,
+        "elapsed_s": 9.824347389999957,
+        "peak_rss_kib": 128236,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/7a0884b2507988726d1c0f4f3fa1ff66018104e4c561cd1a6a55d4b9266ec43b.json",
+          "sha256": "3e7c9bc2cd3eea756d9f7db8daf7f90962fabc5ec504960d78a1d07aa8525af8"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering.pcm384000",
+        "effective_p": "40000",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "master256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.6724937685657417,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 1065,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 1
+        },
+        "cpu_s": 9.501907039999999,
+        "elapsed_s": 9.50273873399965,
+        "peak_rss_kib": 128592,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/adf6b4316d9889ca4d04db93b5e6028c5d242406da1543388de2d3a7228c134a.json",
+          "sha256": "5c3e69b339d7232d765dd68bc7c2d4ea165989ee9975d77911dc1db6ed461c66"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 313,
+            "frontier_insertions": 611,
+            "subtree_caps_used": 609,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 18524
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 306,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 1
+        },
+        "cpu_s": 7.585729724,
+        "elapsed_s": 7.586539607999839,
+        "peak_rss_kib": 128528,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/adf6b4316d9889ca4d04db93b5e6028c5d242406da1543388de2d3a7228c134a.json",
+          "sha256": "1539d577838696293329c42ef76060abb5e9ff66d5cd9b17c5b4e07a95d80afc"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.wideband.pcm192000",
+        "effective_p": "91200",
+        "hi": "91200",
+        "intermediate_hz": 352800,
+        "lo": "91000",
+        "mode": "pass",
+        "output_hz": 192000,
+        "profile": "wide256",
+        "source_s": 176400
+      },
+      "speedup_if_both_pass": 1.2525788073365123,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 314,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 1
+        },
+        "cpu_s": 10.361287362,
+        "elapsed_s": 10.47943856799975,
+        "peak_rss_kib": 124328,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/2935e7f2b23037d1d422988edf8d7679e1dad282bd46178463dbacef708351b9.json",
+          "sha256": "028c8ae04f8dade721c4e14bd6007a3e20d04abbdf01c7760f27b50c58c13bd3"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 327,
+            "frontier_insertions": 629,
+            "subtree_caps_used": 625,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 18231
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 314,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 1
+        },
+        "cpu_s": 9.29688898,
+        "elapsed_s": 9.30359035299989,
+        "peak_rss_kib": 124560,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/2935e7f2b23037d1d422988edf8d7679e1dad282bd46178463dbacef708351b9.json",
+          "sha256": "aa127cdf614fbf837930f5206f551f87ff80f895b5dc69dc331e628432f1fc6d"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.wideband.pcm192000",
+        "effective_p": "91200",
+        "hi": "96000",
+        "intermediate_hz": 352800,
+        "lo": "95000",
+        "mode": "stop",
+        "output_hz": 192000,
+        "profile": "wide256",
+        "source_s": 176400
+      },
+      "speedup_if_both_pass": 1.1263864992315267,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 52,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 700,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 1
+        },
+        "cpu_s": 7.7561090660000005,
+        "elapsed_s": 7.981706993999978,
+        "peak_rss_kib": 119724,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/c913e2a24ad02f21e0a3f827252e7132b30fab17b05ccf0ca860aa46c67a8331.json",
+          "sha256": "6f3c752167024d41aac13b8f995013dbffb8624e42974c191b77528fbdd21934"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 351,
+            "frontier_insertions": 532,
+            "subtree_caps_used": 522,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 9408
+          },
+          "cheap_difference_majorants_used": 52,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 247,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 1
+        },
+        "cpu_s": 5.994833224,
+        "elapsed_s": 6.191441015999999,
+        "peak_rss_kib": 119212,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/c913e2a24ad02f21e0a3f827252e7132b30fab17b05ccf0ca860aa46c67a8331.json",
+          "sha256": "ac5e1f88dfa19559f27425c43c5382f7ad808aac462e4ed8a982ef40a6e947a8"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.wideband.pcm384000",
+        "effective_p": "141120",
+        "hi": "141120",
+        "intermediate_hz": 352800,
+        "lo": "141000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "wide256",
+        "source_s": 176400
+      },
+      "speedup_if_both_pass": 1.289151745671735,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 51,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 639,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 1
+        },
+        "cpu_s": 8.36084816,
+        "elapsed_s": 8.594982998999967,
+        "peak_rss_kib": 116352,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/8bbdda6f8833d69a6afedfe47a42d6733895bb1e72ddff7a652298d3310258c0.json",
+          "sha256": "9e282cd0d3b53e64f87ce670797ae5642b6faf1eea6f5d204c897e99e2cf5727"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 334,
+            "frontier_insertions": 514,
+            "subtree_caps_used": 510,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 9262
+          },
+          "cheap_difference_majorants_used": 51,
+          "exact_branch_splits": 0,
+          "exact_path_enumerations": 1,
+          "fir_interval_evaluations": 237,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 1
+        },
+        "cpu_s": 5.317373987,
+        "elapsed_s": 5.426685783000039,
+        "peak_rss_kib": 115888,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/8bbdda6f8833d69a6afedfe47a42d6733895bb1e72ddff7a652298d3310258c0.json",
+          "sha256": "61c7b5e75650cea207155d6c1ed2517ce83456cd08ce12a577c78f66b8af3591"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.wideband.pcm384000",
+        "effective_p": "141120",
+        "hi": "192000",
+        "intermediate_hz": 352800,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "wide256",
+        "source_s": 176400
+      },
+      "speedup_if_both_pass": 1.5838364966560485,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 59.733128648,
+        "elapsed_s": 60.02167987099983,
+        "peak_rss_kib": 215992,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/afa1a991c90f2098c360c811f7fb422a0338d8270eef23d0e0f07ea81bfd9ae7.json",
+          "sha256": "527b7f469fefdb863d9ee1a22c3e4d570cc0de67a5404e3d181b5b29169ccc17"
+        },
+        "status": "OPEN"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 3195,
+            "frontier_insertions": 4959,
+            "subtree_caps_used": 4843,
+            "terminal_saturation_returns": 3,
+            "trie_nodes": 94090
+          },
+          "cheap_difference_majorants_used": 520,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 2362,
+          "interval_subdivisions": 3,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 13
+        },
+        "cpu_s": 48.636065146,
+        "elapsed_s": 48.88700022199964,
+        "peak_rss_kib": 207796,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/afa1a991c90f2098c360c811f7fb422a0338d8270eef23d0e0f07ea81bfd9ae7.json",
+          "sha256": "939bbcc03fd3b8c83216830a810d9ace5f2304fc5f4c472ac966fd5a9166ef98"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering_v2.pcm384000",
+        "effective_p": "25000",
+        "hi": "25000",
+        "intermediate_hz": 88200,
+        "lo": "24000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": null,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 208,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 611,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 7
+        },
+        "cpu_s": 19.010780474,
+        "elapsed_s": 19.06634817600002,
+        "peak_rss_kib": 207428,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/7033f8d215e7a46eaed4950fc3d83608492afb664696c54c0880cf7239a4d2f9.json",
+          "sha256": "c7bdc5bd80d4111f17ca176eceaf62120cb58f2ec1f97d41d280520d2ff61535"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 548,
+            "frontier_insertions": 1136,
+            "subtree_caps_used": 1136,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37108
+          },
+          "cheap_difference_majorants_used": 173,
+          "exact_branch_splits": 3,
+          "exact_path_enumerations": 7,
+          "fir_interval_evaluations": 540,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 7
+        },
+        "cpu_s": 15.438444598,
+        "elapsed_s": 15.440280078999876,
+        "peak_rss_kib": 206336,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/7033f8d215e7a46eaed4950fc3d83608492afb664696c54c0880cf7239a4d2f9.json",
+          "sha256": "f02f903b98b591fc785c7209b172e7e629e90488386e29e0ed912a205c15b1b7"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd64.mastering_v2.pcm384000",
+        "effective_p": "25000",
+        "hi": "192000",
+        "intermediate_hz": 88200,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd64",
+        "source_s": 40000
+      },
+      "speedup_if_both_pass": 1.2348447099694722,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1046,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 16.545604137999998,
+        "elapsed_s": 16.56622725200009,
+        "peak_rss_kib": 118184,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/236436774d654484fc9ed68b01c55cde79bc5a9a7fc8d00151ac1e3a4852b946.json",
+          "sha256": "4af863225e37a77c270a3f4de7b2ed0e024ea4e9ce95c0172e370a1f8bfba728"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 426,
+            "frontier_insertions": 732,
+            "subtree_caps_used": 728,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 18816
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 365,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.479266305,
+        "elapsed_s": 10.486392986000055,
+        "peak_rss_kib": 121696,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/236436774d654484fc9ed68b01c55cde79bc5a9a7fc8d00151ac1e3a4852b946.json",
+          "sha256": "d23faa7f8ec808163751f3b71dc925a5f38a0950ff1aed83cf4799e137b4955c"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd128.mastering_v2.pcm384000",
+        "effective_p": "48000",
+        "hi": "48000",
+        "intermediate_hz": 176400,
+        "lo": "47000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd128",
+        "source_s": 60000
+      },
+      "speedup_if_both_pass": 1.5797831794132613,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1031,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 17.583170392,
+        "elapsed_s": 17.594425200999922,
+        "peak_rss_kib": 118320,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/6bd3893bceb1cc061071d4588b5ffa6eaf1031a575a24e85069aaf0b9f15709e.json",
+          "sha256": "1714b990d4cde8e5b0879aad8e4eb90f8c02bbc21df691e83b2ef4266fce12ec"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 462,
+            "frontier_insertions": 784,
+            "subtree_caps_used": 776,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 18619
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 379,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 4704,
+          "nodes_examined": 3
+        },
+        "cpu_s": 9.63048015,
+        "elapsed_s": 9.638214124999877,
+        "peak_rss_kib": 121000,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/6bd3893bceb1cc061071d4588b5ffa6eaf1031a575a24e85069aaf0b9f15709e.json",
+          "sha256": "52e348ed0ef79c77d45aabd1e33773dbe6ff8c436acc288bc734567107c79552"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd128.mastering_v2.pcm384000",
+        "effective_p": "48000",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd128",
+        "source_s": 60000
+      },
+      "speedup_if_both_pass": 1.8254860260224968,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": null,
+          "exact_branch_splits": null,
+          "exact_path_enumerations": null,
+          "fir_interval_evaluations": null,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": null
+        },
+        "cpu_s": 59.79499316,
+        "elapsed_s": 60.019935225000154,
+        "peak_rss_kib": 140628,
+        "reason": "interval_wall_clock_budget_exhausted",
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/0d87638a88a1fb39d071ac00f688ed9e2b32d277ec2ec3f4f074c2d5b46d1d05.json",
+          "sha256": "a2160fa4f9d9e26f124cf9e5f2e7af2f69aa7f680ccf9b8d166eddcd948364e0"
+        },
+        "status": "OPEN"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 1867,
+            "frontier_insertions": 2914,
+            "subtree_caps_used": 2862,
+            "terminal_saturation_returns": 2,
+            "trie_nodes": 112896
+          },
+          "cheap_difference_majorants_used": 312,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1395,
+          "interval_subdivisions": 2,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 7
+        },
+        "cpu_s": 29.402069086,
+        "elapsed_s": 29.481040670999846,
+        "peak_rss_kib": 123832,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/0d87638a88a1fb39d071ac00f688ed9e2b32d277ec2ec3f4f074c2d5b46d1d05.json",
+          "sha256": "71299d15f740637cb6946d285491a35e64f7abb85cd162680fc1badc79668baf"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering_v2.pcm192000",
+        "effective_p": "66000",
+        "hi": "66000",
+        "intermediate_hz": 176400,
+        "lo": "65000",
+        "mode": "pass",
+        "output_hz": 192000,
+        "profile": "decode.mastering.v2.dsd256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": null,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1459,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 17.080277851,
+        "elapsed_s": 17.472985621000134,
+        "peak_rss_kib": 128880,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/667456faddc83437c1ff9278d1d1e5d24add641a33c79ea5dad6eb6e99ee2da1.json",
+          "sha256": "0bb327087d478a146ea8215a535d83889814f76dfc9e90921ffc6ad17f167d50"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 462,
+            "frontier_insertions": 776,
+            "subtree_caps_used": 764,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37632
+          },
+          "cheap_difference_majorants_used": 192,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 386,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 10.138639131000001,
+        "elapsed_s": 10.59492741500003,
+        "peak_rss_kib": 125488,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/667456faddc83437c1ff9278d1d1e5d24add641a33c79ea5dad6eb6e99ee2da1.json",
+          "sha256": "b3d74edfe65e9b8e541595c3f7bc25316347c033e0c4c6ea8903b0e6c5f0c773"
+        },
+        "status": "PASS-LOCAL-BAND"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering_v2.pcm384000",
+        "effective_p": "66000",
+        "hi": "66000",
+        "intermediate_hz": 176400,
+        "lo": "65000",
+        "mode": "pass",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.6491840799458735,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    },
+    {
+      "baseline": {
+        "counters": {
+          "alias_population_operations": null,
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 1386,
+          "interval_subdivisions": null,
+          "max_alias_path_population": null,
+          "nodes_examined": 3
+        },
+        "cpu_s": 18.126828678000003,
+        "elapsed_s": 18.819219188000034,
+        "peak_rss_kib": 125744,
+        "reason": null,
+        "receipt": {
+          "label": "baseline_matched_v2b_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline/89cb320d48fb1fa416af188faf96a2ac9f0941fd4d4e2dcc09e7bc6f7970f91a.json",
+          "sha256": "62711acc904951b9f52fb3407ef72cab053666bf19b2857a7f091d5b1162acd8"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "candidate": {
+        "counters": {
+          "alias_population_operations": {
+            "frontier_expansions": 484,
+            "frontier_insertions": 814,
+            "subtree_caps_used": 806,
+            "terminal_saturation_returns": 0,
+            "trie_nodes": 37368
+          },
+          "cheap_difference_majorants_used": 190,
+          "exact_branch_splits": 1,
+          "exact_path_enumerations": 3,
+          "fir_interval_evaluations": 390,
+          "interval_subdivisions": 0,
+          "max_alias_path_population": 9408,
+          "nodes_examined": 3
+        },
+        "cpu_s": 11.089366175,
+        "elapsed_s": 11.333305764999977,
+        "peak_rss_kib": 125044,
+        "reason": null,
+        "receipt": {
+          "label": "candidate_v2b_matched_60s",
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate/89cb320d48fb1fa416af188faf96a2ac9f0941fd4d4e2dcc09e7bc6f7970f91a.json",
+          "sha256": "f66e0dfdb24793affdf33859f620993435a2a7c526c2ed255676e20ef8b430e1"
+        },
+        "status": "PASS-LOCAL-STOP-SOURCE"
+      },
+      "job": {
+        "cell_id": "dsd256.mastering_v2.pcm384000",
+        "effective_p": "66000",
+        "hi": "192000",
+        "intermediate_hz": 176400,
+        "lo": "191000",
+        "mode": "stop",
+        "output_hz": 384000,
+        "profile": "decode.mastering.v2.dsd256",
+        "source_s": 80000
+      },
+      "speedup_if_both_pass": 1.6605233793407737,
+      "timing_scope": "Complete certificate call; startup excluded; timeout timings are censored"
+    }
+  ]
+}

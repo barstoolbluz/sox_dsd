@@ -1,0 +1,196 @@
+{
+  "baseline_complex_iv": {
+    "bounds": [
+      5.210764688892522e-10,
+      5.212945881724098e-10
+    ],
+    "elapsed_s": 2.0458999289999156,
+    "relevant_functions": [
+      {
+        "calls": 149517,
+        "function": "mpi_mul",
+        "inclusive_s": 0.605322625,
+        "line": 131,
+        "module": "libmpi.py",
+        "self_s": 0.21470665000000003
+      },
+      {
+        "calls": 1,
+        "function": "general_magnitude_bounds",
+        "inclusive_s": 2.0458208300000003,
+        "line": 19,
+        "module": "p15_src_interval_recurrence.py",
+        "self_s": 0.09764410600000001
+      },
+      {
+        "calls": 49853,
+        "function": "mpi_add",
+        "inclusive_s": 0.208703606,
+        "line": 64,
+        "module": "libmpi.py",
+        "self_s": 0.036777008
+      },
+      {
+        "calls": 37356,
+        "function": "mpi_sub",
+        "inclusive_s": 0.162161305,
+        "line": 73,
+        "module": "libmpi.py",
+        "self_s": 0.021425456000000002
+      },
+      {
+        "calls": 4247,
+        "function": "scalar",
+        "inclusive_s": 0.128709622,
+        "line": 39,
+        "module": "p15_src_continuum_bounds.py",
+        "self_s": 0.0070303150000000005
+      },
+      {
+        "calls": 86,
+        "function": "mpi_cos",
+        "inclusive_s": 0.007990602000000001,
+        "line": 426,
+        "module": "libmpi.py",
+        "self_s": 0.00015640400000000002
+      },
+      {
+        "calls": 86,
+        "function": "mpi_sin",
+        "inclusive_s": 0.006293895000000001,
+        "line": 429,
+        "module": "libmpi.py",
+        "self_s": 7.5902e-05
+      }
+    ]
+  },
+  "caveat": "Profiler self/inclusive times are instrumentation-perturbed; nested cumulative times overlap",
+  "normalized_interval": [
+    "687/5000",
+    "1374001/10000000"
+  ],
+  "optimized_real_dyadic": {
+    "bounds": [
+      5.210764688892522e-10,
+      5.212945881724098e-10
+    ],
+    "elapsed_s": 0.1672844830000031,
+    "relevant_functions": [
+      {
+        "calls": 26855,
+        "function": "_mul",
+        "inclusive_s": 0.064283634,
+        "line": 54,
+        "module": "p15_src_fixed_interval.py",
+        "self_s": 0.042159872
+      },
+      {
+        "calls": 64287,
+        "function": "_ceil_div",
+        "inclusive_s": 0.028846347,
+        "line": 23,
+        "module": "p15_src_fixed_interval.py",
+        "self_s": 0.028846347
+      },
+      {
+        "calls": 1,
+        "function": "fixed_symmetric_magnitude_bounds",
+        "inclusive_s": 0.167241849,
+        "line": 79,
+        "module": "p15_src_fixed_interval.py",
+        "self_s": 0.028076242
+      },
+      {
+        "calls": 18711,
+        "function": "_mul_positive",
+        "inclusive_s": 0.028789533000000003,
+        "line": 59,
+        "module": "p15_src_fixed_interval.py",
+        "self_s": 0.018206597
+      },
+      {
+        "calls": 18712,
+        "function": "_multiply_exact_coefficient",
+        "inclusive_s": 0.029062119,
+        "line": 65,
+        "module": "p15_src_fixed_interval.py",
+        "self_s": 0.016887757
+      },
+      {
+        "calls": 22783,
+        "function": "_add",
+        "inclusive_s": 0.004604622,
+        "line": 46,
+        "module": "p15_src_fixed_interval.py",
+        "self_s": 0.004604622
+      },
+      {
+        "calls": 19100,
+        "function": "_neg",
+        "inclusive_s": 0.0030190750000000004,
+        "line": 50,
+        "module": "p15_src_fixed_interval.py",
+        "self_s": 0.0030190750000000004
+      },
+      {
+        "calls": 178,
+        "function": "_mpf_dyadic",
+        "inclusive_s": 0.000173682,
+        "line": 27,
+        "module": "p15_src_fixed_interval.py",
+        "self_s": 0.00014420900000000001
+      },
+      {
+        "calls": 46,
+        "function": "mpi_mul",
+        "inclusive_s": 0.000482042,
+        "line": 131,
+        "module": "libmpi.py",
+        "self_s": 0.000122089
+      },
+      {
+        "calls": 44,
+        "function": "mpi_cos",
+        "inclusive_s": 0.003772595,
+        "line": 426,
+        "module": "libmpi.py",
+        "self_s": 9.7037e-05
+      },
+      {
+        "calls": 89,
+        "function": "_from_iv",
+        "inclusive_s": 0.00024406200000000002,
+        "line": 41,
+        "module": "p15_src_fixed_interval.py",
+        "self_s": 7.038e-05
+      },
+      {
+        "calls": 44,
+        "function": "mpi_sin",
+        "inclusive_s": 0.003052182,
+        "line": 429,
+        "module": "libmpi.py",
+        "self_s": 3.0936e-05
+      },
+      {
+        "calls": 5,
+        "function": "scalar",
+        "inclusive_s": 0.00022661100000000002,
+        "line": 39,
+        "module": "p15_src_continuum_bounds.py",
+        "self_s": 1.1407000000000001e-05
+      },
+      {
+        "calls": 1,
+        "function": "_as_iv",
+        "inclusive_s": 9.5464e-05,
+        "line": 74,
+        "module": "p15_src_fixed_interval.py",
+        "self_s": 3.865e-06
+      }
+    ]
+  },
+  "peak_process_rss_kib": 117412,
+  "schema": "P15/source-fir-cprofile-costs/1",
+  "taps": 4160
+}

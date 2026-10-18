@@ -1,0 +1,3495 @@
+diff --git a/tests/dsd/p15_high_rate_bound_diagnostic.py b/tests/dsd/p15_high_rate_bound_diagnostic.py
+--- /dev/null
++++ b/tests/dsd/p15_high_rate_bound_diagnostic.py
+@@ -0,0 +1,179 @@
++#!/usr/bin/env python3
++"""Bounded, explicitly instrumented investigation of one OPEN frequency band.
++
++No prover file is changed. Runtime wrappers count work and record returned
++segment bounds; --no-difference explicitly disables only the optional upper
++shortcut. These diagnostic timings are not matched benchmark measurements.
++"""
++from __future__ import annotations
++
++import argparse
++from collections import defaultdict
++from fractions import Fraction
++import importlib
++import json
++import math
++import os
++from pathlib import Path
++import resource
++import time
++from mpmath import iv
++
++from p15_high_rate_experiment import encoded, file_sha, loaded_code, publish
++import p15_full_band_campaign as campaign
++import p15_src_stagewise_continuum as prover
++from p15_src_capture_matrix import DEFAULT, verify_pair
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--profile', required=True)
++    parser.add_argument('--input-hz', type=int, required=True)
++    parser.add_argument('--output-hz', type=int, required=True)
++    parser.add_argument('--lo', required=True)
++    parser.add_argument('--hi', required=True)
++    parser.add_argument('--mode', choices=('pass', 'stop'), default='pass')
++    parser.add_argument('--seconds', type=float, default=60)
++    parser.add_argument('--cpu', type=int, default=7)
++    parser.add_argument('--no-difference', action='store_true')
++    parser.add_argument('--output', type=Path, required=True)
++    args = parser.parse_args()
++    if not math.isfinite(args.seconds) or not 0 < args.seconds <= 180:
++        raise ValueError('invalid diagnostic deadline')
++    os.sched_setaffinity(0, {args.cpu})
++    importlib.import_module('p15_src_fixed_interval')
++    base = Path(__file__).resolve().parent
++    code = loaded_code(base)
++    pair = DEFAULT / f'{args.input_hz}-{args.output_hz}'
++    _, operator = verify_pair(pair, args.input_hz, args.output_hz)
++    lo, hi = Fraction(args.lo), Fraction(args.hi)
++    identity = dict(profile=args.profile, input_hz=args.input_hz,
++        output_hz=args.output_hz, lo=str(lo), hi=str(hi), mode=args.mode,
++        seconds=args.seconds, cpu=args.cpu, max_nodes=128, max_paths=20000,
++        no_difference=args.no_difference, instrumented=True,
++        script_sha256=file_sha(__file__), prover_code_sha256=code,
++        binding=campaign.bindings(), snapshot_sha256=file_sha(pair / 'stage-snapshot.json'),
++        operator_binding_sha256=file_sha(pair / 'operator-binding.json'))
++    output = args.output.absolute()
++    output.parent.mkdir(parents=True, exist_ok=True)
++    if output.exists():
++        old = json.loads(output.read_text())
++        if old.get('identity') != identity:
++            raise ValueError('existing diagnostic has different identity')
++        print(json.dumps(dict(action='SKIP', output=str(output))))
++        return
++    stage_stats = defaultdict(lambda: dict(taylor_calls=0, taylor_seconds=0.,
++                                         difference_attempts=0, difference_uses=0))
++    segments = []
++    inflight = {}
++    evaluated_terms = {}
++    original_bound = prover.bounds_single
++    original_cheap = prover.cheap_alias_upper
++    original_segment = prover.bound_segment
++
++    def stage_name(stage):
++        return f'{stage.kind}:{stage.input_hz}:{stage.L}/{stage.M}:{len(stage.taps)}'
++
++    def instrument_bound(stage, shift, left, right):
++        key = stage_name(stage)
++        started = time.perf_counter()
++        inflight.update(stage=key, shift=str(shift), lo=str(left), hi=str(right))
++        try:
++            result = original_bound(stage, shift, left, right)
++            evaluated_terms[(id(stage), shift)] = result[1].b
++            return result
++        finally:
++            stage_stats[key]['taylor_calls'] += 1
++            stage_stats[key]['taylor_seconds'] += time.perf_counter() - started
++            inflight.clear()
++
++    def instrument_cheap(stage, shift, left, right):
++        key = stage_name(stage)
++        stage_stats[key]['difference_attempts'] += 1
++        answer = None if args.no_difference else original_cheap(stage, shift, left, right)
++        if answer is not None:
++            stage_stats[key]['difference_uses'] += 1
++            evaluated_terms[(id(stage), shift)] = answer.b
++        return answer
++
++    def instrument_segment(paths, left, right, **kwargs):
++        entry = dict(lo=str(left), hi=str(right), complete_paths=len(paths))
++        segments.append(entry)
++        evaluated_terms.clear()
++        started = time.perf_counter()
++        try:
++            result = original_segment(paths, left, right, **kwargs)
++            entry['returned'] = {}
++            for key, value in result.items():
++                if hasattr(value, '_mpi_'):
++                    entry['returned'][key] = dict(
++                        lower=math.nextafter(float(value.a), -math.inf),
++                        upper=math.nextafter(float(value.b), math.inf))
++                else:
++                    entry['returned'][key] = value
++            # Inspect fully evaluated unwanted leaves. These are upper-bound
++            # contributions, NOT lower bounds on actual spectral transfer.
++            # Their exact product lower endpoint can show that the existing
++            # immutable upper sum cannot get below its limit without a new
++            # interval. No pass/fail disposition is inferred from this data.
++            largest = iv.mpf(0)
++            largest_path = None
++            known = 0
++            fixed_upper_sum = iv.mpf(0)
++            for path in paths:
++                include = (not path.direct if kwargs['mode'] == 'pass' else
++                    max(abs(left + path.upstream_shift), abs(right + path.upstream_shift)) >= kwargs['stop_source_hz'])
++                if not include or any((id(stage), shift) not in evaluated_terms
++                                      for stage, shift in path.terms):
++                    continue
++                known += 1
++                product = iv.mpf(1)
++                for stage, shift in path.terms:
++                    product *= evaluated_terms[(id(stage), shift)]
++                fixed_upper_sum += product
++                if bool(product.b > largest.b):
++                    largest = product
++                    largest_path = path
++            entry['fully_evaluated_unwanted_paths'] = known
++            entry['evaluated_upper_product_sum'] = dict(
++                lower=math.nextafter(float(fixed_upper_sum.a), -math.inf),
++                upper=math.nextafter(float(fixed_upper_sum.b), math.inf))
++            if largest_path is not None:
++                entry['largest_evaluated_upper_product'] = dict(
++                    lower=math.nextafter(float(largest.a), -math.inf),
++                    upper=math.nextafter(float(largest.b), math.inf),
++                    source_shift=str(largest_path.upstream_shift),
++                    factors=[dict(stage=stage_name(stage), shift=str(shift),
++                        upper=math.nextafter(float(evaluated_terms[(id(stage), shift)]), math.inf))
++                        for stage, shift in largest_path.terms])
++            return result
++        finally:
++            entry['elapsed_s'] = time.perf_counter() - started
++
++    prover.bounds_single = instrument_bound
++    prover.cheap_alias_upper = instrument_cheap
++    prover.bound_segment = instrument_segment
++    started = time.perf_counter()
++    cpu_started = time.process_time()
++    try:
++        with campaign.interval_deadline(args.seconds):
++            result = prover.certificate(args.profile, operator, lo, hi,
++                mode=args.mode, max_nodes=128, max_paths=20000)
++    except campaign.IntervalBudgetExpired:
++        result = dict(status='OPEN', reason='diagnostic_wall_clock_budget_exhausted')
++    elapsed = time.perf_counter() - started
++    if code != loaded_code(base) or identity['binding'] != campaign.bindings():
++        raise ValueError('code or source binding changed during diagnostic')
++    record = dict(schema='P15/high-rate-bound-diagnostic/1', identity=identity,
++        qualified_release=False, timing_scope='instrumented diagnostic; excluded from matched timing',
++        original_prover_result=result, segments=segments, stage_stats=dict(stage_stats),
++        measurement=dict(elapsed_s=elapsed, cpu_s=time.process_time()-cpu_started,
++                         peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss),
++        inflight=inflight)
++    publish(output, encoded(record))
++    print(json.dumps(dict(output=str(output), result=result,
++                         elapsed_s=elapsed, segment_count=len(segments)), sort_keys=True))
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/tests/dsd/p15_high_rate_census.py b/tests/dsd/p15_high_rate_census.py
+--- /dev/null
++++ b/tests/dsd/p15_high_rate_census.py
+@@ -0,0 +1,533 @@
++#!/usr/bin/env python3
++"""Reproducible, non-qualifying census of the canonical P15 worklist.
++
++The historical 60-second campaign is immutable and is never relabeled.  New
++measurements are overlaid under explicit labels.  This program does no spectral
++arithmetic and cannot issue a spectral PASS.  Its rate-only transition census
++is independent of FIR magnitudes, so it remains useful when numerical work
++times out before publishing its counters.
++
++For a reverse-stage reachable residue group d*Z modulo Fout, the complete M
++branches of an L/M stage generate gcd(d, Fin)*Z modulo Fin.  Branch-window
++crossings are f = L*Fin/2 (mod d); input-fold crossings are f = Fin/2
++(mod gcd(d, Fin)).  Their union partitions the complete alias schedule.  This
++is a topology census, not a replacement for the prover's endpoint checks or a
++license to merge coherent paths.  Multiplicity is retained separately from the
++number of primitive families.
++"""
++from __future__ import annotations
++
++import argparse
++from collections import Counter, defaultdict
++from fractions import Fraction
++from hashlib import sha256
++import json
++import math
++import os
++from pathlib import Path
++import tempfile
++
++from p15_full_band_campaign import (
++    bindings, canonical_plan, check_one, digest, freqstr, receipt_path,
++    source_operators,
++)
++from p15_src_bound_operator import sha_file
++from p15_src_capture_matrix import DEFAULT as SNAPSHOTS
++from p15_src_complete_aliases import all_active_cells
++from p15_src_stagewise_alias_proof import make_native_stages, make_src_stages
++from p15_src_stagewise_continuum import PROFILE_BANDS
++
++ROOT = Path(__file__).resolve().parents[2]
++HISTORY = ROOT / 'tests/dsd/results/P15_full_band_campaign_complete_2026-10-18'
++THIRD_PASS = ROOT / 'tests/dsd/results/P15_prover_third_pass_2026-10-18'
++SCHEMA = 'P15/high-rate-census/1'
++COUNTERS = (
++    'nodes_examined', 'exact_branch_splits', 'exact_path_enumerations',
++    'fir_interval_evaluations', 'cheap_difference_majorants_used',
++    'fully_proven_subintervals', 'proven_subintervals', 'pending_intervals',
++)
++
++
++def encoded(value):
++    return (json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()
++
++
++def relative(path):
++    try:
++        return str(path.resolve().relative_to(ROOT))
++    except ValueError:
++        return str(path.resolve())
++
++
++def publish(path, data):
++    """Exclusive, idempotent publication; a changed census needs a new folder."""
++    if path.is_symlink():
++        raise ValueError('linked census output refused: ' + str(path))
++    if path.exists():
++        if not path.is_file() or path.read_bytes() != data:
++            raise ValueError('immutable census conflict: ' + str(path))
++        return
++    path.parent.mkdir(parents=True, exist_ok=True)
++    fd, temp = tempfile.mkstemp(prefix='.census-', dir=path.parent)
++    try:
++        with os.fdopen(fd, 'wb') as stream:
++            stream.write(data)
++            stream.flush()
++            os.fsync(stream.fileno())
++        try:
++            os.link(temp, path)
++        except FileExistsError:
++            if path.is_symlink() or path.read_bytes() != data:
++                raise ValueError('concurrent census conflict: ' + str(path))
++    finally:
++        os.unlink(temp)
++
++
++def lattice_points(residue, period, lo, hi, *, endpoints=False):
++    """Exact rational lattice intersections, with explicit endpoint treatment."""
++    residue, period, lo, hi = map(Fraction, (residue, period, lo, hi))
++    if period <= 0 or lo > hi:
++        raise ValueError('invalid lattice interval')
++    first = math.ceil((lo - residue) / period)
++    last = math.floor((hi - residue) / period)
++    return tuple(q for k in range(first, last + 1)
++                 if (lo <= (q := residue + k * period) <= hi if endpoints
++                     else lo < (q := residue + k * period) < hi))
++
++
++def rate_topology(cell, op):
++    stages = make_native_stages(cell['profile']) + make_src_stages(op)
++    spacing = op.output_hz
++    path_count = 1
++    transitions = []
++    stage_rows = []
++    for i, stage in enumerate(stages):
++        taps = [(k, value.hex()) for k, value in stage.taps]
++        stage_rows.append(dict(
++            index=i, kind=stage.kind, input_hz=stage.input_hz,
++            output_hz=freqstr(stage.output_hz), L=stage.L, M=stage.M,
++            taps=len(stage.taps), exact_binary64_taps_sha256=digest(taps),
++        ))
++    for i in range(len(stages) - 1, -1, -1):
++        stage = stages[i]
++        if stage.output_hz.denominator != 1 or int(stage.output_hz) % spacing:
++            raise ValueError('nonintegral/inconsistent reverse residue group')
++        upstream = math.gcd(spacing, stage.input_hz)
++        # Uniformity follows from the homomorphism of complete cyclic residue
++        # groups; the quotient counts colliding paths, not discarded aliases.
++        if (stage.L * upstream) % spacing:
++            raise ValueError('nonuniform reverse alias group unsupported')
++        transitions.append(dict(
++            stage=i, kind='inverse_branch_window',
++            residue_hz=freqstr(Fraction(stage.L * stage.input_hz, 2) % spacing),
++            period_hz=str(spacing),
++        ))
++        transitions.append(dict(
++            stage=i, kind='input_frequency_fold',
++            residue_hz=freqstr(Fraction(stage.input_hz, 2) % upstream),
++            period_hz=str(upstream),
++        ))
++        path_count *= stage.M
++        spacing = upstream
++    native = cell['native_hz']
++    family_count = native // spacing
++    if (native % spacing or Fraction(op.output_hz, op.U) != spacing or
++            path_count % family_count):
++        raise ValueError('rate-only native lattice differs from bound operator')
++    # Deduplicate identical grids for a compact exact event union.  The
++    # per-stage list above retains the origin of every grid.
++    grids = sorted({(Fraction(t['residue_hz']), Fraction(t['period_hz']))
++                    for t in transitions})
++    points = sorted({point for residue, period in grids
++                     for point in lattice_points(residue, period, 0,
++                                                 Fraction(op.output_hz, 2))})
++    pair = SNAPSHOTS / f"{cell['intermediate_hz']}-{cell['output_hz']}"
++    return dict(
++        native_hz=native, intermediate_hz=cell['intermediate_hz'],
++        output_hz=cell['output_hz'], stage_count=len(stages),
++        native_stage_count=sum(s.kind.startswith('native-') for s in stages),
++        src_stage_count=sum(s.kind.startswith('src-') for s in stages),
++        stages=stage_rows, complete_path_count=path_count,
++        primitive_source_family_count=family_count,
++        path_multiplicity_per_primitive_family=path_count // family_count,
++        primitive_frequency_spacing_hz=str(spacing),
++        exact_stage_transition_lattices=transitions,
++        exact_routing_transition_points_hz=[freqstr(q) for q in points],
++        stage_snapshot_sha256=sha_file(pair / 'stage-snapshot.json'),
++        operator_binding_sha256=sha_file(pair / 'operator-binding.json'),
++        scope='Exact rate-only schedule census; no spectral or phase-cancellation claim',
++    )
++
++
++def record(file, doc):
++    cert = doc['certificate']
++    result = dict(path=relative(file), sha256=sha_file(file),
++                  status=cert['status'], reason=cert.get('reason'),
++                  counters={k: cert[k] for k in COUNTERS if k in cert})
++    for key in ('measurement', 'prover_code_sha256', 'proof_code_sha256',
++                'stage_snapshot_sha256', 'verified_operator_binding_sha256'):
++        if key in doc:
++            result[key] = doc[key]
++        elif key in cert:
++            result[key] = cert[key]
++    return result
++
++
++def validate_overlay(doc, by_hash, binding):
++    job = doc.get('job')
++    if not isinstance(job, dict) or digest(job) not in by_hash or by_hash[digest(job)] != job:
++        raise ValueError('measurement is not a canonical work item')
++    if doc.get('binding') != binding or doc.get('qualified_release') is not False:
++        raise ValueError('measurement source/design or release binding mismatch')
++    cert = doc.get('certificate')
++    expected = 'PASS-LOCAL-BAND' if job['mode'] == 'pass' else 'PASS-LOCAL-STOP-SOURCE'
++    if not isinstance(cert, dict) or cert.get('status') not in ('OPEN', expected):
++        raise ValueError('measurement has an incompatible spectral disposition')
++    if cert.get('qualified_release', False) is not False:
++        raise ValueError('unauthorized inner release claim')
++    if cert['status'] != 'OPEN' and (
++        cert.get('certified_hz') != [job['lo'], job['hi']] or
++        cert.get('band_kind') != job['mode'] or
++        cert.get('input_hz') != job['intermediate_hz'] or
++        cert.get('output_hz') != job['output_hz'] or
++        cert.get('profile') != job['profile'] or
++        cert.get('governing_passband_hz') != PROFILE_BANDS[job['profile']][0]
++    ):
++        raise ValueError('measurement certificate does not cover its canonical job')
++
++    # Historical campaign receipts have only the canonical source/design
++    # binding. Preserve their original schema, but validate every additional
++    # source/operator binding when supplied by a newer local experiment.
++    containers = [('receipt', doc), ('certificate', cert)]
++    if 'experiment_identity' in doc:
++        identity = doc['experiment_identity']
++        if not isinstance(identity, dict):
++            raise ValueError('invalid experiment identity')
++        mirrored = ('job', 'binding', 'prover_code_sha256',
++                    'stage_snapshot_sha256', 'verified_operator_binding_sha256')
++        if any(key not in doc or key not in identity or doc[key] != identity[key]
++               for key in mirrored):
++            raise ValueError('experiment identity does not mirror receipt bindings')
++        # Also cover optional duplicated harness, label, resource, and future
++        # identity fields without requiring historical receipts to invent them.
++        if any(key in doc and doc[key] != value for key, value in identity.items()):
++            raise ValueError('conflicting duplicated experiment identity field')
++        code = doc['prover_code_sha256']
++        if (not isinstance(code, dict) or not code or
++                any(not isinstance(name, str) or not name or
++                    not isinstance(value, str) or len(value) != 64 or
++                    any(c not in '0123456789abcdef' for c in value)
++                    for name, value in code.items())):
++            raise ValueError('invalid experiment prover hash mapping')
++        # Hash equality between baseline and candidate is deliberately NOT an
++        # obligation. Each experiment binds its own implementation; independent
++        # replay checks that mapping against its separately frozen source tree.
++        if ('profiling_enabled' in identity and
++                isinstance(doc.get('measurement'), dict) and
++                'profiling_enabled' in doc['measurement'] and
++                identity['profiling_enabled'] != doc['measurement']['profiling_enabled']):
++            raise ValueError('conflicting experiment profiling identity')
++        containers.append(('experiment_identity', identity))
++
++    pair_fields = ('stage_snapshot_sha256', 'verified_operator_binding_sha256')
++    if any(key in item for _, item in containers for key in pair_fields):
++        pair = SNAPSHOTS / f"{job['intermediate_hz']}-{job['output_hz']}"
++        expected = dict(
++            stage_snapshot_sha256=sha_file(pair / 'stage-snapshot.json'),
++            verified_operator_binding_sha256=sha_file(pair / 'operator-binding.json'),
++        )
++        for where, item in containers:
++            if any(key in item and item[key] != value for key, value in expected.items()):
++                raise ValueError(where + ' operator snapshot/binding SHA mismatch')
++    source_fields = dict(source_sha256=binding['source'],
++                         governing_dsd_design_sha256=binding['design'])
++    for where, item in containers:
++        if any(key in item and item[key] != value for key, value in source_fields.items()):
++            raise ValueError(where + ' source/design SHA mismatch')
++    return digest(job)
++
++
++def read_overlays(sources, by_hash, binding):
++    result = defaultdict(lambda: defaultdict(list))
++    source_rows = []
++    for label, directory in sources:
++        if not label or not directory.is_dir() or directory.is_symlink():
++            raise ValueError('invalid labeled measurement directory')
++        recognized = 0
++        for file in sorted(directory.rglob('*.json')):
++            if file.is_symlink() or not file.is_file():
++                raise ValueError('linked measurement refused')
++            doc = json.loads(file.read_text())
++            if not isinstance(doc, dict) or 'job' not in doc or 'certificate' not in doc:
++                continue  # Metadata/benchmarks are not campaign receipts.
++            work = validate_overlay(doc, by_hash, binding)
++            result[work][label].append(record(file, doc))
++            recognized += 1
++        source_rows.append(dict(label=label, directory=relative(directory),
++                                recognized_canonical_receipts=recognized))
++    # The four final third-pass local receipts have explicit source/operator
++    # bindings but predate the job wrapper. Match only exact canonical jobs.
++    by_local = {(j['profile'], j['intermediate_hz'], j['output_hz'],
++                 j['mode'], j['lo'], j['hi']): work
++                for work, j in by_hash.items()}
++    for file in sorted((THIRD_PASS / 'final_local_certificates').glob('*.json')):
++        if file.is_symlink():
++            raise ValueError('linked third-pass local receipt')
++        cert = json.loads(file.read_text())
++        key = (cert['profile'], cert['input_hz'], cert['output_hz'],
++               cert['band_kind'], *cert['certified_hz'])
++        work = by_local.get(key)
++        if work is None:
++            raise ValueError('third-pass local receipt is not canonical')
++        pair = SNAPSHOTS / f"{cert['input_hz']}-{cert['output_hz']}"
++        if (cert.get('source_sha256') != binding['source'] or
++            cert.get('governing_dsd_design_sha256') != binding['design'] or
++            cert.get('stage_snapshot_sha256') != sha_file(pair / 'stage-snapshot.json') or
++            cert.get('verified_operator_binding_sha256') != sha_file(pair / 'operator-binding.json')):
++            raise ValueError('third-pass local receipt binding mismatch')
++        doc = dict(job=by_hash[work], binding=binding, certificate=cert,
++                   qualified_release=False)
++        validate_overlay(doc, by_hash, binding)
++        result[work]['third_pass_final_local'].append(record(file, doc))
++    return result, source_rows
++
++
++def state_classification(original, measurements):
++    """Report observed outcomes only; do not infer mathematical impossibility."""
++    classes = []
++    if original['status'].startswith('PASS'):
++        classes.append('historical_certified_local_interval')
++    else:
++        reason = original.get('reason') or ''
++        classes.append('historical_budget_exhaustion' if 'budget' in reason else
++                       'historical_operator_precondition' if 'precondition' in reason else
++                       'historical_other_open')
++    current = {label: docs for label, docs in measurements.items()
++               if not label.startswith('historical_') and label != 'third_pass_final_local'}
++    if not current:
++        classes.append('current_run_unmeasured')
++    for label, docs in sorted(current.items()):
++        passes = [d for d in docs if d['status'].startswith('PASS')]
++        classes.append(label + (':observed_local_pass' if passes else ':observed_open'))
++    return classes
++
++
++def select_corpus(rows):
++    groups = defaultdict(list)
++    for row in rows:
++        job = row['job']
++        if job['output_hz'] == 384000 or (
++                job['cell_id'].startswith('dsd256.') and job['output_hz'] in (192000, 44100)):
++            groups[(job['cell_id'], job['mode'])].append(row)
++    selected = {}
++    for (cell, mode), entries in sorted(groups.items()):
++        positions = [(0, 'dc_boundary'), (len(entries) // 2, 'band_interior'),
++                     (len(entries) - 1, 'upper_guaranteed_passband_edge' if mode == 'pass'
++                      else 'pcm_nyquist_boundary')]
++        if mode == 'pass':
++            positions.extend([(len(entries) // 4, 'lower_interior'),
++                              (3 * len(entries) // 4, 'upper_interior')])
++        else:
++            positions.append((3 * len(entries) // 4, 'upper_stop_output_interior'))
++            for i, row in enumerate(entries):
++                if Fraction(row['job']['lo']) <= row['job']['source_s'] <= Fraction(row['job']['hi']):
++                    positions.append((i, 'native_S_in_output_coordinates'))
++            positions.append((max(range(len(entries)), key=lambda i: len(
++                entries[i]['exact_routing_transition_points_hz'])), 'dense_routing_transitions'))
++        for position, why in positions:
++            row = entries[position]
++            item = selected.setdefault(row['work_sha256'], dict(
++                canonical_index=row['canonical_index'], work_sha256=row['work_sha256'],
++                job=row['job'], original=row['original'],
++                complete_path_count=row['complete_path_count'],
++                primitive_source_family_count=row['primitive_source_family_count'],
++                exact_routing_transition_points_hz=row['exact_routing_transition_points_hz'],
++                exact_stop_membership_crossings_hz=row['exact_stop_membership_crossings_hz'],
++                selection_reasons=[]))
++            item['selection_reasons'].append(why)
++    return sorted(selected.values(), key=lambda x: x['canonical_index'])
++
++
++def create_census(output, measurements=()):
++    jobs = canonical_plan()
++    if len(jobs) != 11516:
++        raise ValueError('canonical campaign population changed')
++    by_hash = {digest(j): j for j in jobs}
++    if len(by_hash) != len(jobs):
++        raise ValueError('duplicate canonical work identity')
++    binding = bindings()
++    operators = source_operators(jobs)
++    cells = {c['id']: c for c in all_active_cells()}
++    topologies = {name: rate_topology(c, operators[(c['intermediate_hz'], c['output_hz'])])
++                  for name, c in cells.items()}
++    overlays, overlay_inputs = read_overlays(
++        [('historical_600s', HISTORY / 'budget-sample'), *measurements], by_hash, binding)
++    counts = Counter()
++    reasons = Counter()
++    by_cell = defaultdict(lambda: defaultdict(Counter))
++    rows = []
++    inventory = []
++    for index, job in enumerate(jobs):
++        work = digest(job)
++        doc = check_one(HISTORY / 'receipts', job, binding)
++        if doc is None:
++            raise ValueError('missing canonical historical receipt')
++        file = receipt_path(HISTORY / 'receipts', job)
++        original = record(file, doc)
++        inventory.append((file.name, original['sha256']))
++        counts[original['status']] += 1
++        if original['status'] == 'OPEN':
++            reasons[original['reason'].split(':', 1)[0]] += 1
++        topo = topologies[job['cell_id']]
++        lo, hi = Fraction(job['lo']), Fraction(job['hi'])
++        points = [q for q in topo['exact_routing_transition_points_hz'] if lo < Fraction(q) < hi]
++        source_s = Fraction(job['source_s'])
++        spacing = Fraction(topo['primitive_frequency_spacing_hz'])
++        membership = sorted({q for sign in (-1, 1)
++                             for q in lattice_points(sign * source_s, spacing, lo, hi)})
++        stops = [lo, *(Fraction(q) for q in points), hi]
++        flags = []
++        if lo == 0:
++            flags.append('dc')
++        if job['mode'] == 'pass' and hi == Fraction(job['effective_p']):
++            flags.append('guaranteed_passband_upper_edge')
++        if hi == Fraction(job['output_hz'], 2):
++            flags.append('pcm_nyquist')
++        if lo <= source_s <= hi:
++            flags.append('native_S_in_output_coordinates')
++        if points:
++            flags.append('interior_routing_transition')
++        if membership:
++            flags.append('native_stop_membership_transition')
++        row = dict(
++            canonical_index=index, work_sha256=work, job=job,
++            source_native_hz=topo['native_hz'], dsd_rate=topo['native_hz'] // 44100,
++            interval_width_hz=freqstr(hi - lo), frequency_features=flags,
++            original=original, observations=dict(overlays.get(work, {})),
++            classification=state_classification(original, overlays.get(work, {})),
++            topology_cell=job['cell_id'], complete_path_count=topo['complete_path_count'],
++            primitive_source_family_count=topo['primitive_source_family_count'],
++            path_multiplicity_per_primitive_family=topo['path_multiplicity_per_primitive_family'],
++            exact_routing_transition_points_hz=points,
++            exact_stationary_piece_widths_hz=[freqstr(b - a) for a, b in zip(stops, stops[1:])],
++            exact_stop_membership_crossings_hz=[freqstr(q) for q in membership],
++            estimated_effort=dict(
++                method='structural work proxy, not a wall-clock prediction',
++                full_path_visits_for_one_cover=topo['complete_path_count'] * (len(points) + 1),
++                stage_count=topo['stage_count'],
++                unresolved_cause='requires numerical measurement' if original['status'] == 'OPEN' else None,
++            ),
++        )
++        rows.append(row)
++        by_cell[job['cell_id']]['original_' + job['mode']][original['status']] += 1
++        for label, docs in row['observations'].items():
++            status = 'PASS' if any(d['status'].startswith('PASS') for d in docs) else 'OPEN'
++            by_cell[job['cell_id']][label + '_' + job['mode']][status] += 1
++    if counts != Counter({'PASS-LOCAL-BAND': 1340, 'PASS-LOCAL-STOP-SOURCE': 5495, 'OPEN': 4681}):
++        raise ValueError('historical receipt dispositions differ from pinned campaign')
++    if reasons != Counter({'interval_wall_clock_budget_exhausted': 3907, 'operator_path_precondition': 774}):
++        raise ValueError('historical OPEN reasons differ from pinned campaign')
++    state = sha256()
++    for name, sha in sorted(inventory):
++        state.update(name.encode() + b'\0' + sha.encode() + b'\n')
++    cell_rows = []
++    for name, c in sorted(cells.items()):
++        relevant = [row for row in rows if row['job']['cell_id'] == name]
++        P, S = PROFILE_BANDS[c['profile']]
++        cell_rows.append(dict(
++            **c, declared_P_hz=P, declared_S_hz=S,
++            effective_P_hz=relevant[0]['job']['effective_p'],
++            canonical_pass_intervals=sum(r['job']['mode'] == 'pass' for r in relevant),
++            canonical_stop_intervals=sum(r['job']['mode'] == 'stop' for r in relevant),
++            counts={k: dict(v) for k, v in sorted(by_cell[name].items())},
++            topology=topologies[name],
++        ))
++    corpus = select_corpus(rows)
++    summary = dict(
++        schema=SCHEMA, release='BLOCKED', qualified_release=False,
++        purpose='Evidence census only; observed receipts retain original scope and disposition',
++        canonical_intervals=len(rows), cells=len(cells), original_dispositions=dict(counts),
++        original_open_reasons=dict(reasons),
++        original_receipt_inventory_sha256=state.hexdigest(),
++        original_summary_sha256=sha_file(HISTORY / 'SUMMARY.json'),
++        census_code_sha256=sha_file(Path(__file__)),
++        design_sha256=binding['design'], source_identity=binding['source'],
++        measurement_inputs=overlay_inputs, selected_corpus_intervals=len(corpus),
++        mathematical_limits=dict(passband_db='0.0001', coherent_alias_db='-160'),
++        transition_census_method=(
++            'Exact reverse cyclic residue groups: d <- gcd(d, Fin); branch window '
++            'L*Fin/2 modulo old d; input fold Fin/2 modulo new d. All complete '
++            'path multiplicities retained. Native stop membership +/-S modulo final d.'),
++        limitations=[
++            'An OPEN timeout does not establish spectral failure or insufficient mathematical bounds.',
++            'Current observations are explicit overlays; the historical campaign is never relabeled.',
++            'Rate topology does not prove a phase identity, permit cancellation, or provide a spectral certificate.',
++            'Stop jobs concern native-source frequencies >= S folding into an output interval; their output coordinate is not a native-source band.',
++            'An individual PASS does not establish complete cell coverage or FFT4G execution-roundoff bounds.',
++        ],
++    )
++    output.mkdir(parents=True, exist_ok=True)
++    if output.is_symlink():
++        raise ValueError('linked census directory refused')
++    files = {
++        'intervals.jsonl': b''.join((json.dumps(r, sort_keys=True, separators=(',', ':'), allow_nan=False) + '\n').encode() for r in rows),
++        'cells.json': encoded(cell_rows), 'summary.json': encoded(summary),
++        'corpus.json': encoded(corpus),
++    }
++    lines = [
++        '# P15 high-rate canonical census', '',
++        'Release remains **BLOCKED**. This census checks all 11,516 historical canonical receipts against the current pinned source/design identity. Historical counts remain 6,835 local passes and 4,681 OPEN.', '',
++        'The matrix reports the original 60-second campaign. Explicit later observations remain separate in `intervals.jsonl` and `cells.json`. A timeout is not a spectral violation.', '',
++        '| Cell | P / S (Hz) | Pass total / OPEN | Stop total / OPEN | Paths / families | SRC stages |',
++        '|---|---:|---:|---:|---:|---:|',
++    ]
++    for c in cell_rows:
++        if c['output_hz'] != 384000 and not (c['native_hz'] == 11289600 and c['output_hz'] == 192000):
++            continue
++        t = c['topology']
++        lines.append(f"| {c['id']} | {c['effective_P_hz']} / {c['declared_S_hz']} | {c['canonical_pass_intervals']} / {c['counts']['original_pass'].get('OPEN', 0)} | {c['canonical_stop_intervals']} / {c['counts']['original_stop'].get('OPEN', 0)} | {t['complete_path_count']} / {t['primitive_source_family_count']} | {t['src_stage_count']} |")
++    lines += [
++        '', '## What the census establishes', '',
++        '- All 2,151 historical OPEN intervals at 384 kHz were time-budget exhaustions. The old 774 operator-precondition outcomes occur in other cells; they are not evidence that 384 kHz is structurally unsupported.',
++        '- DSD256 mastering to 384 kHz is the smallest preferred complete difficult target: 40 passband intervals plus 192 native-source-stop intervals. Its 9,408 paths have no native-family collisions.',
++        '- DSD256 wideband to 192 kHz has 9,408 paths for 4,704 primitive families. Its 188 original OPEN outcomes came from the old single-path/count precondition; later code admits complete multiplicities. It is a useful structural-regression target.',
++        '- The rate-only transition census gives exact rational event locations for every canonical interval. These are distinct from native-stop-membership crossings at +S and -S modulo the primitive source spacing. Membership crossings can make whole-interval inclusion conservative; a numerical experiment is required before attributing an OPEN to that conservatism.',
++        '', '## Reproduce', '', 'From the repository root:', '', '```sh',
++        'PYTHONPATH=tests/dsd OPENBLAS_NUM_THREADS=1 python tests/dsd/p15_high_rate_census.py --output NEW_DIRECTORY',
++        '```', '',
++        'Add `--measurement baseline=BASELINE_DIRECTORY --measurement candidate=CANDIDATE_DIRECTORY` to overlay new campaign-shaped receipts. Publication is exclusive and idempotent. Use a fresh output directory whenever inputs change.', '',
++        '`corpus.json` selects DC, interior, upper passband, output Nyquist, dense-routing and native-S-coordinate intervals across all nine 384 kHz cells and DSD256 192/44.1 kHz cells. Selection is reproducible and does not change normative acceptance bands.', '',
++        '## Exact topology argument and limits', '',
++        'Start with the output residue group containing only zero, spacing Fout. If a reverse-stage input group has spacing d modulo its output clock, the full M branches of an L/M stage generate the subgroup with spacing gcd(d, Fin) modulo Fin. All branch multiplicities are retained. Branch-window changes occur at L*Fin/2 modulo d; input-frequency wrapping changes at Fin/2 modulo gcd(d, Fin). Their union identifies the open regions on which every inverse-path affine argument remains fixed. Endpoints remain subject to the prover’s independent one-sided checks.', '',
++        'The final spacing is checked against the captured operator’s Fout/U. The complete path population is the product of stage denominators, and its ratio to native_hz/spacing records path multiplicity. The census does not combine transfer amplitudes, infer phase cancellation, or issue a spectral PASS.', '',
++        'The structural work proxy multiplies complete paths by stationary pieces. It is not a runtime estimate: FIR lengths, upper-bound looseness, cache reuse and subdivision can dominate actual work. Current causes remain unclassified until numerical measurements demonstrate them.',
++    ]
++    files['README.md'] = ('\n'.join(lines) + '\n').encode()
++    for name, data in files.items():
++        publish(output / name, data)
++    manifest = ''.join(f"{sha256(data).hexdigest()}  {name}\n" for name, data in sorted(files.items()))
++    publish(output / 'SHA256SUMS', manifest.encode())
++    return summary
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--output', required=True, type=Path)
++    parser.add_argument('--measurement', action='append', default=[], metavar='LABEL=DIRECTORY')
++    args = parser.parse_args()
++    sources = []
++    for value in args.measurement:
++        if '=' not in value:
++            parser.error('--measurement requires LABEL=DIRECTORY')
++        label, directory = value.split('=', 1)
++        if label.startswith('historical_') or label == 'third_pass_final_local':
++            parser.error('reserved historical measurement label')
++        if any(label == old for old, _ in sources):
++            parser.error('duplicate measurement label')
++        sources.append((label, Path(directory)))
++    result = create_census(args.output, sources)
++    print(json.dumps({key: result[key] for key in ('canonical_intervals', 'cells', 'original_dispositions', 'selected_corpus_intervals')}, sort_keys=True))
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/tests/dsd/p15_high_rate_coverage_report.py b/tests/dsd/p15_high_rate_coverage_report.py
+--- /dev/null
++++ b/tests/dsd/p15_high_rate_coverage_report.py
+@@ -0,0 +1,603 @@
++#!/usr/bin/env python3
++"""Aggregate an immutable high-rate census with explicit proof-code snapshots.
++
++This independently checks canonical work identities, receipt hashes, current
++source/operator bindings, and the complete recorded proof-module mapping. It
++does not execute a numerical proof or turn local certificates into release
++qualification. Different verified proof versions may establish intervals of
++the same unchanged coefficient operator; their receipts remain separate.
++"""
++from __future__ import annotations
++
++import argparse
++from collections import Counter, defaultdict
++from fractions import Fraction
++from hashlib import sha256
++import json
++from pathlib import Path
++import statistics
++
++import p15_high_rate_census as census
++from p15_full_band_campaign import bindings, canonical_plan, digest
++
++ROOT = Path(__file__).resolve().parents[2]
++PRIOR_LABEL = 'third_pass_final_local'
++METRICS = ('nodes_examined', 'exact_branch_splits', 'exact_path_enumerations',
++           'fir_interval_evaluations', 'cheap_difference_majorants_used',
++           'interval_subdivisions', 'max_alias_path_population',
++           'alias_population_operations')
++
++
++def load(path):
++    return json.loads(path.read_text())
++
++
++def file_path(value):
++    path = Path(value)
++    return path if path.is_absolute() else ROOT / path
++
++
++def proof_snapshot(path):
++    """A flat frozen snapshot is recognized by its exact complete module map."""
++    identity_file = path / 'IDENTITY.json'
++    identity = load(identity_file)
++    code = identity.get('prover_code_sha256')
++    if not isinstance(code, dict) or not code:
++        raise ValueError('missing complete proof-code snapshot identity')
++    for name, expected in code.items():
++        if Path(name).name != name or not name.endswith('.py'):
++            raise ValueError('nonlocal proof snapshot module name')
++        if census.sha_file(path / name) != expected:
++            raise ValueError('proof snapshot hash mismatch: ' + name)
++    return dict(directory=census.relative(path), identity_sha256=census.sha_file(identity_file),
++                variant=identity.get('variant'), prover_code_sha256=code)
++
++
++def receipt_metrics(doc):
++    cert = doc['certificate']
++    measured = doc.get('measurement', {})
++    return dict(status=cert['status'], reason=cert.get('reason'),
++                elapsed_s=measured.get('elapsed_s'), cpu_s=measured.get('cpu_s'),
++                peak_rss_kib=measured.get('peak_rss_kib'),
++                counters={key: cert.get(key) for key in METRICS})
++
++
++def complete_cover(jobs, witnesses):
++    """Require every named canonical job and exact gap-free rational coverage."""
++    if any(digest(job) not in witnesses for job in jobs):
++        return None
++    bands = {}
++    for mode in ('pass', 'stop'):
++        selected = sorted((job for job in jobs if job['mode'] == mode),
++                          key=lambda j: Fraction(j['lo']))
++        if not selected:
++            raise ValueError('complete cell is missing a normative band')
++        expected_end = (Fraction(selected[0]['effective_p']) if mode == 'pass'
++                        else Fraction(selected[0]['output_hz'], 2))
++        cursor = Fraction(0)
++        bound = []
++        for job in selected:
++            lo, hi = Fraction(job['lo']), Fraction(job['hi'])
++            if lo != cursor or hi < lo:
++                raise ValueError('canonical cell frequency gap/overlap')
++            cursor = hi
++            bound.append(dict(lo=job['lo'], hi=job['hi'], work_sha256=digest(job),
++                              witness=witnesses[digest(job)]))
++        if cursor != expected_end:
++            raise ValueError('canonical cell does not reach its normative upper edge')
++        bands[mode] = dict(lower_hz='0', upper_hz=census.freqstr(expected_end),
++                           canonical_intervals=len(bound), intervals=bound)
++    return bands
++
++
++def matched_pair(baseline, candidate):
++    """Only uncensored PASS/PASS timings receive a numerical speedup ratio."""
++    a, b = baseline['doc'], candidate['doc']
++    ia, ib = a['experiment_identity'], b['experiment_identity']
++    for key in ('job', 'binding', 'stage_snapshot_sha256',
++                'verified_operator_binding_sha256', 'resources',
++                'harness_sha256', 'profiling_enabled'):
++        if ia.get(key) != ib.get(key):
++            raise ValueError('unmatched experiment identity: ' + key)
++    ea, eb = a['measurement']['environment'], b['measurement']['environment']
++    for key in ('python', 'executable', 'platform', 'mpmath', 'numpy',
++                'affinity', 'openblas_num_threads'):
++        if ea.get(key) != eb.get(key):
++            raise ValueError('unmatched experiment environment: ' + key)
++    ma, mb = receipt_metrics(a), receipt_metrics(b)
++    both_pass = ma['status'].startswith('PASS') and mb['status'].startswith('PASS')
++    speedup = ma['elapsed_s'] / mb['elapsed_s'] if both_pass else None
++    return dict(job=a['job'], baseline=dict(receipt=baseline['reference'], **ma),
++                candidate=dict(receipt=candidate['reference'], **mb),
++                speedup_if_both_pass=speedup,
++                timing_scope='Complete certificate call; startup excluded; timeout timings are censored')
++
++
++def observed_state(records):
++    if not records:
++        return 'UNMEASURED'
++    return 'PASS' if any(r['doc']['certificate']['status'].startswith('PASS')
++                         for r in records) else 'OPEN'
++
++
++def larger_budget_evidence(records):
++    """Budget-only progress requires the same proof code and numerical limits.
++
++    CPU identifiers and executable aliases may differ, so this is evidence of
++    feasibility at a larger budget, not a matched wall-time performance claim.
++    Changing the proof implementation cannot be credited to the larger budget.
++    """
++    groups = defaultdict(list)
++    for record in records:
++        identity = record['doc']['experiment_identity']
++        resources = identity['resources']
++        key = digest(dict(prover_code_sha256=identity['prover_code_sha256'],
++            max_nodes=resources['max_nodes'], max_paths=resources['max_paths'],
++            profiling_enabled=identity['profiling_enabled']))
++        groups[key].append(record)
++    evidence = []
++    for items in groups.values():
++        short = [r for r in items if r['doc']['certificate']['status'] == 'OPEN'
++                 and r['doc']['experiment_identity']['resources']['seconds'] <= 60]
++        long = [r for r in items if r['doc']['certificate']['status'].startswith('PASS')
++                and r['doc']['experiment_identity']['resources']['seconds'] > 60]
++        if short and long:
++            evidence.append(dict(short_open=[r['reference'] for r in short],
++                                 longer_pass=[r['reference'] for r in long]))
++    return evidence
++
++
++def event_coverage(points, intervals, upper):
++    """Exact coverage of an event and each applicable one-sided neighborhood."""
++    upper = Fraction(upper)
++    events = []
++    for point in sorted(set(map(Fraction, points))):
++        if not 0 <= point <= upper:
++            raise ValueError('boundary outside audited band')
++        at = any(lo <= point <= hi for lo, hi in intervals)
++        left = any(lo < point <= hi for lo, hi in intervals)
++        right = any(lo <= point < hi for lo, hi in intervals)
++        events.append(dict(hz=census.freqstr(point), point=at,
++            left_neighborhood=left, right_neighborhood=right,
++            all_applicable_sides=at and (point == 0 or left)
++                                       and (point == upper or right)))
++    return dict(total=len(events),
++        with_all_applicable_sides=sum(e['all_applicable_sides'] for e in events),
++        with_both_sides=sum(e['left_neighborhood'] and e['right_neighborhood'] for e in events),
++        events=events)
++
++
++def boundary_scope(rows, cell_metadata, selected, label):
++    """Audit a declared set of canonical intervals; this does no proof work.
++
++    Source Nyquist is an alias-family relabeling on the output-frequency axis:
++    f = -Fnative/2 modulo primitive spacing.  It is not output = Fnative/2.
++    """
++    chosen = defaultdict(list)
++    for row in rows:
++        if row['work_sha256'] in selected:
++            chosen[row['job']['cell_id']].append(row)
++    if sum(len(items) for items in chosen.values()) != len(selected):
++        raise ValueError('boundary audit contains unknown canonical work')
++    result = []
++    for cell, items in sorted(chosen.items()):
++        meta = cell_metadata[cell]
++        topology = meta['topology']
++        spacing = Fraction(topology['primitive_frequency_spacing_hz'])
++        nyquist = Fraction(meta['native_hz'], 2)
++        bands = {}
++        for mode in ('pass', 'stop'):
++            jobs = [r['job'] for r in items if r['job']['mode'] == mode]
++            upper = (Fraction(meta['effective_P_hz']) if mode == 'pass'
++                     else Fraction(meta['output_hz'], 2))
++            intervals = [(Fraction(j['lo']), Fraction(j['hi'])) for j in jobs]
++            routing = {point for lattice in topology['exact_stage_transition_lattices']
++                for point in census.lattice_points(lattice['residue_hz'], lattice['period_hz'],
++                                                    0, upper, endpoints=True)}
++            source_nyquist = census.lattice_points(-nyquist % spacing, spacing,
++                                                    0, upper, endpoints=True)
++            native_stop = {point for residue in (Fraction(meta['declared_S_hz']) % spacing,
++                                                  -Fraction(meta['declared_S_hz']) % spacing)
++                for point in census.lattice_points(residue, spacing, 0, upper, endpoints=True)}
++            bands[mode] = dict(canonical_intervals=len(jobs),
++                dc_and_arbitrarily_near_zero=any(lo == 0 < hi for lo, hi in intervals),
++                upper_normative_edge_and_left_limit=any(lo < upper == hi for lo, hi in intervals),
++                upper_normative_edge_hz=census.freqstr(upper),
++                routing=event_coverage(routing, intervals, upper),
++                source_nyquist_alias_relabeling=event_coverage(source_nyquist, intervals, upper),
++                native_stop_membership=(event_coverage(native_stop, intervals, upper)
++                                        if mode == 'stop' else None))
++        result.append(dict(cell_id=cell, selected_intervals=len(items),
++            complete_path_count=topology['complete_path_count'],
++            primitive_source_families=topology['primitive_source_family_count'],
++            native_nyquist_hz=census.freqstr(nyquist), bands=bands))
++    return dict(selection=label, selected_intervals=len(selected), cells=result,
++        frequency_axis='Output Hz; source Nyquist and native-stop events refer to complete source aliases',
++        scope='Exact set coverage only. A planned interval is not a PASS; only the candidate-pass selection uses certified intervals.',
++        near_zero_meaning='A closed interval starting at zero includes every positive rational or real frequency sufficiently near zero.',
++        transition_meaning='Both one-sided neighborhoods require selected intervals on both sides; a zero-width point is insufficient.')
++
++
++def require_strict_readjudication(path, required, binding):
++    """Admit only exact bound readjudications of the actual contributing bytes.
++
++    Historical PASS counts remain historical; this gate refuses to form a
++    current proof union if one of its contributing PASS summaries has not
++    survived the independently implemented exact normative comparisons.
++    """
++    if path is None:
++        raise ValueError('strict normative bound readjudication is required')
++    parent = path.parent
++    manifest = {}
++    for line in (parent / 'SHA256SUMS').read_text().splitlines():
++        expected, name = line.split('  ', 1)
++        if Path(name).name != name or name in manifest:
++            raise ValueError('invalid normative readjudication manifest')
++        if census.sha_file(parent / name) != expected:
++            raise ValueError('normative readjudication manifest mismatch')
++        manifest[name] = expected
++    if path.name not in manifest:
++        raise ValueError('normative verification file is not manifested')
++    doc = load(path)
++    if (doc.get('schema') != 'P15/exact-normative-envelope-readjudication/1' or
++            doc.get('qualified_release') is not False or
++            doc.get('numerical_proof_replayed') is not False):
++        raise ValueError('unrecognized normative readjudication scope')
++    code = doc.get('implementation_sha256')
++    if (not isinstance(code, dict) or not code or
++            any(name not in manifest or manifest[name] != expected for name, expected in code.items())):
++        raise ValueError('readjudication implementation identity mismatch')
++    if doc.get('recorded_source_bindings', {}).get(digest(binding)) != binding:
++        raise ValueError('readjudication source/design inventory mismatch')
++    indexed = {}
++    for item in doc['receipts']:
++        key = item['receipt_path'], item['receipt_sha256']
++        if key in indexed:
++            raise ValueError('duplicate normative readjudication receipt')
++        indexed[key] = item
++    checked = []
++    for key, work in sorted(required.items()):
++        if census.sha_file(file_path(key[0])) != key[1]:
++            raise ValueError('contributing receipt changed after readjudication: ' + key[0])
++        item = indexed.get(key)
++        if (item is None or item.get('normative_envelope_status') != 'EXACT_NORMATIVE_ENVELOPE_VERIFIED' or
++                item.get('canonical_work_sha256') != work or
++                item.get('source_binding_status') != 'CURRENT_SOURCE_AND_DESIGN_PINS_MATCH' or
++                item.get('recorded_source_binding_sha256') != digest(binding)):
++            raise ValueError('contributing receipt lacks strict normative readjudication: ' + key[0])
++        checked.append(dict(path=key[0], sha256=key[1], work_sha256=work))
++    return dict(path=census.relative(path), sha256=census.sha_file(path),
++        contributing_pass_receipts=len(checked), contributing_receipts=checked,
++        numerical_proof_replayed=False, implementation_sha256=code,
++        scope='Every PASS receipt used in the coverage unions has an independently readjudicated exact normative scalar enclosure; internal numerical proofs are not replayed by this check.')
++
++
++def generate(census_dir, output, proof_roots, required_plans, matched_labels,
++             candidate_labels, *, adjudication=None, allow_partial=False):
++    summary = load(census_dir / 'summary.json')
++    if summary.get('census_code_sha256') != census.sha_file(Path(census.__file__)):
++        raise ValueError('regenerate the final census with the current binding validator')
++    for line in (census_dir / 'SHA256SUMS').read_text().splitlines():
++        expected, name = line.split('  ', 1)
++        if Path(name).name != name or census.sha_file(census_dir / name) != expected:
++            raise ValueError('census manifest mismatch')
++    rows = [json.loads(line) for line in (census_dir / 'intervals.jsonl').read_text().splitlines()]
++    jobs = canonical_plan()
++    current_binding = bindings()
++    if len(rows) != len(jobs) or len(jobs) != 11516:
++        raise ValueError('not a complete canonical census')
++    if summary['source_identity'] != current_binding['source'] or summary['design_sha256'] != current_binding['design']:
++        raise ValueError('census does not bind the current unchanged source/design')
++    by_hash = {digest(job): job for job in jobs}
++    snapshots = {label: proof_snapshot(path) for label, path in proof_roots.items()}
++    records = defaultdict(dict)
++    original_pass = set()
++    prior_pass = set()
++    current_pass = set()
++    candidate_pass = set()
++    original_open = set()
++    contributing_receipts = {}
++    for index, (row, job) in enumerate(zip(rows, jobs)):
++        work = digest(job)
++        if row['canonical_index'] != index or row['job'] != job or row['work_sha256'] != work:
++            raise ValueError('census canonical index/job mismatch')
++        if row['original']['status'].startswith('PASS'):
++            original_pass.add(work)
++            prior_pass.add(work)
++            contributing_receipts[(row['original']['path'], row['original']['sha256'])] = work
++        else:
++            original_open.add(work)
++        for label, observations in row['observations'].items():
++            if label.startswith('historical_') or label == PRIOR_LABEL:
++                for observation in observations:
++                    if observation['status'].startswith('PASS'):
++                        prior_pass.add(work)
++                        contributing_receipts[(observation['path'], observation['sha256'])] = work
++                continue
++            if label not in snapshots:
++                raise ValueError('unrecognized proof snapshot for measurement label: ' + label)
++            if len(observations) != 1:
++                raise ValueError('one version/budget per measurement label required')
++            observation = observations[0]
++            path = file_path(observation['path'])
++            if census.sha_file(path) != observation['sha256']:
++                raise ValueError('receipt changed after census publication')
++            doc = load(path)
++            if census.validate_overlay(doc, by_hash, current_binding) != work:
++                raise ValueError('receipt belongs to another canonical interval')
++            if doc.get('prover_code_sha256') != snapshots[label]['prover_code_sha256']:
++                raise ValueError('receipt proof modules do not match recognized complete snapshot')
++            if doc.get('canonical_work_index') != index:
++                raise ValueError('experiment canonical work index mismatch')
++            if doc['certificate']['status'].startswith('PASS') and (
++                doc['certificate'].get('governing_stopband_hz') != job['source_s'] or
++                doc['certificate'].get('limits') != {'passband_db': '0.0001', 'coherent_alias_db': '-160'}
++            ):
++                raise ValueError('experiment changed normative spectral obligations')
++            reference = dict(path=observation['path'], sha256=observation['sha256'], label=label)
++            records[label][work] = dict(doc=doc, reference=reference)
++            if doc['certificate']['status'].startswith('PASS'):
++                current_pass.add(work)
++                contributing_receipts[(reference['path'], reference['sha256'])] = work
++                if label in candidate_labels:
++                    candidate_pass.add(work)
++
++    strict_readjudication = require_strict_readjudication(adjudication, contributing_receipts, current_binding)
++
++    plan_status = {}
++    planned_work = set()
++    for label, path in required_plans.items():
++        plan = load(path)
++        indices = plan.get('job_indices')
++        if (not isinstance(indices, list) or len(indices) != len(set(indices)) or
++                any(type(i) is not int or not 0 <= i < len(jobs) for i in indices)):
++            raise ValueError('invalid declared experiment plan')
++        expected = {digest(jobs[i]) for i in indices}
++        planned_work.update(expected)
++        actual = set(records[label])
++        missing, unexpected = expected - actual, actual - expected
++        plan_status[label] = dict(plan=census.relative(path), plan_sha256=census.sha_file(path),
++                                  expected=len(expected), observed=len(actual),
++                                  missing_work_sha256=sorted(missing), unexpected_work_sha256=sorted(unexpected))
++        if unexpected or (missing and not allow_partial):
++            raise ValueError('selected plan is incomplete or has unexpected jobs: ' + label)
++
++    candidates = defaultdict(list)
++    baselines = defaultdict(list)
++    for label, items in records.items():
++        destination = candidates if label in candidate_labels else baselines
++        for work, record in items.items():
++            destination[work].append(record)
++    classifications = []
++    for row in rows:
++        work = row['work_sha256']
++        candidate, baseline = candidates[work], baselines[work]
++        states = []
++        if not candidate and not baseline:
++            states.append('current_run_unmeasured')
++        if any(r['doc']['certificate']['status'].startswith('PASS') for r in baseline):
++            states.append('third_pass_baseline_certified_in_observed_budget')
++        if work in candidate_pass and work in original_open:
++            states.append('candidate_certifies_original_open')
++        if work in candidate_pass and work not in prior_pass:
++            states.append('candidate_certifies_beyond_prior_receipts_included_here')
++        larger_budget = larger_budget_evidence(candidate)
++        if larger_budget:
++            states.append('observed_same_proof_60s_open_with_larger_budget_pass')
++        if (work in candidate_pass and
++                (row['original']['reason'] or '').startswith('operator_path_precondition:')):
++            states.append('original_operator_precondition_now_certified')
++        reason_counts = Counter(r['doc']['certificate'].get('reason') for r in candidate
++                                if r['doc']['certificate']['status'] == 'OPEN')
++        if observed_state(candidate) == 'OPEN':
++            states.append('current_candidate_open_cause_unresolved')
++        classifications.append(dict(canonical_index=row['canonical_index'], work_sha256=work,
++            job=row['job'], original_status=row['original']['status'], original_reason=row['original']['reason'],
++            candidate_state=observed_state(candidate), baseline_state=observed_state(baseline),
++            classification=states, observed_candidate_open_reasons=dict(reason_counts),
++            larger_budget_evidence=larger_budget,
++            complete_path_count=row['complete_path_count'],
++            stationary_piece_count=len(row['exact_stationary_piece_widths_hz']),
++            effort_estimate=row['estimated_effort'],
++            cause_limit='Timeouts alone establish neither a mathematical violation nor a loose-bound obstruction'))
++
++    witnesses = {}
++    for work, items in candidates.items():
++        passing = sorted((r['reference'] for r in items if r['doc']['certificate']['status'].startswith('PASS')),
++                         key=lambda r: (r['label'], r['sha256']))
++        if passing:
++            witnesses[work] = passing[0]
++    grouped = defaultdict(list)
++    for job in jobs:
++        grouped[job['cell_id']].append(job)
++    cell_rows = []
++    complete_cells = {}
++    union = prior_pass | current_pass
++    for cell, cell_jobs in grouped.items():
++        work = {digest(j) for j in cell_jobs}
++        measured = {w for w in work if candidates[w]}
++        bounds = complete_cover(cell_jobs, witnesses)
++        if bounds is not None:
++            complete_cells[cell] = dict(qualified_release=False, bands=bounds,
++                canonical_work_sha256=digest([digest(j) for j in cell_jobs]),
++                source_binding=current_binding,
++                scope='Exhaustive local ideal-coefficient canonical coverage; independent release obligations remain')
++        cell_rows.append(dict(cell_id=cell, canonical_intervals=len(work),
++            canonical_pass=sum(j['mode'] == 'pass' for j in cell_jobs),
++            canonical_stop=sum(j['mode'] == 'stop' for j in cell_jobs),
++            original_pass=len(work & original_pass), original_open=len(work - original_pass),
++            candidate_measured=len(measured), candidate_pass=len(work & candidate_pass),
++            candidate_open_without_any_pass=len(measured - candidate_pass),
++            candidate_unmeasured=len(work - measured),
++            newly_certified_candidate_vs_original=len((work & candidate_pass) - original_pass),
++            cumulative_explicit_evidence_pass=len(work & union),
++            complete_candidate_cell=bounds is not None))
++
++    pair_results = {}
++    for baseline_label, candidate_label in matched_labels:
++        common = sorted(set(records[baseline_label]) & set(records[candidate_label]),
++                        key=lambda w: jobs.index(by_hash[w]))
++        pair_results[baseline_label + ':' + candidate_label] = [
++            matched_pair(records[baseline_label][w], records[candidate_label][w]) for w in common]
++    label_statistics = {}
++    for label, entries in sorted(records.items()):
++        docs = [r['doc'] for r in entries.values()]
++        count = Counter(d['certificate']['status'] for d in docs)
++        cpu = sum(d['measurement']['cpu_s'] for d in docs)
++        passed = sum(d['certificate']['status'].startswith('PASS') for d in docs)
++        label_statistics[label] = dict(receipts=len(docs), statuses=dict(count),
++            sum_certificate_cpu_s=cpu, sum_certificate_wall_s=sum(d['measurement']['elapsed_s'] for d in docs),
++            peak_rss_kib=max((d['measurement']['peak_rss_kib'] for d in docs), default=None),
++            passing_certificates_per_cpu_hour=passed * 3600 / cpu if cpu else None)
++    cell_metadata = {c['id']: c for c in load(census_dir / 'cells.json')}
++    boundary_audit = dict(
++        selected_plans=boundary_scope(rows, cell_metadata, planned_work, 'selected_plans'),
++        candidate_pass=boundary_scope(rows, cell_metadata, candidate_pass, 'candidate_pass'))
++    result = dict(schema='P15/high-rate-coverage-report/1', qualified_release=False, release='BLOCKED',
++        status='IN_PROGRESS' if any(v['missing_work_sha256'] for v in plan_status.values()) else 'SELECTED_PLANS_RECORDED',
++        canonical_intervals=len(jobs), original_pass=len(original_pass),
++        prior_pass_included_here=len(prior_pass), current_unique_pass=len(current_pass),
++        current_pass_new_vs_original=len(current_pass - original_pass),
++        current_pass_new_vs_included_prior=len(current_pass - prior_pass),
++        candidate_unique_pass=len(candidate_pass), candidate_pass_new_vs_original=len(candidate_pass - original_pass),
++        original_plus_current_pass=len(original_pass | current_pass),
++        cumulative_explicit_evidence_pass=len(union), cumulative_remaining=len(jobs) - len(union),
++        complete_candidate_cells=sorted(complete_cells), plans=plan_status,
++        candidate_labels=sorted(candidate_labels),
++        classifications=dict(Counter(category for row in classifications for category in row['classification'])),
++        proof_snapshots=snapshots, label_statistics=label_statistics,
++        strict_readjudication={k: v for k, v in strict_readjudication.items() if k != 'contributing_receipts'},
++        census_summary_sha256=census.sha_file(census_dir / 'summary.json'),
++        report_code_sha256=census.sha_file(Path(__file__)),
++        historical_accounting='Prior means original 60s receipts + historical 600s sample + four third-pass final locals; no claim to inventory every historical proof in repository',
++        source_binding=current_binding,
++        verification_scope='Canonical coverage, receipt SHA, source/operator binding, complete frozen proof-code map, matched timing environment; not independent recomputation of the numerical inequalities')
++    text = human_report(result, cell_rows, pair_results, classifications, boundary_audit)
++    files = {'SUMMARY.json': census.encoded(result), 'CELL_COVERAGE.json': census.encoded(cell_rows),
++             'COMPLETE_CELL_WITNESSES.json': census.encoded(complete_cells),
++             'MATCHED_BENCHMARKS.json': census.encoded(pair_results),
++             'BOUNDARY_COVERAGE.json': census.encoded(boundary_audit),
++             'STRICT_NORMATIVE_READJUDICATION.json': census.encoded(strict_readjudication),
++             'CLASSIFICATION.jsonl': b''.join((json.dumps(x, sort_keys=True, separators=(',', ':')) + '\n').encode() for x in classifications),
++             'COVERAGE_REPORT.md': text.encode()}
++    for name, data in files.items():
++        census.publish(output / name, data)
++    census.publish(output / 'SHA256SUMS', ''.join(
++        f'{sha256(data).hexdigest()}  {name}\n' for name, data in sorted(files.items())).encode())
++    return result
++
++
++def human_report(result, cells, pairs, classifications, boundary_audit):
++    lines = ['# P15 high-rate coverage report', '',
++             f"**Snapshot status: {result['status']}. P15 remains BLOCKED.**", '',
++             f"The explicitly selected current runs contain **{result['current_unique_pass']} distinct canonical local passes**. Of these, **{result['current_pass_new_vs_original']}** were OPEN in the original 60-second campaign. The exact union of the original 6,835 passes and these current passes is **{result['original_plus_current_pass']} / 11,516**.", '',
++             f"Including the historical 600-second sample and four third-pass final local receipts produces **{result['cumulative_explicit_evidence_pass']} / 11,516** explicitly covered intervals. This is a separate evidence union: **{result['current_pass_new_vs_included_prior']}** current passes are beyond those prior receipts. Historical receipts retain their original status.", '',
++             '## Inherited threshold defect and strict readjudication', '',
++             'Review found that the inherited conversion of dB decision limits to binary64 amplitudes could widen the acceptance envelope through binary64 rounding. A recorded PASS flag or a textual `limits` field is therefore insufficient by itself. The final corrected prover exactly serializes the full directed threshold intervals: PASS uses their inward endpoints, and a generic FAIL uses their outward endpoints. Stored proof bounds also preserve exact endpoints.', '',
++             f"All **{result['strict_readjudication']['contributing_pass_receipts']} contributing PASS receipts** in the unions above have independently passed exact normative comparisons of their preserved outward enclosure summaries. `STRICT_NORMATIVE_READJUDICATION.json` binds each exact receipt hash to `{result['strict_readjudication']['path']}` and its manifested verifier implementation. This checks the stored scalar bounds against the unchanged 0.0001-dB / 160-dB obligations; it does not rerun interval arithmetic, alias enumeration, phase identities, or internal proof-tree coverage. Historical receipts and dispositions remain unchanged.", '',
++             '## Proof implementation and decode-profile versions', '',
++             'The proof implementation identifiers describe numerical prover code. The cell component `mastering_v2` describes the captured decode profile and coefficients. These are independent version axes: running a newer proof implementation does not promote or change a decode profile.', '',
++             '| Measurement label | Role | Frozen proof snapshot | Snapshot description |',
++             '|---|---|---|---|']
++    for label, snapshot in sorted(result['proof_snapshots'].items()):
++        role = 'candidate proof implementation' if label in result['candidate_labels'] else 'third-pass baseline'
++        lines.append(f"| {label} | {role} | `{snapshot['directory']}` | {snapshot.get('variant') or 'Exact module map retained in IDENTITY.json'} |")
++    lines += ['', '## Difficult cells', '',
++             '| Cell | Canonical pass + stop | Original OPEN | Candidate PASS | Candidate OPEN | Unmeasured | Complete candidate cover |',
++             '|---|---:|---:|---:|---:|---:|---|']
++    for c in cells:
++        if not (c['cell_id'].endswith('pcm384000') or
++                c['cell_id'].startswith('dsd256.') and c['cell_id'].endswith('pcm192000')):
++            continue
++        lines.append(f"| {c['cell_id']} | {c['canonical_pass']} + {c['canonical_stop']} | {c['original_open']} | {c['candidate_pass']} | {c['candidate_open_without_any_pass']} | {c['candidate_unmeasured']} | {'yes' if c['complete_candidate_cell'] else 'no'} |")
++    lines += ['', 'Candidate OPEN means at least one candidate attempt exists and none of the included candidate versions/budgets supplied a PASS. Unmeasured intervals have no candidate attempt in this snapshot. Neither classification establishes a spectral violation.', '', '## Complete-cell evidence', '']
++    if result['complete_candidate_cells']:
++        for name in result['complete_candidate_cells']:
++            c = next(c for c in cells if c['cell_id'] == name)
++            lines.append(f"- **{name}: {c['canonical_intervals']} / {c['canonical_intervals']} canonical intervals**, comprising {c['canonical_pass']} passband and {c['canonical_stop']} native-source-stop intervals.")
++        lines += ['', '`COMPLETE_CELL_WITNESSES.json` names every canonical interval and immutable receipt hash, verifies exact shared endpoints from DC to each required upper edge, and binds the unchanged source. Local proofs from different recognized proof snapshots may cover the same unchanged coefficient operator. This is ideal-coefficient spectral coverage; FFT4G arithmetic and release adjudication remain separate.']
++    else:
++        lines.append('No complete candidate cell is claimed in this snapshot. Remaining canonical intervals remain explicitly unproved or unmeasured.')
++    lines += ['', '## Boundary and difficult-population coverage', '',
++        '`BOUNDARY_COVERAGE.json` separately audits the selected plans and the union of candidate PASS intervals. It records exact output-frequency event locations and coverage of the point, left neighborhood, and right neighborhood. Planned coverage is never counted as a numerical certificate.', '',
++        '| Cell with candidate PASS | Passband DC / upper edge | Stop-output DC / Nyquist | Pass routing events, both sides | Stop routing events, both sides | Complete paths |',
++        '|---|---|---|---:|---:|---:|']
++    for cell in boundary_audit['candidate_pass']['cells']:
++        if not (cell['cell_id'].endswith('pcm384000') or
++                cell['cell_id'].startswith('dsd256.') and cell['cell_id'].endswith(('pcm192000', 'pcm96000'))):
++            continue
++        a, b = cell['bands']['pass'], cell['bands']['stop']
++        yn = lambda value: 'yes' if value else 'no'
++        lines.append(f"| {cell['cell_id']} | {yn(a['dc_and_arbitrarily_near_zero'])} / {yn(a['upper_normative_edge_and_left_limit'])} | {yn(b['dc_and_arbitrarily_near_zero'])} / {yn(b['upper_normative_edge_and_left_limit'])} | {a['routing']['with_both_sides']} | {b['routing']['with_both_sides']} | {cell['complete_path_count']} |")
++    lines += ['',
++        'Every PASS interval starting at zero covers DC and all frequencies arbitrarily close to zero within that interval. Source Nyquist is not an output-frequency endpoint: the complete native lattice uses the half-open interval [−Fnative/2, Fnative/2), and its Nyquist family relabels at output frequencies congruent to −Fnative/2 modulo the primitive spacing. Those exact events and both applicable limits are audited separately. At DC and the upper edge, only the neighborhood inside the normative output band is required.', '',
++        'Native-source-stop jobs range over the output-frequency domain and enclose every included native source alias at or above the declared source stop edge. The audit distinguishes source-stop membership crossings from routing crossings. It does not add a new acceptance band inside the source transition region. Independent tests cover rational one-sided limits, zero and near-zero amplitudes, cancellation, phase-retaining complex references, and repeated alias paths; selected canonical intervals are not advertised as an exhaustive search for maximum cancellation.']
++    lines += ['', '## Matched complete-prover performance', '']
++    for name, entries in pairs.items():
++        usable = [p for p in entries if p['speedup_if_both_pass'] is not None]
++        speedups = [p['speedup_if_both_pass'] for p in usable]
++        baseline_pass = sum(p['baseline']['status'].startswith('PASS') for p in entries)
++        candidate_pass = sum(p['candidate']['status'].startswith('PASS') for p in entries)
++        lines.append(f"### {name}")
++        lines += ['', f"{len(entries)} matched observations: baseline {baseline_pass} PASS, candidate {candidate_pass} PASS. Inputs, operator hashes, harness, budgets, CPU affinity, Python, and numerical-library versions are checked for each pair.", '']
++        if speedups:
++            lines.append(f"Across {len(speedups)} PASS/PASS pairs, the geometric mean complete-prover speedup is **{statistics.geometric_mean(speedups):.3f}×**, ranging from {min(speedups):.3f}× to {max(speedups):.3f}×. Ratios below 1 are measured regressions. Timeout results are censored and excluded from this ratio.")
++        lines += ['', '| Cell / band / interval (Hz) | Baseline s | Candidate s | Ratio | Outcome |', '|---|---:|---:|---:|---|']
++        for p in entries:
++            j = p['job']; a = p['baseline']; b = p['candidate']
++            ratio = 'censored' if p['speedup_if_both_pass'] is None else f"{p['speedup_if_both_pass']:.3f}×"
++            lines.append(f"| {j['cell_id']} / {j['mode']} / {j['lo']}–{j['hi']} | {a['elapsed_s']:.3f} | {b['elapsed_s']:.3f} | {ratio} | {a['status']} → {b['status']} |")
++        lines.append('')
++    classes = Counter(category for row in classifications for category in row['classification'])
++    reasons = Counter()
++    for row in classifications:
++        if row['candidate_state'] == 'OPEN':
++            reasons.update(row['observed_candidate_open_reasons'])
++    lines += ['## What prevents remaining certification', '',
++        f"The observed classification matrix contains {classes['third_pass_baseline_certified_in_observed_budget']} intervals certified by the third-pass baseline within the explicitly recorded budgets, {classes['observed_same_proof_60s_open_with_larger_budget_pass']} intervals with a 60-second candidate OPEN and a larger-budget PASS using the same proof implementation and numerical limits, and {classes['original_operator_precondition_now_certified']} intervals whose original operator-path precondition is now resolved by a candidate PASS. Larger-budget observations are feasibility evidence; their execution environments need not be matched timing pairs.", '',
++        f"For intervals still candidate-OPEN, recorded attempt reasons are: `{json.dumps(dict(reasons), sort_keys=True)}`. These counts describe attempts; repeated budgets can contribute more than one reason to an interval.", '',
++        'The structural census separates path population from routing density. DSD256 mastering at 384 kHz has 9,408 complete paths and routing transitions every 600 Hz. DSD64 at 384 kHz has 4,704 paths, three SRC stages, and transitions every 300 Hz. DSD256 wideband at 192 kHz has 9,408 paths for 4,704 source families; multiplicity is retained.', '',
++        'FIR evaluation counts, finite-difference uses, alias-frontier operations, proof nodes, subdivisions, wall time, CPU time, and memory are retained in raw receipts and matched results. Missing baseline instrumentation is reported as null. The structural effort estimate is a work proxy, not a runtime prediction.', '',
++        'Remaining timeouts do not by themselves distinguish repeated numerical work, a conservative bound, path expansion, or a true envelope violation. No included receipt is a source-bound violation witness. Exact stop-membership crossings are also distinct from routing crossings; their presence alone does not prove that splitting them would resolve an OPEN.', '',
++        '## Reproduction and interpretation', '',
++        'Every current receipt is checked against an explicitly named complete frozen proof-code snapshot. Flat snapshots must be overlaid onto an extracted source repository for numerical replay; importing them as standalone repositories would change source-root resolution. Existing canonical receipts are never overwritten.', '',
++        'The accounting code verifies coverage and provenance. It does not recompute the interval arithmetic. Independent numerical replays and correctness tests are separate evidence. P15 remains BLOCKED until its independent production-arithmetic and release obligations are discharged.', '']
++    return '\n'.join(lines)
++
++
++def assignments(values):
++    result = {}
++    for item in values:
++        if '=' not in item:
++            raise ValueError('expected LABEL=PATH')
++        label, value = item.split('=', 1)
++        if not label or label in result:
++            raise ValueError('missing or duplicate label')
++        result[label] = Path(value)
++    return result
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--census', required=True, type=Path)
++    parser.add_argument('--output', required=True, type=Path)
++    parser.add_argument('--proof-root', action='append', default=[], metavar='LABEL=FLAT_SNAPSHOT')
++    parser.add_argument('--required-plan', action='append', default=[], metavar='LABEL=PLAN_JSON')
++    parser.add_argument('--candidate-label', action='append', default=[])
++    parser.add_argument('--readjudication', required=True, type=Path,
++                        help='Manifested exact-normative-envelope verification.json')
++    parser.add_argument('--matched', action='append', default=[], metavar='BASELINE_LABEL:CANDIDATE_LABEL')
++    parser.add_argument('--allow-partial', action='store_true')
++    args = parser.parse_args()
++    matched = [tuple(value.split(':')) for value in args.matched]
++    if any(len(pair) != 2 for pair in matched):
++        parser.error('--matched requires BASELINE_LABEL:CANDIDATE_LABEL')
++    result = generate(args.census, args.output, assignments(args.proof_root),
++        assignments(args.required_plan), matched, set(args.candidate_label),
++        adjudication=args.readjudication, allow_partial=args.allow_partial)
++    print(json.dumps({k: result[k] for k in ('status', 'current_unique_pass',
++        'current_pass_new_vs_original', 'cumulative_explicit_evidence_pass', 'complete_candidate_cells')}, sort_keys=True))
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/tests/dsd/p15_high_rate_experiment.py b/tests/dsd/p15_high_rate_experiment.py
+--- /dev/null
++++ b/tests/dsd/p15_high_rate_experiment.py
+@@ -0,0 +1,202 @@
++#!/usr/bin/env python3
++"""One immutable canonical P15 experiment, with explicit prover isolation.
++
++This evidence harness reuses the canonical worklist and existing signal
++deadline; it does not change the campaign dispatcher or release policy.
++Invoke in an externally supervised fresh process for a strict wall limit.
++"""
++from __future__ import annotations
++
++import argparse
++import cProfile
++import importlib
++from hashlib import sha256
++import json
++import math
++import os
++from pathlib import Path
++import platform
++import pstats
++import resource
++import sys
++import tempfile
++import time
++
++
++def encoded(value):
++    return (json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()
++
++
++def file_sha(path):
++    return sha256(Path(path).read_bytes()).hexdigest()
++
++
++def publish(path, data):
++    """Exclusive publication, including an exact concurrent-content check."""
++    if path.is_symlink():
++        raise ValueError('symlink experiment receipt')
++    fd, temporary = tempfile.mkstemp(prefix='.high-rate-', dir=path.parent)
++    try:
++        with os.fdopen(fd, 'wb') as stream:
++            stream.write(data)
++            stream.flush()
++            os.fsync(stream.fileno())
++        try:
++            os.link(temporary, path)
++        except FileExistsError:
++            if path.is_symlink() or path.read_bytes() != data:
++                raise ValueError('immutable experiment publication conflict')
++    finally:
++        os.unlink(temporary)
++
++
++def loaded_code(base):
++    """Assert actual imported numerical modules come from the named tree."""
++    result = {}
++    for name, module in sorted(sys.modules.items()):
++        if not name.startswith('p15_') or not getattr(module, '__file__', None):
++            continue
++        path = Path(module.__file__).resolve()
++        if path.parent != base:
++            raise ValueError('mixed prover implementations: ' + name + ' at ' + str(path))
++        result[path.name] = file_sha(path)
++    if 'p15_src_stagewise_continuum.py' not in result:
++        raise ValueError('prover module not loaded')
++    return result
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--source-root', type=Path, required=True)
++    parser.add_argument('--job-index', type=int, required=True)
++    parser.add_argument('--label', required=True)
++    parser.add_argument('--output', type=Path, required=True)
++    parser.add_argument('--seconds', type=float, default=60)
++    parser.add_argument('--max-nodes', type=int, default=128)
++    parser.add_argument('--max-paths', type=int, default=20000)
++    parser.add_argument('--cpu', type=int)
++    parser.add_argument('--profile-cost', action='store_true')
++    args = parser.parse_args()
++    if (not math.isfinite(args.seconds) or not 0 < args.seconds <= 3600 or
++            not 1 <= args.max_nodes <= 131072 or not 1 <= args.max_paths <= 100000):
++        raise ValueError('invalid bounded experiment resources')
++    process_started = time.perf_counter()
++    if args.cpu is not None:
++        if args.cpu not in os.sched_getaffinity(0):
++            raise ValueError('requested CPU outside permitted affinity')
++        os.sched_setaffinity(0, {args.cpu})
++    root = args.source_root.resolve(strict=True)
++    base = root / 'tests/dsd'
++    if not (base / 'p15_src_stagewise_continuum.py').is_file():
++        raise ValueError('not a source tree containing the P15 prover')
++    harness_hash = file_sha(__file__)
++    before_import = {path.name: file_sha(path) for path in base.glob('p15_*.py')}
++    # The script itself may live in the candidate tree while measuring the
++    # baseline. Never leave that implicit script directory ahead of baseline.
++    sys.path.insert(0, str(base))
++    import mpmath
++    import numpy
++    import p15_full_band_campaign as campaign
++    import p15_src_stagewise_continuum as prover
++    from p15_src_capture_matrix import verify_pair, DEFAULT
++    # The third-pass recurrence imports this optional acceleration lazily.
++    # Load it before freezing the actual module inventory for both variants.
++    if (base / 'p15_src_fixed_interval.py').is_file():
++        importlib.import_module('p15_src_fixed_interval')
++    code = loaded_code(base)
++    if any(before_import.get(name) != value for name, value in code.items()):
++        raise ValueError('prover sources changed during import')
++    jobs = campaign.canonical_plan()
++    if not 0 <= args.job_index < len(jobs):
++        raise ValueError('canonical job index out of range')
++    job = jobs[args.job_index]
++    binding = campaign.bindings()
++    pair = DEFAULT / f"{job['intermediate_hz']}-{job['output_hz']}"
++    snapshot_hash = file_sha(pair / 'stage-snapshot.json')
++    operator_binding_hash = file_sha(pair / 'operator-binding.json')
++    _, operator = verify_pair(pair, job['intermediate_hz'], job['output_hz'])
++    if (loaded_code(base) != code or campaign.bindings() != binding or
++            file_sha(pair / 'stage-snapshot.json') != snapshot_hash or
++            file_sha(pair / 'operator-binding.json') != operator_binding_hash or
++            file_sha(__file__) != harness_hash):
++        raise ValueError('prover or bound inputs changed during operator verification')
++    identity = dict(job=job, binding=binding, prover_code_sha256=code,
++        harness_sha256=harness_hash, label=args.label,
++        stage_snapshot_sha256=snapshot_hash,
++        verified_operator_binding_sha256=operator_binding_hash,
++        resources=dict(seconds=args.seconds, max_nodes=args.max_nodes,
++                       max_paths=args.max_paths, cpu=args.cpu),
++        profiling_enabled=args.profile_cost)
++    output = args.output.absolute()
++    if output.is_symlink():
++        raise ValueError('symlink experiment directory')
++    output.mkdir(parents=True, exist_ok=True)
++    destination = campaign.receipt_path(output, job)
++    if destination.exists() or destination.is_symlink():
++        if destination.is_symlink() or not destination.is_file():
++            raise ValueError('unsafe existing experiment receipt')
++        prior = json.loads(destination.read_text())
++        if prior.get('experiment_identity') != identity:
++            raise ValueError('existing experiment belongs to different inputs/code/budget')
++        campaign.check_one(output, job, binding)
++        print(json.dumps(dict(action='SKIP', job_index=args.job_index,
++            cell=job['cell_id'], status=prior['certificate']['status'],
++            receipt=str(destination)), sort_keys=True), flush=True)
++        return 0
++    profile = cProfile.Profile() if args.profile_cost else None
++    if profile:
++        profile.enable()
++    wall_start = time.perf_counter()
++    cpu_start = time.process_time()
++    try:
++        with campaign.interval_deadline(args.seconds):
++            result = prover.certificate(job['profile'], operator, job['lo'], job['hi'],
++                mode=job['mode'], max_nodes=args.max_nodes, max_paths=args.max_paths)
++    except campaign.IntervalBudgetExpired:
++        result = dict(status='OPEN', reason='interval_wall_clock_budget_exhausted',
++            qualified_release=False, certified_hz=[job['lo'], job['hi']],
++            band_kind=job['mode'], input_hz=job['intermediate_hz'],
++            output_hz=job['output_hz'])
++    finally:
++        elapsed = time.perf_counter() - wall_start
++        cpu_elapsed = time.process_time() - cpu_start
++        if profile:
++            profile.disable()
++    if (loaded_code(base) != code or campaign.bindings() != binding or
++            file_sha(pair / 'stage-snapshot.json') != snapshot_hash or
++            file_sha(pair / 'operator-binding.json') != operator_binding_hash or
++            file_sha(__file__) != harness_hash):
++        raise ValueError('prover, source, snapshot, operator binding or harness changed during experiment')
++    measurement = dict(elapsed_s=elapsed, cpu_s=cpu_elapsed,
++        process_elapsed_s=time.perf_counter() - process_started,
++        peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
++        profiling_enabled=args.profile_cost,
++        deadline='existing repeated Python SIGALRM; external supervision required for hard termination',
++        environment=dict(python=sys.version, executable=sys.executable,
++            platform=platform.platform(), mpmath=mpmath.__version__, numpy=numpy.__version__,
++            affinity=sorted(os.sched_getaffinity(0)),
++            openblas_num_threads=os.environ.get('OPENBLAS_NUM_THREADS'),
++            imported_prover=str(Path(prover.__file__).resolve())))
++    if profile:
++        costs = []
++        for (filename, line, name), (primitive, calls, own, cumulative, _) in pstats.Stats(profile).stats.items():
++            costs.append(dict(module=Path(filename).name, function=name, line=line,
++                primitive_calls=primitive, calls=calls, self_s=own, inclusive_s=cumulative))
++        measurement['profile_functions'] = sorted(costs, key=lambda x: -x['self_s'])[:80]
++    receipt = dict(schema=campaign.SCHEMA, job=job, binding=binding, certificate=result,
++        qualified_release=False, mathematical_scope='local continuous ideal-coefficient interval',
++        experiment_identity=identity, measurement=measurement,
++        canonical_work_index=args.job_index, prover_code_sha256=code,
++        stage_snapshot_sha256=identity['stage_snapshot_sha256'],
++        verified_operator_binding_sha256=identity['verified_operator_binding_sha256'])
++    publish(destination, encoded(receipt))
++    campaign.check_one(output, job, binding)
++    print(json.dumps(dict(action='PUBLISHED', job_index=args.job_index, cell=job['cell_id'],
++        mode=job['mode'], interval=[job['lo'], job['hi']], status=result['status'],
++        reason=result.get('reason'), elapsed_s=elapsed, receipt=str(destination)),
++        sort_keys=True), flush=True)
++    return 0 if result['status'].startswith('PASS-LOCAL-') else 2
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+diff --git a/tests/dsd/p15_src_branch_bound.py b/tests/dsd/p15_src_branch_bound.py
+--- a/tests/dsd/p15_src_branch_bound.py
++++ b/tests/dsd/p15_src_branch_bound.py
+@@ -17,6 +17,7 @@
+ import math
+ from mpmath import iv
+ from p15_src_continuum_bounds import scalar
++from p15_src_halfband_majorant import halfband_alias_sum_upper
+ 
+ iv.dps=75
+ 
+@@ -36,13 +37,54 @@
+     return (scalar(absolute_sum)/stage.L).b
+ 
+ 
+-def bound_population(paths,lo,hi,*,include,limit,evaluate):
++def _complete_subtree_caps(root, stages):
++    """Uniform full-branch gains, only for a structurally valid branch trie.
++
++    A selected population may omit branches, since all contributions to this
++    magnitude majorant are nonnegative. It may not duplicate one full path or
++    replace a complementary halfband pair by two unrelated frequencies. The
++    checks below make the cap safe also for synthetic callers of this module,
++    without relying on the production complete_paths admission check.
++    """
++    pairs = [halfband_alias_sum_upper(stage) for stage in stages]
++    if all(value is None for value in pairs):
++        return None
++    pending = [(root, 0)]
++    while pending:
++        node, depth = pending.pop()
++        if depth == len(stages):
++            if node.children or node.count != 1:
++                return None  # A duplicate complete path retains its old bound.
++            continue
++        stage = stages[depth]
++        if not 1 <= len(node.children) <= stage.M:
++            return None
++        if pairs[depth] is not None and len(node.children) == 2:
++            shifts = [child.term[1] for child in node.children.values()]
++            if (shifts[0] - shifts[1]) % stage.input_hz != Fraction(stage.input_hz, 2):
++                return None
++        pending.extend((child, depth + 1) for child in node.children.values())
++    caps = [iv.mpf(1)] * (len(stages) + 1)
++    for depth in range(len(stages) - 1, -1, -1):
++        gain = pairs[depth]
++        if gain is None:
++            gain = stages[depth].M * exact_l1_gain(stages[depth])
++        caps[depth] = (gain * caps[depth + 1]).b
++    return caps
++
++
++def bound_population(paths,lo,hi,*,include,limit,evaluate,stats=None,
++                     use_subtree_caps=True,use_terminal_saturation=True):
+     """Upper-bound the sum of |cascade path transfer| for selected paths.
+ 
+     Inclusion is exact from the fully enumerated path population.  A prefix
+     bound counts all descendants even if their trigonometric factors are not
+     individually evaluated.  ``evaluate`` must return a directed upper bound.
+     """
++    if stats is None:
++        stats = {}
++    stats.update(trie_nodes=0,frontier_insertions=0,frontier_expansions=0,
++                 subtree_caps_used=0,terminal_saturation_returns=0)
+     chosen=[p for p in paths if include(p)]
+     if not chosen:
+         return iv.mpf(0),0
+@@ -56,6 +98,7 @@
+     for i in range(length-1,-1,-1):
+         tails[i]=tails[i+1]*exact_l1_gain(stages[i])
+     root=Node()
++    stats['trie_nodes'] = 1
+     for path in chosen:
+         root.count+=1
+         cur=root
+@@ -63,24 +106,40 @@
+             key=(id(stage),shift)
+             if key not in cur.children:
+                 cur.children[key]=Node((stage,shift))
++                stats['trie_nodes'] += 1
+             cur=cur.children[key]
+             cur.count+=1
++    full_caps = _complete_subtree_caps(root, stages) if use_subtree_caps else None
+     tick=itertools.count()
+     heap=[]
+     evaluated=0
+     total=iv.mpf(0)
++    fixed_upper_sum=iv.mpf(0)
+     # upper values are endpoints, stored as exact interval points so the
+     # subsequent subtraction/addition contains the sum of the replacements.
+     def insert(node,depth,prefix,ready):
+         nonlocal total
+         factor=tails[depth if ready else depth-1]
+         upper=(prefix*factor*node.count).b
++        if full_caps is not None:
++            # At a ready node the whole remaining branch population is
++            # included by the cap. At an unevaluated node only this single
++            # branch's current FIR factor precedes the remaining population.
++            cap = full_caps[depth]
++            if not ready:
++                cap = cap * exact_l1_gain(stages[depth - 1])
++            alternative = (prefix * cap).b
++            if bool(alternative < upper):
++                upper = alternative
++                stats['subtree_caps_used'] += 1
+         total+=upper
++        stats['frontier_insertions'] += 1
+         priority=-float(upper)
+         heapq.heappush(heap,(priority,next(tick),node,depth,prefix,ready,upper))
+     insert(root,0,iv.mpf(1),True)
+     ref=iv.mpf(str(limit))
+     while heap and not bool(total.b<ref.a):
++        stats['frontier_expansions'] += 1
+         _,_,node,depth,prefix,ready,old=heapq.heappop(heap)
+         total-=old
+         if not ready:
+@@ -94,4 +153,13 @@
+             # A fully evaluated leaf cannot be refined further and must
+             # remain in the total, with no speculative FAIL disposition.
+             total+=old
++            if use_terminal_saturation:
++                fixed_upper_sum+=old
++                # These are fixed UPPER endpoints, not actual amplitudes.
++                # No remaining frontier refinement can reduce their sum.
++                # Return the still-valid complete upper so the caller can
++                # subdivide, rather than evaluating every irrelevant leaf.
++                if bool(fixed_upper_sum.a>=ref.b):
++                    stats['terminal_saturation_returns']+=1
++                    return total.b,evaluated
+     return total.b,evaluated
+diff --git a/tests/dsd/p15_src_continuum_bounds.py b/tests/dsd/p15_src_continuum_bounds.py
+--- a/tests/dsd/p15_src_continuum_bounds.py
++++ b/tests/dsd/p15_src_continuum_bounds.py
+@@ -214,12 +214,35 @@
+                 witness_scope='finite response witness ONLY; source binding separately mandatory')
+ 
+ 
++def _exact_interval_string(value):
++    """Serialize finite dyadic endpoints exactly, preserving the full interval.
++
++    mpmath's display strings and binary64 diagnostics are not policy bounds.
++    A dyadic m*2**(-k) has the exact decimal form (m*5**k)/10**k.
++    """
++    def endpoint(raw):
++        sign, mantissa, exponent, bits = raw
++        if bits < 0:
++            raise BadWitness('nonfinite acceptance endpoint')
++        if exponent >= 0:
++            digits = str(mantissa << exponent)
++        else:
++            places = -exponent
++            digits = str(mantissa * 5**places).zfill(places + 1)
++            digits = digits[:-places] + '.' + digits[-places:]
++        return ('-' if sign else '') + digits
++    return '[' + endpoint(value._mpi_[0]) + ', ' + endpoint(value._mpi_[1]) + ']'
++
++
+ def db_band(ripple_db: str = '0.0001'):
+-    """Exact interval-derived linear magnitude limits; no weakened tolerance."""
++    """Enclose the exact linear policy limits without changing their direction.
++
++    Keep both endpoints: PASS compares against the inward endpoints, while a
++    generic center-witness FAIL must lie outside the outward endpoints.
++    """
+     db=iv.mpf(ripple_db)
+     gain=iv.exp(iv.ln(iv.mpf(10)) * db / 20)
+-    # Re-round outward for conservative policy: pass becomes slightly harder.
+-    return (str(lower(1/gain)), str(upper(gain)))
++    return _exact_interval_string(1/gain), _exact_interval_string(gain)
+ 
+ 
+ if __name__ == '__main__':
+diff --git a/tests/dsd/p15_src_halfband_majorant.py b/tests/dsd/p15_src_halfband_majorant.py
+--- /dev/null
++++ b/tests/dsd/p15_src_halfband_majorant.py
+@@ -0,0 +1,159 @@
++#!/usr/bin/env python3
++"""Rigorous complete alias-pair norm for exact centered halfband FIRs.
++
++For a real, even FIR with h[0] = 1/2 and every other nonzero tap at an odd
++index, write H(x) = 1/2 + Q(x).  Then Q is real and
++H(x + 1/2) = 1/2 - Q(x), exactly.  Consequently
++
++  |H(x)| + |H(x + 1/2)| = 2 max(1/2, |Q(x)|).
++
++This bounds the SUM OF MAGNITUDES of both inverse-decimation branches; it
++does not assume their phases cancel and does not omit either alias.  Q's
++symmetries reduce its global absolute maximum to [0, 1/4].  The existing
++outward-rounded Taylor evaluator covers that ENTIRE interval before this
++module returns a bound.  Resource exhaustion or a different coefficient
++pattern returns None, so callers retain their previous exact L1 majorant.
++"""
++from __future__ import annotations
++
++from dataclasses import dataclass
++from fractions import Fraction
++from functools import lru_cache
++from hashlib import sha256
++import json
++import math
++
++from mpmath import iv
++
++from p15_src_continuum_bounds import TrigPoly, scalar
++from p15_src_fixed_interval import fixed_symmetric_magnitude_bounds
++
++
++iv.dps = 75
++_TARGET = Fraction(50000001, 100000000)  # A cost guard, never a spectral tolerance.
++_MAX_NODES = 256
++_MAX_TAPS = 4096
++
++
++@dataclass(frozen=True, slots=True)
++class HalfbandMajorant:
++    upper: object
++    odd_upper: object
++    nodes_examined: int
++    covered_intervals: tuple[tuple[Fraction, Fraction], ...]
++    coefficient_sha256: str
++    precision_decimal_digits: int
++
++
++def _valid_taps(taps):
++    """Recognize the exact algebraic identity; approximate equality is unsafe."""
++    if not taps or len(taps) > _MAX_TAPS:
++        return False
++    if any(type(k) is not int or type(v) is not float or not math.isfinite(v)
++           for k, v in taps):
++        return False
++    coefficients = dict(taps)
++    if len(coefficients) != len(taps) or coefficients.get(0) != 0.5:
++        return False
++    for k, value in taps:
++        if value and k:
++            if not k % 2 or coefficients.get(-k) != value:
++                return False
++    return True
++
++
++def _certify_taps(taps, *, max_nodes=_MAX_NODES):
++    """Prove a complete normalized-frequency cover or decline the shortcut."""
++    if not _valid_taps(taps) or not 1 <= max_nodes <= _MAX_NODES:
++        return None
++    # The dyadic engine uses directed 75-digit transcendental anchors.  The
++    # exact tap tuple, not a nominal bank name or source clock, is the cache
++    # identity and mathematical input.  Sorting changes no coefficient.
++    if iv.dps < 75:
++        return None
++    taps = tuple(sorted(taps))
++    odd_taps = tuple((k, v) for k, v in taps if k and v)
++    # Q = 0 is admissible and needs no trigonometric evaluation.
++    poly = TrigPoly(odd_taps or ((0, 0.0),), Fraction(0))
++    target = scalar(_TARGET).a
++    pending = [(Fraction(0), Fraction(1, 4))]
++    covered = []
++    nodes = 0
++    largest = iv.mpf(0)
++    while pending:
++        if nodes >= max_nodes:
++            return None
++        lo, hi = pending.pop()
++        nodes += 1
++        _lower, upper, _center = fixed_symmetric_magnitude_bounds(poly, lo, hi)
++        if bool(upper.b < target):
++            covered.append((lo, hi))
++            if bool(upper.b > largest):
++                largest = upper.b
++        else:
++            middle = (lo + hi) / 2
++            pending.extend(((lo, middle), (middle, hi)))
++    result = (2 * largest).b
++    if bool(result < 1):
++        result = iv.mpf(1)
++    coefficient_identity = json.dumps(
++        [[k, value.hex()] for k, value in taps], separators=(",", ":"))
++    return HalfbandMajorant(
++        upper=result, odd_upper=largest, nodes_examined=nodes,
++        covered_intervals=tuple(sorted(covered)),
++        coefficient_sha256=sha256(coefficient_identity.encode("ascii")).hexdigest(),
++        precision_decimal_digits=iv.dps)
++
++
++@lru_cache(maxsize=16)
++def _cached_taps(tap_words, precision_decimal_digits):
++    # Include precision in the cache identity.  A result at a different
++    # directed precision is still valid, but should not receive false metadata.
++    # Hexadecimal words distinguish signed zeros, unlike Python float equality.
++    taps = tuple((k, float.fromhex(word)) for k, word in tap_words)
++    return _certify_taps(taps)
++
++
++def halfband_majorant(stage):
++    """Return the immutable proof record for an admissible 2:1 FIR stage."""
++    if (stage.L != 1 or stage.M != 2 or type(stage.input_hz) is not int or
++            stage.input_hz <= 0 or
++            stage.output_hz != Fraction(stage.input_hz, 2)):
++        return None
++    taps = tuple(stage.taps)
++    # Validate BEFORE lookup: equal-valued non-float coefficients must not hit
++    # a valid float key and bypass the exact captured-binary64 precondition.
++    if not _valid_taps(taps):
++        return None
++    tap_words = tuple((k, value.hex()) for k, value in sorted(taps))
++    return _cached_taps(tap_words, iv.dps)
++
++
++def halfband_alias_sum_upper(stage):
++    """Return a directed point upper for BOTH aliases, or None if unproved."""
++    proof = halfband_majorant(stage)
++    return None if proof is None else proof.upper
++
++
++def halfband_majorant_info(stage):
++    """JSON-compatible, reproducible evidence for the reusable global proof.
++
++    Float fields are diagnostics rounded outwards.  The caller uses the
++    directed multiprecision endpoints in the proof record itself.
++    """
++    proof = halfband_majorant(stage)
++    if proof is None:
++        return None
++    return dict(
++        schema="P15/exact-halfband-alias-pair-majorant/1",
++        coefficient_sha256=proof.coefficient_sha256,
++        upper_dyadic=list(proof.upper._mpi_[1]),
++        odd_upper_dyadic=list(proof.odd_upper._mpi_[1]),
++        alias_pair_upper=math.nextafter(float(proof.upper), math.inf),
++        nodes_examined=proof.nodes_examined,
++        closed_cover=[[str(lo), str(hi)] for lo, hi in proof.covered_intervals],
++        cover_domain=["0", "1/4"],
++        precision_decimal_digits=proof.precision_decimal_digits,
++        internal_odd_target=str(_TARGET),
++        method="exact halfband complement identity and complete directed Taylor cover",
++        limitations="ideal captured coefficient alias-pair norm; no execution-roundoff claim")
+diff --git a/tests/dsd/p15_src_stagewise_continuum.py b/tests/dsd/p15_src_stagewise_continuum.py
+--- a/tests/dsd/p15_src_stagewise_continuum.py
++++ b/tests/dsd/p15_src_stagewise_continuum.py
+@@ -268,6 +268,7 @@
+         raise Unproved('unknown population bound mode')
+     cache={}
+     difference_used=0
++    population_stats={}
+     def stage_upper(term,left,right):
+         nonlocal difference_used
+         if term not in cache:
+@@ -287,10 +288,11 @@
+             # conservative. It cannot undercount a boundary-crossing source.
+             return max(abs(a),abs(b))>=stop_source_hz
+         source_stop_upper,_=bound_population(paths,lo,hi,include=stop_source,
+-                                  limit='1e-8',evaluate=stage_upper)
++                                  limit='1e-8',evaluate=stage_upper,stats=population_stats)
+         return dict(wanted_lower=None,wanted_upper=None,unwanted_upper=None,
+                     source_stopband_upper=source_stop_upper,
+-                    amplitudes_evaluated=len(cache),difference_majorants_used=difference_used)
++                    amplitudes_evaluated=len(cache),difference_majorants_used=difference_used,
++                    population_stats=population_stats)
+ 
+     direct=[path for path in paths if path.direct]
+     if len(direct)!=1:
+@@ -302,12 +304,13 @@
+         low*=cache[term][0]
+         high*=cache[term][1]
+     upper_alias,_=bound_population(paths,lo,hi,include=lambda p:not p.direct,
+-                                   limit='1e-8',evaluate=stage_upper)
++                                   limit='1e-8',evaluate=stage_upper,stats=population_stats)
+     pass_lower=(low-upper_alias).a
+     if not bool(pass_lower>0):pass_lower=iv.mpf(0)
+     return dict(wanted_lower=pass_lower,wanted_upper=high+upper_alias,
+                 unwanted_upper=upper_alias,source_stopband_upper=None,
+-                amplitudes_evaluated=len(cache),difference_majorants_used=difference_used)
++                amplitudes_evaluated=len(cache),difference_majorants_used=difference_used,
++                population_stats=population_stats)
+ 
+ 
+ def certificate(profile,op,lo_hz,hi_hz,*,mode="pass",max_nodes=32,max_paths=20000):
+@@ -335,6 +338,9 @@
+     todo=[(lo,hi,None)]
+     complete=examined=exact_splits=0
+     fir_evaluations=path_enumerations=difference_evaluations=0
++    populations=dict(trie_nodes=0,frontier_insertions=0,frontier_expansions=0,
++                     subtree_caps_used=0,terminal_saturation_returns=0)
++    max_population=subdivisions=0
+     max_alias=0.;min_wanted=1.;max_total=0.
+     def opened(reason):
+         return dict(status='OPEN',reason=reason,qualified_release=False,
+@@ -342,7 +348,9 @@
+             nodes_examined=examined,exact_branch_splits=exact_splits,
+             fir_interval_evaluations=fir_evaluations,
+             cheap_difference_majorants_used=difference_evaluations,
+-            exact_path_enumerations=path_enumerations)
++            exact_path_enumerations=path_enumerations,
++            max_alias_path_population=max_population,interval_subdivisions=subdivisions,
++            alias_population_operations=populations.copy())
+     while todo:
+         if examined>=max_nodes:
+             return opened('subdivision_node_budget')
+@@ -361,12 +369,15 @@
+             exact_splits+=1
+             todo.extend(((l,paths.at,None),(paths.at,h,None)))
+             continue
++        max_population=max(max_population,len(paths))
+         try:
+             result=bound_segment(paths,l,h,stop_source_hz=S,mode=mode)
+         except (AliasProofError,Unproved) as exc:
+             return opened('operator_bound_precondition:'+str(exc))
+         fir_evaluations+=result['amplitudes_evaluated']
+         difference_evaluations+=result['difference_majorants_used']
++        for key,value in result['population_stats'].items():
++            populations[key]+=value
+         wanted_lower=result['wanted_lower']
+         wanted_upper=result['wanted_upper']
+         aliases=result['unwanted_upper']
+@@ -384,6 +395,7 @@
+         if l==h:
+             return opened('insufficient_interval_information_at_point')
+         mid=(l+h)/2
++        subdivisions+=1
+         todo.extend(((l,mid,paths),(mid,h,paths)))
+     return dict(status='PASS-LOCAL-BAND' if mode=='pass' else 'PASS-LOCAL-STOP-SOURCE',
+         qualified_release=False,profile=profile,input_hz=op.input_hz,
+@@ -395,11 +407,14 @@
+         fir_interval_evaluations=fir_evaluations,
+         cheap_difference_majorants_used=difference_evaluations,
+         exact_path_enumerations=path_enumerations,
++        max_alias_path_population=max_population,interval_subdivisions=subdivisions,
++        alias_population_operations=populations,
+         max_coherent_alias_upper=max_alias if mode=='pass' else None,
+         max_native_stop_source_transfer_upper=max_alias if mode=='stop' else None,
+         min_wanted_transfer_lower=min_wanted if mode=='pass' else None,
+         max_total_transfer_upper=max_total if mode=='pass' else None,
+-        method=('exact binary64 finite-difference high-frequency majorants and '
++        method=('exact complementary-halfband full-subtree majorants; '
++                'exact binary64 finite-difference high-frequency majorants and '
+                 'cached 288-bit outward dyadic Taylor recurrence; 75-digit directed complex fallback; '
+                 'complete L1-majorized stagewise inverse aliases'),
+         limits=dict(passband_db='0.0001',coherent_alias_db='-160'),
+@@ -428,6 +443,7 @@
+     # Bind a new certificate to the exact independent prover implementation.
+     # Historical receipts are left byte-identical and remain unchanged.
+     proof_modules=('p15_src_stagewise_continuum.py','p15_src_branch_bound.py',
++        'p15_src_halfband_majorant.py',
+         'p15_src_difference_upper.py','p15_src_interval_recurrence.py',
+         'p15_src_fixed_interval.py','p15_src_symmetric_interval.py',
+         'p15_src_continuum_bounds.py','p15_src_stagewise_alias_proof.py')
+diff --git a/tests/dsd/test_p15_high_rate_census.py b/tests/dsd/test_p15_high_rate_census.py
+--- /dev/null
++++ b/tests/dsd/test_p15_high_rate_census.py
+@@ -0,0 +1,250 @@
++#!/usr/bin/env python3
++"""Independent topology and evidence-accounting checks for the high-rate census.
++
++The slow reference is the pre-existing literal inverse-path enumeration. These
++tests neither evaluate spectral magnitudes nor qualify release behavior.
++"""
++from collections import Counter
++from fractions import Fraction
++import json
++from pathlib import Path
++import tempfile
++import unittest
++
++import p15_high_rate_census as census
++from p15_src_capture_matrix import DEFAULT, verify_pair
++from p15_src_complete_aliases import all_active_cells
++from p15_src_stagewise_continuum import BranchBoundary, complete_paths
++
++
++class LatticeArithmetic(unittest.TestCase):
++    def test_exact_rational_endpoints_and_one_sided_interiors(self):
++        self.assertEqual(census.lattice_points(Fraction(1, 3), Fraction(2, 3),
++                                              Fraction(1, 3), Fraction(7, 3)),
++                         (Fraction(1), Fraction(5, 3)))
++        self.assertEqual(census.lattice_points(Fraction(1, 3), Fraction(2, 3),
++                                              Fraction(1, 3), Fraction(7, 3),
++                                              endpoints=True),
++                         (Fraction(1, 3), Fraction(1), Fraction(5, 3), Fraction(7, 3)))
++
++    def test_native_stop_membership_is_distinct_from_routing(self):
++        crossings = sorted({q for sign in (-1, 1)
++                            for q in census.lattice_points(sign * 80000, 1200, 0, 1000)})
++        self.assertEqual(crossings, [Fraction(400), Fraction(800)])
++        self.assertEqual(census.lattice_points(0, 600, 0, 1000), (Fraction(600),))
++
++    def test_zero_width_has_no_interior_event(self):
++        self.assertEqual(census.lattice_points(0, 600, 0, 0), ())
++        self.assertEqual(census.lattice_points(0, 600, 0, 0, endpoints=True), (Fraction(0),))
++
++    def test_bad_period_is_rejected(self):
++        for period in (0, -1):
++            with self.assertRaises(ValueError):
++                census.lattice_points(0, period, 0, 1)
++
++
++class LiteralPathReference(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.cells = {c['id']: c for c in all_active_cells()}
++        cls.operators = {}
++
++    def check_intervals(self, cell_id, intervals, expected_paths, expected_families):
++        cell = self.cells[cell_id]
++        key = (cell['intermediate_hz'], cell['output_hz'])
++        if key not in self.operators:
++            self.operators[key] = verify_pair(DEFAULT / f'{key[0]}-{key[1]}', *key)[1]
++        op = self.operators[key]
++        topology = census.rate_topology(cell, op)
++        self.assertEqual(topology['complete_path_count'], expected_paths)
++        self.assertEqual(topology['primitive_source_family_count'], expected_families)
++        predicted = [Fraction(q) for q in topology['exact_routing_transition_points_hz']]
++        for lo, hi in intervals:
++            with self.subTest(cell=cell_id, lo=lo, hi=hi):
++                pending = [(Fraction(lo), Fraction(hi))]
++                boundaries = set()
++                leaves = 0
++                while pending:
++                    left, right = pending.pop()
++                    actual = complete_paths(cell['profile'], op, left, right,
++                                            max_paths=20000, require_direct=False)
++                    if isinstance(actual, BranchBoundary):
++                        self.assertLess(left, actual.at)
++                        self.assertLess(actual.at, right)
++                        boundaries.add(actual.at)
++                        pending.extend(((left, actual.at), (actual.at, right)))
++                    else:
++                        leaves += 1
++                        counts = Counter(p.upstream_shift for p in actual)
++                        self.assertEqual(len(actual), expected_paths)
++                        self.assertEqual(len(counts), expected_families)
++                        self.assertEqual(set(counts.values()), {expected_paths // expected_families})
++                        self.assertLessEqual(leaves, 16)
++                self.assertEqual(boundaries, {q for q in predicted if lo < q < hi})
++
++    def test_dsd256_mastering_384k_full_population(self):
++        self.check_intervals('dsd256.mastering.pcm384000',
++                             [(0, 1000), (39000, 40000), (191000, 192000)], 9408, 9408)
++
++    def test_dsd256_wideband_384k_large_passband(self):
++        self.check_intervals('dsd256.wideband.pcm384000',
++                             [(0, 1000), (140000, 141120), (191000, 192000)], 4704, 4704)
++
++    def test_dsd256_wideband_192k_collision_multiplicity(self):
++        self.check_intervals('dsd256.wideband.pcm192000',
++                             [(0, 1000), (91000, 91200), (95000, 96000)], 9408, 4704)
++
++    def test_dsd64_384k_three_src_stages(self):
++        self.check_intervals('dsd64.mastering.pcm384000',
++                             [(0, 1000), (19000, 20000), (191000, 192000)], 4704, 4704)
++
++
++class EvidenceAccounting(unittest.TestCase):
++    def experiment_fixture(self):
++        job = dict(cell_id='synthetic', profile='master256', intermediate_hz=176400,
++                   output_hz=384000, mode='pass', lo='0', hi='1000',
++                   effective_p='40000', source_s=80000)
++        binding = dict(design='design', source={'src/file': 'source'})
++        certificate = dict(status='PASS-LOCAL-BAND', qualified_release=False,
++            profile='master256', certified_hz=['0', '1000'], band_kind='pass',
++            input_hz=176400, output_hz=384000, governing_passband_hz=40000)
++        pair = census.SNAPSHOTS / '176400-384000'
++        identity = dict(job=job, binding=binding,
++            prover_code_sha256={'p15_src_stagewise_continuum.py': 'a' * 64},
++            stage_snapshot_sha256=census.sha_file(pair / 'stage-snapshot.json'),
++            verified_operator_binding_sha256=census.sha_file(pair / 'operator-binding.json'),
++            profiling_enabled=False)
++        doc = dict(schema='P15/full-frequency-cover-campaign/1', **identity,
++                   certificate=certificate, qualified_release=False,
++                   experiment_identity=json.loads(json.dumps(identity)),
++                   measurement={'profiling_enabled': False})
++        return doc, {census.digest(job): job}, binding
++
++    def test_idempotent_publication_and_conflict(self):
++        with tempfile.TemporaryDirectory() as directory:
++            target = Path(directory) / 'receipt.json'
++            census.publish(target, b'first\n')
++            census.publish(target, b'first\n')
++            with self.assertRaises(ValueError):
++                census.publish(target, b'changed\n')
++            self.assertEqual(target.read_bytes(), b'first\n')
++
++    def test_linked_output_refused(self):
++        with tempfile.TemporaryDirectory() as directory:
++            target = Path(directory) / 'original'
++            target.write_bytes(b'bytes')
++            link = Path(directory) / 'link'
++            link.symlink_to(target)
++            with self.assertRaises(ValueError):
++                census.publish(link, b'bytes')
++
++    def test_historical_timeout_is_never_inferred_failure(self):
++        result = census.state_classification(
++            dict(status='OPEN', reason='interval_wall_clock_budget_exhausted'), {})
++        self.assertEqual(result, ['historical_budget_exhaustion', 'current_run_unmeasured'])
++
++    def test_current_pass_does_not_relabel_original_open(self):
++        original = dict(status='OPEN', reason='operator_path_precondition:old-count')
++        result = census.state_classification(original,
++            {'candidate': [dict(status='PASS-LOCAL-BAND')]})
++        self.assertEqual(original['status'], 'OPEN')
++        self.assertEqual(result, ['historical_operator_precondition', 'candidate:observed_local_pass'])
++
++    def test_overlay_cannot_change_band_or_source_identity(self):
++        job = dict(cell_id='synthetic', profile='master256', intermediate_hz=176400,
++                   output_hz=384000, mode='pass', lo='0', hi='1000',
++                   effective_p='40000', source_s=80000)
++        binding = dict(design='design', source={'src/file': 'source'})
++        certificate = dict(status='PASS-LOCAL-BAND', qualified_release=False,
++            profile='master256', certified_hz=['0', '1000'], band_kind='pass',
++            input_hz=176400, output_hz=384000, governing_passband_hz=40000)
++        doc = dict(job=job, binding=binding, certificate=certificate, qualified_release=False)
++        by_hash = {census.digest(job): job}
++        self.assertEqual(census.validate_overlay(doc, by_hash, binding), census.digest(job))
++        for mutate in ('source', 'band', 'scope', 'release'):
++            damaged = json.loads(json.dumps(doc))
++            if mutate == 'source':
++                damaged['binding']['source']['src/file'] = 'other'
++            elif mutate == 'band':
++                damaged['certificate']['status'] = 'PASS-LOCAL-STOP-SOURCE'
++            elif mutate == 'scope':
++                damaged['certificate']['certified_hz'] = ['0', '999']
++            else:
++                damaged['qualified_release'] = True
++            with self.subTest(mutate=mutate), self.assertRaises(ValueError):
++                census.validate_overlay(damaged, by_hash, binding)
++
++    def test_experiment_operator_hashes_match_verified_pair(self):
++        doc, by_hash, binding = self.experiment_fixture()
++        census.validate_overlay(doc, by_hash, binding)
++        for field in ('stage_snapshot_sha256', 'verified_operator_binding_sha256'):
++            damaged = json.loads(json.dumps(doc))
++            # Self-consistent mirrors still cannot refer to another operator.
++            damaged[field] = 'b' * 64
++            damaged['experiment_identity'][field] = 'b' * 64
++            with self.subTest(field=field), self.assertRaises(ValueError):
++                census.validate_overlay(damaged, by_hash, binding)
++
++    def test_historical_optional_operator_hashes_are_checked(self):
++        doc, by_hash, binding = self.experiment_fixture()
++        doc.pop('experiment_identity')
++        for field in ('stage_snapshot_sha256', 'verified_operator_binding_sha256'):
++            doc.pop(field)
++        census.validate_overlay(doc, by_hash, binding)
++        for field in ('stage_snapshot_sha256', 'verified_operator_binding_sha256'):
++            damaged = json.loads(json.dumps(doc))
++            damaged[field] = 'b' * 64
++            with self.subTest(field=field), self.assertRaises(ValueError):
++                census.validate_overlay(damaged, by_hash, binding)
++
++    def test_experiment_identity_mirrors_every_required_binding(self):
++        doc, by_hash, binding = self.experiment_fixture()
++        for field in ('job', 'binding', 'prover_code_sha256',
++                      'stage_snapshot_sha256', 'verified_operator_binding_sha256'):
++            for location in ('top', 'identity'):
++                damaged = json.loads(json.dumps(doc))
++                target = damaged if location == 'top' else damaged['experiment_identity']
++                target.pop(field)
++                with self.subTest(field=field, location=location), self.assertRaises(ValueError):
++                    census.validate_overlay(damaged, by_hash, binding)
++            damaged = json.loads(json.dumps(doc))
++            damaged['experiment_identity'][field] = 'different'
++            with self.subTest(field=field, mismatch=True), self.assertRaises(ValueError):
++                census.validate_overlay(damaged, by_hash, binding)
++
++    def test_inner_certificate_bindings_cannot_conflict(self):
++        doc, by_hash, binding = self.experiment_fixture()
++        for field in ('source_sha256', 'governing_dsd_design_sha256',
++                      'stage_snapshot_sha256', 'verified_operator_binding_sha256'):
++            damaged = json.loads(json.dumps(doc))
++            damaged['certificate'][field] = 'different'
++            with self.subTest(field=field), self.assertRaises(ValueError):
++                census.validate_overlay(damaged, by_hash, binding)
++
++    def test_baseline_and_candidate_can_bind_different_prover_hashes(self):
++        doc, by_hash, binding = self.experiment_fixture()
++        census.validate_overlay(doc, by_hash, binding)
++        candidate = json.loads(json.dumps(doc))
++        code = {'p15_src_stagewise_continuum.py': 'c' * 64,
++                'p15_new_independent_bound.py': 'd' * 64}
++        candidate['prover_code_sha256'] = code
++        candidate['experiment_identity']['prover_code_sha256'] = code
++        census.validate_overlay(candidate, by_hash, binding)
++        self.assertNotEqual(doc['prover_code_sha256'], candidate['prover_code_sha256'])
++
++    def test_optional_duplicate_and_profiling_fields_cannot_conflict(self):
++        doc, by_hash, binding = self.experiment_fixture()
++        for field in ('harness_sha256', 'label', 'resources'):
++            damaged = json.loads(json.dumps(doc))
++            damaged[field] = 'one'
++            damaged['experiment_identity'][field] = 'two'
++            with self.subTest(field=field), self.assertRaises(ValueError):
++                census.validate_overlay(damaged, by_hash, binding)
++        damaged = json.loads(json.dumps(doc))
++        damaged['measurement']['profiling_enabled'] = True
++        with self.assertRaises(ValueError):
++            census.validate_overlay(damaged, by_hash, binding)
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/tests/dsd/test_p15_high_rate_coverage_report.py b/tests/dsd/test_p15_high_rate_coverage_report.py
+--- /dev/null
++++ b/tests/dsd/test_p15_high_rate_coverage_report.py
+@@ -0,0 +1,221 @@
++#!/usr/bin/env python3
++"""Cheap adversarial checks of coverage accounting and matched measurements."""
++from hashlib import sha256
++from fractions import Fraction
++import json
++from pathlib import Path
++import tempfile
++import unittest
++from unittest.mock import patch
++
++import p15_high_rate_coverage_report as report
++from p15_full_band_campaign import digest
++
++
++def jobs():
++    base = dict(cell_id='fixture', profile='master256', output_hz=8,
++                intermediate_hz=16, effective_p='3', source_s=4)
++    return [dict(base, mode='pass', lo='0', hi='1'),
++            dict(base, mode='pass', lo='1', hi='3'),
++            dict(base, mode='stop', lo='0', hi='4')]
++
++
++def timing(status='PASS-LOCAL-BAND', elapsed=2):
++    identity = dict(job={'job': 1}, binding={'source': 'fixed'},
++        stage_snapshot_sha256='snapshot', verified_operator_binding_sha256='operator',
++        resources={'seconds': 60, 'cpu': 1, 'max_nodes': 128, 'max_paths': 20000},
++        prover_code_sha256={'p15_fixture.py': 'code'},
++        harness_sha256='harness', profiling_enabled=False)
++    environment = dict(python='python', executable='python', platform='platform',
++                       mpmath='1.3', numpy='2.3', affinity=[1], openblas_num_threads='1')
++    doc = dict(job={'job': 1}, experiment_identity=identity,
++               certificate={'status': status}, measurement=dict(elapsed_s=elapsed,
++               cpu_s=elapsed, peak_rss_kib=100, environment=environment))
++    return dict(doc=doc, reference={'path': 'fixture', 'sha256': 'sha'})
++
++
++class CanonicalCoverage(unittest.TestCase):
++    def test_all_intervals_and_exact_endpoints_are_required(self):
++        work = jobs()
++        witnesses = {digest(j): {'sha256': str(i)} for i, j in enumerate(work)}
++        cover = report.complete_cover(work, witnesses)
++        self.assertEqual(cover['pass']['canonical_intervals'], 2)
++        self.assertEqual(cover['pass']['upper_hz'], '3')
++        self.assertEqual(cover['stop']['upper_hz'], '4')
++        witnesses.pop(digest(work[1]))
++        self.assertIsNone(report.complete_cover(work, witnesses))
++
++    def test_gap_overlap_and_nyquist_shortfall_are_rejected(self):
++        for defect in ('gap', 'overlap', 'short_stop'):
++            work = jobs()
++            if defect == 'gap':
++                work[1]['lo'] = '2'
++            elif defect == 'overlap':
++                work[1]['lo'] = '1/2'
++            else:
++                work[2]['hi'] = '3'
++            with self.subTest(defect=defect), self.assertRaises(ValueError):
++                report.complete_cover(work, {digest(j): {} for j in work})
++
++    def test_unmeasured_and_open_remain_distinct(self):
++        self.assertEqual(report.observed_state([]), 'UNMEASURED')
++        self.assertEqual(report.observed_state([timing('OPEN')]), 'OPEN')
++        self.assertEqual(report.observed_state([timing('OPEN'), timing()]), 'PASS')
++
++
++class PerformanceAndProofIdentity(unittest.TestCase):
++    def test_larger_budget_does_not_credit_a_changed_proof(self):
++        short, long = timing('OPEN', 60), timing(elapsed=90)
++        long['doc']['experiment_identity']['resources']['seconds'] = 180
++        long['doc']['experiment_identity']['resources']['cpu'] = 7
++        self.assertEqual(len(report.larger_budget_evidence([short, long])), 1)
++        for key, changed in [('prover_code_sha256', {'p15_fixture.py': 'new-code'}),
++                             ('profiling_enabled', True)]:
++            old = long['doc']['experiment_identity'][key]
++            long['doc']['experiment_identity'][key] = changed
++            self.assertEqual(report.larger_budget_evidence([short, long]), [])
++            long['doc']['experiment_identity'][key] = old
++        long['doc']['experiment_identity']['resources']['max_nodes'] = 256
++        self.assertEqual(report.larger_budget_evidence([short, long]), [])
++
++    def test_only_pass_pairs_have_a_speedup(self):
++        result = report.matched_pair(timing(elapsed=4), timing(elapsed=2))
++        self.assertEqual(result['speedup_if_both_pass'], 2)
++        result = report.matched_pair(timing('OPEN', elapsed=60), timing(elapsed=2))
++        self.assertIsNone(result['speedup_if_both_pass'])
++        self.assertIsNone(result['baseline']['counters']['alias_population_operations'])
++
++    def test_source_budget_and_execution_environment_must_match(self):
++        for target, key in (('experiment_identity', 'binding'),
++                            ('experiment_identity', 'resources'),
++                            ('experiment_identity', 'harness_sha256'),
++                            ('environment', 'affinity'), ('environment', 'numpy')):
++            baseline, candidate = timing(), timing()
++            selected = (candidate['doc']['measurement']['environment'] if target == 'environment'
++                        else candidate['doc'][target])
++            selected[key] = 'different'
++            with self.subTest(target=target, key=key), self.assertRaises(ValueError):
++                report.matched_pair(baseline, candidate)
++
++    def test_full_frozen_snapshot_is_checked_against_bytes(self):
++        with tempfile.TemporaryDirectory() as name:
++            path = Path(name)
++            module = path / 'p15_fixture.py'
++            module.write_bytes(b'VALUE=1\n')
++            code = {'p15_fixture.py': sha256(module.read_bytes()).hexdigest()}
++            (path / 'IDENTITY.json').write_text(json.dumps({'prover_code_sha256': code}))
++            self.assertEqual(report.proof_snapshot(path)['prover_code_sha256'], code)
++            module.write_bytes(b'VALUE=2\n')
++            with self.assertRaises(ValueError):
++                report.proof_snapshot(path)
++
++
++class ExactBoundaryAudit(unittest.TestCase):
++    def test_point_coverage_does_not_imply_either_neighborhood(self):
++        q = Fraction(1, 3)
++        event = report.event_coverage([q], [(q, q)], Fraction(1))['events'][0]
++        self.assertTrue(event['point'])
++        self.assertFalse(event['left_neighborhood'])
++        self.assertFalse(event['right_neighborhood'])
++        self.assertFalse(event['all_applicable_sides'])
++        full = report.event_coverage([q], [(Fraction(0), q), (q, Fraction(1))], 1)
++        self.assertEqual(full['with_both_sides'], 1)
++        left = report.event_coverage([q], [(Fraction(0), q)], 1)
++        self.assertEqual(left['with_all_applicable_sides'], 0)
++
++    def test_dc_and_nyquist_only_require_the_in_domain_side(self):
++        result = report.event_coverage([0, 1], [(Fraction(0), Fraction(1))], 1)
++        self.assertEqual(result['with_all_applicable_sides'], 2)
++        self.assertEqual(result['with_both_sides'], 0)
++        with self.assertRaises(ValueError):
++            report.event_coverage([2], [(Fraction(0), Fraction(2))], 1)
++
++    def test_native_nyquist_is_an_alias_event_not_an_output_endpoint(self):
++        meta = dict(id='fixture', native_hz=24, output_hz=18,
++            effective_P_hz='6', declared_S_hz=8,
++            topology=dict(primitive_frequency_spacing_hz='6', complete_path_count=4,
++                primitive_source_family_count=4,
++                exact_stage_transition_lattices=[dict(residue_hz='0', period_hz='3')]))
++        work = [dict(cell_id='fixture', mode='pass', lo='0', hi='6'),
++                dict(cell_id='fixture', mode='stop', lo='0', hi='6'),
++                dict(cell_id='fixture', mode='stop', lo='6', hi='9')]
++        rows = [dict(job=job, work_sha256=digest(job)) for job in work]
++        selected = {row['work_sha256'] for row in rows}
++        audit = report.boundary_scope(rows, {'fixture': meta}, selected, 'plan')
++        cell = audit['cells'][0]
++        self.assertEqual(cell['native_nyquist_hz'], '12')
++        events = cell['bands']['stop']['source_nyquist_alias_relabeling']['events']
++        self.assertEqual([event['hz'] for event in events], ['0', '6'])
++        self.assertTrue(events[1]['left_neighborhood'] and events[1]['right_neighborhood'])
++        self.assertTrue(cell['bands']['stop']['upper_normative_edge_and_left_limit'])
++        self.assertTrue(cell['bands']['pass']['dc_and_arbitrarily_near_zero'])
++        selected.remove(rows[-1]['work_sha256'])
++        partial = report.boundary_scope(rows, {'fixture': meta}, selected, 'plan')['cells'][0]
++        self.assertFalse(partial['bands']['stop']['upper_normative_edge_and_left_limit'])
++        self.assertEqual(partial['bands']['stop']['source_nyquist_alias_relabeling']['with_both_sides'], 0)
++        with self.assertRaises(ValueError):
++            report.boundary_scope(rows, {'fixture': meta}, selected | {'missing'}, 'plan')
++
++
++class StrictNormativeReadjudication(unittest.TestCase):
++    def fixture(self, root):
++        (root / 'receipt.json').write_bytes(b'{"bound":"exact"}\n')
++        receipt_hash = sha256((root / 'receipt.json').read_bytes()).hexdigest()
++        (root / 'read.py').write_bytes(b'# independent verifier fixture\n')
++        binding = {'source': {'pinned.c': 'source'}, 'design': 'design'}
++        row = dict(receipt_path='receipt.json', receipt_sha256=receipt_hash,
++            canonical_work_sha256='work', normative_envelope_status='EXACT_NORMATIVE_ENVELOPE_VERIFIED',
++            source_binding_status='CURRENT_SOURCE_AND_DESIGN_PINS_MATCH',
++            recorded_source_binding_sha256=digest(binding))
++        doc = dict(schema='P15/exact-normative-envelope-readjudication/1', qualified_release=False,
++            numerical_proof_replayed=False, receipts=[row],
++            recorded_source_bindings={digest(binding): binding},
++            implementation_sha256={'read.py': sha256((root / 'read.py').read_bytes()).hexdigest()})
++        return doc, {('receipt.json', receipt_hash): 'work'}, binding
++
++    def publish_fixture(self, root, doc):
++        path = root / 'verification.json'
++        path.write_text(json.dumps(doc))
++        (root / 'SHA256SUMS').write_text(''.join(
++            f'{sha256((root / name).read_bytes()).hexdigest()}  {name}\n'
++            for name in ('read.py', 'verification.json')))
++        return path
++
++    def test_exact_receipt_hash_and_work_are_required(self):
++        with tempfile.TemporaryDirectory() as folder:
++            root = Path(folder)
++            doc, required, binding = self.fixture(root)
++            path = self.publish_fixture(root, doc)
++            with patch.object(report, 'ROOT', root):
++                result = report.require_strict_readjudication(path, required, binding)
++                self.assertEqual(result['contributing_pass_receipts'], 1)
++                self.assertFalse(result['numerical_proof_replayed'])
++                original = json.loads(json.dumps(doc))
++                for key, value in [('normative_envelope_status', 'DISPLAY_INEQUALITY_UNPROVED'),
++                                   ('canonical_work_sha256', 'other'),
++                                   ('receipt_sha256', 'other'),
++                                   ('source_binding_status', 'MISSING_SOURCE_BINDING'),
++                                   ('recorded_source_binding_sha256', 'other')]:
++                    changed = json.loads(json.dumps(original))
++                    changed['receipts'][0][key] = value
++                    with self.subTest(key=key), self.assertRaises(ValueError):
++                        report.require_strict_readjudication(self.publish_fixture(root, changed), required, binding)
++                self.publish_fixture(root, original)
++                (root / 'receipt.json').write_bytes(b'changed receipt')
++                with self.assertRaises(ValueError):
++                    report.require_strict_readjudication(path, required, binding)
++
++    def test_missing_readjudication_and_changed_verifier_are_rejected(self):
++        with self.assertRaises(ValueError):
++            report.require_strict_readjudication(None, {}, {})
++        with tempfile.TemporaryDirectory() as folder:
++            root = Path(folder)
++            doc, required, binding = self.fixture(root)
++            path = self.publish_fixture(root, doc)
++            (root / 'read.py').write_bytes(b'changed verifier')
++            with patch.object(report, 'ROOT', root), self.assertRaises(ValueError):
++                report.require_strict_readjudication(path, required, binding)
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/tests/dsd/test_p15_high_rate_experiment.py b/tests/dsd/test_p15_high_rate_experiment.py
+--- /dev/null
++++ b/tests/dsd/test_p15_high_rate_experiment.py
+@@ -0,0 +1,306 @@
++#!/usr/bin/env python3
++"""Cheap fresh-process tests of experiment isolation and evidence binding.
++
++Synthetic prover trees exercise the real harness import/publication path; no
++spectral arithmetic or high-rate campaign runs are required. Their campaign
++stub checks the same job/band/source invariants used by the real dispatcher.
++"""
++from hashlib import sha256
++import json
++import os
++from pathlib import Path
++import shutil
++import subprocess
++import sys
++import tempfile
++import textwrap
++import unittest
++
++
++HARNESS = Path(__file__).resolve().with_name('p15_high_rate_experiment.py')
++
++CAMPAIGN = r'''
++from contextlib import contextmanager
++from hashlib import sha256
++import json
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[2]
++SCHEMA='P15/full-frequency-cover-campaign/1'
++class IntervalBudgetExpired(TimeoutError): pass
++def canonical_plan():
++    return [dict(cell_id='fixture.pass',profile='master256',intermediate_hz=176400,
++                 output_hz=384000,mode='pass',lo='39000',hi='40000',
++                 effective_p='40000',source_s=80000),
++            dict(cell_id='fixture.stop',profile='master256',intermediate_hz=176400,
++                 output_hz=384000,mode='stop',lo='191000',hi='192000',
++                 effective_p='40000',source_s=80000)]
++def bindings():
++    return dict(source={'source.txt':sha256((ROOT/'source.txt').read_bytes()).hexdigest()},
++                design=sha256((ROOT/'design.txt').read_bytes()).hexdigest())
++def receipt_path(output,job):
++    digest=sha256(json.dumps(job,sort_keys=True,separators=(',',':')).encode()).hexdigest()
++    return output/(digest+'.json')
++def check_one(output,job,binding):
++    doc=json.loads(receipt_path(output,job).read_text())
++    if doc.get('schema')!=SCHEMA or doc.get('job')!=job or doc.get('binding')!=binding:
++        raise ValueError('fixture canonical/source binding mismatch')
++    if doc.get('qualified_release') is not False:
++        raise ValueError('fixture release mismatch')
++    cert=doc['certificate']
++    expected='PASS-LOCAL-BAND' if job['mode']=='pass' else 'PASS-LOCAL-STOP-SOURCE'
++    if cert['status'] not in ('OPEN',expected):
++        raise ValueError('fixture band status mismatch')
++    if cert['status']!='OPEN' and (
++        cert['certified_hz']!=[job['lo'],job['hi']] or
++        cert['band_kind']!=job['mode'] or cert['input_hz']!=job['intermediate_hz'] or
++        cert['output_hz']!=job['output_hz'] or cert['governing_passband_hz']!=40000):
++        raise ValueError('fixture certificate scope mismatch')
++    return doc
++@contextmanager
++def interval_deadline(seconds):
++    yield
++'''
++
++CAPTURE = r'''
++from pathlib import Path
++from types import SimpleNamespace
++ROOT=Path(__file__).resolve().parents[2]
++DEFAULT=ROOT/'tests/dsd/captures'
++def verify_pair(pair,input_hz,output_hz):
++    action=(ROOT/'action.txt').read_text()
++    if action=='proof_during_verify':
++        file=Path(__file__).with_name('p15_src_stagewise_continuum.py')
++        file.write_text(file.read_text().replace("VARIANT = 'baseline'", "VARIANT = 'rebound'"))
++    elif action=='snapshot_during_verify':
++        (pair/'stage-snapshot.json').write_text('changed during verify\n')
++    elif action=='source_during_verify':
++        (ROOT/'source.txt').write_text('changed during verify\n')
++    return {},SimpleNamespace(input_hz=input_hz,output_hz=output_hz)
++'''
++
++PROVER = r'''
++import os
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[2]
++VARIANT = 'baseline'
++def certificate(profile,operator,lo,hi,mode='pass',**kwargs):
++    action=(ROOT/'action.txt').read_text()
++    pair=ROOT/'tests/dsd/captures/176400-384000'
++    if action=='proof':
++        file=Path(__file__)
++        file.write_text(file.read_text()+'\n# proof changed during evaluation\n')
++    elif action=='source':
++        (ROOT/'source.txt').write_text('changed during evaluation\n')
++    elif action=='snapshot':
++        (pair/'stage-snapshot.json').write_text('changed during evaluation\n')
++    elif action=='operator_binding':
++        (pair/'operator-binding.json').write_text('changed during evaluation\n')
++    elif action=='harness':
++        file=Path(os.environ['P15_TEST_HARNESS_MUTATION_TARGET'])
++        file.write_text(file.read_text()+'\n# harness changed during evaluation\n')
++    elif action=='late_import':
++        import p15_lazy_dependency
++    return dict(status='PASS-LOCAL-BAND' if mode=='pass' else 'PASS-LOCAL-STOP-SOURCE',
++                qualified_release=False,profile=profile,input_hz=operator.input_hz,
++                output_hz=operator.output_hz,band_kind=mode,certified_hz=[lo,hi],
++                governing_passband_hz=40000,diagnostic_fixture_variant=VARIANT)
++'''
++
++
++class ExperimentHarness(unittest.TestCase):
++    def setUp(self):
++        self.temporary = tempfile.TemporaryDirectory()
++        self.addCleanup(self.temporary.cleanup)
++        self.directory = Path(self.temporary.name)
++
++    def tree(self, name, variant='baseline'):
++        root = self.directory / name
++        base = root / 'tests/dsd'
++        base.mkdir(parents=True)
++        for filename, contents in (
++            ('p15_full_band_campaign.py', CAMPAIGN),
++            ('p15_src_capture_matrix.py', CAPTURE),
++            ('p15_src_stagewise_continuum.py', PROVER.replace("VARIANT = 'baseline'", f"VARIANT = '{variant}'")),
++            ('p15_lazy_dependency.py', 'VALUE=1\n'),
++        ):
++            (base / filename).write_text(textwrap.dedent(contents))
++        pair = base / 'captures/176400-384000'
++        pair.mkdir(parents=True)
++        (pair / 'stage-snapshot.json').write_text('{"snapshot":"fixed"}\n')
++        (pair / 'operator-binding.json').write_text('{"operator":"fixed"}\n')
++        (root / 'source.txt').write_text('fixed source\n')
++        (root / 'design.txt').write_text('fixed design\n')
++        (root / 'action.txt').write_text('none')
++        return root
++
++    def run_harness(self, root, output, *, harness=HARNESS, label='test', index=0,
++                    seconds=2, extra=(), env=None):
++        environment = os.environ.copy()
++        environment['OPENBLAS_NUM_THREADS'] = '1'
++        if env:
++            environment.update(env)
++        command = [sys.executable, str(harness), '--source-root', str(root),
++                   '--job-index', str(index), '--label', label, '--output', str(output),
++                   '--seconds', str(seconds), *extra]
++        return subprocess.run(command, capture_output=True, text=True,
++                              env=environment, timeout=15, cwd=self.directory)
++
++    def read_receipt(self, output):
++        files = list(output.glob('*.json'))
++        self.assertEqual(len(files), 1)
++        return files[0], json.loads(files[0].read_text())
++
++    def assert_success(self, result):
++        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
++
++    def test_actual_baseline_candidate_module_isolation(self):
++        baseline = self.tree('baseline', 'baseline')
++        candidate = self.tree('candidate', 'candidate')
++        identities = []
++        for name, root in [('baseline', baseline), ('candidate', candidate)]:
++            output = self.directory / ('receipts-' + name)
++            result = self.run_harness(root, output, label=name)
++            self.assert_success(result)
++            _, receipt = self.read_receipt(output)
++            self.assertEqual(receipt['certificate']['diagnostic_fixture_variant'], name)
++            self.assertEqual(receipt['measurement']['environment']['imported_prover'],
++                             str(root / 'tests/dsd/p15_src_stagewise_continuum.py'))
++            code = receipt['experiment_identity']['prover_code_sha256']
++            self.assertEqual(code['p15_src_stagewise_continuum.py'], sha256(
++                (root / 'tests/dsd/p15_src_stagewise_continuum.py').read_bytes()).hexdigest())
++            identities.append(code['p15_src_stagewise_continuum.py'])
++        self.assertNotEqual(*identities)
++
++    def test_idempotent_resume_does_not_reexecute_or_overwrite(self):
++        root = self.tree('baseline')
++        output = self.directory / 'receipts'
++        self.assert_success(self.run_harness(root, output))
++        file, _ = self.read_receipt(output)
++        original = file.read_bytes()
++        # This action would reject execution if resume called the prover.
++        (root / 'action.txt').write_text('late_import')
++        result = self.run_harness(root, output)
++        self.assert_success(result)
++        self.assertEqual(json.loads(result.stdout)['action'], 'SKIP')
++        self.assertEqual(file.read_bytes(), original)
++
++    def test_changed_budget_and_code_are_refused_without_overwrite(self):
++        for mutation in ('budget', 'code', 'source', 'label', 'harness'):
++            with self.subTest(mutation=mutation):
++                root = self.tree('tree-' + mutation)
++                output = self.directory / ('receipts-' + mutation)
++                self.assert_success(self.run_harness(root, output))
++                file, _ = self.read_receipt(output)
++                original = file.read_bytes()
++                kwargs = {}
++                if mutation == 'budget':
++                    kwargs['seconds'] = 3
++                elif mutation == 'code':
++                    proof = root / 'tests/dsd/p15_src_stagewise_continuum.py'
++                    proof.write_text(proof.read_text() + '\n# new prover version\n')
++                elif mutation == 'source':
++                    (root / 'source.txt').write_text('new source version\n')
++                elif mutation == 'label':
++                    kwargs['label'] = 'different'
++                else:
++                    copy = self.directory / 'changed_harness.py'
++                    copy.write_text(HARNESS.read_text() + '\n# new harness version\n')
++                    kwargs['harness'] = copy
++                result = self.run_harness(root, output, **kwargs)
++                self.assertNotEqual(result.returncode, 0)
++                self.assertIn('different inputs/code/budget', result.stderr)
++                self.assertEqual(file.read_bytes(), original)
++
++    def test_canonical_index_selects_exact_job_and_band(self):
++        root = self.tree('baseline')
++        output = self.directory / 'stop'
++        self.assert_success(self.run_harness(root, output, index=1))
++        _, receipt = self.read_receipt(output)
++        self.assertEqual(receipt['canonical_work_index'], 1)
++        self.assertEqual(receipt['job']['cell_id'], 'fixture.stop')
++        self.assertEqual(receipt['job']['mode'], 'stop')
++        self.assertEqual(receipt['certificate']['certified_hz'], ['191000', '192000'])
++        self.assertEqual(receipt['experiment_identity']['job'], receipt['job'])
++        result = self.run_harness(root, self.directory / 'invalid', index=2)
++        self.assertNotEqual(result.returncode, 0)
++        self.assertIn('canonical job index out of range', result.stderr)
++
++    def test_foreign_numerical_module_is_rejected(self):
++        root = self.tree('baseline')
++        foreign = self.directory / 'foreign'
++        foreign.mkdir()
++        (foreign / 'p15_foreign_dependency.py').write_text('VALUE=1\n')
++        capture = root / 'tests/dsd/p15_src_capture_matrix.py'
++        capture.write_text(capture.read_text() + '\nimport sys\nsys.path.insert(0,' +
++                           repr(str(foreign)) + ')\nimport p15_foreign_dependency\n')
++        output = self.directory / 'receipts'
++        result = self.run_harness(root, output)
++        self.assertNotEqual(result.returncode, 0)
++        self.assertIn('mixed prover implementations', result.stderr)
++        self.assertFalse(list(output.glob('*.json')))
++
++    def test_numerical_or_source_mutation_during_evaluation_is_rejected(self):
++        for action in ('proof', 'source', 'late_import'):
++            with self.subTest(action=action):
++                root = self.tree('tree-' + action)
++                output = self.directory / ('receipts-' + action)
++                (root / 'action.txt').write_text(action)
++                result = self.run_harness(root, output)
++                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
++                self.assertFalse(list(output.glob('*.json')))
++
++    def test_snapshot_operator_and_harness_mutation_are_rejected(self):
++        for action in ('snapshot', 'operator_binding', 'harness'):
++            with self.subTest(action=action):
++                root = self.tree('tree-' + action)
++                output = self.directory / ('receipts-' + action)
++                (root / 'action.txt').write_text(action)
++                copy = self.directory / ('harness-' + action + '.py')
++                shutil.copyfile(HARNESS, copy)
++                result = self.run_harness(root, output, harness=copy,
++                    env={'P15_TEST_HARNESS_MUTATION_TARGET': str(copy)})
++                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
++                self.assertFalse(list(output.glob('*.json')))
++
++    def test_loaded_proof_or_snapshot_cannot_rebind_during_verify(self):
++        for action in ('proof_during_verify', 'snapshot_during_verify'):
++            with self.subTest(action=action):
++                root = self.tree('tree-' + action)
++                output = self.directory / ('receipts-' + action)
++                (root / 'action.txt').write_text(action)
++                result = self.run_harness(root, output)
++                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
++                self.assertFalse(list(output.glob('*.json')))
++
++    def test_resume_rechecks_inputs_after_operator_verification(self):
++        for action in ('snapshot_during_verify', 'source_during_verify'):
++            with self.subTest(action=action):
++                root = self.tree('tree-' + action)
++                output = self.directory / ('receipts-' + action)
++                self.assert_success(self.run_harness(root, output))
++                file, _ = self.read_receipt(output)
++                original = file.read_bytes()
++                (root / 'action.txt').write_text(action)
++                result = self.run_harness(root, output)
++                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
++                self.assertEqual(file.read_bytes(), original)
++
++    def test_invalid_resource_budget_and_linked_receipt_are_rejected(self):
++        root = self.tree('baseline')
++        for seconds in ('nan', 'inf', '0', '-1', '3601'):
++            result = self.run_harness(root, self.directory / 'invalid', seconds=seconds)
++            self.assertNotEqual(result.returncode, 0)
++            self.assertIn('invalid bounded experiment resources', result.stderr)
++        output = self.directory / 'receipts'
++        self.assert_success(self.run_harness(root, output))
++        file, _ = self.read_receipt(output)
++        saved = self.directory / 'saved.json'
++        file.rename(saved)
++        file.symlink_to(saved)
++        result = self.run_harness(root, output)
++        self.assertNotEqual(result.returncode, 0)
++        self.assertIn('unsafe existing experiment receipt', result.stderr)
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/tests/dsd/test_p15_high_rate_independent.py b/tests/dsd/test_p15_high_rate_independent.py
+--- /dev/null
++++ b/tests/dsd/test_p15_high_rate_independent.py
+@@ -0,0 +1,181 @@
++#!/usr/bin/env python3
++"""Independent adversarial checks of the high-rate alias-pair majorant.
++
++The proof is the exact polynomial identity plus the interval cover.  Point
++checks below independently exercise indexing, cancellation and boundaries;
++they are not substituted for that continuous-frequency argument.
++"""
++from dataclasses import replace
++from fractions import Fraction
++from hashlib import sha256
++import json
++import math
++import unittest
++
++from mpmath import iv
++
++from p15_src_continuum_bounds import (
++    TrigPoly, magnitude_bounds as slow_complex_bounds, scalar)
++from p15_src_halfband_majorant import (
++    _certify_taps, halfband_alias_sum_upper, halfband_majorant,
++    halfband_majorant_info)
++from p15_src_stagewise_alias_proof import FIRStage, make_native_stages
++
++
++def direct_complex_amplitude(taps, frequency):
++    """Independent all-tap directed complex sum; no symmetry or recurrence."""
++    real = iv.mpf(0)
++    imaginary = iv.mpf(0)
++    for k, coefficient in taps:
++        angle = 2 * iv.pi * scalar(Fraction(frequency)) * k
++        real += iv.mpf(coefficient) * iv.cos(angle)
++        imaginary += iv.mpf(coefficient) * iv.sin(angle)
++    return iv.sqrt(real**2 + imaginary**2)
++
++
++class ExactHalfbandMajorantTests(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        iv.dps = 75
++        cls.source = make_native_stages('master256')[0]
++
++    def test_source_global_cover_replayed_with_independent_complex_evaluator(self):
++        proof = halfband_majorant(self.source)
++        self.assertIsNotNone(proof)
++        self.assertTrue(bool(proof.upper < iv.mpf('1.00000002')))
++        self.assertLessEqual(proof.nodes_examined, 256)
++        self.assertEqual(proof.covered_intervals[0][0], Fraction(0))
++        self.assertEqual(proof.covered_intervals[-1][1], Fraction(1, 4))
++        self.assertTrue(all(a[1] == b[0] for a, b in
++                            zip(proof.covered_intervals, proof.covered_intervals[1:])))
++        odd = TrigPoly(tuple((k, c) for k, c in self.source.taps if k), Fraction(0))
++        for lo, hi in proof.covered_intervals:
++            _lower, upper, _center = slow_complex_bounds(odd, lo, hi)
++            self.assertTrue(bool(upper.b < iv.mpf('0.50000001').a),
++                            (str(lo), str(hi), str(upper)))
++
++    def test_source_pair_at_dc_nyquist_rational_and_one_sided_boundaries(self):
++        upper = halfband_alias_sum_upper(self.source)
++        epsilon = Fraction(1, 10**20)
++        frequencies = (Fraction(0), epsilon, Fraction(1, 4) - epsilon,
++                       Fraction(1, 4), Fraction(1, 4) + epsilon,
++                       Fraction(1, 2) - epsilon, Fraction(1, 2),
++                       Fraction(1, 2) + epsilon, Fraction(257, 1542),
++                       Fraction(-1, 997))
++        for frequency in frequencies:
++            a = direct_complex_amplitude(self.source.taps, frequency)
++            b = direct_complex_amplitude(self.source.taps, frequency + Fraction(1, 2))
++            self.assertTrue(bool((a + b).b <= upper), str(frequency))
++
++    def test_exact_pattern_admission_has_no_approximate_equality(self):
++        base = self.source
++        cases = [replace(base, L=2), replace(base, M=3),
++                 replace(base, output_hz=base.output_hz + 1)]
++        coefficients = dict(base.taps)
++        center_changed = dict(coefficients)
++        center_changed[0] = math.nextafter(0.5, math.inf)
++        even_changed = dict(coefficients)
++        even_changed[2] = 1e-300
++        asymmetric = dict(coefficients)
++        asymmetric[1] = math.nextafter(asymmetric[1], math.inf)
++        cases.extend(replace(base, taps=tuple(sorted(x.items()))) for x in
++                     (center_changed, even_changed, asymmetric))
++        cases.append(replace(base, taps=base.taps + (base.taps[0],)))
++        for stage in cases:
++            self.assertIsNone(halfband_alias_sum_upper(stage))
++
++    def test_valid_pattern_with_excessive_pair_norm_declines_shortcut(self):
++        stage = FIRStage('synthetic', 16, Fraction(8), 1, 2,
++                         ((-1, 0.4), (0, 0.5), (1, 0.4)))
++        self.assertIsNone(halfband_alias_sum_upper(stage))
++        a = direct_complex_amplitude(stage.taps, Fraction(0))
++        b = direct_complex_amplitude(stage.taps, Fraction(1, 2))
++        self.assertTrue(bool((a + b).a > iv.mpf('1.5')))
++
++    def test_cancellation_and_sparse_zero_support(self):
++        stage = FIRStage('synthetic', 16, Fraction(8), 1, 2,
++                         ((-9, -0.125), (-4, 0.0), (0, 0.5),
++                          (4, -0.0), (9, -0.125)))
++        proof = halfband_majorant(stage)
++        self.assertIsNotNone(proof)
++        for frequency in (Fraction(0), Fraction(1, 36), Fraction(1, 4),
++                          Fraction(1, 2), Fraction(3, 7)):
++            response = (direct_complex_amplitude(stage.taps, frequency) +
++                        direct_complex_amplitude(stage.taps, frequency + Fraction(1, 2)))
++            # Here |Q| <= sum |q[k]| = 1/4 by exact dyadic arithmetic, so
++            # both branches are positive and their magnitude sum is exactly
++            # one.  A directed complex evaluation can straddle that exact
++            # endpoint; requiring its upper endpoint <= 1 would be invalid.
++            self.assertTrue(bool(response.a <= 1 <= response.b))
++            self.assertTrue(bool(proof.upper >= 1))
++
++    def test_partial_frequency_cover_never_returns_a_norm(self):
++        self.assertIsNone(_certify_taps(self.source.taps, max_nodes=1))
++
++    def test_normalized_proof_reused_across_exactly_matching_source_clocks(self):
++        slower = replace(self.source, input_hz=self.source.input_hz // 2,
++                         output_hz=self.source.output_hz / 2)
++        self.assertIs(halfband_majorant(self.source), halfband_majorant(slower))
++        original = halfband_majorant_info(self.source)
++        repeated = halfband_majorant_info(slower)
++        self.assertEqual(original, repeated)
++        self.assertEqual(len(original['coefficient_sha256']), 64)
++        self.assertGreater(len(original['closed_cover']), 1)
++
++    def test_cache_preserves_exact_signed_zero_coefficient_identity(self):
++        plus = FIRStage('signed_zero', 16, Fraction(8), 1, 2,
++                        ((-2, 0.0), (-1, 0.125), (0, 0.5), (1, 0.125)))
++        minus = replace(plus, taps=((-2, -0.0), (-1, 0.125),
++                                    (0, 0.5), (1, 0.125)))
++        a, b = halfband_majorant(plus), halfband_majorant(minus)
++        self.assertIsNotNone(a)
++        self.assertIsNotNone(b)
++        self.assertIsNot(a, b)
++        self.assertNotEqual(a.coefficient_sha256, b.coefficient_sha256)
++        for stage, proof in ((plus, a), (minus, b)):
++            words = [[k, coefficient.hex()] for k, coefficient in
++                     sorted(stage.taps)]
++            expected = sha256(json.dumps(words, separators=(',', ':')).encode('ascii'))
++            self.assertEqual(proof.coefficient_sha256, expected.hexdigest())
++        self.assertTrue(bool(a.upper == b.upper))
++        # Canonical tap order has no mathematical effect and retains exact words.
++        self.assertIs(a, halfband_majorant(replace(plus, taps=plus.taps[::-1])))
++
++    def test_cached_float_proof_does_not_admit_equal_nonfloat_values(self):
++        valid = FIRStage('float_types', 16, Fraction(8), 1, 2,
++                         ((-2, 0.0), (-1, 0.125), (0, 0.5), (1, 0.125)))
++        self.assertIsNotNone(halfband_majorant(valid))
++        cases = (
++            replace(valid, taps=((-2, 0), (-1, 0.125), (0, 0.5), (1, 0.125))),
++            replace(valid, taps=((-2, 0.0), (-1, 0.125),
++                                 (0, Fraction(1, 2)), (1, 0.125))),
++            replace(valid, taps=((-2, 0.0), (-1, 0.125),
++                                 (0, 0.5), (Fraction(1), 0.125))),
++        )
++        for stage in cases:
++            self.assertEqual(stage.taps, valid.taps)
++            self.assertIsNone(halfband_majorant(stage))
++
++    def test_two_decimation_levels_include_every_alias(self):
++        """Four exact source branches, with no RMS or phase cancellation."""
++        taps = self.source.taps
++        norm = halfband_alias_sum_upper(self.source)
++        for output_fraction in (Fraction(0), Fraction(1, 239),
++                                Fraction(1, 4), Fraction(1, 2)):
++            total = iv.mpf(0)
++            # Frequencies are in cycles of the second-stage input.  Its two
++            # inverse branches are separated by 1/2.  The first-stage input
++            # clock is twice as fast, so each is divided by two before its
++            # own complete two-branch sum is evaluated.
++            for second_alias in (0, 1):
++                middle = output_fraction + Fraction(second_alias, 2)
++                second = direct_complex_amplitude(taps, middle)
++                for first_alias in (0, 1):
++                    upstream = middle / 2 + Fraction(first_alias, 2)
++                    first = direct_complex_amplitude(taps, upstream)
++                    total += first * second
++            self.assertTrue(bool(total.b <= (norm * norm).b), str(output_fraction))
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/tests/dsd/test_p15_high_rate_population.py b/tests/dsd/test_p15_high_rate_population.py
+--- /dev/null
++++ b/tests/dsd/test_p15_high_rate_population.py
+@@ -0,0 +1,225 @@
++#!/usr/bin/env python3
++"""Independent adversarial tests of complete-subtree alias caps.
++
++The mathematical argument is an induction over complete branch populations.
++These tests independently enumerate small populations, directly enclose all
++complex tap sums, and attack admission with repeated/noncomplementary paths.
++They do not turn point tests into a continuous-frequency spectral certificate.
++"""
++from __future__ import annotations
++
++from dataclasses import replace
++from fractions import Fraction
++import math
++from types import SimpleNamespace
++import unittest
++from unittest.mock import patch
++
++from mpmath import iv
++
++from p15_src_branch_bound import bound_population
++from p15_src_continuum_bounds import scalar
++from p15_src_halfband_majorant import halfband_alias_sum_upper
++from p15_src_stagewise_alias_proof import FIRStage, branches, make_native_stages
++from p15_src_stagewise_continuum import AliasPath, BranchBoundary, complete_paths
++
++
++def halfband(clock):
++    return FIRStage("synthetic-halfband", clock, Fraction(clock, 2), 1, 2,
++                    ((-1, 0.125), (0, 0.5), (1, 0.125)))
++
++
++def independent_paths(stages, frequency):
++    """Use the separate point branch enumerator, not complete_paths' tree."""
++    frequency = Fraction(frequency)
++    states = [(frequency, ())]
++    for stage in reversed(stages):
++        states = [(upstream, terms + ((stage, high - frequency),))
++                  for previous, terms in states
++                  for high, upstream in branches(stage, previous)]
++    return tuple(AliasPath(upstream - frequency, terms, False)
++                 for upstream, terms in states)
++
++
++def direct_complex_magnitude(stage, lo, hi):
++    """All taps, retained time origin, directed interval complex arithmetic."""
++    rate = stage.L * stage.input_hz
++    frequency = iv.mpf([scalar(Fraction(lo) / rate).a,
++                        scalar(Fraction(hi) / rate).b])
++    real, imaginary = iv.mpf(0), iv.mpf(0)
++    for index, coefficient in stage.taps:
++        angle = 2 * iv.pi * frequency * index
++        real += iv.mpf(coefficient) * iv.cos(angle)
++        imaginary += iv.mpf(coefficient) * iv.sin(angle)
++    return iv.sqrt(real**2 + imaginary**2) / stage.L
++
++
++def explicit_population(paths, lo, hi):
++    """Brute product/sum of independent complex enclosures, no subtree cap."""
++    cache = {}
++    total = iv.mpf(0)
++    for path in paths:
++        product = iv.mpf(1)
++        for stage, shift in path.terms:
++            key = stage, shift
++            if key not in cache:
++                cache[key] = direct_complex_magnitude(stage, lo + shift, hi + shift)
++            product *= cache[key]
++        total += product
++    return total
++
++
++def exact_upper_endpoint(value):
++    """Decode the directed endpoint as a rational, without a binary64 cast."""
++    sign, mantissa, exponent, bits = value._mpi_[1]
++    if bits < 0:
++        raise ValueError("finite reference endpoint required")
++    return Fraction(-mantissa if sign else mantissa) * Fraction(2)**exponent
++
++
++def population_bound(paths, lo, hi, *, cap=True, limit="1000000",
++                     include=lambda path: True, terminal_saturation=True):
++    stats = {}
++    def evaluate(term, left, right):
++        stage, shift = term
++        return direct_complex_magnitude(stage, left + shift, right + shift).b
++    upper, evaluations = bound_population(paths, lo, hi, include=include,
++        limit=limit, evaluate=evaluate, stats=stats, use_subtree_caps=cap,
++        use_terminal_saturation=terminal_saturation)
++    return upper, evaluations, stats
++
++
++class HighRatePopulationTests(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        iv.dps = 75
++
++    def test_complete_and_selected_two_level_populations(self):
++        paths = independent_paths((halfband(96), halfband(48)), Fraction(1, 2))
++        self.assertEqual(len(paths), 4)
++        lo, hi = Fraction(0), Fraction(1)
++        upper, calls, stats = population_bound(paths, lo, hi)
++        old, old_calls, _ = population_bound(paths, lo, hi, cap=False)
++        self.assertEqual(upper, iv.mpf(1))
++        self.assertEqual(old, iv.mpf("2.25"))
++        self.assertEqual((calls, old_calls), (0, 0))
++        self.assertGreater(stats["subtree_caps_used"], 0)
++        # Both complete pair sums are exactly one in this synthetic example.
++        # Direct complex point enclosures must overlap that analytic upper.
++        for frequency in (lo, Fraction(1, 7), Fraction(1, 2), hi):
++            self.assertTrue(bool(explicit_population(paths, frequency, frequency).a <= upper))
++        selected = paths[::2]
++        subset, _, _ = population_bound(paths, lo, hi, include=lambda path: path in selected)
++        for frequency in (lo, Fraction(2, 7), hi):
++            self.assertTrue(bool(explicit_population(selected, frequency, frequency).a <= subset))
++
++    def test_repeated_complete_paths_retain_every_contribution(self):
++        paths = independent_paths((halfband(96), halfband(48)), Fraction(1, 2))
++        for population in (paths + (paths[0],), (paths[0],) * 4):
++            upper, calls, stats = population_bound(population, Fraction(0), Fraction(1))
++            old, old_calls, _ = population_bound(population, Fraction(0), Fraction(1), cap=False)
++            self.assertEqual(upper, old)
++            self.assertEqual(calls, old_calls)
++            self.assertEqual(stats["subtree_caps_used"], 0)
++            self.assertTrue(bool(explicit_population(population, Fraction(0), Fraction(0)).a <= upper))
++
++    def test_noncomplementary_halfband_siblings_cannot_use_pair_cap(self):
++        stage = halfband(48)
++        paths = tuple(AliasPath(shift, ((stage, shift),), False)
++                      for shift in (Fraction(0), Fraction(1)))
++        upper, _, stats = population_bound(paths, Fraction(0), Fraction(1))
++        old, _, _ = population_bound(paths, Fraction(0), Fraction(1), cap=False)
++        self.assertEqual(upper, old)
++        self.assertEqual(stats["subtree_caps_used"], 0)
++        actual = explicit_population(paths, Fraction(0), Fraction(0))
++        self.assertTrue(bool(actual.a > iv.mpf("1.4")))
++        self.assertTrue(bool(upper >= actual.a))
++
++    def test_deep_malformed_pair_and_overfull_node_fall_back(self):
++        outer, inner = halfband(48), halfband(96)
++        valid = independent_paths((inner, outer), Fraction(1, 2))
++        # A valid root is insufficient: one upstream sibling pair is wrong.
++        one = valid[0]
++        other = replace(one, terms=one.terms[:-1] + ((inner, one.terms[-1][1] + 1),))
++        malformed = (one, other) + valid[2:]
++        overfull = tuple(AliasPath(shift, ((outer, shift),), False)
++                         for shift in (Fraction(-16), Fraction(0), Fraction(16)))
++        for paths in (malformed, overfull):
++            upper, _, stats = population_bound(paths, Fraction(0), Fraction(1))
++            old, _, _ = population_bound(paths, Fraction(0), Fraction(1), cap=False)
++            self.assertEqual(upper, old)
++            self.assertEqual(stats["subtree_caps_used"], 0)
++
++    def test_general_asymmetric_stage_uses_full_cardinality_l1(self):
++        asymmetric = FIRStage("asymmetric", 96, Fraction(48), 1, 2,
++                              ((0, 0.5), (1, -0.125)))
++        self.assertIsNone(halfband_alias_sum_upper(asymmetric))
++        paths = independent_paths((asymmetric, halfband(48)), Fraction(1, 2))
++        upper, _, stats = population_bound(paths, Fraction(0), Fraction(1))
++        self.assertEqual(upper, iv.mpf("1.25"))
++        self.assertGreater(stats["subtree_caps_used"], 0)
++        for frequency in (Fraction(0), Fraction(2, 7), Fraction(1)):
++            self.assertTrue(bool(explicit_population(paths, frequency, frequency).a <= upper))
++
++    def test_full_expansion_agrees_with_explicit_continuous_enclosures(self):
++        paths = independent_paths((halfband(96), halfband(48)), Fraction(1, 2))
++        lo, hi = Fraction(1, 7), Fraction(2, 7)
++        # Each direct-complex upper is an exact dyadic endpoint. Accumulate
++        # their products and sum in Fraction arithmetic, independently of the
++        # population bound's directed interval replacement arithmetic.
++        direct_upper = sum((math.prod(
++            exact_upper_endpoint(direct_complex_magnitude(stage, lo + shift, hi + shift))
++            for stage, shift in path.terms) for path in paths), Fraction(0))
++        for capped in (False, True):
++            # Zero limit forces exhaustive expansion only when the separately
++            # tested terminal-saturation optimization is explicitly disabled.
++            upper, calls, stats = population_bound(paths, lo, hi, cap=capped,
++                limit="0", terminal_saturation=False)
++            self.assertEqual(calls, stats["trie_nodes"] - 1)
++            self.assertEqual(stats["terminal_saturation_returns"], 0)
++            self.assertGreaterEqual(exact_upper_endpoint(upper), direct_upper)
++        # A source-frequency label collision does not merge distinct paths.
++        collided = tuple(replace(path, upstream_shift=Fraction(0)) for path in paths)
++        self.assertEqual(population_bound(paths, lo, hi)[0], population_bound(collided, lo, hi)[0])
++
++    def test_rational_alias_transition_and_both_one_sided_limits(self):
++        rational = FIRStage("rational", 24, Fraction(36), 3, 2,
++                            ((0, 1.5), (1, 0.125)))
++        downstream = halfband(36)
++        operator = SimpleNamespace(input_hz=36, output_hz=18, U=3)
++        with patch("p15_src_stagewise_continuum.make_native_stages", return_value=(rational,)), \
++             patch("p15_src_stagewise_continuum.make_src_stages", return_value=(downstream,)), \
++             patch("p15_src_stagewise_continuum.native_profile", return_value=(24, 36, (), {})):
++            transition = complete_paths("synthetic", operator, Fraction(0), Fraction(9), require_direct=False)
++            self.assertIsInstance(transition, BranchBoundary)
++            self.assertEqual(transition.at, Fraction(6))
++            for lo, hi in ((Fraction(0), Fraction(6)), (Fraction(6), Fraction(9)),
++                           (Fraction(6), Fraction(6))):
++                paths = complete_paths("synthetic", operator, lo, hi, require_direct=False)
++                self.assertEqual(len(paths), 4)
++                upper, _, stats = population_bound(paths, lo, hi)
++                self.assertGreater(stats["subtree_caps_used"], 0)
++                frequencies = (lo, (lo + hi) / 2, hi)
++                for frequency in frequencies:
++                    self.assertTrue(bool(explicit_population(paths, frequency, frequency).a <= upper))
++                    independent = independent_paths((rational, downstream), frequency)
++                    self.assertTrue(bool(explicit_population(independent, frequency, frequency).a <= upper))
++
++    def test_actual_dsd256_native_tree_keeps_all_sixty_four_paths(self):
++        stages = make_native_stages("master256")
++        paths = independent_paths(stages, Fraction(1000, 3))
++        self.assertEqual(len(paths), math.prod(stage.M for stage in stages))
++        self.assertEqual(len(paths), 64)
++        upper, calls, stats = population_bound(paths, Fraction(0), Fraction(1000))
++        old, _, _ = population_bound(paths, Fraction(0), Fraction(1000), cap=False)
++        self.assertTrue(bool(upper < old))
++        self.assertEqual(calls, 0)
++        self.assertGreater(stats["subtree_caps_used"], 0)
++        for frequency in (Fraction(0), Fraction(1000, 3), Fraction(1000)):
++            actual_paths = independent_paths(stages, frequency)
++            self.assertEqual(len(actual_paths), 64)
++            self.assertTrue(bool(explicit_population(actual_paths, frequency, frequency).a <= upper))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/dsd/test_p15_high_rate_terminal_saturation.py b/tests/dsd/test_p15_high_rate_terminal_saturation.py
+--- /dev/null
++++ b/tests/dsd/test_p15_high_rate_terminal_saturation.py
+@@ -0,0 +1,120 @@
++#!/usr/bin/env python3
++"""Adversarial checks of abandoning an already saturated upper-bound sum.
++
++An early return is not a failure witness.  It must still enclose every path
++and allow the caller to certify smaller intervals with tighter stage bounds.
++"""
++from fractions import Fraction
++import unittest
++
++from mpmath import iv
++
++from p15_src_branch_bound import bound_population
++from p15_src_continuum_bounds import scalar
++from p15_src_stagewise_alias_proof import FIRStage
++from p15_src_stagewise_continuum import AliasPath
++
++
++def paths_for(stage, count):
++    # Integer-period shifts are intentional: the finite population contains
++    # distinct formal paths of the same periodic response.  Every multiplicity
++    # must remain counted, and no complete-physical-family claim is made.
++    return tuple(AliasPath(Fraction(k), ((stage, Fraction(k)),), False)
++                 for k in range(count))
++
++
++class TerminalUpperSaturationTests(unittest.TestCase):
++    def setUp(self):
++        iv.dps = 75
++
++    def test_early_return_retains_every_unevaluated_path_upper(self):
++        stage = FIRStage('synthetic', 1, Fraction(1), 1, 1, ((0, 1.0),))
++        paths = paths_for(stage, 64)
++        calls = []
++
++        def evaluate(term, lo, hi):
++            calls.append(term[1])
++            return iv.mpf(10 if term[1] == 0 else 1)
++
++        stats = {}
++        early, count = bound_population(paths, Fraction(0), Fraction(0),
++            include=lambda p: True, limit='2', evaluate=evaluate, stats=stats)
++        self.assertEqual(count, 1)
++        self.assertEqual(calls, [Fraction(0)])
++        # One evaluated upper of ten plus 63 unexpanded unit-gain leaves.
++        self.assertTrue(bool(early >= 73))
++        self.assertEqual(stats['terminal_saturation_returns'], 1)
++        calls.clear()
++        complete, complete_count = bound_population(paths, Fraction(0), Fraction(0),
++            include=lambda p: True, limit='2', evaluate=evaluate,
++            use_terminal_saturation=False)
++        self.assertEqual(complete_count, 64)
++        self.assertEqual(set(calls), set(Fraction(k) for k in range(64)))
++        self.assertTrue(bool(complete <= early))
++        # The independent exact transfer sum is 64, including every path.
++        self.assertTrue(bool(complete >= 64))
++
++    def test_smaller_intervals_can_pass_after_a_valid_coarse_upper_returns(self):
++        # H(x) = (1-exp(2*pi*i*x))/2, so |H(x)| = |sin(pi*x)|.
++        stage = FIRStage('difference', 1, Fraction(1), 1, 1,
++                         ((0, 0.5), (1, -0.5)))
++        paths = paths_for(stage, 64)
++        lo, hi = Fraction(0), Fraction(1, 10000)
++
++        def evaluate(term, left, right):
++            if right-left > Fraction(1, 20000) and term[1] == 0:
++                return iv.mpf(10)  # Deliberately loose but valid coarse upper.
++            return iv.sin(iv.pi * scalar(right)).b
++
++        stats = {}
++        coarse, _ = bound_population(paths, lo, hi, include=lambda p: True,
++            limit='0.1', evaluate=evaluate, stats=stats)
++        self.assertTrue(bool(coarse > iv.mpf('0.1')))
++        self.assertEqual(stats['terminal_saturation_returns'], 1)
++        midpoint = (lo+hi)/2
++        for left, right in ((lo, midpoint), (midpoint, hi)):
++            child, _ = bound_population(paths, left, right,
++                include=lambda p: True, limit='0.1', evaluate=evaluate)
++            independent = 64 * iv.sin(iv.pi * scalar(right))
++            self.assertTrue(bool(child < iv.mpf('0.1')))
++            self.assertTrue(bool(child >= independent.a))
++
++    def test_exact_accumulation_below_and_at_threshold_with_large_cancellation(self):
++        # The large L1 initial total loses significant digits when old
++        # frontier entries are subtracted.  The independent fixed-upper sum
++        # must not confuse that enclosure width with terminal saturation.
++        stage = FIRStage('cancellation', 1, Fraction(1), 1, 1,
++                         ((0, 1e100), (1, -1e100)))
++        paths = paths_for(stage, 4)
++        delta = Fraction(1, 2**100)
++        for last, expected in ((Fraction(0), 0), (2*delta, 1)):
++            values = (Fraction(1, 2)-delta, Fraction(1, 2)-delta, last, Fraction(0))
++            stats = {}
++
++            def evaluate(term, lo, hi):
++                return scalar(values[int(term[1])]).b
++
++            upper, _ = bound_population(paths, Fraction(0), Fraction(0),
++                include=lambda p: True, limit='1', evaluate=evaluate, stats=stats)
++            self.assertEqual(stats['terminal_saturation_returns'], expected)
++            # The exact response is zero at every integer-period shift.
++            self.assertTrue(bool(upper >= 0))
++
++    def test_multiple_subthreshold_terminal_upper_endpoints_accumulate(self):
++        stage = FIRStage('constant', 1, Fraction(1), 1, 1, ((0, 0.5),))
++        paths = paths_for(stage, 32)
++        values = (Fraction(3, 4), Fraction(3, 4))
++        stats = {}
++
++        def evaluate(term, lo, hi):
++            return scalar(values[int(term[1])] if term[1] < 2 else Fraction(1, 2)).b
++
++        upper, calls = bound_population(paths, Fraction(0), Fraction(0),
++            include=lambda p: True, limit='1.25', evaluate=evaluate, stats=stats)
++        self.assertEqual(calls, 2)
++        self.assertEqual(stats['terminal_saturation_returns'], 1)
++        self.assertTrue(bool(upper >= 16))  # Exact complete magnitude sum.
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/tests/dsd/test_p15_normative_limit_rounding.py b/tests/dsd/test_p15_normative_limit_rounding.py
+--- /dev/null
++++ b/tests/dsd/test_p15_normative_limit_rounding.py
+@@ -0,0 +1,163 @@
++#!/usr/bin/env python3
++"""Independent exact-rational checks of P15 acceptance-limit representation.
++
++Reference log/exp bounds below use rational series and geometric remainders,
++without mpmath transcendental functions. Actual binary64 FIRs expose
++the former false-PASS slivers. Injected interval enclosures separately test the
++generic comparison contract inside its much smaller uncertainty guard.
++"""
++from fractions import Fraction
++from functools import lru_cache
++import math
++import unittest
++from unittest.mock import patch
++
++from mpmath import iv
++
++from p15_src_continuum_bounds import (
++    BadWitness, TrigPoly, _exact_interval_string, certify, db_band, scalar)
++
++
++def rational_log_bounds(value, terms=90):
++    """2*atanh(t), t=(x-1)/(x+1), with a geometric absolute tail."""
++    value = Fraction(value)
++    if value < 1:
++        lo, hi = rational_log_bounds(1/value, terms)
++        return -hi, -lo
++    t = (value-1)/(value+1)
++    total = sum((2*t**(2*k+1)/(2*k+1) for k in range(terms)), Fraction(0))
++    remainder = 2*t**(2*terms+1)/((2*terms+1)*(1-t*t))
++    return total, total+remainder
++
++
++def rational_exp_bounds(value, terms=32):
++    """Positive Taylor sum; all remaining term ratios are <= x/(N+2)."""
++    value = Fraction(value)
++    assert 0 <= value < 1
++    term = total = Fraction(1)
++    for k in range(1, terms+1):
++        term *= value/k
++        total += term
++    next_term = term*value/(terms+1)
++    return total, total+next_term/(1-value/(terms+2))
++
++
++@lru_cache(maxsize=1)
++def independent_policy_bounds():
++    # ln(10) = 3*ln(2) + ln(5/4); both series have small positive t.
++    a, b = rational_log_bounds(2), rational_log_bounds(Fraction(5, 4))
++    ln_lo, ln_hi = 3*a[0]+b[0], 3*a[1]+b[1]
++    gain_lo = rational_exp_bounds(ln_lo/200000)[0]
++    gain_hi = rational_exp_bounds(ln_hi/200000)[1]
++    return (1/gain_hi, 1/gain_lo), (gain_lo, gain_hi)
++
++
++def endpoint_fraction(raw):
++    sign, mantissa, exponent, _bits = raw
++    return (-1 if sign else 1)*Fraction(mantissa)*Fraction(2)**exponent
++
++
++def interval_fractions(value):
++    return tuple(endpoint_fraction(raw) for raw in value._mpi_)
++
++
++class NormativeLimitRoundingTests(unittest.TestCase):
++    def setUp(self):
++        self.old_dps = iv.dps
++        iv.dps = 75
++
++    def tearDown(self):
++        iv.dps = self.old_dps
++
++    def test_limits_contain_independent_exact_rational_reference(self):
++        references = independent_policy_bounds()
++        for text, (exact_lo, exact_hi) in zip(db_band(), references):
++            self.assertIsInstance(text, str)
++            lo, hi = interval_fractions(iv.mpf(text))
++            self.assertLessEqual(lo, exact_lo)
++            self.assertGreaterEqual(hi, exact_hi)
++            self.assertLess(hi-lo, Fraction(1, 10**73))
++
++    def test_exact_endpoint_serialization_preserves_signed_and_small_dyadics(self):
++        for value in (iv.mpf(0), iv.mpf([-3, 5]),
++                      scalar(Fraction(-17, 2**301)),
++                      scalar(Fraction(123456789, 2**299))):
++            restored = iv.mpf(_exact_interval_string(value))
++            self.assertEqual(restored._mpi_, value._mpi_)
++        with self.assertRaises(BadWitness):
++            _exact_interval_string(iv.mpf([0, 'inf']))
++
++    def test_old_false_acceptance_slivers_now_fail_for_exact_binary64_firs(self):
++        reference_min, reference_max = independent_policy_bounds()
++        lower_bad = 0.9999884871408084
++        self.assertLess(Fraction.from_float(lower_bad), reference_min[0])
++        old_min, old_max = '0.9999884871408083', '1.000011512991739'
++        # The upper sliver is narrower than one binary64 ULP. Two exact
++        # binary64 coefficients represent an amplitude inside it at DC;
++        # a small closed frequency interval retains decisive bound margins.
++        target = (reference_max[1]+Fraction(old_max))/2
++        base = math.nextafter(float(reference_max[0]), -math.inf)
++        residual = float(target-Fraction.from_float(base))
++        upper_at_dc = Fraction.from_float(base)+Fraction.from_float(residual)
++        self.assertGreater(upper_at_dc, reference_max[1])
++        self.assertLess(upper_at_dc, Fraction(old_max))
++        cases = (TrigPoly(((0, lower_bad),), Fraction(0)),
++                 TrigPoly(((0, base), (1, residual)), Fraction(0)))
++        new_min, new_max = db_band()
++        for poly in cases:
++            old = certify((poly,), 0, Fraction(1, 10**12),
++                          amplitude_min=old_min, amplitude_max=old_max)
++            new = certify((poly,), 0, Fraction(1, 10**12),
++                          amplitude_min=new_min, amplitude_max=new_max)
++            self.assertEqual(old['status'], 'PASS')
++            self.assertEqual(new['status'], 'FAIL')
++
++    def test_neighboring_legal_constant_firs_still_pass(self):
++        reference_min, reference_max = independent_policy_bounds()
++        lower_good = math.nextafter(math.nextafter(0.9999884871408084, math.inf), math.inf)
++        upper_good = math.nextafter(1.000011512991739, -math.inf)
++        minimum, maximum = db_band()
++        for coefficient in (lower_good, upper_good):
++            exact = Fraction.from_float(coefficient)
++            self.assertGreater(exact, reference_min[1])
++            self.assertLess(exact, reference_max[0])
++            poly = TrigPoly(((0, coefficient),), Fraction(0))
++            result = certify((poly,), 0, Fraction(1, 2),
++                             amplitude_min=minimum, amplitude_max=maximum)
++            self.assertEqual(result['status'], 'PASS')
++
++    def test_legal_values_inside_policy_uncertainty_are_open_not_false_fail(self):
++        minimum, maximum = db_band()
++        ref_min, ref_max = independent_policy_bounds()
++        min_inner = interval_fractions(iv.mpf(minimum))[1]
++        max_inner = interval_fractions(iv.mpf(maximum))[0]
++        # Rigorous rational amplitudes between a policy's inward endpoint and
++        # the true legal region. Higher precision distinguishes the tiny gap.
++        cases = ((minimum, 'amplitude_min', (min_inner+ref_min[1])/2),
++                 (maximum, 'amplitude_max', (max_inner+ref_max[0])/2))
++        iv.dps = 110
++        dummy = TrigPoly(((0, 1.0),), Fraction(0))
++        for limit, keyword, amplitude in cases:
++            self.assertGreater(amplitude, ref_min[1])
++            self.assertLess(amplitude, ref_max[0])
++            enclosure = scalar(amplitude)
++            # This injection isolates comparison logic; it is not a source
++            # FIR certificate or a substitute for the constant-FIR tests.
++            with patch('p15_src_continuum_bounds.magnitude_bounds',
++                       return_value=(enclosure.a, enclosure.b, enclosure)):
++                result = certify((dummy,), 0, 0, **{keyword: limit})
++            self.assertEqual(result['status'], 'OPEN')
++            self.assertEqual(result['reason'], 'insufficient_interval_precision')
++
++    def test_straddling_each_policy_interval_remains_open(self):
++        dummy = TrigPoly(((0, 1.0),), Fraction(0))
++        for limit, keyword in zip(db_band(), ('amplitude_min', 'amplitude_max')):
++            enclosure = iv.mpf(limit)
++            with patch('p15_src_continuum_bounds.magnitude_bounds',
++                       return_value=(enclosure.a, enclosure.b, enclosure)):
++                result = certify((dummy,), 0, 0, **{keyword: limit})
++            self.assertEqual(result['status'], 'OPEN')
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/tests/dsd/test_p15_prover_second_pass.py b/tests/dsd/test_p15_prover_second_pass.py
+--- a/tests/dsd/test_p15_prover_second_pass.py
++++ b/tests/dsd/test_p15_prover_second_pass.py
+@@ -91,9 +91,18 @@
+                AliasPath(Fraction(2),((a,Fraction(2)),),False)]
+         upper,n=bound_population(paths,Fraction(0),Fraction(1),include=lambda p:True,
+                                  limit='1e-12',evaluate=lambda term,l,h:
+-                                 bounds_single(term[0],term[1],l,h)[1])
++                                 bounds_single(term[0],term[1],l,h)[1],
++                                 use_terminal_saturation=False)
+         self.assertTrue(bool(upper.b>=iv.mpf(3).b))
+         self.assertGreaterEqual(n,2)
++        # The default may stop after one terminal upper reaches the limit;
++        # its complete bound must still include both duplicate contributions
++        # and the remaining unevaluated path. Count three, irrespective of
++        # how many individual FIR evaluations were needed to enclose them.
++        early,_=bound_population(paths,Fraction(0),Fraction(1),include=lambda p:True,
++                                 limit='1e-12',evaluate=lambda term,l,h:
++                                 bounds_single(term[0],term[1],l,h)[1])
++        self.assertTrue(bool(early.b>=iv.mpf(3).b))
+ 
+ 
+ class RepeatDeadline(unittest.TestCase):

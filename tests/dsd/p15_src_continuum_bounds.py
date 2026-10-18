@@ -214,12 +214,35 @@ def certify(polynomials: tuple[TrigPoly, ...], low, high, *,
                 witness_scope='finite response witness ONLY; source binding separately mandatory')
 
 
+def _exact_interval_string(value):
+    """Serialize finite dyadic endpoints exactly, preserving the full interval.
+
+    mpmath's display strings and binary64 diagnostics are not policy bounds.
+    A dyadic m*2**(-k) has the exact decimal form (m*5**k)/10**k.
+    """
+    def endpoint(raw):
+        sign, mantissa, exponent, bits = raw
+        if bits < 0:
+            raise BadWitness('nonfinite acceptance endpoint')
+        if exponent >= 0:
+            digits = str(mantissa << exponent)
+        else:
+            places = -exponent
+            digits = str(mantissa * 5**places).zfill(places + 1)
+            digits = digits[:-places] + '.' + digits[-places:]
+        return ('-' if sign else '') + digits
+    return '[' + endpoint(value._mpi_[0]) + ', ' + endpoint(value._mpi_[1]) + ']'
+
+
 def db_band(ripple_db: str = '0.0001'):
-    """Exact interval-derived linear magnitude limits; no weakened tolerance."""
+    """Enclose the exact linear policy limits without changing their direction.
+
+    Keep both endpoints: PASS compares against the inward endpoints, while a
+    generic center-witness FAIL must lie outside the outward endpoints.
+    """
     db=iv.mpf(ripple_db)
     gain=iv.exp(iv.ln(iv.mpf(10)) * db / 20)
-    # Re-round outward for conservative policy: pass becomes slightly harder.
-    return (str(lower(1/gain)), str(upper(gain)))
+    return _exact_interval_string(1/gain), _exact_interval_string(gain)
 
 
 if __name__ == '__main__':

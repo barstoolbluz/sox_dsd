@@ -1,0 +1,1 @@
+An early second-pass 20-second OPEN was temporarily quarantined while module isolation was reviewed. After restoring the baseline module, the earlier receipt was SHA-verified as the exact same second-pass stagewise and recurrence code as the later independent OPEN replay. The original JSON is retained as a duplicate observation.

@@ -1,0 +1,182 @@
+{
+  "expected_current_receipt_instances": 1428,
+  "final_readjudication": "tests/dsd/results/P15_high_rate_2026-10-18/complete_cell/normative_readjudication_02/verification.json",
+  "matched_pairs": [
+    [
+      "baseline_matched_v1_60s",
+      "candidate_v1_matched_60s"
+    ],
+    [
+      "baseline_matched_v2b_60s",
+      "candidate_v2b_matched_60s"
+    ],
+    [
+      "baseline_matched_final_60s",
+      "candidate_final_matched_60s"
+    ]
+  ],
+  "measurements": [
+    {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/campaign_candidate_60s",
+      "expected_receipts": 383,
+      "label": "candidate_v1_campaign_60s",
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/CAMPAIGN_PLAN.json",
+      "proof_snapshot": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v1_code",
+      "resources": {
+        "max_nodes": 128,
+        "max_paths": 20000,
+        "seconds": 60
+      },
+      "role": "candidate"
+    },
+    {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/baseline",
+      "expected_receipts": 24,
+      "label": "baseline_matched_v1_60s",
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_PLAN.json",
+      "proof_snapshot": "tests/dsd/results/P15_high_rate_2026-10-18/reference_third_pass_code",
+      "resources": {
+        "max_nodes": 128,
+        "max_paths": 20000,
+        "seconds": 60
+      },
+      "role": "baseline"
+    },
+    {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_round1/candidate",
+      "expected_receipts": 24,
+      "label": "candidate_v1_matched_60s",
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_PLAN.json",
+      "proof_snapshot": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v1_code",
+      "resources": {
+        "max_nodes": 128,
+        "max_paths": 20000,
+        "seconds": 60
+      },
+      "role": "candidate"
+    },
+    {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/diagnostics/master64_pass_180s",
+      "expected_receipts": 1,
+      "label": "candidate_v1_diagnostic_180s",
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/DIAGNOSTIC_MASTER64_EDGE_PLAN.json",
+      "proof_snapshot": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v1_code",
+      "resources": {
+        "max_nodes": 128,
+        "max_paths": 20000,
+        "seconds": 180
+      },
+      "role": "candidate"
+    },
+    {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/diagnostics/terminal_saturation_candidate_v2b/receipts_60s",
+      "expected_receipts": 1,
+      "label": "candidate_v2b_diagnostic_60s",
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/DIAGNOSTIC_MASTER64_EDGE_PLAN.json",
+      "proof_snapshot": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v2_code",
+      "resources": {
+        "max_nodes": 128,
+        "max_paths": 20000,
+        "seconds": 60
+      },
+      "role": "candidate"
+    },
+    {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/baseline",
+      "expected_receipts": 26,
+      "label": "baseline_matched_v2b_60s",
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_FINAL_PLAN.json",
+      "proof_snapshot": "tests/dsd/results/P15_high_rate_2026-10-18/reference_third_pass_code",
+      "resources": {
+        "max_nodes": 128,
+        "max_paths": 20000,
+        "seconds": 60
+      },
+      "role": "baseline"
+    },
+    {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_combined/candidate",
+      "expected_receipts": 26,
+      "label": "candidate_v2b_matched_60s",
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_FINAL_PLAN.json",
+      "proof_snapshot": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v2_code",
+      "resources": {
+        "max_nodes": 128,
+        "max_paths": 20000,
+        "seconds": 60
+      },
+      "role": "candidate"
+    },
+    {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/campaign_final_strict_60s",
+      "expected_receipts": 927,
+      "label": "candidate_final_campaign_60s",
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/CAMPAIGN_FINAL_STRICT_PLAN.json",
+      "proof_snapshot": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_final_code",
+      "resources": {
+        "max_nodes": 128,
+        "max_paths": 20000,
+        "seconds": 60
+      },
+      "role": "candidate"
+    },
+    {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/baseline",
+      "expected_receipts": 8,
+      "label": "baseline_matched_final_60s",
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_FINAL_STRICT_PLAN.json",
+      "proof_snapshot": "tests/dsd/results/P15_high_rate_2026-10-18/reference_third_pass_code",
+      "resources": {
+        "max_nodes": 128,
+        "max_paths": 20000,
+        "seconds": 60
+      },
+      "role": "baseline"
+    },
+    {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/candidate",
+      "expected_receipts": 8,
+      "label": "candidate_final_matched_60s",
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_FINAL_STRICT_PLAN.json",
+      "proof_snapshot": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_final_code",
+      "resources": {
+        "max_nodes": 128,
+        "max_paths": 20000,
+        "seconds": 60
+      },
+      "role": "candidate"
+    }
+  ],
+  "pinned_files_sha256": {
+    "tests/dsd/p15_high_rate_census.py": "502cc9f0a9bec9ce682509359d159db5bc213d5e93f2bb189e57e19a3332228d",
+    "tests/dsd/p15_high_rate_coverage_report.py": "767f84f5935ba92594be5fcabe08577646f72a9f1509489912e04752ad9652a8",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/CAMPAIGN_FINAL_STRICT_PLAN.json": "6ac416e71b214b72bae8efc92da8155f3c3cadd251eed735087243b2e706770d",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/CAMPAIGN_PLAN.json": "a253ed57294bb5a433298260acd3cfef18314831137dd99a8758f2066876d8d3",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/DIAGNOSTIC_MASTER64_EDGE_PLAN.json": "3f206405d1ed4508bf56d7283f050349ed9f301b4b8cc5e060cc880ec1c2063c",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_FINAL_PLAN.json": "1976b73efbd79a6c0b3ad0bf44c3ae0cee846b758d173d76d6c84d12d0a8c0f9",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_FINAL_STRICT_PLAN.json": "63d5ff92d8cd7661b9aa77612be239537d76c153e43d8bb6b2d7063296cc2cf5",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_PLAN.json": "2a6833211160e6ea9c70ae5bf70f85128540232c2ee060f8194a6574f5d0f12d",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/aggregate_final.py": "fa9008bb94c4143e9c8e846da5a56ef658efc6ad51218b8f757ebcc0d844de2c",
+    "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_final_code/IDENTITY.json": "3f650478695cd0370809d37652d7f58bf17508791d1362eed2a449a3ca98fe08",
+    "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v1_code/IDENTITY.json": "e55d58af9dbf688463a2689a58cd59f42851324cb3733066f6aabf200e0ab27d",
+    "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v2_code/IDENTITY.json": "f350a0bc7f31c02674d33e657fb08db4d7817017f7bc93be37a7cb0391a4fe90",
+    "tests/dsd/results/P15_high_rate_2026-10-18/reference_third_pass_code/IDENTITY.json": "f12be9b5c9a522aedd1df9958fb3dc6c5ada93198316690ec9f2cdf87aa91a2a"
+  },
+  "planned_unique_canonical_jobs": 1148,
+  "prior_evidence_scope": "Original 60s campaign plus historical600s sample and four final third-pass locals, included separately by census.",
+  "proof_version_legend": {
+    "reference_high_rate_final_code": "Final candidate3 with full directed threshold serialization; these versions are independent of decode profile mastering_v2",
+    "reference_high_rate_v1_code": "First high-rate candidate with complete-subtree halfband caps",
+    "reference_high_rate_v2_code": "Second candidate v2b with terminal saturation and exact-word cache identity",
+    "reference_third_pass_code": "Untouched third-pass baseline"
+  },
+  "purpose": "Explicit final overlay input configuration; no numerical certification is performed by aggregation.",
+  "schema": "P15/final-high-rate-aggregation/1",
+  "scope_notes": [
+    "Only explicit measurement directories contribute current coverage. Every required plan must be complete before final publication.",
+    "Profiling and exploratory measurements remain archived separately; they are not mixed into matched throughput comparisons.",
+    "The accepted v2b terminal-saturation diagnostic is included; the preliminary pre-exact-word-cache diagnostic remains exploratory evidence.",
+    "Each PASS used in a union must be admitted by exact receipt SHA in the refreshed scalar readjudication inventory. This is separate from numerical proof replay.",
+    "Preserve all previous census/report/evidence directories; changed inputs require new output directories."
+  ]
+}

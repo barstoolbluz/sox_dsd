@@ -1,0 +1,456 @@
+--- a/tests/dsd/p15_src_stagewise_continuum.py
++++ b/tests/dsd/p15_src_stagewise_continuum.py
+@@ -31,6 +31,7 @@
+                       make_native_stages,AliasProofError)
+ from p15_src_continuum_bounds import (TrigPoly,db_band,fraction,scalar)
+ from p15_src_interval_recurrence import magnitude_bounds
++from p15_src_difference_upper import difference_upper
+ from p15_src_branch_bound import bound_population
+ from p15_src_capture_matrix import verify_pair
+ from p15_src_complete_aliases import native_profile
+@@ -224,6 +225,37 @@
+     return (down.a/stage.L if bool(down.a>0) else iv.mpf(0)),up.b/stage.L
+ 
+ 
++
++def cheap_alias_upper(stage:FIRStage,shift:Fraction,lo:Fraction,hi:Fraction):
++    """Use exact FIR finite differences only when already decisively small.
++
++    This can never lower an amplitude requirement: it is an alternate global
++    UPPER majorant for each high-frequency branch. The direct wanted path
++    still uses the full two-sided interval evaluator, and inconclusive
++    difference bounds fall back to the independent Taylor evaluator.
++    """
++    a=lo+shift;b=hi+shift
++    if a<=0<=b:
++        qlo=Fraction(0);qhi=max(-a,b)
++    elif b<0:
++        qlo=-b;qhi=-a
++    else:
++        qlo=a;qhi=b
++    rate=stage.input_hz*stage.L
++    if qlo<0 or qhi>Fraction(rate,2):
++        return None  # The original bounds_single enforces this precondition.
++    high=difference_upper(_poly(stage),qlo/rate,qhi/rate)
++    if high is None:
++        return None
++    per_stage=(high/stage.L).b
++    # Internal cost/quality guard only; NEVER a permission to omit this alias.
++    # The full included upper enters bound_population, multiplied by every
++    # other stage bound and by every descendant. If it cannot certify, the
++    # result is still OPEN or further refined with no dropped contribution.
++    if bool(per_stage < iv.mpf('1e-10').a):
++        return per_stage
++    return None
++
+ def bound_segment(paths,lo,hi,*,stop_source_hz,mode='pass'):
+     """Certify a complete coherent-alias *upper* using exact L1 subtrees.
+ 
+@@ -235,9 +267,16 @@
+     if mode not in ('pass','stop'):
+         raise Unproved('unknown population bound mode')
+     cache={}
++    difference_used=0
+     def stage_upper(term,left,right):
++        nonlocal difference_used
+         if term not in cache:
+-            cache[term]=bounds_single(term[0],term[1],left,right)
++            alternate=cheap_alias_upper(term[0],term[1],left,right)
++            if alternate is None:
++                cache[term]=bounds_single(term[0],term[1],left,right)
++            else:
++                cache[term]=(iv.mpf(0),alternate)
++                difference_used+=1
+         return cache[term][1]
+ 
+     if mode=='stop':
+@@ -251,7 +290,7 @@
+                                   limit='1e-8',evaluate=stage_upper)
+         return dict(wanted_lower=None,wanted_upper=None,unwanted_upper=None,
+                     source_stopband_upper=source_stop_upper,
+-                    amplitudes_evaluated=len(cache))
++                    amplitudes_evaluated=len(cache),difference_majorants_used=difference_used)
+ 
+     direct=[path for path in paths if path.direct]
+     if len(direct)!=1:
+@@ -268,7 +307,7 @@
+     if not bool(pass_lower>0):pass_lower=iv.mpf(0)
+     return dict(wanted_lower=pass_lower,wanted_upper=high+upper_alias,
+                 unwanted_upper=upper_alias,source_stopband_upper=None,
+-                amplitudes_evaluated=len(cache))
++                amplitudes_evaluated=len(cache),difference_majorants_used=difference_used)
+ 
+ 
+ def certificate(profile,op,lo_hz,hi_hz,*,mode="pass",max_nodes=32,max_paths=20000):
+@@ -295,13 +334,14 @@
+     # A subinterval cannot introduce a new transition absent in its parent.
+     todo=[(lo,hi,None)]
+     complete=examined=exact_splits=0
+-    fir_evaluations=path_enumerations=0
++    fir_evaluations=path_enumerations=difference_evaluations=0
+     max_alias=0.;min_wanted=1.;max_total=0.
+     def opened(reason):
+         return dict(status='OPEN',reason=reason,qualified_release=False,
+             proven_subintervals=complete,pending_intervals=len(todo),
+             nodes_examined=examined,exact_branch_splits=exact_splits,
+             fir_interval_evaluations=fir_evaluations,
++            cheap_difference_majorants_used=difference_evaluations,
+             exact_path_enumerations=path_enumerations)
+     while todo:
+         if examined>=max_nodes:
+@@ -326,6 +366,7 @@
+         except (AliasProofError,Unproved) as exc:
+             return opened('operator_bound_precondition:'+str(exc))
+         fir_evaluations+=result['amplitudes_evaluated']
++        difference_evaluations+=result['difference_majorants_used']
+         wanted_lower=result['wanted_lower']
+         wanted_upper=result['wanted_upper']
+         aliases=result['unwanted_upper']
+@@ -352,13 +393,14 @@
+         fully_proven_subintervals=complete,nodes_examined=examined,
+         exact_branch_splits=exact_splits,
+         fir_interval_evaluations=fir_evaluations,
++        cheap_difference_majorants_used=difference_evaluations,
+         exact_path_enumerations=path_enumerations,
+         max_coherent_alias_upper=max_alias if mode=='pass' else None,
+         max_native_stop_source_transfer_upper=max_alias if mode=='stop' else None,
+         min_wanted_transfer_lower=min_wanted if mode=='pass' else None,
+         max_total_transfer_upper=max_total if mode=='pass' else None,
+-        method=('cached exact binary64 FIR derivative weights with 288-bit outward dyadic Taylor recurrence; '
+-                '75-digit directed complex fallback; exact rational branch splits; '
++        method=('exact binary64 finite-difference high-frequency majorants and '
++                'cached 288-bit outward dyadic Taylor recurrence; 75-digit directed complex fallback; '
+                 'complete L1-majorized stagewise inverse aliases'),
+         limits=dict(passband_db='0.0001',coherent_alias_db='-160'),
+         limitations=('Local stationary coefficient operator only. Stop mode bounds native input '
+@@ -383,6 +425,14 @@
+     _,op=verify_pair(snapshot.parent,op_tmp.input_hz,op_tmp.output_hz)
+     r=certificate(args.profile,op,args.lo,args.hi,mode=args.mode,max_nodes=args.max_nodes)
+     r['schema']='P15/local-source-bound-composite-continuum/1'
++    # Bind a new certificate to the exact independent prover implementation.
++    # Historical receipts are left byte-identical and remain unchanged.
++    proof_modules=('p15_src_stagewise_continuum.py','p15_src_branch_bound.py',
++        'p15_src_difference_upper.py','p15_src_interval_recurrence.py',
++        'p15_src_fixed_interval.py','p15_src_symmetric_interval.py',
++        'p15_src_continuum_bounds.py','p15_src_stagewise_alias_proof.py')
++    r['prover_code_sha256']={name:sha_file(Path(__file__).parent/name)
++                             for name in proof_modules}
+     r['governing_dsd_design_sha256']=sha_file(Path(__file__).resolve().parents[2]/'docs/dsd/DSD_DESIGN.md')
+     r['source_sha256']=source_identity()
+     r['stage_snapshot_sha256']=sha_file(snapshot)
+--- a/tests/dsd/test_p15_prover_second_pass.py
++++ b/tests/dsd/test_p15_prover_second_pass.py
+@@ -4,6 +4,7 @@
+ 
+ from fractions import Fraction
+ import random
++import signal
+ import time
+ import unittest
+ 
+@@ -100,12 +101,17 @@
+         caught=0
+         started=time.monotonic()
+         with interval_deadline(0.012):
+-            while time.monotonic()-started<0.30 and caught<2:
++            while caught<2 and time.monotonic()-started<0.30:
+                 try:
+-                    while time.monotonic()-started<0.30:
+-                        pass
++                    # Sleep is interrupted by the raised signal exception;
++                    # unlike a hot loop this leaves normal scheduling room
++                    # between deliveries and avoids an exception in teardown.
++                    time.sleep(0.03)
+                 except IntervalBudgetExpired:
+                     caught+=1
++                    if caught>=2:
++                        signal.setitimer(signal.ITIMER_REAL,0)
++                        break
+         self.assertGreaterEqual(caught,2,'one-shot delivery must not be suppressible')
+         self.assertLess(time.monotonic()-started,0.31)
+ 
+--- /dev/null
++++ b/tests/dsd/p15_src_difference_upper.py
+@@ -0,0 +1,69 @@
++#!/usr/bin/env python3
++"""Exact-coefficient finite-difference majorant for FIR high-frequency aliases.
++
++If H(z) = sum_k c[k] z**k, then (1-z)**p H(z) has integer-
++coefficient convolution (1,-1)**p * c. For |z|=1 its modulus is
++bounded by the exact L1 of that convolution. Since |1-e^(2*pi*i*x)|
++=2*sin(pi*x), 0 < x <= 1/2, an outward upper majorant for the WHOLE
++interval [a,b] is sum(abs(diff_p(c))) / (2*sin(pi*a))**p.
++No source tap is truncated or rounded; every input float is decoded as its
++exact binary64 rational. This is a valid upper, NOT a lower bound.
++"""
++from __future__ import annotations
++
++from fractions import Fraction
++from functools import lru_cache
++import math
++from mpmath import iv
++from p15_src_continuum_bounds import TrigPoly,scalar,BadWitness
++
++iv.dps=75
++
++@lru_cache(maxsize=128)
++def difference_moments(poly:TrigPoly):
++    if not poly.taps or len(poly.taps)>100000:
++        return None
++    pairs=sorted(poly.taps)
++    if (any(type(k) is not int or not math.isfinite(value) for k,value in pairs)
++            or any(pairs[i-1][0]==pairs[i][0] for i in range(1,len(pairs)))):
++        raise BadWitness('invalid tap identity for finite-difference majorant')
++    span=pairs[-1][0]-pairs[0][0]+1
++    if span>131072 or span<len(pairs):
++        return None  # Numerically expensive sparse witnesses use prior prover.
++    rational=[(value.as_integer_ratio(),k) for k,value in pairs]
++    denominator=max(d for (n,d),k in rational)
++    arr=[0]*span
++    for (n,d),k in rational:
++        arr[k-pairs[0][0]]=n*(denominator//d)
++    moments=[]
++    # The zero-padded coefficient extension is REQUIRED at both endpoints.
++    for power in range(1,7):
++        arr=[arr[0]]+[arr[i]-arr[i-1] for i in range(1,len(arr))]+[-arr[-1]]
++        if power in (2,4,6):
++            moments.append((power,Fraction(sum(abs(v) for v in arr),denominator)))
++    return tuple(moments)
++
++
++def difference_upper(poly:TrigPoly,lo:Fraction,hi:Fraction):
++    """Outward upper bound for |H(x)| on [lo,hi], or None if unusable.
++
++    The 75-digit directed sine interval is evaluated at the left endpoint;
++    sin(pi*x) increases on [0,1/2]. A returned upper needs no sampling,
++    spectral phase assumption, or frequency cut-off.
++    """
++    if not Fraction(0)<=lo<=hi<=Fraction(1,2):
++        raise BadWitness('invalid normalized frequency for difference bound')
++    if lo==0:
++        return None
++    moments=difference_moments(poly)
++    if moments is None:
++        return None
++    denom=(2*iv.sin(iv.pi*scalar(lo))).a
++    if not bool(denom>0):
++        return None
++    best=None
++    for power,moment in moments:
++        upper=(scalar(moment)/(denom**power)).b
++        if best is None or bool(upper<best):
++            best=upper
++    return best
+--- /dev/null
++++ b/tests/dsd/test_p15_prover_third_pass.py
+@@ -0,0 +1,69 @@
++"""Third-pass adaptive Taylor-order tests against independent complex intervals.
++
++No sampled point is used to certify a whole interval. Interval enclosures are
++proved by Taylor's theorem; independent evaluations are regression checks.
++"""
++from __future__ import annotations
++
++from fractions import Fraction
++import math
++import random
++import unittest
++
++from mpmath import iv
++from p15_src_continuum_bounds import TrigPoly, magnitude_bounds as independent_complex
++from p15_src_capture_matrix import DEFAULT, verify_pair
++from p15_src_stagewise_alias_proof import make_src_stages
++
++
++class SourceFiniteDifferenceEnclosures(unittest.TestCase):
++    def test_differences_match_exact_integer_polynomial_identity(self):
++        from p15_src_difference_upper import difference_moments
++        # Missing interior taps must be ZERO-padded, not compressed into
++        # adjacent powers. Signed coefficients and negative exponents matter.
++        poly=TrigPoly(((-8,2**-10),(-5,-0.125),(0,0.5),(4,-2**-17)),Fraction(0))
++        from math import comb
++        coeff={k:Fraction.from_float(v) for k,v in poly.taps}
++        for power,computed in difference_moments(poly):
++            expected={}
++            for k,c in coeff.items():
++                for j in range(power+1):
++                    idx=k+j
++                    expected[idx]=expected.get(idx,Fraction(0))+(-1)**j*comb(power,j)*c
++            self.assertEqual(computed,sum(map(abs,expected.values()),Fraction(0)))
++
++    def test_difference_encloses_independent_high_precision_point_spectrum(self):
++        from p15_src_difference_upper import difference_upper
++        rng=random.Random(0xA515)
++        examples=[
++            TrigPoly(((-7,0.125),(-1,-0.5),(0,0.125),(5,0.25)),Fraction(13,5)),
++            TrigPoly(tuple(sorted({k:rng.randint(-100,100)*2**-20
++                                  for k in range(-80,81)}.items())),Fraction(0)),
++        ]
++        for poly in examples:
++            for lo,hi in ((Fraction(1,1000),Fraction(1,500)),
++                          (Fraction(2,5),Fraction(41,100)),
++                          (Fraction(1,2)-Fraction(1,1000),Fraction(1,2))):
++                candidate=difference_upper(poly,lo,hi)
++                self.assertIsNotNone(candidate)
++                for f in (lo,(lo+hi)/2,hi):
++                    _a,b,_=independent_complex(poly,f,f)
++                    self.assertTrue(bool(candidate.b>=b.b),(lo,hi,f))
++            self.assertIsNone(difference_upper(poly,Fraction(0),Fraction(1,100)))
++
++    def test_real_source_4160_tap_alias_route_and_fallback(self):
++        from p15_src_stagewise_continuum import cheap_alias_upper,bounds_single
++        _,op=verify_pair(DEFAULT/'88200-192000',88200,192000)
++        stage=next(s for s in make_src_stages(op) if len(s.taps)==4160)
++        rate=stage.input_hz*stage.L
++        # Shift into a high-frequency SRC image; 0..1Hz output interval.
++        high=cheap_alias_upper(stage,Fraction(rate*2,5),Fraction(0),Fraction(1))
++        self.assertIsNotNone(high)
++        # The global difference upper need not be as tight as Taylor.
++        strict=bounds_single(stage,Fraction(rate*2,5),Fraction(0),Fraction(1))[1]
++        self.assertTrue(bool(high>=strict))
++        self.assertTrue(bool(high<iv.mpf('1e-10')))
++        # A near-passband alias must NOT use the cheap upper alone.
++        self.assertIsNone(cheap_alias_upper(stage,Fraction(0),Fraction(0),Fraction(1)))
++
++if __name__=='__main__':unittest.main()
+--- /dev/null
++++ b/tests/dsd/p15_third_pass_benchmark.py
+@@ -0,0 +1,96 @@
++#!/usr/bin/env python3
++"""Replay exact P15 continuum intervals against immutable second-pass baseline.
++
++Each variant is a separate fresh process with an identical timer and recording
++contract. Outputs are independent immutable JSON documents keyed by inputs.
++Do NOT read new results as full-band certification.
++"""
++from __future__ import annotations
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import platform
++import resource
++import signal
++import sys
++import time
++
++BASE=Path(__file__).resolve().parent
++RESULTS=BASE/'results/P15_prover_third_pass_2026-10-18'
++
++
++def main():
++    p=argparse.ArgumentParser()
++    p.add_argument('--variant',choices=('second_pass','third_pass'),required=True)
++    p.add_argument('--profile',required=True)
++    p.add_argument('--input-hz',type=int,required=True)
++    p.add_argument('--output-hz',type=int,required=True)
++    p.add_argument('--lo',required=True)
++    p.add_argument('--hi',required=True)
++    p.add_argument('--mode',choices=('pass','stop'),default='pass')
++    p.add_argument('--seconds',type=float,default=60)
++    p.add_argument('--max-nodes',type=int,default=128)
++    p.add_argument('--max-paths',type=int,default=20000)
++    p.add_argument('--directory',type=Path,default=RESULTS/'benchmarks')
++    a=p.parse_args()
++    if not (0<a.seconds<=3600 and a.max_nodes>=1 and 1<=a.max_paths<=100000):
++        raise ValueError('invalid resource budget')
++    if a.variant=='second_pass':sys.path.insert(0,str(RESULTS/'second_pass_code'))
++    else:sys.path.insert(0,str(BASE))
++    if str(BASE) not in sys.path:sys.path.insert(1,str(BASE))
++    import p15_src_stagewise_continuum as stagewise
++    if a.variant=='second_pass' and Path(stagewise.__file__).resolve().parent!=(RESULTS/'second_pass_code').resolve():
++        raise RuntimeError('second-pass baseline module not independently isolated')
++    if a.variant=='third_pass' and Path(stagewise.__file__).resolve().parent!=BASE.resolve():
++        raise RuntimeError('third-pass module not loaded from submitted tree')
++    from p15_src_capture_matrix import verify_pair, DEFAULT
++    from p15_src_bound_operator import source_identity
++    code_sha=hashlib.sha256(Path(stagewise.__file__).read_bytes()).hexdigest()
++    import p15_src_interval_recurrence
++    fir_sha=hashlib.sha256(Path(p15_src_interval_recurrence.__file__).read_bytes()).hexdigest()
++    inputs=dict(profile=a.profile,input_hz=a.input_hz,output_hz=a.output_hz,
++        lo=a.lo,hi=a.hi,mode=a.mode,seconds=a.seconds,max_nodes=a.max_nodes,
++        max_paths=a.max_paths,variant=a.variant,code_sha256=code_sha,fir_sha256=fir_sha)
++    key=hashlib.sha256(json.dumps(inputs,sort_keys=True).encode()).hexdigest()
++    a.directory.mkdir(parents=True,exist_ok=True)
++    target=a.directory/(key+'.json')
++    if target.exists():
++        found=json.loads(target.read_text())
++        if found['inputs']!=inputs:raise RuntimeError('benchmark receipt identity conflict')
++        print('SKIP',target,found['result']['status'],found['elapsed_s'],flush=True)
++        return
++    _,op=verify_pair(DEFAULT/f'{a.input_hz}-{a.output_hz}',a.input_hz,a.output_hz)
++    previous=signal.getsignal(signal.SIGALRM)
++    def expiration(_s,_f):raise TimeoutError('benchmark interval budget exhausted')
++    started=time.perf_counter()
++    signal.signal(signal.SIGALRM,expiration)
++    try:
++        signal.setitimer(signal.ITIMER_REAL,a.seconds,0.05)
++        try:
++            result=stagewise.certificate(a.profile,op,a.lo,a.hi,mode=a.mode,
++                             max_nodes=a.max_nodes,max_paths=a.max_paths)
++        except TimeoutError:
++            result=dict(status='OPEN',reason='benchmark_interval_seconds_exhausted',qualified_release=False)
++    finally:
++        signal.setitimer(signal.ITIMER_REAL,0)
++        signal.signal(signal.SIGALRM,previous)
++    elapsed=time.perf_counter()-started
++    doc=dict(schema='P15/third-pass-benchmark/1',inputs=inputs,
++        source_sha256=source_identity(),result=result,elapsed_s=elapsed,
++        peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
++        machine=dict(python=sys.version.split()[0],platform=platform.platform()),
++        scope='Ideal source-bound FIR continuum LOCAL proof only; not a release certificate')
++    content=(json.dumps(doc,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
++    staging=a.directory/('.'+key+'.'+str(os.getpid()))
++    with staging.open('xb') as f:
++        f.write(content);f.flush();os.fsync(f.fileno())
++    try:os.link(staging,target)
++    except FileExistsError:
++        if target.read_bytes()!=content:raise RuntimeError('immutable benchmark conflict')
++    finally:staging.unlink()
++    print(a.variant,a.profile,a.input_hz,a.output_hz,a.lo,a.hi,
++          result['status'],result.get('reason',''),round(elapsed,3),'s',target,flush=True)
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/tests/dsd/p15_third_pass_fir_benchmark.py
+@@ -0,0 +1,39 @@
++#!/usr/bin/env python3
++"""Reproducible warm arithmetic comparison, not a DSP or release benchmark."""
++from __future__ import annotations
++import hashlib,json,statistics,time,resource
++from fractions import Fraction
++from pathlib import Path
++from p15_src_capture_matrix import verify_pair,DEFAULT
++from p15_src_stagewise_alias_proof import make_src_stages
++from p15_src_stagewise_continuum import cheap_alias_upper,bounds_single
++
++_,operator=verify_pair(DEFAULT/'88200-192000',88200,192000)
++stage=next(s for s in make_src_stages(operator) if len(s.taps)==4160)
++shift=Fraction(stage.input_hz*stage.L)*Fraction(2,5)
++lo,hi=Fraction(0),Fraction(1)
++functions={'full_source_taylor':lambda:bounds_single(stage,shift,lo,hi)[1],
++           'finite_difference_majorant':lambda:cheap_alias_upper(stage,shift,lo,hi)}
++results={}
++for name,fn in functions.items():
++    fn()
++    durations=[]
++    for _ in range(9):
++        begin=time.perf_counter();result=fn();durations.append(time.perf_counter()-begin)
++    results[name]=dict(median_s=statistics.median(durations),
++                       min_s=min(durations),max_s=max(durations),
++                       rigorous_upper_before_stage_normalization=str(result.b*stage.L))
++assert results['finite_difference_majorant']['rigorous_upper_before_stage_normalization']!='None'
++result=dict(schema='P15/third-pass-warm-rigorous-fir-costs/1',
++            stage_taps=len(stage.taps),src_L=stage.L,src_M=stage.M,
++            normalized_image_frequency='2/5',output_interval_hz=['0','1'],
++            runs=9,source_binding_sha256=hashlib.sha256((DEFAULT/'88200-192000/stage-snapshot.json').read_bytes()).hexdigest(),
++            costs=results,stage_uppers_are_not_necessarily_equally_tight=True,
++            speedup_full_over_difference=(results['full_source_taylor']['median_s']/
++                results['finite_difference_majorant']['median_s']),
++            peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
++out=Path(__file__).resolve().parent/'results/P15_prover_third_pass_2026-10-18/FIR_WARM_EXACT_DIFFERENCE.json'
++out.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
++print('warm rigorous FIR bound',round(result['speedup_full_over_difference'],1),
++      'x; source full',round(results['full_source_taylor']['median_s']*1000,3),
++      'ms, difference',round(results['finite_difference_majorant']['median_s']*1000,3),'ms')

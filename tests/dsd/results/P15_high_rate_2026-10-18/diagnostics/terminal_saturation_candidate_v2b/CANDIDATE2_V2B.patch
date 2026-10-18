@@ -1,0 +1,258 @@
+--- a/tests/dsd/p15_src_branch_bound.py
++++ b/tests/dsd/p15_src_branch_bound.py
+@@ -74,7 +74,7 @@
+ 
+ 
+ def bound_population(paths,lo,hi,*,include,limit,evaluate,stats=None,
+-                     use_subtree_caps=True):
++                     use_subtree_caps=True,use_terminal_saturation=True):
+     """Upper-bound the sum of |cascade path transfer| for selected paths.
+ 
+     Inclusion is exact from the fully enumerated path population.  A prefix
+@@ -84,7 +84,7 @@
+     if stats is None:
+         stats = {}
+     stats.update(trie_nodes=0,frontier_insertions=0,frontier_expansions=0,
+-                 subtree_caps_used=0)
++                 subtree_caps_used=0,terminal_saturation_returns=0)
+     chosen=[p for p in paths if include(p)]
+     if not chosen:
+         return iv.mpf(0),0
+@@ -114,6 +114,7 @@
+     heap=[]
+     evaluated=0
+     total=iv.mpf(0)
++    fixed_upper_sum=iv.mpf(0)
+     # upper values are endpoints, stored as exact interval points so the
+     # subsequent subtraction/addition contains the sum of the replacements.
+     def insert(node,depth,prefix,ready):
+@@ -152,4 +153,13 @@
+             # A fully evaluated leaf cannot be refined further and must
+             # remain in the total, with no speculative FAIL disposition.
+             total+=old
++            if use_terminal_saturation:
++                fixed_upper_sum+=old
++                # These are fixed UPPER endpoints, not actual amplitudes.
++                # No remaining frontier refinement can reduce their sum.
++                # Return the still-valid complete upper so the caller can
++                # subdivide, rather than evaluating every irrelevant leaf.
++                if bool(fixed_upper_sum.a>=ref.b):
++                    stats['terminal_saturation_returns']+=1
++                    return total.b,evaluated
+     return total.b,evaluated
+--- a/tests/dsd/p15_src_stagewise_continuum.py
++++ b/tests/dsd/p15_src_stagewise_continuum.py
+@@ -339,7 +339,7 @@
+     complete=examined=exact_splits=0
+     fir_evaluations=path_enumerations=difference_evaluations=0
+     populations=dict(trie_nodes=0,frontier_insertions=0,frontier_expansions=0,
+-                     subtree_caps_used=0)
++                     subtree_caps_used=0,terminal_saturation_returns=0)
+     max_population=subdivisions=0
+     max_alias=0.;min_wanted=1.;max_total=0.
+     def opened(reason):
+--- a/tests/dsd/p15_src_halfband_majorant.py
++++ b/tests/dsd/p15_src_halfband_majorant.py
+@@ -106,9 +106,11 @@
+ 
+ 
+ @lru_cache(maxsize=16)
+-def _cached_taps(taps, precision_decimal_digits):
++def _cached_taps(tap_words, precision_decimal_digits):
+     # Include precision in the cache identity.  A result at a different
+     # directed precision is still valid, but should not receive false metadata.
++    # Hexadecimal words distinguish signed zeros, unlike Python float equality.
++    taps = tuple((k, float.fromhex(word)) for k, word in tap_words)
+     return _certify_taps(taps)
+ 
+ 
+@@ -118,7 +120,13 @@
+             stage.input_hz <= 0 or
+             stage.output_hz != Fraction(stage.input_hz, 2)):
+         return None
+-    return _cached_taps(tuple(stage.taps), iv.dps)
++    taps = tuple(stage.taps)
++    # Validate BEFORE lookup: equal-valued non-float coefficients must not hit
++    # a valid float key and bypass the exact captured-binary64 precondition.
++    if not _valid_taps(taps):
++        return None
++    tap_words = tuple((k, value.hex()) for k, value in sorted(taps))
++    return _cached_taps(tap_words, iv.dps)
+ 
+ 
+ def halfband_alias_sum_upper(stage):
+--- /dev/null
++++ b/tests/dsd/test_p15_high_rate_terminal_saturation.py
+@@ -0,0 +1,120 @@
++#!/usr/bin/env python3
++"""Adversarial checks of abandoning an already saturated upper-bound sum.
++
++An early return is not a failure witness.  It must still enclose every path
++and allow the caller to certify smaller intervals with tighter stage bounds.
++"""
++from fractions import Fraction
++import unittest
++
++from mpmath import iv
++
++from p15_src_branch_bound import bound_population
++from p15_src_continuum_bounds import scalar
++from p15_src_stagewise_alias_proof import FIRStage
++from p15_src_stagewise_continuum import AliasPath
++
++
++def paths_for(stage, count):
++    # Integer-period shifts are intentional: the finite population contains
++    # distinct formal paths of the same periodic response.  Every multiplicity
++    # must remain counted, and no complete-physical-family claim is made.
++    return tuple(AliasPath(Fraction(k), ((stage, Fraction(k)),), False)
++                 for k in range(count))
++
++
++class TerminalUpperSaturationTests(unittest.TestCase):
++    def setUp(self):
++        iv.dps = 75
++
++    def test_early_return_retains_every_unevaluated_path_upper(self):
++        stage = FIRStage('synthetic', 1, Fraction(1), 1, 1, ((0, 1.0),))
++        paths = paths_for(stage, 64)
++        calls = []
++
++        def evaluate(term, lo, hi):
++            calls.append(term[1])
++            return iv.mpf(10 if term[1] == 0 else 1)
++
++        stats = {}
++        early, count = bound_population(paths, Fraction(0), Fraction(0),
++            include=lambda p: True, limit='2', evaluate=evaluate, stats=stats)
++        self.assertEqual(count, 1)
++        self.assertEqual(calls, [Fraction(0)])
++        # One evaluated upper of ten plus 63 unexpanded unit-gain leaves.
++        self.assertTrue(bool(early >= 73))
++        self.assertEqual(stats['terminal_saturation_returns'], 1)
++        calls.clear()
++        complete, complete_count = bound_population(paths, Fraction(0), Fraction(0),
++            include=lambda p: True, limit='2', evaluate=evaluate,
++            use_terminal_saturation=False)
++        self.assertEqual(complete_count, 64)
++        self.assertEqual(set(calls), set(Fraction(k) for k in range(64)))
++        self.assertTrue(bool(complete <= early))
++        # The independent exact transfer sum is 64, including every path.
++        self.assertTrue(bool(complete >= 64))
++
++    def test_smaller_intervals_can_pass_after_a_valid_coarse_upper_returns(self):
++        # H(x) = (1-exp(2*pi*i*x))/2, so |H(x)| = |sin(pi*x)|.
++        stage = FIRStage('difference', 1, Fraction(1), 1, 1,
++                         ((0, 0.5), (1, -0.5)))
++        paths = paths_for(stage, 64)
++        lo, hi = Fraction(0), Fraction(1, 10000)
++
++        def evaluate(term, left, right):
++            if right-left > Fraction(1, 20000) and term[1] == 0:
++                return iv.mpf(10)  # Deliberately loose but valid coarse upper.
++            return iv.sin(iv.pi * scalar(right)).b
++
++        stats = {}
++        coarse, _ = bound_population(paths, lo, hi, include=lambda p: True,
++            limit='0.1', evaluate=evaluate, stats=stats)
++        self.assertTrue(bool(coarse > iv.mpf('0.1')))
++        self.assertEqual(stats['terminal_saturation_returns'], 1)
++        midpoint = (lo+hi)/2
++        for left, right in ((lo, midpoint), (midpoint, hi)):
++            child, _ = bound_population(paths, left, right,
++                include=lambda p: True, limit='0.1', evaluate=evaluate)
++            independent = 64 * iv.sin(iv.pi * scalar(right))
++            self.assertTrue(bool(child < iv.mpf('0.1')))
++            self.assertTrue(bool(child >= independent.a))
++
++    def test_exact_accumulation_below_and_at_threshold_with_large_cancellation(self):
++        # The large L1 initial total loses significant digits when old
++        # frontier entries are subtracted.  The independent fixed-upper sum
++        # must not confuse that enclosure width with terminal saturation.
++        stage = FIRStage('cancellation', 1, Fraction(1), 1, 1,
++                         ((0, 1e100), (1, -1e100)))
++        paths = paths_for(stage, 4)
++        delta = Fraction(1, 2**100)
++        for last, expected in ((Fraction(0), 0), (2*delta, 1)):
++            values = (Fraction(1, 2)-delta, Fraction(1, 2)-delta, last, Fraction(0))
++            stats = {}
++
++            def evaluate(term, lo, hi):
++                return scalar(values[int(term[1])]).b
++
++            upper, _ = bound_population(paths, Fraction(0), Fraction(0),
++                include=lambda p: True, limit='1', evaluate=evaluate, stats=stats)
++            self.assertEqual(stats['terminal_saturation_returns'], expected)
++            # The exact response is zero at every integer-period shift.
++            self.assertTrue(bool(upper >= 0))
++
++    def test_multiple_subthreshold_terminal_upper_endpoints_accumulate(self):
++        stage = FIRStage('constant', 1, Fraction(1), 1, 1, ((0, 0.5),))
++        paths = paths_for(stage, 32)
++        values = (Fraction(3, 4), Fraction(3, 4))
++        stats = {}
++
++        def evaluate(term, lo, hi):
++            return scalar(values[int(term[1])] if term[1] < 2 else Fraction(1, 2)).b
++
++        upper, calls = bound_population(paths, Fraction(0), Fraction(0),
++            include=lambda p: True, limit='1.25', evaluate=evaluate, stats=stats)
++        self.assertEqual(calls, 2)
++        self.assertEqual(stats['terminal_saturation_returns'], 1)
++        self.assertTrue(bool(upper >= 16))  # Exact complete magnitude sum.
++
++
++if __name__ == '__main__':
++    unittest.main()
+--- a/tests/dsd/test_p15_high_rate_independent.py
++++ b/tests/dsd/test_p15_high_rate_independent.py
+@@ -7,6 +7,8 @@
+ """
+ from dataclasses import replace
+ from fractions import Fraction
++from hashlib import sha256
++import json
+ import math
+ import unittest
+ 
+@@ -120,6 +122,40 @@
+         self.assertEqual(len(original['coefficient_sha256']), 64)
+         self.assertGreater(len(original['closed_cover']), 1)
+ 
++    def test_cache_preserves_exact_signed_zero_coefficient_identity(self):
++        plus = FIRStage('signed_zero', 16, Fraction(8), 1, 2,
++                        ((-2, 0.0), (-1, 0.125), (0, 0.5), (1, 0.125)))
++        minus = replace(plus, taps=((-2, -0.0), (-1, 0.125),
++                                    (0, 0.5), (1, 0.125)))
++        a, b = halfband_majorant(plus), halfband_majorant(minus)
++        self.assertIsNotNone(a)
++        self.assertIsNotNone(b)
++        self.assertIsNot(a, b)
++        self.assertNotEqual(a.coefficient_sha256, b.coefficient_sha256)
++        for stage, proof in ((plus, a), (minus, b)):
++            words = [[k, coefficient.hex()] for k, coefficient in
++                     sorted(stage.taps)]
++            expected = sha256(json.dumps(words, separators=(',', ':')).encode('ascii'))
++            self.assertEqual(proof.coefficient_sha256, expected.hexdigest())
++        self.assertTrue(bool(a.upper == b.upper))
++        # Canonical tap order has no mathematical effect and retains exact words.
++        self.assertIs(a, halfband_majorant(replace(plus, taps=plus.taps[::-1])))
++
++    def test_cached_float_proof_does_not_admit_equal_nonfloat_values(self):
++        valid = FIRStage('float_types', 16, Fraction(8), 1, 2,
++                         ((-2, 0.0), (-1, 0.125), (0, 0.5), (1, 0.125)))
++        self.assertIsNotNone(halfband_majorant(valid))
++        cases = (
++            replace(valid, taps=((-2, 0), (-1, 0.125), (0, 0.5), (1, 0.125))),
++            replace(valid, taps=((-2, 0.0), (-1, 0.125),
++                                 (0, Fraction(1, 2)), (1, 0.125))),
++            replace(valid, taps=((-2, 0.0), (-1, 0.125),
++                                 (0, 0.5), (Fraction(1), 0.125))),
++        )
++        for stage in cases:
++            self.assertEqual(stage.taps, valid.taps)
++            self.assertIsNone(halfband_majorant(stage))
++
+     def test_two_decimation_levels_include_every_alias(self):
+         """Four exact source branches, with no RMS or phase cancellation."""
+         taps = self.source.taps

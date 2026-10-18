@@ -1,0 +1,45 @@
+{
+  "schema": "P15/normative-limit-direction-audit/1",
+  "module_sha256": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+  "unchanged_from_third_pass": true,
+  "iv_dps": 75,
+  "mpmath_version": "1.3.0",
+  "normative_db": "0.0001",
+  "stored_lower_text": "0.9999884871408083",
+  "stored_upper_text": "1.000011512991739",
+  "true_lower_interval_raw": [
+    [
+      0,
+      7236922258706082300634369132672626969061436924110587557250713837258364181809,
+      -252,
+      252
+    ],
+    [
+      0,
+      1809230564676520575158592283168156742265359231027646889312678459314591045453,
+      -250,
+      250
+    ]
+  ],
+  "true_upper_interval_raw": [
+    [
+      0,
+      1809272224229422195555522048023140530474261058923656301680158988017920226643,
+      -250,
+      251
+    ],
+    [
+      0,
+      3618544448458844391111044096046281060948522117847312603360317976035840453287,
+      -251,
+      252
+    ]
+  ],
+  "stored_lower_strictly_below_true_lower": true,
+  "stored_upper_strictly_above_true_upper": true,
+  "lower_widening_interval": "[0.00000000000000020181846788127272455158309917012010320554498356105168896062403218783539179817516, 0.00000000000000020181846788127272455158309917012010320554498356105168896062458490262291784263119]",
+  "upper_widening_interval": "[0.000000000000000049055043862072536089544004113371405346618819803659717832716801027877239989450852, 0.000000000000000049055043862072536089544004113371405346618819803659717832717353742664766033906877]",
+  "finding": "db_band applies outward diagnostic conversion to policy limits, admitting a tiny wider range; its comment claiming a harder pass direction is incorrect. Existing completed passes with independently reported outer amplitude bounds strictly inside the exact normative interval remain mathematically sufficient.",
+  "remedy": "Round policy lower inward/up and upper inward/down, or preserve directed multiprecision inner endpoints; validate retained receipt outer summaries against exact normative bounds.",
+  "proof_code_modified_by_audit": false
+}

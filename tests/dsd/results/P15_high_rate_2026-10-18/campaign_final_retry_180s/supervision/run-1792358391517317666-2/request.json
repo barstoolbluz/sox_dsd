@@ -1,0 +1,45 @@
+{
+  "command": [
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/run_experiments.py",
+    "--plan",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/FINAL_RETRY_180S_SLICE_05_PLAN.json",
+    "--source-root",
+    "/workspace/scratch/47ef0cb747fa/candidate3/sox_ng",
+    "--output",
+    "tests/dsd/results/P15_high_rate_2026-10-18/campaign_final_retry_180s",
+    "--workers",
+    "8",
+    "--cpu-start",
+    "0",
+    "--seconds",
+    "180",
+    "--external-seconds",
+    "205"
+  ],
+  "jobs": [
+    6743,
+    5195,
+    10363,
+    6744,
+    6746,
+    6749,
+    6750,
+    6752,
+    6755
+  ],
+  "inherited_pythonpath": "/workspace/scratch/47ef0cb747fa/deps",
+  "cpu_set": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "per_job_signal_seconds": 180.0,
+  "per_process_kill_seconds": 205.0,
+  "baseline": null,
+  "source": "/workspace/scratch/47ef0cb747fa/candidate3/sox_ng"
+}

@@ -1,0 +1,39 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-m",
+    "unittest",
+    "test_p15_high_rate_census",
+    "-v"
+  ],
+  "cwd": "/workspace/scratch/47ef0cb747fa/work/sox_ng",
+  "exit_code": 0,
+  "sha256": {
+    "tests/dsd/p15_high_rate_census.py": "502cc9f0a9bec9ce682509359d159db5bc213d5e93f2bb189e57e19a3332228d",
+    "tests/dsd/test_p15_high_rate_census.py": "3ea352205e21f26c02417c2f73bbb5d2b8e5a071d80fb51a683a82a5a0ea0380"
+  }
+}
+test_baseline_and_candidate_can_bind_different_prover_hashes (test_p15_high_rate_census.EvidenceAccounting.test_baseline_and_candidate_can_bind_different_prover_hashes) ... ok
+test_current_pass_does_not_relabel_original_open (test_p15_high_rate_census.EvidenceAccounting.test_current_pass_does_not_relabel_original_open) ... ok
+test_experiment_identity_mirrors_every_required_binding (test_p15_high_rate_census.EvidenceAccounting.test_experiment_identity_mirrors_every_required_binding) ... ok
+test_experiment_operator_hashes_match_verified_pair (test_p15_high_rate_census.EvidenceAccounting.test_experiment_operator_hashes_match_verified_pair) ... ok
+test_historical_optional_operator_hashes_are_checked (test_p15_high_rate_census.EvidenceAccounting.test_historical_optional_operator_hashes_are_checked) ... ok
+test_historical_timeout_is_never_inferred_failure (test_p15_high_rate_census.EvidenceAccounting.test_historical_timeout_is_never_inferred_failure) ... ok
+test_idempotent_publication_and_conflict (test_p15_high_rate_census.EvidenceAccounting.test_idempotent_publication_and_conflict) ... ok
+test_inner_certificate_bindings_cannot_conflict (test_p15_high_rate_census.EvidenceAccounting.test_inner_certificate_bindings_cannot_conflict) ... ok
+test_linked_output_refused (test_p15_high_rate_census.EvidenceAccounting.test_linked_output_refused) ... ok
+test_optional_duplicate_and_profiling_fields_cannot_conflict (test_p15_high_rate_census.EvidenceAccounting.test_optional_duplicate_and_profiling_fields_cannot_conflict) ... ok
+test_overlay_cannot_change_band_or_source_identity (test_p15_high_rate_census.EvidenceAccounting.test_overlay_cannot_change_band_or_source_identity) ... ok
+test_bad_period_is_rejected (test_p15_high_rate_census.LatticeArithmetic.test_bad_period_is_rejected) ... ok
+test_exact_rational_endpoints_and_one_sided_interiors (test_p15_high_rate_census.LatticeArithmetic.test_exact_rational_endpoints_and_one_sided_interiors) ... ok
+test_native_stop_membership_is_distinct_from_routing (test_p15_high_rate_census.LatticeArithmetic.test_native_stop_membership_is_distinct_from_routing) ... ok
+test_zero_width_has_no_interior_event (test_p15_high_rate_census.LatticeArithmetic.test_zero_width_has_no_interior_event) ... ok
+test_dsd256_mastering_384k_full_population (test_p15_high_rate_census.LiteralPathReference.test_dsd256_mastering_384k_full_population) ... ok
+test_dsd256_wideband_192k_collision_multiplicity (test_p15_high_rate_census.LiteralPathReference.test_dsd256_wideband_192k_collision_multiplicity) ... ok
+test_dsd256_wideband_384k_large_passband (test_p15_high_rate_census.LiteralPathReference.test_dsd256_wideband_384k_large_passband) ... ok
+test_dsd64_384k_three_src_stages (test_p15_high_rate_census.LiteralPathReference.test_dsd64_384k_three_src_stages) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 10.162s
+
+OK

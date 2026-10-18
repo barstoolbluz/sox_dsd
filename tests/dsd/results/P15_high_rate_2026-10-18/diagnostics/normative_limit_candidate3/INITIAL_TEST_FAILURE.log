@@ -1,0 +1,30 @@
+test_exact_endpoint_serialization_preserves_signed_and_small_dyadics (test_p15_normative_limit_rounding.NormativeLimitRoundingTests.test_exact_endpoint_serialization_preserves_signed_and_small_dyadics) ... ok
+test_legal_values_inside_policy_uncertainty_are_open_not_false_fail (test_p15_normative_limit_rounding.NormativeLimitRoundingTests.test_legal_values_inside_policy_uncertainty_are_open_not_false_fail) ... ok
+test_limits_contain_independent_exact_rational_reference (test_p15_normative_limit_rounding.NormativeLimitRoundingTests.test_limits_contain_independent_exact_rational_reference) ... ok
+test_neighboring_legal_constant_firs_still_pass (test_p15_normative_limit_rounding.NormativeLimitRoundingTests.test_neighboring_legal_constant_firs_still_pass) ... ok
+test_old_false_acceptance_slivers_now_fail_for_exact_constant_firs (test_p15_normative_limit_rounding.NormativeLimitRoundingTests.test_old_false_acceptance_slivers_now_fail_for_exact_constant_firs) ... FAIL
+test_straddling_each_policy_interval_remains_open (test_p15_normative_limit_rounding.NormativeLimitRoundingTests.test_straddling_each_policy_interval_remains_open) ... ok
+test_between_sample_worst_case_is_detected (test_p15_src_continuum_bounds.ContinuumBounds.test_between_sample_worst_case_is_detected) ... ok
+test_budget_exhaustion_is_not_success (test_p15_src_continuum_bounds.ContinuumBounds.test_budget_exhaustion_is_not_success) ... ok
+test_coherent_sum_is_not_quadrature (test_p15_src_continuum_bounds.ContinuumBounds.test_coherent_sum_is_not_quadrature) ... ok
+test_constant_unity_full_band (test_p15_src_continuum_bounds.ContinuumBounds.test_constant_unity_full_band) ... ok
+test_invalid_witness_and_alias_contract_fail_closed (test_p15_src_continuum_bounds.ContinuumBounds.test_invalid_witness_and_alias_contract_fail_closed) ... ok
+test_known_unsafe_pass_gain_fails (test_p15_src_continuum_bounds.ContinuumBounds.test_known_unsafe_pass_gain_fails) ... ok
+test_stopband_has_proven_continuum_not_sampled_grid (test_p15_src_continuum_bounds.ContinuumBounds.test_stopband_has_proven_continuum_not_sampled_grid) ... ok
+test_triangle_bound_cannot_discard_coherent_duplicate_paths (test_p15_prover_second_pass.CollidingNativeLattice.test_triangle_bound_cannot_discard_coherent_duplicate_paths) ... ok
+
+======================================================================
+FAIL: test_old_false_acceptance_slivers_now_fail_for_exact_constant_firs (test_p15_normative_limit_rounding.NormativeLimitRoundingTests.test_old_false_acceptance_slivers_now_fail_for_exact_constant_firs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/47ef0cb747fa/candidate3/sox_ng/tests/dsd/test_p15_normative_limit_rounding.py", line 103, in test_old_false_acceptance_slivers_now_fail_for_exact_constant_firs
+    self.assertEqual(old['status'], 'PASS')
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.067s
+
+FAILED (failures=1)

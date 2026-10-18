@@ -1,0 +1,18 @@
+{
+  "aggregation_outputs_created": false,
+  "command": [
+    "python3",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/aggregate_final.py",
+    "--config",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/FINAL_AGGREGATION_CONFIG_02.json",
+    "--readjudication",
+    "tests/dsd/results/P15_high_rate_2026-10-18/complete_cell/normative_readjudication_02/verification.json",
+    "--check-only"
+  ],
+  "elapsed_s": 0.5306973590004418,
+  "input_manifest_sha256": "9042d863a7a4a1ba60622fac0433a65c9895763d94d3053a1cbf0c374d0e6a3d",
+  "numerical_proofs_run": false,
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"/workspace/scratch/47ef0cb747fa/work/sox_ng/tests/dsd/results/P15_high_rate_2026-10-18/execution/aggregate_final.py\", line 127, in <module>\n    raise SystemExit(main())\n                     ^^^^^^\n  File \"/workspace/scratch/47ef0cb747fa/work/sox_ng/tests/dsd/results/P15_high_rate_2026-10-18/execution/aggregate_final.py\", line 104, in main\n    readjudication = args.readjudication.resolve(strict=True)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1240, in resolve\n    s = self._flavour.realpath(self, strict=strict)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen posixpath>\", line 424, in realpath\n  File \"<frozen posixpath>\", line 468, in _joinrealpath\nFileNotFoundError: [Errno 2] No such file or directory: 'tests/dsd/results/P15_high_rate_2026-10-18/complete_cell/normative_readjudication_02'\n",
+  "stdout": ""
+}

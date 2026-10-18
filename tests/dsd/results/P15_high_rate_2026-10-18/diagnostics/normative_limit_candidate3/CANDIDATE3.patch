@@ -1,0 +1,229 @@
+--- a/tests/dsd/p15_src_continuum_bounds.py
++++ b/tests/dsd/p15_src_continuum_bounds.py
+@@ -214,12 +214,35 @@
+                 witness_scope='finite response witness ONLY; source binding separately mandatory')
+ 
+ 
++def _exact_interval_string(value):
++    """Serialize finite dyadic endpoints exactly, preserving the full interval.
++
++    mpmath's display strings and binary64 diagnostics are not policy bounds.
++    A dyadic m*2**(-k) has the exact decimal form (m*5**k)/10**k.
++    """
++    def endpoint(raw):
++        sign, mantissa, exponent, bits = raw
++        if bits < 0:
++            raise BadWitness('nonfinite acceptance endpoint')
++        if exponent >= 0:
++            digits = str(mantissa << exponent)
++        else:
++            places = -exponent
++            digits = str(mantissa * 5**places).zfill(places + 1)
++            digits = digits[:-places] + '.' + digits[-places:]
++        return ('-' if sign else '') + digits
++    return '[' + endpoint(value._mpi_[0]) + ', ' + endpoint(value._mpi_[1]) + ']'
++
++
+ def db_band(ripple_db: str = '0.0001'):
+-    """Exact interval-derived linear magnitude limits; no weakened tolerance."""
++    """Enclose the exact linear policy limits without changing their direction.
++
++    Keep both endpoints: PASS compares against the inward endpoints, while a
++    generic center-witness FAIL must lie outside the outward endpoints.
++    """
+     db=iv.mpf(ripple_db)
+     gain=iv.exp(iv.ln(iv.mpf(10)) * db / 20)
+-    # Re-round outward for conservative policy: pass becomes slightly harder.
+-    return (str(lower(1/gain)), str(upper(gain)))
++    return _exact_interval_string(1/gain), _exact_interval_string(gain)
+ 
+ 
+ if __name__ == '__main__':
+--- /dev/null
++++ b/tests/dsd/test_p15_normative_limit_rounding.py
+@@ -0,0 +1,163 @@
++#!/usr/bin/env python3
++"""Independent exact-rational checks of P15 acceptance-limit representation.
++
++Reference log/exp bounds below use rational series and geometric remainders,
++without mpmath transcendental functions. Actual binary64 FIRs expose
++the former false-PASS slivers. Injected interval enclosures separately test the
++generic comparison contract inside its much smaller uncertainty guard.
++"""
++from fractions import Fraction
++from functools import lru_cache
++import math
++import unittest
++from unittest.mock import patch
++
++from mpmath import iv
++
++from p15_src_continuum_bounds import (
++    BadWitness, TrigPoly, _exact_interval_string, certify, db_band, scalar)
++
++
++def rational_log_bounds(value, terms=90):
++    """2*atanh(t), t=(x-1)/(x+1), with a geometric absolute tail."""
++    value = Fraction(value)
++    if value < 1:
++        lo, hi = rational_log_bounds(1/value, terms)
++        return -hi, -lo
++    t = (value-1)/(value+1)
++    total = sum((2*t**(2*k+1)/(2*k+1) for k in range(terms)), Fraction(0))
++    remainder = 2*t**(2*terms+1)/((2*terms+1)*(1-t*t))
++    return total, total+remainder
++
++
++def rational_exp_bounds(value, terms=32):
++    """Positive Taylor sum; all remaining term ratios are <= x/(N+2)."""
++    value = Fraction(value)
++    assert 0 <= value < 1
++    term = total = Fraction(1)
++    for k in range(1, terms+1):
++        term *= value/k
++        total += term
++    next_term = term*value/(terms+1)
++    return total, total+next_term/(1-value/(terms+2))
++
++
++@lru_cache(maxsize=1)
++def independent_policy_bounds():
++    # ln(10) = 3*ln(2) + ln(5/4); both series have small positive t.
++    a, b = rational_log_bounds(2), rational_log_bounds(Fraction(5, 4))
++    ln_lo, ln_hi = 3*a[0]+b[0], 3*a[1]+b[1]
++    gain_lo = rational_exp_bounds(ln_lo/200000)[0]
++    gain_hi = rational_exp_bounds(ln_hi/200000)[1]
++    return (1/gain_hi, 1/gain_lo), (gain_lo, gain_hi)
++
++
++def endpoint_fraction(raw):
++    sign, mantissa, exponent, _bits = raw
++    return (-1 if sign else 1)*Fraction(mantissa)*Fraction(2)**exponent
++
++
++def interval_fractions(value):
++    return tuple(endpoint_fraction(raw) for raw in value._mpi_)
++
++
++class NormativeLimitRoundingTests(unittest.TestCase):
++    def setUp(self):
++        self.old_dps = iv.dps
++        iv.dps = 75
++
++    def tearDown(self):
++        iv.dps = self.old_dps
++
++    def test_limits_contain_independent_exact_rational_reference(self):
++        references = independent_policy_bounds()
++        for text, (exact_lo, exact_hi) in zip(db_band(), references):
++            self.assertIsInstance(text, str)
++            lo, hi = interval_fractions(iv.mpf(text))
++            self.assertLessEqual(lo, exact_lo)
++            self.assertGreaterEqual(hi, exact_hi)
++            self.assertLess(hi-lo, Fraction(1, 10**73))
++
++    def test_exact_endpoint_serialization_preserves_signed_and_small_dyadics(self):
++        for value in (iv.mpf(0), iv.mpf([-3, 5]),
++                      scalar(Fraction(-17, 2**301)),
++                      scalar(Fraction(123456789, 2**299))):
++            restored = iv.mpf(_exact_interval_string(value))
++            self.assertEqual(restored._mpi_, value._mpi_)
++        with self.assertRaises(BadWitness):
++            _exact_interval_string(iv.mpf([0, 'inf']))
++
++    def test_old_false_acceptance_slivers_now_fail_for_exact_binary64_firs(self):
++        reference_min, reference_max = independent_policy_bounds()
++        lower_bad = 0.9999884871408084
++        self.assertLess(Fraction.from_float(lower_bad), reference_min[0])
++        old_min, old_max = '0.9999884871408083', '1.000011512991739'
++        # The upper sliver is narrower than one binary64 ULP. Two exact
++        # binary64 coefficients represent an amplitude inside it at DC;
++        # a small closed frequency interval retains decisive bound margins.
++        target = (reference_max[1]+Fraction(old_max))/2
++        base = math.nextafter(float(reference_max[0]), -math.inf)
++        residual = float(target-Fraction.from_float(base))
++        upper_at_dc = Fraction.from_float(base)+Fraction.from_float(residual)
++        self.assertGreater(upper_at_dc, reference_max[1])
++        self.assertLess(upper_at_dc, Fraction(old_max))
++        cases = (TrigPoly(((0, lower_bad),), Fraction(0)),
++                 TrigPoly(((0, base), (1, residual)), Fraction(0)))
++        new_min, new_max = db_band()
++        for poly in cases:
++            old = certify((poly,), 0, Fraction(1, 10**12),
++                          amplitude_min=old_min, amplitude_max=old_max)
++            new = certify((poly,), 0, Fraction(1, 10**12),
++                          amplitude_min=new_min, amplitude_max=new_max)
++            self.assertEqual(old['status'], 'PASS')
++            self.assertEqual(new['status'], 'FAIL')
++
++    def test_neighboring_legal_constant_firs_still_pass(self):
++        reference_min, reference_max = independent_policy_bounds()
++        lower_good = math.nextafter(math.nextafter(0.9999884871408084, math.inf), math.inf)
++        upper_good = math.nextafter(1.000011512991739, -math.inf)
++        minimum, maximum = db_band()
++        for coefficient in (lower_good, upper_good):
++            exact = Fraction.from_float(coefficient)
++            self.assertGreater(exact, reference_min[1])
++            self.assertLess(exact, reference_max[0])
++            poly = TrigPoly(((0, coefficient),), Fraction(0))
++            result = certify((poly,), 0, Fraction(1, 2),
++                             amplitude_min=minimum, amplitude_max=maximum)
++            self.assertEqual(result['status'], 'PASS')
++
++    def test_legal_values_inside_policy_uncertainty_are_open_not_false_fail(self):
++        minimum, maximum = db_band()
++        ref_min, ref_max = independent_policy_bounds()
++        min_inner = interval_fractions(iv.mpf(minimum))[1]
++        max_inner = interval_fractions(iv.mpf(maximum))[0]
++        # Rigorous rational amplitudes between a policy's inward endpoint and
++        # the true legal region. Higher precision distinguishes the tiny gap.
++        cases = ((minimum, 'amplitude_min', (min_inner+ref_min[1])/2),
++                 (maximum, 'amplitude_max', (max_inner+ref_max[0])/2))
++        iv.dps = 110
++        dummy = TrigPoly(((0, 1.0),), Fraction(0))
++        for limit, keyword, amplitude in cases:
++            self.assertGreater(amplitude, ref_min[1])
++            self.assertLess(amplitude, ref_max[0])
++            enclosure = scalar(amplitude)
++            # This injection isolates comparison logic; it is not a source
++            # FIR certificate or a substitute for the constant-FIR tests.
++            with patch('p15_src_continuum_bounds.magnitude_bounds',
++                       return_value=(enclosure.a, enclosure.b, enclosure)):
++                result = certify((dummy,), 0, 0, **{keyword: limit})
++            self.assertEqual(result['status'], 'OPEN')
++            self.assertEqual(result['reason'], 'insufficient_interval_precision')
++
++    def test_straddling_each_policy_interval_remains_open(self):
++        dummy = TrigPoly(((0, 1.0),), Fraction(0))
++        for limit, keyword in zip(db_band(), ('amplitude_min', 'amplitude_max')):
++            enclosure = iv.mpf(limit)
++            with patch('p15_src_continuum_bounds.magnitude_bounds',
++                       return_value=(enclosure.a, enclosure.b, enclosure)):
++                result = certify((dummy,), 0, 0, **{keyword: limit})
++            self.assertEqual(result['status'], 'OPEN')
++
++
++if __name__ == '__main__':
++    unittest.main()
+--- a/tests/dsd/test_p15_prover_second_pass.py
++++ b/tests/dsd/test_p15_prover_second_pass.py
+@@ -91,9 +91,18 @@
+                AliasPath(Fraction(2),((a,Fraction(2)),),False)]
+         upper,n=bound_population(paths,Fraction(0),Fraction(1),include=lambda p:True,
+                                  limit='1e-12',evaluate=lambda term,l,h:
+-                                 bounds_single(term[0],term[1],l,h)[1])
++                                 bounds_single(term[0],term[1],l,h)[1],
++                                 use_terminal_saturation=False)
+         self.assertTrue(bool(upper.b>=iv.mpf(3).b))
+         self.assertGreaterEqual(n,2)
++        # The default may stop after one terminal upper reaches the limit;
++        # its complete bound must still include both duplicate contributions
++        # and the remaining unevaluated path. Count three, irrespective of
++        # how many individual FIR evaluations were needed to enclose them.
++        early,_=bound_population(paths,Fraction(0),Fraction(1),include=lambda p:True,
++                                 limit='1e-12',evaluate=lambda term,l,h:
++                                 bounds_single(term[0],term[1],l,h)[1])
++        self.assertTrue(bool(early.b>=iv.mpf(3).b))
+ 
+ 
+ class RepeatDeadline(unittest.TestCase):

@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/47ef0cb747fa/candidate3/sox_ng/tests/dsd/p15_high_rate_experiment.py",
+    "--source-root",
+    "/workspace/scratch/47ef0cb747fa/candidate3/sox_ng",
+    "--job-index",
+    "3090",
+    "--label",
+    "candidate",
+    "--output",
+    "/workspace/scratch/47ef0cb747fa/work/sox_ng/tests/dsd/results/P15_high_rate_2026-10-18/campaign_final_strict_60s",
+    "--seconds",
+    "60",
+    "--max-nodes",
+    "128",
+    "--max-paths",
+    "20000",
+    "--cpu",
+    "3"
+  ],
+  "exit_code": 0,
+  "external_deadline_killed": false,
+  "job_index": 3090,
+  "process_wall_s": 19.104353099000036,
+  "stderr": "",
+  "stdout": "{\"action\": \"PUBLISHED\", \"cell\": \"dsd128.mastering.pcm384000\", \"elapsed_s\": 17.180892009000672, \"interval\": [\"59000\", \"60000\"], \"job_index\": 3090, \"mode\": \"stop\", \"reason\": null, \"receipt\": \"/workspace/scratch/47ef0cb747fa/work/sox_ng/tests/dsd/results/P15_high_rate_2026-10-18/campaign_final_strict_60s/97f5803f4ee795f17d8bebe0160a5592e8f0f66bf591c63d81063112d5e7beef.json\", \"status\": \"PASS-LOCAL-STOP-SOURCE\"}\n",
+  "variant": "candidate"
+}

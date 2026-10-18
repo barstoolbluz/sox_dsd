@@ -1,0 +1,594 @@
+{
+  "candidate_labels": [
+    "candidate_final_campaign_60s",
+    "candidate_final_matched_60s",
+    "candidate_final_retry_180s",
+    "candidate_final_wide256_192000_6000_7000_180s",
+    "candidate_v1_campaign_60s",
+    "candidate_v1_diagnostic_180s",
+    "candidate_v1_matched_60s",
+    "candidate_v2b_diagnostic_60s",
+    "candidate_v2b_matched_60s"
+  ],
+  "candidate_pass_new_vs_original": 1082,
+  "candidate_unique_pass": 1148,
+  "canonical_intervals": 11516,
+  "census_summary_sha256": "8a4200d954a45a03f0731321aa24c7981c8669a95572545c281f647faa8662f1",
+  "classifications": {
+    "candidate_certifies_beyond_prior_receipts_included_here": 1063,
+    "candidate_certifies_original_open": 1082,
+    "current_run_unmeasured": 10368,
+    "observed_same_proof_60s_open_with_larger_budget_pass": 23,
+    "original_operator_precondition_now_certified": 203,
+    "third_pass_baseline_certified_in_observed_budget": 22
+  },
+  "complete_candidate_cells": [
+    "dsd256.mastering.pcm384000",
+    "dsd256.mastering_v2.pcm384000",
+    "dsd256.wideband.pcm192000",
+    "dsd256.wideband.pcm384000"
+  ],
+  "cumulative_explicit_evidence_pass": 7936,
+  "cumulative_remaining": 3580,
+  "current_pass_new_vs_included_prior": 1063,
+  "current_pass_new_vs_original": 1082,
+  "current_unique_pass": 1148,
+  "historical_accounting": "Prior means original 60s receipts + historical 600s sample + four third-pass final locals; no claim to inventory every historical proof in repository",
+  "label_statistics": {
+    "baseline_matched_final_60s": {
+      "passing_certificates_per_cpu_hour": 76.80308378955567,
+      "peak_rss_kib": 217372,
+      "receipts": 8,
+      "statuses": {
+        "OPEN": 3,
+        "PASS-LOCAL-BAND": 4,
+        "PASS-LOCAL-STOP-SOURCE": 1
+      },
+      "sum_certificate_cpu_s": 234.36558939900002,
+      "sum_certificate_wall_s": 244.88169743599974
+    },
+    "baseline_matched_v1_60s": {
+      "passing_certificates_per_cpu_hour": 169.9789609261378,
+      "peak_rss_kib": 217308,
+      "receipts": 24,
+      "statuses": {
+        "OPEN": 2,
+        "PASS-LOCAL-BAND": 11,
+        "PASS-LOCAL-STOP-SOURCE": 11
+      },
+      "sum_certificate_cpu_s": 465.940017332,
+      "sum_certificate_wall_s": 471.0595172210004
+    },
+    "baseline_matched_v2b_60s": {
+      "passing_certificates_per_cpu_hour": 136.73521871849047,
+      "peak_rss_kib": 217284,
+      "receipts": 26,
+      "statuses": {
+        "OPEN": 4,
+        "PASS-LOCAL-BAND": 11,
+        "PASS-LOCAL-STOP-SOURCE": 11
+      },
+      "sum_certificate_cpu_s": 579.221657319,
+      "sum_certificate_wall_s": 582.325281374
+    },
+    "candidate_final_campaign_60s": {
+      "passing_certificates_per_cpu_hour": 213.59143484990486,
+      "peak_rss_kib": 209544,
+      "receipts": 927,
+      "statuses": {
+        "OPEN": 22,
+        "PASS-LOCAL-BAND": 347,
+        "PASS-LOCAL-STOP-SOURCE": 558
+      },
+      "sum_certificate_cpu_s": 15253.420635942,
+      "sum_certificate_wall_s": 15555.036473178992
+    },
+    "candidate_final_matched_60s": {
+      "passing_certificates_per_cpu_hour": 167.5898811876728,
+      "peak_rss_kib": 209336,
+      "receipts": 8,
+      "statuses": {
+        "PASS-LOCAL-BAND": 7,
+        "PASS-LOCAL-STOP-SOURCE": 1
+      },
+      "sum_certificate_cpu_s": 171.84808411999998,
+      "sum_certificate_wall_s": 178.09714006700096
+    },
+    "candidate_final_retry_180s": {
+      "passing_certificates_per_cpu_hour": 57.51534927952644,
+      "peak_rss_kib": 142724,
+      "receipts": 21,
+      "statuses": {
+        "PASS-LOCAL-BAND": 21
+      },
+      "sum_certificate_cpu_s": 1314.431729043,
+      "sum_certificate_wall_s": 1340.3502009740018
+    },
+    "candidate_final_wide256_192000_6000_7000_180s": {
+      "passing_certificates_per_cpu_hour": 69.27704423799264,
+      "peak_rss_kib": 128508,
+      "receipts": 1,
+      "statuses": {
+        "PASS-LOCAL-BAND": 1
+      },
+      "sum_certificate_cpu_s": 51.965265545,
+      "sum_certificate_wall_s": 53.4638930619999
+    },
+    "candidate_v1_campaign_60s": {
+      "passing_certificates_per_cpu_hour": 218.19954713124338,
+      "peak_rss_kib": 218084,
+      "receipts": 383,
+      "statuses": {
+        "OPEN": 26,
+        "PASS-LOCAL-BAND": 85,
+        "PASS-LOCAL-STOP-SOURCE": 272
+      },
+      "sum_certificate_cpu_s": 5890.021390498,
+      "sum_certificate_wall_s": 5925.337715884
+    },
+    "candidate_v1_diagnostic_180s": {
+      "passing_certificates_per_cpu_hour": 30.595102808912046,
+      "peak_rss_kib": 219812,
+      "receipts": 1,
+      "statuses": {
+        "PASS-LOCAL-BAND": 1
+      },
+      "sum_certificate_cpu_s": 117.665889946,
+      "sum_certificate_wall_s": 119.95788914299987
+    },
+    "candidate_v1_matched_60s": {
+      "passing_certificates_per_cpu_hour": 211.7058836714526,
+      "peak_rss_kib": 217452,
+      "receipts": 24,
+      "statuses": {
+        "OPEN": 2,
+        "PASS-LOCAL-BAND": 11,
+        "PASS-LOCAL-STOP-SOURCE": 11
+      },
+      "sum_certificate_cpu_s": 374.103915425,
+      "sum_certificate_wall_s": 376.54162427999984
+    },
+    "candidate_v2b_diagnostic_60s": {
+      "passing_certificates_per_cpu_hour": 65.63850382272426,
+      "peak_rss_kib": 212640,
+      "receipts": 1,
+      "statuses": {
+        "PASS-LOCAL-BAND": 1
+      },
+      "sum_certificate_cpu_s": 54.845857086,
+      "sum_certificate_wall_s": 54.872388824999916
+    },
+    "candidate_v2b_matched_60s": {
+      "passing_certificates_per_cpu_hour": 244.81566953671913,
+      "peak_rss_kib": 209420,
+      "receipts": 26,
+      "statuses": {
+        "PASS-LOCAL-BAND": 15,
+        "PASS-LOCAL-STOP-SOURCE": 11
+      },
+      "sum_certificate_cpu_s": 382.328468505,
+      "sum_certificate_wall_s": 384.37579302300014
+    }
+  },
+  "original_pass": 6835,
+  "original_plus_current_pass": 7917,
+  "plans": {
+    "baseline_matched_final_60s": {
+      "expected": 8,
+      "missing_work_sha256": [],
+      "observed": 8,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_FINAL_STRICT_PLAN.json",
+      "plan_sha256": "63d5ff92d8cd7661b9aa77612be239537d76c153e43d8bb6b2d7063296cc2cf5",
+      "unexpected_work_sha256": []
+    },
+    "baseline_matched_v1_60s": {
+      "expected": 24,
+      "missing_work_sha256": [],
+      "observed": 24,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_PLAN.json",
+      "plan_sha256": "2a6833211160e6ea9c70ae5bf70f85128540232c2ee060f8194a6574f5d0f12d",
+      "unexpected_work_sha256": []
+    },
+    "baseline_matched_v2b_60s": {
+      "expected": 26,
+      "missing_work_sha256": [],
+      "observed": 26,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_FINAL_PLAN.json",
+      "plan_sha256": "1976b73efbd79a6c0b3ad0bf44c3ae0cee846b758d173d76d6c84d12d0a8c0f9",
+      "unexpected_work_sha256": []
+    },
+    "candidate_final_campaign_60s": {
+      "expected": 927,
+      "missing_work_sha256": [],
+      "observed": 927,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/CAMPAIGN_FINAL_STRICT_PLAN.json",
+      "plan_sha256": "6ac416e71b214b72bae8efc92da8155f3c3cadd251eed735087243b2e706770d",
+      "unexpected_work_sha256": []
+    },
+    "candidate_final_matched_60s": {
+      "expected": 8,
+      "missing_work_sha256": [],
+      "observed": 8,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_FINAL_STRICT_PLAN.json",
+      "plan_sha256": "63d5ff92d8cd7661b9aa77612be239537d76c153e43d8bb6b2d7063296cc2cf5",
+      "unexpected_work_sha256": []
+    },
+    "candidate_final_retry_180s": {
+      "expected": 21,
+      "missing_work_sha256": [],
+      "observed": 21,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/FINAL_RETRY_180S_PLAN.json",
+      "plan_sha256": "60159c56b9904ec16cf8b9ea258d8733e69300c5c4590f96912e86b793f922bb",
+      "unexpected_work_sha256": []
+    },
+    "candidate_final_wide256_192000_6000_7000_180s": {
+      "expected": 1,
+      "missing_work_sha256": [],
+      "observed": 1,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/WIDE256_192000_6000_7000_RETRY_PLAN.json",
+      "plan_sha256": "cc23e6bfaa2b151c9be8ca40a97aad79a632601b83a902c0ccd24cd150ae39e7",
+      "unexpected_work_sha256": []
+    },
+    "candidate_v1_campaign_60s": {
+      "expected": 383,
+      "missing_work_sha256": [],
+      "observed": 383,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/CAMPAIGN_PLAN.json",
+      "plan_sha256": "a253ed57294bb5a433298260acd3cfef18314831137dd99a8758f2066876d8d3",
+      "unexpected_work_sha256": []
+    },
+    "candidate_v1_diagnostic_180s": {
+      "expected": 1,
+      "missing_work_sha256": [],
+      "observed": 1,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/DIAGNOSTIC_MASTER64_EDGE_PLAN.json",
+      "plan_sha256": "3f206405d1ed4508bf56d7283f050349ed9f301b4b8cc5e060cc880ec1c2063c",
+      "unexpected_work_sha256": []
+    },
+    "candidate_v1_matched_60s": {
+      "expected": 24,
+      "missing_work_sha256": [],
+      "observed": 24,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_PLAN.json",
+      "plan_sha256": "2a6833211160e6ea9c70ae5bf70f85128540232c2ee060f8194a6574f5d0f12d",
+      "unexpected_work_sha256": []
+    },
+    "candidate_v2b_diagnostic_60s": {
+      "expected": 1,
+      "missing_work_sha256": [],
+      "observed": 1,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/DIAGNOSTIC_MASTER64_EDGE_PLAN.json",
+      "plan_sha256": "3f206405d1ed4508bf56d7283f050349ed9f301b4b8cc5e060cc880ec1c2063c",
+      "unexpected_work_sha256": []
+    },
+    "candidate_v2b_matched_60s": {
+      "expected": 26,
+      "missing_work_sha256": [],
+      "observed": 26,
+      "plan": "tests/dsd/results/P15_high_rate_2026-10-18/execution/MATCHED_FINAL_PLAN.json",
+      "plan_sha256": "1976b73efbd79a6c0b3ad0bf44c3ae0cee846b758d173d76d6c84d12d0a8c0f9",
+      "unexpected_work_sha256": []
+    }
+  },
+  "prior_pass_included_here": 6873,
+  "proof_snapshots": {
+    "baseline_matched_final_60s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_third_pass_code",
+      "identity_sha256": "f12be9b5c9a522aedd1df9958fb3dc6c5ada93198316690ec9f2cdf87aa91a2a",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "9553720939baeac7bcb86066b5d709798a4431ecb9da3f346546f9ffab13c4b1",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "e0c29462aaf62d7a5fd462b3c0e53e0aa7bfcc6975c67227e63c4bbc9e071cbc",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": null
+    },
+    "baseline_matched_v1_60s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_third_pass_code",
+      "identity_sha256": "f12be9b5c9a522aedd1df9958fb3dc6c5ada93198316690ec9f2cdf87aa91a2a",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "9553720939baeac7bcb86066b5d709798a4431ecb9da3f346546f9ffab13c4b1",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "e0c29462aaf62d7a5fd462b3c0e53e0aa7bfcc6975c67227e63c4bbc9e071cbc",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": null
+    },
+    "baseline_matched_v2b_60s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_third_pass_code",
+      "identity_sha256": "f12be9b5c9a522aedd1df9958fb3dc6c5ada93198316690ec9f2cdf87aa91a2a",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "9553720939baeac7bcb86066b5d709798a4431ecb9da3f346546f9ffab13c4b1",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "e0c29462aaf62d7a5fd462b3c0e53e0aa7bfcc6975c67227e63c4bbc9e071cbc",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": null
+    },
+    "candidate_final_campaign_60s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_final_code",
+      "identity_sha256": "3f650478695cd0370809d37652d7f58bf17508791d1362eed2a449a3ca98fe08",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "2656e0fafac58a6d4cffd19002f6ff22d5a851f4e730afd9ab6e70c684f7f1b5",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": "candidate3: halfband subtree bounds, terminal saturation, exact-word cache, full directed normative thresholds"
+    },
+    "candidate_final_matched_60s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_final_code",
+      "identity_sha256": "3f650478695cd0370809d37652d7f58bf17508791d1362eed2a449a3ca98fe08",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "2656e0fafac58a6d4cffd19002f6ff22d5a851f4e730afd9ab6e70c684f7f1b5",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": "candidate3: halfband subtree bounds, terminal saturation, exact-word cache, full directed normative thresholds"
+    },
+    "candidate_final_retry_180s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_final_code",
+      "identity_sha256": "3f650478695cd0370809d37652d7f58bf17508791d1362eed2a449a3ca98fe08",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "2656e0fafac58a6d4cffd19002f6ff22d5a851f4e730afd9ab6e70c684f7f1b5",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": "candidate3: halfband subtree bounds, terminal saturation, exact-word cache, full directed normative thresholds"
+    },
+    "candidate_final_wide256_192000_6000_7000_180s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_final_code",
+      "identity_sha256": "3f650478695cd0370809d37652d7f58bf17508791d1362eed2a449a3ca98fe08",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "2656e0fafac58a6d4cffd19002f6ff22d5a851f4e730afd9ab6e70c684f7f1b5",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": "candidate3: halfband subtree bounds, terminal saturation, exact-word cache, full directed normative thresholds"
+    },
+    "candidate_v1_campaign_60s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v1_code",
+      "identity_sha256": "e55d58af9dbf688463a2689a58cd59f42851324cb3733066f6aabf200e0ab27d",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "034771fec42e7b0c47ab25f39530cb2fd9bd304cedd0e4f194fef977d12726b2",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_halfband_majorant.py": "3d71e72a802440d9ab94cbfac59b1668a016723d179948ce20f11e383e979550",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "5d263e0a8a5424895e305a593110d2c2be9c7250aff118ffbe748d8f5909b250",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": null
+    },
+    "candidate_v1_diagnostic_180s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v1_code",
+      "identity_sha256": "e55d58af9dbf688463a2689a58cd59f42851324cb3733066f6aabf200e0ab27d",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "034771fec42e7b0c47ab25f39530cb2fd9bd304cedd0e4f194fef977d12726b2",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_halfband_majorant.py": "3d71e72a802440d9ab94cbfac59b1668a016723d179948ce20f11e383e979550",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "5d263e0a8a5424895e305a593110d2c2be9c7250aff118ffbe748d8f5909b250",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": null
+    },
+    "candidate_v1_matched_60s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v1_code",
+      "identity_sha256": "e55d58af9dbf688463a2689a58cd59f42851324cb3733066f6aabf200e0ab27d",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "034771fec42e7b0c47ab25f39530cb2fd9bd304cedd0e4f194fef977d12726b2",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_halfband_majorant.py": "3d71e72a802440d9ab94cbfac59b1668a016723d179948ce20f11e383e979550",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "5d263e0a8a5424895e305a593110d2c2be9c7250aff118ffbe748d8f5909b250",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": null
+    },
+    "candidate_v2b_diagnostic_60s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v2_code",
+      "identity_sha256": "f350a0bc7f31c02674d33e657fb08db4d7817017f7bc93be37a7cb0391a4fe90",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": "candidate2 v2b: terminal saturation plus exact coefficient-word cache identity"
+    },
+    "candidate_v2b_matched_60s": {
+      "directory": "tests/dsd/results/P15_high_rate_2026-10-18/reference_high_rate_v2_code",
+      "identity_sha256": "f350a0bc7f31c02674d33e657fb08db4d7817017f7bc93be37a7cb0391a4fe90",
+      "prover_code_sha256": {
+        "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+        "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+        "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+        "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+        "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+        "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+        "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+        "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+        "p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d",
+        "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+      },
+      "variant": "candidate2 v2b: terminal saturation plus exact coefficient-word cache identity"
+    }
+  },
+  "qualified_release": false,
+  "release": "BLOCKED",
+  "report_code_sha256": "767f84f5935ba92594be5fcabe08577646f72a9f1509489912e04752ad9652a8",
+  "schema": "P15/high-rate-coverage-report/1",
+  "source_binding": {
+    "design": "458537dbe9a2ea1e687b68f998f43a90de10c369b604f809c78cf80c2389b94b",
+    "source": {
+      "src/dft_filter.c": "7ccefda8f6c2bbf6f4fed25232b20b9fc9b8c6598d56b4451b9047a5cbfd7ae5",
+      "src/dft_filter.h": "1ad5c20762bf7c418f6bd509d5d63977038381dab342c2f7064ea517a9ad9821",
+      "src/dsd.c": "376427406ba7f1e96463b82d308651d548ba4121bf4ad6a04148a415980aff5c",
+      "src/dsd.h": "908b6f7ae4f030b183aadb371f44a3afac1a285eea7128fe6e7de971f9d9e393",
+      "src/dsd_coeffs.h": "853c3e4c1902124513d99706a40a08c9b33363f7e18810ec41a955ab0b598d17",
+      "src/dsd_coeffs_v2.h": "a356b080cf7d90403bbcc684c4df047c1f190212f7156d0a6fcfed6fcbf9884c",
+      "src/dsd_decode.c": "7194387ab5906a1f8cfcaef98a46922a12dd680d2420febc5dd7e993f70bfad7",
+      "src/dsd_decode.h": "f1380afc40e5caf42654aaed30c24405e2fde28290c22d807a02a40cb811a560",
+      "src/dsd_kernels.h": "49efde7e3f8e4bd2c3c40286c8a5cf4a1ad24ffa484c34eaf8f1639770fd35b1",
+      "src/dsd_kernels_scalar.c": "9661303075f0965c0e319ed94c5037da72963aebf4499ba3206b3e8dd3344c26",
+      "src/dsd_public.c": "26b22da56992da1c3cf6151e309dac759235199449b1c2336476766600d8c8be",
+      "src/effects_i_dsp.c": "e576e050ee8b61c39d8f87f0295e1d115c2cc0d27ef2d3b6940e50cf1abd651a",
+      "src/fft4g.c": "fc547db7fc3d0938c53357f98c16ec8a1b999c8d94352faa6ea1547df084e39b",
+      "src/fft4g.h": "a4e19b04d9c00c23503f252db8a86735c2decf114e6995ce80b704b62e9fed65",
+      "src/rate.c": "aefcbff631e391531e00dabcdf7a1d328fa110baa7379a33dc6cb2465eeaafa6",
+      "src/rate_filters.h": "01fb08a228cf829abc58b67eff9a0772d39ad7a5396e7d72c7fb30895e18fe69",
+      "src/rate_half_fir.h": "ce6a146f1a80395bde0c1954c16fb167d11e25d986a4895ebd64e65c9b76bc6e",
+      "src/rate_internal.h": "cf225186b75a472b3ca87d2668e21cbf15895026888379e54d77d6ee35fa4edd",
+      "src/rate_poly_fir.h": "da5f8658b9b0a99e20ee8d25da9ba661076e3567d12f15cc9ad7c260ce520982",
+      "src/rate_poly_fir0.h": "bd86a881e1e27718854e0e61451c118dc1f8f2cc7748974e8db0e00846de23b7",
+      "src/sox_i.h": "6118cf28c80ecbb80f2b475f69af89971209d7539d241400299a7dbafe096918",
+      "test/Makefile.am": "49fb31d45f2e019395743a3937f7692cb44552547a9e4380ce40abc9eb1b9429",
+      "tests/dsd/certify_filters.py": "3d8facc789f3cc9e0c5adc8411365d6b8813d71bcc039fb6f3e831da92caa80d",
+      "tests/dsd/p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+      "tests/dsd/p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+      "tests/dsd/p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+      "tests/dsd/p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+      "tests/dsd/p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+      "tests/dsd/p15_src_operator_observations.py": "4bc869f647141530c3a638537aa9766c35b6e72f7ad96170b69edd055302868a",
+      "tests/dsd/reference/p06_coefficients.json": "d54b130fb8fd9687023a0090fe966275070e4778c7e5a133f0b42ff05cdc1f38",
+      "tests/dsd/reference/p15_r3_coefficients.json": "d70be389ee36174373f8eb5f572033d2a50c089fed481a974d5bea1e23971aad",
+      "tests/dsd/results/P15_v1_matrix_rebound_2026-10-15/scalar/worklist.json": "a70cd7d43056b07d46af8b928e6ce5db0b082d6eef831c5dcde906880fe0d8c4",
+      "tests/dsd/results/P15_v2_matrix_2026-10-15/scalar/worklist.json": "0393a0d1b746cad73133ba4fe16f35d0399b25bb097f4a31bc89123f67e9604a",
+      "tests/dsd/test_p07_reference.c": "1961ba97e02832c7ce6a8ebede0009e19a18b976855a2dbc9965aa8595e4ae0b",
+      "tests/dsd/test_p15_src_stage_export.c": "e5738d41b154fd6adea97b29b5a830f134b87e59fda47f9d87f74029e5395af2"
+    }
+  },
+  "status": "SELECTED_PLANS_RECORDED",
+  "strict_readjudication": {
+    "contributing_pass_receipts": 8266,
+    "implementation_sha256": {
+      "readjudicate_displayed_bounds.py": "7688080d67d2200f2e7cdcfc5334620a5ab6b0ffa383a138eb54a537ba2c31f9",
+      "verify_complete_cell.py": "822bee04cb5c1b58f00d842a2b8eb1ce3f813364e103ccef6c5e2a3e52e34824"
+    },
+    "numerical_proof_replayed": false,
+    "path": "tests/dsd/results/P15_high_rate_2026-10-18/complete_cell/normative_readjudication_02/verification.json",
+    "scope": "Every PASS receipt used in the coverage unions has an independently readjudicated exact normative scalar enclosure; internal numerical proofs are not replayed by this check.",
+    "sha256": "c05f47b16e5f33831187ec38a3da5924dbc0a8c0047b6d48a4bd25df75fc763c"
+  },
+  "verification_scope": "Canonical coverage, receipt SHA, source/operator binding, complete frozen proof-code map, matched timing environment; not independent recomputation of the numerical inequalities"
+}

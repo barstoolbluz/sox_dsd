@@ -1,0 +1,315 @@
+{
+  "fft4g_arbitrary_input_execution": "OPEN: coefficient-bin bounds and ideal captured-FIR transfer certificates do not bound runtime FFT4G forward/inverse butterflies, packed products, input-dependent accumulation, or nonstandard arithmetic.",
+  "integrity_continuity": {
+    "note": "The older archive enumerated the subset lexically. Recomputing in lexical order exactly reproduces its digest; the third-pass tar uses another member order.",
+    "original_inventory_sha256": "c9856e34443f81ec390a5c934718deac46ce6bee4aa733cf04e7d01f0f16c059",
+    "status": "ORIGINAL_16711_FILE_INVENTORY_DIGEST_REPRODUCED",
+    "verified_files": 16711
+  },
+  "matrix_observations": {
+    "v1": {
+      "absent_array_payloads_in_stripped_archive": 270,
+      "absent_graph_payloads_in_stripped_archive": 0,
+      "binding": "CURRENT_SOURCE_SHA256_MATCH",
+      "binding_scope": "Only recorded source pins are verified; original executable archive is not reconstructed.",
+      "detailed_isa_jobs": 96,
+      "disposition": "MEASURED_SOURCE_BOUND_NOT_SPECTRALLY_QUALIFIED",
+      "evidence_directory": "tests/dsd/results/P15_v1_matrix_rebound_2026-10-15",
+      "forced_isa_jobs": 216,
+      "full_raw_replay_completed": false,
+      "graph_cells": 54,
+      "matrix": "v1",
+      "native_fractional_ratio_cells": 24,
+      "sampled_src_cells": 54,
+      "scalar_cells": 54,
+      "source_pins_per_session": 17,
+      "src_active_cells": 48,
+      "src_bypass_cells": 6
+    },
+    "v2": {
+      "absent_array_payloads_in_stripped_archive": 135,
+      "absent_graph_payloads_in_stripped_archive": 0,
+      "binding": "CURRENT_SOURCE_SHA256_MATCH",
+      "binding_scope": "Only recorded source pins are verified; original executable archive is not reconstructed.",
+      "detailed_isa_jobs": 48,
+      "disposition": "MEASURED_SOURCE_BOUND_NOT_SPECTRALLY_QUALIFIED",
+      "evidence_directory": "tests/dsd/results/P15_v2_matrix_2026-10-15",
+      "forced_isa_jobs": 108,
+      "full_raw_replay_completed": false,
+      "graph_cells": 27,
+      "matrix": "v2",
+      "native_fractional_ratio_cells": 12,
+      "sampled_src_cells": 27,
+      "scalar_cells": 27,
+      "source_pins_per_session": 22,
+      "src_active_cells": 24,
+      "src_bypass_cells": 3
+    }
+  },
+  "p16_authorized": false,
+  "physical_dsd256": {
+    "all_eight_bootstraps_exactly_reproduced": true,
+    "bench_receipt_sha256": "5c5f4a479601f833df68cc282730f7f76ed9f8b27875171c1bf903f25ab01511",
+    "comparator_receipt_sha256": "9af8aefb18e7dc3e557a789960401585f734e10b7cd23cc7b099f020d75b1a7a",
+    "comparisons": [
+      {
+        "cell_id": "decode.mastering.v2.dsd256@176400",
+        "ci95": [
+          3.771550624524146,
+          3.7844285927156402
+        ],
+        "control": "legacy_direct",
+        "exceeds_two_at_lower_bound": true,
+        "point": 3.7794054877807937
+      },
+      {
+        "cell_id": "decode.mastering.v2.dsd256@176400",
+        "ci95": [
+          3.8804825539928802,
+          3.8934080178651453
+        ],
+        "control": "legacy_ps_matched",
+        "exceeds_two_at_lower_bound": true,
+        "point": 3.8866029325955007
+      },
+      {
+        "cell_id": "decode.mastering.v2.dsd256@352800",
+        "ci95": [
+          3.6289395223087637,
+          3.6843827042596367
+        ],
+        "control": "legacy_direct",
+        "exceeds_two_at_lower_bound": true,
+        "point": 3.67296680324331
+      },
+      {
+        "cell_id": "decode.mastering.v2.dsd256@352800",
+        "ci95": [
+          3.6405070252309546,
+          3.698099712499985
+        ],
+        "control": "legacy_ps_matched",
+        "exceeds_two_at_lower_bound": true,
+        "point": 3.6886060811300676
+      },
+      {
+        "cell_id": "mastering@176400",
+        "ci95": [
+          3.8994044890926176,
+          3.923271838126344
+        ],
+        "control": "legacy_direct",
+        "exceeds_two_at_lower_bound": true,
+        "point": 3.912997905396834
+      },
+      {
+        "cell_id": "mastering@176400",
+        "ci95": [
+          4.005310147056799,
+          4.031206269370926
+        ],
+        "control": "legacy_ps_matched",
+        "exceeds_two_at_lower_bound": true,
+        "point": 4.021262964124796
+      },
+      {
+        "cell_id": "mastering@352800",
+        "ci95": [
+          3.7553429323575376,
+          3.8072759268954535
+        ],
+        "control": "legacy_direct",
+        "exceeds_two_at_lower_bound": true,
+        "point": 3.7841586680482564
+      },
+      {
+        "cell_id": "mastering@352800",
+        "ci95": [
+          3.7728308440329177,
+          3.8234658463670694
+        ],
+        "control": "legacy_ps_matched",
+        "exceeds_two_at_lower_bound": true,
+        "point": 3.799646172736433
+      }
+    ],
+    "comparisons_meeting_two_at_lower_bound": 8,
+    "complete_audio_or_executable_replay": false,
+    "disposition": "MEASUREMENTS_EXIST_STATISTICS_REPRODUCED_ADJUDICATION_AND_FULL_RAW_REPLAY_PENDING",
+    "host": {
+      "allowed_cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+      ],
+      "cpu": "AMD Ryzen Threadripper 7970X 32-Cores",
+      "governor": "performance",
+      "hypervisor": false,
+      "kernel": "6.12.85+deb13-amd64",
+      "machine": "x86_64",
+      "microcode": "0xa10810c",
+      "system": "Linux"
+    },
+    "limitations": [
+      "Saved spectral diagnostics were measured on noise over 1 kHz through the guaranteed passband edge; they are not continuous-frequency 0.0001 dB/-160 dB certificates.",
+      "The old current-closeout gate still reads October 15 comparator receipts and is not a review of the October 16 measurement.",
+      "Boost-disabled preparation is stated in the physical README, not encoded in the timing receipt.",
+      "This source-only audit does not infer a new release authorization or rerun physical measurements."
+    ],
+    "minimum_ci95_lower": 3.6289395223087637,
+    "missing_audio_payloads": [
+      "comparator/control-v1-176400.wav",
+      "comparator/control-v1-352800.wav",
+      "comparator/control-v2-176400.wav",
+      "comparator/control-v2-352800.wav",
+      "comparator/decoder-v1-176400.wav",
+      "comparator/decoder-v1-352800.wav",
+      "comparator/decoder-v2-176400.wav",
+      "comparator/decoder-v2-352800.wav",
+      "comparator/noise-dsd256.dsf",
+      "comparator/noise-pcm.wav",
+      "bench/input-6ch.dsf",
+      "bench/input-6ch.wav"
+    ],
+    "pinned_cpu": 8,
+    "pinned_header_coverage_limitation": "Physical source_sha256 does not include rate_poly_fir0.h; the October 17 opt-in SRC build is not a new physical timing target by inheritance.",
+    "qualified_release": false,
+    "receipt_status": "MEASURED_PHYSICAL_UNADJUDICATED",
+    "recorded_binary_sha256": {
+      "candidate": "fd57b589bd7d2fed519213f6dca5d1a2ea8ff560dcf070d496c6391a64b21f9e",
+      "sox": "a4b9680dfd82b5d28da691c9719088d5f27474ca26653bed3a5cbcc74ba33d3d"
+    },
+    "recorded_command_executable_paths": [
+      "/var/tmp/sox-ng-bench/r2build/src/sox_ng"
+    ],
+    "recorded_executable_paths_available": {
+      "/var/tmp/sox-ng-bench/r2build/src/sox_ng": false
+    },
+    "recorded_source_pins_match": {
+      "src/dsd_coeffs.h": true,
+      "src/dsd_coeffs_v2.h": true,
+      "src/dsd_decode.c": true,
+      "src/effects_i_dsp.c": true,
+      "src/fft4g.c": true,
+      "src/rate.c": true,
+      "src/sinc.c": true,
+      "tests/dsd/verify_dsd256_control_match.py": true
+    },
+    "saved_spectral_diagnostics": [
+      {
+        "comparison_band_hz": [
+          1000.0,
+          40000.0
+        ],
+        "max_abs_difference_db": 0.0020147045267293606,
+        "profile": "mastering",
+        "rate": 176400,
+        "transition_excluded_fraction": 0.0
+      },
+      {
+        "comparison_band_hz": [
+          1000.0,
+          40000.0
+        ],
+        "max_abs_difference_db": 0.0009555410080253068,
+        "profile": "mastering",
+        "rate": 352800,
+        "transition_excluded_fraction": 0.0
+      },
+      {
+        "comparison_band_hz": [
+          1000.0,
+          66000.0
+        ],
+        "max_abs_difference_db": 0.006105160824120048,
+        "profile": "decode.mastering.v2.dsd256",
+        "rate": 176400,
+        "transition_excluded_fraction": 0.0
+      },
+      {
+        "comparison_band_hz": [
+          1000.0,
+          66000.0
+        ],
+        "max_abs_difference_db": 0.003638863221851807,
+        "profile": "decode.mastering.v2.dsd256",
+        "rate": 352800,
+        "transition_excluded_fraction": 0.0
+      }
+    ]
+  },
+  "release_status": "BLOCKED",
+  "schema": "P15/high-rate-secondary-obligation-audit/1",
+  "source_documents_sha256": {
+    "docs/dsd/DSD_DESIGN.md": "458537dbe9a2ea1e687b68f998f43a90de10c369b604f809c78cf80c2389b94b",
+    "docs/dsd/P15_SRC_OPT_REBIND_2026-10-17.md": "c100b36d31a88caea9b0f628ea59218a31646c32f3bea5862f067f892a6ab33d",
+    "docs/dsd/amendments/P15_SRC_ACCEPTANCE_METHOD_2026-10-15.md": "9fda098aeac35a77e410c482cdfdd52321b5c420187911196556cacf7f05e109",
+    "docs/dsd/amendments/P15_V2_DEFAULT_POLICY_2026-10-15.md": "67f96b6b95d0835715aae3f468605381ac9d7cffdeb6783f1db144aa01761693",
+    "docs/dsd/handoffs/P15_FINAL_OBLIGATIONS_R2_2026-10-16.md": "084deb1c85d92d1a5889d899f7dfecbd3963d91c2e6e93665d0b95b19d1bc0ea",
+    "tests/dsd/p15_current_closeout.py": "722ee64328d2d0624ffee7e87a6ecdc33b7cc87a9cee91391080e7fb65ea1cc6",
+    "tests/dsd/p15_fft_coefficient_interval.py": "1470b40c46533c81d2db2e47cff54178a8fd2e763e660f5be4066e4729996bf4",
+    "tests/dsd/results/P15_ps_matched_physical_2026-10-16/README.md": "658545baa9d3413a2d99a9a9bc44c79985e14361cf0ed65ec61e369ecbebe6e5"
+  },
+  "v2_default_promotion": false,
+  "v2_remaining_scope": "Observed 27-cell coverage exists. Omitted 135 numeric arrays prevent full raw replay; 24 v2 SRC-active cells still need same-operator arithmetic and full composite spectral qualification. No new metrology policy imposed."
+}

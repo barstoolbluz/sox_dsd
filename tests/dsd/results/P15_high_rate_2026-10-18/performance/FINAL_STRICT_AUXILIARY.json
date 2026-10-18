@@ -1,0 +1,249 @@
+{
+  "common_pass_metrics": {
+    "baseline": {
+      "cheap_difference_majorants_used": 574,
+      "cpu_s": 62.404872913,
+      "elapsed_s": 64.82513128399978,
+      "exact_branch_splits": 3,
+      "exact_path_enumerations": 11,
+      "fir_interval_evaluations": 12618,
+      "interval_subdivisions": null,
+      "nodes_examined": 55
+    },
+    "candidate": {
+      "cheap_difference_majorants_used": 574,
+      "cpu_s": 34.256001761,
+      "elapsed_s": 35.53171730300073,
+      "exact_branch_splits": 3,
+      "exact_path_enumerations": 11,
+      "fir_interval_evaluations": 2048,
+      "interval_subdivisions": 22,
+      "nodes_examined": 55
+    }
+  },
+  "including_timeouts_certificate_cpu_throughput_ratio": 2.182072293436518,
+  "including_timeouts_proof_wall_ratio": 1.3749894992354965,
+  "name": "third_pass_vs_candidate3_exact_policy_8_pairs",
+  "notes": [
+    "Single CPU7 sequential paired round, concurrent final campaign on CPUs0-6.",
+    "Missing counters are unknown; no imputation."
+  ],
+  "request": {
+    "cpu_set": [
+      7
+    ],
+    "external_seconds": 85,
+    "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/request.json",
+    "sha256": "83bd9757b59550cb72bb3cf478cf781eade21f27bbef407de0590cab542f01d3",
+    "signal_seconds": 60
+  },
+  "schema": "P15/final-strict-benchmark-accounting/1",
+  "supervision": {
+    "baseline": {
+      "logs": [
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 0,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/00000-baseline.json",
+          "process_wall_s": 2.729712128999836,
+          "sha256": "38ec32433de09584289ffc52e545d787393ae2d8ee9b8bbdc43c8f91dfc32b36",
+          "variant": "baseline"
+        },
+        {
+          "exit_code": 2,
+          "external_deadline_killed": false,
+          "job_index": 596,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/00596-baseline.json",
+          "process_wall_s": 62.35482568799989,
+          "sha256": "34641491d6e073c2e86bf5e946b97907244abf0705781a36c3ecdb3736bc842b",
+          "variant": "baseline"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 4980,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/04980-baseline.json",
+          "process_wall_s": 12.925310882999838,
+          "sha256": "fd35ca86b0a348c292344dab0b848eac0c2acfd38681510049076d51d3250fd5",
+          "variant": "baseline"
+        },
+        {
+          "exit_code": 2,
+          "external_deadline_killed": false,
+          "job_index": 5283,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/05283-baseline.json",
+          "process_wall_s": 61.80555407200018,
+          "sha256": "a02ecbb6cc7bdffdbb9d13083fc9fcaa2380e2108d3c900066debb690a89fdff",
+          "variant": "baseline"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 5636,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/05636-baseline.json",
+          "process_wall_s": 18.562728223999784,
+          "sha256": "e7910c7a8bf1883c0a07111a31da9685adb0e072195d861d28e23d360f4cc9da",
+          "variant": "baseline"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 5828,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/05828-baseline.json",
+          "process_wall_s": 18.180166746000396,
+          "sha256": "abf9487ebf438bdb31f24d10fa38a606b6d56186ea3a3146d134b9631a37f307",
+          "variant": "baseline"
+        },
+        {
+          "exit_code": 2,
+          "external_deadline_killed": false,
+          "job_index": 8309,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/08309-baseline.json",
+          "process_wall_s": 62.34972782500017,
+          "sha256": "579ebd0b9e60a0ba0478c8eefeaef461752a3d8e3c39080657034c3e65007b5b",
+          "variant": "baseline"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 10904,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/10904-baseline.json",
+          "process_wall_s": 21.39853003500002,
+          "sha256": "2f238c279ca8da8512a64c6e0fbbb0dc3243dcb1bb1587610c9b6c8cd76ed31d",
+          "variant": "baseline"
+        }
+      ],
+      "summary": {
+        "execution_failures": 0,
+        "exit_codes": {
+          "0": 5,
+          "2": 3
+        },
+        "external_kills": 0,
+        "passes_per_supervised_process_wall_hour": 69.14923812952829,
+        "process_wall_seconds_sum": 260.3065556020001
+      }
+    },
+    "candidate": {
+      "logs": [
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 0,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/00000-candidate.json",
+          "process_wall_s": 2.5594237699997393,
+          "sha256": "45629e0e44cc3265ea63597904c3d789fe4c1865a11e84960424bbb94b0e61d6",
+          "variant": "candidate"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 596,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/00596-candidate.json",
+          "process_wall_s": 61.62629468799969,
+          "sha256": "0fe991286d275fd08bb406f249730dd027cad3e5d408a92820acfc05784a7b04",
+          "variant": "candidate"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 4980,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/04980-candidate.json",
+          "process_wall_s": 4.364346415999989,
+          "sha256": "82e1082ab08ae883b08f8f933c0e26b7000b67950ebe073ebac592440c73857d",
+          "variant": "candidate"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 5283,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/05283-candidate.json",
+          "process_wall_s": 33.47920902900023,
+          "sha256": "e01187c2653a6a201e8e72374fc9fc48b5c095e040fe7f79ffe9749801ce65dd",
+          "variant": "candidate"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 5636,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/05636-candidate.json",
+          "process_wall_s": 11.1130888900002,
+          "sha256": "844a9f173cf1e04573c1921a968a2b9539ae36d2569ca552922c1bd1cebd4d06",
+          "variant": "candidate"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 5828,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/05828-candidate.json",
+          "process_wall_s": 12.870092869000018,
+          "sha256": "6c1b93819cf6831aa63906ded07848fa87936f9236822d1d5626fa9e9721fddd",
+          "variant": "candidate"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 8309,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/08309-candidate.json",
+          "process_wall_s": 54.55764269300016,
+          "sha256": "d3145193e49a23ff600c0873ae807f93206daef58a20af6f9cd846f639d65630",
+          "variant": "candidate"
+        },
+        {
+          "exit_code": 0,
+          "external_deadline_killed": false,
+          "job_index": 10904,
+          "path": "tests/dsd/results/P15_high_rate_2026-10-18/matched_final_strict/supervision/run-1792355838596904763-2/10904-candidate.json",
+          "process_wall_s": 13.362856998000098,
+          "sha256": "3f2518faf4c2ceab68a7955287d7a8c1ca4fd167c79a89b264d8aa5a57078705",
+          "variant": "candidate"
+        }
+      ],
+      "summary": {
+        "execution_failures": 0,
+        "exit_codes": {
+          "0": 8
+        },
+        "external_kills": 0,
+        "passes_per_supervised_process_wall_hour": 148.50493020940016,
+        "process_wall_seconds_sum": 193.93295535300012
+      }
+    }
+  },
+  "uniform_proof_code": {
+    "baseline": {
+      "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+      "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+      "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+      "p15_src_branch_bound.py": "9553720939baeac7bcb86066b5d709798a4431ecb9da3f346546f9ffab13c4b1",
+      "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+      "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+      "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+      "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+      "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+      "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+      "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+      "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+      "p15_src_stagewise_continuum.py": "e0c29462aaf62d7a5fd462b3c0e53e0aa7bfcc6975c67227e63c4bbc9e071cbc",
+      "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+    },
+    "candidate": {
+      "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+      "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+      "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+      "p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+      "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+      "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+      "p15_src_continuum_bounds.py": "2656e0fafac58a6d4cffd19002f6ff22d5a851f4e730afd9ab6e70c684f7f1b5",
+      "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+      "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+      "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+      "p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+      "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+      "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+      "p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d",
+      "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+    }
+  }
+}

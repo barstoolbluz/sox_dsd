@@ -1,0 +1,1 @@
+INVALID CONTROL: this early 40-second run labeled second_pass loaded a third-pass stagewise module with the second-pass recurrence. Its hash differs from the real second-pass stagewise module; excluded from all comparisons.

@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-m",
+    "unittest",
+    "test_p15_high_rate_coverage_report",
+    "-v"
+  ],
+  "exit_code": 0,
+  "sha256": {
+    "tests/dsd/p15_high_rate_coverage_report.py": "08f1784e46b6c6f8fc08d4d5bff66255223fb5fd32bda119efbf60916b1afb07",
+    "tests/dsd/test_p15_high_rate_coverage_report.py": "f9afb73da9331b00b493cdd4df6c9c92f86f8571344f90334284e21440e8691b"
+  }
+}
+test_all_intervals_and_exact_endpoints_are_required (test_p15_high_rate_coverage_report.CanonicalCoverage.test_all_intervals_and_exact_endpoints_are_required) ... ok
+test_gap_overlap_and_nyquist_shortfall_are_rejected (test_p15_high_rate_coverage_report.CanonicalCoverage.test_gap_overlap_and_nyquist_shortfall_are_rejected) ... ok
+test_unmeasured_and_open_remain_distinct (test_p15_high_rate_coverage_report.CanonicalCoverage.test_unmeasured_and_open_remain_distinct) ... ok
+test_full_frozen_snapshot_is_checked_against_bytes (test_p15_high_rate_coverage_report.PerformanceAndProofIdentity.test_full_frozen_snapshot_is_checked_against_bytes) ... ok
+test_only_pass_pairs_have_a_speedup (test_p15_high_rate_coverage_report.PerformanceAndProofIdentity.test_only_pass_pairs_have_a_speedup) ... ok
+test_source_budget_and_execution_environment_must_match (test_p15_high_rate_coverage_report.PerformanceAndProofIdentity.test_source_budget_and_execution_environment_must_match) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.002s
+
+OK

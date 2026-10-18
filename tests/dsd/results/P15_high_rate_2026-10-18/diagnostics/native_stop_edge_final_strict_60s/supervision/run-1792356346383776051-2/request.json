@@ -1,0 +1,26 @@
+{
+  "command": [
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/run_experiments.py",
+    "--plan",
+    "tests/dsd/results/P15_high_rate_2026-10-18/execution/NATIVE_STOP_EDGE_FINAL_STRICT_PLAN.json",
+    "--source-root",
+    "/workspace/scratch/47ef0cb747fa/candidate3/sox_ng",
+    "--output",
+    "tests/dsd/results/P15_high_rate_2026-10-18/diagnostics/native_stop_edge_final_strict_60s",
+    "--workers",
+    "1",
+    "--cpu-start",
+    "7"
+  ],
+  "jobs": [
+    9628
+  ],
+  "inherited_pythonpath": "/workspace/scratch/47ef0cb747fa/deps",
+  "cpu_set": [
+    7
+  ],
+  "per_job_signal_seconds": 60,
+  "per_process_kill_seconds": 85,
+  "baseline": null,
+  "source": "/workspace/scratch/47ef0cb747fa/candidate3/sox_ng"
+}

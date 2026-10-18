@@ -1,0 +1,928 @@
+{
+  "binding": {
+    "design": "458537dbe9a2ea1e687b68f998f43a90de10c369b604f809c78cf80c2389b94b",
+    "source": {
+      "src/dft_filter.c": "7ccefda8f6c2bbf6f4fed25232b20b9fc9b8c6598d56b4451b9047a5cbfd7ae5",
+      "src/dft_filter.h": "1ad5c20762bf7c418f6bd509d5d63977038381dab342c2f7064ea517a9ad9821",
+      "src/dsd.c": "376427406ba7f1e96463b82d308651d548ba4121bf4ad6a04148a415980aff5c",
+      "src/dsd.h": "908b6f7ae4f030b183aadb371f44a3afac1a285eea7128fe6e7de971f9d9e393",
+      "src/dsd_coeffs.h": "853c3e4c1902124513d99706a40a08c9b33363f7e18810ec41a955ab0b598d17",
+      "src/dsd_coeffs_v2.h": "a356b080cf7d90403bbcc684c4df047c1f190212f7156d0a6fcfed6fcbf9884c",
+      "src/dsd_decode.c": "7194387ab5906a1f8cfcaef98a46922a12dd680d2420febc5dd7e993f70bfad7",
+      "src/dsd_decode.h": "f1380afc40e5caf42654aaed30c24405e2fde28290c22d807a02a40cb811a560",
+      "src/dsd_kernels.h": "49efde7e3f8e4bd2c3c40286c8a5cf4a1ad24ffa484c34eaf8f1639770fd35b1",
+      "src/dsd_kernels_scalar.c": "9661303075f0965c0e319ed94c5037da72963aebf4499ba3206b3e8dd3344c26",
+      "src/dsd_public.c": "26b22da56992da1c3cf6151e309dac759235199449b1c2336476766600d8c8be",
+      "src/effects_i_dsp.c": "e576e050ee8b61c39d8f87f0295e1d115c2cc0d27ef2d3b6940e50cf1abd651a",
+      "src/fft4g.c": "fc547db7fc3d0938c53357f98c16ec8a1b999c8d94352faa6ea1547df084e39b",
+      "src/fft4g.h": "a4e19b04d9c00c23503f252db8a86735c2decf114e6995ce80b704b62e9fed65",
+      "src/rate.c": "aefcbff631e391531e00dabcdf7a1d328fa110baa7379a33dc6cb2465eeaafa6",
+      "src/rate_filters.h": "01fb08a228cf829abc58b67eff9a0772d39ad7a5396e7d72c7fb30895e18fe69",
+      "src/rate_half_fir.h": "ce6a146f1a80395bde0c1954c16fb167d11e25d986a4895ebd64e65c9b76bc6e",
+      "src/rate_internal.h": "cf225186b75a472b3ca87d2668e21cbf15895026888379e54d77d6ee35fa4edd",
+      "src/rate_poly_fir.h": "da5f8658b9b0a99e20ee8d25da9ba661076e3567d12f15cc9ad7c260ce520982",
+      "src/rate_poly_fir0.h": "bd86a881e1e27718854e0e61451c118dc1f8f2cc7748974e8db0e00846de23b7",
+      "src/sox_i.h": "6118cf28c80ecbb80f2b475f69af89971209d7539d241400299a7dbafe096918",
+      "test/Makefile.am": "49fb31d45f2e019395743a3937f7692cb44552547a9e4380ce40abc9eb1b9429",
+      "tests/dsd/certify_filters.py": "3d8facc789f3cc9e0c5adc8411365d6b8813d71bcc039fb6f3e831da92caa80d",
+      "tests/dsd/p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+      "tests/dsd/p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+      "tests/dsd/p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+      "tests/dsd/p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+      "tests/dsd/p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+      "tests/dsd/p15_src_operator_observations.py": "4bc869f647141530c3a638537aa9766c35b6e72f7ad96170b69edd055302868a",
+      "tests/dsd/reference/p06_coefficients.json": "d54b130fb8fd9687023a0090fe966275070e4778c7e5a133f0b42ff05cdc1f38",
+      "tests/dsd/reference/p15_r3_coefficients.json": "d70be389ee36174373f8eb5f572033d2a50c089fed481a974d5bea1e23971aad",
+      "tests/dsd/results/P15_v1_matrix_rebound_2026-10-15/scalar/worklist.json": "a70cd7d43056b07d46af8b928e6ce5db0b082d6eef831c5dcde906880fe0d8c4",
+      "tests/dsd/results/P15_v2_matrix_2026-10-15/scalar/worklist.json": "0393a0d1b746cad73133ba4fe16f35d0399b25bb097f4a31bc89123f67e9604a",
+      "tests/dsd/test_p07_reference.c": "1961ba97e02832c7ce6a8ebede0009e19a18b976855a2dbc9965aa8595e4ae0b",
+      "tests/dsd/test_p15_src_stage_export.c": "e5738d41b154fd6adea97b29b5a830f134b87e59fda47f9d87f74029e5395af2"
+    }
+  },
+  "canonical_work_index": 5636,
+  "certificate": {
+    "band_kind": "pass",
+    "certified_hz": [
+      "39000",
+      "40000"
+    ],
+    "cheap_difference_majorants_used": 192,
+    "exact_branch_splits": 1,
+    "exact_path_enumerations": 3,
+    "fir_interval_evaluations": 1324,
+    "fully_proven_subintervals": 2,
+    "governing_passband_hz": 40000,
+    "governing_stopband_hz": 80000,
+    "input_hz": 176400,
+    "limitations": "Local stationary coefficient operator only. Stop mode bounds native input frequencies beyond S folding into the named output interval; does not infer full-band or 72-cell certificate, nor FFT4G runtime rounding.",
+    "limits": {
+      "coherent_alias_db": "-160",
+      "passband_db": "0.0001"
+    },
+    "max_coherent_alias_upper": 9.980114828853607e-09,
+    "max_native_stop_source_transfer_upper": null,
+    "max_total_transfer_upper": 1.000000953110308,
+    "method": "exact binary64 finite-difference high-frequency majorants and cached 288-bit outward dyadic Taylor recurrence; 75-digit directed complex fallback; complete L1-majorized stagewise inverse aliases",
+    "min_wanted_transfer_lower": 0.999999046903575,
+    "native_hz": 11289600,
+    "nodes_examined": 3,
+    "output_hz": 384000,
+    "profile": "master256",
+    "qualified_release": false,
+    "status": "PASS-LOCAL-BAND"
+  },
+  "experiment_identity": {
+    "binding": {
+      "design": "458537dbe9a2ea1e687b68f998f43a90de10c369b604f809c78cf80c2389b94b",
+      "source": {
+        "src/dft_filter.c": "7ccefda8f6c2bbf6f4fed25232b20b9fc9b8c6598d56b4451b9047a5cbfd7ae5",
+        "src/dft_filter.h": "1ad5c20762bf7c418f6bd509d5d63977038381dab342c2f7064ea517a9ad9821",
+        "src/dsd.c": "376427406ba7f1e96463b82d308651d548ba4121bf4ad6a04148a415980aff5c",
+        "src/dsd.h": "908b6f7ae4f030b183aadb371f44a3afac1a285eea7128fe6e7de971f9d9e393",
+        "src/dsd_coeffs.h": "853c3e4c1902124513d99706a40a08c9b33363f7e18810ec41a955ab0b598d17",
+        "src/dsd_coeffs_v2.h": "a356b080cf7d90403bbcc684c4df047c1f190212f7156d0a6fcfed6fcbf9884c",
+        "src/dsd_decode.c": "7194387ab5906a1f8cfcaef98a46922a12dd680d2420febc5dd7e993f70bfad7",
+        "src/dsd_decode.h": "f1380afc40e5caf42654aaed30c24405e2fde28290c22d807a02a40cb811a560",
+        "src/dsd_kernels.h": "49efde7e3f8e4bd2c3c40286c8a5cf4a1ad24ffa484c34eaf8f1639770fd35b1",
+        "src/dsd_kernels_scalar.c": "9661303075f0965c0e319ed94c5037da72963aebf4499ba3206b3e8dd3344c26",
+        "src/dsd_public.c": "26b22da56992da1c3cf6151e309dac759235199449b1c2336476766600d8c8be",
+        "src/effects_i_dsp.c": "e576e050ee8b61c39d8f87f0295e1d115c2cc0d27ef2d3b6940e50cf1abd651a",
+        "src/fft4g.c": "fc547db7fc3d0938c53357f98c16ec8a1b999c8d94352faa6ea1547df084e39b",
+        "src/fft4g.h": "a4e19b04d9c00c23503f252db8a86735c2decf114e6995ce80b704b62e9fed65",
+        "src/rate.c": "aefcbff631e391531e00dabcdf7a1d328fa110baa7379a33dc6cb2465eeaafa6",
+        "src/rate_filters.h": "01fb08a228cf829abc58b67eff9a0772d39ad7a5396e7d72c7fb30895e18fe69",
+        "src/rate_half_fir.h": "ce6a146f1a80395bde0c1954c16fb167d11e25d986a4895ebd64e65c9b76bc6e",
+        "src/rate_internal.h": "cf225186b75a472b3ca87d2668e21cbf15895026888379e54d77d6ee35fa4edd",
+        "src/rate_poly_fir.h": "da5f8658b9b0a99e20ee8d25da9ba661076e3567d12f15cc9ad7c260ce520982",
+        "src/rate_poly_fir0.h": "bd86a881e1e27718854e0e61451c118dc1f8f2cc7748974e8db0e00846de23b7",
+        "src/sox_i.h": "6118cf28c80ecbb80f2b475f69af89971209d7539d241400299a7dbafe096918",
+        "test/Makefile.am": "49fb31d45f2e019395743a3937f7692cb44552547a9e4380ce40abc9eb1b9429",
+        "tests/dsd/certify_filters.py": "3d8facc789f3cc9e0c5adc8411365d6b8813d71bcc039fb6f3e831da92caa80d",
+        "tests/dsd/p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+        "tests/dsd/p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+        "tests/dsd/p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+        "tests/dsd/p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+        "tests/dsd/p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+        "tests/dsd/p15_src_operator_observations.py": "4bc869f647141530c3a638537aa9766c35b6e72f7ad96170b69edd055302868a",
+        "tests/dsd/reference/p06_coefficients.json": "d54b130fb8fd9687023a0090fe966275070e4778c7e5a133f0b42ff05cdc1f38",
+        "tests/dsd/reference/p15_r3_coefficients.json": "d70be389ee36174373f8eb5f572033d2a50c089fed481a974d5bea1e23971aad",
+        "tests/dsd/results/P15_v1_matrix_rebound_2026-10-15/scalar/worklist.json": "a70cd7d43056b07d46af8b928e6ce5db0b082d6eef831c5dcde906880fe0d8c4",
+        "tests/dsd/results/P15_v2_matrix_2026-10-15/scalar/worklist.json": "0393a0d1b746cad73133ba4fe16f35d0399b25bb097f4a31bc89123f67e9604a",
+        "tests/dsd/test_p07_reference.c": "1961ba97e02832c7ce6a8ebede0009e19a18b976855a2dbc9965aa8595e4ae0b",
+        "tests/dsd/test_p15_src_stage_export.c": "e5738d41b154fd6adea97b29b5a830f134b87e59fda47f9d87f74029e5395af2"
+      }
+    },
+    "harness_sha256": "1dbaf498e8127facf0bab4a72916a1bba5f7d3785f8d1babb028e071a68bcd57",
+    "job": {
+      "cell_id": "dsd256.mastering.pcm384000",
+      "effective_p": "40000",
+      "hi": "40000",
+      "intermediate_hz": 176400,
+      "lo": "39000",
+      "mode": "pass",
+      "output_hz": 384000,
+      "profile": "master256",
+      "source_s": 80000
+    },
+    "label": "baseline_profile",
+    "profiling_enabled": true,
+    "prover_code_sha256": {
+      "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+      "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+      "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+      "p15_src_branch_bound.py": "9553720939baeac7bcb86066b5d709798a4431ecb9da3f346546f9ffab13c4b1",
+      "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+      "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+      "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+      "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+      "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+      "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+      "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+      "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+      "p15_src_stagewise_continuum.py": "e0c29462aaf62d7a5fd462b3c0e53e0aa7bfcc6975c67227e63c4bbc9e071cbc",
+      "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+    },
+    "resources": {
+      "cpu": 1,
+      "max_nodes": 128,
+      "max_paths": 20000,
+      "seconds": 60.0
+    },
+    "stage_snapshot_sha256": "695e24eb9ba49b187ccb061fc057fef8218e3e1311e472b3145b33a80c7b63df",
+    "verified_operator_binding_sha256": "6fb7c42785350cfdf93824ec60fe1e3baa5ab5c1ece7232a2b7569f3af42b172"
+  },
+  "job": {
+    "cell_id": "dsd256.mastering.pcm384000",
+    "effective_p": "40000",
+    "hi": "40000",
+    "intermediate_hz": 176400,
+    "lo": "39000",
+    "mode": "pass",
+    "output_hz": 384000,
+    "profile": "master256",
+    "source_s": 80000
+  },
+  "mathematical_scope": "local continuous ideal-coefficient interval",
+  "measurement": {
+    "cpu_s": 28.381645663,
+    "deadline": "existing repeated Python SIGALRM; external supervision required for hard termination",
+    "elapsed_s": 28.388931729000205,
+    "environment": {
+      "affinity": [
+        1
+      ],
+      "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "imported_prover": "/workspace/scratch/47ef0cb747fa/baseline/sox_ng/tests/dsd/p15_src_stagewise_continuum.py",
+      "mpmath": "1.3.0",
+      "numpy": "2.3.5",
+      "openblas_num_threads": "1",
+      "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+    },
+    "peak_rss_kib": 128580,
+    "process_elapsed_s": 30.055275459000086,
+    "profile_functions": [
+      {
+        "calls": 4939510,
+        "function": "_mul",
+        "inclusive_s": 12.294823709000001,
+        "line": 55,
+        "module": "p15_src_fixed_interval.py",
+        "primitive_calls": 4939510,
+        "self_s": 7.747573871
+      },
+      {
+        "calls": 1132,
+        "function": "fixed_symmetric_magnitude_bounds",
+        "inclusive_s": 24.173762642,
+        "line": 115,
+        "module": "p15_src_fixed_interval.py",
+        "primitive_calls": 1132,
+        "self_s": 4.320935433
+      },
+      {
+        "calls": 8403496,
+        "function": "_ceil_div",
+        "inclusive_s": 3.471733694,
+        "line": 24,
+        "module": "p15_src_fixed_interval.py",
+        "primitive_calls": 8403496,
+        "self_s": 3.471733694
+      },
+      {
+        "calls": 3443598,
+        "function": "_multiply_ratio",
+        "inclusive_s": 4.043802231,
+        "line": 99,
+        "module": "p15_src_fixed_interval.py",
+        "primitive_calls": 3443598,
+        "self_s": 2.6904774330000003
+      },
+      {
+        "calls": 4939976,
+        "function": "<built-in method builtins.min>",
+        "inclusive_s": 1.112719346,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 4939976,
+        "self_s": 1.112719346
+      },
+      {
+        "calls": 4950610,
+        "function": "<built-in method builtins.max>",
+        "inclusive_s": 1.109538726,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 4950610,
+        "self_s": 1.109211516
+      },
+      {
+        "calls": 4191554,
+        "function": "_add",
+        "inclusive_s": 0.8173273480000001,
+        "line": 47,
+        "module": "p15_src_fixed_interval.py",
+        "primitive_calls": 4191554,
+        "self_s": 0.8173273480000001
+      },
+      {
+        "calls": 3564246,
+        "function": "_neg",
+        "inclusive_s": 0.48014081900000005,
+        "line": 51,
+        "module": "p15_src_fixed_interval.py",
+        "primitive_calls": 3564246,
+        "self_s": 0.48014081900000005
+      },
+      {
+        "calls": 41720,
+        "function": "cos_sin_basecase",
+        "inclusive_s": 0.42542783100000003,
+        "line": 1122,
+        "module": "libelefun.py",
+        "primitive_calls": 41720,
+        "self_s": 0.41313632800000005
+      },
+      {
+        "calls": 934883,
+        "function": "forward",
+        "inclusive_s": 1.739354909,
+        "line": 613,
+        "module": "fractions.py",
+        "primitive_calls": 934883,
+        "self_s": 0.406069881
+      },
+      {
+        "calls": 31372,
+        "function": "<built-in method builtins.hash>",
+        "inclusive_s": 0.392758062,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 31358,
+        "self_s": 0.386471039
+      },
+      {
+        "calls": 3,
+        "function": "complete_paths",
+        "inclusive_s": 2.5948564330000004,
+        "line": 116,
+        "module": "p15_src_stagewise_continuum.py",
+        "primitive_calls": 3,
+        "self_s": 0.377633223
+      },
+      {
+        "calls": 1093663,
+        "function": "_from_coprime_ints",
+        "inclusive_s": 0.48439492700000003,
+        "line": 317,
+        "module": "fractions.py",
+        "primitive_calls": 1093663,
+        "self_s": 0.371213173
+      },
+      {
+        "calls": 365283,
+        "function": "_div",
+        "inclusive_s": 0.48093635300000004,
+        "line": 758,
+        "module": "fractions.py",
+        "primitive_calls": 365283,
+        "self_s": 0.247018012
+      },
+      {
+        "calls": 1774793,
+        "function": "<built-in method builtins.isinstance>",
+        "inclusive_s": 0.376670985,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 1774793,
+        "self_s": 0.218878064
+      },
+      {
+        "calls": 70295,
+        "function": "convert",
+        "inclusive_s": 0.647658441,
+        "line": 413,
+        "module": "ctx_iv.py",
+        "primitive_calls": 70295,
+        "self_s": 0.205015742
+      },
+      {
+        "calls": 221770,
+        "function": "from_man_exp",
+        "inclusive_s": 0.44491012900000004,
+        "line": 291,
+        "module": "libmpf.py",
+        "primitive_calls": 221770,
+        "self_s": 0.190804627
+      },
+      {
+        "calls": 1512575,
+        "function": "<built-in method __new__ of type object at 0x144d380>",
+        "inclusive_s": 0.173725284,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 1512575,
+        "self_s": 0.173725284
+      },
+      {
+        "calls": 1508013,
+        "function": "<built-in method math.gcd>",
+        "inclusive_s": 0.149722997,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 1508013,
+        "self_s": 0.149722997
+      },
+      {
+        "calls": 354986,
+        "function": "__hash__",
+        "inclusive_s": 0.148914432,
+        "line": 908,
+        "module": "fractions.py",
+        "primitive_calls": 354986,
+        "self_s": 0.139636323
+      },
+      {
+        "calls": 278367,
+        "function": "_add",
+        "inclusive_s": 0.28325626600000003,
+        "line": 710,
+        "module": "fractions.py",
+        "primitive_calls": 278367,
+        "self_s": 0.13824589
+      },
+      {
+        "calls": 187511,
+        "function": "_normalize",
+        "inclusive_s": 0.13335249300000002,
+        "line": 153,
+        "module": "libmpf.py",
+        "primitive_calls": 187511,
+        "self_s": 0.13335249300000002
+      },
+      {
+        "calls": 242033,
+        "function": "_normalize1",
+        "inclusive_s": 0.127308312,
+        "line": 208,
+        "module": "libmpf.py",
+        "primitive_calls": 242033,
+        "self_s": 0.127308312
+      },
+      {
+        "calls": 277315,
+        "function": "__new__",
+        "inclusive_s": 0.170003112,
+        "line": 186,
+        "module": "fractions.py",
+        "primitive_calls": 277315,
+        "self_s": 0.125856724
+      },
+      {
+        "calls": 264697,
+        "function": "_sub",
+        "inclusive_s": 0.259115403,
+        "line": 726,
+        "module": "fractions.py",
+        "primitive_calls": 264697,
+        "self_s": 0.12545930800000002
+      },
+      {
+        "calls": 107308,
+        "function": "_mul",
+        "inclusive_s": 0.18632472800000002,
+        "line": 742,
+        "module": "fractions.py",
+        "primitive_calls": 107308,
+        "self_s": 0.112927151
+      },
+      {
+        "calls": 129390,
+        "function": "python_mpf_mul",
+        "inclusive_s": 0.18447151,
+        "line": 884,
+        "module": "libmpf.py",
+        "primitive_calls": 129390,
+        "self_s": 0.10887956900000001
+      },
+      {
+        "calls": 83440,
+        "function": "mod_pi2",
+        "inclusive_s": 0.141836568,
+        "line": 1263,
+        "module": "libelefun.py",
+        "primitive_calls": 83440,
+        "self_s": 0.10232593100000001
+      },
+      {
+        "calls": 2,
+        "function": "bound_population",
+        "inclusive_s": 25.245401305,
+        "line": 39,
+        "module": "p15_src_branch_bound.py",
+        "primitive_calls": 2,
+        "self_s": 0.101460296
+      },
+      {
+        "calls": 333401,
+        "function": "__instancecheck__",
+        "inclusive_s": 0.157792921,
+        "line": 117,
+        "module": "<frozen abc>",
+        "primitive_calls": 333401,
+        "self_s": 0.098658299
+      },
+      {
+        "calls": 267912,
+        "function": "python_bitcount",
+        "inclusive_s": 0.17517819,
+        "line": 91,
+        "module": "libintmath.py",
+        "primitive_calls": 267912,
+        "self_s": 0.094598128
+      },
+      {
+        "calls": 20860,
+        "function": "mpi_cos_sin",
+        "inclusive_s": 1.452925899,
+        "line": 374,
+        "module": "libmpi.py",
+        "primitive_calls": 20860,
+        "self_s": 0.090677333
+      },
+      {
+        "calls": 41720,
+        "function": "mpf_cos_sin",
+        "inclusive_s": 0.7899865880000001,
+        "line": 1299,
+        "module": "libelefun.py",
+        "primitive_calls": 41720,
+        "self_s": 0.08657297200000001
+      },
+      {
+        "calls": 70734,
+        "function": "mpf_add",
+        "inclusive_s": 0.140159255,
+        "line": 702,
+        "module": "libmpf.py",
+        "primitive_calls": 70734,
+        "self_s": 0.070400689
+      },
+      {
+        "calls": 93700,
+        "function": "_richcmp",
+        "inclusive_s": 0.166135573,
+        "line": 933,
+        "module": "fractions.py",
+        "primitive_calls": 93700,
+        "self_s": 0.067038345
+      },
+      {
+        "calls": 267912,
+        "function": "<built-in method _bisect.bisect_right>",
+        "inclusive_s": 0.063826031,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 267912,
+        "self_s": 0.063826031
+      },
+      {
+        "calls": 145559,
+        "function": "mpf_cmp",
+        "inclusive_s": 0.20539255,
+        "line": 574,
+        "module": "libmpf.py",
+        "primitive_calls": 145559,
+        "self_s": 0.061817322
+      },
+      {
+        "calls": 333401,
+        "function": "<built-in method _abc._abc_instancecheck>",
+        "inclusive_s": 0.059134622000000005,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 333401,
+        "self_s": 0.05912801300000001
+      },
+      {
+        "calls": 80772,
+        "function": "reverse",
+        "inclusive_s": 0.30286326,
+        "line": 627,
+        "module": "fractions.py",
+        "primitive_calls": 80772,
+        "self_s": 0.058833277
+      },
+      {
+        "calls": 46270,
+        "function": "lop_real",
+        "inclusive_s": 0.670338463,
+        "line": 254,
+        "module": "ctx_iv.py",
+        "primitive_calls": 46270,
+        "self_s": 0.058523413
+      },
+      {
+        "calls": 93974,
+        "function": "convert_mpf_",
+        "inclusive_s": 0.271387947,
+        "line": 30,
+        "module": "ctx_iv.py",
+        "primitive_calls": 93974,
+        "self_s": 0.053549571000000004
+      },
+      {
+        "calls": 83440,
+        "function": "finalize",
+        "inclusive_s": 0.159748042,
+        "line": 408,
+        "module": "libmpi.py",
+        "primitive_calls": 83440,
+        "self_s": 0.046629566000000004
+      },
+      {
+        "calls": 112918,
+        "function": "ceil",
+        "inclusive_s": 0.061027058,
+        "line": 67,
+        "module": "p15_src_stagewise_continuum.py",
+        "primitive_calls": 112918,
+        "self_s": 0.042439097
+      },
+      {
+        "calls": 48711,
+        "function": "g_real",
+        "inclusive_s": 0.354022112,
+        "line": 247,
+        "module": "ctx_iv.py",
+        "primitive_calls": 48711,
+        "self_s": 0.042172706000000004
+      },
+      {
+        "calls": 365789,
+        "function": "<built-in method builtins.hasattr>",
+        "inclusive_s": 0.042085505,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 365789,
+        "self_s": 0.042085505
+      },
+      {
+        "calls": 21667,
+        "function": "mpi_mul",
+        "inclusive_s": 0.121733321,
+        "line": 131,
+        "module": "libmpi.py",
+        "primitive_calls": 21667,
+        "self_s": 0.040812355
+      },
+      {
+        "calls": 141597,
+        "function": "make_mpf",
+        "inclusive_s": 0.06534469500000001,
+        "line": 397,
+        "module": "ctx_iv.py",
+        "primitive_calls": 141597,
+        "self_s": 0.039763268000000004
+      },
+      {
+        "calls": 41720,
+        "function": "cos_sin_quadrant",
+        "inclusive_s": 0.892175202,
+        "line": 363,
+        "module": "libmpi.py",
+        "primitive_calls": 41720,
+        "self_s": 0.037907919000000005
+      },
+      {
+        "calls": 103154,
+        "function": "from_int",
+        "inclusive_s": 0.207854786,
+        "line": 330,
+        "module": "libmpf.py",
+        "primitive_calls": 103154,
+        "self_s": 0.035308682
+      },
+      {
+        "calls": 41720,
+        "function": "mpf_min_max",
+        "inclusive_s": 0.238401936,
+        "line": 646,
+        "module": "libmpf.py",
+        "primitive_calls": 41720,
+        "self_s": 0.034208564000000004
+      },
+      {
+        "calls": 39062,
+        "function": "mpf_div",
+        "inclusive_s": 0.058276405,
+        "line": 950,
+        "module": "libmpf.py",
+        "primitive_calls": 39062,
+        "self_s": 0.032133916000000005
+      },
+      {
+        "calls": 18217,
+        "function": "mpi_div",
+        "inclusive_s": 0.09142523000000001,
+        "line": 214,
+        "module": "libmpi.py",
+        "primitive_calls": 18217,
+        "self_s": 0.030536048000000003
+      },
+      {
+        "calls": 113200,
+        "function": "<built-in method math.floor>",
+        "inclusive_s": 0.042717548,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 113200,
+        "self_s": 0.029899943000000002
+      },
+      {
+        "calls": 339529,
+        "function": "denominator",
+        "inclusive_s": 0.028694935,
+        "line": 401,
+        "module": "fractions.py",
+        "primitive_calls": 339529,
+        "self_s": 0.028694935
+      },
+      {
+        "calls": 20862,
+        "function": "g",
+        "inclusive_s": 1.528276712,
+        "line": 356,
+        "module": "ctx_iv.py",
+        "primitive_calls": 20862,
+        "self_s": 0.028668984
+      },
+      {
+        "calls": 41368,
+        "function": "_mpf_dyadic",
+        "inclusive_s": 0.03460947,
+        "line": 28,
+        "module": "p15_src_fixed_interval.py",
+        "primitive_calls": 41368,
+        "self_s": 0.026747111
+      },
+      {
+        "calls": 171532,
+        "function": "mpf_sign",
+        "inclusive_s": 0.024998703,
+        "line": 692,
+        "module": "libmpf.py",
+        "primitive_calls": 171532,
+        "self_s": 0.024998703
+      },
+      {
+        "calls": 65084,
+        "function": "mpf_sub",
+        "inclusive_s": 0.153414303,
+        "line": 797,
+        "module": "libmpf.py",
+        "primitive_calls": 65084,
+        "self_s": 0.02412208
+      },
+      {
+        "calls": 77746,
+        "function": "g",
+        "inclusive_s": 0.024490165,
+        "line": 94,
+        "module": "libelefun.py",
+        "primitive_calls": 77746,
+        "self_s": 0.024068976000000002
+      },
+      {
+        "calls": 282966,
+        "function": "numerator",
+        "inclusive_s": 0.023719521,
+        "line": 397,
+        "module": "fractions.py",
+        "primitive_calls": 282966,
+        "self_s": 0.023719521
+      },
+      {
+        "calls": 80257,
+        "function": "__lt__",
+        "inclusive_s": 0.15884392900000002,
+        "line": 955,
+        "module": "fractions.py",
+        "primitive_calls": 80257,
+        "self_s": 0.022713499
+      },
+      {
+        "calls": 89198,
+        "function": "<built-in method builtins.divmod>",
+        "inclusive_s": 0.022018159000000002,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 89198,
+        "self_s": 0.022018159000000002
+      },
+      {
+        "calls": 50170,
+        "function": "mpf_lt",
+        "inclusive_s": 0.12445554,
+        "line": 626,
+        "module": "libmpf.py",
+        "primitive_calls": 50170,
+        "self_s": 0.021913016
+      },
+      {
+        "calls": 37638,
+        "function": "ceil_left_limit",
+        "inclusive_s": 0.042809109000000005,
+        "line": 57,
+        "module": "p15_src_stagewise_continuum.py",
+        "primitive_calls": 37638,
+        "self_s": 0.019920851
+      },
+      {
+        "calls": 10900,
+        "function": "scalar",
+        "inclusive_s": 0.39646775900000003,
+        "line": 39,
+        "module": "p15_src_continuum_bounds.py",
+        "primitive_calls": 10900,
+        "self_s": 0.019920813000000002
+      },
+      {
+        "calls": 48119,
+        "function": "mpf_le",
+        "inclusive_s": 0.047391838000000006,
+        "line": 631,
+        "module": "libmpf.py",
+        "primitive_calls": 48119,
+        "self_s": 0.019651494000000002
+      },
+      {
+        "calls": 4,
+        "function": "_derivative_weights",
+        "inclusive_s": 0.16000534600000002,
+        "line": 75,
+        "module": "p15_src_fixed_interval.py",
+        "primitive_calls": 4,
+        "self_s": 0.019517358000000002
+      },
+      {
+        "calls": 1308,
+        "function": "difference_upper",
+        "inclusive_s": 0.5674364350000001,
+        "line": 47,
+        "module": "p15_src_difference_upper.py",
+        "primitive_calls": 1308,
+        "self_s": 0.019301786
+      },
+      {
+        "calls": 58915,
+        "function": "__neg__",
+        "inclusive_s": 0.048942028000000005,
+        "line": 851,
+        "module": "fractions.py",
+        "primitive_calls": 58915,
+        "self_s": 0.018976768
+      },
+      {
+        "calls": 5232,
+        "function": "mpf_pow_int",
+        "inclusive_s": 0.023750361,
+        "line": 1042,
+        "module": "libmpf.py",
+        "primitive_calls": 5232,
+        "self_s": 0.017693188000000002
+      },
+      {
+        "calls": 143999,
+        "function": "<lambda>",
+        "inclusive_s": 0.01733623,
+        "line": 394,
+        "module": "ctx_iv.py",
+        "primitive_calls": 143999,
+        "self_s": 0.01733623
+      },
+      {
+        "calls": 37733,
+        "function": "floor_left_limit",
+        "inclusive_s": 0.034141346,
+        "line": 62,
+        "module": "p15_src_stagewise_continuum.py",
+        "primitive_calls": 37733,
+        "self_s": 0.017262553
+      },
+      {
+        "calls": 18826,
+        "function": "<built-in method builtins.any>",
+        "inclusive_s": 0.044892948,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 12,
+        "self_s": 0.017076254000000003
+      },
+      {
+        "calls": 37638,
+        "function": "ceil_hi",
+        "inclusive_s": 0.138517577,
+        "line": 143,
+        "module": "p15_src_stagewise_continuum.py",
+        "primitive_calls": 37638,
+        "self_s": 0.016873812000000002
+      },
+      {
+        "calls": 67374,
+        "function": "<built-in method math.log>",
+        "inclusive_s": 0.016754722,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 67374,
+        "self_s": 0.016754722
+      },
+      {
+        "calls": 80257,
+        "function": "<built-in method _operator.lt>",
+        "inclusive_s": 0.016123433,
+        "line": 0,
+        "module": "~",
+        "primitive_calls": 80257,
+        "self_s": 0.016123433
+      },
+      {
+        "calls": 20684,
+        "function": "_from_iv",
+        "inclusive_s": 0.050360701,
+        "line": 42,
+        "module": "p15_src_fixed_interval.py",
+        "primitive_calls": 20684,
+        "self_s": 0.015751231
+      },
+      {
+        "calls": 169326,
+        "function": "<genexpr>",
+        "inclusive_s": 0.015725719000000003,
+        "line": 53,
+        "module": "p15_src_branch_bound.py",
+        "primitive_calls": 169326,
+        "self_s": 0.015725719000000003
+      },
+      {
+        "calls": 41720,
+        "function": "mpf_gt",
+        "inclusive_s": 0.08776476000000001,
+        "line": 636,
+        "module": "libmpf.py",
+        "primitive_calls": 41720,
+        "self_s": 0.014784284000000002
+      },
+      {
+        "calls": 1308,
+        "function": "cheap_alias_upper",
+        "inclusive_s": 0.74420255,
+        "line": 229,
+        "module": "p15_src_stagewise_continuum.py",
+        "primitive_calls": 1308,
+        "self_s": 0.012856855
+      }
+    ],
+    "profiling_enabled": true
+  },
+  "prover_code_sha256": {
+    "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+    "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+    "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+    "p15_src_branch_bound.py": "9553720939baeac7bcb86066b5d709798a4431ecb9da3f346546f9ffab13c4b1",
+    "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+    "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+    "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+    "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+    "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+    "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+    "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+    "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+    "p15_src_stagewise_continuum.py": "e0c29462aaf62d7a5fd462b3c0e53e0aa7bfcc6975c67227e63c4bbc9e071cbc",
+    "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+  },
+  "qualified_release": false,
+  "schema": "P15/full-frequency-cover-campaign/1",
+  "stage_snapshot_sha256": "695e24eb9ba49b187ccb061fc057fef8218e3e1311e472b3145b33a80c7b63df",
+  "verified_operator_binding_sha256": "6fb7c42785350cfdf93824ec60fe1e3baa5ab5c1ece7232a2b7569f3af42b172"
+}

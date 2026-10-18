@@ -1,0 +1,19 @@
+{
+  "command": "taskset -c 8 env PYTHONPATH=/workspace/scratch/47ef0cb747fa/deps:tests/dsd OPENBLAS_NUM_THREADS=1 python3 -m unittest -v test_p15_high_rate_population",
+  "elapsed_s_reported_by_unittest": 4.136,
+  "proof_code_sha256": {
+    "p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+    "p15_src_continuum_bounds.py": "2656e0fafac58a6d4cffd19002f6ff22d5a851f4e730afd9ab6e70c684f7f1b5",
+    "p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+    "p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d"
+  },
+  "proof_modules_unchanged": true,
+  "status": "PASS",
+  "test_obligations": [
+    "Every non-root trie node evaluated in capped and uncapped cases",
+    "No terminal saturation return in exhaustive reference cases",
+    "Final outward upper at least exact Fraction sum of independent direct-complex upper-endpoint products"
+  ],
+  "test_sha256": "1c78b3aa7a8c44c34efce26dfc80d1ce7a969017789a2ffb7fd045c1ba0f2741",
+  "tests": 8
+}

@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-m",
+    "unittest",
+    "test_p15_high_rate_experiment",
+    "-v"
+  ],
+  "cwd": "/workspace/scratch/47ef0cb747fa/work/sox_ng",
+  "exit_code": 0,
+  "sha256": {
+    "tests/dsd/p15_high_rate_experiment.py": "1dbaf498e8127facf0bab4a72916a1bba5f7d3785f8d1babb028e071a68bcd57",
+    "tests/dsd/test_p15_high_rate_experiment.py": "0a263511b059f66023bd73eff86f6d2e8d689a19b95bd65764a3206613bedb48"
+  }
+}
+test_actual_baseline_candidate_module_isolation (test_p15_high_rate_experiment.ExperimentHarness.test_actual_baseline_candidate_module_isolation) ... ok
+test_canonical_index_selects_exact_job_and_band (test_p15_high_rate_experiment.ExperimentHarness.test_canonical_index_selects_exact_job_and_band) ... ok
+test_changed_budget_and_code_are_refused_without_overwrite (test_p15_high_rate_experiment.ExperimentHarness.test_changed_budget_and_code_are_refused_without_overwrite) ... ok
+test_foreign_numerical_module_is_rejected (test_p15_high_rate_experiment.ExperimentHarness.test_foreign_numerical_module_is_rejected) ... ok
+test_idempotent_resume_does_not_reexecute_or_overwrite (test_p15_high_rate_experiment.ExperimentHarness.test_idempotent_resume_does_not_reexecute_or_overwrite) ... ok
+test_invalid_resource_budget_and_linked_receipt_are_rejected (test_p15_high_rate_experiment.ExperimentHarness.test_invalid_resource_budget_and_linked_receipt_are_rejected) ... ok
+test_loaded_proof_or_snapshot_cannot_rebind_during_verify (test_p15_high_rate_experiment.ExperimentHarness.test_loaded_proof_or_snapshot_cannot_rebind_during_verify) ... ok
+test_numerical_or_source_mutation_during_evaluation_is_rejected (test_p15_high_rate_experiment.ExperimentHarness.test_numerical_or_source_mutation_during_evaluation_is_rejected) ... ok
+test_resume_rechecks_inputs_after_operator_verification (test_p15_high_rate_experiment.ExperimentHarness.test_resume_rechecks_inputs_after_operator_verification) ... ok
+test_snapshot_operator_and_harness_mutation_are_rejected (test_p15_high_rate_experiment.ExperimentHarness.test_snapshot_operator_and_harness_mutation_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 4.352s
+
+OK

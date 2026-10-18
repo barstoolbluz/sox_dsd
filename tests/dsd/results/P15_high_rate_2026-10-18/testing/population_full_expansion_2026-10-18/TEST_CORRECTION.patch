@@ -1,0 +1,53 @@
+--- a/tests/dsd/test_p15_high_rate_population.py
++++ b/tests/dsd/test_p15_high_rate_population.py
+@@ -69,13 +69,23 @@
+     return total
+ 
+ 
+-def population_bound(paths, lo, hi, *, cap=True, limit="1000000", include=lambda path: True):
++def exact_upper_endpoint(value):
++    """Decode the directed endpoint as a rational, without a binary64 cast."""
++    sign, mantissa, exponent, bits = value._mpi_[1]
++    if bits < 0:
++        raise ValueError("finite reference endpoint required")
++    return Fraction(-mantissa if sign else mantissa) * Fraction(2)**exponent
++
++
++def population_bound(paths, lo, hi, *, cap=True, limit="1000000",
++                     include=lambda path: True, terminal_saturation=True):
+     stats = {}
+     def evaluate(term, left, right):
+         stage, shift = term
+         return direct_complex_magnitude(stage, left + shift, right + shift).b
+     upper, evaluations = bound_population(paths, lo, hi, include=include,
+-        limit=limit, evaluate=evaluate, stats=stats, use_subtree_caps=cap)
++        limit=limit, evaluate=evaluate, stats=stats, use_subtree_caps=cap,
++        use_terminal_saturation=terminal_saturation)
+     return upper, evaluations, stats
+ 
+ 
+@@ -154,11 +164,20 @@
+     def test_full_expansion_agrees_with_explicit_continuous_enclosures(self):
+         paths = independent_paths((halfband(96), halfband(48)), Fraction(1, 2))
+         lo, hi = Fraction(1, 7), Fraction(2, 7)
+-        direct = explicit_population(paths, lo, hi)
++        # Each direct-complex upper is an exact dyadic endpoint. Accumulate
++        # their products and sum in Fraction arithmetic, independently of the
++        # population bound's directed interval replacement arithmetic.
++        direct_upper = sum((math.prod(
++            exact_upper_endpoint(direct_complex_magnitude(stage, lo + shift, hi + shift))
++            for stage, shift in path.terms) for path in paths), Fraction(0))
+         for capped in (False, True):
+-            upper, calls, _ = population_bound(paths, lo, hi, cap=capped, limit="0")
+-            self.assertGreater(calls, 0)
+-            self.assertTrue(bool(upper >= direct.a))
++            # Zero limit forces exhaustive expansion only when the separately
++            # tested terminal-saturation optimization is explicitly disabled.
++            upper, calls, stats = population_bound(paths, lo, hi, cap=capped,
++                limit="0", terminal_saturation=False)
++            self.assertEqual(calls, stats["trie_nodes"] - 1)
++            self.assertEqual(stats["terminal_saturation_returns"], 0)
++            self.assertGreaterEqual(exact_upper_endpoint(upper), direct_upper)
+         # A source-frequency label collision does not merge distinct paths.
+         collided = tuple(replace(path, upstream_shift=Fraction(0)) for path in paths)
+         self.assertEqual(population_bound(paths, lo, hi)[0], population_bound(collided, lo, hi)[0])

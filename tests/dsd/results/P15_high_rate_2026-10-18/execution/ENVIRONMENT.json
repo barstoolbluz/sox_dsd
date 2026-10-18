@@ -1,0 +1,32 @@
+{
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "captured_utc": "2026-10-18T20:22:59.806152+00:00",
+  "cgroup": {
+    "/sys/fs/cgroup/cpu.max": "800000 100000",
+    "/sys/fs/cgroup/cpuset.cpus.effective": "0-8",
+    "/sys/fs/cgroup/memory.max": "8589934592",
+    "/sys/fs/cgroup/memory.swap.max": "max"
+  },
+  "cpu_models": [
+    "AMD EPYC 9V74 80-Core Processor"
+  ],
+  "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "measurement_notes": [
+    "Each benchmark pair uses identical fixed CPU affinity in fresh processes.",
+    "Other campaign workers run concurrently on distinct assigned CPUs.",
+    "Shared cache, memory bandwidth and host scheduling may cause variation; no confidence interval is inferred from one pair.",
+    "Peak RSS is per process, not cgroup peak."
+  ],
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+}

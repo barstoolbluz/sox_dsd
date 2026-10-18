@@ -1,0 +1,10 @@
+{
+  "proof_code_before_sha256": {
+    "p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+    "p15_src_continuum_bounds.py": "2656e0fafac58a6d4cffd19002f6ff22d5a851f4e730afd9ab6e70c684f7f1b5",
+    "p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+    "p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d"
+  },
+  "reason": "The terminal-saturation optimization made limit=0 return early. The independent full-expansion test must explicitly disable that optimization and compare the final outward upper to the exact rational sum of independent direct-complex upper-endpoint products.",
+  "test_before_sha256": "2f5c5cc35973f50a6c14d3fae4226d8da9e3c95b1e22958a29947118a906c676"
+}

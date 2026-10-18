@@ -1,0 +1,422 @@
+{
+  "profiles": [
+    {
+      "certificate": {
+        "band_kind": "pass",
+        "certified_hz": [
+          "39000",
+          "40000"
+        ],
+        "cheap_difference_majorants_used": 192,
+        "exact_branch_splits": 1,
+        "exact_path_enumerations": 3,
+        "fir_interval_evaluations": 1324,
+        "fully_proven_subintervals": 2,
+        "governing_passband_hz": 40000,
+        "governing_stopband_hz": 80000,
+        "input_hz": 176400,
+        "limitations": "Local stationary coefficient operator only. Stop mode bounds native input frequencies beyond S folding into the named output interval; does not infer full-band or 72-cell certificate, nor FFT4G runtime rounding.",
+        "limits": {
+          "coherent_alias_db": "-160",
+          "passband_db": "0.0001"
+        },
+        "max_coherent_alias_upper": 9.980114828853607e-09,
+        "max_native_stop_source_transfer_upper": null,
+        "max_total_transfer_upper": 1.000000953110308,
+        "method": "exact binary64 finite-difference high-frequency majorants and cached 288-bit outward dyadic Taylor recurrence; 75-digit directed complex fallback; complete L1-majorized stagewise inverse aliases",
+        "min_wanted_transfer_lower": 0.999999046903575,
+        "native_hz": 11289600,
+        "nodes_examined": 3,
+        "output_hz": 384000,
+        "profile": "master256",
+        "qualified_release": false,
+        "status": "PASS-LOCAL-BAND"
+      },
+      "elapsed_s": 28.388931729000205,
+      "functions": [
+        {
+          "calls": 4939510,
+          "function": "_mul",
+          "inclusive_s": 12.294823709000001,
+          "line": 55,
+          "module": "p15_src_fixed_interval.py",
+          "primitive_calls": 4939510,
+          "self_s": 7.747573871
+        },
+        {
+          "calls": 1132,
+          "function": "fixed_symmetric_magnitude_bounds",
+          "inclusive_s": 24.173762642,
+          "line": 115,
+          "module": "p15_src_fixed_interval.py",
+          "primitive_calls": 1132,
+          "self_s": 4.320935433
+        },
+        {
+          "calls": 8403496,
+          "function": "_ceil_div",
+          "inclusive_s": 3.471733694,
+          "line": 24,
+          "module": "p15_src_fixed_interval.py",
+          "primitive_calls": 8403496,
+          "self_s": 3.471733694
+        },
+        {
+          "calls": 3443598,
+          "function": "_multiply_ratio",
+          "inclusive_s": 4.043802231,
+          "line": 99,
+          "module": "p15_src_fixed_interval.py",
+          "primitive_calls": 3443598,
+          "self_s": 2.6904774330000003
+        },
+        {
+          "calls": 3,
+          "function": "complete_paths",
+          "inclusive_s": 2.5948564330000004,
+          "line": 116,
+          "module": "p15_src_stagewise_continuum.py",
+          "primitive_calls": 3,
+          "self_s": 0.377633223
+        },
+        {
+          "calls": 107308,
+          "function": "_mul",
+          "inclusive_s": 0.18632472800000002,
+          "line": 742,
+          "module": "fractions.py",
+          "primitive_calls": 107308,
+          "self_s": 0.112927151
+        },
+        {
+          "calls": 2,
+          "function": "bound_population",
+          "inclusive_s": 25.245401305,
+          "line": 39,
+          "module": "p15_src_branch_bound.py",
+          "primitive_calls": 2,
+          "self_s": 0.101460296
+        },
+        {
+          "calls": 1308,
+          "function": "difference_upper",
+          "inclusive_s": 0.5674364350000001,
+          "line": 47,
+          "module": "p15_src_difference_upper.py",
+          "primitive_calls": 1308,
+          "self_s": 0.019301786
+        }
+      ],
+      "job_index": 5636,
+      "profiling_enabled": true,
+      "receipt": "tests/dsd/results/P15_high_rate_2026-10-18/profiles/final_v1/baseline/2d02eeabf8ea5f04c01885cf211fe63dfd3ea1e35cf7ec45769819fab43ba357.json",
+      "receipt_sha256": "2ceaaebd1f26e04427b142db6aab4322ff4ec4e63f81b956082ea04bb8d3ebe5",
+      "role": "baseline"
+    },
+    {
+      "certificate": {
+        "alias_population_operations": {
+          "frontier_expansions": 388,
+          "frontier_insertions": 694,
+          "subtree_caps_used": 690,
+          "trie_nodes": 37632
+        },
+        "band_kind": "pass",
+        "certified_hz": [
+          "39000",
+          "40000"
+        ],
+        "cheap_difference_majorants_used": 192,
+        "exact_branch_splits": 1,
+        "exact_path_enumerations": 3,
+        "fir_interval_evaluations": 346,
+        "fully_proven_subintervals": 2,
+        "governing_passband_hz": 40000,
+        "governing_stopband_hz": 80000,
+        "input_hz": 176400,
+        "interval_subdivisions": 0,
+        "limitations": "Local stationary coefficient operator only. Stop mode bounds native input frequencies beyond S folding into the named output interval; does not infer full-band or 72-cell certificate, nor FFT4G runtime rounding.",
+        "limits": {
+          "coherent_alias_db": "-160",
+          "passband_db": "0.0001"
+        },
+        "max_alias_path_population": 9408,
+        "max_coherent_alias_upper": 9.935211486815417e-09,
+        "max_native_stop_source_transfer_upper": null,
+        "max_total_transfer_upper": 1.0000009530654046,
+        "method": "exact complementary-halfband full-subtree majorants; exact binary64 finite-difference high-frequency majorants and cached 288-bit outward dyadic Taylor recurrence; 75-digit directed complex fallback; complete L1-majorized stagewise inverse aliases",
+        "min_wanted_transfer_lower": 0.9999990469484783,
+        "native_hz": 11289600,
+        "nodes_examined": 3,
+        "output_hz": 384000,
+        "profile": "master256",
+        "qualified_release": false,
+        "status": "PASS-LOCAL-BAND"
+      },
+      "elapsed_s": 17.308209543999965,
+      "functions": [
+        {
+          "calls": 2937040,
+          "function": "_mul",
+          "inclusive_s": 6.603214848,
+          "line": 55,
+          "module": "p15_src_fixed_interval.py",
+          "primitive_calls": 2937040,
+          "self_s": 4.131980418
+        },
+        {
+          "calls": 209,
+          "function": "fixed_symmetric_magnitude_bounds",
+          "inclusive_s": 12.853412883,
+          "line": 115,
+          "module": "p15_src_fixed_interval.py",
+          "primitive_calls": 209,
+          "self_s": 2.261165258
+        },
+        {
+          "calls": 4987368,
+          "function": "_ceil_div",
+          "inclusive_s": 1.9184736930000001,
+          "line": 24,
+          "module": "p15_src_fixed_interval.py",
+          "primitive_calls": 4987368,
+          "self_s": 1.9184736930000001
+        },
+        {
+          "calls": 2046564,
+          "function": "_multiply_ratio",
+          "inclusive_s": 2.1653976420000003,
+          "line": 99,
+          "module": "p15_src_fixed_interval.py",
+          "primitive_calls": 2046564,
+          "self_s": 1.4381262860000001
+        },
+        {
+          "calls": 3,
+          "function": "complete_paths",
+          "inclusive_s": 3.179848271,
+          "line": 116,
+          "module": "p15_src_stagewise_continuum.py",
+          "primitive_calls": 3,
+          "self_s": 0.4804086
+        },
+        {
+          "calls": 107476,
+          "function": "_mul",
+          "inclusive_s": 0.23273485200000002,
+          "line": 742,
+          "module": "fractions.py",
+          "primitive_calls": 107476,
+          "self_s": 0.14321688300000002
+        },
+        {
+          "calls": 2,
+          "function": "bound_population",
+          "inclusive_s": 13.502211394000001,
+          "line": 76,
+          "module": "p15_src_branch_bound.py",
+          "primitive_calls": 2,
+          "self_s": 0.13030139200000002
+        },
+        {
+          "calls": 2,
+          "function": "_complete_subtree_caps",
+          "inclusive_s": 0.384810806,
+          "line": 40,
+          "module": "p15_src_branch_bound.py",
+          "primitive_calls": 2,
+          "self_s": 0.076742161
+        }
+      ],
+      "job_index": 5636,
+      "profiling_enabled": true,
+      "receipt": "tests/dsd/results/P15_high_rate_2026-10-18/profiles/final_v1/candidate/2d02eeabf8ea5f04c01885cf211fe63dfd3ea1e35cf7ec45769819fab43ba357.json",
+      "receipt_sha256": "1ac94e80f7b0caffbf95f3d565a2d4e05b680c4bf7285cbe1475867bd3ace64c",
+      "role": "candidate"
+    }
+  ],
+  "runs": [
+    {
+      "all_jobs_metrics": {
+        "baseline": {
+          "certified_intervals_per_process_wall_hour": 153.33074839716696,
+          "median_rss_kib": 125530.0,
+          "proof_setup_accounting_overhead_seconds": 45.47092972399969,
+          "total_operation_counters": null
+        },
+        "candidate": {
+          "certified_intervals_per_process_wall_hour": 187.5996518336164,
+          "median_rss_kib": 125066.0,
+          "proof_setup_accounting_overhead_seconds": 45.633999320000726,
+          "total_operation_counters": null
+        }
+      },
+      "common_pass_metrics": {
+        "baseline": {
+          "cheap_difference_majorants_used": 3613,
+          "cpu_s": 347.558373163,
+          "elapsed_s": 351.0444052960005,
+          "exact_branch_splits": 22,
+          "exact_path_enumerations": 66,
+          "fir_interval_evaluations": 39060,
+          "interval_subdivisions": null,
+          "nodes_examined": 112
+        },
+        "candidate": {
+          "cheap_difference_majorants_used": 3511,
+          "cpu_s": 254.208465967,
+          "elapsed_s": 256.52735828699986,
+          "exact_branch_splits": 22,
+          "exact_path_enumerations": 66,
+          "fir_interval_evaluations": 25493,
+          "interval_subdivisions": 23,
+          "nodes_examined": 112
+        }
+      },
+      "including_timeouts_certificate_cpu_throughput_ratio": 1.2454828675146843,
+      "including_timeouts_proof_wall_ratio": 1.2510157890823677,
+      "matched_pair_count": 24,
+      "name": "third_pass_vs_halfband_v1_24_pairs",
+      "output_rates": {
+        "44100": 2,
+        "192000": 2,
+        "384000": 20
+      },
+      "source_rates": {
+        "dsd128": 6,
+        "dsd256": 11,
+        "dsd64": 7
+      },
+      "verified_uniform_proof_code": {
+        "baseline": {
+          "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+          "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+          "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+          "p15_src_branch_bound.py": "9553720939baeac7bcb86066b5d709798a4431ecb9da3f346546f9ffab13c4b1",
+          "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+          "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+          "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+          "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+          "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+          "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+          "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+          "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+          "p15_src_stagewise_continuum.py": "e0c29462aaf62d7a5fd462b3c0e53e0aa7bfcc6975c67227e63c4bbc9e071cbc",
+          "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+        },
+        "candidate": {
+          "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+          "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+          "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+          "p15_src_branch_bound.py": "034771fec42e7b0c47ab25f39530cb2fd9bd304cedd0e4f194fef977d12726b2",
+          "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+          "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+          "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+          "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+          "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+          "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+          "p15_src_halfband_majorant.py": "3d71e72a802440d9ab94cbfac59b1668a016723d179948ce20f11e383e979550",
+          "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+          "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+          "p15_src_stagewise_continuum.py": "5d263e0a8a5424895e305a593110d2c2be9c7250aff118ffbe748d8f5909b250",
+          "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+        }
+      }
+    },
+    {
+      "all_jobs_metrics": {
+        "baseline": {
+          "certified_intervals_per_process_wall_hour": 125.91764837430955,
+          "median_rss_kib": 125576.0,
+          "proof_setup_accounting_overhead_seconds": 46.65724031800164,
+          "total_operation_counters": null
+        },
+        "candidate": {
+          "certified_intervals_per_process_wall_hour": 217.60800871168615,
+          "median_rss_kib": 125192.0,
+          "proof_setup_accounting_overhead_seconds": 45.7554349320003,
+          "total_operation_counters": {
+            "frontier_expansions": 20950,
+            "frontier_insertions": 34442,
+            "subtree_caps_used": 33864,
+            "terminal_saturation_returns": 28,
+            "trie_nodes": 992035
+          }
+        }
+      },
+      "common_pass_metrics": {
+        "baseline": {
+          "cheap_difference_majorants_used": 3613,
+          "cpu_s": 340.14236217,
+          "elapsed_s": 342.24380259600025,
+          "exact_branch_splits": 22,
+          "exact_path_enumerations": 66,
+          "fir_interval_evaluations": 39060,
+          "interval_subdivisions": null,
+          "nodes_examined": 112
+        },
+        "candidate": {
+          "cheap_difference_majorants_used": 3511,
+          "cpu_s": 217.484508568,
+          "elapsed_s": 219.08739359100036,
+          "exact_branch_splits": 22,
+          "exact_path_enumerations": 66,
+          "fir_interval_evaluations": 8973,
+          "interval_subdivisions": 23,
+          "nodes_examined": 112
+        }
+      },
+      "including_timeouts_certificate_cpu_throughput_ratio": 1.7904360839232205,
+      "including_timeouts_proof_wall_ratio": 1.514989476299188,
+      "matched_pair_count": 26,
+      "name": "third_pass_vs_candidate2_v2b_26_pairs",
+      "output_rates": {
+        "44100": 2,
+        "192000": 4,
+        "384000": 20
+      },
+      "source_rates": {
+        "dsd128": 6,
+        "dsd256": 13,
+        "dsd64": 7
+      },
+      "verified_uniform_proof_code": {
+        "baseline": {
+          "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+          "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+          "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+          "p15_src_branch_bound.py": "9553720939baeac7bcb86066b5d709798a4431ecb9da3f346546f9ffab13c4b1",
+          "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+          "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+          "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+          "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+          "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+          "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+          "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+          "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+          "p15_src_stagewise_continuum.py": "e0c29462aaf62d7a5fd462b3c0e53e0aa7bfcc6975c67227e63c4bbc9e071cbc",
+          "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+        },
+        "candidate": {
+          "p15_full_band_campaign.py": "17aba94177d11f42b1497e7ce60b546e875f5c1d865204e04ef4503e7fc7cf56",
+          "p15_numerical_reference.py": "60ddaa4c26b9399471545c3e5211418bb7c918232d4eb5449c1abea067d33115",
+          "p15_src_bound_operator.py": "ab9a77c81937f4ed5f68ee2d5f592a2ab2bb39a38b5772187103053b557d0c44",
+          "p15_src_branch_bound.py": "7a298cf8356b732de8a16f10dd824677694478f20c436438c971ae8e477dd583",
+          "p15_src_capture_matrix.py": "7cd12f856d45c0a6f4267ac73e787691ca97ec17144e864c7b8c08fa22f06e74",
+          "p15_src_complete_aliases.py": "6637df52a083bfbc99a9429317a8a88d5aa3c76b378d30b1e72c35a16215323c",
+          "p15_src_continuum_bounds.py": "fbc867b42a19f59ab5a85010b29423c1a2fd1e7a7dbe51b892c43d76488d5e5f",
+          "p15_src_difference_upper.py": "50ff557922360e74e815e434ebda4f914fbd64e1e01a06ce7afe5e64bd7fd627",
+          "p15_src_fixed_interval.py": "ef71ef4d89adfc24d911b16349dcf9113102f2ee1fef0279435b714fde9cb823",
+          "p15_src_full_chain.py": "bbd5c8e430fa3b93cebbbc0baa362ae2482aabcad1045b96292dd5f2eae8b679",
+          "p15_src_halfband_majorant.py": "e3fda2f3e7a53bc1cd574949909ec574d37ebd4bd1dbb5f969251b2a91b1d580",
+          "p15_src_interval_recurrence.py": "75387f9c5f425103f64812f80e144fac2e3342ebbbf30e6f42e6ebd6107101c5",
+          "p15_src_stagewise_alias_proof.py": "7a2d88d158174ed65e5c067a451b4a96f5c7848cb4e946f15f4ee83f414b0bde",
+          "p15_src_stagewise_continuum.py": "def3efee896a27008f5dbef2e8bfb8a6fab98d8a167d6ad9cd9e9a78ee6ce83d",
+          "p15_src_symmetric_interval.py": "fd72181ca2db3e0b0bfd3464c2de2742090f1636954c3856e5ecbc7881c24368"
+        }
+      }
+    }
+  ],
+  "schema": "P15/performance-additional-derivations/1",
+  "source_summary_sha256": "972901f5a7568345c7ba7aad2c2cf4a7c64a21c770c681b65f2214b10070719e"
+}

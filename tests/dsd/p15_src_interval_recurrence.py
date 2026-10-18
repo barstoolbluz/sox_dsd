@@ -16,7 +16,7 @@ from p15_src_continuum_bounds import TrigPoly,BadWitness,scalar
 iv.dps=75
 
 
-def magnitude_bounds(poly: TrigPoly,lo:Fraction,hi:Fraction,order=8):
+def general_magnitude_bounds(poly: TrigPoly,lo:Fraction,hi:Fraction,order=8):
     if not 1 <= order <= 12 or not Fraction(0)<=lo<=hi<=Fraction(1,2) or not poly.taps:
         raise BadWitness('invalid interval/order/coefficient witness')
     theta=2*iv.pi*scalar((lo+hi)/2)
@@ -69,3 +69,12 @@ def magnitude_bounds(poly: TrigPoly,lo:Fraction,hi:Fraction,order=8):
     for j in range(1,order+1):
         variation+=iv.sqrt(re[j]**2+im[j]**2)*radius**j/math.factorial(j)
     return center.a-variation.b,center.b+variation.b,center
+
+
+def magnitude_bounds(poly: TrigPoly,lo:Fraction,hi:Fraction,order=8):
+    """Exact-symmetry numerical fast path with conservative general fallback."""
+    from p15_src_symmetric_interval import even_taps
+    from p15_src_fixed_interval import fixed_symmetric_magnitude_bounds
+    if even_taps(poly) is not None:
+        return fixed_symmetric_magnitude_bounds(poly,lo,hi,order)
+    return general_magnitude_bounds(poly,lo,hi,order)
