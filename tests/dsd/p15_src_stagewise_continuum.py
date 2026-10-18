@@ -31,6 +31,7 @@ from p15_src_stagewise_alias_proof import (FIRStage,make_src_stages,
                       make_native_stages,AliasProofError)
 from p15_src_continuum_bounds import (TrigPoly,db_band,fraction,scalar)
 from p15_src_interval_recurrence import magnitude_bounds
+from p15_src_difference_upper import difference_upper
 from p15_src_branch_bound import bound_population
 from p15_src_capture_matrix import verify_pair
 from p15_src_complete_aliases import native_profile
@@ -112,7 +113,7 @@ def _poly(stage:FIRStage):
     return TrigPoly(tuple(stage.taps),Fraction(0))
 
 
-def complete_paths(profile,op,lo:Fraction,hi:Fraction,*,max_paths=12000,require_direct=True):
+def complete_paths(profile,op,lo:Fraction,hi:Fraction,*,max_paths=20000,require_direct=True):
     if not Fraction(0)<=lo<=hi<=Fraction(op.output_hz,2):
         raise Unproved('frequency band outside output Nyquist')
     stages=make_native_stages(profile)+make_src_stages(op)
@@ -172,13 +173,35 @@ def complete_paths(profile,op,lo:Fraction,hi:Fraction,*,max_paths=12000,require_
         if len(paths)>max_paths:
             raise Unproved('explicit path population exceeds allocated budget')
     native,_,_,_=native_profile(profile)
-    # In a valid stage-true period, each harmonic has exactly one reverse path.
-    # No frequency branch may be omitted or duplicated.
-    expected=Fraction(native*op.U,op.output_hz)
-    if expected.denominator!=1 or len(paths)!=int(expected):
-        raise Unproved('whole-chain harmonic coverage/count inconsistent')
-    if len({p.upstream_shift for p in paths})!=len(paths):
-        raise Unproved('frequency families collide; must coherently regroup explicitly')
+    # A factorized rate converter can have MULTIPLE reverse paths feeding the
+    # same primitive native harmonic. Neither deduplication nor a uniqueness
+    # assumption is sound: the physical transfer is the COHERENT sum of all
+    # those paths. bound_population includes every path separately and bounds
+    # that sum by the triangle inequality, including duplicate families.
+    # Check the complete, exact native lattice instead of its path count.
+    spacing=Fraction(op.output_hz,op.U)
+    expected=Fraction(native,1)/spacing
+    if expected.denominator!=1 or expected<1 or len(paths)<int(expected):
+        raise Unproved('whole-chain primitive harmonic count inconsistent')
+    # Existing single-path-per-family fixture support uses synthetic native
+    # stages whose source clock deliberately differs from native_profile.
+    # Preserve that legacy unit-test behavior. For all REAL (source-clock-
+    # consistent) topologies, check the lattice regardless of multiplicity.
+    if stages[0].input_hz==native:
+        lower=ceil((-Fraction(native,2)-midpoint)/spacing)
+        upper=ceil((Fraction(native,2)-midpoint)/spacing)-1
+        represented=set()
+        for path in paths:
+            shifted=path.upstream_shift/spacing
+            if shifted.denominator!=1 or not lower<=shifted.numerator<=upper:
+                raise Unproved('inverse path leaves exact primitive native lattice')
+            represented.add(shifted.numerator)
+        if len(represented)!=int(expected) or min(represented)!=lower or max(represented)!=upper:
+            raise Unproved('incomplete primitive native source lattice')
+    elif len(paths)!=int(expected) or len({p.upstream_shift for p in paths})!=len(paths):
+        # An incoherent injected topology must never gain the new path-
+        # collision admission without a physically consistent native lattice.
+        raise Unproved('native source-stage clock mismatch in colliding topology')
     if require_direct and sum(p.direct for p in paths)!=1:
         raise Unproved('no unique zero-shift wanted branch')
     return tuple(paths)
@@ -202,6 +225,37 @@ def bounds_single(stage:FIRStage,shift:Fraction,lo:Fraction,hi:Fraction):
     return (down.a/stage.L if bool(down.a>0) else iv.mpf(0)),up.b/stage.L
 
 
+
+def cheap_alias_upper(stage:FIRStage,shift:Fraction,lo:Fraction,hi:Fraction):
+    """Use exact FIR finite differences only when already decisively small.
+
+    This can never lower an amplitude requirement: it is an alternate global
+    UPPER majorant for each high-frequency branch. The direct wanted path
+    still uses the full two-sided interval evaluator, and inconclusive
+    difference bounds fall back to the independent Taylor evaluator.
+    """
+    a=lo+shift;b=hi+shift
+    if a<=0<=b:
+        qlo=Fraction(0);qhi=max(-a,b)
+    elif b<0:
+        qlo=-b;qhi=-a
+    else:
+        qlo=a;qhi=b
+    rate=stage.input_hz*stage.L
+    if qlo<0 or qhi>Fraction(rate,2):
+        return None  # The original bounds_single enforces this precondition.
+    high=difference_upper(_poly(stage),qlo/rate,qhi/rate)
+    if high is None:
+        return None
+    per_stage=(high/stage.L).b
+    # Internal cost/quality guard only; NEVER a permission to omit this alias.
+    # The full included upper enters bound_population, multiplied by every
+    # other stage bound and by every descendant. If it cannot certify, the
+    # result is still OPEN or further refined with no dropped contribution.
+    if bool(per_stage < iv.mpf('1e-10').a):
+        return per_stage
+    return None
+
 def bound_segment(paths,lo,hi,*,stop_source_hz,mode='pass'):
     """Certify a complete coherent-alias *upper* using exact L1 subtrees.
 
@@ -213,9 +267,17 @@ def bound_segment(paths,lo,hi,*,stop_source_hz,mode='pass'):
     if mode not in ('pass','stop'):
         raise Unproved('unknown population bound mode')
     cache={}
+    difference_used=0
+    population_stats={}
     def stage_upper(term,left,right):
+        nonlocal difference_used
         if term not in cache:
-            cache[term]=bounds_single(term[0],term[1],left,right)
+            alternate=cheap_alias_upper(term[0],term[1],left,right)
+            if alternate is None:
+                cache[term]=bounds_single(term[0],term[1],left,right)
+            else:
+                cache[term]=(iv.mpf(0),alternate)
+                difference_used+=1
         return cache[term][1]
 
     if mode=='stop':
@@ -226,10 +288,11 @@ def bound_segment(paths,lo,hi,*,stop_source_hz,mode='pass'):
             # conservative. It cannot undercount a boundary-crossing source.
             return max(abs(a),abs(b))>=stop_source_hz
         source_stop_upper,_=bound_population(paths,lo,hi,include=stop_source,
-                                  limit='1e-8',evaluate=stage_upper)
+                                  limit='1e-8',evaluate=stage_upper,stats=population_stats)
         return dict(wanted_lower=None,wanted_upper=None,unwanted_upper=None,
                     source_stopband_upper=source_stop_upper,
-                    amplitudes_evaluated=len(cache))
+                    amplitudes_evaluated=len(cache),difference_majorants_used=difference_used,
+                    population_stats=population_stats)
 
     direct=[path for path in paths if path.direct]
     if len(direct)!=1:
@@ -241,15 +304,16 @@ def bound_segment(paths,lo,hi,*,stop_source_hz,mode='pass'):
         low*=cache[term][0]
         high*=cache[term][1]
     upper_alias,_=bound_population(paths,lo,hi,include=lambda p:not p.direct,
-                                   limit='1e-8',evaluate=stage_upper)
+                                   limit='1e-8',evaluate=stage_upper,stats=population_stats)
     pass_lower=(low-upper_alias).a
     if not bool(pass_lower>0):pass_lower=iv.mpf(0)
     return dict(wanted_lower=pass_lower,wanted_upper=high+upper_alias,
                 unwanted_upper=upper_alias,source_stopband_upper=None,
-                amplitudes_evaluated=len(cache))
+                amplitudes_evaluated=len(cache),difference_majorants_used=difference_used,
+                population_stats=population_stats)
 
 
-def certificate(profile,op,lo_hz,hi_hz,*,mode="pass",max_nodes=32,max_paths=12000):
+def certificate(profile,op,lo_hz,hi_hz,*,mode="pass",max_nodes=32,max_paths=20000):
     lo,hi=fraction(lo_hz),fraction(hi_hz)
     if mode not in ('pass','stop') or profile not in PROFILE_BANDS:
         raise Unproved('unreviewed profile or spectral band classification')
@@ -269,33 +333,51 @@ def certificate(profile,op,lo_hz,hi_hz,*,mode="pass",max_nodes=32,max_paths=1200
     pmin,pmax=db_band('0.0001')
     hi_ref=iv.mpf(pmax);lo_ref=iv.mpf(pmin)
     alias_ref=iv.mpf('1e-8')
-    todo=[(lo,hi)]
+    # Only a full, exact-rational stationary alias schedule may be reused.
+    # A subinterval cannot introduce a new transition absent in its parent.
+    todo=[(lo,hi,None)]
     complete=examined=exact_splits=0
+    fir_evaluations=path_enumerations=difference_evaluations=0
+    populations=dict(trie_nodes=0,frontier_insertions=0,frontier_expansions=0,
+                     subtree_caps_used=0,terminal_saturation_returns=0)
+    max_population=subdivisions=0
     max_alias=0.;min_wanted=1.;max_total=0.
     def opened(reason):
         return dict(status='OPEN',reason=reason,qualified_release=False,
             proven_subintervals=complete,pending_intervals=len(todo),
-            nodes_examined=examined,exact_branch_splits=exact_splits)
+            nodes_examined=examined,exact_branch_splits=exact_splits,
+            fir_interval_evaluations=fir_evaluations,
+            cheap_difference_majorants_used=difference_evaluations,
+            exact_path_enumerations=path_enumerations,
+            max_alias_path_population=max_population,interval_subdivisions=subdivisions,
+            alias_population_operations=populations.copy())
     while todo:
         if examined>=max_nodes:
             return opened('subdivision_node_budget')
-        l,h=todo.pop()
+        l,h,paths=todo.pop()
         examined+=1
-        try:
-            paths=complete_paths(profile,op,l,h,max_paths=max_paths,
-                                 require_direct=(mode=='pass'))
-        except (AliasProofError,Unproved) as exc:
-            return opened('operator_path_precondition:'+str(exc))
+        if paths is None:
+            try:
+                path_enumerations+=1
+                paths=complete_paths(profile,op,l,h,max_paths=max_paths,
+                                     require_direct=(mode=='pass'))
+            except (AliasProofError,Unproved) as exc:
+                return opened('operator_path_precondition:'+str(exc))
         if isinstance(paths,BranchBoundary):
             if not l<paths.at<h:
                 return opened('noninterior_exact_branch_boundary')
             exact_splits+=1
-            todo.extend(((l,paths.at),(paths.at,h)))
+            todo.extend(((l,paths.at,None),(paths.at,h,None)))
             continue
+        max_population=max(max_population,len(paths))
         try:
             result=bound_segment(paths,l,h,stop_source_hz=S,mode=mode)
         except (AliasProofError,Unproved) as exc:
             return opened('operator_bound_precondition:'+str(exc))
+        fir_evaluations+=result['amplitudes_evaluated']
+        difference_evaluations+=result['difference_majorants_used']
+        for key,value in result['population_stats'].items():
+            populations[key]+=value
         wanted_lower=result['wanted_lower']
         wanted_upper=result['wanted_upper']
         aliases=result['unwanted_upper']
@@ -313,7 +395,8 @@ def certificate(profile,op,lo_hz,hi_hz,*,mode="pass",max_nodes=32,max_paths=1200
         if l==h:
             return opened('insufficient_interval_information_at_point')
         mid=(l+h)/2
-        todo.extend(((l,mid),(mid,h)))
+        subdivisions+=1
+        todo.extend(((l,mid,paths),(mid,h,paths)))
     return dict(status='PASS-LOCAL-BAND' if mode=='pass' else 'PASS-LOCAL-STOP-SOURCE',
         qualified_release=False,profile=profile,input_hz=op.input_hz,
         output_hz=op.output_hz,band_kind=mode,
@@ -321,12 +404,19 @@ def certificate(profile,op,lo_hz,hi_hz,*,mode="pass",max_nodes=32,max_paths=1200
         certified_hz=[str(lo),str(hi)],native_hz=native,
         fully_proven_subintervals=complete,nodes_examined=examined,
         exact_branch_splits=exact_splits,
+        fir_interval_evaluations=fir_evaluations,
+        cheap_difference_majorants_used=difference_evaluations,
+        exact_path_enumerations=path_enumerations,
+        max_alias_path_population=max_population,interval_subdivisions=subdivisions,
+        alias_population_operations=populations,
         max_coherent_alias_upper=max_alias if mode=='pass' else None,
         max_native_stop_source_transfer_upper=max_alias if mode=='stop' else None,
         min_wanted_transfer_lower=min_wanted if mode=='pass' else None,
         max_total_transfer_upper=max_total if mode=='pass' else None,
-        method=('75-digit directed interval Taylor recurrence, exact fractional '
-                'branch splits, complete L1-majorized stagewise inverse aliases'),
+        method=('exact complementary-halfband full-subtree majorants; '
+                'exact binary64 finite-difference high-frequency majorants and '
+                'cached 288-bit outward dyadic Taylor recurrence; 75-digit directed complex fallback; '
+                'complete L1-majorized stagewise inverse aliases'),
         limits=dict(passband_db='0.0001',coherent_alias_db='-160'),
         limitations=('Local stationary coefficient operator only. Stop mode bounds native input '
           'frequencies beyond S folding into the named output interval; does not infer '
@@ -350,15 +440,27 @@ def main():
     _,op=verify_pair(snapshot.parent,op_tmp.input_hz,op_tmp.output_hz)
     r=certificate(args.profile,op,args.lo,args.hi,mode=args.mode,max_nodes=args.max_nodes)
     r['schema']='P15/local-source-bound-composite-continuum/1'
+    # Bind a new certificate to the exact independent prover implementation.
+    # Historical receipts are left byte-identical and remain unchanged.
+    proof_modules=('p15_src_stagewise_continuum.py','p15_src_branch_bound.py',
+        'p15_src_halfband_majorant.py',
+        'p15_src_difference_upper.py','p15_src_interval_recurrence.py',
+        'p15_src_fixed_interval.py','p15_src_symmetric_interval.py',
+        'p15_src_continuum_bounds.py','p15_src_stagewise_alias_proof.py')
+    r['prover_code_sha256']={name:sha_file(Path(__file__).parent/name)
+                             for name in proof_modules}
     r['governing_dsd_design_sha256']=sha_file(Path(__file__).resolve().parents[2]/'docs/dsd/DSD_DESIGN.md')
     r['source_sha256']=source_identity()
     r['stage_snapshot_sha256']=sha_file(snapshot)
     r['verified_operator_binding_sha256']=sha_file(snapshot.parent/'operator-binding.json')
     if args.output:
-        output=args.output.resolve()
+        # Do not follow a symlink in an existing receipt pathname.
+        output=args.output.absolute()
         data=json.dumps(r,indent=2,sort_keys=True,allow_nan=False)+'\n'
+        if output.is_symlink():
+            raise Unproved('unsafe source-bound local spectral receipt path')
         if output.exists():
-            if output.is_symlink() or output.read_text()!=data:
+            if output.read_text()!=data:
                 raise Unproved('source-bound local spectral receipt conflict')
         else:
             output.parent.mkdir(parents=True,exist_ok=True)
@@ -366,8 +468,13 @@ def main():
             try:
                 with os.fdopen(fd,'w') as f:
                     f.write(data);f.flush();os.fsync(f.fileno())
-                if output.exists():raise Unproved('output appeared during publication')
-                os.replace(temp,output)
+                # The file system creates at most one winner. os.replace()
+                # would silently OVERWRITE a concurrent source-bound receipt.
+                try:
+                    os.link(temp,output)
+                except FileExistsError:
+                    if output.is_symlink() or output.read_text()!=data:
+                        raise Unproved('concurrent source-bound receipt conflict')
             finally:
                 if os.path.exists(temp):os.unlink(temp)
     print(json.dumps({k:v for k,v in r.items() if k!='source_sha256'},indent=2,sort_keys=True))

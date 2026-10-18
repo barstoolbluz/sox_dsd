@@ -73,7 +73,12 @@ def interval_deadline(seconds):
         raise IntervalBudgetExpired('interval wall-clock budget exhausted')
     signal.signal(signal.SIGALRM,expired)
     try:
-        signal.setitimer(signal.ITIMER_REAL,budget)
+        # One-shot SIGALRM can be caught and suppressed deep in numerical
+        # code (e.g. broad exception handling). Once the initial budget has
+        # expired, periodically re-deliver until the context unwinds. Before
+        # its deadline this has exactly the same timer cost as one-shot.
+        # Uninterruptible native calls are explicitly NOT hard-bounded.
+        signal.setitimer(signal.ITIMER_REAL,budget,0.05)
         yield
     finally:
         signal.setitimer(signal.ITIMER_REAL,0)
@@ -290,7 +295,7 @@ def import_archived_partial(output,*,chunk_hz='1000'):
 
 
 def run_campaign(output,*,chunk_hz='1000',start=0,limit=0,
-                 max_nodes=128,max_paths=12000,only_cell=None,only_mode=None,
+                 max_nodes=128,max_paths=20000,only_cell=None,only_mode=None,
                  interval_seconds=60.0):
     try:
         budget=float(interval_seconds)
@@ -377,7 +382,7 @@ def main():
     ap.add_argument('--start',type=int,default=0)
     ap.add_argument('--limit',type=int,default=1)
     ap.add_argument('--max-nodes',type=int,default=128)
-    ap.add_argument('--max-paths',type=int,default=12000)
+    ap.add_argument('--max-paths',type=int,default=20000)
     ap.add_argument('--interval-seconds',type=float,default=60.0)
     ap.add_argument('--summary-only',action='store_true')
     ap.add_argument('--import-existing',action='store_true')
