@@ -18,8 +18,8 @@ THIS=Path(__file__).resolve().parent
 ROOT=THIS.parents[1]
 if str(THIS) not in sys.path: sys.path.insert(0,str(THIS))
 
-from p15_src_capture_matrix import verify_pair
-from p15_src_bound_operator import load_snapshot,UnboundOperator
+from p15_src_capture_matrix import verify_pair,DEFAULT as ACTIVE_STAGE_ROOT
+from p15_src_bound_operator import load_snapshot,UnboundOperator,source_identity
 from p15_fft_coefficient_interval import certificate as fft_cert,CertificateError as FFTError
 from p15_native_coefficient_interval import certificate as native_cert,CertificateError as NativeError
 from p15_src_stagewise_continuum import (certificate as spectral_cert,
@@ -28,7 +28,7 @@ from p15_src_complete_aliases import native_profile
 from p15_dsd256_comparator_2026 import (verify as verify_match,InvalidReceipt,command)
 
 RESULT=THIS/'results/P15_REMAINING_PROOF_2026-10-16'
-STAGES=THIS/'results/P15_SRC_STAGE_BOUND_2026-10-16'
+STAGES=ACTIVE_STAGE_ROOT
 
 
 class NativeCoeffTests(unittest.TestCase):
@@ -62,7 +62,18 @@ class FFTCoeffTests(unittest.TestCase):
     def test_recompute_independently_and_refuse_stage_tampering(self):
         src=STAGES/'88200-48000/stage-snapshot.json'
         result=fft_cert(src)
-        self.assertEqual(result,json.loads((RESULT/'fft-bins/88200-48000.json').read_text()))
+        frozen=json.loads((RESULT/'fft-bins/88200-48000.json').read_text())
+        # The historical FFT receipt is immutable and intentionally names
+        # the frozen SOURCE identity. Recomputing against the opt-in branch
+        # must yield identical numerical evidence but a *different* source map.
+        self.assertEqual(result['source_sha256'],source_identity())
+        self.assertNotEqual(result['source_sha256'],frozen['source_sha256'])
+        changed={k for k in result['source_sha256'] if
+                 result['source_sha256'][k]!=frozen['source_sha256'][k]}
+        self.assertEqual(changed,{'src/rate_poly_fir0.h',
+                                  'tests/dsd/p15_src_capture_matrix.py'})
+        self.assertEqual({k:v for k,v in result.items() if k!='source_sha256'},
+                         {k:v for k,v in frozen.items() if k!='source_sha256'})
         with tempfile.TemporaryDirectory() as d:
             p=Path(d);fake=p/'stage-snapshot.json';fake.write_bytes(src.read_bytes()+b' ')
             (p/'operator-binding.json').write_bytes((src.parent/'operator-binding.json').read_bytes())

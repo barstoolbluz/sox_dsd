@@ -22,7 +22,8 @@ from p15_src_complete_aliases import (all_active_cells,alias_families,native_pro
 from p15_src_full_chain import full_period
 
 ROOT=Path(__file__).resolve().parents[2]
-DEFAULT=ROOT/'tests/dsd/results/P15_SRC_STAGE_BOUND_2026-10-16'
+# Never overwrite the immutable 2026-10-16 baseline receipts.
+DEFAULT=ROOT/'tests/dsd/results/P15_SRC_STAGE_BOUND_OPT_2026-10-17'
 
 
 def verify_pair(path:Path, input_hz:int,output_hz:int) -> tuple[dict,object]:
