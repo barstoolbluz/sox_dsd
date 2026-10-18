@@ -1,0 +1,26 @@
+{
+  "default_opt_in": false,
+  "exact_c_probe": {
+    "api_cases": 50,
+    "checks": 768060,
+    "direct_cases": 53856,
+    "rounding_modes": 4,
+    "sample_words_compared": 5409850,
+    "status": "PASS",
+    "stream_cases": 288
+  },
+  "limitations": "Earlier 24-test Python suite was before the guard-only source edit; new guarded C exact regression, new stage captures and independent rebinding tests passed. No full campaign or physical performance replay.",
+  "negative_opt_in_guard": "unacknowledged opt-in rejected by preprocessor",
+  "positive_opt_in_guard": "explicit acknowledged opt-in with contraction off accepted",
+  "qualified_release": false,
+  "release": "BLOCKED",
+  "schema": "P15/opt-src-rebind-validation/1",
+  "source_preprocessing": "byte-identical old and guarded versions with opt-in on and off",
+  "status": "PARTIAL_BUILD_HOST_VALIDATION",
+  "test_results": {
+    "alias_lattice": "5 PASS, 1 SKIP from 6 tests",
+    "campaign_corrective": "FAIL: pre-existing missing BranchBoundary and scheduler integration in input archive",
+    "pre_guard_core_python": "22 PASS, 2 SKIP from 24 tests",
+    "rebind_tests": "3 PASS"
+  }
+}

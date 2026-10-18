@@ -12,27 +12,75 @@ not a spectral acceptance relaxation.
 """
 from __future__ import annotations
 import argparse
+from contextlib import contextmanager
 from fractions import Fraction
 from hashlib import sha256
 import json
 import math
 import os
+import re
+import signal
+import threading
+import time
 from pathlib import Path
 import sys
 import tempfile
 
 from p15_src_complete_aliases import all_active_cells
-from p15_src_capture_matrix import verify_pair
+from p15_src_capture_matrix import verify_pair,DEFAULT as ACTIVE_STAGE_ROOT
 from p15_src_stagewise_continuum import certificate, PROFILE_BANDS
 from p15_src_bound_operator import source_identity,sha_file
 
 ROOT=Path(__file__).resolve().parents[2]
-SNAPSHOTS=ROOT/'tests/dsd/results/P15_SRC_STAGE_BOUND_2026-10-16'
+SNAPSHOTS=ACTIVE_STAGE_ROOT
 DESIGN=ROOT/'docs/dsd/DSD_DESIGN.md'
 SCHEMA='P15/full-frequency-cover-campaign/1'
 PRIOR_LOCAL=ROOT/'tests/dsd/results/P15_REMAINING_PROOF_2026-10-16/local-continuum'
+ARCHIVED_PARTIAL=ROOT/'tests/dsd/results/P15_full_band_campaign_partial_2026-10-17'
+# Independently pinned by the historical 43-stall routing replay.
+ARCHIVED_PARTIAL_SHA256='043e5475cb9c8d054759daa20005efd675ae58b98bfd0b6d221709b1585e3045'
+# Hash of the sorted (receipt filename, SHA-256-of-file) archive inventory.
+ARCHIVED_RECEIPTS_SHA256='7bbd0c5c2d889ad7bb46fbc27e8ba350b2c86f877b0f5f1e7c50c04a3b80347f'
 
 class Unproved(RuntimeError):pass
+
+
+class IntervalBudgetExpired(TimeoutError):
+    """Per-job wall-clock bound expired; the only disposition is OPEN."""
+
+
+@contextmanager
+def interval_deadline(seconds):
+    """Bound synchronous interval work using SIGALRM, restoring signal state.
+
+    Fail closed on unsupported platforms/threads. Python delivers the signal
+    when interpreter control returns from an uninterruptible native call; a
+    hard kill of such a call is not promised by this interface.
+    """
+    try:
+        budget=float(seconds)
+    except (TypeError,ValueError,OverflowError) as exc:
+        raise ValueError('invalid interval wall-clock budget') from exc
+    if not math.isfinite(budget) or budget<=0:
+        raise ValueError('invalid interval wall-clock budget')
+    if (not hasattr(signal,'SIGALRM') or not hasattr(signal,'ITIMER_REAL') or
+        threading.current_thread() is not threading.main_thread()):
+        raise Unproved('per-interval SIGALRM deadline not supported in this context')
+    previous_handler=signal.getsignal(signal.SIGALRM)
+    previous_timer=signal.getitimer(signal.ITIMER_REAL)
+    started=time.monotonic()
+    def expired(_signal,_frame):
+        raise IntervalBudgetExpired('interval wall-clock budget exhausted')
+    signal.signal(signal.SIGALRM,expired)
+    try:
+        signal.setitimer(signal.ITIMER_REAL,budget)
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL,0)
+        signal.signal(signal.SIGALRM,previous_handler)
+        if previous_timer[0]>0:
+            remaining=max(1e-6,previous_timer[0]-(time.monotonic()-started))
+            signal.setitimer(signal.ITIMER_REAL,remaining,previous_timer[1])
 
 def rational(x):
     try:q=Fraction(str(x))
@@ -99,7 +147,14 @@ def check_one(output,job,binding):
     if not isinstance(cert,dict) or cert.get('status') not in (
       'OPEN','PASS-LOCAL-BAND','PASS-LOCAL-STOP-SOURCE'):
         raise Unproved('invalid interval disposition')
-    if cert.get('status').startswith('PASS'):
+    status=cert['status']
+    # A stopband proof cannot discharge a passband job, or vice versa.
+    if status!='OPEN' and status!=(
+        'PASS-LOCAL-BAND' if job['mode']=='pass' else 'PASS-LOCAL-STOP-SOURCE'):
+        raise Unproved('interval certificate status incompatible with job mode')
+    if cert.get('qualified_release',False) is not False:
+        raise Unproved('unapproved inner-certificate release upgrade')
+    if status.startswith('PASS'):
         if (cert.get('certified_hz')!=[job['lo'],job['hi']] or
             cert.get('band_kind')!=job['mode'] or
             cert.get('input_hz')!=job['intermediate_hz'] or
@@ -168,8 +223,81 @@ def import_local_witnesses(output,*,chunk_hz='1000'):
         recognized+=1
     return recognized
 
+def archived_receipt_inventory(archive_receipts):
+    """Bind every historical receipt, not only the aggregate summary."""
+    state=sha256()
+    entries=sorted(archive_receipts.iterdir(),key=lambda p:p.name)
+    for file in entries:
+        if (file.is_symlink() or not file.is_file() or
+            re.fullmatch(r'[0-9a-f]{64}\.json',file.name) is None):
+            raise Unproved('unrecognized or linked archived receipt')
+        state.update(file.name.encode('ascii')+b'\0'+sha_file(file).encode('ascii')+b'\n')
+    return len(entries),state.hexdigest()
+
+
+def import_archived_partial(output,*,chunk_hz='1000'):
+    """Import source-matching historical receipts into an independent folder.
+
+    Do not alter immutable historical evidence or promote an archived OPEN.
+    The source SHA, job identity, certificate scope and byte-pinned historical
+    summary are checked before copying; pre-existing results are unchanged.
+    """
+    output=Path(output)
+    archive=ARCHIVED_PARTIAL.resolve()
+    destination=output.resolve()
+    if destination==archive or archive in destination.parents:
+        raise Unproved('archived campaign requires an independent output')
+    if not output.is_dir() or output.is_symlink():
+        raise Unproved('trusted independent output directory required')
+    summary=ARCHIVED_PARTIAL/'SUMMARY.json'
+    if (not summary.is_file() or summary.is_symlink() or
+        sha_file(summary)!=ARCHIVED_PARTIAL_SHA256):
+        raise Unproved('archived campaign summary SHA drift or unavailable')
+    historical=json.loads(summary.read_text())
+    jobs=canonical_plan(chunk_hz)
+    if (historical.get('intervals_nonterminating')!=43 or
+        len(historical.get('nonterminating_intervals',[]))!=43 or len(jobs)!=11516):
+        raise Unproved('historical campaign shape changed')
+    archive_receipts=ARCHIVED_PARTIAL/'receipts'
+    if not archive_receipts.is_dir() or archive_receipts.is_symlink():
+        raise Unproved('archived campaign receipts missing or linked')
+    receipt_count,receipt_digest=archived_receipt_inventory(archive_receipts)
+    if (receipt_count!=historical.get('receipts') or
+        receipt_digest!=ARCHIVED_RECEIPTS_SHA256):
+        raise Unproved('archived receipt inventory missing, added or SHA drift')
+    binding=bindings()
+    imported=0
+    for job in jobs:
+        source=receipt_path(archive_receipts,job)
+        proof=check_one(archive_receipts,job,binding)
+        if proof is None:continue
+        target=receipt_path(output,job)
+        if target.exists() or target.is_symlink():
+            check_one(output,job,binding)
+            continue
+        data=source.read_bytes()
+        if json.loads(data)!=proof:
+            raise Unproved('archived campaign receipt changed during import')
+        fd,temp=tempfile.mkstemp(prefix='.historic-',dir=output)
+        try:
+            with os.fdopen(fd,'wb') as stream:
+                stream.write(data);stream.flush();os.fsync(stream.fileno())
+            os.link(temp,target)
+        finally:
+            if os.path.exists(temp):os.unlink(temp)
+        imported+=1
+    return imported
+
+
 def run_campaign(output,*,chunk_hz='1000',start=0,limit=0,
-                 max_nodes=128,max_paths=12000,only_cell=None,only_mode=None):
+                 max_nodes=128,max_paths=12000,only_cell=None,only_mode=None,
+                 interval_seconds=60.0):
+    try:
+        budget=float(interval_seconds)
+    except (TypeError,ValueError,OverflowError) as exc:
+        raise Unproved('invalid per-interval wall-clock budget') from exc
+    if not math.isfinite(budget) or budget<=0:
+        raise Unproved('invalid per-interval wall-clock budget')
     jobs=canonical_plan(chunk_hz)
     bind=bindings()
     operators=source_operators(jobs)
@@ -185,8 +313,15 @@ def run_campaign(output,*,chunk_hz='1000',start=0,limit=0,
         file=receipt_path(output,job)
         if check_one(output,job,bind) is None:
             key=(job['intermediate_hz'],job['output_hz'])
-            result=certificate(job['profile'],operators[key],job['lo'],job['hi'],
-                 mode=job['mode'],max_nodes=max_nodes,max_paths=max_paths)
+            try:
+                with interval_deadline(budget):
+                    result=certificate(job['profile'],operators[key],job['lo'],job['hi'],
+                         mode=job['mode'],max_nodes=max_nodes,max_paths=max_paths)
+            except IntervalBudgetExpired:
+                result=dict(status='OPEN',reason='interval_wall_clock_budget_exhausted',
+                    qualified_release=False,certified_hz=[job['lo'],job['hi']],
+                    band_kind=job['mode'],input_hz=job['intermediate_hz'],
+                    output_hz=job['output_hz'])
             doc=dict(schema=SCHEMA,job=job,binding=bind,certificate=result,
                 qualified_release=False,mathematical_scope='local continuous interval')
             data=json.dumps(doc,indent=2,sort_keys=True,allow_nan=False)+'\n'
@@ -243,16 +378,19 @@ def main():
     ap.add_argument('--limit',type=int,default=1)
     ap.add_argument('--max-nodes',type=int,default=128)
     ap.add_argument('--max-paths',type=int,default=12000)
+    ap.add_argument('--interval-seconds',type=float,default=60.0)
     ap.add_argument('--summary-only',action='store_true')
     ap.add_argument('--import-existing',action='store_true')
+    ap.add_argument('--import-archived-partial',action='store_true')
     a=ap.parse_args()
     if a.limit<0 or a.max_nodes<1 or a.max_paths<1:raise Unproved('invalid resource bound')
     path=a.output.resolve()
     if a.import_existing:print('Verified prior local receipts imported:',import_local_witnesses(path,chunk_hz=a.chunk_hz))
-    result=(summarize(path,chunk_hz=a.chunk_hz) if a.summary_only or a.import_existing else
+    if a.import_archived_partial:print('Verified archived receipts imported:',import_archived_partial(path,chunk_hz=a.chunk_hz))
+    result=(summarize(path,chunk_hz=a.chunk_hz) if a.summary_only or a.import_existing or a.import_archived_partial else
         run_campaign(path,chunk_hz=a.chunk_hz,start=a.start,limit=a.limit,
             max_nodes=a.max_nodes,max_paths=a.max_paths,
-            only_cell=a.cell,only_mode=a.mode))
+            only_cell=a.cell,only_mode=a.mode,interval_seconds=a.interval_seconds))
     print(json.dumps({k:v for k,v in result.items() if k!='cell_counts'},indent=2,sort_keys=True))
     return 0 if result['status'].startswith('COMPLETE_COVERAGE_') else 2
 

@@ -1,0 +1,8 @@
+opt-in build PASS
+default-off build PASS
+=== build-flag contract checker ===
+{"flags": "-O2 -g -ffp-contract=off -DLSX_RATE_ORDERED_OPT=1 -DLSX_RATE_ORDERED_OPT_FP_CONTRACT_OFF=1 -Wall -W -Wstrict-prototypes -pedantic -fstack-protector-strong -fopenmp -I/usr/local/include/opus -I/usr/include/opus", "qualified_opt_in_cflags": true, "scope": "build-command screening only; not a compiler or spectral proof"}
+=== compiled C exact regression, opt-in ===
+{"schema":"production-src-opt/exact-regression/1","status":"PASS","checks":768060,"direct_cases":53856,"stream_cases":288,"api_cases":50,"sample_words_compared":5409850,"rounding_modes":4,"flt_eval_method":0,"effective_ordered":1,"ordered_opt":1}
+=== compiled C exact regression, default-off ===
+{"schema":"production-src-opt/exact-regression/1","status":"PASS","checks":768060,"direct_cases":53856,"stream_cases":288,"api_cases":50,"sample_words_compared":5409850,"rounding_modes":4,"flt_eval_method":0,"effective_ordered":0,"ordered_opt":0}

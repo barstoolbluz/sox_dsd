@@ -17,9 +17,10 @@ import sys
 from mpmath import iv
 
 from p15_src_bound_operator import load_snapshot,sha_file,source_identity
+from p15_src_capture_matrix import DEFAULT as ACTIVE_STAGE_ROOT
 
 ROOT=Path(__file__).resolve().parents[2]
-DEFAULT=ROOT/'tests/dsd/results/P15_SRC_STAGE_BOUND_2026-10-16'
+DEFAULT=ACTIVE_STAGE_ROOT
 
 class CertificateError(ValueError): pass
 

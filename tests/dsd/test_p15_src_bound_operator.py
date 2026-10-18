@@ -10,9 +10,10 @@ from unittest import mock
 from p15_src_bound_operator import (SRCOperator,Stage,UnboundOperator,
     capture,load_snapshot,sha_file,source_identity)
 from p15_src_complete_aliases import all_active_cells
+from p15_src_capture_matrix import DEFAULT as ACTIVE_STAGE_ROOT
 
 ROOT=Path(__file__).resolve().parents[2]
-RESULTS=ROOT/'tests/dsd/results/P15_SRC_STAGE_BOUND_2026-10-16'
+RESULTS=ACTIVE_STAGE_ROOT
 EXPORTER=ROOT/'test/dsd_test_p15_src_stage_export'
 
 

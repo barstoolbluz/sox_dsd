@@ -17,6 +17,17 @@
 
 #include <float.h>
 
+/* The ordered opt-in claims binary64 operation-order equivalence only when
+ * the compiler is explicitly configured not to contract multiply/add.  No
+ * portable C preprocessor macro reports -ffp-contract=off, so the opt-in
+ * build must declare that its build configuration has verified this flag.
+ * The declaration alone does not replace build-command verification. */
+#if defined(LSX_RATE_ORDERED_OPT) && LSX_RATE_ORDERED_OPT && \
+   (!defined(LSX_RATE_ORDERED_OPT_FP_CONTRACT_OFF) || \
+    LSX_RATE_ORDERED_OPT_FP_CONTRACT_OFF != 1)
+#error "LSX_RATE_ORDERED_OPT requires -ffp-contract=off and -DLSX_RATE_ORDERED_OPT_FP_CONTRACT_OFF=1"
+#endif
+
 /* Resample using a non-interpolated poly-phase FIR with length LEN.*/
 /* Input must be followed by LEN-1 samples. */
 

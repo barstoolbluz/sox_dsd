@@ -1,4 +1,5 @@
 """Exact alias lattice and native-FIR/SRC composition conformance tests."""
+from p15_src_capture_matrix import DEFAULT as ACTIVE_STAGE_ROOT
 from fractions import Fraction
 import json
 from pathlib import Path
@@ -15,7 +16,7 @@ from p15_src_full_chain import full_period,native_composite_gain
 from p15_numerical_reference import equivalent_exact
 
 ROOT=Path(__file__).resolve().parents[2]
-RESULTS=ROOT/'tests/dsd/results/P15_SRC_STAGE_BOUND_2026-10-16'
+RESULTS=ACTIVE_STAGE_ROOT
 
 
 def synthetic_identity():

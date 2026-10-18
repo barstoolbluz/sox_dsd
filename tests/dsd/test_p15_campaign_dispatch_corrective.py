@@ -12,7 +12,7 @@ import unittest
 from unittest.mock import patch
 
 from mpmath import iv
-from p15_src_capture_matrix import verify_pair
+from p15_src_capture_matrix import verify_pair,DEFAULT as ACTIVE_STAGE_ROOT
 from p15_src_stagewise_continuum import (BranchBoundary,complete_paths,
     certificate,bounds_single)
 from p15_src_continuum_bounds import (TrigPoly,magnitude_bounds as reference_bounds)
@@ -24,7 +24,7 @@ from p15_full_band_campaign import (interval_deadline,IntervalBudgetExpired,
 from p15_boundary_schedule_replay import DEFAULT as ROUTING_REPLAY
 from p15_physical_archive_review import review as physical_review,ArchivedEvidenceError,ARCHIVE
 
-SNAPSHOTS=Path(__file__).resolve().parent/'results/P15_SRC_STAGE_BOUND_2026-10-16'
+SNAPSHOTS=ACTIVE_STAGE_ROOT
 
 
 class ExactBranchTests(unittest.TestCase):
