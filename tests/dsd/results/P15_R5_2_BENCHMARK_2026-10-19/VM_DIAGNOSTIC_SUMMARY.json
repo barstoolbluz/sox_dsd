@@ -1,0 +1,42 @@
+{
+  "benchmark_dry_run_status": "NO_TIMING_PERFORMED",
+  "benchmark_vm_live_exit": 2,
+  "binary_shas": {
+    "candidate": "bd5a4e3f9ce096f96c34c380f3ba3d657a99ea8da63272ef4dfd0404e2b10bef",
+    "sox": "f77ebaf1b043300b45ea476af4755edf51ae4b2ab728449237d798ae0cd2ecbb"
+  },
+  "build": "GNU Autotools --disable-shared --without-libltdl CFLAGS=-O2 -g -ffp-contract=off -fno-fast-math",
+  "current_binary_matches_historical_measured_binary": false,
+  "date": "2026-10-19",
+  "host": "AMD EPYC 9V74 virtual KVM x86_64 (unqualified physical)",
+  "limitations": "VM comparator tests control shape and retained fixture spectra; no physical timings and no final release acceptance",
+  "negative": {
+    "archive": "P15_R52_VM_WRONG_CUTOFF_EVIDENCE_2026-10-19.tar.zst",
+    "full_passband": {
+      "v1-176400": 14.397764685911199,
+      "v1-352800": 14.262768149209649,
+      "v2-176400": 74.40913127565389,
+      "v2-352800": 76.44853018494527
+    },
+    "receipt_sha256": "161fd29134621f63beb3d38632099a14b9fdcae1866fae6d9dda427cc7ae0063",
+    "status": "CONTROL_MISMATCH",
+    "verified_existing_receipt": true
+  },
+  "physical_2x_gate": "OPEN",
+  "physical_benchmark": "NOT_RUN_VM_REFUSED_EXIT_2",
+  "physical_host_wrapper_vm_exit": 2,
+  "positive": {
+    "archive": "P15_R52_VM_FULL_PASS_SPECTRAL_EVIDENCE_2026-10-19.tar.zst",
+    "full_passband": {
+      "v1-176400": 0.001074264364604005,
+      "v1-352800": 0.0007743380047600112,
+      "v2-176400": 0.006184378852523764,
+      "v2-352800": 0.003497935310633693
+    },
+    "receipt_sha256": "f5fca78d03670cdecee08b55a1c777a0a06ea96755d0162d6c5a8e969317c801",
+    "status": "SPECTRALLY_MATCHED_DIAGNOSTIC",
+    "verified_existing_receipt": true
+  },
+  "production_source_unchanged_from_R5_1": true,
+  "schema": "P15/R5.2/vm-spectral-comparator-local-evidence/1"
+}

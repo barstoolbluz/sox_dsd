@@ -1,0 +1,177 @@
+{
+  "historical_evidence": {
+    "bench_audio": {
+      "full_payload_integrity": false,
+      "missing": [
+        "input-6ch.dsf",
+        "input-6ch.wav"
+      ],
+      "present_verified": 0,
+      "total_recorded": 2
+    },
+    "benchmark_receipt_sha256": "5c5f4a479601f833df68cc282730f7f76ed9f8b27875171c1bf903f25ab01511",
+    "captured_eight_source_files_match_current": true,
+    "cells": 4,
+    "comparisons_recomputed": 8,
+    "complete_release_source_dependency_closure": false,
+    "contains_changed_after_2026_10_16_header_unpinned_by_historical_receipt": true,
+    "current_binaries": {
+      "candidate": {
+        "matches_historical": false,
+        "path": "/mnt/data/p15_r52_bench_static/test/sox_p10_candidate",
+        "sha256": "bd5a4e3f9ce096f96c34c380f3ba3d657a99ea8da63272ef4dfd0404e2b10bef"
+      },
+      "sox": {
+        "matches_historical": false,
+        "path": "/mnt/data/p15_r52_bench_static/src/sox_ng",
+        "sha256": "f77ebaf1b043300b45ea476af4755edf51ae4b2ab728449237d798ae0cd2ecbb"
+      }
+    },
+    "externally_verified_physical_host": false,
+    "historical_benchmark_and_comparator_script_hashes_unrecorded": true,
+    "historical_binaries_sha256": {
+      "candidate": "fd57b589bd7d2fed519213f6dca5d1a2ea8ff560dcf070d496c6391a64b21f9e",
+      "sox": "a4b9680dfd82b5d28da691c9719088d5f27474ca26653bed3a5cbcc74ba33d3d"
+    },
+    "lower_95_percent_over_2x": 8,
+    "method": "15 raw timings/arm/cell, 10000 seeded unpaired bootstrap iterations",
+    "recorded_host_is_physical": true,
+    "release_binaries_available_for_original_measurement": false,
+    "spectral_audio": {
+      "full_payload_integrity": false,
+      "missing": [
+        "control-v1-176400.wav",
+        "control-v1-352800.wav",
+        "control-v2-176400.wav",
+        "control-v2-352800.wav",
+        "decoder-v1-176400.wav",
+        "decoder-v1-352800.wav",
+        "decoder-v2-176400.wav",
+        "decoder-v2-352800.wav",
+        "noise-dsd256.dsf",
+        "noise-pcm.wav"
+      ],
+      "present_verified": 2,
+      "total_recorded": 12
+    },
+    "spectral_receipt_sha256": "9af8aefb18e7dc3e557a789960401585f734e10b7cd23cc7b099f020d75b1a7a"
+  },
+  "overall_gate": "OPEN",
+  "physical_2x_gate": "OPEN",
+  "release_refusal": "Receipt arithmetic alone cannot authenticate the original physical host, full build dependency closure, or runtime binary identity. Historical audio payloads are absent unless the payload counts above say otherwise; final release requires a prospective physical measurement on the finalized production binaries or independent signoff of a matching verified execution identity.",
+  "rows": {
+    "decode.mastering.v2.dsd256@176400": {
+      "comparisons": {
+        "legacy_direct": {
+          "ci95": [
+            3.771550624524146,
+            3.7844285927156402
+          ],
+          "exceeds_two_at_lower_bound": true,
+          "point": 3.7794054877807937
+        },
+        "legacy_ps_matched": {
+          "ci95": [
+            3.8804825539928802,
+            3.8934080178651453
+          ],
+          "exceeds_two_at_lower_bound": true,
+          "point": 3.8866029325955007
+        }
+      },
+      "median_decoder_s": 2.4691112690000003,
+      "pass_hz": 66000,
+      "rate": 176400,
+      "spectral_max_abs_difference_db": 0.006105160824120048,
+      "stop_hz": 80000
+    },
+    "decode.mastering.v2.dsd256@352800": {
+      "comparisons": {
+        "legacy_direct": {
+          "ci95": [
+            3.6289395223087637,
+            3.6843827042596367
+          ],
+          "exceeds_two_at_lower_bound": true,
+          "point": 3.67296680324331
+        },
+        "legacy_ps_matched": {
+          "ci95": [
+            3.6405070252309546,
+            3.698099712499985
+          ],
+          "exceeds_two_at_lower_bound": true,
+          "point": 3.6886060811300676
+        }
+      },
+      "median_decoder_s": 2.550385081,
+      "pass_hz": 66000,
+      "rate": 352800,
+      "spectral_max_abs_difference_db": 0.003638863221851807,
+      "stop_hz": 80000
+    },
+    "mastering@176400": {
+      "comparisons": {
+        "legacy_direct": {
+          "ci95": [
+            3.8994044890926176,
+            3.923271838126344
+          ],
+          "exceeds_two_at_lower_bound": true,
+          "point": 3.912997905396834
+        },
+        "legacy_ps_matched": {
+          "ci95": [
+            4.005310147056799,
+            4.031206269370926
+          ],
+          "exceeds_two_at_lower_bound": true,
+          "point": 4.021262964124796
+        }
+      },
+      "median_decoder_s": 2.385937384,
+      "pass_hz": 40000,
+      "rate": 176400,
+      "spectral_max_abs_difference_db": 0.0020147045267293606,
+      "stop_hz": 80000
+    },
+    "mastering@352800": {
+      "comparisons": {
+        "legacy_direct": {
+          "ci95": [
+            3.7553429323575376,
+            3.8072759268954535
+          ],
+          "exceeds_two_at_lower_bound": true,
+          "point": 3.7841586680482564
+        },
+        "legacy_ps_matched": {
+          "ci95": [
+            3.7728308440329177,
+            3.8234658463670694
+          ],
+          "exceeds_two_at_lower_bound": true,
+          "point": 3.799646172736433
+        }
+      },
+      "median_decoder_s": 2.4746402840000004,
+      "pass_hz": 40000,
+      "rate": 352800,
+      "spectral_max_abs_difference_db": 0.0009555410080253068,
+      "stop_hz": 80000
+    }
+  },
+  "schema": "P15/R5.2/physical-benchmark-independent-review/1",
+  "scope": "Historical recorded physical benchmark, exact bound production SOURCE; no independent prior host attestation, original executables or raw audio custody.",
+  "source_sha256": {
+    "src/dsd_coeffs.h": "853c3e4c1902124513d99706a40a08c9b33363f7e18810ec41a955ab0b598d17",
+    "src/dsd_coeffs_v2.h": "a356b080cf7d90403bbcc684c4df047c1f190212f7156d0a6fcfed6fcbf9884c",
+    "src/dsd_decode.c": "7194387ab5906a1f8cfcaef98a46922a12dd680d2420febc5dd7e993f70bfad7",
+    "src/effects_i_dsp.c": "e576e050ee8b61c39d8f87f0295e1d115c2cc0d27ef2d3b6940e50cf1abd651a",
+    "src/fft4g.c": "fc547db7fc3d0938c53357f98c16ec8a1b999c8d94352faa6ea1547df084e39b",
+    "src/rate.c": "aefcbff631e391531e00dabcdf7a1d328fa110baa7379a33dc6cb2465eeaafa6",
+    "src/sinc.c": "31e49e5510db6d2570d6bd4d3bbeb84814fd41b68335bf3278f87cede838c30f",
+    "tests/dsd/verify_dsd256_control_match.py": "7e286957aed817078ca7b875fd2b8587a61c5374e39524b1b676a816a743923e"
+  },
+  "status": "HISTORICAL_SOURCE_MATCHED_RECEIPT_ARITHMETIC_VERIFIED"
+}
