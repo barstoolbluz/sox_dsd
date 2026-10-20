@@ -19,13 +19,17 @@
 
 #define PCMDSD_BATCH 256
 #define PCMDSD_NATIVE_BATCH 512
+/* qualified=1 as of 2026-10-20: the design authority recorded its P15
+ * engineering acceptance on 2026-10-19 and withdrew the outstanding
+ * formal-proof obligation as a release blocker. Coefficients, guards and
+ * certificate digests are unchanged. */
 static const lsx_pcmdsd_profile profiles[] = {
   {"encode.mastering.v1.dsd64",2822400,88200,20000,40000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[0],0,LSX_PCMDSD_CERTIFICATE_SHA256},
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[0],1,LSX_PCMDSD_CERTIFICATE_SHA256},
   {"encode.mastering.v1.dsd128",5644800,176400,30000,60000,
-    lsx_pcmdsd_coeff_master128,77,lsx_pcmdsd_guards[1],0,LSX_PCMDSD_CERTIFICATE_SHA256},
+    lsx_pcmdsd_coeff_master128,77,lsx_pcmdsd_guards[1],1,LSX_PCMDSD_CERTIFICATE_SHA256},
   {"encode.mastering.v1.dsd256",11289600,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],0,LSX_PCMDSD_CERTIFICATE_SHA256}
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256}
 };
 
 struct lsx_pcmdsd {
