@@ -172,7 +172,11 @@ static int dsd_getopts(sox_effect_t *eff, int argc, char **argv)
   int i, is_encode=!strcmp(eff->handler.name,"pcmdsd"), profile;
   int seen_profile=0, seen_level=0, seen_reference=0, seen_rate=0;
   memset(opt,0,sizeof(*opt));
-  opt->profile=LSX_DSD_PROFILE_MASTERING;
+  /* Decode default promoted v1 -> v2 per the operator decision of
+   * 2026-10-15, on the engineering acceptance of 2026-10-19. The encoder
+   * shares this parser and its profile enum is a different space, so its
+   * default is left exactly as it was. v1 stays selectable via -p. */
+  opt->profile=is_encode?LSX_DSD_ENCODE_MASTERING:LSX_DSD_PROFILE_MASTERING_V2;
   opt->level=LSX_DSD_LEVEL_PRESERVE;
   opt->reference=LSX_DSD_REF_AUTO;
   opt->clip=LSX_DSD_CLIP_WARN;

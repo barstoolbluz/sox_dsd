@@ -34,7 +34,10 @@ struct sox_dsd_decoder {
 static void init_options_defaults(sox_dsd_decode_options_t *options)
 {
   options->version = 1;
-  options->profile = SOX_DSD_DECODE_MASTERING;
+  /* Default promoted from v1 to v2 per the operator decision of 2026-10-15,
+   * on the engineering acceptance of 2026-10-19. v1 remains selectable and
+   * its coefficients are untouched. */
+  options->profile = SOX_DSD_DECODE_MASTERING_V2;
   options->level = SOX_DSD_LEVEL_PRESERVE;
   options->bandwidth = SOX_DSD_BANDWIDTH_ADAPT;
 }
