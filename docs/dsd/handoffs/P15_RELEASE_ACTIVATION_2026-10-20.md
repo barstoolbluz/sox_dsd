@@ -42,9 +42,19 @@ test failure.
 
 ## Consequence for the evidence tooling
 
-`src/dsd.c`, `src/dsd_public.c` and `src/pcmdsd.c` are in the 35-entry
-pinned source set, so the stage-bound operator receipts are now unbound and
-`source_operators` refuses. The binding suites fail accordingly. That is the
-expected effect of changing pinned production source, the same as the SRC
-optimization caused, and it is a statement about receipt provenance, not
-about the audio path.
+Two of the three edited files, `src/dsd.c` and `src/dsd_public.c`, are in
+the 35-entry pinned source set in `p15_src_bound_operator.py`.
+`src/pcmdsd.c`, carrying the encoder activation flag, is not pinned.
+
+Those two entries therefore no longer match the fingerprint stamped on the
+stage-bound operator receipts, `source_operators` refuses with
+`UnboundOperator`, and the binding suites fail. The certificates remain
+valid for the source they were derived from, which is in git history and
+immutable; what is lost is the ability to re-verify them mechanically
+against the current checkout. Restoring that means re-deriving the stage
+bindings against the new source, as was needed when the SRC optimization
+changed `rate_poly_fir0.h`.
+
+This concerns receipt provenance, not the audio path. Encode and decode work
+with the stock binary and `make check-dsd` on the shipping build is 92 PASS,
+0 FAIL.
