@@ -36,7 +36,7 @@ def main() -> int:
     p.add_argument('--cc',default='cc')
     p.add_argument('--results',type=Path,required=True)
     p.add_argument('--unit',type=Path,default=ROOT/'test/dsd_test_p11')
-    p.add_argument('--sox',type=Path,default=ROOT/'src/sox_ng')
+    p.add_argument('--sox',type=Path,default=ROOT/'src/sox')
     p.add_argument('--candidate',type=Path,default=ROOT/'test/sox_p10_candidate')
     a=p.parse_args()
     a.results.mkdir(parents=True,exist_ok=True)

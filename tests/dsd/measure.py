@@ -77,7 +77,7 @@ def main() -> int:
     ap.add_argument('--phase', default='P00')
     ap.add_argument('--results', type=pathlib.Path, default=ROOT/'tests/dsd/results/P00/numeric')
     ap.add_argument('--prepare-analysis-v1', action='store_true', help='emit the immutable-design request, never claim generated coefficients')
-    ap.add_argument('--sox', type=pathlib.Path, default=ROOT/'src/sox_ng')
+    ap.add_argument('--sox', type=pathlib.Path, default=ROOT/'src/sox')
     args = ap.parse_args()
     if args.phase not in ['P' + str(i).zfill(2) for i in range(19)]:
         ap.error('unknown phase')

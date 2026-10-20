@@ -82,7 +82,7 @@ def make_prc_alaw(path, frames=513):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--probe', default=str(ROOT/'test/dsd_test_seek_contract'))
-    p.add_argument('--sox', default=str(ROOT/'src/sox_ng'))
+    p.add_argument('--sox', default=str(ROOT/'src/sox'))
     p.add_argument('--results', default=str(ROOT/'tests/dsd/results/P03/seek'))
     args = p.parse_args()
     results = Path(args.results)

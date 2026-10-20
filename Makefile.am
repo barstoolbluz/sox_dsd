@@ -206,7 +206,7 @@ winexe-prepare:
 	cp sox_ng-*.tar.gz mxe/pkg/
 	sed "/_VERSION *:= /s/:=.*/:= $(PACKAGE_VERSION)/" sox_ng.mk | \
 	sed '/_CHECKSUM *:= /s/:=.*/:= '\
-"`sha256sum sox_ng-*.tar.gz | sed 's/[ \t].*//'`"/ > mxe/src/sox_ng.mk
+"`sha256sum sox_ng-*.tar.gz | sed 's/[ \t].*//'`"/ > mxe/src/sox.mk
 
 win32.exe: winexe-prepare
 	cd mxe && make MXE_TARGETS=i686-w64-mingw32.static sox_ng
@@ -235,34 +235,34 @@ check-dsd: all
 	fi
 	$(MAKE) -C test dsd_test_io$(EXEEXT)
 	$(MAKE) -C test dsd_test_dff_writer$(EXEEXT)
-	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox_ng --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
+	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
 	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_streaming.py \
 	    --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/streaming; \
 	fi
 	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_seek_contract$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_seek.py \
 	    --probe $(abs_builddir)/test/dsd_test_seek_contract$(EXEEXT) \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/seek; \
 	fi
 	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_layout$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_layout.py \
 	    --unit $(abs_builddir)/test/dsd_test_layout$(EXEEXT) \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/layout; \
 	fi
 	@if test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_plan$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_plan$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_plan.py \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/plan; \
 	fi
 	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
@@ -279,10 +279,10 @@ check-dsd: all
 	  $(MAKE) -C test dsd_test_p07$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_p07$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p07.py \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/integration && \
 	  python3 $(srcdir)/tests/dsd/test_p07_output_failures.py \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/output-errors && \
 	  $(MAKE) -C test dsd_test_p07_reference$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p07_reference.py \
@@ -295,12 +295,12 @@ check-dsd: all
 	    --unit $(abs_builddir)/test/dsd_test_p07_reference$(EXEEXT) \
 	    --results $(DSD_RESULTS)/numeric && \
 	  python3 $(srcdir)/tests/dsd/test_p07_public_rate.py \
-	    --sox $(abs_builddir)/src/sox_ng; \
+	    --sox $(abs_builddir)/src/sox; \
 	fi
 
 	@if test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
 	  python3 $(srcdir)/tests/dsd/test_p08.py \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/integration; \
 	fi
 
@@ -330,11 +330,11 @@ check-dsd: all
 	  $(abs_builddir)/test/dsd_test_p12_bounds$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p11_integration.py \
 	    --phase P12 --tiers scalar sse2 avx1 avx2 \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --candidate $(abs_builddir)/test/sox_p10_candidate \
 	    --results $(DSD_RESULTS)/forced-cli && \
 	  python3 $(srcdir)/tests/dsd/test_p12_channels.py \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --candidate $(abs_builddir)/test/sox_p10_candidate \
 	    --results $(DSD_RESULTS)/channels && \
 	  python3 $(srcdir)/tests/dsd/test_p11_numeric.py \
@@ -355,12 +355,12 @@ check-dsd: all
 	  $(abs_builddir)/test/dsd_test_p13$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p11_integration.py \
 	    --phase P13 --tiers scalar sse2 avx1 avx2 avx512 \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --candidate $(abs_builddir)/test/sox_p10_candidate \
 	    --results $(DSD_RESULTS)/forced-cli && \
 	  python3 $(srcdir)/tests/dsd/test_p12_channels.py \
 	    --phase P13 --tiers scalar avx2 avx512 \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --candidate $(abs_builddir)/test/sox_p10_candidate \
 	    --results $(DSD_RESULTS)/channels && \
 	  python3 $(srcdir)/tests/dsd/test_p11_numeric.py \
@@ -375,11 +375,11 @@ check-dsd: all
 	@if ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ); then \
 	  $(MAKE) -C test dsd_test_p14$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p14.py \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --unit $(abs_builddir)/test/dsd_test_p14$(EXEEXT) \
 	    --results $(DSD_RESULTS)/report && \
 	  python3 $(srcdir)/tests/dsd/test_p14_numeric.py \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --unit $(abs_builddir)/test/dsd_test_p14$(EXEEXT) \
 	    --results $(DSD_RESULTS)/numeric-p14; \
 	fi
@@ -388,7 +388,7 @@ check-dsd: all
 # add the release/default/alias compatibility smoke suite.
 	@if test "$(DSD_PHASE)" = "P15"; then \
 	  python3 $(srcdir)/tests/dsd/test_p15.py \
-	    --sox $(abs_builddir)/src/sox_ng \
+	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/release; \
 	fi
 
@@ -636,7 +636,7 @@ check-dsd-p15-r3: all
 	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/generate_p15_r3_coeffs.py --check
 	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/certify_p15_r3_filters.py --grid 8192 --results $(abs_builddir)/p15-r3-check/numeric
 	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3_numeric.py --probe $(abs_builddir)/test/dsd_test_p15_instrument --results $(abs_builddir)/p15-r3-check/numeric
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3.py --sox $(abs_builddir)/src/sox_ng --results $(abs_builddir)/p15-r3-check/integration
+	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3.py --sox $(abs_builddir)/src/sox --results $(abs_builddir)/p15-r3-check/integration
 	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3_src_spot.py --probe $(abs_builddir)/test/dsd_test_p07_reference --results $(abs_builddir)/p15-r3-check/numeric
 
 EXTRA_DIST += docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_HANDOFF.md \

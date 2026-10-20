@@ -172,7 +172,7 @@ def run(sox, source, target, cap, output, cpu=None, null_extra=(),
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--baseline-sox', type=Path, required=True)
-    p.add_argument('--sox', type=Path, default=ROOT/'src/sox_ng')
+    p.add_argument('--sox', type=Path, default=ROOT/'src/sox')
     p.add_argument('--results', type=Path,
                    default=ROOT/'tests/dsd/results/P02/bench-read')
     p.add_argument('--large-frames', type=int, default=1048576)

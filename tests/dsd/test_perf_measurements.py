@@ -176,7 +176,7 @@ class MeasurementTests(unittest.TestCase):
             path = Path(tmp) / 'prior.json'
             path.write_text('retained\n')
             cp = subprocess.run([sys.executable, str(ROOT / 'tests/dsd/profile_decode.py'),
-                '--sox', str(ROOT / 'src/sox_ng'), '--profile-sox', str(ROOT / 'src/sox_ng'),
+                '--sox', str(ROOT / 'src/sox'), '--profile-sox', str(ROOT / 'src/sox'),
                 '--results', tmp], capture_output=True, text=True, timeout=30)
             self.assertEqual(cp.returncode, 2)
             self.assertEqual(path.read_text(), 'retained\n')

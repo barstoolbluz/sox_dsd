@@ -45,7 +45,7 @@ def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--sox',type=Path,default=ROOT/'src/sox_ng')
+    ap.add_argument('--sox',type=Path,default=ROOT/'src/sox')
     ap.add_argument('--candidate',type=Path,default=ROOT/'test/sox_p10_candidate')
     ap.add_argument('--baseline-sox',type=Path)
     ap.add_argument('--results',type=Path,required=True)

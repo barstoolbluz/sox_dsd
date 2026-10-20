@@ -74,7 +74,7 @@ class CollectorContracts(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which('flac') and
                          (ROOT/'test/sox_p10_candidate').is_file() and
-                         (ROOT/'src/sox_ng').is_file(), 'compiled smoke tools unavailable')
+                         (ROOT/'src/sox').is_file(), 'compiled smoke tools unavailable')
     def test_pcm_48000_family_and_high_native_rates(self):
         # Cross-family resampling and 176.4-kHz native-rate paths must both
         # preserve the exact excerpt timebase, even on a short smoke fixture.
@@ -116,7 +116,7 @@ class CollectorContracts(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which('flac') and
                          (ROOT/'test/sox_p10_candidate').is_file() and
-                         (ROOT/'src/sox_ng').is_file(), 'compiled smoke tools unavailable')
+                         (ROOT/'src/sox').is_file(), 'compiled smoke tools unavailable')
     def test_overload_retry_can_still_fail_level_calibration(self):
         # A full-scale step is rejected at unity, then admitted only with
         # explicitly requested attenuation. It is not valid source material:
@@ -168,7 +168,7 @@ class CollectorContracts(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which('flac') and
                          (ROOT/'test/sox_p10_candidate').is_file() and
-                         (ROOT/'src/sox_ng').is_file(), 'compiled smoke tools unavailable')
+                         (ROOT/'src/sox').is_file(), 'compiled smoke tools unavailable')
     def test_pcm_flow_resume_reference_and_adjudication_receipts(self):
         # No generated stimulus can satisfy the independent-recordings gate.
         with tempfile.TemporaryDirectory() as temp:

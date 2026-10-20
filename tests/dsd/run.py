@@ -656,7 +656,7 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--phase',default='P00',choices=[f'P{i:02}' for i in range(19)])
     ap.add_argument('--results',type=pathlib.Path,default=ROOT/'tests/dsd/results/P00')
-    ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox_ng')
+    ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox')
     ap.add_argument('--probe',type=pathlib.Path,default=ROOT/'test/dsd_test_io')
     ap.add_argument('--writer-unit',type=pathlib.Path,default=ROOT/'test/dsd_test_dff_writer')
     ap.add_argument('--mode',choices=('unit','integration','all'),default='all')

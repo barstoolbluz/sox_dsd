@@ -16,7 +16,7 @@ samples$(EXEEXT): samples.c
 	$(CC) -o samples$(EXEEXT) samples.c
 
 check-am: samples$(EXEEXT) wav_size_state_test$(EXEEXT)
-	sox=../../src/sox_ng \
+	sox=../../src/sox \
 	wav_size_state_test='$(abs_builddir)/wav_size_state_test$(EXEEXT)' \
 	sh $(srcdir)/check.sh -n
 

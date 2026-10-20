@@ -165,10 +165,10 @@ done
 
 say "correctness first: AVX-512 must agree with the others on this silicon"
 # A throughput number from a tier that computes something different is worthless.
-./src/sox_ng -n -r 88200 -b 32 -e signed-integer "$R/in.wav" synth 3 sine 997 vol 0.3
+./src/sox -n -r 88200 -b 32 -e signed-integer "$R/in.wav" synth 3 sine 997 vol 0.3
 ./test/sox_p10_candidate --dsd-layout-loss warn "$R/in.wav" -r 2822400 "$R/a.dsf" pcmdsd 2822400
 for k in scalar sse2 avx1 avx2 avx512; do
-  SOX_DSD_KERNEL_FIR=$k ./src/sox_ng --dsd-layout-loss warn "$R/a.dsf" \
+  SOX_DSD_KERNEL_FIR=$k ./src/sox --dsd-layout-loss warn "$R/a.dsf" \
     -b 32 -e signed-integer "$R/fir_$k.wav" dsdpcm -l preserve 88200 2>/dev/null
   SOX_DSD_KERNEL_SDM=$k ./test/sox_p10_candidate --dsd-layout-loss warn "$R/in.wav" \
     -r 2822400 "$R/sdm_$k.dsf" pcmdsd 2822400 2>/dev/null
@@ -200,7 +200,7 @@ if [ ! -r "$F" ]; then
   echo "  'AVX-512 ran at a lower clock'. Treat the matrix above with caution."
   echo "clock=unmeasured" > "$R/clock.txt"
 else
-  ./src/sox_ng -n -r 176400 -b 32 -e signed-integer "$R/long.wav" \
+  ./src/sox -n -r 176400 -b 32 -e signed-integer "$R/long.wav" \
     synth 60 sine 997 vol 0.25 2>/dev/null
   : > "$R/clock.txt"
   for tier in scalar sse2 avx2 avx512; do

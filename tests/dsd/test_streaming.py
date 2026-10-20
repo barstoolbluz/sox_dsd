@@ -285,7 +285,7 @@ def run_cli(m, td):
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--probe',type=Path,default=ROOT/'test/dsd_test_io')
-    parser.add_argument('--sox',type=Path,default=ROOT/'src/sox_ng')
+    parser.add_argument('--sox',type=Path,default=ROOT/'src/sox')
     parser.add_argument('--results',type=Path,default=ROOT/'tests/dsd/results/P02/streaming')
     args=parser.parse_args()
     args.probe=args.probe.resolve()
