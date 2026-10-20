@@ -9,4 +9,4 @@ the filename extension.
 
 ## synth
 
-`./synth args` does in C what `sox_ng -n -d synth args` does in shell.
+`./synth args` does in C what `sox -n -d synth args` does in shell.

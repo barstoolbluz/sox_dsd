@@ -104,7 +104,7 @@ DSF-to-DFF native writes. A separate repeated comparison uses an unmodified
 same-flags binary at 1/2/6 channels:
 
 ```sh
-python3 tests/dsd/bench_dff.py --baseline-sox /absolute/baseline/src/sox_ng \
+python3 tests/dsd/bench_dff.py --baseline-sox /absolute/baseline/src/sox \
   --results tests/dsd/results/P01/bench-dff-new --frames 268435456 \
   --cpu 8 --working-directory /dev/shm
 ```
@@ -145,7 +145,7 @@ The P02 native read/repack performance sample is a separately executable
 **development-only** comparison against an unchanged P01 SoX binary:
 
 ```sh
-python3 tests/dsd/bench_read_p02.py --baseline-sox /absolute/path/to/p01/src/sox_ng \
+python3 tests/dsd/bench_read_p02.py --baseline-sox /absolute/path/to/p01/src/sox \
   --results tests/dsd/results/P02/bench-read
 ```
 

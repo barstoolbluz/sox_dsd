@@ -150,7 +150,7 @@ No special features (=\ 0).
 .B sox_version_have_popen
 Pipes are available to fetch URLs with \fBwget\fR or \fBcurl\fR,
 to use external codec programs like \fBffmpeg\fR
-and for piped inputs like \f(CW"|sox_ng -n -p synth 1"\fP.
+and for piped inputs like \f(CW"|sox -n -p synth 1"\fP.
 .TP
 .B sox_version_have_magic
 \fBlibmagic\fR is in use to autodetect the formats of files.
@@ -199,10 +199,10 @@ for formats and effects, containing:
 .TP
 .B char *myname
 The name the program was invoked as, for error reporting.
-\fBsox_ng\fR sets this to the bare program name without a directory path
-(or a \f(CW.exe\fR extension on Windows) as "sox_ng", "soxi_ng",
-"play_ng" or "rec_ng", or "sox", "soxi", "play" or "rec" when it
-replaces \fBsox\fR.
+\fBsox\fR sets this to the bare program name without a directory path
+(or a \f(CW.exe\fR extension on Windows). Its canonical command names
+are "sox", "soxi", "play" and "rec"; the historical "soxi_ng", "play_ng"
+and "rec_ng" command aliases are also recognized.
 .SP
 Other programs using \fBlibsox_ng\fR can set it to \fBargv[0]\fR on startup
 if they wish, but it is only used by libSoX when creating
@@ -1584,7 +1584,7 @@ See the GNU General Public License for more details.
 The many authors and contributors are listed in the README file that
 is distributed with the source code.
 .SH SEE ALSO
-.BR sox_ng (1),
+.BR sox (1),
 .BR libsoxeffect_ng (3),
 .BR soxformat_ng (7),
 \f(CWsrc/example*.c\fR and \f(CWdemo/*.c\fR in the SoX source distribution.

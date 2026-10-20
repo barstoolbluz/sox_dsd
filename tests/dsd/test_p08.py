@@ -403,17 +403,29 @@ def main() -> int:
             return {'planned_decoder_count':0,'executed_gain_count':0}
         run('guard_native_plan_matches_executed_effects',guard_plan_execution_correspondence)
 
-        def unavailable_encoder():
-            target=tmp/'unavailable.dsf'
+        def processed_dsd_encoder():
+            # P10 activated the formerly unavailable modulator; validate both
+            # the planner and a real end-to-end DSF conversion. The output
+            # must contain newly modulated samples rather than a native copy.
+            target=tmp/'processed.dsf'
             args=[str(files['a']),str(target),'gain','-3']
-            snapshot=plan('processed_dsd_unavailable_until_p10',args)
-            assert not snapshot['executable']
+            snapshot=plan('processed_dsd_modulator_available',args)
+            assert snapshot['executable'] and not snapshot['needs_unimplemented_dsp']
             assert snapshot['encoder_count']==1 and snapshot['graph_decoder_count']==1
-            p=subprocess.run([exe,'--dsd-mode','auto',*args],
-                capture_output=True,text=True,timeout=20)
-            assert p.returncode!=0 and not target.exists(),(p.returncode,p.stderr)
-            return {'reported_encoder':snapshot['encoder']['id']}
-        run('processed_dsd_requires_unavailable_pcmdsd',unavailable_encoder)
+            assert snapshot['decoder']['id']=='decode.mastering.v2.dsd64'
+            p=subprocess.run([exe,'--dsd-mode','auto',
+                '--dsd-layout-loss','warn',*args],
+                capture_output=True,text=True,timeout=30)
+            assert p.returncode==0 and target.is_file(),(p.returncode,p.stderr[-800:])
+            source=verify.decode_dsf(files['a'].read_bytes())
+            output=verify.decode_dsf(target.read_bytes())
+            assert output['rate']==source['rate'] and output['channels']==source['channels']
+            assert output['frames']>0
+            assert output['chronological_bits_sha256']!=source['chronological_bits_sha256']
+            return {'reported_encoder':snapshot['encoder']['id'],
+                    'output_frames':output['frames'],
+                    'modulated_sha256':output['chronological_bits_sha256']}
+        run('processed_dsd_executes_p10_modulator',processed_dsd_encoder)
 
         def null_output():
             # The null sink has no precision; its placeholder 1-bit signal

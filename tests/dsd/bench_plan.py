@@ -60,7 +60,7 @@ def main():
                 wall_seconds=durations,max_rss_kib=memory,
                 wall_median_seconds=statistics.median(durations) if durations else None,
                 rss_median_kib=statistics.median(memory) if memory else None,
-                normalized_command=['sox_ng','--dsd-plan',
+                normalized_command=['sox','--dsd-plan',
                     *(['--combine','mix'] if n>1 else []),
                     f'<DSD64-stereo-input> x{n}','<WAV-output>'])
             cases.append(case)

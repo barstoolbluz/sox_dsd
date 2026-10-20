@@ -3,10 +3,10 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: SoX
-Description: Audio file format and effects library
+Name: SoX DSD
+Description: SoX DSD audio file format and effects library (libsox_ng ABI)
 Version: @VERSION@
-URL: https://codeberg.org/sox_ng
+URL: https://github.com/barstoolbluz/sox_dsd
 Libs: -L${libdir} -lsox_ng
 Libs.private: @LIBS@
 Cflags: -I${includedir}

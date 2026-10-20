@@ -3,7 +3,7 @@
 # Results are evidence for independent adjudication, NEVER auto-release.
 set -euo pipefail
 if [ "$#" != 4 ]; then
-  echo 'usage: p15_r52_run_physical_benchmark.sh /absolute/sox_ng /absolute/sox_p10_candidate CPU /absolute/new-result-dir' >&2
+  echo 'usage: p15_r52_run_physical_benchmark.sh /absolute/sox /absolute/sox_p10_candidate CPU /absolute/new-result-dir' >&2
   exit 2
 fi
 SOURCE_ROOT=$(cd "$(dirname "$0")/../.." && pwd -P)

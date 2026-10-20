@@ -10,5 +10,5 @@ rem command.
 
 cd %~dp0
 mkdir converted
-FOR %%A IN (%*) DO sox_ng %%A "converted/%%~nxA" rate -v 44100
+FOR %%A IN (%*) DO sox %%A "converted/%%~nxA" rate -v 44100
 pause

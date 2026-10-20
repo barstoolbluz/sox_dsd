@@ -1,4 +1,4 @@
-                           SoX Installation
+                           SoX DSD Installation
                            ----------------
 
 SoX should compile and run on any POSIX compatible system (Linux, BSD,
@@ -10,8 +10,11 @@ manually construct a custom `soxconfig.h' and `Makefile' for that
 system (the minimum requirements are a 32-bit CPU, a 64-bit FPU
 and a C89 compiler).
 
-Note that the `play_ng', `rec_ng', and `soxi_ng' programs are in fact
-just copies of (or links to, depending on your OS) `sox_ng'.
+The executable is `sox`. The companion commands `play`, `rec` and `soxi`
+are aliases of `sox`; the former `play_ng`, `rec_ng` and `soxi_ng` names
+are also supported as compatibility aliases when symlinks are enabled.
+The library and public headers retain their `libsox_ng` / `sox_ng.h`
+names; changing those is a separate ABI decision.
 
 SoX optionally makes use of some external libraries to obtain support
 for additional file formats and/or effects.  Optional libraries should
@@ -72,9 +75,9 @@ on some systems, the following modification to the command is needed:
 
 	sudo make install
 
-If on saying `sox_ng` you get:
+If on saying `sox` you get:
 
-    sox_ng: error while loading shared libraries:
+    sox: error while loading shared libraries:
     libsox_ng.so.3: cannot open shared object file: No such file or directory
 
 You probably need to
@@ -84,7 +87,7 @@ You probably need to
 so that the fast shared library index is updated.
 It will also be OK after a reboot.
 
-To run a selection of tests on the installed sox_ng executable:
+To run a selection of tests on the installed sox executable:
 
 	make installcheck
 
@@ -210,21 +213,21 @@ MacOS.  In the following example, we'll use .xxx as the extension of
 your preferred format.
 
         cd src
-	./sox_ng monkey.wav monkey.xxx
+	./sox monkey.wav monkey.xxx
 
 You may have to give the word size and rate for the file. For example,
 this command will make a sound file with a data rate of 12,500 samples
 per second and the data formatted as 2-byte (16-bit) signed integers:
 
-	./sox_ng monkey.wav -r 12500 -b 16 -e signed monkey.xxx
+	./sox monkey.wav -r 12500 -b 16 -e signed monkey.xxx
 
 If playback support was compiled in then it can be played like this:
 
-        ./play_ng monkey.xxx
+        ./play monkey.xxx
 
 or, equivalently:
 
-        ./sox_ng monkey.xxx -d
+        ./sox monkey.xxx -d
 
 If monkey.xxx plays properly (it's a very short monkey screech),
 congratulations! SoX works.
@@ -243,8 +246,8 @@ Now you may be able to make an msvc/ directory with cmake:
 
 o Install cmake (http://www.cmake.org/HTML/Download.html)
 o Install any optional libraries to use with SoX
-o Unpack the SoX sources (...tar.gz) to say c:\sox_ng
-o Type cd c:\sox_ng
+o Unpack the SoX sources (...tar.gz) to say c:\sox_dsd
+o Type cd c:\sox_dsd
 o Type cmake -G "compiler" .   (type cmake --help for list of compilers)
 
 This should generate project build files for use with Visual C.

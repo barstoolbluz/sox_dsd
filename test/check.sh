@@ -7,7 +7,7 @@
 # e.g.
 #	sox=$HOME/sox-14.4.2/src/sox sh check.sh
 # or, to test the current source tree
-#	sox=../../src/sox_ng sh check.sh
+#	sox=../../src/sox sh check.sh
 # (../.. because it is used when cd'd into each BUG-* directories)
 #
 # You can also just run one or more tests,
@@ -42,7 +42,7 @@ then
 fi
 
 # By default, check the sox in the source tree
-sox=${sox:-../../src/sox_ng}
+sox=${sox:-../../src/sox}
 export sox
 
 # We don't want memory leaks to report a failure.

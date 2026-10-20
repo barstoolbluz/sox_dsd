@@ -221,32 +221,35 @@ example6_LDADD = ${sox_LDADD}
 EXTRA_DIST = monkey.wav optional-fmts.am \
 	     tests.sh testall.sh tests.bat testall.bat test-comments
 
-all: sox$(EXEEXT) play_ng$(EXEEXT) rec_ng$(EXEEXT) soxi_ng$(EXEEXT)
+# Canonical companion names plus _ng compatibility entry points.
+all: sox$(EXEEXT) play$(EXEEXT) rec$(EXEEXT) soxi$(EXEEXT) play_ng$(EXEEXT) rec_ng$(EXEEXT) soxi_ng$(EXEEXT)
 
-play_ng$(EXEEXT) rec_ng$(EXEEXT) soxi_ng$(EXEEXT): sox$(EXEEXT)
-	@if test "$(PLAYRECLINKS)" = "yes"; then	\
-		test -f sox$(EXEEXT) && ( $(RM) $@ && $(LN_S) sox$(EXEEXT) $@ ) || $(LN_S) sox $@; \
+play$(EXEEXT) rec$(EXEEXT) play_ng$(EXEEXT) rec_ng$(EXEEXT): sox$(EXEEXT)
+	@if test "$(PLAYRECLINKS)" = "yes"; then \
+		$(RM) $@ && $(LN_S) sox$(EXEEXT) $@; \
+	fi
+
+soxi$(EXEEXT) soxi_ng$(EXEEXT): sox$(EXEEXT)
+	@if test "$(SYMLINKS)" = "yes"; then \
+		$(RM) $@ && $(LN_S) sox$(EXEEXT) $@; \
 	fi
 
 install-exec-hook:
-	@if test "$(PLAYRECLINKS)" = "yes"; then	\
-		cd $(DESTDIR)$(bindir); $(RM) play_ng$(EXEEXT) rec_ng$(EXEEXT); $(LN_S) sox$(EXEEXT) play_ng$(EXEEXT); $(LN_S) sox$(EXEEXT) rec_ng$(EXEEXT); \
+	@if test "$(PLAYRECLINKS)" = "yes"; then \
+		cd $(DESTDIR)$(bindir); \
+		$(RM) play$(EXEEXT) rec$(EXEEXT) play_ng$(EXEEXT) rec_ng$(EXEEXT); \
+		$(LN_S) sox$(EXEEXT) play$(EXEEXT); \
+		$(LN_S) sox$(EXEEXT) rec$(EXEEXT); \
+		$(LN_S) sox$(EXEEXT) play_ng$(EXEEXT); \
+		$(LN_S) sox$(EXEEXT) rec_ng$(EXEEXT); \
 	fi
-	@if test "$(SYMLINKS)" = "yes"; then	\
-		cd $(DESTDIR)$(bindir); $(RM) soxi_ng$(EXEEXT); $(LN_S) sox$(EXEEXT) soxi_ng$(EXEEXT); \
+	@if test "$(SYMLINKS)" = "yes"; then \
+		cd $(DESTDIR)$(bindir); \
+		$(RM) soxi$(EXEEXT) soxi_ng$(EXEEXT); \
+		$(LN_S) sox$(EXEEXT) soxi$(EXEEXT); \
+		$(LN_S) sox$(EXEEXT) soxi_ng$(EXEEXT); \
 	fi
 	@if test "$(REPLACE)" = "yes"; then \
-		cd $(DESTDIR)$(bindir); \
-		: # the installed binary is already named sox; no alias needed \
-		if test "$(PLAYRECLINKS)" = "yes"; then	\
-			$(RM) play$(EXEEXT) rec$(EXEEXT); \
-			$(LN_S) play_ng$(EXEEXT) play$(EXEEXT); \
-			$(LN_S) rec_ng$(EXEEXT) rec$(EXEEXT); \
-		fi; \
-		if test "$(SYMLINKS)" = "yes"; then \
-			$(RM) soxi$(EXEEXT); \
-			$(LN_S) soxi_ng$(EXEEXT) soxi$(EXEEXT); \
-		fi; \
 		cd $(DESTDIR)$(libdir); \
 		if test -f libsox_ng.a; then \
 			$(RM) libsox.a; $(LN_S) libsox_ng.a libsox.a; \
@@ -266,28 +269,19 @@ install-data-hook:
 	fi
 
 uninstall-hook:
-	@if test "$(PLAYRECLINKS)" = "yes"; then	\
-		cd $(DESTDIR)$(bindir); $(RM) play_ng$(EXTEXT) rec_ng$(EXEEXT); \
+	@if test "$(PLAYRECLINKS)" = "yes"; then \
+		cd $(DESTDIR)$(bindir); $(RM) play$(EXEEXT) rec$(EXEEXT) play_ng$(EXEEXT) rec_ng$(EXEEXT); \
 	fi
-	@if test "$(SYMLINKS)" = "yes"; then	\
-		cd $(DESTDIR)$(bindir); $(RM) soxi_ng$(EXEEXT); \
+	@if test "$(SYMLINKS)" = "yes"; then \
+		cd $(DESTDIR)$(bindir); $(RM) soxi$(EXEEXT) soxi_ng$(EXEEXT); \
 	fi
 	@if test "$(REPLACE)" = "yes"; then \
-		cd $(DESTDIR)$(bindir); \
-		$(RM) sox$(EXEEXT); \
-		if test "$(PLAYRECLINKS)" = "yes"; then	\
-			$(RM) play$(EXEEXT) rec$(EXEEXT); \
-		fi; \
-		if test "$(SYMLINKS)" = "yes"; then \
-			$(RM) soxi$(EXEEXT); \
-		fi; \
-		cd $(DESTDIR)$(includedir); $(RM) sox.h;\
-		cd $(DESTDIR)$(libdir); \
-		$(RM) libsox.a libsox.la libsox.so; \
+		cd $(DESTDIR)$(includedir); $(RM) sox.h; \
+		cd $(DESTDIR)$(libdir); $(RM) libsox.a libsox.la libsox.so; \
 	fi
 
 clean-local:
-	$(RM) play_ng$(EXEEXT) rec_ng$(EXEEXT) soxi_ng$(EXEEXT)
+	$(RM) play$(EXEEXT) rec$(EXEEXT) soxi$(EXEEXT) play_ng$(EXEEXT) rec_ng$(EXEEXT) soxi_ng$(EXEEXT)
 	$(RM) sox_sample_test$(EXEEXT)
 	$(RM) example0$(EXEEXT) example1$(EXEEXT) example2$(EXEEXT) example3$(EXEEXT) example4$(EXEEXT) example5$(EXEEXT) example6$(EXEEXT)
 

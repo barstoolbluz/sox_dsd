@@ -31,13 +31,13 @@
 .SP
 .fi
 ..
-.TH SOXFORMAT_NG 7 "November 28, 2024" "SoX" "Sound eXchange_ng"
+.TH SOXFORMAT_NG 7 "November 28, 2024" "SoX" "Sound eXchange"
 .SH NAME
-soxformat_ng \- Audio file formats supported by sox_ng and libsox_ng
+soxformat_ng \- Audio file formats supported by sox and libsox_ng
 .SH DESCRIPTION
 This manual describes the file formats and audio device types supported by SoX;
 the SoX manual set starts with
-.BR sox_ng (1).
+.BR sox (1).
 .SP
 Format types that SoX can determine by a filename extension
 are listed with their names preceded by a dot.
@@ -57,7 +57,7 @@ useful if you have a file that doesn't work with SoX's built-in
 readers and writers.
 .SP
 To see if SoX has support for an optional format or device, enter
-.B sox_ng \-h
+.B sox \-h
 and look for its name under
 `AUDIO FILE FORMATS' or `AUDIO DEVICE DRIVERS'.
 .SP
@@ -171,10 +171,10 @@ The Advanced Linux Sound Architecture device driver supports both playing and
 recording audio.  ALSA is only used in Linux-based operating systems, though
 these often support OSS (see below) as well.  Examples:
 .XE
-	sox_ng infile \-t alsa
-	sox_ng infile \-t alsa default
-	sox_ng infile \-t alsa plughw:0,0
-	sox_ng \-b 16 \-t alsa hw:1 outfile
+	sox infile \-t alsa
+	sox infile \-t alsa default
+	sox infile \-t alsa plughw:0,0
+	sox \-b 16 \-t alsa hw:1 outfile
 .XX
 .TP
 .B .amb
@@ -225,9 +225,9 @@ for a given plugin (such as \fBpulse\fR for the PulseAudio plugin
 or \fBnull\fR for testing. See http://xiph.org/ao).
 Examples:
 .XE
-	sox_ng infile \-t ao
-	sox_ng infile \-t ao default
-	sox_ng infile \-t ao pulse
+	sox infile \-t ao
+	sox infile \-t ao default
+	sox infile \-t ao pulse
 .XX
 .TP
 \fB.ape\fR (with ffmpeg)
@@ -305,12 +305,12 @@ Any other name will be used to select a specific device.
 .SP
 Examples:
 .XE
-    sox_ng infile \-t coreaudio
-    sox_ng infile \-t coreaudio "Internal Speakers"
+    sox infile \-t coreaudio
+    sox infile \-t coreaudio "Internal Speakers"
 .XX
 You can also select a device by its number; to see the device numbers:
 .XE
-    sox_ng \-V \-n \-t coreaudio nonexistent
+    sox \-V \-n \-t coreaudio nonexistent
 .XX
 .TP
 \fB.cvsd\fR, \fB.cvs\fR
@@ -328,7 +328,7 @@ be used with any sampling rate. As it is a headerless format,
 you have to specify the sampling rate with \fB\-r\fR if it is
 different from 8kHz.
 .XE
-	sox_ng infile outfile.cvu rate 28k
+	sox infile outfile.cvu rate 28k
 	play \-r 28k outfile.cvu sinc \-3.4k
 .XX
 .TP
@@ -442,7 +442,7 @@ Whilst this file format can contain A-Law, \(*m-law, GSM, G.722,
 G.723, G.726, G.728, or iLBC encoded audio, SoX supports reading and
 writing only A-Law and \(*m-law.  E.g.
 .XE
-   sox_ng music.wav \-t gsrt ring.bin
+   sox music.wav \-t gsrt ring.bin
    play ring.bin
 .XX
 .TP
@@ -750,9 +750,9 @@ The Open Sound System /dev/dsp device driver supports both playing and
 recording audio.  OSS support is available in Unix-like operating systems,
 sometimes together with alternative sound systems (such as ALSA).  Examples:
 .XE
-	sox_ng infile \-t oss
-	sox_ng infile \-t oss /dev/dsp
-	sox_ng \-b 16 \-t oss /dev/dsp outfile
+	sox infile \-t oss
+	sox infile \-t oss /dev/dsp
+	sox \-b 16 \-t oss /dev/dsp outfile
 .XX
 .TP
 \fB.paf\fR, \fB.fap\fR (with sndfile, also with \fB\-t ffmpeg\fB)
@@ -809,7 +809,7 @@ use a single filename with the entries separated by spaces;
 as application names can contain spaces, an "app:" field must come last.
 For example:
 .XE
-sox_ng in.au \-t pulseaudio alsa_output.pci-0000_01_00.1.hdmi-stereo
+sox in.au \-t pulseaudio alsa_output.pci-0000_01_00.1.hdmi-stereo
 .XX
 .SP
 Where \fBpactl list sinks short\fR gives a list of playing devices and
@@ -926,7 +926,7 @@ default) as `native endian' and the number of samples in the file is
 recorded as a 64-bit integer. Comments are also supported.
 .SP
 See the section `\fBSpecial Filenames\fR' in
-.BR sox_ng (1)
+.BR sox (1)
 for examples of using the
 .B .sox
 format with pipes.
@@ -957,11 +957,11 @@ superseded by their more recent Opus codec.
 The Sun /dev/audio device driver supports both playing and
 recording audio.  For example:
 .XE
-	sox_ng infile \-t sunau /dev/audio
+	sox infile \-t sunau /dev/audio
 .XX
 or
 .XE
-	sox_ng infile \-t sunau \-e mu-law \-c 1 /dev/audio
+	sox infile \-t sunau \-e mu-law \-c 1 /dev/audio
 .XX
 for older Sun equipment.
 .SP
@@ -1022,7 +1022,7 @@ and/or DC offset problems when it comes to decoding the audio.
 While little can be done about the clipping, a DC offset can be removed by
 passing the decoded audio through a high-pass filter, e.g.:
 .XE
-	sox_ng input.vox output.wav highpass 10
+	sox input.vox output.wav highpass 10
 .XX
 .TP
 \fB.w64\fR (with sndfile, also with \fB\-t ffmpeg\fR)
@@ -1065,10 +1065,10 @@ See also \fB.wavpcm\fR.
 \fBwaveaudio\fR (optional)
 The MS-Windows native audio device driver.  Examples:
 .XE
-	sox_ng infile \-t waveaudio
-	sox_ng infile \-t waveaudio default
-	sox_ng infile \-t waveaudio 1
-	sox_ng infile \-t waveaudio "High Definition Audio Device"
+	sox infile \-t waveaudio
+	sox infile \-t waveaudio default
+	sox infile \-t waveaudio 1
+	sox infile \-t waveaudio "High Definition Audio Device"
 .XX
 If the device name is omitted, \fB-1\fR, or \fBdefault\fR, you
 get the `Microsoft Wave Mapper' device.  Wave Mapper means `use the
@@ -1101,7 +1101,7 @@ SoX will automatically detect and read WAV files with a non-standard header.
 The most common use of this file type is likely to be along the following
 lines:
 .XE
-	sox_ng infile.any \-t wavpcm \-e signed-integer outfile.wav
+	sox infile.any \-t wavpcm \-e signed-integer outfile.wav
 .XX
 .TP
 \fB.webm\fR (with ffmpeg)
@@ -1149,7 +1149,7 @@ Wikipedia,
 http://en.wikipedia.org/wiki/PLS_(file_format)
 .ne 2
 .SH SEE ALSO
-.BR sox_ng (1),
+.BR sox (1),
 \f(CWhttps://codeberg.org/sox_ng\fR
 .SH AUTHORS
 Lance Norskog, Chris Bagwell and many other authors and contributors

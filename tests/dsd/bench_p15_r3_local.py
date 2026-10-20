@@ -90,7 +90,7 @@ def main():
                             process_user_cpu_seconds=after.ru_utime-before.ru_utime,
                             process_system_cpu_seconds=after.ru_stime-before.ru_stime,
                             child_peak_rss_kb=after.ru_maxrss))
-                row=dict(profile_id=ident,output_pcm_hz=target,commands_with_actual_paths='sox_ng --dsd-mode auto --dsd-decode '+ident+' -D in.dsf -r '+str(target)+' -e signed-integer -b 32 out.wav',
+                row=dict(profile_id=ident,output_pcm_hz=target,commands_with_actual_paths='sox --dsd-mode auto --dsd-decode '+ident+' -D in.dsf -r '+str(target)+' -e signed-integer -b 32 out.wav',
                     warmups=2, repetitions=args.repetitions,per_repetition=runs,
                     observed_median_wall_seconds=statistics.median(v['wall_seconds'] for v in runs),
                     output_sha256=audio_hash)
