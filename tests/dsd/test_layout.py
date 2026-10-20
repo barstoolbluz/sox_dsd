@@ -544,7 +544,7 @@ class Runner:
 
 def main():
     ap=argparse.ArgumentParser()
-    ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox_ng')
+    ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox')
     ap.add_argument('--unit',type=pathlib.Path,default=ROOT/'test/dsd_test_layout')
     ap.add_argument('--results',type=pathlib.Path,default=ROOT/'tests/dsd/results/P04/layout')
     args=ap.parse_args()

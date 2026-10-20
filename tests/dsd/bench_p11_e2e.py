@@ -39,7 +39,7 @@ def atomic(path, value):
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--results',type=Path,required=True)
-    ap.add_argument('--sox',type=Path,default=ROOT/'src/sox_ng')
+    ap.add_argument('--sox',type=Path,default=ROOT/'src/sox')
     ap.add_argument('--candidate',type=Path,default=ROOT/'test/sox_p10_candidate')
     ap.add_argument('--repetitions',type=int,default=15)
     ap.add_argument('--warmups',type=int,default=2)

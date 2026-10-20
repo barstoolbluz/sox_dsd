@@ -50,7 +50,7 @@ endif
 # SoX - the application #
 #########################
 
-bin_PROGRAMS = sox_ng
+bin_PROGRAMS = sox
 EXTRA_PROGRAMS = example0 example1 example2 example3 example4 example5 example6 sox_sample_test
 
 if HAVE_SNDFILE
@@ -58,15 +58,15 @@ EXTRA_PROGRAMS += sparse_file_test
 SPARSE_FILE_TEST = sparse_file_test$(EXEEXT)
 sparse_file_test_SOURCES = sparse_file_test.c
 sparse_file_test_CFLAGS = @WARN_CFLAGS@ @SNDFILE_CFLAGS@
-sparse_file_test_LDADD = $(sox_ng_LDADD) $(SNDFILE_LIBS)
+sparse_file_test_LDADD = $(sox_LDADD) $(SNDFILE_LIBS)
 endif
 lib_LTLIBRARIES = libsox_ng.la
 include_HEADERS = sox_ng.h sox_dsd.h
-sox_ng_SOURCES = sox_ng.c
+sox_SOURCES = sox_ng.c
 if HAVE_WIN32_GLOB
-sox_ng_SOURCES += win32-glob.c win32-glob.h
+sox_SOURCES += win32-glob.c win32-glob.h
 endif
-sox_ng_LDADD = libsox_ng.la
+sox_LDADD = libsox_ng.la
 example0_SOURCES = example0.c
 example1_SOURCES = example1.c
 example2_SOURCES = example2.c
@@ -210,34 +210,34 @@ include optional-fmts.am
 
 
 # example programs will need same link options as sox does.
-example0_LDADD = ${sox_ng_LDADD}
-example1_LDADD = ${sox_ng_LDADD}
-example2_LDADD = ${sox_ng_LDADD}
-example3_LDADD = ${sox_ng_LDADD}
-example4_LDADD = ${sox_ng_LDADD}
-example5_LDADD = ${sox_ng_LDADD}
-example6_LDADD = ${sox_ng_LDADD}
+example0_LDADD = ${sox_LDADD}
+example1_LDADD = ${sox_LDADD}
+example2_LDADD = ${sox_LDADD}
+example3_LDADD = ${sox_LDADD}
+example4_LDADD = ${sox_LDADD}
+example5_LDADD = ${sox_LDADD}
+example6_LDADD = ${sox_LDADD}
 
 EXTRA_DIST = monkey.wav optional-fmts.am \
 	     tests.sh testall.sh tests.bat testall.bat test-comments
 
-all: sox_ng$(EXEEXT) play_ng$(EXEEXT) rec_ng$(EXEEXT) soxi_ng$(EXEEXT)
+all: sox$(EXEEXT) play_ng$(EXEEXT) rec_ng$(EXEEXT) soxi_ng$(EXEEXT)
 
-play_ng$(EXEEXT) rec_ng$(EXEEXT) soxi_ng$(EXEEXT): sox_ng$(EXEEXT)
+play_ng$(EXEEXT) rec_ng$(EXEEXT) soxi_ng$(EXEEXT): sox$(EXEEXT)
 	@if test "$(PLAYRECLINKS)" = "yes"; then	\
-		test -f sox_ng$(EXEEXT) && ( $(RM) $@ && $(LN_S) sox_ng$(EXEEXT) $@ ) || $(LN_S) sox_ng $@; \
+		test -f sox$(EXEEXT) && ( $(RM) $@ && $(LN_S) sox$(EXEEXT) $@ ) || $(LN_S) sox $@; \
 	fi
 
 install-exec-hook:
 	@if test "$(PLAYRECLINKS)" = "yes"; then	\
-		cd $(DESTDIR)$(bindir); $(RM) play_ng$(EXEEXT) rec_ng$(EXEEXT); $(LN_S) sox_ng$(EXEEXT) play_ng$(EXEEXT); $(LN_S) sox_ng$(EXEEXT) rec_ng$(EXEEXT); \
+		cd $(DESTDIR)$(bindir); $(RM) play_ng$(EXEEXT) rec_ng$(EXEEXT); $(LN_S) sox$(EXEEXT) play_ng$(EXEEXT); $(LN_S) sox$(EXEEXT) rec_ng$(EXEEXT); \
 	fi
 	@if test "$(SYMLINKS)" = "yes"; then	\
-		cd $(DESTDIR)$(bindir); $(RM) soxi_ng$(EXEEXT); $(LN_S) sox_ng$(EXEEXT) soxi_ng$(EXEEXT); \
+		cd $(DESTDIR)$(bindir); $(RM) soxi_ng$(EXEEXT); $(LN_S) sox$(EXEEXT) soxi_ng$(EXEEXT); \
 	fi
 	@if test "$(REPLACE)" = "yes"; then \
 		cd $(DESTDIR)$(bindir); \
-		$(RM) sox$(EXEEXT); $(LN_S) sox_ng$(EXEEXT) sox$(EXEEXT); \
+		: # the installed binary is already named sox; no alias needed \
 		if test "$(PLAYRECLINKS)" = "yes"; then	\
 			$(RM) play$(EXEEXT) rec$(EXEEXT); \
 			$(LN_S) play_ng$(EXEEXT) play$(EXEEXT); \
@@ -296,7 +296,7 @@ distclean-local:
 loc:
 	sloccount \
 	$(include_HEADERS) \
-	$(sox_ng_SOURCES) \
+	$(sox_SOURCES) \
 	$(example0_SOURCES) \
 	$(example1_SOURCES) \
 	$(example2_SOURCES) \

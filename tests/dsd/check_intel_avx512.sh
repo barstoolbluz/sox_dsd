@@ -76,10 +76,10 @@ done
 
 say "forced-tier output equality, all five tiers"
 make -C test dsd_test_p10 sox_p10_candidate >/dev/null 2>&1 || echo "WARN: candidate encoder build failed"
-./src/sox_ng -n -r 88200 -b 32 -e signed-integer "$R/in.wav" synth 3 sine 997 vol 0.3
+./src/sox -n -r 88200 -b 32 -e signed-integer "$R/in.wav" synth 3 sine 997 vol 0.3
 ./test/sox_p10_candidate --dsd-layout-loss warn "$R/in.wav" -r 2822400 "$R/a.dsf" pcmdsd 2822400
 for k in scalar sse2 avx1 avx2 avx512; do
-  SOX_DSD_KERNEL_FIR=$k ./src/sox_ng --dsd-layout-loss warn "$R/a.dsf" \
+  SOX_DSD_KERNEL_FIR=$k ./src/sox --dsd-layout-loss warn "$R/a.dsf" \
     -b 32 -e signed-integer "$R/fir_$k.wav" dsdpcm -l preserve 88200 2>"$R/fir_$k.err"
   printf 'FIR=%-8s exit=%s %s\n' "$k" "$?" "$(sha256sum "$R/fir_$k.wav" 2>/dev/null | cut -c1-20)"
 done

@@ -428,7 +428,7 @@ def preflight(inventory: list[dict], sources: list[dict]) -> list[tuple[dict, di
 def args_parse(argv=None):
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--sox', type=Path, default=ROOT / 'src/sox_ng')
+    parser.add_argument('--sox', type=Path, default=ROOT / 'src/sox')
     parser.add_argument('--candidate', type=Path, default=ROOT / 'test/sox_p10_candidate')
     parser.add_argument('--flac', type=Path, default=Path('flac'))
     parser.add_argument('--inventory', type=Path, default=INVENTORY)

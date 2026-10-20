@@ -170,7 +170,7 @@ def summarize(values: list[float]) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--sox', type=Path, default=ROOT / 'src/sox_ng')
+    parser.add_argument('--sox', type=Path, default=ROOT / 'src/sox')
     parser.add_argument('--profile-sox', type=Path, default=ROOT / 'test/sox_dsd_profile')
     parser.add_argument('--source', type=Path, help='optional existing DSF or DFF source, never modified')
     parser.add_argument('--results', type=Path, required=True, help='new or empty output directory')

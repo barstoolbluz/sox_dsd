@@ -18,7 +18,7 @@ if HAVE_ALSA
 if STATIC_ALSA
   libsox_ng_la_SOURCES += alsa.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @ALSA_LIBS@
+  sox_LDADD += @ALSA_LIBS@
 else
   libsox_ng_la_LIBADD += @ALSA_LIBS@
 endif
@@ -33,7 +33,7 @@ if HAVE_AMRNB
 if STATIC_AMRNB
   libsox_ng_la_SOURCES += amr-nb.c amr.h
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @AMRNB_LIBS@
+  sox_LDADD += @AMRNB_LIBS@
 else
   libsox_ng_la_LIBADD += @AMRNB_LIBS@
 endif
@@ -48,7 +48,7 @@ if HAVE_AMRWB
 if STATIC_AMRWB
   libsox_ng_la_SOURCES += amr-wb.c amr.h
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @AMRWB_LIBS@
+  sox_LDADD += @AMRWB_LIBS@
 else
   libsox_ng_la_LIBADD += @AMRWB_LIBS@
 endif
@@ -63,7 +63,7 @@ if HAVE_AO
 if STATIC_AO
   libsox_ng_la_SOURCES += ao.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @AO_LIBS@
+  sox_LDADD += @AO_LIBS@
 else
   libsox_ng_la_LIBADD += @AO_LIBS@
 endif
@@ -78,7 +78,7 @@ if HAVE_COREAUDIO
 if STATIC_COREAUDIO
   libsox_ng_la_SOURCES += coreaudio.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @COREAUDIO_LIBS@
+  sox_LDADD += @COREAUDIO_LIBS@
 else
   libsox_ng_la_LIBADD += @COREAUDIO_LIBS@
 endif
@@ -93,7 +93,7 @@ if HAVE_FLAC
 if STATIC_FLAC
   libsox_ng_la_SOURCES += flac.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @FLAC_LIBS@
+  sox_LDADD += @FLAC_LIBS@
 else
   libsox_ng_la_LIBADD += @FLAC_LIBS@
 endif
@@ -108,7 +108,7 @@ if HAVE_GSM
 if STATIC_GSM
   libsox_ng_la_SOURCES += gsm.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @GSM_LIBS@
+  sox_LDADD += @GSM_LIBS@
 else
   libsox_ng_la_LIBADD += @GSM_LIBS@
 endif
@@ -123,7 +123,7 @@ if HAVE_LPC10
 if STATIC_LPC10
   libsox_ng_la_SOURCES += lpc10.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @LPC10_LIBS@
+  sox_LDADD += @LPC10_LIBS@
 else
   libsox_ng_la_LIBADD += @LPC10_LIBS@
 endif
@@ -140,7 +140,7 @@ if STATIC_MP3
                           mp3-lame.c mp3-lame.h mp3-hip.c mp3-hip.h \
                           mp3-twolame.c mp3-twolame.h
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @MP3_LIBS@
+  sox_LDADD += @MP3_LIBS@
 else
   libsox_ng_la_LIBADD += @MP3_LIBS@
 endif
@@ -157,7 +157,7 @@ if HAVE_OPUS
 if STATIC_OPUS
   libsox_ng_la_SOURCES += opus.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @OPUS_LIBS@
+  sox_LDADD += @OPUS_LIBS@
 else
   libsox_ng_la_LIBADD += @OPUS_LIBS@
 endif
@@ -172,7 +172,7 @@ if HAVE_OSS
 if STATIC_OSS
   libsox_ng_la_SOURCES += oss.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @OSS_LIBS@
+  sox_LDADD += @OSS_LIBS@
 else
   libsox_ng_la_LIBADD += @OSS_LIBS@
 endif
@@ -187,7 +187,7 @@ if HAVE_PULSEAUDIO
 if STATIC_PULSEAUDIO
   libsox_ng_la_SOURCES += pulseaudio.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @PULSEAUDIO_LIBS@
+  sox_LDADD += @PULSEAUDIO_LIBS@
 else
   libsox_ng_la_LIBADD += @PULSEAUDIO_LIBS@
 endif
@@ -202,7 +202,7 @@ if HAVE_WAVEAUDIO
 if STATIC_WAVEAUDIO
   libsox_ng_la_SOURCES += waveaudio.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @WAVEAUDIO_LIBS@
+  sox_LDADD += @WAVEAUDIO_LIBS@
 else
   libsox_ng_la_LIBADD += @WAVEAUDIO_LIBS@
 endif
@@ -218,7 +218,7 @@ if STATIC_SNDIO
   libsox_ng_la_SOURCES += sndio.c
   libsox_ng_la_LIBADD += @SNDIO_LIBS@
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @SNDIO_LIBS@
+  sox_LDADD += @SNDIO_LIBS@
 else
   libsox_ng_la_LIBADD += @SNDIO_LIBS@
 endif
@@ -233,7 +233,7 @@ if HAVE_SUN_AUDIO
 if STATIC_SUN_AUDIO
   libsox_ng_la_SOURCES += sunaudio.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @SUN_AUDIO_LIBS@
+  sox_LDADD += @SUN_AUDIO_LIBS@
 else
   libsox_ng_la_LIBADD += @SUN_AUDIO_LIBS@
 endif
@@ -248,7 +248,7 @@ if HAVE_OGG_VORBIS
 if STATIC_OGG_VORBIS
   libsox_ng_la_SOURCES += vorbis.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @OGG_VORBIS_LIBS@
+  sox_LDADD += @OGG_VORBIS_LIBS@
 else
   libsox_ng_la_LIBADD += @OGG_VORBIS_LIBS@
 endif
@@ -263,7 +263,7 @@ if HAVE_WAVPACK
 if STATIC_WAVPACK
   libsox_ng_la_SOURCES += wavpack.c
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @WAVPACK_LIBS@
+  sox_LDADD += @WAVPACK_LIBS@
 else
   libsox_ng_la_LIBADD += @WAVPACK_LIBS@
 endif
@@ -280,7 +280,7 @@ if STATIC_SNDFILE
   libsox_ng_la_SOURCES += sndfile.c
   libsox_ng_la_CFLAGS += @SNDFILE_CFLAGS@
 if STATIC_LIBSOX_ONLY
-  sox_ng_LDADD += @SNDFILE_LIBS@
+  sox_LDADD += @SNDFILE_LIBS@
 else
   libsox_ng_la_LIBADD += @SNDFILE_LIBS@
 endif

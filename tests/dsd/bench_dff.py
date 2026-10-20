@@ -63,7 +63,7 @@ def interval(ratios):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--baseline-sox', type=pathlib.Path, required=True)
-    ap.add_argument('--sox', type=pathlib.Path, default=ROOT/'src/sox_ng')
+    ap.add_argument('--sox', type=pathlib.Path, default=ROOT/'src/sox')
     ap.add_argument('--results', type=pathlib.Path, default=ROOT/'tests/dsd/results/P01/bench-dff')
     ap.add_argument('--frames', type=int, default=8388608)
     ap.add_argument('--repetitions', type=int, default=15)

@@ -32,7 +32,7 @@ import p15_matrix_receipt_review as receipt_review
 ROOT=Path(__file__).resolve().parents[2]
 PROBE=Path(os.environ.get('P15_PROBE',str(ROOT/'test/dsd_test_p15_instrument')))
 SRC_PROBE=Path(os.environ.get('P15_SRC_PROBE',str(ROOT/'test/dsd_test_p07_reference')))
-SOX=Path(os.environ.get('P15_SOX',str(ROOT/'src/sox_ng')))
+SOX=Path(os.environ.get('P15_SOX',str(ROOT/'src/sox')))
 LIVE=os.environ.get('P15_LIVE')=='1'
 
 

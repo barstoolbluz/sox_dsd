@@ -34,7 +34,7 @@ def atomic(path,obj):
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--sox',type=Path,default=ROOT/'src/sox_ng')
+    ap.add_argument('--sox',type=Path,default=ROOT/'src/sox')
     ap.add_argument('--candidate',type=Path,default=ROOT/'test/sox_p10_candidate')
     ap.add_argument('--results',type=Path,required=True)
     ap.add_argument('--phase',default='P11')

@@ -38,7 +38,7 @@ def main():
     output=a.results/'benchmark-matrix.json'
     report=dict(schema='P12/benchmark-matrix/1',host=platform.platform(),
         machine=platform.machine(),cpu_features='recorded per-object ISA audit',
-        executable_sha256={p:sha(ROOT/p) for p in ('src/sox_ng','test/sox_p10_candidate',
+        executable_sha256={p:sha(ROOT/p) for p in ('src/sox','test/sox_p10_candidate',
                               'test/dsd_test_p11')},
         config=dict(repetitions=a.repetitions,kernel_frames=a.kernel_frames,
             decode_seconds=a.decode_seconds,encode_seconds=a.encode_seconds,
@@ -56,7 +56,7 @@ def main():
         path=a.results/case
         cmd=[sys.executable,'tests/dsd/bench_p11_e2e.py','--phase','P12',
              '--native-rate',str(rate),'--channels',str(channels),
-             '--sox','src/sox_ng','--candidate','test/sox_p10_candidate',
+             '--sox','src/sox','--candidate','test/sox_p10_candidate',
              '--results',str(path),'--repetitions',str(a.repetitions),
              '--warmups','2','--decode-seconds',str(a.decode_seconds),
              '--encode-seconds',str(a.encode_seconds),'--tiers',*TIERS]

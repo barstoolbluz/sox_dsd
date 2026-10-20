@@ -129,7 +129,7 @@ class ComparatorTests(unittest.TestCase):
             self.assertIn('-t',cmd)
 
     def test_replay_matched_and_wrong_control(self):
-        sox=ROOT/'src/sox_ng';candidate=ROOT/'test/sox_p10_candidate'
+        sox=ROOT/'src/sox';candidate=ROOT/'test/sox_p10_candidate'
         if not sox.is_file() or not candidate.is_file():
             self.skipTest('no locally compiled source-bound binaries; run on build host')
         good=verify_match(RESULT/'ps-matched-comparator',sox,candidate)

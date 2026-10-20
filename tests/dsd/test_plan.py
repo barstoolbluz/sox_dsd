@@ -29,7 +29,7 @@ def pcm(path: pathlib.Path, rate: int, channels: int) -> None:
 
 def main() -> int:
     ap=argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--sox', type=pathlib.Path, default=ROOT/'src/sox_ng')
+    ap.add_argument('--sox', type=pathlib.Path, default=ROOT/'src/sox')
     ap.add_argument('--results',type=pathlib.Path,default=ROOT/'tests/dsd/results/P05/plan')
     args=ap.parse_args()
     sox=args.sox.resolve()

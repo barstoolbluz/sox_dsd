@@ -19,7 +19,7 @@ ROOT=pathlib.Path(__file__).resolve().parents[2]
 
 def main():
     ap=argparse.ArgumentParser()
-    ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox_ng')
+    ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox')
     ap.add_argument('--results',type=pathlib.Path,default=ROOT/'tests/dsd/results/P05/preflight_bench')
     ap.add_argument('--repetitions',type=int,default=11)
     a=ap.parse_args()

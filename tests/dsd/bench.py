@@ -86,7 +86,7 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--phase', default='P00', choices=[f'P{i:02}' for i in range(19)])
     ap.add_argument('--results', type=pathlib.Path,default=ROOT/'tests/dsd/results/P00/bench')
-    ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox_ng')
+    ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox')
     ap.add_argument('--profile',choices=['development','full'],default='development')
     ap.add_argument('--duration',type=float,default=0.006,
                     help='source seconds (default 0.006; intentionally short P00 development run)')
