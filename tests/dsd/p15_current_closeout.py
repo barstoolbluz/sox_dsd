@@ -26,8 +26,8 @@ BIND = RESULTS / 'DECODE_OPTIMIZATION_2026-10-12/validation/p10-certificate-bind
 PRIOR = RESULTS / 'P15_readjudication_2026-10-14/review.json'
 DESIGN = Path('docs/dsd/DSD_DESIGN.md')
 INTEL = Path('docs/dsd/amendments/P15_INTEL_AVX512_SCOPE_2026-10-14.md')
-V1 = RESULTS / 'P15_v1_matrix_rebound_2026-10-15'
-V2 = RESULTS / 'P15_v2_matrix_2026-10-15'
+V1 = RESULTS / 'P15_v1_matrix_rebound_2026-10-20'
+V2 = RESULTS / 'P15_v2_matrix_rebound_2026-10-20'
 TIERS = ('scalar', 'sse2', 'avx1', 'avx2', 'avx512')
 CHANGED_SOURCE = {'src/dsd_plan.c', 'src/pcmdsd.c', 'src/pcmdsd.h', 'src/sdm.c'}
 # An exact input-revision admission, not a general exemption for edited design
