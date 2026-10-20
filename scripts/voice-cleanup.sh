@@ -5,7 +5,7 @@
 # may have been recorded using different microphones, with differing
 # background noise etc.
 
-SOX=../src/sox_ng
+SOX=../src/sox
 
 if [ $# -lt 2 ]; then
   echo "Usage: $0 infile outfile"

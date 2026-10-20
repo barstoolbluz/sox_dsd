@@ -168,11 +168,15 @@ def main() -> int:
         run('pcm_only_plan',[w88,'@OUT@'],inspect=expect(
             executable=True,output__domain='PCM_AUDIO',graph_decoder_count=0))
 
+        # The unpinned P15 release default is mastering v2; explicit v1 stays selectable.
         # P08 activates the existing binary64 decoder for planned graph boundaries.
-        for name,src,expected in (('master64',ds,88200),('master128',ds128,176400),
-                                  ('master256',ds256,176400)):
+        for name,src,expected,clock in (('master64',ds,88200,64),
+                                        ('master128',ds128,176400,128),
+                                        ('master256',ds256,176400,256)):
             run(name,[src,'@OUT@'],inspect=expect(executable=True,needs_unimplemented_dsp=False,
-                decoder__intermediate_hz=expected,output__bits_per_sample=24,
+                decoder__intermediate_hz=expected,
+                decoder__id=f'decode.mastering.v2.dsd{clock}',
+                output__bits_per_sample=24,
                 graph_decoder_count=1))
         run('wideband256',['--dsd-decode','wideband',ds256,'@OUT@'],
             inspect=expect(decoder__id='decode.wideband.v1.dsd256',decoder__pass_hz=141120,
@@ -217,10 +221,17 @@ def main() -> int:
         run('gain_and_reencode',[ds,'@OUT@','gain','-3'],inspect=processed,suffix='.dsf')
         run('native_rate_change',[ds,'-r','5644800','@OUT@'],
             inspect=expect(output__rate_hz=5644800,graph_decoder_count=1,encoder_count=1),suffix='.dsf')
-        run('no_header_on_gain',['--dsd-mode','auto',ds,'@OUT@','gain','-3'],plan=False,ok=False,
-            error='P05 preflight',suffix='.dsf')
+        # P10 mastering modulation executes the previously plan-only gain route.
+        run('gain_reencode_actual',['--dsd-mode','auto',ds,'@OUT@','gain','-3'],
+            plan=False,suffix='.dsf')
         run('channels_mix',[ds,'@OUT@','channels','1'],
             inspect=expect(graph_decoder_count=1,encoder_count=1),suffix='.dsf')
+        run('channels_mono_explicit_actual',['--dsd-mode','auto',
+            '--dsd-layout','MONO',ds,'@OUT@','channels','1'],
+            plan=False,suffix='.dsf')
+        run('channels_mono_unknown_reject',['--dsd-mode','auto',
+            ds,'@OUT@','channels','1'],plan=False,ok=False,
+            error='cannot encode this channel identity',suffix='.dsf')
         run('native_layout_unknown',['--dsd-layout','L,R,Q',ds,'@OUT@'],ok=False,
             error='dsd-layout',suffix='.dsf')
 
@@ -234,8 +245,8 @@ def main() -> int:
             run('combine_'+c,['--combine',c,ds,ds,'@OUT@'],inspect=per_input)
         run('mixed_dsd_clocks',['--combine','mix',ds,ds128,'@OUT@'],
             inspect=expect(input_decoder_count=2,combiner__rate_hz=176400,
-                inputs__0__decoder_id='decode.mastering.v1.dsd64',
-                inputs__1__decoder_id='decode.mastering.v1.dsd128'))
+                inputs__0__decoder_id='decode.mastering.v2.dsd64',
+                inputs__1__decoder_id='decode.mastering.v2.dsd128'))
         run('mixed_dsd_clocks_native_ambiguous',['--combine','mix',ds,ds128,'@OUT@'],
             ok=False,error='explicit native output rate',suffix='.dsf')
         run('mixed_dsd_clocks_native_pinned',['--combine','mix',ds,ds128,
@@ -295,6 +306,9 @@ def main() -> int:
             inspect=expect(encoder__modulator_input_scale=1),suffix='.dsf')
         run('pcm_ref_default',[w88,'-r','5644800','@OUT@','pcmdsd','5644800'],
             inspect=expect(encoder__modulator_input_scale=.5),suffix='.dsf')
+        run('pcm_mastering_actual',['--dsd-mode','auto',w88,
+            '-r','5644800','@OUT@','pcmdsd','5644800'],
+            plan=False,suffix='.dsf')
         # Kernel forcing remains context-local. A native-only transcode
         # creates no FIR context and must ignore the inactive family override.
         # P13 implements baseline avx512: avx512-fma is the stable intentionally
@@ -351,17 +365,17 @@ def main() -> int:
         run('mod_decode_gain',[w88,'@OUT@','pcmdsd','2822400',
             'dsdpcm','88200','gain','-3'],
             inspect=check_steps('pcmdsd','dsdpcm','gain',encoder_count=1,
-                graph_decoder_count=1,decoder__id='decode.mastering.v1.dsd64'))
+                graph_decoder_count=1,decoder__id='decode.mastering.v2.dsd64'))
         run('mod_decode_wrong_pin',[w88,'@OUT@','pcmdsd','2822400',
             'dsdpcm','-p','decode.mastering.v1.dsd128'],ok=False,
             error='different native DSD clock')
         run('mod_to_128_decode',[w88,'@OUT@','pcmdsd','5644800','dsdpcm','176400'],
             inspect=expect(encoder_count=1,graph_decoder_count=1,
-                decoder__id='decode.mastering.v1.dsd128',decoder__intermediate_hz=176400))
+                decoder__id='decode.mastering.v2.dsd128',decoder__intermediate_hz=176400))
         run('mod64_decode_mod128_decode',[ds,'@OUT@','dsdpcm','88200',
             'pcmdsd','5644800','dsdpcm','176400'],
             inspect=expect(encoder_count=1,graph_decoder_count=2,
-                decoder__id='decode.mastering.v1.dsd128'))
+                decoder__id='decode.mastering.v2.dsd128'))
         run('mod64_decode_mod128_pin',[ds,'@OUT@','dsdpcm','88200',
             'pcmdsd','5644800','dsdpcm','-p','decode.mastering.v1.dsd128'],
             inspect=expect(decoder__id='decode.mastering.v1.dsd128'))
@@ -505,8 +519,14 @@ def main() -> int:
         run('norm_dsd_rate',['--norm',ds,'-r','96000','@OUT@'],
             inspect=check_steps('implicit_dsdpcm','auto_normalize',
                 output__rate_hz=96000,steps__0__rate_out_hz=96000))
-        run('norm_native_no_header',['--dsd-mode','auto','--norm',ds,'@OUT@'],
-            plan=False,ok=False,error='P05 preflight',suffix='.dsf')
+        # Executable is a graph qualification, not a promise that arbitrary
+        # source levels will stay inside the mastering SDM's numeric bound.
+        # A conservative target succeeds; the same fixture at 0 dBFS must
+        # fail closed on interpolation overload, leaving no partial output.
+        run('norm_native_actual',['--dsd-mode','auto','--norm=-12',ds,'@OUT@'],
+            plan=False,suffix='.dsf')
+        run('norm_native_overload_reject',['--dsd-mode','auto','--norm',ds,'@OUT@'],
+            plan=False,ok=False,error='interpolation overload',suffix='.dsf')
         run('norm_dop_native',['--norm',ds,'@OUT@','dop'],
             inspect=check_steps('implicit_dsdpcm','auto_normalize','implicit_pcmdsd','dop',
                 encoder_count=1,graph_decoder_count=1,

@@ -1,7 +1,7 @@
 /* SoX - The Swiss Army Knife of Audio Manipulation.
  *
  * This is the main function for the SoX command line programs:
- *   sox_ng, play_ng, rec_ng, soxi_ng.
+ *   sox, play, rec, soxi (also legacy _ng aliases).
  *
  * Copyright 1998-2009 Chris Bagwell and SoX contributors
  * Copyright 1991 Lance Norskog And Sundry Contributors
@@ -241,7 +241,8 @@ static char *dsd_layout_assignment = NULL;
 static sox_bool dsd_layout_loss_warn = sox_false;
 static lsx_dsd_policy dsd_policy = {
   .mode=LSX_DSD_MODE_LEGACY,
-  .decode=LSX_DSD_PROFILE_MASTERING,
+  /* P15 release default: implicit reconstruction matches unpinned dsdpcm. */
+  .decode=LSX_DSD_PROFILE_MASTERING_V2,
   .encode=LSX_DSD_ENCODE_MASTERING,
   .level=LSX_DSD_LEVEL_PRESERVE,
   .clip=LSX_DSD_CLIP_WARN,
@@ -3193,9 +3194,9 @@ static void display_SoX_version(FILE * file)
   const sox_version_info_t* info = sox_version_info();
 
 #ifdef VERSION
-  fprintf(file, "%s:      SoX_ng v%s\n", sox_globals.myname, VERSION);
+  fprintf(file, "%s:      SoX DSD v%s\n", sox_globals.myname, VERSION);
 #else
-  fprintf(file, "%s:      SoX_ng v%s%s%s\n",
+  fprintf(file, "%s:      SoX DSD v%s%s%s\n",
       sox_globals.myname,
       info->version,
       info->version_extra ? "-" : "",
@@ -3312,8 +3313,10 @@ static void usage(void)
 "--dsd-layout ROLES       Comma-separated output role assignment: FL,FR,FC,LFE,BL,BR,SL,SR,MONO",
 "--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
 "--dsd-mode auto|native|legacy  Opt in to P08 domain routing; default remains legacy",
-"--dsd-decode conservative|mastering|wideband|legacy|decode.mastering.v2.dsd<rate>  v2 ID is an unqualified explicit candidate; mastering still v1",
-"--dsd-encode mastering|legacy|experimental|encode.mastering.v1.dsd<rate>  Select modulation policy",
+"--dsd-decode conservative|mastering|wideband|legacy|decode.mastering.v2.dsd<rate>",
+"                         Unpinned auto reconstruction defaults to mastering v2; explicit mastering/conservative select v1",
+"--dsd-encode mastering|legacy|experimental|encode.mastering.v1.dsd<rate>",
+"                         Mastering v1 encoding is active for native DSD64/128/256; guards remain enforced",
 "--dsd-level preserve|sacd  Decoder level convention",
 "--dsd-clip warn|error    Graph-boundary clipping policy",
 "--dsd-bandwidth adapt|strict  PCM reconstruction passband policy",
@@ -4328,7 +4331,7 @@ static void soxi_usage(int return_code)
   display_SoX_version(stdout);
   printf(
     "\n"
-    "Usage: soxi_ng [-V[level]] [-T] [-t|-r|-c|-s|-d|-D|-b|-B|-p|-e|-a] infile1 ...\n"
+    "Usage: soxi [-V[level]] [-T] [-t|-r|-c|-s|-d|-D|-b|-B|-p|-e|-a] infile1 ...\n"
     "\n"
     "-V[n]\tIncrement or set verbosity level (default is 2)\n"
     "-T\tWith -s, -d or -D, display the total across all given files\n"

@@ -18,7 +18,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.62])
 
-AC_INIT([sox_dsd], [14.8.0+git], [sox-ng@groups.io])
+AC_INIT([sox_dsd], [14.8.0+git], [https://github.com/barstoolbluz/sox_dsd/issues])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -33,7 +33,7 @@ dnl create a config.h file (Automake will add -DHAVE_CONFIG_H)
 AC_CONFIG_HEADERS([src/soxconfig.h])
 
 dnl Check we have the right srcdir
-AC_CONFIG_SRCDIR(sox_ng.1)
+AC_CONFIG_SRCDIR(sox.1)
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -939,11 +939,11 @@ AC_OPTIONAL_FORMAT(lpc10, LPC10)
 
 
 
-dnl Check if we want to disable all symlinks
-dnl from "play_ng" to "sox_ng", "soxi_ng" to "sox_ng" etc.
+dnl The primary executable is sox; aliases dispatch play/rec/soxi modes.
+dnl Legacy _ng alias names remain for compatibility when symlinks are enabled.
 AC_MSG_CHECKING([whether to enable symlinks])
 AC_ARG_ENABLE(symlinks,
-    AS_HELP_STRING([--disable-symlinks], [Don't make any symlinks to sox_ng.]),,enable_symlinks=yes)
+    AS_HELP_STRING([--disable-symlinks], [Do not create play, rec, soxi or legacy _ng aliases.]),,enable_symlinks=yes)
 AC_MSG_RESULT($enable_symlinks)
 
 enable_playrec_symlinks=no
@@ -964,13 +964,11 @@ fi
 AC_SUBST(SYMLINKS)
 AC_SUBST(PLAYRECLINKS)
 
-dnl Check if we want to make links from "sox" to "sox_ng" and so on
-dnl thereby making it work as if it were sox.
-dnl --disable-symlinks is distinct from this and refers to
-dnl                    the soxi/play/rec aliases.
-AC_MSG_CHECKING([whether to replace sox with sox_ng])
+dnl --enable-replace now only adds optional legacy/unversioned library,
+dnl header, pkg-config and library manual aliases.  sox is always the binary.
+AC_MSG_CHECKING([whether to install library compatibility aliases])
 AC_ARG_ENABLE(replace,
-    AS_HELP_STRING([--enable-replace], [Make links from "sox" to "sox_ng" and so on.]),enable_replace=yes,enable_replace=no)
+    AS_HELP_STRING([--enable-replace], [Add unversioned library/header/pkg-config/manual aliases.]),enable_replace=yes,enable_replace=no)
 AC_MSG_RESULT($enable_replace)
 
 if test "$enable_replace" = "yes"; then

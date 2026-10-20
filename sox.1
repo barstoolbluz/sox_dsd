@@ -31,20 +31,20 @@
 .SP
 .fi
 ..
-.TH SOX_NG 1 "December 05, 2024" "SoX" "Sound eXchange_ng"
+.TH SOX 1 "December 05, 2024" "SoX" "Sound eXchange"
 .SH NAME
-sox_ng \- Sound eXchange_ng, another Swiss Army knife of audio manipulation
+sox \- Sound eXchange, another Swiss Army knife of audio manipulation
 .SH SYNOPSIS
 .nf
-\fBsox_ng\fR [\fIglobal-options\fR] [\fIformat-options\fR] \fIinfile1\fR
+\fBsox\fR [\fIglobal-options\fR] [\fIformat-options\fR] \fIinfile1\fR
 	[[\fIformat-options\fR] \fIinfile2\fR] ... [\fIformat-options\fR] \fIoutfile\fR
 	[\fIeffect\fR [\fIeffect-options\fR]] ...
 .SP
-\fBplay_ng\fR [\fIglobal-options\fR] [\fIformat-options\fR] \fIinfile1\fR
+\fBplay\fR [\fIglobal-options\fR] [\fIformat-options\fR] \fIinfile1\fR
 	[[\fIformat-options\fR] \fIinfile2\fR] ... [\fIformat-options\fR]
 	[\fIeffect\fR [\fIeffect-options\fR]] ...
 .SP
-\fBrec_ng\fR [\fIglobal-options\fR] [\fIformat-options\fR] \fIoutfile\fR
+\fBrec\fR [\fIglobal-options\fR] [\fIformat-options\fR] \fIoutfile\fR
 	[\fIeffect\fR [\fIeffect-options\fR]] ...
 .fi
 .SH DESCRIPTION
@@ -55,12 +55,12 @@ sources, synthesize audio and, on many systems, act as a general
 purpose audio player or as a multitrack audio recorder.
 It can also split the input into multiple output files.
 .SP
-All SoX functionality is available using just the \fBsox_ng\fR command.
+All SoX functionality is available using just the \fBsox\fR command.
 To simplify playing and recording audio, if SoX is invoked as
-\fBplay_ng\fR, the output file is automatically set to be the default sound
-device and, if invoked as \fBrec_ng\fR, the default sound device is used as an
+\fBplay\fR, the output file is automatically set to be the default sound
+device and, if invoked as \fBrec\fR, the default sound device is used as an
 input source.
-Additionally, the \fBsoxi_ng\fR
+Additionally, the \fBsoxi\fR
 command provides a convenient way to query audio file header information.
 .SP
 The heart of SoX is a library called \fBlibsox_ng\fR.  Those interested in
@@ -93,53 +93,53 @@ before their respective file names, the opposite is true for effects.
 To show how this works in practice, here is a selection of examples of
 how SoX might be used.  The simple
 .XE
-   sox_ng recital.au recital.wav
+   sox recital.au recital.wav
 .XX
 translates an audio file in Sun AU format to a Microsoft WAV file, while
 .XE
-   sox_ng recital.au \-b 16 recital.wav channels 1 rate 16k fade 3 norm
+   sox recital.au \-b 16 recital.wav channels 1 rate 16k fade 3 norm
 .XX
 performs the same format translation but also applies four effects
 (down-mix to one channel, sample rate change, fade in and normalize)
 and stores the result at a bit-depth of 16.
 .XE
-   sox_ng \-r 16k \-e signed \-b 8 \-c 1 voice-memo.raw voice-memo.wav
+   sox \-r 16k \-e signed \-b 8 \-c 1 voice-memo.raw voice-memo.wav
 .XX
 converts `raw' (a.k.a. `headerless') audio to a self-describing file format,
 .XE
-   sox_ng slow.aiff fixed.aiff speed 1.027
+   sox slow.aiff fixed.aiff speed 1.027
 .XX
 adjusts audio speed,
 .XE
-   sox_ng short.wav long.wav longer.wav
+   sox short.wav long.wav longer.wav
 .XX
 concatenates two audio files and
 .XE
-   sox_ng \-m music.mp3 voice.wav mixed.flac
+   sox \-m music.mp3 voice.wav mixed.flac
 .XX
 mixes together two audio files.
 .XE
-   play_ng \(dqThe Moonbeams/Greatest/*.ogg\(dq bass +3
+   play \(dqThe Moonbeams/Greatest/*.ogg\(dq bass +3
 .XX
 plays a collection of audio files applying a bass boosting effect,
 .XE
-   play_ng \-n \-c1 synth sin %\-12 sin %\-9 sin %\-5 sin %\-2 fade h 0.1 1 0.1
+   play \-n \-c1 synth sin %\-12 sin %\-9 sin %\-5 sin %\-2 fade h 0.1 1 0.1
 .XX
 plays a synthesized `A minor seventh' chord with a pipe organ sound,
 .XE
-   rec_ng \-c 2 radio.aiff trim 0 30:00
+   rec \-c 2 radio.aiff trim 0 30:00
 .XX
 records half an hour of stereo audio and
 .XE
-   play_ng \-q take1.aiff & rec \-M take1.aiff take1\-dub.aiff
+   play \-q take1.aiff & rec \-M take1.aiff take1\-dub.aiff
 .XX
 (with a POSIX shell and where supported by hardware)
 records a new track in a multitrack recording.  Finally,
 .XE
 .ne 3
-   rec_ng \-r 44100 \-b 16 \-e signed-integer \-p \e
+   rec \-r 44100 \-b 16 \-e signed-integer \-p \e
 	silence 1 0.50 0.1% 1 10:00 0.1% | \e
-	sox_ng \-p song.ogg silence 1 0.50 0.1% 1 2.0 0.1% : \e
+	sox \-p song.ogg silence 1 0.50 0.1% 1 2.0 0.1% : \e
 	newfile : restart
 .XX
 records a stream of audio such as an LP or cassette and splits it into multiple
@@ -153,7 +153,7 @@ explanations of how to use all SoX parameters, file formats and
 effects can be found below in this manual, in
 .BR soxformat_ng (7)
 and in
-.BR soxi_ng (1).
+.BR soxi (1).
 .SS File Format Types
 SoX can work with `self-describing' and `raw' audio files.
 `Self-describing' formats (e.g. WAV, FLAC, MP3) have a header that
@@ -218,8 +218,8 @@ with \fB\-\-replay\-gain\fR enabled, by removing all comments using
 \fB\-\-comment\ \(dq\(dq\fR or removing just the REPLAYGAIN comment
 with
 .XE
-soxi_ng -a in.au | grep -v REPLAYGAIN > comments
-sox_ng --replay-gain=track in.au --comment-file comments out.au
+soxi -a in.au | grep -v REPLAYGAIN > comments
+sox --replay-gain=track in.au --comment-file comments out.au
 .XX
 .SS Determining and setting the File Format
 SoX uses several mechanisms to determine or set the
@@ -249,23 +249,23 @@ For all files, SoX exits with an error
 if the file type cannot be determined. Command-line format options may
 need to be added or changed to resolve the problem.
 .SS Playing & Recording Audio
-The \fBplay_ng\fR and \fBrec_ng\fP
+The \fBplay\fR and \fBrec\fP
 commands are provided so that basic playing and
 recording is as simple as
 .XE
-   play_ng existing-file.wav
+   play existing-file.wav
 .XX
 and
 .XE
-   rec_ng new-file.wav
+   rec new-file.wav
 .XX
 These two commands are functionally equivalent to
 .XE
-   sox_ng existing-file.wav \-d
+   sox existing-file.wav \-d
 .XX
 and
 .XE
-   sox_ng \-d new-file.wav
+   sox \-d new-file.wav
 .XX
 Further options and effects (as described below) can be
 added to the commands in either form.
@@ -284,7 +284,7 @@ default \fBrate\fR quality level is set to `low'. This
 can be changed by explicitly specifying the \fBrate\fR
 effect with a different quality level, e.g.
 .XE
-   play_ng ... rate \-m
+   play ... rate \-m
 .XX
 or by using the \fB\-\-play\-rate\-arg\fR
 option (see below).
@@ -297,7 +297,7 @@ c8 c8 c.
 .SP
 On some systems, SoX allows the audio playback volume to be adjusted while
 using
-.BR play_ng .
+.BR play .
 Where supported, this is achieved by tapping the `\fBv\fR' & `\fBV\fR' keys during
 playback. If there is a \fBsoftvol\fR effect in the chain, these keys will
 adjust that instead of the hardware mixer.
@@ -305,7 +305,7 @@ adjust that instead of the hardware mixer.
 To help with setting a suitable recording level, SoX includes a peak level
 meter which can be invoked (before making the actual recording) as follows:
 .XE
-   rec_ng \-n
+   rec \-n
 .XX
 The recording level should be adjusted (using the system-provided mixer
 program, not SoX) so that the meter is, at most, occasionally full
@@ -338,7 +338,7 @@ format before performing any audio processing. This means that
 manipulating a file that is stored in a lossy format can cause further
 losses in audio fidelity.  E.g. with
 .XE
-   sox_ng long.mp3 short.mp3 trim 10
+   sox long.mp3 short.mp3 trim 10
 .XX
 SoX first decompresses the input MP3 file, then applies the \fBtrim\fR
 effect and finally creates the output MP3 file by recompressing the
@@ -428,7 +428,7 @@ or
 .B vol
 effect can be used to prevent clipping, e.g.
 .XE
-   sox_ng dull.wav bright.wav gain \-6 treble +6
+   sox dull.wav bright.wav gain \-6 treble +6
 .XX
 guarantees that the treble boost will not clip.
 .SP
@@ -451,9 +451,9 @@ following methods: \fBconcatenate\fR, \fBsequence\fR, \fBmix\fR,
 \fB\-T\fR for \fBmultiply\fR.
 .SP
 The default is \fBsequence\fR for
-.BR play_ng ,
+.BR play ,
 and \fBconcatenate\fR for
-.BR sox_ng .
+.BR sox .
 .SP
 For methods other than \fBsequence\fR, multiple input files must have
 the same sampling rate. If necessary, separate SoX invocations can be
@@ -565,7 +565,7 @@ is created as it would be empty.
 The following is an example of splitting the first 60 seconds of an input
 file into two 30 second files and ignoring the rest.
 .XE
-   sox_ng song.wav ringtone%1n.wav trim 0 30 : newfile : trim 0 30
+   sox song.wav ringtone%1n.wav trim 0 30 : newfile : trim 0 30
 .XX
 .SS Stopping SoX
 Usually, SoX completes its processing and exits automatically once
@@ -629,7 +629,7 @@ example, if a program \f(CWgenw\fR generates a mono WAV signal on its
 standard output, the following command makes a stereo file
 from two generated signals:
 .XE
-   sox_ng \-M "|genw \-\-imd \-" "|genw \-\-thd \-" out.wav
+   sox \-M "|genw \-\-imd \-" "|genw \-\-thd \-" out.wav
 .XX
 For headerless (raw) audio and some other formats,
 .B \-t
@@ -643,16 +643,16 @@ This allows a single set of file options to be
 applied to a group of files.  For example, if the current directory contains
 three files, \f(CWfile1.vox\fR, \f(CWfile2.vox\fR and \f(CWfile3.vox\fR,
 .XE
-   play_ng \-\-rate 6k *.vox
+   play \-\-rate 6k *.vox
 .XX
 is expanded by the shell (in most environments) to
 .XE
-   play_ng \-\-rate 6k file1.vox file2.vox file3.vox
+   play \-\-rate 6k file1.vox file2.vox file3.vox
 .XX
 which only treats the first `vox' file as having a sample rate of 6k.
 With
 .XE
-   play_ng \-\-rate 6k "*.vox"
+   play \-\-rate 6k "*.vox"
 .XX
 the given sample rate option is applied to all the files.
 .SP
@@ -667,9 +667,9 @@ This can be used in place of an output filename to specify that
 its output will be used as the input to another SoX command.
 For example, in the command:
 .XE
-   play_ng "|sox_ng \-n \-p synth 2" "|sox_ng \-n \-p synth 2 tremolo 10"
+   play "|sox \-n \-p synth 2" "|sox \-n \-p synth 2 tremolo 10"
 .XX
-\fBplay_ng\fR thinks it's playing two files in succession
+\fBplay\fR thinks it's playing two files in succession
 that come from pipes, but in fact they both come from other invocations of SoX,
 each with different effects.
 .SP
@@ -680,9 +680,9 @@ is in fact an alias for `\fB\-t sox \-\fR'.
 This can be used in place of an input or output filename to specify that
 the default audio device (if one has been built into SoX) is to be used.
 This is akin to invoking
-.B rec_ng
+.B rec
 or
-.B play_ng
+.B play
 as described above.
 .TP
 \fB\-n\fR, \fB\-\-null\fR
@@ -792,11 +792,11 @@ Automatically invoke the
 .B gain
 effect to guard against clipping. E.g.
 .XE
-   sox_ng \-G in.au \-b 16 out.au rate 44100 dither \-s
+   sox \-G in.au \-b 16 out.au rate 44100 dither \-s
 .XX
 is shorthand for
 .XE
-   sox_ng in.au \-b 16 out.au gain \-h rate 44100 gain \-rh dither \-s
+   sox in.au \-b 16 out.au gain \-h rate 44100 gain \-rh dither \-s
 .XX
 See
 .BR \-V,
@@ -818,9 +818,9 @@ Show information about the specified file format.  The name
 .TP
 \fB\-\-i\fR, \fB\-\-info\fR
 If given as the first parameter to
-.BR sox_ng ,
+.BR sox ,
 behave as
-.BR soxi_ng .
+.BR soxi .
 .TP
 \fB\-\-interactive\fR
 Enable control of SoX by keyboard strokes, making
@@ -856,7 +856,7 @@ multiplying or dividing by \fIvalue\fR for logarithmic control or
 setting the parameter to that value.
 For example:
 .XE
-   play_ng -V -k D:dolbyb.gain+2 -k d:dolbyb.gain-2 in.wav dolbyb
+   play -V -k D:dolbyb.gain+2 -k d:dolbyb.gain-2 in.wav dolbyb
 .XX
 lets you hear the results of Dolby\ B removal and adjust the Threshold Gain
 in steps of 2dB to find the best setting.
@@ -874,7 +874,7 @@ The manual entries for individual effects say which parameters
 can be adjusted in this way, \fB\-\-help\-effect\fB tells you
 which of an effect's parameters can be keymapped and
 .XE
-   sox_ng --help-effect all | grep Keymap
+   sox --help-effect all | grep Keymap
 .XX
 gives a complete list; note that hyphenated parameters like \fBgain-out\fR
 have a keymap of \fBgain_out\fR.
@@ -907,11 +907,11 @@ given for the output file.
 Unintentionally overwriting a file is easier than you might think, for
 example, if you accidentally enter
 .XE
-   sox_ng file1 file2 effect1 effect2 ...
+   sox file1 file2 effect1 effect2 ...
 .XX
 when what you really meant was
 .XE
-   play_ng file1 file2 effect1 effect2 ...
+   play file1 file2 effect1 effect2 ...
 .XX
 then, without this option, file2 will be overwritten.  Hence, using
 this option is recommended and can be set in the \fBSOX_OPTS\fR
@@ -922,15 +922,15 @@ Automatically invoke the
 .B gain
 effect to guard against clipping and to normalize the audio. E.g.
 .XE
-   sox_ng \-\-norm in.au \-b 16 out.au rate 44100 dither \-s
+   sox \-\-norm in.au \-b 16 out.au rate 44100 dither \-s
 .XX
 is shorthand for
 .XE
-   sox_ng in.au \-b 16 out.au gain \-h rate 44100 gain \-nh dither \-s
+   sox in.au \-b 16 out.au gain \-h rate 44100 gain \-nh dither \-s
 .XX
 Optionally, the audio can be normalized to a given level, usually below 0 dBFS:
 .XE
-   sox_ng \-\-norm=\-3 in.au out.au
+   sox \-\-norm=\-3 in.au out.au
 .XX
 See
 .BR \-V ,
@@ -959,7 +959,7 @@ For the first given effect that supports the selected plotting program,
 SoX outputs commands to plot the effect's transfer function and
 stops without actually processing any audio.  E.g.
 .XE
-   sox_ng \-\-plot octave input-file \-n highpass 1320 > highpass.plt
+   sox \-\-plot octave input-file \-n highpass 1320 > highpass.plt
    octave highpass.plt
 .XX
 .TP
@@ -982,17 +982,17 @@ Select whether or not to apply replay gain adjustment to input files.
 The default is
 .B off
 for
-.B sox_ng
+.B sox
 and
-.BR rec_ng ,
+.BR rec ,
 .B album
 for
-.B play_ng
+.B play
 when (at least) the first two input files are tagged with the same Artist and
 Album names and
 .B track
 for
-.B play_ng
+.B play
 otherwise.
 .TP
 \fB\-S\fR, \fB\-\-show\-progress\fR
@@ -1111,7 +1111,7 @@ For an input file, the most common use for this option is to inform
 SoX of the number of bits per sample in a `raw' (`headerless') audio
 file.  For example
 .XE
-   sox_ng \-r 16k \-e signed \-b 8 input.raw output.wav
+   sox \-r 16k \-e signed \-b 8 input.raw output.wav
 .XX
 converts a particular `raw' file to a self-describing `WAV' file.
 .SP
@@ -1120,7 +1120,7 @@ By default, the output encoding size is be set to the input encoding size,
 provided it is supported by the output file type.
 For example:
 .XE
-   sox_ng input.cdda \-b 24 output.wav
+   sox input.cdda \-b 24 output.wav
 .XX
 converts raw CD digital audio (16-bit, signed-integer) to a
 24-bit (signed-integer) `WAV' file.
@@ -1136,11 +1136,11 @@ file to override the (presumably incorrect) value in the
 header but this is only supported with certain file types.
 For example:
 .XE
-   sox_ng \-r 48k \-e float \-b 32 \-c 2 input.raw output.wav
+   sox \-r 48k \-e float \-b 32 \-c 2 input.raw output.wav
 .XX
 converts a `raw' file to a self-describing `WAV' file.
 .XE
-   play_ng \-c 1 music.wav
+   play \-c 1 music.wav
 .XX
 interprets the file data as belonging to a single channel regardless
 of what is indicated in the file header and if the file does
@@ -1154,8 +1154,8 @@ of channels in the audio signal to the number given.  For
 example, the following two commands are equivalent:
 .XE
 .ne 2
-   sox_ng input.wav \-c 1 output.wav bass \-b 24
-   sox_ng input.wav      output.wav bass \-b 24 channels 1
+   sox input.wav \-c 1 output.wav bass \-b 24
+   sox input.wav      output.wav bass \-b 24 channels 1
 .XX
 though the second form is more flexible as it allows effects to
 be ordered arbitrarily.
@@ -1224,8 +1224,8 @@ For an output file, this option can be used (perhaps with
 .BR \-b )
 to set the output encoding. For example:
 .XE
-   sox_ng input.cdda \-e float output1.wav
-   sox_ng input.cdda \-b 64 \-e float output2.wav
+   sox input.cdda \-e float output1.wav
+   sox input.cdda \-b 64 \-e float output2.wav
 .XX
 converts a raw CD digital audio (16-bit signed integer) to
 floating point `WAV' files of single and double precision respectively.
@@ -1238,7 +1238,7 @@ Specifies that filename `globbing' (wildcard matching) should not be
 performed by SoX on the following filename.  For example, if the current
 directory contains the two files `five-seconds.wav' and `five*.wav', then
 .XE
-   play_ng \-\-no\-glob "five*.wav"
+   play \-\-no\-glob "five*.wav"
 .XX
 can be used to play just the single file `five*.wav'.
 .TP
@@ -1258,7 +1258,7 @@ with certain file types.
 For example, if audio was recorded with a sample rate of 48k from
 a source that played back a little too slowly, say 1\*d5%,
 .XE
-   sox_ng \-r 48720 input.wav output.wav
+   sox \-r 48720 input.wav output.wav
 .XX
 would correct the speed by changing only the file header (but see the
 .B speed
@@ -1272,8 +1272,8 @@ rate of the audio signal to the given value.  For example, the
 following two commands are equivalent:
 .XE
 .ne 2
-   sox_ng input.wav \-r 48k output.wav bass \-b 24
-   sox_ng input.wav        output.wav bass \-b 24 rate 48k
+   sox input.wav \-r 48k output.wav bass \-b 24
+   sox input.wav        output.wav bass \-b 24 rate 48k
 .XX
 though the second form is more flexible as it allows
 .B rate
@@ -1285,8 +1285,8 @@ this option is commonly used to inform SoX of the type a `headerless'
 audio file where the actual/desired type cannot be
 determined from the filename extension.  For example:
 .XE
-   another-command | sox_ng \-t mp3 \- output.wav
-   sox_ng input.wav \-t raw output.bin
+   another-command | sox \-t mp3 \- output.wav
+   sox input.wav \-t raw output.bin
 .XX
 It can also be used to override the type implied by an input filename
 extension but, if overriding with a type that has a header, SoX
@@ -1329,11 +1329,11 @@ Unlike other format characteristics, the endianness (byte, nibble, &
 bit ordering) of the input file is not automatically used for the output
 file. For example, when the following is run on a little-endian system:
 .XE
-   sox_ng \-B audio.s16 trimmed.s16 trim 2
+   sox \-B audio.s16 trimmed.s16 trim 2
 .XX
 \f(CWtrimmed.s16\fR will be created as little-endian;
 .XE
-   sox_ng \-B audio.s16 \-B trimmed.s16 trim 2
+   sox \-B audio.s16 \-B trimmed.s16 trim 2
 .XX
 must be used to preserve big-endianness in the output file.
 .SP
@@ -1482,10 +1482,10 @@ The historical CLI default remains legacy until release qualification.
 .PP
 Examples (input paths and output formats must have compatible channel layouts):
 .XE
-   sox_ng --dsd-mode auto in.dsf -r 88200 out.wav overdrive 10
-   sox_ng --dsd-mode auto -m a.dsf b.dsf mix.wav
-   sox_ng --dsd-mode auto -v 0.5 in.dsf reduced.wav
-   sox_ng --dsd-mode native in.dsf out.dff
+   sox --dsd-mode auto in.dsf -r 88200 out.wav overdrive 10
+   sox --dsd-mode auto -m a.dsf b.dsf mix.wav
+   sox --dsd-mode auto -v 0.5 in.dsf reduced.wav
+   sox --dsd-mode native in.dsf out.dff
 .XX
 .PP
 The reconstruction filter can be forced to an available P06 tier with
@@ -1504,7 +1504,7 @@ To set them on Unix with most shells, use, for example:
 .XE
    AUDIODRIVER=alsa
    export AUDIODRIVER
-   play_ng ...
+   play ...
 .XX
 to select the lowest-level driver on Linux, which may work better than the
 default of pulseaudio, or
@@ -1553,15 +1553,15 @@ e.g.
 .XE
    AUDIODEV=/dev/dsp2
    export AUDIODEV
-   play_ng ...
-   sox_ng ... \-t oss
+   play ...
+   sox ... \-t oss
 .XX
 or
 .XE
    AUDIODEV=hw:soundwave,1,2
    export AUDIODEV
-   play_ng ...
-   sox_ng ... \-t alsa
+   play ...
+   sox ... \-t alsa
 .XX
 If AUDIODEV is unset and the audio driver is \fBoss\fR,
 SoX also responds to the standard environment variable
@@ -1639,7 +1639,7 @@ A BibTeX entry for SoX users is
 }
 .XX
 .SH SEE ALSO
-.BR soxi_ng (1),
+.BR soxi (1),
 .BR soxeffect_ng (7),
 .BR soxformat_ng (7),
 .BR libsox_ng (3),
@@ -1650,7 +1650,7 @@ A BibTeX entry for SoX users is
 .BR octave (1),
 .BR sndfile-convert (1).
 .br
-The \fBsox_ng\fR web site at \f(CWhttps://codeberg.org/sox_ng/sox_ng\fR
+The upstream SoX-NG web site at \f(CWhttps://codeberg.org/sox_ng/sox_ng\fR
 .br
 SoX scripting examples under \f(CWscripts/\fR in the SoX source code.
 .SH LICENSE

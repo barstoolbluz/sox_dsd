@@ -1,13 +1,13 @@
 #####################################
-# CMAKE file for the SoX_ng project #
+# CMAKE file for the SoX DSD fork #
 #                                   #
 # Dr. Thomas Tensi, 2026-02         #
 #####################################
 
 CMAKE_MINIMUM_REQUIRED(VERSION 4.0)
 
-PROJECT(SoX_ng
-        VERSION 14.7.0
+PROJECT(SoX_DSD
+        VERSION 14.8.0
         LANGUAGES C)
 
 # =============================
@@ -73,10 +73,21 @@ ENDIF(NOT WINDOWS)
 #############
 
 MACRO(_installSymbolicLink symbolicLinkPath filePath)
-    # installs symlink from <symbolicLinkPath> to <filePath>
-    
-    INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${filePath}\" \"${symbolicLinkPath}\")")
-    INSTALL(CODE "MESSAGE(\"-- Created symlink: ${symbolicLinkPath} -> ${filePath}\")")
+    # Symlinks are relative, relocatable, and staged under DESTDIR.
+    # Report a failed alias install instead of printing a false success.
+    GET_FILENAME_COMPONENT(linkTarget "${filePath}" NAME)
+    GET_FILENAME_COMPONENT(linkDirectory "${symbolicLinkPath}" DIRECTORY)
+    INSTALL(CODE "
+        file(MAKE_DIRECTORY \"\$ENV{DESTDIR}${linkDirectory}\")
+        file(REMOVE \"\$ENV{DESTDIR}${symbolicLinkPath}\")
+        execute_process(
+            COMMAND \"${CMAKE_COMMAND}\" -E create_symlink
+                    \"${linkTarget}\" \"\$ENV{DESTDIR}${symbolicLinkPath}\"
+            RESULT_VARIABLE linkResult)
+        if(NOT linkResult EQUAL 0)
+            message(FATAL_ERROR \"Cannot install ${symbolicLinkPath} -> ${linkTarget}\")
+        endif()
+    ")
 ENDMACRO(_installSymbolicLink)
 
 #--------------------
@@ -95,20 +106,25 @@ ENDMACRO(appendNameConditionally)
 #--------------------
 
 MACRO(installManPage name manChapter)
-    # installs man page for <name> into chapter <manChapter>
-
-    CMAKE_PATH(SET fileName NORMALIZE "${name}_ng.${manChapter}")
-    CMAKE_PATH(SET filePath NORMALIZE
-               "${GLOB_projectRootDirectory}/${fileName}")
-    CMAKE_PATH(SET directory NORMALIZE
-               "${CLP_installManPath}/man${manChapter}")
+    # Command pages have canonical filenames; lib/effect pages retain the
+    # SoX-NG library documentation names to avoid an ABI/documentation rename.
+    IF("${name}" STREQUAL "sox" OR "${name}" STREQUAL "soxi")
+        SET(fileName "${name}.${manChapter}")
+    ELSE()
+        SET(fileName "${name}_ng.${manChapter}")
+    ENDIF()
+    SET(filePath "${GLOB_projectRootDirectory}/${fileName}")
+    SET(directory "${CLP_installManPath}/man${manChapter}")
     INSTALL(FILES ${filePath} DESTINATION ${directory})
 
-    IF(CLP_enableReplace)
-        CMAKE_PATH(SET newName NORMALIZE "${name}.${manChapter}")
-        SET(symbolicLinkPath "${directory}/${newName}")
-        SET(filePath         "${directory}/${fileName}")
-        _installSymbolicLink(${symbolicLinkPath} ${filePath})
+    IF("${name}" STREQUAL "sox" OR "${name}" STREQUAL "soxi")
+        IF(NOT CLP_disableSymlinks)
+            _installSymbolicLink("${directory}/${name}_ng.${manChapter}"
+                                 "${directory}/${fileName}")
+        ENDIF()
+    ELSEIF(CLP_enableReplace)
+        _installSymbolicLink("${directory}/${name}.${manChapter}"
+                             "${directory}/${fileName}")
     ENDIF()
 ENDMACRO(installManPage)
 
@@ -286,9 +302,12 @@ INSTALL(TARGETS libSoX DESTINATION ${CLP_installLibPath})
 
 # === install SoX binaries ===
 INSTALL(TARGETS SoX DESTINATION ${CLP_installBinPath})
-installSymbolicLink(exe soxi_ng sox_ng)
-installSymbolicLink(exe play_ng sox_ng)
-installSymbolicLink(exe rec_ng  sox_ng)
+IF(NOT CLP_disableSymlinks)
+    # Canonical companions and existing _ng compatibility commands.
+    FOREACH(name IN ITEMS soxi play rec soxi_ng play_ng rec_ng)
+        installSymbolicLink(exe ${name} sox)
+    ENDFOREACH()
+ENDIF()
 
 # === install SoX example binaries ===
 FOREACH(fileIndex ${soxExampleFileIndexList})
@@ -296,20 +315,13 @@ FOREACH(fileIndex ${soxExampleFileIndexList})
     INSTALL(TARGETS ${exampleTargetName} DESTINATION ${CLP_installBinPath})
 ENDFOREACH()
 
-# === install renamings of SoX library and binaries ===
+# === install optional legacy/unversioned library compatibility names ===
 IF(CLP_enableReplace)
     installSymbolicLink(lib libsox libsox_ng)
-    installSymbolicLink(exe sox  sox_ng)
-    installSymbolicLink(exe soxi sox_ng)
-    installSymbolicLink(exe play sox_ng)
-    installSymbolicLink(exe rec  sox_ng)
-
     FOREACH(fileIndex ${soxExampleFileIndexList})
         SET(executableFileName "sox_ng_example${fileIndex}")
         SET(linkFileName       "sox_example${fileIndex}")
-        installSymbolicLink(exe
-                            ${linkFileName}
-                            ${executableFileName})
+        installSymbolicLink(exe ${linkFileName} ${executableFileName})
     ENDFOREACH()
 ENDIF()
 
@@ -321,6 +333,13 @@ installManPage(soxeffect    7)
 installManPage(soxformat    7)
 installManPage(soxi         1)
 installManPage(sox          1)
+IF(NOT CLP_disableSymlinks)
+    # Keep command documentation aligned with the installed dispatch aliases.
+    FOREACH(name IN ITEMS play rec play_ng rec_ng)
+        _installSymbolicLink("${CLP_installManPath}/man1/${name}.1"
+                             "${CLP_installManPath}/man1/sox.1")
+    ENDFOREACH()
+ENDIF()
 
 # === install the doxygen documentation (if any) ===
 IF(Doxygen_FOUND)

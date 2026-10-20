@@ -1,6 +1,6 @@
-# Building SoX_ng with CMake
+# Building SoX DSD with CMake
 
-sox_ng can be built with CMake by using the files in the
+SoX DSD can be built with CMake by using the files in the
 `cmake-buildsetup` directory.
 
 By this, CMake can produce Microsoft Build files (for Visual Studio),
@@ -13,7 +13,7 @@ for directly supporting MS Visual Studio, XCode and Linux builds with
 the CMake supported generators (like MSBuild, make, ninja etc.).**
 
 The previously provided msvc files for Windows as well as the
-CMakeLists.txt files in several directories were removed from SoX_ng,
+CMakeLists.txt files in several directories were removed from SoX DSD,
 because CMake produces those build files from a single configuration
 setup and also delivers equivalent files but with a more modern
 syntax.
@@ -25,11 +25,11 @@ your machine.
 
 ## Setup
 
-You have to install the sox_ng project from the
-[Codeberg][Codeberg_SoX] repository into some directory.
+You have to install the SoX DSD project from its
+[GitHub repository](https://github.com/barstoolbluz/sox_dsd) into some directory.
 
 Ideally the following additional projects are installed alongside
-sox_ng.
+sox_dsd.
 
   - [fftw][libfftw]
   - [flac][libflac]
@@ -65,7 +65,7 @@ some minor renaming of the library directories):
     - libvorbis
     - libwavpack
     - libz
-    - sox_ng
+    - sox_dsd
       - cmake-buildsetup
       - ...
 
@@ -74,7 +74,7 @@ If the directory structure differs from that, you can adapt the file
 the paths to the subprojects are defined.
 
 If some support library is missing, the corresponding path should be
-set to empty.  Normally then that functionality is left out of SoX_ng.
+set to empty.  Normally then that functionality is left out of SoX DSD.
 But the build configuration process tries to find installed libraries
 on the host system and probes them for specific functionality.  If
 successful, that installed library is used instead of the missing
@@ -112,13 +112,13 @@ follows:
      - If you have a multi-config build system (like e.g. msbuild or
        ninja), you can just generate the build files:
 
-       cmake -S path_to_sox_ng/cmake-buildsetup -B build_directory
+       cmake -S path_to_sox_dsd/cmake-buildsetup -B build_directory
 
      - If you have a single-config build system (like e.g. make), you
        must specify the build type (Debug or Release), you generate
        the build files by specifying the build type:
 
-       cmake -S path_to_sox_ng/cmake-buildsetup \
+       cmake -S path_to_sox_dsd/cmake-buildsetup \
 	     -B build_directory \
 	     -DCMAKE_BUILD_TYPE=build_type
 
@@ -126,7 +126,7 @@ The setup can be changed by overriding default settings in the cmake
 step.  Note that some configuration variables for the standard build
 process are missing; **the current CMake setup only allows for a build
 of libSoX and SoX with static libraries coming from explicit source
-directories alongside SoX_ng.**
+directories alongside SoX DSD.**
 
 The following variables can be set with `-Dwhatever=true` or `-Dwhatever=value`:
 
@@ -134,7 +134,7 @@ The following variables can be set with `-Dwhatever=true` or `-Dwhatever=value`:
 
 | **Variable** | **Description** | **Default Value** |
 |:-------------|:----------------|:------------------|
-| **disable_symlinks** | set flag whether to make any symlinks to sox_ng | FALSE |
+| **disable_symlinks** | set flag whether to make any aliases for sox | FALSE |
 | **enable_dl_amrnb** | set flag whether to use dynamic version of amrnb library (instead of static) | FALSE |
 | **enable_dl_amrwb** | set flag whether to use dynamic version of amrwb library (instead of static) | FALSE |
 | **enable_dl_lame** | set flag whether to use dynamic version of lame library (instead of static) | FALSE |
@@ -142,7 +142,7 @@ The following variables can be set with `-Dwhatever=true` or `-Dwhatever=value`:
 | **enable_dl_sndfile** | set flag whether to use dynamic library version of sndfile library (instead of static) | FALSE |
 | **enable_dl_speexdsp** | set flag whether to use dynamic library version of speexdsp library (instead of static) | FALSE |
 | **enable_dl_twolame** | set flag whether to use dynamic library version of twolame library (instead of static) | FALSE |
-| **enable_replace** | make links from "sox" to "sox_ng" and so on | FALSE |
+| **enable_replace** | create optional unversioned library/documentation aliases | FALSE |
 | **install_bin_path** | the target path for the generated exe files | $CMAKE_INSTALL_PREFIX/bin |
 | **install_lib_path** | the target path for the generated lib files | $CMAKE_INSTALL_PREFIX/lib |
 | **install_doc_path** | the target path for the generated documentation files | $CMAKE_INSTALL_PREFIX/doc |
@@ -156,22 +156,22 @@ The following variables can be set with `-Dwhatever=true` or `-Dwhatever=value`:
 | **without_dolbyb** | set flag whether to omit the dolbyb library | FALSE |
 | **without_ebur128** | set flag whether to omit the EBU R128 library | FALSE |
 | **without_fftw** | set flag whether to omit the fftw library | FALSE |
-| **without_flac** | set flag whether to omit the flac library (command line parameter not available in SoX_ng so far) | FALSE |
-| **without_gsm** | set flag whether to omit the gsm library (command line parameter not available in SoX_ng so far) | FALSE |
+| **without_flac** | set flag whether to omit the flac library (command line parameter not available in SoX DSD so far) | FALSE |
+| **without_gsm** | set flag whether to omit the gsm library (command line parameter not available in SoX DSD so far) | FALSE |
 | **without_id3tag** | set flag whether to omit the id3tag library | FALSE |
 | **without_ladspa** | set flag whether to omit the ladspa library | FALSE |
 | **without_lame** | set flag whether to omit the LAME library (LAME Ain't an MP3 Encoder) | FALSE |
 | **without_libltdl** | set flag whether to omit the libltdl library | FALSE |
-| **without_lpc10** | set flag whether to omit the lpc10 library (command line parameter not available in SoX_ng so far) | FALSE |
+| **without_lpc10** | set flag whether to omit the lpc10 library (command line parameter not available in SoX DSD so far) | FALSE |
 | **without_mad** | set flag whether to omit the MAD (MP3 Audio Decoder) library | FALSE |
 | **without_magic** | set flag whether to omit the magic library | FALSE |
 | **without_opus** | set flag whether to omit the opus and opusfile libraries | FALSE |
 | **without_png** | set flag whether to omit the png library | FALSE |
-| **without_sndfile** | set flag whether to omit the sndfile library (command line parameter not available in SoX_ng so far) | FALSE |
+| **without_sndfile** | set flag whether to omit the sndfile library (command line parameter not available in SoX DSD so far) | FALSE |
 | **without_speexdsp** | set flag whether to omit the speexdsp library | FALSE |
 | **without_twolame** | set flag whether to omit the twolame library | FALSE |
-| **without_wavpack** | set flag whether to omit the wavpack library (command line parameter not available in SoX_ng so far) | FALSE |
-| **without_z** | set flag whether to omit the z library (command line parameter not available in SoX_ng so far) | FALSE |
+| **without_wavpack** | set flag whether to omit the wavpack library (command line parameter not available in SoX DSD so far) | FALSE |
+| **without_z** | set flag whether to omit the z library (command line parameter not available in SoX DSD so far) | FALSE |
 
 </SMALL>
 
@@ -205,10 +205,10 @@ where target is one of the following:
 	- **libVorbis:** the libvorbis library
 	- **libWavpack:** the libwavpack library
 	- **libZ:** the libz library
-      - **libSoX:** the SoX_ng library
+      - **libSoX:** the SoX DSD library
       - **libSoXDocumentation:** the doxygen documentation
 	for the libSoX library
-      - **SoX:** the SoX_ng executable
+      - **SoX:** the SoX DSD executable
       - **SoXExamples:** the example programs for SoX
 	- **SoXExample_0**
 	- **...**
@@ -229,13 +229,13 @@ After that
   - the doxygen library documentation for SoX will be in the
     documentation directory,
 
-  - the executable `sox_ng` will be in the binary directory
-    (together with `soxi_ng`, `play_ng` and `rec_ng`),
+  - the executable `sox` will be in the binary directory
+    (together with `soxi`, `play`, `rec` and the legacy `_ng` aliases unless
+    `disable_symlinks` is enabled),
 
-  - if the configuration variable `enable_replace` is set, the
-    executables `sox`, `soxi`, `play` and `rec` will also be in the
-    binary directory and the SoX library can also be accessed as
-    `libsox`,
+  - if the configuration variable `enable_replace` is set, an additional
+    library alias `libsox` is installed; it does not change the canonical
+    executable name or the `libsox_ng` ABI,
 
   - the test executables `sox_ng_example1` to `sox_ng_example6` will
     be in the binary directory, and
@@ -249,10 +249,10 @@ specifying `sudo cmake ...`).
 
 ## Acknowledgements
 
-SOX_NG.EXE included in this package makes use of the following
+`sox.exe` included in this package makes use of the following
 projects.
 
-  - SoX_ng - [https://codeberg.org/sox_ng/sox_ng][Codeberg_SoX]
+  - SoX-NG (upstream) - [https://codeberg.org/sox_ng/sox_ng][Codeberg_SoX]
   - CMake - [https://cmake.org][CMake]
   - FFMPEG - [https://ffmpeg.org][ffmpeg]
   - FFTW - [http://fftw.org][libfftw]

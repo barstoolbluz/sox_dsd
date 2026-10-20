@@ -25,7 +25,7 @@
 
 # ---------------------------------------------------------------------------
 
-SOX=../src/sox_ng
+SOX=../src/sox
 
 rm -f 2tones.ul    # Make sure we append to a file that's initially empty
 

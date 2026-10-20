@@ -25,22 +25,23 @@ RM = rm -f
 
 # man pages are not considered to be sources, so need to add "dist_"
 # prefix to ensure they are added to the distribution.
-dist_man_MANS = sox_ng.1 soxi_ng.1 soxeffect_ng.7 soxformat_ng.7 \
+dist_man_MANS = sox.1 soxi.1 soxeffect_ng.7 soxformat_ng.7 \
                 libsox_ng.3 libsoxeffect_ng.3 libsoxformat_ng.3
-EXTRA_DIST = sox_ng.txt soxi_ng.txt soxeffect_ng.txt soxformat_ng.txt \
+EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
              libsox_ng.txt libsoxeffect_ng.txt libsoxformat_ng.txt \
-             sox_ng.pdf soxi_ng.pdf soxeffect_ng.pdf soxformat_ng.pdf \
+             sox.pdf soxi.pdf soxeffect_ng.pdf soxformat_ng.pdf \
              libsox_ng.pdf libsoxeffect_ng.pdf libsoxformat_ng.pdf \
-	     sox_ng.pc.in COPYING AUTHORS INSTALL \
+	     sox_ng.pc.in sox_dsd.mk COPYING AUTHORS INSTALL \
 	     README.win32 scripts/batch-example.bat \
 	     README.md RULES.md RULES-issues.md RULES-wiki.md \
-	     README.sh FEATURES.in test/* issues wiki/*
+	     README.sh FEATURES.in test/* issues wiki/* \
+             tests/rename_smoke.sh
 
 if HAVE_PKGCONFIG
 pkgconfig_DATA = sox_ng.pc
 endif
 
-play_ng.1 rec_ng.1: sox_ng.1
+play.1 rec.1: sox.1
 	@$(RM) $@ && $(LN_S) $< $@
 
 README: README.sh FEATURES.in
@@ -54,7 +55,7 @@ README: README.sh FEATURES.in
 .7.txt:
 	tbl $(srcdir)/$< | LANG=C LC_ALL=C nroff -man -c | sed 's/.\x08//g' > $@
 
-DOCTXT = sox_ng.txt soxi_ng.txt soxeffect_ng.txt soxformat_ng.txt \
+DOCTXT = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
          libsox_ng.txt libsoxeffect_ng.txt libsoxformat_ng.txt README
 txt: $(DOCTXT)
 
@@ -66,7 +67,7 @@ txt: $(DOCTXT)
 .7.pdf:
 	pdfroff -t -man --no-toc-relocation -Tps $(srcdir)/$< > $@
 
-DOCPDF = sox_ng.pdf soxi_ng.pdf soxeffect_ng.pdf soxformat_ng.pdf \
+DOCPDF = sox.pdf soxi.pdf soxeffect_ng.pdf soxformat_ng.pdf \
          libsox_ng.pdf libsoxeffect_ng.pdf libsoxformat_ng.pdf
 pdf: $(DOCPDF)
 
@@ -100,7 +101,7 @@ CLEANFILES = $(DOCTXT) $(DOCPDF) README
 # Rule for making HTML man pages
 #
 # Get rid on unneeded Content-Type, man directory and manpage index in extension.
-# e.g. ../man1/soxi_ng.1.html becomes ../soxi_ng.html
+# e.g. ../man1/soxi.1.html becomes ../soxi.html
 # Return to Main Contents and link to man2html are also modified.
 FIXHTML = sed 's,<head>,&<link rel="stylesheet" href="http://sox.sourceforge.net/pub/skins/sox/sox.css" type="text/css"></link>,' 
 
@@ -111,7 +112,7 @@ FIXHTML = sed 's,<head>,&<link rel="stylesheet" href="http://sox.sourceforge.net
 .7.html:
 	groff -t -man -Thtml -P -Dsoxpng $(srcdir)/$< | $(FIXHTML) > $@
 
-DOCHTML = sox_ng.html soxi_ng.html soxeffect_ng.html soxformat_ng.html \
+DOCHTML = sox.html soxi.html soxeffect_ng.html soxformat_ng.html \
           libsox_ng.html libsoxeffect_ng.html libsoxformat_ng.html
 html: $(DOCHTML)
 
@@ -143,27 +144,26 @@ uninstall-html:
 DISTCLEANFILES = $(DOCHTML) $(DOCPDF)
 MAINTAINERCLEANFILES = $(DOCTXT)
 
+# These commands use the same implementation, dispatched by argv[0].
+# Keep the old _ng entry points for existing users; plain names are canonical.
 install-data-hook:
-	@if test "$(PLAYRECLINKS)" = "yes"; then	\
-	    cd $(DESTDIR)$(mandir)/man1 && $(RM) play_ng.1 && $(LN_S) sox_ng.1 play_ng.1; \
-	    cd $(DESTDIR)$(mandir)/man1 && $(RM) rec_ng.1 && $(LN_S) sox_ng.1 rec_ng.1; \
+	@if test "$(PLAYRECLINKS)" = "yes"; then \
+		cd $(DESTDIR)$(mandir)/man1 && \
+		$(RM) play.1 rec.1 play_ng.1 rec_ng.1 && \
+		$(LN_S) sox.1 play.1 && $(LN_S) sox.1 rec.1 && \
+		$(LN_S) sox.1 play_ng.1 && $(LN_S) sox.1 rec_ng.1; \
+	fi
+	@if test "$(SYMLINKS)" = "yes"; then \
+		cd $(DESTDIR)$(mandir)/man1 && \
+		$(RM) sox_ng.1 soxi_ng.1 && \
+		$(LN_S) sox.1 sox_ng.1 && $(LN_S) soxi.1 soxi_ng.1; \
 	fi
 	@if test "$(REPLACE)" = "yes"; then \
-		cd $(DESTDIR)$(mandir)/man1 && $(RM) sox.1 && $(LN_S) sox_ng.1 sox.1; \
 		cd $(DESTDIR)$(mandir)/man3 && $(RM) libsox.3 && $(LN_S) libsox_ng.3 libsox.3; \
 		cd $(DESTDIR)$(mandir)/man3 && $(RM) libsoxeffect.3 && $(LN_S) libsoxeffect_ng.3 libsoxeffect.3; \
 		cd $(DESTDIR)$(mandir)/man3 && $(RM) libsoxformat.3 && $(LN_S) libsoxformat_ng.3 libsoxformat.3; \
 		cd $(DESTDIR)$(mandir)/man7 && $(RM) soxeffect.7 && $(LN_S) soxeffect_ng.7 soxeffect.7; \
 		cd $(DESTDIR)$(mandir)/man7 && $(RM) soxformat.7 && $(LN_S) soxformat_ng.7 soxformat.7; \
-		if test "$(PLAYRECLINKS)" = "yes"; then	\
-			cd $(DESTDIR)$(mandir)/man1 && $(RM) play.1 rec.1 && \
-			    $(LN_S) play_ng.1 play.1 && \
-			    $(LN_S) rec_ng.1 rec.1; \
-		fi; \
-		if test "$(SYMLINKS)" = "yes"; then \
-			cd $(DESTDIR)$(mandir)/man1 && $(RM) soxi.1 && \
-			    $(LN_S) soxi_ng.1 soxi.1; \
-		fi; \
 		if test "$(pkgconfigdir)"; then \
 			cd $(DESTDIR)$(pkgconfigdir); \
 			$(RM) "sox.pc"; $(LN_S) sox_ng.pc sox.pc; \
@@ -171,24 +171,19 @@ install-data-hook:
 	fi
 
 uninstall-hook:
-	@if test "$(PLAYRECLINKS)" = "yes"; then	\
-		$(RM) $(DESTDIR)$(mandir)/man1/play_ng.1; \
-		$(RM) $(DESTDIR)$(mandir)/man1/rec_ng.1; \
+	@if test "$(PLAYRECLINKS)" = "yes"; then \
+		$(RM) $(DESTDIR)$(mandir)/man1/play.1 $(DESTDIR)$(mandir)/man1/rec.1 \
+			$(DESTDIR)$(mandir)/man1/play_ng.1 $(DESTDIR)$(mandir)/man1/rec_ng.1; \
+	fi
+	@if test "$(SYMLINKS)" = "yes"; then \
+		$(RM) $(DESTDIR)$(mandir)/man1/sox_ng.1 $(DESTDIR)$(mandir)/man1/soxi_ng.1; \
 	fi
 	@if test "$(REPLACE)" = "yes"; then \
-		$(RM) $(DESTDIR)$(mandir)/man1/sox.1; \
 		$(RM) $(DESTDIR)$(mandir)/man3/libsox.3; \
 		$(RM) $(DESTDIR)$(mandir)/man3/libsoxeffect.3; \
 		$(RM) $(DESTDIR)$(mandir)/man3/libsoxformat.3; \
 		$(RM) $(DESTDIR)$(mandir)/man7/soxformat.7; \
 		$(RM) $(DESTDIR)$(mandir)/man7/soxeffect.7; \
-		if test "$(PLAYRECLINKS)" = "yes"; then	\
-			$(RM) $(DESTDIR)$(mandir)/man1/play.1; \
-			$(RM) $(DESTDIR)$(mandir)/man1/rec.1; \
-		fi; \
-		if test "$(SYMLINKS)" = "yes"; then \
-			$(RM) $(DESTDIR)$(mandir)/man1/soxi.1; \
-		fi; \
 		if test "$(pkgconfigdir)"; then \
 			cd $(DESTDIR)$(pkgconfigdir); \
 			$(RM) "sox.pc"; \
@@ -199,22 +194,29 @@ uninstall-hook:
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
 
+# MXE consumes a *local SoX DSD* dist tarball. Never substitute upstream
+# SoX-NG: that would silently ship a different program without our DSD work.
 winexe-prepare:
 	test -d mxe || git clone https://github.com/mxe/mxe
-	rm -f *.tar.gz
 	$(MAKE) -s dist
-	cp sox_ng-*.tar.gz mxe/pkg/
-	sed "/_VERSION *:= /s/:=.*/:= $(PACKAGE_VERSION)/" sox_ng.mk | \
+	cp "$(PACKAGE)-$(VERSION).tar.gz" mxe/pkg/
+	sed '/_VERSION *:= /s/:=.*/:= $(PACKAGE_VERSION)/' sox_dsd.mk | \
 	sed '/_CHECKSUM *:= /s/:=.*/:= '\
-"`sha256sum sox_ng-*.tar.gz | sed 's/[ \t].*//'`"/ > mxe/src/sox.mk
+"`sha256sum "$(PACKAGE)-$(VERSION).tar.gz" | sed 's/[ \t].*//'`"/ > mxe/src/sox_dsd.mk
 
 win32.exe: winexe-prepare
-	cd mxe && make MXE_TARGETS=i686-w64-mingw32.static sox_ng
-	cp mxe/usr/i686-w64-mingw32.static/bin/sox_ng.exe win32.exe
+	cd mxe && make MXE_TARGETS=i686-w64-mingw32.static sox_dsd
+	cp mxe/usr/i686-w64-mingw32.static/bin/sox.exe win32.exe
 
 win64.exe: winexe-prepare
-	cd mxe && make MXE_TARGETS=x86_64-w64-mingw32.static sox_ng
-	cp mxe/usr/x86_64-w64-mingw32.static/bin/sox_ng.exe win64.exe
+	cd mxe && make MXE_TARGETS=x86_64-w64-mingw32.static sox_dsd
+	cp mxe/usr/x86_64-w64-mingw32.static/bin/sox.exe win64.exe
+
+# A small rename-only smoke test independent of the historical DSD gate.
+.PHONY: check-rename
+check-rename: all
+	$(LIBTOOL) --mode=execute -dlopen $(abs_builddir)/src/libsox_ng.la \
+	  $(SHELL) $(srcdir)/tests/rename_smoke.sh $(abs_builddir)/src "$(SYMLINKS)" "$(PLAYRECLINKS)"
 
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.

@@ -31,17 +31,17 @@
 .SP
 .fi
 ..
-.TH SOXI_NG 1 "September 12, 2024" SoX "Sound eXchange_ng"
+.TH SOXI 1 "September 12, 2024" SoX "Sound eXchange"
 .SH NAME
-soxi_ng \- Sound eXchange Information, display sound file metadata
+soxi \- Sound eXchange Information, display sound file metadata
 .SH SYNOPSIS
-\fBsoxi_ng\fR [\fB\-V\fR[\fIlevel\fR]] [\fB\-T\fR] [\fB\-t\fR\^|\^\fB\-r\fR\^|\^\fB\-c\fR\^|\^\fB\-s\fR\^|\^\fB\-d\fR\^|\^\fB\-D\fR\^|\^\fB\-b\fR\^|\^\fB\-B\fR\^|\^\fB\-p\fR\^|\^\fB\-e\fR\^|\^\fB\-a\fR] \fIinfile1\fR ...
+\fBsoxi\fR [\fB\-V\fR[\fIlevel\fR]] [\fB\-T\fR] [\fB\-t\fR\^|\^\fB\-r\fR\^|\^\fB\-c\fR\^|\^\fB\-s\fR\^|\^\fB\-d\fR\^|\^\fB\-D\fR\^|\^\fB\-b\fR\^|\^\fB\-B\fR\^|\^\fB\-p\fR\^|\^\fB\-e\fR\^|\^\fB\-a\fR] \fIinfile1\fR ...
 .SH DESCRIPTION
 Displays information from the header of a given audio file or files.
 Supported audio file types are listed and described in
 .BR soxformat_ng (7).
 Note however, that
-.B soxi_ng
+.B soxi
 is intended for use only with audio files with a self-describing header.
 .SP
 By default, as much information as is available is shown.
@@ -51,7 +51,7 @@ An option may be given to select just a single piece of information
 .TP
 \fB\-V\fR
 Set verbosity. See
-.BR sox_ng (1)
+.BR sox (1)
 for details.
 .TP
 \fB\-T\fR
@@ -104,7 +104,7 @@ Show file comments (annotations) if available.
 Please report any bugs found in this version of SoX to the mailing list
 (sox-ng@groups.io)
 .SH SEE ALSO
-.BR sox_ng (1),
+.BR sox (1),
 .BR soxformat_ng (7),
 .BR libsox_ng (3)
 .SP

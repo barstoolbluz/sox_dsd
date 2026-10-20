@@ -74,7 +74,7 @@ def main():
                         if data.get('status')!='complete':result['exit']=2
                 (warm if n<args.warmups else timings).append(result)
                 if result['exit']!=0:break
-            record=dict(name=name,command=['sox_ng',*('REPORT_PATH' if x==str(rpt) else
+            record=dict(name=name,command=['sox',*('REPORT_PATH' if x==str(rpt) else
                  'AUDIO_INPUT' if x==str(inp) else
                  'AUDIO_OUTPUT' if x==str(out) else x for x in cmd)],
                  warmups=warm,timed=timings,

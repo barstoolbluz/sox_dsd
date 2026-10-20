@@ -43,7 +43,7 @@
 
 # Configuration:
 
-sox="../src/sox_ng"	# Where is sox?  E.g. sox, /usr/local/bin/sox
+sox="../src/sox"	# Where is sox?  E.g. sox, /usr/local/bin/sox
 type=wav		# File type, e.g. flac, cdda
 rate=44100		# Default sample rate
 #chans2="-c 2"		# Uncomment for all files to have 2 channels

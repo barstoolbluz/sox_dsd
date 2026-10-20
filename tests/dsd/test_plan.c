@@ -1,4 +1,6 @@
-/* Independent P05 planner/numeric contract tests. No audio DSP is invoked. */
+/* Planner/numeric contract tests, carried forward through P10.
+ * P07/P08 activated reconstruction and P10 qualified mastering modulation;
+ * these cases now have executable graphs. No audio DSP is invoked here. */
 #include "dsd.h"
 #include <math.h>
 #include <stdint.h>
@@ -137,12 +139,15 @@ static void graph(void)
   CHECK(build(&spec,&plan)); CHECK(plan.executable && plan.layout_identity_preserved);
   lsx_dsd_plan_free(&plan);
   eff[0].out_channels=1;
-  CHECK(build(&spec,&plan)); CHECK(!plan.executable && plan.graph_decode_count==1);
+  CHECK(build(&spec,&plan));
+  CHECK(plan.executable && !plan.needs_unimplemented_dsp &&
+      plan.graph_decode_count==1 && plan.encode_count==1);
   lsx_dsd_plan_free(&plan);
 
   eff[0]=effect("gain");spec.effect_count=1;
   CHECK(build(&spec,&plan));
-  CHECK(!plan.executable && plan.graph_decode_count==1 && plan.encode_count==1);
+  CHECK(plan.executable && !plan.needs_unimplemented_dsp &&
+      plan.graph_decode_count==1 && plan.encode_count==1);
   CHECK(plan.step_count==3 && plan.steps[0].implicit && plan.steps[2].implicit);
   CLOSE(plan.modulator_input_scale,1);
   lsx_dsd_plan_free(&plan);
@@ -230,7 +235,9 @@ static void graph(void)
   spec.effects=eff;spec.effect_count=1;
   CHECK(!build(&spec,&plan));lsx_dsd_plan_free(&plan); /* explicit mismatched output DSD64 */
   spec.requested_output_rate=5644800;
-  CHECK(build(&spec,&plan));CHECK(!plan.executable && plan.encode_count==1);
+  CHECK(build(&spec,&plan));
+  CHECK(plan.executable && !plan.needs_unimplemented_dsp &&
+      plan.encode_count==1 && plan.graph_decode_count==0);
   CHECK(plan.output_rate==5644800);
   lsx_dsd_plan_free(&plan);
   eff[1]=effect("pcmdsd");eff[1].dsd.rate_hz=5644800;
@@ -322,7 +329,7 @@ static void corrective(void)
   CHECK(build(&spec,&p));
   CHECK(p.graph_decode_count==1 && p.encode_count==1);
   CHECK(p.step_count==3 && !strcmp(p.steps[1].name,"auto_normalize"));
-  CHECK(!p.executable);
+  CHECK(p.executable && !p.needs_unimplemented_dsp);
   lsx_dsd_plan_free(&p);
   spec.policy.normalizing=0;spec.policy.guarded=1;
   CHECK(build(&spec,&p));

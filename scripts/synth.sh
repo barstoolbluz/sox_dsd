@@ -21,7 +21,7 @@
 # effect (also used are several other effects).
 # Music (c) 2008 robs@users.sourceforge.net.  All rights reserved.
 
-sox=../src/sox_ng
+sox=../src/sox
 
 G0="pl %-26 pl %-19 pl %-14 pl %-10 pl %-7 pl %-2"
 A0="pl %-24 pl %-17 pl %-12 pl %-8 pl %-5 pl %0"

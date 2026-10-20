@@ -3,7 +3,7 @@
 
 Example (15 randomized pairs per case, pinned to an available CPU):
   python3 tests/dsd/bench_src_optimization.py --variants \
-    baseline=/old/sox_ng candidate=/new/sox_ng --cpu 0 --results /tmp/src-bench
+    baseline=/old/sox candidate=/new/sox --cpu 0 --results /tmp/src-bench
 
 --cases accepts a JSON list of objects with id, kind (pcm|dsd), input_hz,
 output_hz, channels, and seconds (or exact frames). DSD cases require a

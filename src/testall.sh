@@ -3,14 +3,14 @@ libdir="."
 srcdir="."
 effect=""
 
-if [ -f ./sox_ng.exe ] ; then
+if [ -f ./sox.exe ] ; then
   EXEEXT=".exe"
 else
-  EXEEXXT=""
+  EXEEXT=""
 fi
 
 # Allow user to override paths.  Useful for testing an installed
-# sox_ng.
+# sox.
 while [ $# -ne 0 ]; do
     case "$1" in
         --bindir=*)
@@ -52,11 +52,11 @@ t() {
 	opts="$*"
 
 	echo "Format: $format   Options: $opts"
-	LD_LIBRARY_PATH=${libdir} ${bindir}/sox_ng${EXEEXT} ${srcdir}/monkey.wav $opts /tmp/monkey.$format $effect || {
+	LD_LIBRARY_PATH=${libdir} ${bindir}/sox${EXEEXT} ${srcdir}/monkey.wav $opts /tmp/monkey.$format $effect || {
 		status=$?
 		echo Test to $format $opts $effect failed. 1>&2
 	}
-	LD_LIBRARY_PATH=${libdir} ${bindir}/sox_ng${EXEEXT} $opts /tmp/monkey.$format /tmp/monkey1.wav  $effect || {
+	LD_LIBRARY_PATH=${libdir} ${bindir}/sox${EXEEXT} $opts /tmp/monkey.$format /tmp/monkey1.wav  $effect || {
 		status=$?
 		echo Test from $format $opts $effect failed. 1>&2
 	}

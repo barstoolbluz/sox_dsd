@@ -31,7 +31,7 @@
 .SP
 .fi
 ..
-.TH LIBSOXFORMAT_NG 3 "January 5, 2026" "SoX" "Sound eXchange_ng"
+.TH LIBSOXFORMAT_NG 3 "January 5, 2026" "SoX" "Sound eXchange"
 .SH NAME
 libsoxformat_ng \- libsox_ng format handlers' internals
 .SH SYNOPSIS
@@ -111,7 +111,7 @@ Checked when format plugins are loaded to ensure they were compiled
 for the same version of libsox that is calling them.
 .TP
 .B char *description
-A short description of the format, printed by \fBsox_ng\ --help-format\fR.
+A short description of the format, printed by \fBsox\ --help-format\fR.
 .TP
 .B char **names
 A null-terminated array of filename extensions (without the dot) that
@@ -217,7 +217,7 @@ formats (\fBsrc/skelform.c\fR).
 New formats can often just deal with the header and then use
 \fBraw.c\fR's routines for reading and writing.
 .SH SEE ALSO
-.BR sox_ng (1),
+.BR sox (1),
 .BR libsox_ng (3),
 .BR soxformat_ng (7) and
 \f(CWsrc/skelform.c\fR in the SoX source code.

@@ -31,9 +31,9 @@
 .SP
 .fi
 ..
-.TH SOXEFFECT_NG 7 "December 05, 2024" "SoX" "Sound eXchange_ng"
+.TH SOXEFFECT_NG 7 "December 05, 2024" "SoX" "Sound eXchange"
 .SH NAME
-soxeffect_ng \- Effects supported by sox_ng and libsox_ng
+soxeffect_ng \- Effects supported by sox and libsox_ng
 .SH SYNOPSIS
 In addition to converting, playing and recording audio files, SoX can
 be used to invoke a number of audio effects.  Multiple effects may
@@ -92,7 +92,7 @@ as documented in the
 .B Output Files
 section.
 .XE
-   sox_ng in.au out.au trim 0 30 : newfile : restart
+   sox in.au out.au trim 0 30 : newfile : restart
 .XX
 .SH COMMON NOTATION AND PARAMETERS
 In the descriptions that follow,
@@ -187,7 +187,7 @@ depends on the effect in question. At present, it always means seconds
 except for the \fIduration\fR parameters of the \fBsilence\fP effect.
 .SH SUPPORTED EFFECTS
 To see whether SoX has support for an optional effect, enter
-.B sox_ng \-h
+.B sox \-h
 and look for its name in the \fBEFFECTS\fR list;
 a categorized list of the effects can be found in the
 accompanying README file.
@@ -320,7 +320,7 @@ For example, an initial tone is generated, then bent three times, yielding
 four different notes in total:
 .XE
 .ne 2
-   play_ng \-n synth 2.5 sin 667 gain 1 \e
+   play \-n synth 2.5 sin 667 gain 1 \e
 	bend .35,180,.25  .15,740,.53  0,\-520,.3
 .XX
 Here, the first \fBbend\fR runs from 0.35 to 0.6 seconds and the second one from 0.75
@@ -356,7 +356,7 @@ sample frames to a power of two from 4 to 32768.
 .SP
 A stereo equivalent of the \fBoops\fR effect is
 .XE
-    sox_ng in.wav centercut remix 1 2
+    sox in.wav centercut remix 1 2
 .XX
 .SP
 The keymap for the \fB\-a\fR option is \fBcentercut.gain\fR.
@@ -379,8 +379,8 @@ option need not be given.  For example, the following two commands are
 equivalent:
 .XE
 .ne 2
-   sox_ng input.wav \-c 1 output.wav bass \-b 24
-   sox_ng input.wav      output.wav bass \-b 24 channels 1
+   sox input.wav \-c 1 output.wav bass \-b 24
+   sox input.wav      output.wav bass \-b 24 channels 1
 .XX
 though the second form is more flexible as it allows the effects to
 be ordered arbitrarily.
@@ -447,18 +447,18 @@ A typical delay is around 40ms to 60ms; the modulation speed is best
 near 0\*d25Hz and the modulation depth around 2ms.
 For example, a single delay:
 .XE
-   play_ng guitar1.wav chorus 0.7 0.9 55 0.4 0.25 2 \-t
+   play guitar1.wav chorus 0.7 0.9 55 0.4 0.25 2 \-t
 .XX
 Two delays of the original samples:
 .XE
 .ne 2
-   play_ng guitar1.wav chorus 0.6 0.9 50 0.4 0.25 2 \-t \e
+   play guitar1.wav chorus 0.6 0.9 50 0.4 0.25 2 \-t \e
 	 60 0.32 0.4 1.3 \-s
 .XX
 A fuller-sounding chorus (with three additional delays):
 .XE
 .ne 2
-   play_ng guitar1.wav chorus 0.5 0.9 50 0.4 0.25 2 \-t \e
+   play guitar1.wav chorus 0.5 0.9 50 0.4 0.25 2 \-t \e
 	 60 0.32 0.4 2.3 \-t 40 0.3 0.3 1.3 \-s
 .XX
 \fBflanger\fR can do everything that \fBchorus\fR does except multiple stages
@@ -473,7 +473,7 @@ is equivalent to
       vol gain-out\(di(gain-in\(pldecay)
 .XX
 For a flow diagram of how \fBchorus\fR works,
-say \fBsox_ng \-\-help\-effect chorus\fR.
+say \fBsox \-\-help\-effect chorus\fR.
 .TP
 \fBcompand \fIattack1\fB,\fIdecay1\fR{\fB,\fIattack\fB,\fIdecay\fR}
 [\fIsoft-knee-dB\fB:\fR]\fIin-dB1\fR[\fB,\fIout-dB1\fR]{\fB,\fIin-dB\fB,\fIout-dB\fR}
@@ -548,7 +548,7 @@ The following example might be used to make a piece of music with both
 quiet and loud passages suitable for listening to in a noisy environment
 such as a moving vehicle:
 .XE
-   sox_ng asz.wav asz-car.wav compand 0.3,1 6:\-70,\-60,\-20 \-5 \-90 0.2
+   sox asz.wav asz-car.wav compand 0.3,1 6:\-70,\-60,\-20 \-5 \-90 0.2
 .XX
 The transfer function (`6:\-70,...') says that very soft sounds (below
 \-70dB) remain unchanged.  This stops the compander from
@@ -567,18 +567,18 @@ the compander react more quickly to sudden volume changes.
 In the next example, \fBcompand\fR is used as a noise-gate for when the
 noise is at a lower level than the signal:
 .XE
-   play_ng in.au compand .1,.2 \-inf,\-50.1,\-inf,\-50,\-50 0 \-90 .1
+   play in.au compand .1,.2 \-inf,\-50.1,\-inf,\-50,\-50 0 \-90 .1
 .XX
 Here is another noise-gate, this time for when the
 noise is at a higher level than the signal (making it, in some ways,
 similar to a squelch effect):
 .XE
-   play_ng in.au compand .1,.1 \-45.1,\-45,\-inf,0,\-inf 45 \-90 .1
+   play in.au compand .1,.1 \-45.1,\-45,\-inf,0,\-inf 45 \-90 .1
 .XX
 This effect supports the \fB\-\-plot\fR global option (for the transfer function).
 .SP
 For a flow diagram of how \fBcompand\fR works,
-say \fBsox_ng \-\-help\-effect compand\fR.
+say \fBsox \-\-help\-effect compand\fR.
 .SP
 See
 .B mcompand
@@ -627,8 +627,8 @@ is to use the
 filter effect at a frequency of say 10Hz, as illustrated in the following
 example:
 .XE
-   sox_ng \-n dc.wav synth 5 sin %0 50
-   sox_ng dc.wav fixed.wav highpass 10
+   sox \-n dc.wav synth 5 sin %0 50
+   sox dc.wav fixed.wav highpass 10
 .XX
 .TP
 \fBdeemph\fR
@@ -652,15 +652,15 @@ de-emphasized audio to a new CD (which will then play correctly on any
 CD player) or simply play the correctly de-emphasized audio files on the
 PC.  For example:
 .XE
-   sox_ng track1.wav track1\-deemph.wav deemph
+   sox track1.wav track1\-deemph.wav deemph
 .XX
 and then burn track1-deemph.wav to CD, or
 .XE
-   play_ng track1\-deemph.wav
+   play track1\-deemph.wav
 .XX
 or simply
 .XE
-   play_ng track1.wav deemph
+   play track1.wav deemph
 .XX
 The de-emphasis filter is implemented as a biquad and requires the input
 audio sample rate to be either 44.1kHz or 48kHz.  Its maximum deviation
@@ -680,14 +680,14 @@ by 3000 samples and leaves other channels undelayed.
 The following (one long) command plays a chime sound:
 .XE
 .ne 3
-   play_ng \-n synth \-j 3 sin %3 sin %\-2 sin %\-5 sin %\-9 \e
+   play \-n synth \-j 3 sin %3 sin %\-2 sin %\-5 sin %\-9 \e
 	sin %\-14 sin %\-21 fade h .01 2 1.5 delay \e
 	1.3 1 .76 .54 .27 remix \- fade h 0 2.7 2.5 norm \-1
 .XX
 and this an arpeggiated guitar chord:
 .XE
 .ne 2
-   play_ng \-n synth pl G2 pl B2 pl D3 pl G3 pl D4 pl G4 \e
+   play \-n synth pl G2 pl B2 pl D3 pl G3 pl D4 pl G4 \e
 	delay 0 .05 .1 .15 .2 .25 remix \- fade 0 4 .1 norm \-1
 .XX
 With no parameters it does nothing.
@@ -832,7 +832,7 @@ which is accurate to less than one sample value.
 .SP
 The keymap for \fIgain\fR is \fRdolbyb.gain\fB. For example:
 .XE
-   play_ng -V -k D:dolbyb.gain+2 -k d:dolbyb.gain-2 in.wav
+   play -V -k D:dolbyb.gain+2 -k d:dolbyb.gain-2 in.wav
 .XX
 lets you adjust the Threshold Gain in \(pl/\(mi 2dB steps;
 to see what the new value is as you proceed, use `\-V`.
@@ -891,7 +891,7 @@ This effect takes a 44.1kHz stereo signal and adds audio cues that,
 when listened to on headphones, move the sound stage from inside your head
 to outside and in front of you, as if listening to loudspeakers.
 .SP
-To see how \fBearwax\fR works, say \fBsox_ng \-\-help\-effect earwax\fR.
+To see how \fBearwax\fR works, say \fBsox \-\-help\-effect earwax\fR.
 .TP
 \fBecho \fIgain-in gain-out\fR <\fIdelay decay\fR>
 Add echoes to the audio.
@@ -917,23 +917,23 @@ For example,
 this makes it sound as if there are twice as many instruments as are
 actually playing:
 .XE
-   play_ng lead.aiff echo 0.8 0.88 60 0.4
+   play lead.aiff echo 0.8 0.88 60 0.4
 .XX
 If the delay is very short, it sound like a metallic robot:
 music:
 .XE
-   play_ng lead.aiff echo 0.8 0.88 6 0.4
+   play lead.aiff echo 0.8 0.88 6 0.4
 .XX
 A longer delay sounds like an open air concert in the mountains:
 .XE
-   play_ng lead.aiff echo 0.8 0.9 1000 0.3
+   play lead.aiff echo 0.8 0.9 1000 0.3
 .XX
 One mountain more, and:
 .XE
-   play_ng lead.aiff echo 0.8 0.9 1000 0.3 1800 0.25
+   play lead.aiff echo 0.8 0.9 1000 0.3 1800 0.25
 .XX
 For a flow diagram of how \fBecho\fR works,
-say \fBsox_ng \-\-help\-effect echo\fR.
+say \fBsox \-\-help\-effect echo\fR.
 .TP
 \fBechos \fIgain-in gain-out\fR <\fIdelay decay\fR>
 .SP
@@ -958,18 +958,18 @@ For example:
 .SP
 The sample is bounced twice in symmetric echos:
 .XE
-   play_ng lead.aiff echos 0.8 0.7 700 0.25 700 0.3
+   play lead.aiff echos 0.8 0.7 700 0.25 700 0.3
 .XX
 The sample is bounced twice in asymmetric echos:
 .XE
-   play_ng lead.aiff echos 0.8 0.7 700 0.25 900 0.3
+   play lead.aiff echos 0.8 0.7 700 0.25 900 0.3
 .XX
 The sample sounds as if it were played in a garage:
 .XE
-   play_ng lead.aiff echos 0.8 0.7 40 0.25 63 0.3
+   play lead.aiff echos 0.8 0.7 40 0.25 63 0.3
 .XX
 For a flow diagram of how \fBechos\fR works,
-say \fBsox_ng \-\-help\-effect echos\fR.
+say \fBsox \-\-help\-effect echos\fR.
 .TP
 \fBequalizer \fIfrequency width\fR[\fBq\fR\^|\^\fBo\fR\^|\^\fBh\fR\^|\^\fBk\fR] \fIgain\fR
 Apply a two-pole peaking equalization filter.
@@ -1037,9 +1037,9 @@ given, the coefficients are read from the `standard input' (stdin);
 otherwise, coefficients may be given on the command line.
 Examples:
 .XE
-   sox_ng in.au out.au fir .0195 \-.082 .234 .891 \-.145 .043
+   sox in.au out.au fir .0195 \-.082 .234 .891 \-.145 .043
 
-   sox_ng in.au out.au fir coefs.txt
+   sox in.au out.au fir coefs.txt
 .XX
 .ne 6
 with \f(CWcoefs.txt\fR containing
@@ -1065,11 +1065,11 @@ otherwise, knots may be given on the command line.
 .SP
 Examples:
 .XE
-   sox_ng in.au out.au firfit 20 0 10000 -3
+   sox in.au out.au firfit 20 0 10000 -3
 .XX
 gives a gentle low-pass filter and
 .XE
-   sox_ng in.au out.au firfit knots.txt
+   sox in.au out.au firfit knots.txt
 .XX
 with knots.txt containing
 .XE
@@ -1121,7 +1121,7 @@ are alternative ways to set the waveshape and the interpolation type
 without having to specify the rest of the parameters.
 .SP
 For a flow diagram of how \fBflanger\fR works,
-say \fBsox_ng \-\-help\-effect flanger\fR.
+say \fBsox \-\-help\-effect flanger\fR.
 .TP
 \fBgain \fR[\fB\-e\fR\^|\^\fBB\fR\^|\^\fBb\fR\^|\^\fBr\fR] [\fB\-n\fR] [\fB\-l\fR\^|\^\fBh\fR] [\fIgain-dB\fR(0)]
 Apply amplification or attenuation to the audio signal or, in some
@@ -1196,11 +1196,11 @@ It is often used in conjunction with a negative
 so that the audio is normalized to a given level below 0dB.
 For example,
 .XE
-   sox_ng in.au out.au gain \-n
+   sox in.au out.au gain \-n
 .XX
 normalizes to 0dB, and
 .XE
-   sox_ng in.au out.au gain \-n \-3
+   sox in.au out.au gain \-n \-3
 .XX
 normalizes to \-3dB.
 .SP
@@ -1208,7 +1208,7 @@ The
 .B \-l
 option invokes a simple limiter. For example,
 .XE
-   sox_ng in.au out.au gain \-l 6
+   sox in.au out.au gain \-l 6
 .XX
 applies 6dB of gain but never clips.  Note that limiting more than a
 few dBs more than occasionally in a piece of audio is not recommended
@@ -1222,7 +1222,7 @@ The
 option is used to apply gain to provide headroom for subsequent
 processing.  For example, with
 .XE
-   sox_ng in.au out.au gain \-h bass +6
+   sox in.au out.au gain \-h bass +6
 .XX
 6dB of attenuation is applied prior to the bass boosting effect,
 ensuring that it does not clip.  Of course, with \fBbass\fR, it is
@@ -1232,7 +1232,7 @@ rate, dither), it is not always as clear.  Another advantage of using
 headroom is not used by subsequent effects, it can be reclaimed with
 \fBgain \-r\fR, for example:
 .XE
-   sox_ng in.au out.au gain \-h bass +6 rate 44100 gain \-r
+   sox in.au out.au gain \-h bass +6 rate 44100 gain \-r
 .XX
 The above effects chain guarantees never to clip nor amplify;
 it attenuates if necessary to prevent clipping, but by only as
@@ -1241,7 +1241,7 @@ much as is needed to do so.
 Output formatting (dithering and bit-depth reduction) also requires
 headroom which cannot be reclaimed, e.g.
 .XE
-   sox_ng in.au out.au gain \-h bass +6 rate 44100 gain \-rh dither
+   sox in.au out.au gain \-h bass +6 rate 44100 gain \-rh dither
 .XX
 Here, the second
 .B gain
@@ -1370,7 +1370,7 @@ as used for tape noise reduction in professional recording studios:
 .XE
 .ne 6
    # Dolby A compressor
-   sox_ng in.au dolbyA.au mcompand \e
+   sox in.au dolbyA.au mcompand \e
       ".1,.1 4:-56,-46,-36,-26,-26,-20,-17,-15,-9,-9" 80 \e
       ".1,.1 4:-56,-46,-36,-26,-26,-20,-17,-15,-9,-9" 3k \e
       ".1,.1 4:-56,-46,-36,-26,-26,-20,-17,-15,-9,-9" 9k \e
@@ -1378,7 +1378,7 @@ as used for tape noise reduction in professional recording studios:
 
 .ne 6
    # Dolby A decompressor
-   sox_ng dolbyA.au out.au mcompand \e
+   sox dolbyA.au out.au mcompand \e
       ".1,.1 4:-46,-56,-26,-36,-20,-26,-15,-17,-9,-9" 80 \e
       ".1,.1 4:-46,-56,-26,-36,-20,-26,-15,-17,-9,-9" 3k \e
       ".1,.1 4:-46,-56,-26,-36,-20,-26,-15,-17,-9,-9" 9k \e
@@ -1405,7 +1405,7 @@ or the end of a recording.  \fBnoiseprof\fR writes a noise
 profile to \fIprofile-file\fR or to stdout if no \fIprofile-file\fR or
 if `\-' is given.  E.g.
 .XE
-   sox_ng speech.wav \-n trim 0 1.5 noiseprof speech.noise-profile
+   sox speech.wav \-n trim 0 1.5 noiseprof speech.noise-profile
 .XX
 To actually remove the noise, run SoX again, this time with the \fBnoisered\fR
 effect;
@@ -1417,7 +1417,7 @@ from
 if it is given
 or from stdin if no \fIprofile-file\fR or if `\-' is given.  E.g.
 .XE
-   sox_ng speech.wav cleaned.wav noisered speech.noise-profile 0.3
+   sox speech.wav cleaned.wav noisered speech.noise-profile 0.3
 .XX
 How much noise should be removed is specified by
 .IR amount \*ma
@@ -1433,8 +1433,8 @@ sections of the audio.
 On most systems, the two stages\*mprofiling and reduction\*mcan be combined
 using a pipe, e.g.
 .XE
-   sox_ng noisy.wav \-n trim 0 1 noiseprof | \e
-      play_ng noisy.wav noisered
+   sox noisy.wav \-n trim 0 1 noiseprof | \e
+      play noisy.wav noisered
 .XX
 .TP
 \fBnorm\fR [\fIdB-level(0)\fR]
@@ -1513,7 +1513,7 @@ which is about 15% slower but much less noisy and
 but even less noisy.
 \fB\-n\fR explicitly asks for no interpolation, the default, fast and fuzzy.
 .SP
-In sox_ng, \fB\-s\fR or \fB\-t\fR can be given at the start or the end;
+In sox, \fB\-s\fR or \fB\-t\fR can be given at the start or the end;
 to be compatible with earlier versions of SoX, supply all the parameters
 with one of these at the end, use \fIgain-in\fR and \fIgain-out\fR from 0 to 1,
 \fIdelay\fR from 0 to 5, \fIspeed\fR from 0\*d1 to 2
@@ -1529,22 +1529,22 @@ comb filtering with factored spacing
 .SP
 For example:
 .XE
-   play_ng snare.flac phaser 0.8 0.74 3 0.4 0.5 \-t
+   play snare.flac phaser 0.8 0.74 3 0.4 0.5 \-t
 .XX
 Gentler:
 .XE
-   play_ng snare.flac phaser 0.9 0.85 4 0.23 1.3 \-s
+   play snare.flac phaser 0.9 0.85 4 0.23 1.3 \-s
 .XX
 A popular sound:
 .XE
-   play_ng snare.flac phaser 0.89 0.85 1 0.24 2 \-t
+   play snare.flac phaser 0.89 0.85 1 0.24 2 \-t
 .XX
 More severe:
 .XE
-   play_ng snare.flac phaser 0.6 0.66 3 0.6 2 \-t
+   play snare.flac phaser 0.6 0.66 3 0.6 2 \-t
 .XX
 For a flow diagram of how \fBphaser\fR works,
-say \fBsox_ng \-\-help\-effect phaser\fR.
+say \fBsox \-\-help\-effect phaser\fR.
 .TP
 \fBpitch \fR[\fB\-q\fR] \fIshift\fR [\fIsegment\fR [\fIsearch\fR [\fIoverlap\fR]]]
 Change the audio pitch but not the tempo.
@@ -1651,8 +1651,8 @@ option need not be given.  For example, the following two commands are
 equivalent:
 .XE
 .ne 2
-   sox_ng input.wav \-r 48k output.wav bass \-b 24
-   sox_ng input.wav        output.wav bass \-b 24 rate 48k
+   sox input.wav \-r 48k output.wav bass \-b 24
+   sox input.wav        output.wav bass \-b 24 rate 48k
 .XX
 though the second command is more flexible as it allows
 .B rate
@@ -1748,13 +1748,13 @@ sets the bit-accuracy to obtain rejection of a specified number of dB.
 .SP
 Examples:
 .XE
-   sox_ng input.wav \-b 16 output.wav rate \-s \-a 44100 dither \-s
+   sox input.wav \-b 16 output.wav rate \-s \-a 44100 dither \-s
 .XX
 is default (high) quality resampling with overrides for a steep filter,
 to allow aliasing, at a 44\*d1kHz sample rate and noise-shaped dithering
 to a 16-bit WAV file.
 .XE
-   sox_ng input.wav \-b 24 output.aiff rate \-v \-I \-b 90 48k
+   sox input.wav \-b 24 output.aiff rate \-v \-I \-b 90 48k
 .XX
 is very high quality resampling with overrides for an intermediate phase,
 a bandwidth of 90%, at a 48k sampling rate and storing the output
@@ -1814,13 +1814,13 @@ channel number ranges; alternatively,
 .B 0
 may be given to create a silent output channel.  For example,
 .XE
-   sox_ng input.wav output.wav remix 6 7 8 0
+   sox input.wav output.wav remix 6 7 8 0
 .XX
 creates an output file with four channels, where channels 1, 2, and 3 are
 copies of channels 6, 7, and 8 in the input file, and channel 4 is silent.
 Whereas
 .XE
-   sox_ng input.wav output.wav remix 1\-3,7 3
+   sox input.wav output.wav remix 1\-3,7 3
 .XX
 creates a (somewhat bizarre) stereo output file where the left channel
 is a mix-down of input channels 1, 2, 3 and 7 and the right channel is
@@ -1830,7 +1830,7 @@ Where a range of channels is specified, the channel numbers to the left and
 right of the hyphen are optional and default to 1 and to the number of input
 channels respectively. Thus
 .XE
-   sox_ng input.wav output.wav remix \-
+   sox input.wav output.wav remix \-
 .XX
 performs a mix-down of all input channels to mono.
 .SP
@@ -1871,17 +1871,17 @@ the \fB\-a\fR (automatic)
 option can be given to retain the automatic scaling in this case.
 For example,
 .XE
-   sox_ng input.wav output.wav remix 1,2 3,4v0.8
+   sox input.wav output.wav remix 1,2 3,4v0.8
 .XX
 results in channel level multipliers of 0\*d5,0\*d5 and 1,0\*d8, whereas
 .XE
-   sox_ng input.wav output.wav remix \-a 1,2 3,4v0.8
+   sox input.wav output.wav remix \-a 1,2 3,4v0.8
 .XX
 results in channel level multipliers of 0\*d5,0\*d5 and 0\*d5,0\*d8.
 .SP
 The \fB\-m\fR (manual) option disables all automatic volume adjustments, so
 .XE
-   sox_ng input.wav output.wav remix \-m 1,2 3,4v0.8
+   sox input.wav output.wav remix \-m 1,2 3,4v0.8
 .XX
 results in channel level multipliers of 1,1 and 1,0\*d8.
 .SP
@@ -1893,7 +1893,7 @@ For example, if
 .I input.wav
 is stereo, then
 .XE
-   sox_ng input.wav output.wav remix 1,2i
+   sox input.wav output.wav remix 1,2i
 .XX
 is a mono equivalent of the
 .B oops
@@ -1918,11 +1918,11 @@ channels are involved, a script such as the following is useful:
 .ne 8
 .XE
 #! /bin/sh
-chans=\`soxi_ng \-c "$1"\`
+chans=\`soxi \-c "$1"\`
 while [ $chans \-ge 1 ]; do
    chans0=\`printf %02i $chans\`   # 2 digits hence up to 99 chans
    out=\`echo "$1" | sed "s/\\(.*\\)\\.\\(.*\\)/\\1\-$chans0.\\2/"\`
-   sox_ng "$1" "$out" remix $chans
+   sox "$1" "$out" remix $chans
    chans=\`expr $chans \- 1\`
 done
 .XX
@@ -1958,14 +1958,14 @@ after the input finishes so, to prevent clipping and
 keep the audible part of the final reverberation,
 a typical invocation might be:
 .XE
-   play_ng dry.au gain \-3 pad 0 1 reverb
+   play dry.au gain \-3 pad 0 1 reverb
 .XX
 The
 .B \-w
 option can be given to select only the `wet' signal, thus allowing it to be
 processed further, independently of the `dry' signal.  E.g.
 .XE
-   play_ng \-m in.au "|sox_ng in.au \-p reverse reverb \-w reverse"
+   play \-m in.au "|sox in.au \-p reverse reverb \-w reverse"
 .XX
 for a reverse reverb effect.
 .TP
@@ -2140,7 +2140,7 @@ The following example shows how this effect can be used to make a recording
 that does not contain the silence that usually occurs between
 pressing the record button and the start of the performance:
 .XE
-   rec_ng \fIparameters filename other-effects\fR silence 1 5 2%
+   rec \fIparameters filename other-effects\fR silence 1 5 2%
 .XX
 This example should remove the start of the recording until
 there's a period of non-silence longer than 0.2s and louder than 0.1%,
@@ -2149,7 +2149,7 @@ and remove it if found, leaving the first 1s of it in place,
 then start copying again until a silence is found
 that's longer than 1s and quieter than 3%, trim that to 1s and so on.
 .XE
-   sox_ng in.au out.au silence -l 1 0.2 0.1% -1 1.0 3%
+   sox in.au out.au silence -l 1 0.2 0.1% -1 1.0 3%
 .XX
 .TP
 \fBsinc\fR [\fB\-a\fI att\fR\^|\^\fB\-b\fI beta\fR] [\fB\-p\fI phase\fR\^|\^\fB\-M\fR\^|\^\fB\-I\fR\^|\^\fB\-L\fR] \:[\fB\-t\fI tbw\fR\^|\^\fB\-n\fI taps\fR]
@@ -2244,7 +2244,7 @@ is probably random.
 \fBspectrogram \fR[\fIoptions\fR]
 Create a spectrogram of the audio. The audio is passed unmodified
 through the SoX processing chain.  This effect is optional\*mtype
-\fBsox_ng \-\-help\fR and check the list of supported effects to see if
+\fBsox \-\-help\fR and check the list of supported effects to see if
 it has been included.
 .SP
 The spectrogram is rendered in a Portable Network Graphic (PNG) file
@@ -2257,13 +2257,13 @@ for stereo audio.
 .SP
 For example, if `my.wav' is a stereo file, then
 .XE
-   sox_ng my.wav \-n spectrogram
+   sox my.wav \-n spectrogram
 .XX
 creates a spectrogram of the entire file in the file
 `spectrogram.png'.  More often though, analysis of a smaller portion
 of the audio is required; e.g. with
 .XE
-   sox_ng my.wav \-n remix 2 trim 20 30 spectrogram
+   sox my.wav \-n remix 2 trim 20 30 spectrogram
 .XX
 the spectrogram shows information only from the second (right)
 channel of thirty seconds of audio starting from twenty seconds
@@ -2271,13 +2271,13 @@ in.  To analyze a small portion of the frequency domain, the
 .B rate
 effect may be used, e.g.
 .XE
-   sox_ng my.wav \-n rate 6k spectrogram
+   sox my.wav \-n rate 6k spectrogram
 .XX
 allows detailed analysis of frequencies up to 3kHz (half the sampling
 rate) i.e. where the human auditory system is most sensitive.
 See also the \fR\-R\fR option below. With
 .XE
-   sox_ng my.wav \-n trim 0 10 spectrogram \-x 600 \-y 200 \-z 100
+   sox my.wav \-n trim 0 10 spectrogram \-x 600 \-y 200 \-z 100
 .XX
 the given options control the size of the spectrogram's X, Y & Z axes
 (in this case, the spectrogram area of the produced image will be 600
@@ -2293,7 +2293,7 @@ A raw spectrogram will be \fIx\fR\ by\ \fIy\fR\ \(mu\ \fIc\fR.
 .SP
 In this example
 .XE
-   sox_ng \-n \-n synth 6 tri 10k:14k spectrogram \-z 100 \-w kaiser
+   sox \-n \-n synth 6 tri 10k:14k spectrogram \-z 100 \-w kaiser
 .XX
 an analysis window with high dynamic range is selected to best
 display the spectrogram of a swept triangular wave.  For a similar
@@ -2307,7 +2307,7 @@ effect (above):
 Options are also available to control the appearance (color set,
 brightness, contrast etc.) and filename of the spectrogram; e.g. with
 .XE
-   sox_ng my.wav \-n spectrogram \-m \-l \-o print.png
+   sox my.wav \-n spectrogram \-m \-l \-o print.png
 .XX
 a spectrogram is created suitable for printing on a black and white
 printer.
@@ -2474,7 +2474,7 @@ the start time.
 For
 example,
 .XE
-   sox_ng input.mp3 output.wav \-n spectrogram \-d 1:00 stats
+   sox input.mp3 output.wav \-n spectrogram \-d 1:00 stats
 .XX
 creates a spectrogram showing the first minute of the audio, while
 the
@@ -2488,7 +2488,7 @@ for an alternative way of setting the X axis resolution.
 Start the spectrogram at the given point in the audio stream.  For
 example
 .XE
-   sox_ng input.aiff output.wav spectrogram \-S 1:00
+   sox input.aiff output.wav spectrogram \-S 1:00
 .XX
 creates a spectrogram showing all but the first minute of the audio
 (the output file, however, receives the entire audio stream).
@@ -2609,25 +2609,25 @@ where * indicates the joining points.
 .SP
 For example, a long song begins with two verses which start (as
 determined e.g. by using the
-.B play_ng
+.B play
 command with the
 .B trim
 (\fIstart\fR) effect) at times 0:30\*d125 and 1:03\*d432.
 The following commands cut out the first verse:
 .XE
-   sox_ng too-long.wav part1.wav trim 0 30.130
+   sox too-long.wav part1.wav trim 0 30.130
 .XX
 (5 ms excess, after the first verse starts)
 .XE
-   sox_ng too-long.wav part2.wav trim 1:03.422
+   sox too-long.wav part2.wav trim 1:03.422
 .XX
 (5 ms excess plus 5 ms leeway, before the second verse starts)
 .XE
-   sox_ng part1.wav part2.wav just-right.wav splice 30.130
+   sox part1.wav part2.wav just-right.wav splice 30.130
 .XX
 For another example, the SoX command
 .XE
-   play_ng "|sox_ng \-n \-p synth 1 sin %1" "|sox_ng \-n \-p synth 1 sin %3"
+   play "|sox \-n \-p synth 1 sin %1" "|sox \-n \-p synth 1 sin %3"
 .XX
 generates and plays two notes, but there is a nasty click at the
 transition; the click can be removed by splicing instead of
@@ -2647,10 +2647,10 @@ invocation.  For example, with a Bourne shell script `acpo':
    # (i.e. such that contain +/\-).
    e=0.005                      # Using default excess
    l=$e                         # and leeway.
-   sox_ng "$1" piece.wav trim $2\-$e\-$l =$3+$e
-   sox_ng "$1" part1.wav trim 0 $4+$e
-   sox_ng "$1" part2.wav trim $4+$3\-$2\-$e\-$l
-   sox_ng part1.wav piece.wav part2.wav "$5" \e
+   sox "$1" piece.wav trim $2\-$e\-$l =$3+$e
+   sox "$1" part1.wav trim 0 $4+$e
+   sox "$1" part2.wav trim $4+$3\-$2\-$e\-$l
+   sox part1.wav piece.wav part2.wav "$5" \e
       splice $4+$e +$3\-$2+$e+$l+$e
 .XX
 two splices are used to `copy and paste' audio.
@@ -2667,7 +2667,7 @@ should be zero (which is the default if
 is given).  For example, if f1.wav and f2.wav are audio files
 to be cross-faded, then
 .XE
-   sox_ng f1.wav f2.wav out.wav splice \-q $(soxi_ng \-D f1.wav),3
+   sox f1.wav f2.wav out.wav splice \-q $(soxi \-D f1.wav),3
 .XX
 cross-fades the files where the point of equal loudness is 3 seconds
 before the end of f1.wav, i.e. the total length of the cross-fade is
@@ -2835,7 +2835,7 @@ of very small numbers that the usual output shows as zero.
 The most common use of \fBstat\fR is to measure the characteristics
 of a single audio file, for which the syntax is:
 .XE
-   sox_ng file.wav -n stat
+   sox file.wav -n stat
 .XX
 where \fB\-n\fR means "No audio output is required."
 .TP
@@ -2990,7 +2990,7 @@ have a look at the output.
 Like \fBstat\fR, the usual way to measure the characteristics
 of a single audio file is:
 .XE
-   sox_ng file.wav -n stats
+   sox file.wav -n stats
 .XX
 .TP
 \fBstretch [\fIfactor\fR [\fIwindow \fR[\fIfade \fR[\fIshift \fR[\fIfading\fR]]]]]
@@ -3265,12 +3265,12 @@ as used in the Yamaha DX7).
 .ne 2
 A chorus-like effect:
 .XE
-   sox_ng solo.au -d synth sine vdelay 50,2,50 .25 0 75
+   sox solo.au -d synth sine vdelay 50,2,50 .25 0 75
 .XX
 .ne 2
 A flanger:
 .XE
-   sox_ng solo.au -d synth triangle vdelay 0,2,41.52 0.5 0 0
+   sox solo.au -d synth triangle vdelay 0,2,41.52 0.5 0 0
 .XX
 .RE
 .TP
@@ -3309,26 +3309,26 @@ The frequency or frequency range is not used for the noise types.
 For example, the following produces a 3-second 48kHz
 audio file containing a sine wave swept from 300 to 3300Hz:
 .XE
-   sox_ng \-n output.wav synth 3 sine 300\-3300
+   sox \-n output.wav synth 3 sine 300\-3300
 .XX
 Multiple channels can be synthesized by specifying the set of
 parameters shown between curly braces multiple times;
 the following puts the swept tone in the left channel and brown
 noise in the right:
 .XE
-   sox_ng \-n output.wav synth 3 sine 300\-3300 brownnoise
+   sox \-n output.wav synth 3 sine 300\-3300 brownnoise
 .XX
 The following example shows how two synth effects can be cascaded
 to create a more complex waveform:
 .XE
 .ne 2
-   play_ng \-n synth 0.5 sine 200\-500 synth 0.5 sine fmod 700\-100
+   play \-n synth 0.5 sine 200\-500 synth 0.5 sine fmod 700\-100
 .XX
 The following could be used to help tune a guitar:
 .XE
 .ne 2
    for n in E2 A2 D3 G3 B3 E4; do
-	play_ng \-n synth 4 pluck $n repeat 2; done
+	play \-n synth 4 pluck $n repeat 2; done
 .XX
 .nh
 .\" Otherwise it may hyphenate overlap
@@ -3433,15 +3433,15 @@ parameter allows copying from the beginning of the audio.
 .SP
 For example,
 .XE
-   sox_ng in.au out.au trim 0 10
+   sox in.au out.au trim 0 10
 .XX
 copies the first ten seconds, while
 .XE
-   play_ng in.au trim 12:34 =15:00 -2:00
+   play in.au trim 12:34 =15:00 -2:00
 .XX
 and
 .XE
-   play_ng in.au trim 12:34 2:26 -2:00
+   play in.au trim 12:34 2:26 -2:00
 .XX
 both play from 12 minutes 34 seconds into the audio up to 15 minutes in
 (i.e. 2 minutes and 26 seconds long) then resume playing two
@@ -3478,15 +3478,15 @@ from the front of the audio, so in order to trim from the back, the
 .B reverse
 effect must also be used.  E.g.
 .XE
-   play_ng speech.wav norm vad
+   play speech.wav norm vad
 .XX
 to trim from the front,
 .XE
-   play_ng speech.wav norm reverse vad reverse
+   play speech.wav norm reverse vad reverse
 .XX
 to trim from the back and
 .XE
-   play_ng speech.wav norm vad reverse vad reverse
+   play speech.wav norm vad reverse vad reverse
 .XX
 to trim from both ends.  The use of the
 .B norm
@@ -3713,7 +3713,7 @@ Steve Harris,
 .br
 http://plugin.org.uk
 .SH SEE ALSO
-.BR sox_ng (1).
+.BR sox (1).
 .SH AUTHORS
 Lance Norskog, Chris Bagwell and many other authors and contributors
 listed in the README file that is distributed with the source code.

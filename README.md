@@ -79,6 +79,13 @@ Install it:
 The command-line executable is named `sox`. The source still retains
 SoX-NG-derived library and header names, including `sox_ng.h` and
 `libsox_ng.so`.
+The accompanying commands use the standard names `soxi`, `play` and `rec`
+(where audio-device support makes `play`/`rec` available). Existing
+`soxi_ng`, `play_ng` and `rec_ng` command aliases remain available for
+compatibility when symbolic links are enabled. `--disable-symlinks`
+suppresses those aliases; `--enable-replace` now controls only optional
+library, header, pkg-config and library-documentation compatibility aliases.
+This binary-name change does **not** rename the library ABI or the headers.
 
 ### Development branches
 

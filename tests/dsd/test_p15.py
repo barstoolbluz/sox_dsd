@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""P15 CLI profile-ID, default hold, reference, and explicit legacy regressions.
+"""P15 CLI profile-ID, release activation, reference, and explicit legacy regressions.
 
 Only test measured/executed behavior. This is not a replacement for frozen
 analysis-v1, independent source corpora, long soaks or physical host benches.
@@ -136,12 +136,27 @@ def main():
                 p=plan('--dsd-encode',ident,wav,'-r',rate,t/'planned.dsf')
                 expected(p['encoder']['id']==ident,'wrong versioned encoder identity')
                 expected(p['encoder']['modulator_input_scale']==.5,'PCM reference scale mutated')
-                # Source tree intentionally cannot emit production masters until
-                # P15 independent full release gates close; candidate CLI separate.
-                expected(p['executable'] is False,'uncertified encoder was activated')
+                # The 2026-10-20 operator release activated qualified P10
+                # mastering modulation in the production command. Plans must
+                # report this accurately while remaining side-effect-free.
+                expected(p['executable'] is True,'released encoder is unavailable')
+                expected(not p['needs_unimplemented_dsp'],'release still marked unimplemented')
                 expected(not (t/'planned.dsf').exists(),'preflight wrote output')
-                return dict(id=ident,held=True)
+                return dict(id=ident,activated=True)
             case(f'versioned_encode_plan_{rate//44100}',encode_plan)
+            def encode_audio(rate=rate,ident=ident):
+                out=t/f'{ident}.dsf'
+                cp=run('--dsd-mode','auto','--dsd-encode',ident,wav,'-r',rate,out)
+                expected(cp.returncode==0 and out.is_file(),
+                         f'released versioned encoder failed: {cp.stderr[-400:]}')
+                from reference import verify
+                dsd=verify.decode_dsf(out.read_bytes())
+                expected(dsd['rate']==rate and dsd['channels']==1,
+                         'released encoder output header mismatch')
+                expected(dsd['frames']>0,'released encoder emitted empty audio')
+                return dict(id=ident,native_frames=dsd['frames'],
+                            bitstream_sha256=dsd['chronological_bits_sha256'])
+            case(f'versioned_encode_audio_{rate//44100}',encode_audio)
             def wrong_encode(rate=rate):
                 other=next(x for x in RATES if x!=rate)
                 ident=f'encode.mastering.v1.dsd{other//44100}'

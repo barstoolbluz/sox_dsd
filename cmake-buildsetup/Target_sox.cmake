@@ -1,4 +1,4 @@
-# CMAKE file for executable SoX to be called when building SoX_ng
+# CMAKE file for executable SoX to be called when building SoX DSD
 
 SET(targetName "SoX")
 SET(targetVersion ${CMAKE_PROJECT_VERSION})
@@ -38,7 +38,7 @@ SET(soXCompileDefinitionList
 ADD_EXECUTABLE(${targetName}
                ${soXSourceFileList})
 SET_TARGET_PROPERTIES(${targetName} PROPERTIES
-                      OUTPUT_NAME "sox_ng")
+                      OUTPUT_NAME "sox")
                   
 ADD_DEPENDENCIES(${targetName} libSoX)
 

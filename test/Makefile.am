@@ -95,19 +95,23 @@ dsd_test_p15_src_stage_export_LDADD = $(top_builddir)/src/libsox_ng.la
 
 # P09 strict profile registry and independent coefficient-bit oracle.
 EXTRA_PROGRAMS += dsd_test_p09
-dsd_test_p09_SOURCES = ../tests/dsd/test_p09.c
+dsd_test_p09_SOURCES = ../tests/dsd/test_p09.c ../src/sdm.c
 dsd_test_p09_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p09_LDADD = $(top_builddir)/src/libsox_ng.la
 
 # P10 private candidate renderer and streaming/overload contracts.
 EXTRA_PROGRAMS += dsd_test_p10
-dsd_test_p10_SOURCES = ../tests/dsd/test_p10.c
+# Compile the unmodified private SDM implementation into this uninstalled
+# test executable. Those symbols are deliberately hidden from the shared
+# libsox_ng ABI, while this test needs to call them directly. This works
+# with shared-only, static-only and combined builds without exporting SDM.
+dsd_test_p10_SOURCES = ../tests/dsd/test_p10.c ../src/sdm.c
 dsd_test_p10_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p10_LDADD = $(top_builddir)/src/libsox_ng.la
 
 # P11 executable mocked CPUID and real per-ISA FIR/SDM contract tests.
 EXTRA_PROGRAMS += dsd_test_p11
-dsd_test_p11_SOURCES = ../tests/dsd/test_p11.c
+dsd_test_p11_SOURCES = ../tests/dsd/test_p11.c ../src/sdm.c
 dsd_test_p11_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p11_LDADD = $(top_builddir)/src/libsox_ng.la
 
@@ -127,7 +131,7 @@ dsd_test_p12_bounds_LDADD = $(top_builddir)/src/libsox_ng.la
 
 # P13 masked AVX-512F exact-span FIR and eight-coordinate SDM executable gate.
 EXTRA_PROGRAMS += dsd_test_p13
-dsd_test_p13_SOURCES = ../tests/dsd/test_p13.c
+dsd_test_p13_SOURCES = ../tests/dsd/test_p13.c ../src/sdm.c
 dsd_test_p13_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p13_LDADD = $(top_builddir)/src/libsox_ng.la
 

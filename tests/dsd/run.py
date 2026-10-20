@@ -664,7 +664,7 @@ def main():
     args=ap.parse_args()
     runner=Runner(args);runner.register_units();runner.register_integrations()
     if not args.sox.is_file() or not args.probe.is_file():
-        ap.error('missing built sox_ng/test/dsd_test_io; build with make and make -C test dsd_test_io')
+        ap.error('missing built sox and test/dsd_test_io; build with make and make -C test dsd_test_io')
     floor=runner.run()
     if args.phase=='P14' and not floor and args.only=='*' and args.mode=='all':
         # P00's inherited floor is still reported separately; the P14 gate

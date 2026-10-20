@@ -1,4 +1,4 @@
-# command line parameter handling for SoX_ng CMake build
+# command line parameter handling for SoX DSD CMake build
 
 ##############
 ### MACROS ###
@@ -24,7 +24,7 @@ ENDMACRO(CLP_setFromCommandLine)
 CLP_setFromCommandLine(CLP_Debug_listBuildVariables
                        list_build_variable_values FALSE)
 
-# set flag whether to make any symlinks to sox_ng
+# set flag whether to create command aliases for sox
 CLP_setFromCommandLine(CLP_disableSymlinks disable_symlinks FALSE)
 
 # set flag whether to use dynamic version of amrnb library (instead of
@@ -55,7 +55,7 @@ CLP_setFromCommandLine(CLP_enableDlSpeexDSP enable_dl_speexdsp FALSE)
 # (instead of static)
 CLP_setFromCommandLine(CLP_enableDlTwoLame enable_dl_twolame FALSE)
 
-# make links from "sox" to "sox_ng" and so on
+# request optional unversioned library/header/man aliases
 CLP_setFromCommandLine(CLP_enableReplace enable_replace FALSE)
 
 # the target path for the generated exe files;
