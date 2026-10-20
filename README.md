@@ -1,90 +1,106 @@
-# README.md
+# SoX DSD
 
-The `SoX_ng` project imports, compares and refines bug fixes and
-new work from the 50-odd software distributions that package SoX
-and from the plethora of forks on github and elsewhere
-and makes regular releases with a six-monthly cadence
-for each of the micro (bug fixes) and minor (new features) releases.
-A major release (non-backwards-compatible changes) is not planned.
+SoX DSD is a fork of [SoX-NG](https://codeberg.org/sox_ng/sox_ng),
+with better DSD support as its first priority. It remains a general-purpose
+SoX: the existing formats, effects, command-line tools and build system
+are part of the project, not something we plan to replace.
 
-The next micro release is scheduled for the 18th August 2026.<BR>
-The next minor release is scheduled for the 18th November 2026.
+SoX-NG maintains and improves SoX by bringing together fixes and new work
+from distributions and other forks. SoX DSD builds on that work, but is
+putting more effort into DSD and into the numerical quality of audio
+processing more generally.
+
+## What is different?
+
+### DSD
+
+The current work extends DSD64, DSD128 and DSD256 processing, including
+native DSF and DSDIFF I/O, DSD-to-PCM reconstruction, and DSD encoding.
+It adds DSD-aware planning and versioned reconstruction filters rather
+than treating all DSD-to-PCM conversions as interchangeable.
+
+**DSD512 and DSD1024 are next on the roadmap.** We plan to support them
+as native DSD formats, with the decoding, encoding, filtering, performance
+work and tests that go with that. They are not shipped features yet.
+
+The source-aware v2 mastering reconstruction is the default for DSD64,
+DSD128 and DSD256. The earlier v1 filters are preserved and remain
+selectable. To ask for v1 explicitly:
+
+    sox --dsd-mode auto --dsd-decode decode.mastering.v1.dsd64 \
+      input.dsf -r 176400 -b 24 output.wav
+
+For profile selection, supported conversions and current qualification
+status, see [the DSD CLI guide](docs/dsd/MIGRATION_P15.md) and
+[the DSD documentation](docs/dsd/README.md).
+
+### Numerical accuracy
+
+DSD is where we're starting, not where we intend to stop. We also want to
+improve the rest of SoX's DSP where better algorithms or more careful
+arithmetic can make a real difference: resampling, filtering, gain
+processing and other effects.
+
+We care about errors small enough to measure, even when they are too small
+to hear. But more bits and more complicated code are not automatically
+better. We'll use independent numerical references, difficult test cases
+and measurements to find out whether a change actually improves things.
+And we'll keep performance in view. The aim is to get as close to the
+mathematically intended result as practical, without claiming that a
+finite-precision program can be literally perfect.
 
 ## Terminology
 
-`sox` means [sox.sf.net](http://sox.sf.net)<BR>
+`sox` means the command-line executable used by SoX DSD; the original SoX project is at [sox.sf.net](http://sox.sf.net)<BR>
 `SoX` means the Swiss Army Knife of command-line audio processing in any of its incarnations<BR>
 `sox_ng` means the hard fork of `sox-14.4.2` aiming to sanitize `SoX`<BR>
-`SoX_ng` means the project to maintain `sox_ng`
+`SoX_ng` means the project to maintain `sox_ng`<BR>
+`SoX DSD` means this fork of SoX-NG
 
 ## How to get it
 
-`sox_ng` lives at
-[codeberg.org/sox_ng/sox_ng](https://codeberg.org/sox_ng/sox_ng)
-and is composed of a SoX code base, a wiki and an issue tracker.
+Use the SoX DSD source tree or a release archive from this project.
+The [SoX-NG repository](https://codeberg.org/sox_ng/sox_ng) and its
+[releases](https://codeberg.org/sox_ng/sox_ng/releases) are **upstream
+SoX-NG**, not SoX DSD.
 
 ### Releases
 
-On the [releases page](https://codeberg.org/sox_ng/sox_ng/releases)
-you'll find source code tarballs and Windows `exe`s.
+For a SoX DSD source release on Unix-compatible systems, extract the
+archive, change into its directory, and build it:
 
-#### Compiling it from source
-
-On Unix-compatible systems, extract it:
-
-    gzip -d < sox_ng-*.tar.gz | tar xf -
-
-Build it:
-
-    cd sox_ng*
     ./configure
     make
-
-On most systems you should only get two compiler warnings
-about `#pragma STDC FENV_ACCESS`
 
 Install it:
 
     sudo make install
 
-It installs as `sox_ng`, `sox_ng.h`, `libsox_ng.so` and so on
-so that `sox` and `sox_ng` can coexist on the same system.
-To make it work the same as the original `sox`, use
-`./configure --enable-replace`
+The command-line executable is named `sox`. The source still retains
+SoX-NG-derived library and header names, including `sox_ng.h` and
+`libsox_ng.so`.
 
 ### Development branches
 
 #### main
 
-To fetch the latest version:
-
-    git clone https://codeberg.org/sox_ng/sox_ng
-    cd sox_ng
-
-and to make local copies of the wiki and the issues:
-
-    git clone https://codeberg.org/sox_ng/sox_ng.wiki wiki
-    issues/getissues.sh
-
-To compile it:
+From a checkout of this project's source tree, compile it with:
 
     autoreconf -i
     ./configure
     make
 
-and to install it:
+and install it with:
 
     sudo make install
 
-This installs it as `sox_ng`, `sox_ng.h`, `libsox_ng` and so on,
-so that it can coexist with traditional `sox`. If you want it to work
-the same as the original `sox`, use `./configure --enable-replace`
-and if `ffmpeg` is installed add `--with-ffmpeg` to decode 48 more
-audio and video formats.
+To build with FFmpeg format support when FFmpeg is installed, add
+`--with-ffmpeg` to `./configure`. For DSD-specific regression tests,
+run `make check-dsd`.
 
 ## Runtime dependencies
 
-If `ffmpeg` is installed on your system, `sox_ng` will be able to read
+If `ffmpeg` is installed on your system, `sox` will be able to read
 four dozen more audio formats as well as extract soundtracks from video files.
 
 If `wget`, `wget2` or `curl` are installed, you can fetch URLs as input
@@ -120,11 +136,11 @@ To enable all of SoX's optional modules you can install
 ### Debian, Ubuntu, Mint etc.
 
     apt install gcc make libtool ladspa-sdk libao-dev libasound2-dev libfftw3-dev \
-	libgsm1-dev libid3tag0-dev libltdl-dev libmad0-dev libmagic-dev \
-	libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev \
-	libopusfile-dev libpng-dev libpulse-dev \
-	libsndfile1-dev libspeex-dev libspeexdsp-dev libtwolame-dev \
-	libvorbis-dev libwavpack-dev
+    libgsm1-dev libid3tag0-dev libltdl-dev libmad0-dev libmagic-dev \
+    libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev \
+    libopusfile-dev libpng-dev libpulse-dev \
+    libsndfile1-dev libspeex-dev libspeexdsp-dev libtwolame-dev \
+    libvorbis-dev libwavpack-dev
 
 and to run `issues/getissues.sh` and the `makehtml.sh` scripts you will need
 
@@ -133,12 +149,12 @@ and to run `issues/getissues.sh` and the `makehtml.sh` scripts you will need
 ### Fedora, Red Hat, CentOS etc.
 
     yum install gcc make libtool \
-	alsa-lib-devel fftw-devel file-devel flac-devel gsm-devel \
-	ladspa-devel lame-devel libao-devel libid3tag-devel \
-	libmad-devel libpng-devel libsndfile-devel \
-	libtool-ltdl-devel libvorbis-devel opencore-amr-devel \
-	opusfile-devel pulseaudio-libs-devel speex-devel speexdsp-devel \
-	twolame-devel wavpack-devel
+    alsa-lib-devel fftw-devel file-devel flac-devel gsm-devel \
+    ladspa-devel lame-devel libao-devel libid3tag-devel \
+    libmad-devel libpng-devel libsndfile-devel \
+    libtool-ltdl-devel libvorbis-devel opencore-amr-devel \
+    opusfile-devel pulseaudio-libs-devel speex-devel speexdsp-devel \
+    twolame-devel wavpack-devel
 
 and to run `issues/getissues.sh` and the `makehtml.sh` scripts you will need
 
@@ -147,8 +163,8 @@ and to run `issues/getissues.sh` and the `makehtml.sh` scripts you will need
 ### FreeBSD
 
     pkg install gcc dmake fftw3 file ladspa libid3tag png \
-	flac gsm lame libmad libsndfile libvorbis opencore-amr \
-	opusfile speex speexdsp twolame wavpack
+    flac gsm lame libmad libsndfile libvorbis opencore-amr \
+    opusfile speex speexdsp twolame wavpack
 
 but you can almost certainly omit `file` which it wants for `libmagic`
 which is installed in a default FreeBSD installation in `/usr/lib`.
@@ -165,54 +181,21 @@ To run `issues/getissues.sh` and the `makehtml.sh` scripts you will need
 
     pkg install jq multimarkdown
 
-### MacOS/X
+## Upstream SoX-NG
 
-As well as the above, you can also install it with Homebrew:
+The original SoX-NG code, wiki and issue tracker are at
+[codeberg.org/sox_ng/sox_ng](https://codeberg.org/sox_ng/sox_ng).
+The following contacts belong to **SoX-NG**, not to SoX DSD.
 
-    brew install sox_ng
+### Accessibility
 
-### NetBSD, OpenWRT and Solus
-
-There are packages for these [on `pkgs.org`](https://pkgs.org/download/sox_ng)
-
-### Windows
-
-On the [releases page](https://codeberg.org/sox_ng/sox_ng/releases)
-you'll find `zip` files containing a Windows `exe` for `sox_ng`,
-which you can copy to `sox.exe`, `soxi.exe`, `play.exe` and `rec.exe'
-(they are all the same program which behaves differently according to
-its name).
-
-You may also be able to
-
-    winget install --id sox_ng.sox_ng -e
-
-## Accessibility
-
-You can edit and commit to the code and the wiki using Codeberg's web interface
-or from the command-line.
-The command-line is the only way to add images and attachments to the wiki.
+You can edit and commit to the upstream code and wiki using Codeberg's web
+interface or from the command-line. The command-line is the only way to add
+images and attachments to the wiki.
 
 The issues can be downloaded as well as uploaded replacing all remote content
 but this risks overwriting changes made via the web interface so for now
 it is recommended to edit them on the Codeberg web site.
-
-## Community
-
-### Mailing list
-
-* [sox-ng@groups.io](https://groups.io/g/sox-ng)<BR>
-  To subscribe, go there or send an email to
-  [sox-ng+subscribe@groups.io](mailto:sox-ng+subscribe@groups.io)
-
-### Private email
-
-* [sox_ng@fastmail.com](mailto:sox_ng@fastmail.com)
-
-### Finances
-
-* [`SoX_ng`'s financial accounts](Accounting) are public and
-* [Bounties](Bounties) can be offered for specific issues to be resolved
 
 ## README and PDFs
 
