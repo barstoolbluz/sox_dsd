@@ -22,7 +22,7 @@ from check_p15_avx1_receipt import inspect_receipt
 
 ROOT = Path(__file__).resolve().parents[2]
 RESULTS = Path('tests/dsd/results')
-MATRIX = RESULTS / 'P15_matrix_metrology_2026-10-14'
+MATRIX = RESULTS / 'P15_v1_matrix_rebound_2026-10-20'
 AVX1 = RESULTS / 'P15_avx1_physical_2026-10-13'
 TARGET = RESULTS / 'P15_audit_prepared_host_2026-10-13'
 SOAKS = RESULTS / 'P15_soaks_every_profile_isa_2026-10-13'
@@ -64,7 +64,7 @@ def check_source_hashes(session: dict):
 
 
 def matrix_review() -> dict:
-    base = MATRIX / 'scalar-full'
+    base = MATRIX / 'scalar'
     first = load(base / 'session.json')
     check(first['mode'] == 'full' and first['frames'] == 262144,
           'matrix full-duration session absent')
@@ -78,7 +78,7 @@ def matrix_review() -> dict:
     detailed = 0
     identical_binary64 = 0
     cross_isa_max_delta = 0.0
-    for name in ('scalar-full', *(f'isa/{tier}' for tier in TIERS)):
+    for name in TIERS:
         folder = MATRIX / name
         session = load(folder / 'session.json')
         check_source_hashes(session)
@@ -101,7 +101,7 @@ def matrix_review() -> dict:
                   'matrix count mismatch: ' + name + '/' + ident)
             check(row['production_src_spectral']['status'] in ('SAMPLED_PASS', 'IDENTITY_BYPASS'),
                   'sampled SRC failed or unmeasured: ' + name + '/' + ident)
-            if name == 'scalar-full':
+            if name == 'scalar':
                 check(row['production_graph']['status'] == 'PASS',
                       'missing claimed graph evidence: ' + ident)
                 check(row['isolated_fir']['metric']['max_abs'] <= row['isolated_fir']['roundoff_bound'],
@@ -112,8 +112,8 @@ def matrix_review() -> dict:
                 check(row['scalar_program']['receipt']['binary64_sha256'] ==
                       full_ledger[ident],
                       'forced session scalar baseline differs: ' + name + '/' + ident)
-            if name != 'scalar-full' and name != 'isa/scalar':
-                tier = name.split('/')[1]
+            if name != 'scalar':
+                tier = name
                 entry = row['cross_isa']
                 check(len(entry) == 1 and entry[0]['tier'] == tier and
                       entry[0]['status'] == 'MEASURED',
@@ -138,17 +138,17 @@ def matrix_review() -> dict:
               and tier_ledgers[ident]['avx1'] == tier_ledgers[ident]['avx2']
               for ident in expected),
           'four distinct binary64 tier hashes not supported across all matrix cells')
-    check(absent_vectors == 324,
-          'raw arrays newly present; rerun the full independent matrix verifier')
+    check(absent_vectors == 0,
+          'raw arrays missing; the re-bound matrix retains every measured vector')
     check(load(base / 'summary.json')['release_gate_closed'] is False,
           'instrument illegitimately marks matrix release-qualified')
-    return dict(measured_scalar_cells=54, forced_isa_jobs=270,
+    return dict(measured_scalar_cells=54, forced_isa_jobs=forced,
                 detailed_cross_isa_comparisons=96, equal_binary64_forced_pairs=identical_binary64,
                 max_recorded_cross_isa_binary64_difference=cross_isa_max_delta,
-                missing_npz_vectors=absent_vectors, required_src_graph_raw_files_in_archive=False,
+                missing_npz_vectors=absent_vectors, required_src_graph_raw_files_in_archive=True,
                 independent_full_composite_spectral_certificate=False,
                 independent_complete_src_roundoff_envelope=False,
-                note='All 324 written cell rows have valid digests; raw vectors are omitted. The claim of 54/54 full-binary64 bit identity is false: none of 216 forced-tier hashes matches scalar, though residuals are tiny and permitted.')
+                note='All 270 written cell rows have valid digests and every measured raw vector is retained. The claim of 54/54 full-binary64 bit identity is false: none of 216 forced-tier hashes matches scalar, though residuals are tiny and permitted.')
 
 
 def older_avx_review() -> dict:

@@ -284,7 +284,10 @@ def main() -> int:
     args = ap.parse_args()
     try:
         target = args.output.resolve()
-        for folder in ('P15_v1_matrix_rebound_2026-10-15', 'P15_v2_matrix_2026-10-15'):
+        for folder in ('P15_v1_matrix_rebound_2026-10-20',
+                       'P15_v2_matrix_rebound_2026-10-20',
+                       'P15_v1_matrix_rebound_2026-10-15',
+                       'P15_v2_matrix_2026-10-15'):
             check(not target.is_relative_to((ROOT / 'tests/dsd/results' / folder).resolve()),
                   'cannot write into historical measurement directory')
         outcome = report()
