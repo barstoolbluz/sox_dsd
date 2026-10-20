@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-19",
+  "false_acceptances": 0,
+  "refused": 5,
+  "results": [
+    {
+      "elapsed_seconds": 0.535,
+      "name": "original_source_identity_corruption",
+      "reason": "proof source, method, receipt, or job identity mutated",
+      "result": "REFUSED"
+    },
+    {
+      "elapsed_seconds": 0.044,
+      "name": "math_method_digest_corruption",
+      "reason": "proof source, method, receipt, or job identity mutated",
+      "result": "REFUSED"
+    },
+    {
+      "elapsed_seconds": 0.045,
+      "name": "missing_interval_end",
+      "reason": "proof did not cover final endpoint",
+      "result": "REFUSED"
+    },
+    {
+      "elapsed_seconds": 3.477,
+      "name": "fabricated_stop_transfer_zero",
+      "reason": "reported bound differs from independent exact recomputation",
+      "result": "REFUSED"
+    },
+    {
+      "elapsed_seconds": 3.056,
+      "name": "fabricated_summary_zero",
+      "reason": "summary differs from independently replayed proof",
+      "result": "REFUSED"
+    }
+  ],
+  "schema": "P15/R6/adversarial-corruption/1",
+  "source_proof": "MASTER64_44100_STOP_0000_1000.json",
+  "tests": 5
+}

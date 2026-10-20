@@ -1,0 +1,50 @@
+{
+  "acceptance_document": "docs/dsd/amendments/P15_SPECTRAL_ENGINEERING_ASSURANCE_ACCEPTANCE_2026-10-19.md",
+  "authorized_further_spectral_campaigns": false,
+  "decision_date": "2026-10-19",
+  "design_sha256": "458537dbe9a2ea1e687b68f998f43a90de10c369b604f809c78cf80c2389b94b",
+  "excluded_from_this_decision": [
+    "actual_release_fft4g_roundoff",
+    "finite_same_operator_src_arithmetic",
+    "final_release_binary_elf_identity",
+    "physical_binary_transferability",
+    "remaining_P15_release_gates"
+  ],
+  "historical_inventory_disposition": "PASS_INTEGRITY_AND_RECORDED_BOUNDS_NOT_INDEPENDENT_RECOMPUTATION",
+  "independently_qualified_interval_population": {
+    "overlap_R7_R9_removed": 23,
+    "passband": 42,
+    "source_stop": 981,
+    "unique": 1023
+  },
+  "original_interval_population": {
+    "missing": 0,
+    "open": 0,
+    "passband": 2850,
+    "source_stop": 8666,
+    "total": 11516
+  },
+  "passband_absolute_db": "0.0001",
+  "qualified_release": false,
+  "qualified_unconditional_global_math_proof": false,
+  "r9_independent_replay_sha256": "4d73a7edbc304bb154ac5fb66cf739e777e0cc5a37a95b49472d6cdd23c6d003",
+  "receipt_inventory_sha256": "b72841ffb59e5016e12db4360458895223f454271e9d4504e74aa6ee39d34e99",
+  "release_disposition": "OPEN_NOT_AUTHORIZED",
+  "reopen_if": [
+    "concrete_false_pass_counterexample",
+    "trusted_base_falsified",
+    "operator_or_threshold_changed",
+    "historical_receipt_identity_refuted",
+    "explicit_policy_elevation"
+  ],
+  "residual_assumptions": [
+    "mpmath.iv_transcendental_outward_enclosure_for_historical_anchors",
+    "historical_prover_runtime_correspondence_not_cryptographically_attested"
+  ],
+  "schema": "P15/spectral-engineering-assurance-acceptance/1",
+  "source_archive_sha256": "d058b3908817e01e937f49e0dfeee7194d847aae74f625043e881d8b8f0e9210",
+  "source_stop_threshold_amplitude": "1e-8",
+  "spectral_engineering_disposition": "ACCEPTED_SCOPED_ASSURANCE_WITH_EXPLICIT_TRUSTED_BASE_AND_PROVENANCE_RISK",
+  "supporting_audit": "docs/dsd/P15_FINAL_ORIGINAL_PROVER_SOURCE_AUDIT_2026-10-19.md",
+  "unconditional_global_mathematical_proof_disposition": "CONDITIONAL"
+}
