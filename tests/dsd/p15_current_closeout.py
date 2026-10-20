@@ -358,7 +358,7 @@ def report() -> dict:
                      'guaranteed v2 passband; the composite SRC gate also remains OPEN. Intel physical '
                      'measurements are now recorded separately from the immutable earlier UNRUN entry; '
                      'requires independent new evidence before any future promotion decision. A throughput '
-                     'result authorises nothing on its own: release stays BLOCKED and v2 stays off by default.')
+                     'result authorises nothing on its own; on the evidence this review reads, release stays BLOCKED. The shipping v2 decode default was activated by operator decision on 2026-10-20, which this review does not assess.')
 
 
 def main() -> int:

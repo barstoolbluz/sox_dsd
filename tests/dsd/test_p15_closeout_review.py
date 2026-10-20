@@ -22,15 +22,17 @@ class CloseoutReviewTests(unittest.TestCase):
         self.assertFalse(item['p16_authorized'])
         self.assertEqual(len(item['mandatory_unclosed']), 4)
         self.assertEqual(item['evidence']['matrix']['equal_binary64_forced_pairs'], 0)
-        self.assertEqual(item['evidence']['matrix']['forced_isa_jobs'], 270)
-        self.assertEqual(item['evidence']['matrix']['missing_npz_vectors'], 324)
+        # The re-bound matrix is five flat sessions, four of them forced,
+        # and it retains every measured vector instead of omitting them.
+        self.assertEqual(item['evidence']['matrix']['forced_isa_jobs'], 216)
+        self.assertEqual(item['evidence']['matrix']['missing_npz_vectors'], 0)
         self.assertEqual(item['evidence']['soaks']['complete_61_state_snapshot_sets'], 15)
         self.assertEqual(item['evidence']['soaks']['execution_receipts_present_for'], 15)
         self.assertEqual(item['evidence']['older_avx']['repetitions_per_case'], 15)
 
     def test_corrupt_cell_digest_blocks_adjudication(self):
         real = review.digest
-        target = review.MATRIX / 'scalar-full/cells/dsd64.mastering.pcm44100.json'
+        target = review.MATRIX / 'scalar/cells/dsd64.mastering.pcm44100.json'
         def corrupt(path):
             return '0'*64 if path == target else real(path)
         with patch.object(review, 'digest', side_effect=corrupt):

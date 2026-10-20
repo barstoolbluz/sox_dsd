@@ -1,4 +1,24 @@
-# P15 first-release qualification and release hold
+# P15 first-release qualification: closed
+
+**2026-10-20 operator decision: P15 is CLOSED and P16 is AUTHORIZED.** The
+release hold described below is lifted. First release is authorized, and the
+v2 decode default and mastering v1 encoder activation are live in the tree.
+The authority record is `docs/dsd/amendments/P16_AUTHORIZATION_2026-10-20.md`;
+the activation itself is `handoffs/P15_RELEASE_ACTIVATION_2026-10-20.md`.
+
+The two gates named below remain OPEN and are not discharged by that
+decision. The design authority recorded engineering acceptance on 2026-10-19
+and stated that completion of the outstanding formal-proof obligation is no
+longer required for release, so they are standing obligations rather than
+blocking ones. The evidence reviewers still report `BLOCKED`,
+`p16_authorized: false` and `default_promotion_authorized: false`, and are
+deliberately left that way: they report what the evidence supports, and an
+operator decision is not evidence.
+
+**Everything below this entry is historical.** Statements in it that first
+release, v2 default promotion or P16 are unauthorized were true when written
+and are superseded here.
+
 
 **2026-10-15 code-side SRC disposition:** In the additive
 `docs/dsd/handoffs/P15_NUMERICAL_CODE_CORRECTIVE_2026-10-15.md`,
