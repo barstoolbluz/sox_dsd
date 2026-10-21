@@ -138,6 +138,45 @@ sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_create(
     const sox_dsd_decode_options_t *, sox_dsd_decoder_t **);
 sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_process(
     sox_dsd_decoder_t *, const sox_sample_t *, size_t *, double *, size_t *);
+/* P16 optional borrowed native input. Byte order describes the returned
+ * bytes (DSF MSB input is normalized in its owned read cache). `data` remains
+ * borrowed only until the next packed read or successful seek/close. The
+ * bit offset starts at 0..7 in the first addressed byte; `last_valid_bits`
+ * is the count 1..8 of chronological bits through the final frame in that
+ * byte, including the starting offset for a sub-byte block. Frame 0/channel
+ * 0 is data[0]; byte_stride advances a channel's next packed byte and
+ * channel_stride advances to the next channel's first packed byte.
+ * `bytes` is the physical readable extent from data[0], not a count of
+ * audio bytes; callers must never decode frames beyond `frames`.
+ * The storage must not be modified by a caller. A handle cannot alternate
+ * packed and expanded reads until a successful seek (including seek(0)). */
+typedef enum {
+  SOX_DSD_PACKED_LSB = 1, SOX_DSD_PACKED_MSB = 8
+} sox_dsd_packed_order_t;
+typedef struct sox_dsd_packed_block {
+  size_t size;
+  unsigned version;                    /* 1 */
+  const uint8_t *data;                  /* borrowed, never writable */
+  size_t bytes;                         /* available buffer extent */
+  size_t frames;                        /* valid native DSD frames */
+  unsigned channels;
+  unsigned bit_offset, last_valid_bits; /* 0..7, 1..8 */
+  size_t channel_stride, byte_stride;   /* bytes, not frames */
+  sox_dsd_packed_order_t bit_order;
+} sox_dsd_packed_block_t;
+void SOX_DSD_CALL sox_dsd_packed_block_init(sox_dsd_packed_block_t *);
+sox_bool SOX_DSD_CALL sox_dsd_packed_supported(const sox_format_t *);
+/* Returns OK with frames>0, DONE at EOF, or a named error. `max_frames`
+ * bounds the returned block. Exactly one update of ft->olength occurs on OK. */
+sox_dsd_status_t SOX_DSD_CALL sox_dsd_read_packed(
+    sox_format_t *, size_t max_frames, sox_dsd_packed_block_t *);
+/* Consume a descriptor slice, starting at `start_frame`, through the normal
+ * first-stage FIR and downstream SRC, without an interleaved int32 buffer.
+ * input_frames is input capacity on entry/consumed count on return. */
+sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_process_packed(
+    sox_dsd_decoder_t *, const sox_dsd_packed_block_t *, size_t start_frame,
+    size_t *input_frames, double *interleaved_pcm, size_t *output_frames);
+
 sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_finish(
     sox_dsd_decoder_t *, double *, size_t *);
 sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_report(

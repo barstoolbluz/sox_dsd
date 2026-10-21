@@ -1,0 +1,599 @@
+{
+  "configuration": {
+    "build_host": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "duration": 0.5,
+    "hostname": "60bf945deb38",
+    "machine": "x86_64",
+    "repetitions": 3,
+    "sox_sha256": "4746532f328e4b10eb1af85a633bda0b264f2774f317e005d941068f5c550720",
+    "unit_sha256": "c4e4fe46e930f41c95980c8609e3b711824aca395160251ba4de518cf1a09e48"
+  },
+  "methodology": "two file formats at DSD256; matched expanded/packed output and time/RSS; rates 512/1024 only bit-address simulation",
+  "observations": [
+    {
+      "channels": 2,
+      "file_bytes": 1417308,
+      "frames": 5644800,
+      "interstage_bytes_expanded": 45158400,
+      "interstage_bytes_packed": 1411200,
+      "interstage_payload_traffic_reduction_ratio": 32.0,
+      "median_cpu_expanded_seconds": 0.3,
+      "median_cpu_packed_seconds": 0.28,
+      "median_maxrss_expanded_kib": 3296,
+      "median_maxrss_packed_kib": 3176,
+      "name": "11289600-dsf",
+      "paired_median_cpu_ratio_expanded_over_packed": 1.0714285714285714,
+      "rate_hz": 11289600,
+      "status": "PASS",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dsf",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.3026147599998694,
+            "packed": false,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.3,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.3,
+              "peak_rss_kib": 3280,
+              "wall_seconds": 0.3
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dsf",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.28460991900010413,
+            "packed": true,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.28,
+              "cpu_system_seconds": 0.01,
+              "cpu_user_seconds": 0.27,
+              "peak_rss_kib": 3332,
+              "wall_seconds": 0.28
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dsf",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.30908319900004244,
+            "packed": false,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.3,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.3,
+              "peak_rss_kib": 3296,
+              "wall_seconds": 0.3
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dsf",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.2883846970000832,
+            "packed": true,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.28,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.28,
+              "peak_rss_kib": 3176,
+              "wall_seconds": 0.28
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dsf",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.3142650899999353,
+            "packed": false,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.31,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.31,
+              "peak_rss_kib": 3304,
+              "wall_seconds": 0.31
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dsf",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.2843949260000045,
+            "packed": true,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.28,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.28,
+              "peak_rss_kib": 3172,
+              "wall_seconds": 0.28
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 2,
+      "file_bytes": 1411330,
+      "frames": 5644800,
+      "interstage_bytes_expanded": 45158400,
+      "interstage_bytes_packed": 1411200,
+      "interstage_payload_traffic_reduction_ratio": 32.0,
+      "median_cpu_expanded_seconds": 0.32,
+      "median_cpu_packed_seconds": 0.29,
+      "median_maxrss_expanded_kib": 3300,
+      "median_maxrss_packed_kib": 3268,
+      "name": "11289600-dff",
+      "paired_median_cpu_ratio_expanded_over_packed": 1.1034482758620692,
+      "rate_hz": 11289600,
+      "status": "PASS",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dff",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.30379730599997856,
+            "packed": false,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.3,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.3,
+              "peak_rss_kib": 3276,
+              "wall_seconds": 0.3
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dff",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.2721339889999399,
+            "packed": true,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.26,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.26,
+              "peak_rss_kib": 3276,
+              "wall_seconds": 0.27
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dff",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.3279541550000431,
+            "packed": false,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.32,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.32,
+              "peak_rss_kib": 3324,
+              "wall_seconds": 0.32
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dff",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.3074011400001382,
+            "packed": true,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.29,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.29,
+              "peak_rss_kib": 3268,
+              "wall_seconds": 0.3
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dff",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.3263290560000769,
+            "packed": false,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.32,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.32,
+              "peak_rss_kib": 3300,
+              "wall_seconds": 0.32
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p16-work/sox_dsd/src/sox",
+              "--dsd-mode",
+              "auto",
+              "--combine=merge",
+              "--dsd-layout-loss",
+              "warn",
+              "--dsd-decode",
+              "decode.mastering.v2.dsd256",
+              "-D",
+              "/tmp/sox-p16-bench-fjkx42ei/bench-11289600.dff",
+              "-r",
+              "88200",
+              "-t",
+              "raw",
+              "-e",
+              "signed-integer",
+              "-b",
+              "32",
+              "-"
+            ],
+            "exit": 0,
+            "outer_wall_seconds": 0.3041371760000402,
+            "packed": true,
+            "pcm_bytes": 352800,
+            "process_time": {
+              "cpu_seconds": 0.29,
+              "cpu_system_seconds": 0.0,
+              "cpu_user_seconds": 0.29,
+              "peak_rss_kib": 3216,
+              "wall_seconds": 0.3
+            },
+            "raw_stderr": "sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\nsox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)\n",
+            "sha256": "0eb0225f91c49299e22a3acd6e0b0bf8c2d386340fe572885d9f8e34783cca0e"
+          },
+          "status": "PASS"
+        }
+      ]
+    }
+  ],
+  "schema": "P16/paired/1",
+  "simulated": [
+    {
+      "channels": 2,
+      "decoder_enabled": false,
+      "expanded_equivalent_bytes": 45158400,
+      "frames": 5644800,
+      "logical_native_hz": 22579200,
+      "name": "simulated-22579200",
+      "packed_payload_bytes": 1411200,
+      "status": "PASS",
+      "theoretical_interstage_ratio": 32.0,
+      "transport_validation": {
+        "command": [
+          "/mnt/data/p16-work/sox_dsd/test/dsd_test_p16",
+          "simulate",
+          "22579200",
+          "5644800"
+        ],
+        "exit": 0,
+        "outer_wall_seconds": 0.26730421499996737,
+        "packed": false,
+        "pcm_bytes": 119,
+        "process_time": {
+          "cpu_seconds": 0.26,
+          "cpu_system_seconds": 0.0,
+          "cpu_user_seconds": 0.26,
+          "peak_rss_kib": 2516,
+          "wall_seconds": 0.26
+        },
+        "raw_stderr": "",
+        "sha256": "a1be674dda27a5807dd50b148bd0423b7c312d679301db4fef2eae138b773bf5"
+      },
+      "writer_enabled": false
+    },
+    {
+      "channels": 2,
+      "decoder_enabled": false,
+      "expanded_equivalent_bytes": 90316800,
+      "frames": 11289600,
+      "logical_native_hz": 45158400,
+      "name": "simulated-45158400",
+      "packed_payload_bytes": 2822400,
+      "status": "PASS",
+      "theoretical_interstage_ratio": 32.0,
+      "transport_validation": {
+        "command": [
+          "/mnt/data/p16-work/sox_dsd/test/dsd_test_p16",
+          "simulate",
+          "45158400",
+          "11289600"
+        ],
+        "exit": 0,
+        "outer_wall_seconds": 0.5310608879999563,
+        "packed": false,
+        "pcm_bytes": 120,
+        "process_time": {
+          "cpu_seconds": 0.52,
+          "cpu_system_seconds": 0.0,
+          "cpu_user_seconds": 0.52,
+          "peak_rss_kib": 3920,
+          "wall_seconds": 0.52
+        },
+        "raw_stderr": "",
+        "sha256": "728ab009e4c06ef0433621a970fe8d5a9b35147c54459d8ac9f27e6f89698ff1"
+      },
+      "writer_enabled": false
+    }
+  ],
+  "unrun_gates": [
+    "Physical DSD512/DSD1024 decoder/SRC/writer not implemented or authorized",
+    "Dedicated isolated physical CPU multi-host performance qualification not run"
+  ],
+  "verdict": "PASS"
+}

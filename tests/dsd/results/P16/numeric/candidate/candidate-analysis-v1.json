@@ -1,0 +1,1574 @@
+{
+  "analysis": "analysis-v1",
+  "cases": [
+    {
+      "bits_sha256": "171936d162e263f06f1c3fbdd6ec6a81adec157dcb163d77ae308f279fc36d8b",
+      "candidate": "legacy",
+      "kind": "training",
+      "measurement": {
+        "dc": 2.507224754411161e-09,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020587877494497,
+        "fitted_modulator_peak": 0.250593964054177,
+        "gain_error_db": 1.2035785128196676e-05,
+        "phase_rad": 1.5730155500883607,
+        "residual_band_dbfs": -112.24338382143847,
+        "residual_band_power": 2.982851427601406e-12,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 100.22279594394396,
+        "thd_only_diagnostic_db": -124.28795890864704,
+        "thdn_db": -100.22279594394396,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.legacy.v1.dsd64",
+      "rate_hz": 2822400,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 4515840,
+        "longest_run": 4,
+        "max_abs_state": [
+          1.8887058004305681,
+          2.580019359768282,
+          6.508200826726774,
+          42.209366703698926,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.legacy.v1.dsd64",
+        "rate_hz": 2822400,
+        "windows28": 4515813
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 2822400,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "07c0604e58256dfb8b65b2a4b60f7a67c4e8793f009da3c0a293444715d811a1",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "c4aa7f586f1ad182a8531efd051c0995e373dfdcbf20bec054881ccdc005a37e",
+      "candidate": "sdm-8",
+      "kind": "training",
+      "measurement": {
+        "dc": -2.086586756079053e-10,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.02059493977233,
+        "fitted_modulator_peak": 0.25059376030262687,
+        "gain_error_db": 4.973507293829982e-06,
+        "phase_rad": 1.5730157821054802,
+        "residual_band_dbfs": -146.5453274084109,
+        "residual_band_power": 1.1077385341815327e-15,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 134.52473246863858,
+        "thd_only_diagnostic_db": -158.69021069212386,
+        "thdn_db": -134.52473246863858,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.mastering.v1.dsd64",
+      "rate_hz": 2822400,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 4515840,
+        "longest_run": 5,
+        "max_abs_state": [
+          2.811150267857094,
+          10.652226048227375,
+          65.52940046794815,
+          414.9837120316797,
+          3129.4319920770167,
+          24188.598635060447,
+          205598.38830228648,
+          2516820.6732914736
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate_hz": 2822400,
+        "windows28": 4515813
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 2822400,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "07c0604e58256dfb8b65b2a4b60f7a67c4e8793f009da3c0a293444715d811a1",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "b0a454cee0aed05a4ebe80496e1f5e8454ffbbe6130cc3e9d4bde3f5a70e994d",
+      "candidate": "sdm-6",
+      "kind": "training",
+      "measurement": {
+        "dc": 1.4369517421834871e-09,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.02058193452439,
+        "fitted_modulator_peak": 0.25059413551306137,
+        "gain_error_db": 1.797875523572652e-05,
+        "phase_rad": 1.5730157332726928,
+        "residual_band_dbfs": -133.9930687433441,
+        "residual_band_power": 1.993715246270949e-14,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 121.97248680881972,
+        "thd_only_diagnostic_db": -145.83443642206555,
+        "thdn_db": -121.97248680881972,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.sdm6.v1.dsd64",
+      "rate_hz": 2822400,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 4515840,
+        "longest_run": 5,
+        "max_abs_state": [
+          2.338827816584266,
+          5.705764236315339,
+          23.421586203867488,
+          118.65736508425601,
+          782.9069775253257,
+          6692.117781230162,
+          0,
+          0
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.sdm6.v1.dsd64",
+        "rate_hz": 2822400,
+        "windows28": 4515813
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 2822400,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "07c0604e58256dfb8b65b2a4b60f7a67c4e8793f009da3c0a293444715d811a1",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "74752fe7604ac33fb3d82a7690ac72e3724589389ffd93487f365ec0eff4c849",
+      "candidate": "clans-8",
+      "kind": "training",
+      "measurement": {
+        "dc": -1.021778719016203e-09,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020586479417146,
+        "fitted_modulator_peak": 0.2505940043896853,
+        "gain_error_db": 1.3433862478158191e-05,
+        "phase_rad": 1.573015284565797,
+        "residual_band_dbfs": -126.81135775005336,
+        "residual_band_power": 1.0419196516340438e-13,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 114.7907712706362,
+        "thd_only_diagnostic_db": -143.42725995420733,
+        "thdn_db": -114.7907712706362,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.clans8.v1.dsd64",
+      "rate_hz": 2822400,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 4515840,
+        "longest_run": 5,
+        "max_abs_state": [
+          2.1430991828605723,
+          3.4246223075670774,
+          10.355055606571055,
+          65.46287487987595,
+          497.7979503096921,
+          29276.301871238044,
+          160743.92583482392,
+          13862993.65945109
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.clans8.v1.dsd64",
+        "rate_hz": 2822400,
+        "windows28": 4515813
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 2822400,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "07c0604e58256dfb8b65b2a4b60f7a67c4e8793f009da3c0a293444715d811a1",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "14f71e9747415117ca936e5fa95d3447544412f9d0f25e7b0d9878a926f3b82d",
+      "candidate": "legacy",
+      "kind": "holdout",
+      "measurement": {
+        "dc": 3.844418621876324e-09,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.02055530207535,
+        "fitted_modulator_peak": 0.05000025680339433,
+        "gain_error_db": 4.461120427316333e-05,
+        "phase_rad": 0.0022250527015528765,
+        "residual_band_dbfs": -112.98541476471733,
+        "residual_band_power": 2.5143661880059156e-12,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 86.96485946264198,
+        "thd_only_diagnostic_db": -114.21977564679511,
+        "thdn_db": -86.96485946264198,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.legacy.v1.dsd64",
+      "rate_hz": 2822400,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 4515840,
+        "longest_run": 3,
+        "max_abs_state": [
+          1.894509263507116,
+          2.669217430404048,
+          6.867430639724704,
+          44.3866247115095,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_ones28": 16,
+        "min_ones28": 12,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.legacy.v1.dsd64",
+        "rate_hz": 2822400,
+        "windows28": 4515813
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 2822400,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "615e5a1685993fa793c96dfe40fa59f7b08bd0e746b2f5c09511ae38b7f63225",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "627e2c8f0ec04294f64fd270909d7971bca8c39ecba7cf1989b93b637e463577",
+      "candidate": "sdm-8",
+      "kind": "holdout",
+      "measurement": {
+        "dc": 1.0786051331315132e-10,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.020593946363757,
+        "fitted_modulator_peak": 0.050000034348340605,
+        "gain_error_db": 5.966915865397943e-06,
+        "phase_rad": 0.0022261656621722836,
+        "residual_band_dbfs": -147.539324891812,
+        "residual_band_power": 8.811249829146979e-16,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 121.51873094544824,
+        "thd_only_diagnostic_db": -142.49374506073042,
+        "thdn_db": -121.51873094544824,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.mastering.v1.dsd64",
+      "rate_hz": 2822400,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 4515840,
+        "longest_run": 3,
+        "max_abs_state": [
+          3.027889098245134,
+          10.814777592819029,
+          66.70134877116477,
+          417.1784935461398,
+          3255.923144444411,
+          24457.809619985917,
+          212730.54659896716,
+          2298202.5330013093
+        ],
+        "max_ones28": 17,
+        "min_ones28": 11,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.mastering.v1.dsd64",
+        "rate_hz": 2822400,
+        "windows28": 4515813
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 2822400,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "615e5a1685993fa793c96dfe40fa59f7b08bd0e746b2f5c09511ae38b7f63225",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "75c2ede4203f5d6009c8c242c10bcb53305d1c85ea9905014a216e0d6eeae7ed",
+      "candidate": "sdm-6",
+      "kind": "holdout",
+      "measurement": {
+        "dc": -1.158352362455762e-09,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.02057954499469,
+        "fitted_modulator_peak": 0.05000011724941061,
+        "gain_error_db": 2.036828493079021e-05,
+        "phase_rad": 0.00222628044968685,
+        "residual_band_dbfs": -135.21562838215817,
+        "residual_band_power": 1.504551874565936e-14,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 109.19504883716345,
+        "thd_only_diagnostic_db": -127.59513089213098,
+        "thdn_db": -109.19504883716345,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.sdm6.v1.dsd64",
+      "rate_hz": 2822400,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 4515840,
+        "longest_run": 3,
+        "max_abs_state": [
+          2.363290611126606,
+          5.833695536986988,
+          25.082322259115394,
+          130.54124727966527,
+          829.745386248286,
+          5844.962118136646,
+          0,
+          0
+        ],
+        "max_ones28": 16,
+        "min_ones28": 12,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.sdm6.v1.dsd64",
+        "rate_hz": 2822400,
+        "windows28": 4515813
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 2822400,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "615e5a1685993fa793c96dfe40fa59f7b08bd0e746b2f5c09511ae38b7f63225",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "c5e70bbbfe1a54d7509792bb466e535a8f0ad2a197ef3cfe12f8afd79403bed2",
+      "candidate": "clans-8",
+      "kind": "holdout",
+      "measurement": {
+        "dc": -5.228985733372155e-10,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.0205839510363,
+        "fitted_modulator_peak": 0.05000009188614324,
+        "gain_error_db": 1.5962243321678016e-05,
+        "phase_rad": 0.002225398270364963,
+        "residual_band_dbfs": -127.69042465663841,
+        "residual_band_power": 8.50996039051776e-14,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 101.6698407056021,
+        "thd_only_diagnostic_db": -133.53800110978048,
+        "thdn_db": -101.6698407056021,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.clans8.v1.dsd64",
+      "rate_hz": 2822400,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 4515840,
+        "longest_run": 3,
+        "max_abs_state": [
+          2.0238197765396344,
+          3.494315886754054,
+          11.32161414875638,
+          64.10417520361325,
+          500.30709872641074,
+          21820.70323227634,
+          167338.88973827419,
+          10921620.19512986
+        ],
+        "max_ones28": 16,
+        "min_ones28": 12,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.clans8.v1.dsd64",
+        "rate_hz": 2822400,
+        "windows28": 4515813
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 2822400,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "615e5a1685993fa793c96dfe40fa59f7b08bd0e746b2f5c09511ae38b7f63225",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "e9977fa28a0a7c75420ab553d8fb6056dff5e5d11d884d3cfc14c11c7a385ba2",
+      "candidate": "legacy",
+      "kind": "training",
+      "measurement": {
+        "dc": 1.8695095490578164e-09,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020596566906644,
+        "fitted_modulator_peak": 0.25059371335871156,
+        "gain_error_db": 3.3463729827731538e-06,
+        "phase_rad": 1.5719060613746227,
+        "residual_band_dbfs": -137.3508610975094,
+        "residual_band_power": 9.202035292639686e-15,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 125.33026453060276,
+        "thd_only_diagnostic_db": -144.43798238503248,
+        "thdn_db": -125.33026453060276,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.legacy.v1.dsd128",
+      "rate_hz": 5644800,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 9031680,
+        "longest_run": 4,
+        "max_abs_state": [
+          1.8427202144971808,
+          2.5600241262711187,
+          7.475466560424435,
+          55.3457586027163,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.legacy.v1.dsd128",
+        "rate_hz": 5644800,
+        "windows28": 9031653
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 5644800,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "e4a3898cc82424b9aabc378d4ab95231f13b24bb72ab38eec93df756f4b85ba5",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "8e3b7ea37a1aeba2817d1ba019615eaa1042bc88495fdf06df1498371b693a0e",
+      "candidate": "sdm-8",
+      "kind": "training",
+      "measurement": {
+        "dc": 3.954633456353076e-13,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020599893550841,
+        "fitted_modulator_peak": 0.2505936173828245,
+        "gain_error_db": 1.9728784098856694e-08,
+        "phase_rad": 1.5719060800509987,
+        "residual_band_dbfs": -197.74278123300667,
+        "residual_band_power": 8.407984086277331e-21,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 185.72218133945583,
+        "thd_only_diagnostic_db": -208.33018789062575,
+        "thdn_db": -185.72218133945583,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.mastering.v1.dsd128",
+      "rate_hz": 5644800,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 9031680,
+        "longest_run": 5,
+        "max_abs_state": [
+          3.0959144299957586,
+          12.786335816152778,
+          77.07409060453547,
+          523.4850017360592,
+          3523.757555660268,
+          25628.328852015733,
+          213669.8092956,
+          2740991.993859637
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate_hz": 5644800,
+        "windows28": 9031653
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 5644800,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "e4a3898cc82424b9aabc378d4ab95231f13b24bb72ab38eec93df756f4b85ba5",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "4d09485a340db78c0033bdef81f92b52807bbac9d0ce18e859e897f89ebc5b52",
+      "candidate": "sdm-6",
+      "kind": "training",
+      "measurement": {
+        "dc": -5.685139052469413e-13,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020599627244493,
+        "fitted_modulator_peak": 0.2505936250659376,
+        "gain_error_db": 2.8603513240302035e-07,
+        "phase_rad": 1.5719060792728061,
+        "residual_band_dbfs": -173.05451987200905,
+        "residual_band_power": 2.4746741235021347e-18,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 161.03392024476452,
+        "thd_only_diagnostic_db": -184.674786660548,
+        "thdn_db": -161.03392024476452,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.sdm6.v1.dsd128",
+      "rate_hz": 5644800,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 9031680,
+        "longest_run": 5,
+        "max_abs_state": [
+          2.3882010837095295,
+          5.832706789890034,
+          24.802141170982132,
+          128.32668009703113,
+          805.3920208792622,
+          6941.669379431549,
+          0,
+          0
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.sdm6.v1.dsd128",
+        "rate_hz": 5644800,
+        "windows28": 9031653
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 5644800,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "e4a3898cc82424b9aabc378d4ab95231f13b24bb72ab38eec93df756f4b85ba5",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "62a1a552e1da7d666d3df17760240f577376b6bdccc5f9183e4498f1ad82b770",
+      "candidate": "clans-8",
+      "kind": "training",
+      "measurement": {
+        "dc": 1.8894799617761e-12,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020599886324275,
+        "fitted_modulator_peak": 0.25059361759131565,
+        "gain_error_db": 2.6955349966420293e-08,
+        "phase_rad": 1.5719060798984215,
+        "residual_band_dbfs": -186.65884173379908,
+        "residual_band_power": 1.0791599788663495e-19,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 174.6382418474748,
+        "thd_only_diagnostic_db": -201.1362483452312,
+        "thdn_db": -174.6382418474748,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.clans8.v1.dsd128",
+      "rate_hz": 5644800,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 9031680,
+        "longest_run": 5,
+        "max_abs_state": [
+          2.0686502152362647,
+          4.422814600851084,
+          17.6196132278769,
+          103.13385383957004,
+          806.1989961694459,
+          7406.361920441979,
+          139000.5274237731,
+          4954589.051606797
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.clans8.v1.dsd128",
+        "rate_hz": 5644800,
+        "windows28": 9031653
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 5644800,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "e4a3898cc82424b9aabc378d4ab95231f13b24bb72ab38eec93df756f4b85ba5",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "9eaef1bde7064662f78141305cb53f7a2615720050b6ab912c5d15614864c601",
+      "candidate": "legacy",
+      "kind": "holdout",
+      "measurement": {
+        "dc": 1.8059129870402002e-10,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.020594240342994,
+        "fitted_modulator_peak": 0.05000003265605895,
+        "gain_error_db": 5.672936627801787e-06,
+        "phase_rad": 0.0011131229449039652,
+        "residual_band_dbfs": -138.38461178197346,
+        "residual_band_power": 7.252852178660542e-15,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 112.36401754163046,
+        "thd_only_diagnostic_db": -132.4049925791883,
+        "thdn_db": -112.36401754163046,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.legacy.v1.dsd128",
+      "rate_hz": 5644800,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 9031680,
+        "longest_run": 3,
+        "max_abs_state": [
+          1.8662859041428859,
+          2.6142440094161765,
+          7.383315782486752,
+          55.628873920761436,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_ones28": 16,
+        "min_ones28": 12,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.legacy.v1.dsd128",
+        "rate_hz": 5644800,
+        "windows28": 9031653
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 5644800,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "811055d0b49fdfccb403e01ee483cb652839978da86ab07fba91cc53b8dfeb83",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "85c219b8f7f2de53ff128784a20714555c65800e708574ba5354351d911d3947",
+      "candidate": "sdm-8",
+      "kind": "holdout",
+      "measurement": {
+        "dc": 1.6180862041977388e-13,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.020599890626563,
+        "fitted_modulator_peak": 0.0500000001304015,
+        "gain_error_db": 2.2653058917671872e-08,
+        "phase_rad": 0.0011130925934362875,
+        "residual_band_dbfs": -198.7002836947752,
+        "residual_band_power": 6.744373834918956e-21,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 172.67968380414862,
+        "thd_only_diagnostic_db": -193.48997189396752,
+        "thdn_db": -172.67968380414862,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.mastering.v1.dsd128",
+      "rate_hz": 5644800,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 9031680,
+        "longest_run": 4,
+        "max_abs_state": [
+          3.0965297676173247,
+          13.73130542004112,
+          81.71824056318201,
+          523.8966723472583,
+          3524.1363921337397,
+          25628.31643797229,
+          217926.33370906473,
+          2252961.681278675
+        ],
+        "max_ones28": 17,
+        "min_ones28": 11,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.mastering.v1.dsd128",
+        "rate_hz": 5644800,
+        "windows28": 9031653
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 5644800,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "811055d0b49fdfccb403e01ee483cb652839978da86ab07fba91cc53b8dfeb83",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "1466d76a6a30c77b240c3c8f9972a963b74709f122275d449270564888899770",
+      "candidate": "sdm-6",
+      "kind": "holdout",
+      "measurement": {
+        "dc": -5.402131550659127e-12,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.020599600400686,
+        "fitted_modulator_peak": 0.050000001801075986,
+        "gain_error_db": 3.128789377277362e-07,
+        "phase_rad": 0.0011130933964638183,
+        "residual_band_dbfs": -174.37502862383377,
+        "residual_band_power": 1.8258586022172295e-18,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 148.35442902343306,
+        "thd_only_diagnostic_db": -166.83352319311263,
+        "thdn_db": -148.35442902343306,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.sdm6.v1.dsd128",
+      "rate_hz": 5644800,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 9031680,
+        "longest_run": 3,
+        "max_abs_state": [
+          2.4619552729984955,
+          5.917850427405859,
+          26.870842292873192,
+          138.78881178373453,
+          810.1174936204467,
+          6058.600477496384,
+          0,
+          0
+        ],
+        "max_ones28": 16,
+        "min_ones28": 12,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.sdm6.v1.dsd128",
+        "rate_hz": 5644800,
+        "windows28": 9031653
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 5644800,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "811055d0b49fdfccb403e01ee483cb652839978da86ab07fba91cc53b8dfeb83",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "f3484bfe682638d947616ff0783cfe328f7e707c53b1888bacc003ef16d73897",
+      "candidate": "clans-8",
+      "kind": "holdout",
+      "measurement": {
+        "dc": -2.2241995833148206e-12,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.020599887779383,
+        "fitted_modulator_peak": 0.05000000014679117,
+        "gain_error_db": 2.5500237683433208e-08,
+        "phase_rad": 0.0011130925057595495,
+        "residual_band_dbfs": -187.7774086766979,
+        "residual_band_power": 8.341211564307214e-20,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 161.7568087889185,
+        "thd_only_diagnostic_db": -188.41709820450947,
+        "thdn_db": -161.7568087889185,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.clans8.v1.dsd128",
+      "rate_hz": 5644800,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 9031680,
+        "longest_run": 3,
+        "max_abs_state": [
+          2.0916017003903082,
+          4.140232051957598,
+          16.645672068509253,
+          100.95817037989575,
+          818.3465381988233,
+          7776.290587179874,
+          136270.72696539844,
+          3823096.240939314
+        ],
+        "max_ones28": 16,
+        "min_ones28": 12,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.clans8.v1.dsd128",
+        "rate_hz": 5644800,
+        "windows28": 9031653
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 5644800,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "811055d0b49fdfccb403e01ee483cb652839978da86ab07fba91cc53b8dfeb83",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "f2b21ef66706bd7f362e5c9e75380d019b4a2830a19cffd17662cb435f4f3efc",
+      "candidate": "legacy",
+      "kind": "training",
+      "measurement": {
+        "dc": 3.340071697496178e-10,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020598731785343,
+        "fitted_modulator_peak": 0.2505936509005239,
+        "gain_error_db": 1.181494280751509e-06,
+        "phase_rad": 1.5713512021305664,
+        "residual_band_dbfs": -159.061301892235,
+        "residual_band_power": 6.206400755360363e-17,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 147.04070316044965,
+        "thd_only_diagnostic_db": -158.37806585515483,
+        "thdn_db": -147.04070316044965,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.legacy.v1.dsd256",
+      "rate_hz": 11289600,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 18063360,
+        "longest_run": 3,
+        "max_abs_state": [
+          1.7154796269982022,
+          2.6400900198487722,
+          10.05412061975366,
+          89.99203787287517,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.legacy.v1.dsd256",
+        "rate_hz": 11289600,
+        "windows28": 18063333
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 11289600,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "f1c824e76555344d5545a4dcd7a38bf24517457cbe0586c0c8c33bb5b5723eb1",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "9bd2fadefdd2a4966ae0b5446b334b5a98b62a1172d7ce0ebad32664e4730a00",
+      "candidate": "sdm-8",
+      "kind": "training",
+      "measurement": {
+        "dc": 1.1757150535548632e-16,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020599913319272,
+        "fitted_modulator_peak": 0.25059361681249226,
+        "gain_error_db": -3.964735945996233e-11,
+        "phase_rad": 1.5713512034732435,
+        "residual_band_dbfs": -248.66207397438117,
+        "residual_band_power": 6.803973397176469e-26,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 236.6414740610619,
+        "thd_only_diagnostic_db": -257.0880752283183,
+        "thdn_db": -236.6414740610619,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.mastering.v1.dsd256",
+      "rate_hz": 11289600,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 18063360,
+        "longest_run": 5,
+        "max_abs_state": [
+          3.3045710327926563,
+          15.185227278922254,
+          86.12955343039671,
+          565.5990773085035,
+          3814.4311411229287,
+          27081.049154403147,
+          209533.33284422295,
+          2794636.54932033
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate_hz": 11289600,
+        "windows28": 18063333
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 11289600,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "f1c824e76555344d5545a4dcd7a38bf24517457cbe0586c0c8c33bb5b5723eb1",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "db077aae77bec398485e083fa6ffd1cdacc34920a0915f958cf9988e61a266df",
+      "candidate": "sdm-6",
+      "kind": "training",
+      "measurement": {
+        "dc": 1.8323484946006527e-13,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.02059990891495,
+        "fitted_modulator_peak": 0.2505936169395599,
+        "gain_error_db": 4.364675332404067e-09,
+        "phase_rad": 1.5713512034664086,
+        "residual_band_dbfs": -212.23676866901536,
+        "residual_band_power": 2.987398354435852e-22,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 200.2161687601004,
+        "thd_only_diagnostic_db": -220.59681921354922,
+        "thdn_db": -200.2161687601004,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.sdm6.v1.dsd256",
+      "rate_hz": 11289600,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 18063360,
+        "longest_run": 5,
+        "max_abs_state": [
+          2.360114376127356,
+          6.004263315711887,
+          26.500739036652593,
+          134.94171908667124,
+          783.3202078843209,
+          6985.880658989136,
+          0,
+          0
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.sdm6.v1.dsd256",
+        "rate_hz": 11289600,
+        "windows28": 18063333
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 11289600,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "f1c824e76555344d5545a4dcd7a38bf24517457cbe0586c0c8c33bb5b5723eb1",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "bacb0ba8965a8cb745ee38861555a67ade7d4b8d85ef5443e24de19af70b33da",
+      "candidate": "clans-8",
+      "kind": "training",
+      "measurement": {
+        "dc": 9.90432749460205e-16,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -12.020599913316175,
+        "fitted_modulator_peak": 0.25059361681258163,
+        "gain_error_db": -3.6549939637379584e-11,
+        "phase_rad": 1.571351203472959,
+        "residual_band_dbfs": -234.5244537657153,
+        "residual_band_power": 1.7641057997109035e-24,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 222.50385385239912,
+        "thd_only_diagnostic_db": -250.46927286073247,
+        "thdn_db": -222.50385385239912,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.clans8.v1.dsd256",
+      "rate_hz": 11289600,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 18063360,
+        "longest_run": 5,
+        "max_abs_state": [
+          2.2705804826475293,
+          3.905389761684158,
+          13.83605703769144,
+          75.38888350826419,
+          672.1449582953464,
+          7090.799970424289,
+          145809.5873029839,
+          5849043.975620728
+        ],
+        "max_ones28": 19,
+        "min_ones28": 9,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.clans8.v1.dsd256",
+        "rate_hz": 11289600,
+        "windows28": 18063333
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 997.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 11289600,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -6.0
+      },
+      "source_identity_sha256": "f1c824e76555344d5545a4dcd7a38bf24517457cbe0586c0c8c33bb5b5723eb1",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "55d66d06799beed6441e569bf7f20aade17ad7ddf4acb1ede33b467891865c6a",
+      "candidate": "legacy",
+      "kind": "holdout",
+      "measurement": {
+        "dc": 1.4812144655031416e-10,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.020598025524,
+        "fitted_modulator_peak": 0.050000010866796084,
+        "gain_error_db": 1.887755625168851e-06,
+        "phase_rad": 0.0005565631823597272,
+        "residual_band_dbfs": -160.4703507780677,
+        "residual_band_power": 4.486781562159101e-17,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 134.44975275254373,
+        "thd_only_diagnostic_db": -146.94981367163606,
+        "thdn_db": -134.44975275254373,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.legacy.v1.dsd256",
+      "rate_hz": 11289600,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 18063360,
+        "longest_run": 3,
+        "max_abs_state": [
+          1.7097751795425253,
+          2.689109760056537,
+          10.791930362744797,
+          102.52736236885768,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_ones28": 16,
+        "min_ones28": 12,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.legacy.v1.dsd256",
+        "rate_hz": 11289600,
+        "windows28": 18063333
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 11289600,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "bf6841f496650de0b295d3ab5e8d854e1786024c7f6b0f2f7f867fe468ab9d58",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "45a3c282b663fe4d15121ac24dd1bd0151d9cd5445b62610c8be71ccd307b0f6",
+      "candidate": "sdm-8",
+      "kind": "holdout",
+      "measurement": {
+        "dc": -6.642918672054517e-16,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.02059991330568,
+        "fitted_modulator_peak": 0.049999999999850005,
+        "gain_error_db": -2.6057092473775457e-11,
+        "phase_rad": 0.0005565463172635777,
+        "residual_band_dbfs": -249.62391848030038,
+        "residual_band_power": 5.452280069350687e-26,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 223.6033185669947,
+        "thd_only_diagnostic_db": -245.74935115064818,
+        "thdn_db": -223.6033185669947,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.mastering.v1.dsd256",
+      "rate_hz": 11289600,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 18063360,
+        "longest_run": 4,
+        "max_abs_state": [
+          3.469383018928232,
+          13.93567293906014,
+          84.44698209250235,
+          540.911475656799,
+          3691.3382278851977,
+          27058.30829203445,
+          217728.21541134708,
+          2482731.177940427
+        ],
+        "max_ones28": 17,
+        "min_ones28": 11,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.mastering.v1.dsd256",
+        "rate_hz": 11289600,
+        "windows28": 18063333
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 11289600,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "bf6841f496650de0b295d3ab5e8d854e1786024c7f6b0f2f7f867fe468ab9d58",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "d23502562dfc81a003232bb4adbaa6660c1b8ac0c1fb5183a14268a93642f748",
+      "candidate": "sdm-6",
+      "kind": "holdout",
+      "measurement": {
+        "dc": 2.049395428863501e-13,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.020599908519326,
+        "fitted_modulator_peak": 0.050000000027402465,
+        "gain_error_db": 4.760294532659609e-09,
+        "phase_rad": 0.0005565463233947416,
+        "residual_band_dbfs": -213.54668496792027,
+        "residual_band_power": 2.209538165415348e-22,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 187.5260850594009,
+        "thd_only_diagnostic_db": -207.92952364251244,
+        "thdn_db": -187.5260850594009,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.sdm6.v1.dsd256",
+      "rate_hz": 11289600,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 18063360,
+        "longest_run": 3,
+        "max_abs_state": [
+          2.5133564330391662,
+          6.467358390685035,
+          27.704746546580935,
+          150.84758263668786,
+          888.5311979795007,
+          6198.192305952684,
+          0,
+          0
+        ],
+        "max_ones28": 16,
+        "min_ones28": 12,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.sdm6.v1.dsd256",
+        "rate_hz": 11289600,
+        "windows28": 18063333
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 11289600,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "bf6841f496650de0b295d3ab5e8d854e1786024c7f6b0f2f7f867fe468ab9d58",
+      "status": "measured-unqualified"
+    },
+    {
+      "bits_sha256": "9d20fdd3d297e9e5851d2a18adff403a357dd180182d416d4388ae55bbbed0e4",
+      "candidate": "clans-8",
+      "kind": "holdout",
+      "measurement": {
+        "dc": 1.8027305989723416e-14,
+        "enbw_bins": 1.0,
+        "fitted_dbfs": -26.02059991330487,
+        "fitted_modulator_peak": 0.04999999999985467,
+        "gain_error_db": -2.52470574018683e-11,
+        "phase_rad": 0.0005565463163392968,
+        "residual_band_dbfs": -235.348616428441,
+        "residual_band_power": 1.4591782967050279e-24,
+        "residual_definition": "DC+fundamental removed, all harmonics RETAINED",
+        "snr_db": 209.32801651513614,
+        "thd_only_diagnostic_db": -228.41565856022322,
+        "thdn_db": -209.32801651513614,
+        "window": "rectangular"
+      },
+      "metrology_trim": {
+        "retained_samples": 88200,
+        "total_samples": 141120,
+        "trim_each_edge_samples": 22050
+      },
+      "profile_id": "encode.diagnostic.clans8.v1.dsd256",
+      "rate_hz": 11289600,
+      "recurrence_monitor": {
+        "counter_saturated": 0,
+        "excursions28": 0,
+        "frames": 18063360,
+        "longest_run": 4,
+        "max_abs_state": [
+          2.097983585215069,
+          4.179789753793881,
+          14.270530898654336,
+          93.36401715808184,
+          690.946704200984,
+          7787.675829674191,
+          142449.5746712467,
+          5915180.628984227
+        ],
+        "max_ones28": 16,
+        "min_ones28": 12,
+        "nonfinite": 0,
+        "overloads": 0,
+        "profile_id": "encode.diagnostic.clans8.v1.dsd256",
+        "rate_hz": 11289600,
+        "windows28": 18063333
+      },
+      "source_config": {
+        "duration_seconds": 1.6,
+        "frequency_hz": 1000.0,
+        "interpolation": "none: P09-only analytic input, not release qualification",
+        "modulator_reference_scale": 0.5,
+        "native_rate_hz": 11289600,
+        "recurrence_input": "0.5*10**(source_dbfs/20)*sin(2*pi*hz*n/native_rate)",
+        "schema": "P09/analytic-scalar-stimulus/1",
+        "source_peak_dbfs": -20.0
+      },
+      "source_identity_sha256": "bf6841f496650de0b295d3ab5e8d854e1786024c7f6b0f2f7f867fe468ab9d58",
+      "status": "measured-unqualified"
+    }
+  ],
+  "errors": [],
+  "failed": 0,
+  "freeze_sha256": "7a5e104099fb18224e589d03b676c0ca3e9c8036eedb87b0fbd1de1d9bee1616",
+  "manifest_sha256": "cc56c94d2fe9c815ed9e581294a2259a8591137a53dba65663da162e72eee746",
+  "passed": 24,
+  "qualification": "NOT QUALIFIED; analytic input bypasses production interpolation/prefilter",
+  "rankings": [
+    {
+      "caution": "P09 analytic-input diagnostic; NOT a P10 quality/stability/qualification conclusion",
+      "kind": "training",
+      "metric": "20-20000Hz THD+N residual power under frozen analysis-v1, low to high",
+      "order": [
+        "sdm-8",
+        "sdm-6",
+        "clans-8",
+        "legacy"
+      ],
+      "rate_hz": 2822400
+    },
+    {
+      "caution": "P09 analytic-input diagnostic; NOT a P10 quality/stability/qualification conclusion",
+      "kind": "holdout",
+      "metric": "20-20000Hz THD+N residual power under frozen analysis-v1, low to high",
+      "order": [
+        "sdm-8",
+        "sdm-6",
+        "clans-8",
+        "legacy"
+      ],
+      "rate_hz": 2822400
+    },
+    {
+      "caution": "P09 analytic-input diagnostic; NOT a P10 quality/stability/qualification conclusion",
+      "kind": "training",
+      "metric": "20-20000Hz THD+N residual power under frozen analysis-v1, low to high",
+      "order": [
+        "sdm-8",
+        "clans-8",
+        "sdm-6",
+        "legacy"
+      ],
+      "rate_hz": 5644800
+    },
+    {
+      "caution": "P09 analytic-input diagnostic; NOT a P10 quality/stability/qualification conclusion",
+      "kind": "holdout",
+      "metric": "20-20000Hz THD+N residual power under frozen analysis-v1, low to high",
+      "order": [
+        "sdm-8",
+        "clans-8",
+        "sdm-6",
+        "legacy"
+      ],
+      "rate_hz": 5644800
+    },
+    {
+      "caution": "P09 analytic-input diagnostic; NOT a P10 quality/stability/qualification conclusion",
+      "kind": "training",
+      "metric": "20-20000Hz THD+N residual power under frozen analysis-v1, low to high",
+      "order": [
+        "sdm-8",
+        "clans-8",
+        "sdm-6",
+        "legacy"
+      ],
+      "rate_hz": 11289600
+    },
+    {
+      "caution": "P09 analytic-input diagnostic; NOT a P10 quality/stability/qualification conclusion",
+      "kind": "holdout",
+      "metric": "20-20000Hz THD+N residual power under frozen analysis-v1, low to high",
+      "order": [
+        "sdm-8",
+        "clans-8",
+        "sdm-6",
+        "legacy"
+      ],
+      "rate_hz": 11289600
+    }
+  ],
+  "schema": "P09/analytic-probe-analysis-v1/1"
+}

@@ -1,0 +1,118 @@
+{
+  "certified": false,
+  "checked_indexed_files": 52416,
+  "disposition": "WORKING_TREE_DRIFT_NOT_REVIEWED_OR_CERTIFIED",
+  "drift_count": 13,
+  "explicitly_included_unindexed_files": {
+    "src/dsd_packed.c": {
+      "byte_size": 3496,
+      "sha256": "d47fa53194718f4d2e219fcbbf68b185f94f01bb6264bf62f48d7252beec3ee2"
+    },
+    "src/dsd_packed.h": {
+      "byte_size": 1041,
+      "sha256": "1e32a43c95ab4a317f019a61008e80ec01155cc158860a4620b0f9f554c19001"
+    },
+    "tests/dsd/bench_p16.py": {
+      "byte_size": 9483,
+      "sha256": "3fdaec9e29ea52e17e0d289e2a66441a183070a75eae2832a424627a07eaec69"
+    },
+    "tests/dsd/test_p16.c": {
+      "byte_size": 13288,
+      "sha256": "ee33d6e7efebfe4dcb68c46d7f21c5cdc93d9ead88787641675428e8d7de0f3e"
+    },
+    "tests/dsd/test_p16.py": {
+      "byte_size": 8404,
+      "sha256": "041332384eef4325b53f8f3ede3d2a1215b205375af6b8a1d239bc8a4075f1aa"
+    }
+  },
+  "historical_p15_source_qualified": false,
+  "known_omitted_historical_payloads": {
+    "arrays_npz": 1350,
+    "supplemental_npz": 1
+  },
+  "p00_indexed_drift": [
+    {
+      "baseline_sha256": "6c13c1330f00863924f7d5016d504bde1f2288e0968cc4091213cf8152879f91",
+      "current_sha256": "2dcd8f408dfbd3c2214f31351a697e8678b3fbbd50cd9806e08113b800ec6e0d",
+      "path": "Makefile.am",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "6f898ee8d441de6147822087a20f75baa8ced20bc815ed31c6c42745fbb3943b",
+      "current_sha256": "5132bb98ac793fe896acf81743b04734c12188139949d34b7de5d051b6c1c9c8",
+      "path": "src/Makefile.am",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "7194387ab5906a1f8cfcaef98a46922a12dd680d2420febc5dd7e993f70bfad7",
+      "current_sha256": "47268315a76660d04726191faee58cd651851461b56a89dec497076b21edd6ee",
+      "path": "src/dsd_decode.c",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "f1380afc40e5caf42654aaed30c24405e2fde28290c22d807a02a40cb811a560",
+      "current_sha256": "441c5dffc00b49d0082f391eb6b4ea485db8a78871666c544b735304f9df409e",
+      "path": "src/dsd_decode.h",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "c29f4786f3dc1ab5f163858f87073b9a42f8fb5809ebe40aa90f14ffe0a28a1b",
+      "current_sha256": "7d5b6b853a01348b16a50d979586d9032c78069abab17f287501155700f95e87",
+      "path": "src/dsd_public.c",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "620deb72a98e7f54b98e2e9a5c8ea051d2a08361ddbe8b4671d23f4404775885",
+      "current_sha256": "daded68e325e91263844ca13aa0eff13856adb00f77479364832dc410fa2a23b",
+      "path": "src/dsdiff.c",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "2a1d2c2a59f7fb7ffbb3876b486235320ca89be785ffb5488ec90fa11a8211ef",
+      "current_sha256": "6288320d14353eb646070d375580e8066516bd2fdf124cae240224ac0ffeaa87",
+      "path": "src/dsf.c",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "ba3ae4b8f2f9030118c3339bda35e75231642860ba537ff448432ddcc57fa835",
+      "current_sha256": "eb4059346a38efe96655b69117a87db6fd756b9a3e28ab33a6c7c281cd3f30e2",
+      "path": "src/sox_dsd.h",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "c0d8dfe0c9880a2a1ab8ccdd6e8c7e285ec26d40503b6b0a7480201d4c43c738",
+      "current_sha256": "6f44997689ed0f08eb6703d7b122915be7183874949b1bb5b7cc4b47d37330d7",
+      "path": "src/sox_ng.c",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "a960da6c2e26d3065ba00b6984f5dfb66353d609e6929dc8c029fb5c708bcc74",
+      "current_sha256": "6e2efdc25e4bff0dd18601ab1cd8f3f46f80b700909206b7fc650e0b6e6ea360",
+      "path": "test/Makefile.am",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "37364d2c1235b772932a2c97a6d584b571f40a33ec960f05cc801959c6f7a278",
+      "current_sha256": "67804bd9a38697f499db83b20dbbec38d75e25828f30f8c5a4ead3d819aaaf7e",
+      "path": "tests/dsd/bench.py",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "62ca5aafeb238dffef8cfea4b8a93024d96a93071d0fc19bed1143697c53765c",
+      "current_sha256": "5ca3027c4b6a86035fc7e21dfbb29c3d21eda43ebb77c1320f123fb76eb182ae",
+      "path": "tests/dsd/measure.py",
+      "status": "MODIFIED"
+    },
+    {
+      "baseline_sha256": "c7bed2ea7bb6d73893f0762ab245730901838fbca708601b34a2f3af5179e217",
+      "current_sha256": "748e591596ab1ab32422880d73b5564cd81072efe01dd1f492e54bc5c8d89613",
+      "path": "tests/dsd/run.py",
+      "status": "MODIFIED"
+    }
+  ],
+  "p00_sha256": "f3b06a48cae0e0bb451c8bac0a476364dea3017d82c66d9dd1b2abaf2b9aac4f",
+  "reviewed_p15_admission_sha256": "e22bfb2341c4f694e232d4386b3a027846a8792adf67605a27445542a788eaa8",
+  "schema": "P16/nonqualifying-development-input-drift/1",
+  "source_baseline": "frozen P00, with exactly 32 reviewed P15 current revisions",
+  "warning": "This report covers P00-indexed paths and --include paths ONLY; new unlisted P16 files, toolchains, build options, runtime choices and semantic equivalence are not checked."
+}

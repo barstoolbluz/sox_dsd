@@ -4,6 +4,7 @@
  * finite ceil(N/D); the final output uses native N (not rounded R twice).
  */
 #include "dsd_decode.h"
+#include "dsd_packed.h"
 #include "rate_internal.h"
 #include "dsd.h"
 #include <math.h>
@@ -188,8 +189,10 @@ static int pop(sox_dsd_decoder_t *ctx, double *output)
   return 1;
 }
 
-sox_dsd_status_t sox_dsd_decoder_process(sox_dsd_decoder_t *ctx,
-    const sox_sample_t *input, size_t *input_frames, double *output,
+/* Common finite SRC/count pipeline for expanded and packed first stages. */
+static sox_dsd_status_t decoder_process(sox_dsd_decoder_t *ctx,
+    const sox_sample_t *input, const sox_dsd_packed_block_t *packed,
+    size_t start, size_t *input_frames, double *output,
     size_t *output_frames)
 {
   size_t avail, cap, used = 0, made = 0;
@@ -201,7 +204,10 @@ sox_dsd_status_t sox_dsd_decoder_process(sox_dsd_decoder_t *ctx,
   if (ctx->error) return ctx->error;
   if (ctx->finishing) return ctx->error = SOX_DSD_BAD_ARGUMENT;
   if (!cap) return SOX_DSD_NEED_OUTPUT;
-  if ((avail && !input) || !output ||
+  if ((avail && !input && !packed) || !output ||
+      (packed && (!lsx_dsd_packed_validate(packed) ||
+         packed->channels != ctx->cfg.channels ||
+         start > packed->frames || avail > packed->frames - start)) ||
       (avail && avail > SIZE_MAX / ctx->cfg.channels) ||
       cap > SIZE_MAX / ctx->cfg.channels ||
       avail > UINT64_MAX - ctx->native_frames)
@@ -228,9 +234,11 @@ sox_dsd_status_t sox_dsd_decoder_process(sox_dsd_decoder_t *ctx,
         consumed = avail - used;
         if (consumed > remaining) consumed = (size_t)remaining;
       }
-      st = lsx_dsd_reconstruction_process(ctx->front,
-          input + used * ctx->cfg.channels, &consumed,
-          ctx->intermediate, &produced);
+      st = packed ? lsx_dsd_reconstruction_process_packed(ctx->front,
+          packed, start + used, &consumed, ctx->intermediate, &produced) :
+          lsx_dsd_reconstruction_process(ctx->front,
+              input + used * ctx->cfg.channels, &consumed,
+              ctx->intermediate, &produced);
       /* Invalid native data can follow an accepted prefix. Account for
        * that prefix exactly as the former one-frame loop did, even though
        * the public error return still exposes zero consumed/produced counts. */
@@ -248,6 +256,25 @@ sox_dsd_status_t sox_dsd_decoder_process(sox_dsd_decoder_t *ctx,
   *input_frames = used;
   *output_frames = made;
   return used < avail ? SOX_DSD_NEED_OUTPUT : SOX_DSD_NEED_INPUT;
+}
+
+sox_dsd_status_t sox_dsd_decoder_process(sox_dsd_decoder_t *ctx,
+    const sox_sample_t *input, size_t *input_frames, double *output,
+    size_t *output_frames)
+{
+  return decoder_process(ctx,input,NULL,0,input_frames,output,output_frames);
+}
+
+sox_dsd_status_t sox_dsd_decoder_process_packed(sox_dsd_decoder_t *ctx,
+    const sox_dsd_packed_block_t *packed, size_t start_frame,
+    size_t *input_frames, double *output, size_t *output_frames)
+{
+  if (!packed) {
+    if (ctx) ctx->error = SOX_DSD_BAD_ARGUMENT;
+    return SOX_DSD_BAD_ARGUMENT;
+  }
+  return decoder_process(ctx,NULL,packed,start_frame,
+      input_frames,output,output_frames);
 }
 
 sox_dsd_status_t sox_dsd_decoder_finish(sox_dsd_decoder_t *ctx,

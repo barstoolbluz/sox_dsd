@@ -1,0 +1,18 @@
+--- a/tests/dsd/test_p16.c
++++ b/tests/dsd/test_p16.c
+@@ -244,12 +244,13 @@
+ static void matrix_check(void)
+ {
+   const uint32_t rates[]={2822400u,5644800u,11289600u};
+-  const uint32_t pcm[]={44100u,88200u,192000u,705600u};
++  const uint32_t pcm[]={44100u,48000u,88200u,96000u,176400u,
++      192000u,352800u,384000u,705600u};
+   const sox_dsd_decode_profile_t profiles[]={
+     SOX_DSD_DECODE_MASTERING,SOX_DSD_DECODE_WIDEBAND,SOX_DSD_DECODE_MASTERING_V2};
+   const char *tiers[]={"scalar","sse2","avx1","avx2","avx512"};
+   for(unsigned r=0;r<3;r++)for(unsigned pr=0;pr<3;pr++)
+-   for(unsigned out=0;out<4;out++)for(unsigned k=0;k<5;k++)
++   for(size_t out=0;out<sizeof(pcm)/sizeof(pcm[0]);out++)for(unsigned k=0;k<5;k++)
+     for(unsigned planar=0;planar<2;planar++)for(unsigned offset=0;offset<8;offset++) {
+       sox_dsd_packed_block_t b;
+       unsigned ch=(k%2)?6:2;

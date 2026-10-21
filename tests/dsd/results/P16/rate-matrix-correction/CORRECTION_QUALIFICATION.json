@@ -1,0 +1,77 @@
+{
+  "baseline_p16_archive_sha256": "68f600ae039df9a53aabd54512dea853ba268c4e31fb4c2a4b44f8eb834ac839",
+  "baseline_test_sha256": "102865ded3920ba6c660943360cbd6017e14a329162fa00591d8f3cf983ad037",
+  "build": {
+    "command": "make -C test dsd_test_p16",
+    "exit": 0
+  },
+  "corrected_test_sha256": "fa2164e986c262d27edd4c03cc373d6d40c68dd6795d192cc5261695c40d87f9",
+  "date": "2026-10-20 (user-supplied engineering review date)",
+  "deferred": [
+    "existing P15 proof obligations unchanged",
+    "physical multi-host long-form qualification unchanged"
+  ],
+  "disposition": "PASS; correction limited to C parity test and delivery manifest",
+  "generic": {
+    "make check": 0,
+    "make check-rename": 0
+  },
+  "host": {
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+    "machine": "x86_64",
+    "system": "Linux"
+  },
+  "matrix": {
+    "assertions": 1480320,
+    "exit": 0,
+    "passed": 6480,
+    "receipt": "matrix.stdout",
+    "unsupported_isa": 0
+  },
+  "old_archive_reassembly": {
+    "first_assemble_exit": 0,
+    "original_archive_bytes": 500770021,
+    "original_archive_sha256": "68f600ae039df9a53aabd54512dea853ba268c4e31fb4c2a4b44f8eb834ac839",
+    "second_assemble_exit": 0,
+    "verify_only_exit": 0
+  },
+  "pcm_output_rates_hz": [
+    44100,
+    48000,
+    88200,
+    96000,
+    176400,
+    192000,
+    352800,
+    384000,
+    705600
+  ],
+  "phase_gate": {
+    "cli_cases_failed": 0,
+    "cli_cases_passed": 219,
+    "command": "make check-dsd DSD_PHASE=P16",
+    "exit": 0,
+    "runner_cases_failed": 0,
+    "runner_cases_passed": 38,
+    "stderr": "check-dsd.stderr",
+    "stdout": "check-dsd.stdout"
+  },
+  "physical_reader": {
+    "assertions": 183833677,
+    "exit": 0,
+    "malformed_descriptors_rejected": 10,
+    "packed_blocks": 4695450,
+    "receipt": "reader.stdout"
+  },
+  "schema": "P16/rate-matrix-correction/1",
+  "scope": "one C test-only rate array/loop-bound change plus multipart manifest delivery; no production DSD edits",
+  "source_inventory": {
+    "modified_since_original_inventory": [
+      "docs/dsd/handoffs/P16.md",
+      "tests/dsd/test_p16.c"
+    ],
+    "p00_frozen_index_unchanged": true,
+    "production_sources_unchanged": true,
+    "verified_inputs": 28
+  }
+}

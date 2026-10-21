@@ -144,7 +144,7 @@ def main() -> int:
             except (subprocess.TimeoutExpired,OSError) as exc:
                 p09_runs.append(dict(name=name,status='fail',error=str(exc)))
         passed.extend(p09_runs)
-    if args.phase in ('P14','P15'):
+    if args.phase in ('P14','P15','P16'):
         command=[sys.executable,str(ROOT/'tests/dsd/test_p14_numeric.py'),
             '--unit',str(ROOT/'test/dsd_test_p14'),
             '--sox',str(args.sox), '--results',str(args.results/'native-sos')]

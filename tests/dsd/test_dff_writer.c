@@ -42,6 +42,7 @@ static int flush_output(sox_format_t *ft)
 /* Avoid exporting a second copy of the format registry symbols. */
 #define lsx_dsdiff_format_fn p01_test_dsdiff_format_fn
 #define lsx_wsd_format_fn p01_test_wsd_format_fn
+#define lsx_dff_read_packed p01_test_dff_read_packed
 #include "../../src/dsdiff.c"
 
 #define CHECK(c) do { ++checks; if (!(c)) { \

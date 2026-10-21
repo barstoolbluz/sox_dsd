@@ -1,0 +1,1798 @@
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -225,20 +225,20 @@
+ DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
+ check-dsd: all
+ 	$(MAKE) check-dsd-optimization
+-	@if ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ); then \
++	@if ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ); then \
+ 	  $(MAKE) -C test dsd_test_p14$(EXEEXT); \
+ 	fi
+-	@if ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
++	@if ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_p10$(EXEEXT) sox_p10_candidate$(EXEEXT); \
+ 	fi
+-	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
++	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ) ); then \
+ 	  python3 -c 'import mpmath, numpy, scipy' || { \
+ 	    echo "UNRUN: required P06/P07 numerical gate (mpmath/numpy/scipy not installed)" >&2; exit 2; }; \
+ 	fi
+ 	$(MAKE) -C test dsd_test_io$(EXEEXT)
+ 	$(MAKE) -C test dsd_test_dff_writer$(EXEEXT)
+ 	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
+-	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
++	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
+ 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
+ 	  python3 $(srcdir)/tests/dsd/test_streaming.py \
+@@ -246,28 +246,28 @@
+ 	    --sox $(abs_builddir)/src/sox \
+ 	    --results $(DSD_RESULTS)/streaming; \
+ 	fi
+-	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
++	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_seek_contract$(EXEEXT) && \
+ 	  python3 $(srcdir)/tests/dsd/test_seek.py \
+ 	    --probe $(abs_builddir)/test/dsd_test_seek_contract$(EXEEXT) \
+ 	    --sox $(abs_builddir)/src/sox \
+ 	    --results $(DSD_RESULTS)/seek; \
+ 	fi
+-	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
++	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_layout$(EXEEXT) && \
+ 	  python3 $(srcdir)/tests/dsd/test_layout.py \
+ 	    --unit $(abs_builddir)/test/dsd_test_layout$(EXEEXT) \
+ 	    --sox $(abs_builddir)/src/sox \
+ 	    --results $(DSD_RESULTS)/layout; \
+ 	fi
+-	@if test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
++	@if test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_plan$(EXEEXT) && \
+ 	  $(abs_builddir)/test/dsd_test_plan$(EXEEXT) && \
+ 	  python3 $(srcdir)/tests/dsd/test_plan.py \
+ 	    --sox $(abs_builddir)/src/sox \
+ 	    --results $(DSD_RESULTS)/plan; \
+ 	fi
+-	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
++	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_decode$(EXEEXT) && \
+ 	  $(abs_builddir)/test/dsd_test_decode$(EXEEXT) && \
+ 	  $(MAKE) -C test dsd_test_decode_faults$(EXEEXT) && \
+@@ -277,7 +277,7 @@
+ 	    --results $(DSD_RESULTS)/scalar; \
+ 	fi
+ 
+-	@if test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
++	@if test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_p07$(EXEEXT) && \
+ 	  $(abs_builddir)/test/dsd_test_p07$(EXEEXT) && \
+ 	  python3 $(srcdir)/tests/dsd/test_p07.py \
+@@ -300,14 +300,14 @@
+ 	    --sox $(abs_builddir)/src/sox; \
+ 	fi
+ 
+-	@if test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
++	@if test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ) ); then \
+ 	  python3 $(srcdir)/tests/dsd/test_p08.py \
+ 	    --sox $(abs_builddir)/src/sox \
+ 	    --results $(DSD_RESULTS)/integration; \
+ 	fi
+ 
+ # P00 distributable design/test inputs (generated raw runs live in the continuation archive).
+-	@if test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ) ); then \
++	@if test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_p09$(EXEEXT) && \
+ 	  python3 $(srcdir)/tests/dsd/test_p09.py \
+ 	    --unit $(abs_builddir)/test/dsd_test_p09$(EXEEXT) \
+@@ -316,7 +316,7 @@
+ 	    --results $(DSD_RESULTS)/numeric; \
+ 	fi
+ 
+-	@if ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ) ); then \
++	@if ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_p11$(EXEEXT) && \
+ 	  $(abs_builddir)/test/dsd_test_p11$(EXEEXT) && \
+ 	  if test "$(DSD_PHASE)" = "P11"; then \
+@@ -351,7 +351,7 @@
+ # P13: independent AVX-512F execution plus the retained four-tier coverage.
+ # The static ISA audit is additional evidence, never a substitute for the
+ # executable CPUID/XCR0, guard-page and production CLI tests.
+-	@if ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ) ); then \
++	@if ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_p12_bounds$(EXEEXT) dsd_test_p13$(EXEEXT) && \
+ 	  $(abs_builddir)/test/dsd_test_p12_bounds$(EXEEXT) && \
+ 	  $(abs_builddir)/test/dsd_test_p13$(EXEEXT) && \
+@@ -374,7 +374,7 @@
+ 	fi
+ 
+ # P14's independent native-bit, final-report, and digital-filter tests.
+-	@if ( test "$(DSD_PHASE)" = "P14" || test "$(DSD_PHASE)" = "P15" ); then \
++	@if ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || test "$(DSD_PHASE)" = "P16" ) ); then \
+ 	  $(MAKE) -C test dsd_test_p14$(EXEEXT) && \
+ 	  python3 $(srcdir)/tests/dsd/test_p14.py \
+ 	    --sox $(abs_builddir)/src/sox \
+@@ -395,6 +395,17 @@
+ 	fi
+ 
+ 
++# P16: real native packed input gate. P15 is operator-authorized and stays
++# source-bound; P16 may inherit P00-P14 tests but cannot rewrite its receipts.
++	@if test "$(DSD_PHASE)" = "P16"; then \
++	  $(MAKE) -C test dsd_test_p16$(EXEEXT) && \
++	  python3 $(srcdir)/tests/dsd/test_p16.py \
++	    --sox $(abs_builddir)/src/sox \
++	    --unit $(abs_builddir)/test/dsd_test_p16$(EXEEXT) \
++	    --results $(DSD_RESULTS)/integration; \
++	fi
++
++
+ EXTRA_DIST += \
+   docs/dsd/BASELINE.md docs/dsd/DSD_DESIGN.md docs/dsd/DSD_HANDOFF.md \
+   docs/dsd/IMPLEMENTATION_PLAN.md docs/dsd/README.md docs/dsd/evidence/README.md \
+@@ -476,6 +487,7 @@
+   docs/dsd/handoffs/P02_DFF_READ_HOTFIX.md
+ 
+ # P06 private scalar reconstruction certification, fixtures and benchmarks.
++EXTRA_DIST += src/dsd_packed.h src/dsd_packed.c
+ EXTRA_DIST += src/dsd_coeffs.h src/dsd_decode.h src/dsd_kernels.h \
+   tests/dsd/generate_coeffs.py tests/dsd/certify_filters.py \
+   tests/dsd/test_decode.c tests/dsd/test_decode.py \
+@@ -654,3 +666,7 @@
+   tests/dsd/results/P15_R3/regression/cli-qualification.json \
+   tests/dsd/results/P15_R3/performance/local-unmatched-development-benchmark.json \
+   tests/dsd/results/P15_R3/preservation.json
++
++# P16 additive native-packed contract, probes and paired end-to-end benchmark.
++EXTRA_DIST += src/dsd_packed.h src/dsd_packed.c tests/dsd/test_p16.c \
++  tests/dsd/test_p16.py tests/dsd/bench_p16.py docs/dsd/handoffs/P16.md
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -87,7 +87,7 @@
+ libsox_ng_la_SOURCES = adpcms.c adpcms.h aiff.c aiff.h cvsd.c cvsd.h cvsdfilt.h \
+ 	g711.c g711.h g721.c g723_24.c g723_40.c g72x.c g72x.h vox.c vox.h \
+ 	mod.c mod.h mod-tabs.c msupcm.c mul.c raw.c raw.h \
+-	formats.c formats.h formats_i.c sox_i.h dsd.h dsd.c dsd_plan.c dsd_stats.c dsd_stats.h dsdstat.c dsd_decode.c dsd_decode.h dsd_public.c dsdpcm.c pcmdsd.c pcmdsd.h pcmdsd_coeffs.h pcmdsd_guards.h rate_internal.h dsd_kernels_scalar.c dsd_dispatch.c dsd_kernels.h sdm_normal_commit_i.h dsd_coeffs.h dsd_coeffs_v2.h sox_dsd.h dsd_layout_i.h dsd_layout_query.h dsd_layout.c wav-size.h keymap.c \
++	formats.c formats.h formats_i.c sox_i.h dsd.h dsd.c dsd_packed.c dsd_packed.h dsd_plan.c dsd_stats.c dsd_stats.h dsdstat.c dsd_decode.c dsd_decode.h dsd_public.c dsdpcm.c pcmdsd.c pcmdsd.h pcmdsd_coeffs.h pcmdsd_guards.h rate_internal.h dsd_kernels_scalar.c dsd_dispatch.c dsd_kernels.h sdm_normal_commit_i.h dsd_coeffs.h dsd_coeffs_v2.h sox_dsd.h dsd_layout_i.h dsd_layout_query.h dsd_layout.c wav-size.h keymap.c \
+ 	xmalloc.c xmalloc.h getopt.c util.c util.h libsox_ng.c libsox_i.c \
+ 	sox-fmt.c soxomp.h win32-unicode.c win32-unicode.h
+ 
+--- a/src/dsf.c
++++ b/src/dsf.c
+@@ -23,6 +23,7 @@
+ 
+ #include "sox_i.h"
+ #include "dsd_layout_i.h"
++#include "dsd_packed.h"
+ #include "id3.h"
+ 
+ struct dsf {
+@@ -44,6 +45,7 @@
+ 	uint8_t *block;
+ 	uint64_t read_samp;
+ 	int write_failed; /* Latched payload error; never reuse a full failed block. */
++	unsigned access_mode; /* 0 untouched, 1 expanded, 2 packed; reset only by seek. */
+ };
+ 
+ #define TAG(a, b, c, d) ((a) | (b) << 8 | (c) << 16 | (d) << 24)
+@@ -240,6 +242,11 @@
+ {
+ 	struct dsf *dsf = ft->priv;
+ 	uint64_t left = dsf->scount - dsf->read_samp;
++	if (len && dsf->access_mode == 2) {
++		ft->sox_errno = SOX_EINVAL; /* no change to the logical cursor */
++		return 0;
++	}
++	if (len) dsf->access_mode = 1;
+ 	size_t frames = min(len / dsf->chan_num, left);
+ 	size_t done = 0;
+ 
+@@ -273,6 +280,54 @@
+ 	return done * dsf->chan_num;
+ }
+ 
++/* Borrow from the *same* normalized planar read cache as dsf_read.
++ * No second file cursor: core adds frames*channels to olength exactly once. */
++sox_dsd_status_t lsx_dsf_read_packed(sox_format_t *ft, size_t requested,
++    sox_dsd_packed_block_t *out)
++{
++  struct dsf *dsf = ft->priv;
++  size_t remain, frames, n, i;
++  unsigned first;
++  if (dsf->access_mode == 1) return SOX_DSD_BAD_ARGUMENT;
++  if (!requested || !out) return SOX_DSD_BAD_ARGUMENT;
++  if (!dsf->block || dsf->read_samp >= dsf->scount) return SOX_DSD_DONE;
++  /* Read failure does not commit a new mode or logical position. */
++  if (dsf->block_pos == dsf->block_size) {
++    n = (size_t)dsf->chan_num * dsf->block_size;
++    if (lsx_read_b_buf(ft, dsf->block, n) != n) {
++      ft->sox_errno = SOX_EOF;
++      return SOX_DSD_IO_ERROR;
++    }
++    if (dsf->bps == 8)
++      for (i = 0; i < n; ++i) dsf->block[i] = dsf_reverse_byte[dsf->block[i]];
++    dsf->block_pos = dsf->block_start;
++    dsf->block_start = 0;
++  }
++  remain = (size_t)dsf->block_size - dsf->block_pos;
++  /* Max 4096 bits per call; don't materialize or expose padding as audio. */
++  frames = remain * 8 - dsf->bit_pos;
++  if (frames > dsf->scount - dsf->read_samp)
++    frames = (size_t)(dsf->scount - dsf->read_samp);
++  if (frames > requested) frames = requested;
++  if (frames > 4096) frames = 4096;
++  if (!frames) return SOX_DSD_IO_ERROR;
++  first = dsf->bit_pos;
++  out->data = dsf->block + dsf->block_pos;
++  out->bytes = (size_t)dsf->block_size * dsf->chan_num - dsf->block_pos;
++  out->frames = frames;
++  out->channels = dsf->chan_num;
++  out->bit_offset = first;
++  out->last_valid_bits = (unsigned)((first + frames - 1) % 8 + 1);
++  out->channel_stride = dsf->block_size;
++  out->byte_stride = 1;
++  out->bit_order = SOX_DSD_PACKED_LSB; /* normalized in owned cache */
++  dsf->bit_pos = (unsigned)((first + frames) % 8);
++  dsf->block_pos += (unsigned)((first + frames) / 8);
++  dsf->read_samp += frames;
++  dsf->access_mode = 2;
++  return SOX_DSD_OK;
++}
++
+ static int dsf_seek(sox_format_t * ft, sox_uint64_t offset)
+ {
+   struct dsf *dsf = ft->priv;
+@@ -307,6 +362,8 @@
+   dsf->block_start = block_start;
+   dsf->bit_pos = frame % 8;
+   dsf->read_samp = frame;
++  dsf->access_mode = 0; /* only a successful seek resets the reader mode */
++  ft->sox_errno = SOX_SUCCESS;
+   return SOX_SUCCESS;
+ }
+ 
+--- a/src/dsdiff.c
++++ b/src/dsdiff.c
+@@ -23,6 +23,7 @@
+ 
+ #include "sox_i.h"
+ #include "dsd_layout_i.h"
++#include "dsd_packed.h"
+ 
+ struct dsdiff {
+ 	lsx_dsd_layout_state_t metadata;
+@@ -31,6 +32,8 @@
+ 	uint32_t bit_pos;
+ 	sox_bool cluster_valid;
+ 	int write_error;
++	unsigned access_mode; /* 0 pristine, 1 expanded, 2 packed */
++	uint8_t *packed_buf; /* allocated lazily, borrowed until next packed call */
+ };
+ 
+ #define ID(a, b, c, d) ((a) << 24 | (b) << 16 | (c) << 8 | (d))
+@@ -308,6 +311,11 @@
+     struct dsdiff *dff = ft->priv;
+     size_t nc = ft->signal.channels;
+     size_t frames = len / nc, done = 0;
++    if (frames && dff->access_mode == 2) {
++        ft->sox_errno = SOX_EINVAL;
++        return 0;
++    }
++    if (frames) dff->access_mode = 1;
+ 
+     /* The generic reader uses length == 0 for unknown-length formats. */
+     if (!dff->data_size || !frames)
+@@ -348,6 +356,68 @@
+     return done * nc;
+ }
+ 
++/* DFF has channel-clustered bytes (one chronological byte per channel).
++ * Use the retained partial cluster first; batch aligned clusters into a
++ * bounded owned buffer. Reading ahead is not an independent logical cursor:
++ * every exposed bit is committed to the single core olength once only. */
++#define LSX_DFF_PACKED_CLUSTERS 1024u
++sox_dsd_status_t lsx_dff_read_packed(sox_format_t *ft, size_t requested,
++    sox_dsd_packed_block_t *out)
++{
++  struct dsdiff *dff = ft->priv;
++  unsigned nc = ft->signal.channels;
++  size_t frames, bytes;
++  if (dff->access_mode == 1) return SOX_DSD_BAD_ARGUMENT;
++  if (!requested || !out || !nc) return SOX_DSD_BAD_ARGUMENT;
++  if (dff->cluster_valid || dff->bit_pos || requested < 8) {
++    unsigned first = dff->bit_pos;
++    if (!dff->cluster_valid) {
++      if (lsx_read_b_buf(ft, dff->buf, nc) != nc) {
++        ft->sox_errno = SOX_EOF;
++        return SOX_DSD_IO_ERROR;
++      }
++      dff->cluster_valid = sox_true;
++    }
++    frames = min(requested, (size_t)(8 - first));
++    out->data = dff->buf;
++    out->bytes = nc;
++    out->bit_offset = first;
++    out->last_valid_bits = (unsigned)(first + frames);
++    dff->bit_pos += (unsigned)frames;
++    if (dff->bit_pos == 8) {
++      dff->bit_pos = 0;
++      dff->cluster_valid = sox_false;
++    }
++    out->byte_stride = nc;
++  } else {
++    size_t clusters = requested / 8;
++    if (clusters > LSX_DFF_PACKED_CLUSTERS)
++      clusters = LSX_DFF_PACKED_CLUSTERS;
++    if (clusters > SIZE_MAX / nc) return SOX_DSD_BAD_ARGUMENT;
++    bytes = clusters * nc;
++    if (!dff->packed_buf) {
++      dff->packed_buf = lsx_malloc(LSX_DFF_PACKED_CLUSTERS * (size_t)nc);
++      if (!dff->packed_buf) return SOX_DSD_NUMERIC_ERROR;
++    }
++    if (lsx_read_b_buf(ft, dff->packed_buf, bytes) != bytes) {
++      ft->sox_errno = SOX_EOF;
++      return SOX_DSD_IO_ERROR;
++    }
++    frames = clusters * 8;
++    out->data = dff->packed_buf;
++    out->bytes = bytes;
++    out->bit_offset = 0;
++    out->last_valid_bits = 8;
++    out->byte_stride = nc;
++  }
++  out->frames = frames;
++  out->channels = nc;
++  out->channel_stride = 1;
++  out->bit_order = SOX_DSD_PACKED_MSB;
++  dff->access_mode = 2;
++  return SOX_DSD_OK;
++}
++
+ static int dff_seek(sox_format_t * ft, sox_uint64_t offset)
+ {
+   struct dsdiff *dff = ft->priv;
+@@ -372,6 +442,8 @@
+ 
+   dff->bit_pos = frame % 8;
+   dff->cluster_valid = sox_false;
++  dff->access_mode = 0;
++  ft->sox_errno = SOX_SUCCESS;
+   return SOX_SUCCESS;
+ }
+ 
+@@ -380,6 +452,7 @@
+ 	struct dsdiff *dff = ft->priv;
+ 
+ 	free(dff->buf);
++	free(dff->packed_buf);
+ 
+ 	return SOX_SUCCESS;
+ }
+--- a/src/dsd_decode.c
++++ b/src/dsd_decode.c
+@@ -9,6 +9,7 @@
+  * Rounding mode is inherited.  No modification to the caller FP environment.
+  */
+ #include "dsd_decode.h"
++#include "dsd_packed.h"
+ #include "dsd_coeffs.h"
+ #include "dsd_coeffs_v2.h"
+ #include "dsd_kernels.h"
+@@ -462,6 +463,78 @@
+   return SOX_DSD_NEED_INPUT;
+ }
+ 
++/* P16 first-stage ingestion. The address calculation reads *one bit*
++ * directly from the borrowed layout; its numerical value and selected FIR
++ * function are exactly those of the existing expanded front end. There is no
++ * int32 graph block, coefficient table, independent phase or output queue. */
++sox_dsd_status_t lsx_dsd_reconstruction_process_packed(
++    lsx_dsd_reconstruction *ctx, const sox_dsd_packed_block_t *b, size_t start,
++    size_t *input_frames, double *pcm, size_t *output_frames)
++{
++  size_t avail, limit, consumed = 0, produced = 0;
++  if (!ctx) return SOX_DSD_BAD_ARGUMENT;
++  if (!input_frames || !output_frames)
++    return ctx->error = SOX_DSD_BAD_ARGUMENT;
++  avail = *input_frames;
++  limit = *output_frames;
++  *input_frames = *output_frames = 0;
++  if (ctx->error) return ctx->error;
++  if (ctx->finish_started) return SOX_DSD_BAD_ARGUMENT;
++  if (!limit) return SOX_DSD_NEED_OUTPUT;
++  if (!pcm || !b || !lsx_dsd_packed_validate(b) ||
++      b->channels != ctx->info.channels || start > b->frames ||
++      avail > b->frames - start ||
++      (ctx->info.channels && limit > SIZE_MAX / ctx->info.channels))
++    return ctx->error = SOX_DSD_BAD_ARGUMENT;
++  if (ctx->real_frames > UINT64_MAX - ctx->info.delay_native_frames - ctx->info.factor ||
++      avail > UINT64_MAX - ctx->info.delay_native_frames - ctx->info.factor - ctx->real_frames)
++    return ctx->error = SOX_DSD_NUMERIC_ERROR;
++#define LSX_DSD_STREAM_PACKED(FEED) do {                                    \
++  while (consumed < avail && produced < limit) {                            \
++    unsigned c;                                                             \
++    int got = 0;                                                            \
++    for (c = 0; c < ctx->info.channels; ++c) {                               \
++      double x = lsx_dsd_packed_bit(b,start+consumed,c) ? 1.0 : -1.0;       \
++      int event = FEED(ctx,c,0,x,&ctx->frame[c]);                            \
++      if (!c) got = event;                                                  \
++    }                                                                       \
++    if (got) {                                                              \
++      uint64_t index = ctx->raw_outputs++;                                  \
++      if (index >= ctx->info.discard_frames) {                               \
++        for (c = 0; c < ctx->info.channels; ++c)                              \
++          pcm[produced * ctx->info.channels + c] = ctx->frame[c];            \
++        ++ctx->emitted;                                                     \
++        ++produced;                                                         \
++      }                                                                     \
++    }                                                                       \
++    ++consumed; ++ctx->real_frames;                                         \
++  }                                                                         \
++} while (0)
++  if (ctx->fir == &lsx_dsd_kernel_scalar)
++    LSX_DSD_STREAM_PACKED(feed_scalar);
++#if defined(HAVE_DSD_SSE2)
++  else if (ctx->fir == &lsx_dsd_kernel_sse2)
++    LSX_DSD_STREAM_PACKED(feed_sse2);
++#endif
++#if defined(HAVE_DSD_AVX1)
++  else if (ctx->fir == &lsx_dsd_kernel_avx1)
++    LSX_DSD_STREAM_PACKED(feed_avx1);
++#endif
++#if defined(HAVE_DSD_AVX2)
++  else if (ctx->fir == &lsx_dsd_kernel_avx2)
++    LSX_DSD_STREAM_PACKED(feed_avx2);
++#endif
++#if defined(HAVE_DSD_AVX512)
++  else if (ctx->fir == &lsx_dsd_kernel_avx512)
++    LSX_DSD_STREAM_PACKED(feed_avx512);
++#endif
++  else return SOX_DSD_UNSUPPORTED;
++#undef LSX_DSD_STREAM_PACKED
++  *input_frames = consumed;
++  *output_frames = produced;
++  return consumed < avail ? SOX_DSD_NEED_OUTPUT : SOX_DSD_NEED_INPUT;
++}
++
+ sox_dsd_status_t lsx_dsd_reconstruction_finish(
+     lsx_dsd_reconstruction *ctx, double *pcm, size_t *output_frames)
+ {
+--- a/src/dsd_decode.h
++++ b/src/dsd_decode.h
+@@ -40,6 +40,10 @@
+ sox_dsd_status_t lsx_dsd_reconstruction_process(
+     lsx_dsd_reconstruction *, const sox_sample_t *bits, size_t *input_frames,
+     double *pcm, size_t *output_frames);
++/* P16: same FIR state and phase clocks, packed-byte first-stage input. */
++sox_dsd_status_t lsx_dsd_reconstruction_process_packed(
++    lsx_dsd_reconstruction *, const sox_dsd_packed_block_t *, size_t start,
++    size_t *input_frames, double *pcm, size_t *output_frames);
+ sox_dsd_status_t lsx_dsd_reconstruction_finish(
+     lsx_dsd_reconstruction *, double *pcm, size_t *output_frames);
+ sox_dsd_status_t lsx_dsd_reconstruction_info_get(
+--- a/src/dsd_public.c
++++ b/src/dsd_public.c
+@@ -4,6 +4,7 @@
+  * finite ceil(N/D); the final output uses native N (not rounded R twice).
+  */
+ #include "dsd_decode.h"
++#include "dsd_packed.h"
+ #include "rate_internal.h"
+ #include "dsd.h"
+ #include <math.h>
+@@ -188,8 +189,10 @@
+   return 1;
+ }
+ 
+-sox_dsd_status_t sox_dsd_decoder_process(sox_dsd_decoder_t *ctx,
+-    const sox_sample_t *input, size_t *input_frames, double *output,
++/* Common finite SRC/count pipeline for expanded and packed first stages. */
++static sox_dsd_status_t decoder_process(sox_dsd_decoder_t *ctx,
++    const sox_sample_t *input, const sox_dsd_packed_block_t *packed,
++    size_t start, size_t *input_frames, double *output,
+     size_t *output_frames)
+ {
+   size_t avail, cap, used = 0, made = 0;
+@@ -201,7 +204,10 @@
+   if (ctx->error) return ctx->error;
+   if (ctx->finishing) return ctx->error = SOX_DSD_BAD_ARGUMENT;
+   if (!cap) return SOX_DSD_NEED_OUTPUT;
+-  if ((avail && !input) || !output ||
++  if ((avail && !input && !packed) || !output ||
++      (packed && (!lsx_dsd_packed_validate(packed) ||
++         packed->channels != ctx->cfg.channels ||
++         start > packed->frames || avail > packed->frames - start)) ||
+       (avail && avail > SIZE_MAX / ctx->cfg.channels) ||
+       cap > SIZE_MAX / ctx->cfg.channels ||
+       avail > UINT64_MAX - ctx->native_frames)
+@@ -228,9 +234,11 @@
+         consumed = avail - used;
+         if (consumed > remaining) consumed = (size_t)remaining;
+       }
+-      st = lsx_dsd_reconstruction_process(ctx->front,
+-          input + used * ctx->cfg.channels, &consumed,
+-          ctx->intermediate, &produced);
++      st = packed ? lsx_dsd_reconstruction_process_packed(ctx->front,
++          packed, start + used, &consumed, ctx->intermediate, &produced) :
++          lsx_dsd_reconstruction_process(ctx->front,
++              input + used * ctx->cfg.channels, &consumed,
++              ctx->intermediate, &produced);
+       /* Invalid native data can follow an accepted prefix. Account for
+        * that prefix exactly as the former one-frame loop did, even though
+        * the public error return still exposes zero consumed/produced counts. */
+@@ -250,6 +258,25 @@
+   return used < avail ? SOX_DSD_NEED_OUTPUT : SOX_DSD_NEED_INPUT;
+ }
+ 
++sox_dsd_status_t sox_dsd_decoder_process(sox_dsd_decoder_t *ctx,
++    const sox_sample_t *input, size_t *input_frames, double *output,
++    size_t *output_frames)
++{
++  return decoder_process(ctx,input,NULL,0,input_frames,output,output_frames);
++}
++
++sox_dsd_status_t sox_dsd_decoder_process_packed(sox_dsd_decoder_t *ctx,
++    const sox_dsd_packed_block_t *packed, size_t start_frame,
++    size_t *input_frames, double *output, size_t *output_frames)
++{
++  if (!packed) {
++    if (ctx) ctx->error = SOX_DSD_BAD_ARGUMENT;
++    return SOX_DSD_BAD_ARGUMENT;
++  }
++  return decoder_process(ctx,NULL,packed,start_frame,
++      input_frames,output,output_frames);
++}
++
+ sox_dsd_status_t sox_dsd_decoder_finish(sox_dsd_decoder_t *ctx,
+     double *output, size_t *output_frames)
+ {
+--- a/src/sox_dsd.h
++++ b/src/sox_dsd.h
+@@ -138,6 +138,45 @@
+     const sox_dsd_decode_options_t *, sox_dsd_decoder_t **);
+ sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_process(
+     sox_dsd_decoder_t *, const sox_sample_t *, size_t *, double *, size_t *);
++/* P16 optional borrowed native input. Byte order describes the returned
++ * bytes (DSF MSB input is normalized in its owned read cache). `data` remains
++ * borrowed only until the next packed read or successful seek/close. The
++ * bit offset starts at 0..7 in the first addressed byte; `last_valid_bits`
++ * is the count 1..8 of chronological bits through the final frame in that
++ * byte, including the starting offset for a sub-byte block. Frame 0/channel
++ * 0 is data[0]; byte_stride advances a channel's next packed byte and
++ * channel_stride advances to the next channel's first packed byte.
++ * `bytes` is the physical readable extent from data[0], not a count of
++ * audio bytes; callers must never decode frames beyond `frames`.
++ * The storage must not be modified by a caller. A handle cannot alternate
++ * packed and expanded reads until a successful seek (including seek(0)). */
++typedef enum {
++  SOX_DSD_PACKED_LSB = 1, SOX_DSD_PACKED_MSB = 8
++} sox_dsd_packed_order_t;
++typedef struct sox_dsd_packed_block {
++  size_t size;
++  unsigned version;                    /* 1 */
++  const uint8_t *data;                  /* borrowed, never writable */
++  size_t bytes;                         /* available buffer extent */
++  size_t frames;                        /* valid native DSD frames */
++  unsigned channels;
++  unsigned bit_offset, last_valid_bits; /* 0..7, 1..8 */
++  size_t channel_stride, byte_stride;   /* bytes, not frames */
++  sox_dsd_packed_order_t bit_order;
++} sox_dsd_packed_block_t;
++void SOX_DSD_CALL sox_dsd_packed_block_init(sox_dsd_packed_block_t *);
++sox_bool SOX_DSD_CALL sox_dsd_packed_supported(const sox_format_t *);
++/* Returns OK with frames>0, DONE at EOF, or a named error. `max_frames`
++ * bounds the returned block. Exactly one update of ft->olength occurs on OK. */
++sox_dsd_status_t SOX_DSD_CALL sox_dsd_read_packed(
++    sox_format_t *, size_t max_frames, sox_dsd_packed_block_t *);
++/* Consume a descriptor slice, starting at `start_frame`, through the normal
++ * first-stage FIR and downstream SRC, without an interleaved int32 buffer.
++ * input_frames is input capacity on entry/consumed count on return. */
++sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_process_packed(
++    sox_dsd_decoder_t *, const sox_dsd_packed_block_t *, size_t start_frame,
++    size_t *input_frames, double *interleaved_pcm, size_t *output_frames);
++
+ sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_finish(
+     sox_dsd_decoder_t *, double *, size_t *);
+ sox_dsd_status_t SOX_DSD_CALL sox_dsd_decoder_report(
+--- a/src/sox_ng.c
++++ b/src/sox_ng.c
+@@ -170,6 +170,8 @@
+ typedef struct {
+   sox_dsd_decoder_t *decoder;
+   sox_sample_t *native;
++  sox_dsd_packed_block_t packed;
++  sox_bool use_packed;
+   double *pcm;
+   size_t pending, cursor;
+   unsigned channels;
+@@ -648,7 +650,16 @@
+       free(a);exit(2);
+     }
+   }
+-  a->native=lsx_malloc(DSD_ADAPTER_NATIVE_FRAMES*a->channels*sizeof(*a->native));
++  /* Explicitly opt-in. Keep the P14 native observation/report path on its
++   * original expanded representation until its own packed oracle is added. */
++  a->use_packed = getenv("SOX_DSD_PACKED_INPUT") &&
++      !strcmp(getenv("SOX_DSD_PACKED_INPUT"),"1") &&
++      sox_dsd_packed_supported(f->ft) && !dsd_report_active;
++  sox_dsd_packed_block_init(&a->packed);
++  if (a->use_packed)
++    lsx_debug("P16: native packed input enabled for '%s'",f->filename);
++  else
++    a->native=lsx_malloc(DSD_ADAPTER_NATIVE_FRAMES*a->channels*sizeof(*a->native));
+   a->pcm=lsx_malloc(DSD_ADAPTER_PCM_FRAMES*a->channels*sizeof(*a->pcm));
+   sox_dsd_decode_options_init(&opt);
+   opt.native_hz=native_hz;
+@@ -675,14 +686,27 @@
+     sox_dsd_status_t rc;
+     if (made>frames-total) made=frames-total;
+     if (!a->eof && a->cursor==a->pending) {
+-      size_t samples=sox_read(f->ft,a->native,
+-          DSD_ADAPTER_NATIVE_FRAMES*a->channels);
++      size_t samples=0;
++      sox_dsd_status_t read_status=SOX_DSD_OK;
++      if (a->use_packed) {
++        read_status=sox_dsd_read_packed(f->ft,DSD_ADAPTER_NATIVE_FRAMES,&a->packed);
++        if (read_status==SOX_DSD_OK)
++          samples=a->packed.frames*a->channels;
++        else if (read_status==SOX_DSD_DONE)
++          samples=0;
++        else {
++          lsx_fail("P16: packed input read failed for '%s' (%d)",
++              f->filename,(int)read_status);
++          a->failed=sox_true;break;
++        }
++      } else
++        samples=sox_read(f->ft,a->native,DSD_ADAPTER_NATIVE_FRAMES*a->channels);
+       if (samples%a->channels || (!samples && f->ft->sox_errno)) {
+         lsx_fail("P08: input read failed for '%s': %s",f->filename,
+             f->ft->sox_errno?sox_strerror(f->ft->sox_errno):"incomplete channel frame");
+         a->failed=sox_true;break;
+       }
+-      if (!dsd_observe_input(f,a->native,samples)) {
++      if (!a->use_packed && !dsd_observe_input(f,a->native,samples)) {
+         lsx_fail("P14: native source observation counter failed");
+         a->failed=sox_true;break;
+       }
+@@ -714,8 +738,10 @@
+       if (rc==SOX_DSD_DONE) a->done=sox_true;
+     } else {
+       used=a->pending-a->cursor;
+-      rc=sox_dsd_decoder_process(a->decoder,
+-          a->native+a->cursor*a->channels,&used,a->pcm,&made);
++      rc=a->use_packed ? sox_dsd_decoder_process_packed(a->decoder,
++          &a->packed,a->cursor,&used,a->pcm,&made) :
++          sox_dsd_decoder_process(a->decoder,
++              a->native+a->cursor*a->channels,&used,a->pcm,&made);
+       if ((rc!=SOX_DSD_NEED_INPUT && rc!=SOX_DSD_NEED_OUTPUT) ||
+           (!made && !used)) {
+         lsx_fail("P08: input decoder stalled for '%s' (%d)",f->filename,(int)rc);
+--- a/test/Makefile.am
++++ b/test/Makefile.am
+@@ -162,3 +162,9 @@
+ dsd_test_p15_instrument_SOURCES = ../tests/dsd/test_p15_instrument.c
+ dsd_test_p15_instrument_CPPFLAGS = -I$(top_srcdir)/src
+ dsd_test_p15_instrument_LDADD = $(top_builddir)/src/libsox_ng.la
++
++# P16 optional borrowed packed reader and same-FIR finite parity matrix.
++EXTRA_PROGRAMS += dsd_test_p16
++dsd_test_p16_SOURCES = ../tests/dsd/test_p16.c
++dsd_test_p16_CPPFLAGS = -I$(top_srcdir)/src
++dsd_test_p16_LDADD = $(top_builddir)/src/libsox_ng.la
+--- a/tests/dsd/run.py
++++ b/tests/dsd/run.py
+@@ -663,6 +663,22 @@
+     ap.add_argument('--only',default='*',help='glob-select named tests, no automatic skip')
+     args=ap.parse_args()
+     runner=Runner(args);runner.register_units();runner.register_integrations()
++    if args.phase == 'P16':
++        def p16_executable(suffix, timeout):
++            def gate():
++                command = [str(ROOT/'test/dsd_test_p16'), *suffix]
++                result = runner.invoke(command, timeout=timeout)
++                require(result['exit'] == 0,
++                        f'P16 executable exit {result["exit"]}: {result["stderr"][-1500:]}')
++                require(result['stdout'].startswith('P16 '),
++                        'P16 executable returned no pass summary')
++                return dict(correct=True, command=command,
++                            summary=result['stdout'].strip())
++            return gate
++        runner.add('P16_native_packed_reader_contract', 'unit',p16_executable([],180))
++        runner.add('P16_binary64_packed_versus_expanded_FIR_ISA_matrix',
++                   'unit',p16_executable(['matrix'],180))
++
+     if not args.sox.is_file() or not args.probe.is_file():
+         ap.error('missing built sox and test/dsd_test_io; build with make and make -C test dsd_test_io')
+     floor=runner.run()
+--- a/tests/dsd/measure.py
++++ b/tests/dsd/measure.py
+@@ -144,7 +144,7 @@
+             except (subprocess.TimeoutExpired,OSError) as exc:
+                 p09_runs.append(dict(name=name,status='fail',error=str(exc)))
+         passed.extend(p09_runs)
+-    if args.phase in ('P14','P15'):
++    if args.phase in ('P14','P15','P16'):
+         command=[sys.executable,str(ROOT/'tests/dsd/test_p14_numeric.py'),
+             '--unit',str(ROOT/'test/dsd_test_p14'),
+             '--sox',str(args.sox), '--results',str(args.results/'native-sos')]
+--- a/tests/dsd/bench.py
++++ b/tests/dsd/bench.py
+@@ -267,7 +267,7 @@
+         perf=performance_summary(args.results.parent/'performance')
+         report['p10_paired_throughput']=dict(status=perf['status'],evidence='../performance/summary.json')
+         report['summary']['p10_throughput_qualification']=perf['status']
+-    if args.phase in ('P14','P15'):
++    if args.phase in ('P14','P15','P16'):
+         command=[sys.executable,str(ROOT/'tests/dsd/bench_p14.py'),
+                  '--sox',str(args.sox), '--results',str(args.results/'observer-overhead')]
+         try:
+@@ -304,6 +304,21 @@
+             missing.append('P13 AVX2/AVX-512F comparison unrun or timed out')
+         if missing: report['summary']['status']='incomplete'
+         atomic_json(outfile,report)
++    if args.phase == 'P16':
++        command=[sys.executable,str(ROOT/'tests/dsd/bench_p16.py'),
++                 '--sox',str(args.sox),'--results',str(args.results/'packed-input')]
++        try:
++            cp=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=1800)
++            report['p16_packed_input']=dict(exit=cp.returncode,
++                status='PASS' if cp.returncode==0 else 'FAIL',
++                stdout_tail=cp.stdout[-2500:],stderr_tail=cp.stderr[-2500:],
++                evidence='packed-input/paired.json',
++                distinction='single-host development measurement, not a 512/1024 decoder claim')
++            if cp.returncode: missing.append('P16 paired packed-input throughput or simulated descriptor failed')
++        except (OSError,subprocess.TimeoutExpired) as exc:
++            report['p16_packed_input']=dict(status='FAIL',error=str(exc))
++            missing.append('P16 packed-input benchmark unrun or timed out')
++        if missing:report['summary']['status']='incomplete'
+     atomic_json(outfile,report)
+     print(json.dumps(dict(summary=report['summary'], path=str(outfile))))
+     if missing:return 1
+--- a/tests/dsd/test_dff_writer.c
++++ b/tests/dsd/test_dff_writer.c
+@@ -42,6 +42,7 @@
+ /* Avoid exporting a second copy of the format registry symbols. */
+ #define lsx_dsdiff_format_fn p01_test_dsdiff_format_fn
+ #define lsx_wsd_format_fn p01_test_wsd_format_fn
++#define lsx_dff_read_packed p01_test_dff_read_packed
+ #include "../../src/dsdiff.c"
+ 
+ #define CHECK(c) do { ++checks; if (!(c)) { \
+--- /dev/null
++++ b/src/dsd_packed.c
+@@ -0,0 +1,95 @@
++/* P16: optional packed native DSD access, separate from sox_read.
++ * Dispatch by the actual handler function, not file extensions or metadata.
++ * Ownership, mode and native cache state remain entirely format-private. */
++#include "sox_i.h"
++#include "dsd_packed.h"
++#include <stdint.h>
++#include <string.h>
++
++sox_format_handler_t const *lsx_dsf_format_fn(void);
++sox_format_handler_t const *lsx_dsdiff_format_fn(void);
++
++void sox_dsd_packed_block_init(sox_dsd_packed_block_t *b)
++{
++  if (!b) return;
++  memset(b, 0, sizeof(*b));
++  b->size = sizeof(*b);
++  b->version = 1;
++}
++
++/* Validate the final addressed byte of every channel, independent of layout.
++ * Frame and stride bounds are checked before addition or multiplication. */
++int lsx_dsd_packed_validate(const sox_dsd_packed_block_t *b)
++{
++  size_t last_byte, max_channel, byte_offset, last_bit;
++  if (!b || b->size < sizeof(*b) || b->version != 1 || !b->data ||
++      !b->bytes || !b->frames || !b->channels || !b->byte_stride ||
++      (b->channels > 1 && !b->channel_stride) ||
++      b->bit_offset >= 8 || b->last_valid_bits < 1 ||
++      b->last_valid_bits > 8 ||
++      (b->bit_order != SOX_DSD_PACKED_LSB &&
++       b->bit_order != SOX_DSD_PACKED_MSB) ||
++      b->frames > SIZE_MAX - b->bit_offset)
++    return 0;
++  last_bit = b->bit_offset + (b->frames - 1);
++  if (b->last_valid_bits != last_bit % 8 + 1) return 0;
++  last_byte = last_bit / 8;
++  if (last_byte > SIZE_MAX / b->byte_stride ||
++      b->channels - 1 > SIZE_MAX / (b->channel_stride ? b->channel_stride : 1))
++    return 0;
++  max_channel = (b->channels - 1) * b->channel_stride;
++  byte_offset = last_byte * b->byte_stride;
++  return max_channel < b->bytes && byte_offset < b->bytes - max_channel;
++}
++
++static int kind(const sox_format_t *ft)
++{
++  if (!ft || ft->mode != 'r' || ft->encoding.encoding != SOX_ENCODING_DSD)
++    return 0;
++  if (ft->handler.read == lsx_dsf_format_fn()->read) return 1;
++  if (ft->handler.read == lsx_dsdiff_format_fn()->read &&
++      ft->handler.startread == lsx_dsdiff_format_fn()->startread) return 2;
++  return 0;
++}
++
++sox_bool sox_dsd_packed_supported(const sox_format_t *ft)
++{
++  return kind(ft) != 0 ? sox_true : sox_false;
++}
++
++sox_dsd_status_t sox_dsd_read_packed(sox_format_t *ft,
++    size_t max_frames, sox_dsd_packed_block_t *b)
++{
++  sox_dsd_status_t st;
++  sox_dsd_packed_block_t tmp;
++  size_t rem;
++  int k;
++  if (!b || b->size < sizeof(*b) || b->version != 1 || !ft)
++    return SOX_DSD_BAD_ARGUMENT;
++  /* Keep the passed record well-formed even on an error. */
++  sox_dsd_packed_block_init(b);
++  k = kind(ft);
++  if (!k) return SOX_DSD_UNSUPPORTED;
++  if (!max_frames) return SOX_DSD_NEED_OUTPUT;
++  if (!ft->signal.channels ||
++      ft->signal.length == SOX_UNSPEC ||
++      ft->signal.length == SOX_UNKNOWN_LEN ||
++      ft->olength > ft->signal.length ||
++      ft->olength % ft->signal.channels)
++    return SOX_DSD_BAD_ARGUMENT;
++  rem = (size_t)min((uint64_t)SIZE_MAX,
++      (ft->signal.length - ft->olength) / ft->signal.channels);
++  if (!rem) return SOX_DSD_DONE;
++  if (max_frames > rem) max_frames = rem;
++  sox_dsd_packed_block_init(&tmp);
++  st = k == 1 ? lsx_dsf_read_packed(ft,max_frames,&tmp) :
++      lsx_dff_read_packed(ft,max_frames,&tmp);
++  if (st != SOX_DSD_OK) return st;
++  if (!lsx_dsd_packed_validate(&tmp) || tmp.frames > max_frames ||
++      tmp.channels != ft->signal.channels ||
++      tmp.frames > (UINT64_MAX - ft->olength) / tmp.channels)
++    return SOX_DSD_IO_ERROR;
++  ft->olength += tmp.frames * tmp.channels;
++  *b = tmp;
++  return SOX_DSD_OK;
++}
+--- /dev/null
++++ b/src/dsd_packed.h
+@@ -0,0 +1,26 @@
++/* P16 private native-reader dispatch and checked packed addressing. */
++#ifndef LSX_DSD_PACKED_H
++#define LSX_DSD_PACKED_H
++#include "sox_dsd.h"
++
++/* Internal reader entry points. The handlers own buffers and access mode. */
++sox_dsd_status_t lsx_dsf_read_packed(sox_format_t *, size_t,
++    sox_dsd_packed_block_t *);
++sox_dsd_status_t lsx_dff_read_packed(sox_format_t *, size_t,
++    sox_dsd_packed_block_t *);
++
++/* True if every descriptor address is within [data, data + bytes).
++ * Includes all channels, first/last bit and arithmetic overflow checks. */
++int lsx_dsd_packed_validate(const sox_dsd_packed_block_t *);
++
++/* Caller must validate descriptor and range before using this helper. */
++static inline unsigned lsx_dsd_packed_bit(const sox_dsd_packed_block_t *b,
++    size_t frame, unsigned channel)
++{
++  size_t bit = (size_t)b->bit_offset + frame;
++  uint8_t byte = b->data[channel * b->channel_stride +
++      (bit / 8) * b->byte_stride];
++  return (byte >> (b->bit_order == SOX_DSD_PACKED_MSB ?
++      7 - (bit & 7) : (bit & 7))) & 1u;
++}
++#endif
+--- /dev/null
++++ b/tests/dsd/test_p16.c
+@@ -0,0 +1,379 @@
++/* P16 production-link qualification: native reader ownership, one cursor,
++ * physical layout, partial byte and exact DSP/ISA parity. This test has its
++ * own fixture chronology and bit-addressing oracle, not production helpers. */
++#include "sox_dsd.h"
++#include "dsd.h"
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <math.h>
++#include <limits.h>
++#include <unistd.h>
++
++static unsigned long checks, passed, skipped;
++#define CHECK(x) do { ++checks; if (!(x)) { \
++  fprintf(stderr,"P16 FAIL line %d: %s\n",__LINE__,#x); exit(1); \
++} } while (0)
++
++static int bit_at(size_t frame,unsigned channel)
++{
++  uint64_t v=((uint64_t)frame*0x9e3779b97f4a7c15ULL) ^
++      ((uint64_t)(channel+1)*0xbf58476d1ce4e5b9ULL);
++  v^=v>>30; v*=0xbf58476d1ce4e5b9ULL;
++  v^=v>>27; v*=0x94d049bb133111ebULL;
++  v^=v>>31;
++  return (int)(v&1);
++}
++static sox_sample_t sign_bit(size_t frame,unsigned channel)
++{ return bit_at(frame,channel)?SOX_SAMPLE_MAX:-SOX_SAMPLE_MAX; }
++
++static void file_write(const char *file,unsigned channels,size_t frames,uint32_t rate)
++{
++  sox_signalinfo_t sig={0};
++  sox_encodinginfo_t enc={0};
++  sox_format_t *ft;
++  sox_sample_t *bits;
++  size_t j;
++  sig.rate=rate;sig.channels=channels;sig.precision=1;
++  sig.length=frames*channels;
++  sox_init_encodinginfo(&enc);
++  enc.encoding=SOX_ENCODING_DSD;enc.bits_per_sample=1;
++  ft=sox_open_write(file,&sig,&enc,NULL,NULL,NULL);
++  CHECK(ft);
++  /* Chunk writes: large benchmark fixtures must never require an entire
++   * native-rate stream of expanded int32 samples in memory. */
++  {
++    const size_t chunk=4096;
++    bits=malloc(chunk*channels*sizeof(*bits));CHECK(bits);
++    for(j=0;j<frames;) {
++      size_t count=frames-j<chunk?frames-j:chunk;
++      for(size_t n=0;n<count;n++)for(unsigned c=0;c<channels;c++)
++        bits[n*channels+c]=sign_bit(j+n,c);
++      CHECK(sox_write(ft,bits,count*channels)==count*channels);
++      j+=count;
++    }
++  }
++  CHECK(sox_close(ft)==SOX_SUCCESS);
++  free(bits);
++}
++
++/* Adapt a valid LSB DSF fixture to a physically MSB-first fixture. The
++ * reference bits remain unchanged, but the on-disk bytes are reversed. */
++static unsigned reverse(unsigned n)
++{
++  unsigned v=0;
++  for(unsigned i=0;i<8;i++) {v=(v<<1)|(n&1);n>>=1;}
++  return v;
++}
++static void msb_dsf(const char *input,const char *output)
++{
++  FILE *a=fopen(input,"rb"),*b=fopen(output,"wb");
++  long size;
++  unsigned char *buf;
++  CHECK(a && b);
++  CHECK(!fseek(a,0,SEEK_END));size=ftell(a);CHECK(size>=92);
++  CHECK(!fseek(a,0,SEEK_SET));buf=malloc((size_t)size);CHECK(buf);
++  CHECK(fread(buf,1,(size_t)size,a)==(size_t)size);
++  /* bps at offset 60, native little-endian uint32; data starts at 92. */
++  CHECK(buf[60]==1 && buf[61]==0 && buf[62]==0 && buf[63]==0);
++  buf[60]=8;
++  for(long i=92;i<size;i++)buf[i]=(unsigned char)reverse(buf[i]);
++  CHECK(fwrite(buf,1,(size_t)size,b)==(size_t)size);
++  CHECK(!fclose(a) && !fclose(b));free(buf);
++}
++
++static int reference_bit(const sox_dsd_packed_block_t *b,size_t f,unsigned c)
++{
++  size_t bit=f+b->bit_offset;
++  size_t address=c*b->channel_stride+(bit/8)*b->byte_stride;
++  unsigned shift=b->bit_order==SOX_DSD_PACKED_MSB?7-(bit%8):bit%8;
++  CHECK(address<b->bytes);
++  return (b->data[address]>>shift)&1;
++}
++static void reader_check(const char *path,unsigned channels,size_t frames,
++    int planar,unsigned physical_order)
++{
++  static const size_t request[]={1,2,7,8,9,17,127,512,4096,8192};
++  sox_format_t *f;
++  sox_dsd_packed_block_t b;
++  size_t j,offset,cap;
++  unsigned sample_modes=0;
++  for(offset=0;offset<8;offset++)for(size_t t=0;t<sizeof(request)/sizeof(*request);t++) {
++    size_t cursor=offset,iterations=0;
++    cap=request[t];
++    f=sox_open_read(path,NULL,NULL,NULL);CHECK(f);
++    CHECK(f->signal.channels==channels);
++    CHECK(f->signal.length==frames*channels);
++    CHECK(sox_dsd_packed_supported(f));
++    CHECK(sox_seek(f,offset*channels,SOX_SEEK_SET)==SOX_SUCCESS);
++    sox_dsd_packed_block_init(&b);
++    while(cursor<frames) {
++      sox_dsd_status_t st=sox_dsd_read_packed(f,cap,&b);
++      CHECK(st==SOX_DSD_OK && b.data && b.frames && b.frames<=cap);
++      CHECK(b.channels==channels && b.size==sizeof(b) && b.version==1);
++      CHECK(b.bit_offset<8 && b.last_valid_bits>=1 && b.last_valid_bits<=8);
++      CHECK(b.last_valid_bits==(b.bit_offset+b.frames-1)%8+1);
++      CHECK(b.bit_order==(planar?SOX_DSD_PACKED_LSB:SOX_DSD_PACKED_MSB));
++      CHECK(b.channel_stride==(planar?4096u:1u));
++      CHECK(b.byte_stride==(planar?1u:channels));
++      for(j=0;j<b.frames;j++)for(unsigned c=0;c<channels;c++)
++        CHECK(reference_bit(&b,j,c)==bit_at(cursor+j,c));
++      cursor+=b.frames;
++      CHECK(f->olength==cursor*channels);
++      CHECK(++iterations<frames+20);
++      ++passed;
++    }
++    CHECK(sox_dsd_read_packed(f,1,&b)==SOX_DSD_DONE);
++    CHECK(f->olength==frames*channels);
++    CHECK(sox_close(f)==SOX_SUCCESS);
++  }
++  /* A packed handle refuses the original API, preserving its position. */
++  f=sox_open_read(path,NULL,NULL,NULL);CHECK(f);
++  sox_dsd_packed_block_init(&b);
++  CHECK(sox_dsd_read_packed(f,1,&b)==SOX_DSD_OK);
++  CHECK(f->olength==channels);
++  {
++    sox_sample_t scratch[64];
++    CHECK(sox_read(f,scratch,channels)==0);
++    CHECK(f->sox_errno==SOX_EINVAL && f->olength==channels);
++    CHECK(sox_seek(f,0,SOX_SEEK_SET)==SOX_SUCCESS);
++    CHECK(sox_read(f,scratch,channels)==channels);
++    for(unsigned c=0;c<channels;c++)CHECK(scratch[c]==sign_bit(0,c));
++    CHECK(sox_dsd_read_packed(f,1,&b)==SOX_DSD_BAD_ARGUMENT);
++    CHECK(f->olength==channels);
++    CHECK(sox_seek(f,7*channels,SOX_SEEK_SET)==SOX_SUCCESS);
++    CHECK(sox_dsd_read_packed(f,1,&b)==SOX_DSD_OK);
++    CHECK(b.bit_offset==7 && b.frames==1);
++    CHECK(reference_bit(&b,0,0)==bit_at(7,0));
++    CHECK(sox_seek(f,0,SOX_SEEK_SET)==SOX_SUCCESS);
++    CHECK(sox_dsd_read_packed(f,0,&b)==SOX_DSD_NEED_OUTPUT);
++    CHECK(f->olength==0);
++    CHECK(sox_read(f,scratch,channels)==channels);
++    sample_modes++;
++  }
++  CHECK(sox_close(f)==SOX_SUCCESS);
++  CHECK(sample_modes==1);
++  (void)physical_order;
++}
++
++/* Pack a synthetic native stream in either legitimate physical layout with
++ * every start-bit offset; this generator is independent of reader code. */
++static unsigned char *make_packed(sox_dsd_packed_block_t *b,
++    size_t frames,unsigned channels,unsigned offset,int planar)
++{
++  size_t nbytes=(offset+frames+7)/8;
++  size_t count=nbytes*channels;
++  unsigned char *buf=calloc(count,1); CHECK(buf);
++  sox_dsd_packed_block_init(b);
++  b->data=buf;b->bytes=count;b->frames=frames;b->channels=channels;
++  b->bit_offset=offset;
++  b->last_valid_bits=(unsigned)((offset+frames-1)%8+1);
++  b->channel_stride=planar?nbytes:1;
++  b->byte_stride=planar?1:channels;
++  b->bit_order=planar?SOX_DSD_PACKED_LSB:SOX_DSD_PACKED_MSB;
++  for(size_t f=0;f<frames;f++)for(unsigned c=0;c<channels;c++) {
++    size_t n=offset+f;
++    size_t at=planar?c*nbytes+n/8:(n/8)*channels+c;
++    unsigned shift=planar?n%8:7-n%8;
++    if(bit_at(f,c))buf[at]|=1u<<shift;
++  }
++  return buf;
++}
++
++typedef struct {double *pcm;size_t count;} run_result;
++static run_result decode(uint32_t native,uint32_t rate,
++    sox_dsd_decode_profile_t profile,unsigned channels,const char *tier,
++    const sox_dsd_packed_block_t *packed, int direct_packed, int *unsupported)
++{
++  const size_t n=packed->frames;
++  const size_t capacity=n*channels;
++  size_t consumed=0,made=0,iteration=0;
++  sox_dsd_decode_options_t opt;
++  sox_dsd_decoder_t *ctx=NULL;
++  sox_sample_t *expanded=malloc(capacity*sizeof(*expanded));
++  run_result result={0};
++  sox_dsd_status_t st;
++  CHECK(expanded);
++  result.pcm=calloc(capacity+32,sizeof(*result.pcm));CHECK(result.pcm);
++  for(size_t j=0;j<n;j++)for(unsigned c=0;c<channels;c++)
++    expanded[j*channels+c]=sign_bit(j,c);
++  sox_dsd_decode_options_init_extended(&opt);
++  opt.native_hz=native;opt.output_hz=rate;opt.channels=channels;
++  opt.profile=profile;opt.kernel_fir=tier;
++  st=sox_dsd_decoder_create(&opt,&ctx);
++  if(st==SOX_DSD_UNSUPPORTED) {
++    *unsupported=1;free(result.pcm);result.pcm=NULL;free(expanded);
++    return result;
++  }
++  CHECK(st==SOX_DSD_OK && ctx);
++  while(consumed<n) {
++    size_t input=n-consumed,output=(iteration%13)+1;
++    if(input>47)input=47;
++    st=direct_packed ? sox_dsd_decoder_process_packed(ctx,packed,consumed,
++        &input,result.pcm+made*channels,&output) :
++        sox_dsd_decoder_process(ctx,expanded+consumed*channels,
++            &input,result.pcm+made*channels,&output);
++    CHECK(st==SOX_DSD_NEED_INPUT || st==SOX_DSD_NEED_OUTPUT);
++    CHECK(input || output);
++    consumed+=input;made+=output;
++    CHECK(made*channels<=capacity+32);
++    CHECK(++iteration<100000);
++  }
++  for(;;) {
++    size_t output=1+iteration%13;
++    st=sox_dsd_decoder_finish(ctx,result.pcm+made*channels,&output);
++    CHECK(st==SOX_DSD_DONE || st==SOX_DSD_NEED_OUTPUT);
++    made+=output;CHECK(made*channels<=capacity+32);
++    if(st==SOX_DSD_DONE)break;
++    CHECK(++iteration<100000);
++  }
++  result.count=made;
++  {
++    uint64_t expected;
++    CHECK(lsx_dsd_count_convert(n,native,rate,&expected));
++    CHECK(result.count==expected);
++  }
++  sox_dsd_decoder_destroy(ctx);
++  free(expanded);
++  return result;
++}
++
++/* `decode` selects packed on a non-zero byte_stride; select the conventional
++ * API with a descriptor shadow that retains the frame count only. */
++static void matrix_check(void)
++{
++  const uint32_t rates[]={2822400u,5644800u,11289600u};
++  const uint32_t pcm[]={44100u,88200u,192000u,705600u};
++  const sox_dsd_decode_profile_t profiles[]={
++    SOX_DSD_DECODE_MASTERING,SOX_DSD_DECODE_WIDEBAND,SOX_DSD_DECODE_MASTERING_V2};
++  const char *tiers[]={"scalar","sse2","avx1","avx2","avx512"};
++  for(unsigned r=0;r<3;r++)for(unsigned pr=0;pr<3;pr++)
++   for(unsigned out=0;out<4;out++)for(unsigned k=0;k<5;k++)
++    for(unsigned planar=0;planar<2;planar++)for(unsigned offset=0;offset<8;offset++) {
++      sox_dsd_packed_block_t b;
++      unsigned ch=(k%2)?6:2;
++      int unavailable=0,unavailable_packed=0;
++      unsigned char *raw=make_packed(&b,1031,ch,offset,planar);
++      run_result first,second;
++      first=decode(rates[r],pcm[out],profiles[pr],ch,tiers[k],&b,0,&unavailable);
++      second=decode(rates[r],pcm[out],profiles[pr],ch,tiers[k],&b,1,&unavailable_packed);
++      CHECK(unavailable==unavailable_packed);
++      if(!unavailable) {
++        CHECK(first.count==second.count);
++        CHECK(!memcmp(first.pcm,second.pcm,first.count*ch*sizeof(double)));
++        passed++;
++      } else skipped++;
++      free(first.pcm);free(second.pcm);free(raw);
++    }
++  fprintf(stdout,"P16 DSP matrix: %lu passed %lu unsupported; %lu assertions\n",
++      passed,skipped,checks);
++}
++
++/* Validate the public packed decoder's structural rejection path on
++ * independent malformed descriptors, without trusting native handlers. */
++static void invalid_descriptor_check(void)
++{
++  sox_dsd_packed_block_t b,invalid;
++  uint8_t *raw=make_packed(&b,19,2,7,1);
++  sox_dsd_decode_options_t opt;
++  double output[64]={0};
++  sox_dsd_decoder_t *ctx;
++  size_t consumed,capacity;
++  unsigned attempt;
++  for(attempt=0;attempt<10;attempt++) {
++    sox_dsd_decode_options_init_extended(&opt);
++    opt.native_hz=2822400;opt.output_hz=88200;opt.channels=2;
++    CHECK(sox_dsd_decoder_create(&opt,&ctx)==SOX_DSD_OK);
++    invalid=b;
++    switch(attempt) {
++    case 0: invalid.bytes=1;break;
++    case 1: invalid.byte_stride=0;break;
++    case 2: invalid.channel_stride=0;break;
++    case 3: invalid.bit_offset=8;break;
++    case 4: invalid.last_valid_bits=0;break;
++    case 5: invalid.last_valid_bits=8;break;
++    case 6: invalid.version=2;break;
++    case 7: invalid.bit_order=0;break;
++    case 8: invalid.channels=3;break;
++    case 9: invalid.frames=SIZE_MAX;break;
++    }
++    consumed=19;capacity=32;
++    CHECK(sox_dsd_decoder_process_packed(ctx,&invalid,0,
++        &consumed,output,&capacity)==SOX_DSD_BAD_ARGUMENT);
++    CHECK(consumed==0 && capacity==0);
++    sox_dsd_decoder_destroy(ctx);
++  }
++  free(raw);
++  fprintf(stdout,"P16 malformed descriptor gate: %u rejected\n",attempt);
++}
++
++static void reader_suite(const char *directory)
++{
++  char path[1024],msb[1024],name[1024];
++  for(unsigned c=1;c<=6;c+=c==1?1:4) {
++    size_t n=32773;
++    snprintf(path,sizeof(path),"%s/p16-%u.dsf",directory,c);
++    snprintf(msb,sizeof(msb),"%s/p16-msb-%u.dsf",directory,c);
++    file_write(path,c,n,2822400);
++    msb_dsf(path,msb);
++    reader_check(path,c,n,1,1);
++    reader_check(msb,c,n,1,8);
++    n=32776;
++    snprintf(name,sizeof(name),"%s/p16-%u.dff",directory,c);
++    file_write(name,c,n,2822400);
++    reader_check(name,c,n,0,8);
++  }
++  fprintf(stdout,"P16 physical readers: %lu packed blocks verified; %lu assertions\n",passed,checks);
++}
++int main(int argc,char **argv)
++{
++  char directory[]="/tmp/sox_p16_XXXXXX";
++  if(sox_init()!=SOX_SUCCESS) {fprintf(stderr,"sox_init failed\n");return 2;}
++  if(argc>=2 && !strcmp(argv[1],"matrix")) matrix_check();
++  else if(argc>=2 && !strcmp(argv[1],"fixtures") && argc==3) {
++    for(unsigned c=1;c<=6;c+=c==1?1:4) {
++      char path[1024];
++      for(unsigned r=0;r<3;r++)for(unsigned type=0;type<2;type++) {
++        snprintf(path,sizeof(path),"%s/p16-%u-%u.%s",argv[2],c,
++            2822400u<<r,type?"dff":"dsf");
++        file_write(path,c,32776,2822400u<<r);
++      }
++    }
++  } else if(argc==6 && !strcmp(argv[1],"fixture")) {
++    char *end;
++    unsigned long rate=strtoul(argv[3],&end,10);CHECK(*end=='\0');
++    unsigned long ch=strtoul(argv[4],&end,10);CHECK(*end=='\0');
++    unsigned long long n=strtoull(argv[5],&end,10);CHECK(*end=='\0');
++    CHECK((rate==2822400ul || rate==5644800ul || rate==11289600ul) &&
++        ch>=1 && ch<=6 && n>0 && n<=100000000ULL);
++    CHECK(n <= SIZE_MAX / ch);
++    file_write(argv[2],(unsigned)ch,(size_t)n,(uint32_t)rate);
++  } else if(argc==4 && !strcmp(argv[1],"simulate")) {
++    /* Simulated DSD512/1024 pack transport; not a decoder or writer test. */
++    char *end;
++    unsigned long rate=strtoul(argv[2],&end,10);CHECK(*end=='\0');
++    unsigned long long n=strtoull(argv[3],&end,10);CHECK(*end=='\0');
++    CHECK((rate==22579200ul || rate==45158400ul) && n>0 && n<=25000000ULL);
++    uint64_t checksum=0;
++    for(unsigned planar=0;planar<2;planar++) {
++      sox_dsd_packed_block_t b;
++      unsigned char *buffer=make_packed(&b,(size_t)n,2,7,(int)planar);
++      for(size_t f=0;f<n;f++)for(unsigned c=0;c<2;c++) {
++        CHECK(reference_bit(&b,f,c)==bit_at(f,c));
++        checksum+=(unsigned)reference_bit(&b,f,c);
++      }
++      free(buffer);
++    }
++    fprintf(stdout,"P16 simulated clock %lu; frames %llu; channels 2; "
++        "layouts 2; verified payload bits %llu; checksum %llu\n",
++        rate,n,n*4ULL,(unsigned long long)checksum);
++  } else {
++    char *root=mkdtemp(directory);
++    CHECK(root);
++    reader_suite(root);
++    invalid_descriptor_check();
++  }
++  CHECK(sox_quit()==SOX_SUCCESS);
++  return 0;
++}
+--- /dev/null
++++ b/tests/dsd/test_p16.py
+@@ -0,0 +1,200 @@
++#!/usr/bin/env python3
++"""P16 executable native-packed CLI integration and independent output parity.
++
++The C test exhaustively checks FIR tiers and bit offsets. This complementary
++matrix exercises real DSF/DFF readers, the CLI adapter, native profiles and SRC.
++Each case is saved atomically before the next case: interruption is resumable
++only against an unchanged executable and test configuration.
++"""
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import platform
++import subprocess
++import tempfile
++import time
++
++RATES = (2822400, 5644800, 11289600)
++ROOT = Path(__file__).resolve().parents[2]
++
++
++def digest(data: bytes) -> str:
++    return hashlib.sha256(data).hexdigest()
++
++
++def atomic(path: Path, data: dict) -> None:
++    temp = path.with_suffix('.json.tmp')
++    temp.write_text(json.dumps(data, indent=2, sort_keys=True, allow_nan=False) + '\n')
++    temp.replace(path)
++
++
++def invoke(command, *, packed: bool, timeout=90):
++    env = os.environ.copy()
++    env.update(SOX_OPTS='', OMP_NUM_THREADS='1', LC_ALL='C')
++    if packed:
++        env['SOX_DSD_PACKED_INPUT'] = '1'
++    else:
++        env.pop('SOX_DSD_PACKED_INPUT', None)
++    started = time.perf_counter()
++    cp = subprocess.run([str(x) for x in command], cwd=ROOT, env=env,
++                        stdin=subprocess.DEVNULL, capture_output=True, timeout=timeout)
++    return dict(exit=cp.returncode, sha256=digest(cp.stdout), output_bytes=len(cp.stdout),
++                stderr=cp.stderr.decode(errors='replace')[-1400:],
++                packed_debug_marker=b'P16: native packed input enabled' in cp.stderr,
++                seconds=time.perf_counter()-started,
++                env_packed=packed)
++
++
++def main():
++    ap = argparse.ArgumentParser(description=__doc__)
++    ap.add_argument('--sox', type=Path, default=ROOT/'src/sox')
++    ap.add_argument('--unit', type=Path, default=ROOT/'test/dsd_test_p16')
++    ap.add_argument('--results', type=Path, default=ROOT/'tests/dsd/results/P16/integration')
++    ap.add_argument('--quick', action='store_true', help='development subset; not full CLI qualification')
++    args = ap.parse_args()
++    args.sox = args.sox.resolve()
++    args.unit = args.unit.resolve()
++    args.results.mkdir(parents=True, exist_ok=True)
++    for f in (args.sox,args.unit):
++        if not f.is_file(): ap.error(f'missing built binary: {f}')
++    token = digest(json.dumps(dict(sox=digest(args.sox.read_bytes()),
++        unit=digest(args.unit.read_bytes()),
++        harness=digest(Path(__file__).read_bytes()),quick=args.quick),sort_keys=True).encode())
++    outfile = args.results/'packed-cli.json'
++    records = []
++    if outfile.exists():
++        old = json.loads(outfile.read_text())
++        if old.get('configuration_sha256') == token:
++            records = old['cases']
++    by_name = {x['name']:x for x in records}
++    result = dict(schema='P16/packed-cli/1',configuration_sha256=token,
++        executed_command=['python3', *map(str,os.sys.argv)],
++        host=dict(node=platform.node(),system=platform.platform(),machine=platform.machine()),
++        coverage='development subset' if args.quick else 'full integration matrix',
++        cases=records)
++    def save():
++        result['verdict'] = 'FAIL' if any(x['status']!='PASS' for x in records) else 'PASS'
++        result['counts'] = dict(pass_count=sum(x['status']=='PASS' for x in records),
++                                fail_count=sum(x['status']!='PASS' for x in records))
++        atomic(outfile,result)
++    with tempfile.TemporaryDirectory(prefix='sox-p16-integration-') as root:
++        d = Path(root)
++        mk = subprocess.run([str(args.unit),'fixtures',str(d)],cwd=ROOT,
++                            capture_output=True,text=True,timeout=180)
++        if mk.returncode:
++            raise RuntimeError(f'fixture builder exit {mk.returncode}: {mk.stderr}')
++        rates = RATES[:1] if args.quick else RATES
++        chans = (1,2) if args.quick else (1,2,6)
++        profiles = ('conservative','wideband') if args.quick else ('conservative','wideband','v2')
++        outputs = (88200,) if args.quick else (44100,192000)
++        kernels = ('scalar',) if args.quick else ('scalar','avx2')
++        for rate in rates:
++            for ext in ('dsf','dff'):
++                for ch in chans:
++                    inp = d/f'p16-{ch}-{rate}.{ext}'
++                    if not inp.is_file(): raise RuntimeError(f'fixture missing: {inp}')
++                    for profile in profiles:
++                        p = f'decode.mastering.v2.dsd{rate//44100}' if profile=='v2' else profile
++                        for output in outputs:
++                            for kernel in kernels:
++                                name = f'{rate}-{ext}-{ch}ch-{profile}-{output}-{kernel}'
++                                if name in by_name and by_name[name]['status']=='PASS':
++                                    continue
++                                command=[str(args.sox),'-V4','--dsd-mode','auto',
++                                    '--combine=merge','--dsd-layout-loss','warn',
++                                    '--dsd-decode',p,'-D',str(inp),'-r',str(output),
++                                    '-t','raw','-e','signed-integer','-b','32','-']
++                                old_fir=os.environ.get('SOX_DSD_KERNEL_FIR')
++                                os.environ['SOX_DSD_KERNEL_FIR']=kernel
++                                try:
++                                    baseline=invoke(command,packed=False)
++                                    native=invoke(command,packed=True)
++                                finally:
++                                    if old_fir is None:os.environ.pop('SOX_DSD_KERNEL_FIR',None)
++                                    else:os.environ['SOX_DSD_KERNEL_FIR']=old_fir
++                                try:
++                                    assert baseline['exit']==0, f'expanded exit: {baseline}'
++                                    assert native['exit']==0, f'packed exit: {native}'
++                                    assert baseline['output_bytes']==native['output_bytes']
++                                    assert baseline['sha256']==native['sha256'], 'PCM byte mismatch'
++                                    assert native['output_bytes']>0 and native['output_bytes']% (4*ch)==0
++                                    assert native['packed_debug_marker'], 'packed not activated'
++                                    assert not baseline['packed_debug_marker']
++                                    status='PASS'; error=None
++                                except AssertionError as exc:
++                                    status='FAIL';error=str(exc)
++                                record=dict(name=name,status=status,error=error,command=command,
++                                            environment=dict(SOX_DSD_KERNEL_FIR=kernel,
++                                                             SOX_DSD_PACKED_INPUT='1 or absent'),
++                                            expanded=baseline,packed=native)
++                                if name in by_name: records[records.index(by_name[name])]=record
++                                else:records.append(record)
++                                by_name[name]=record
++                                save()
++                                if status!='PASS':print('FAIL',name,error,flush=True)
++        # Native output must be byte-identical with the opt-in environment:
++        # it belongs only to the PCM input adapter, not the DSD writer.
++        for ext in ('dsf','dff'):
++            name=f'native-I-O-{ext}'
++            if name in by_name and by_name[name]['status']=='PASS':continue
++            src=d/f'p16-2-2822400.{ext}'
++            output_a=d/f'roundtrip-expanded-{ext}.dsf'
++            output_b=d/f'roundtrip-packed-{ext}.dsf'
++            base=[str(args.sox),'--dsd-mode','native','-D',str(src)]
++            env={**os.environ,'SOX_OPTS':''}
++            env.pop('SOX_DSD_PACKED_INPUT',None)
++            a=subprocess.run(base+[str(output_a)],cwd=ROOT,env=env,
++                             capture_output=True,timeout=90)
++            b=subprocess.run(base+[str(output_b)],cwd=ROOT,
++                             env={**env,'SOX_DSD_PACKED_INPUT':'1'},
++                             capture_output=True,timeout=90)
++            status=('PASS' if a.returncode==b.returncode==0 and
++                digest(output_a.read_bytes())==digest(output_b.read_bytes()) else 'FAIL')
++            record=dict(name=name,status=status,command=base,
++                expanded_exit=a.returncode,packed_flag_exit=b.returncode,
++                expanded_sha256=digest(output_a.read_bytes()) if output_a.is_file() else None,
++                flagged_sha256=digest(output_b.read_bytes()) if output_b.is_file() else None,
++                stderr_a=a.stderr.decode(errors='replace')[-500:],
++                stderr_b=b.stderr.decode(errors='replace')[-500:])
++            records.append(record);by_name[name]=record;save()
++
++        # P14's report observer is source-bound to the original expanded
++        # samples. With --dsd-report active the P16 opt-in must fall back,
++        # preserving statistics instead of silently disabling observation.
++        name='p14-report-opt-in-fallback'
++        if name not in by_name or by_name[name]['status']!='PASS':
++            src=d/'p16-2-2822400.dsf'
++            reports=[d/'expanded-report.json',d/'flagged-report.json']
++            runs=[]
++            for i in range(2):
++                command=[str(args.sox),'-V4','--dsd-report',str(reports[i]),
++                    '--dsd-mode','auto','--combine=merge','--dsd-layout-loss','warn',
++                    '-D',str(src),'-r','88200','-t','raw',
++                    '-e','signed-integer','-b','32','-']
++                runs.append(invoke(command,packed=(i==1)))
++            valid=all(x['exit']==0 and not x['packed_debug_marker'] for x in runs)
++            try:
++                a=json.loads(reports[0].read_text())
++                b=json.loads(reports[1].read_text())
++                # Report destination is allowed to differ; the actual native
++                # observations/counters/PCM are not.
++                valid=valid and runs[0]['sha256']==runs[1]['sha256']
++                # Compare the full report if deterministic; field-by-field
++                # statistics in P14 are compared in its own exhaustive gate.
++                observed=dict(report_keys=sorted(a.keys()),
++                              same_report=a==b)
++            except (OSError,ValueError) as exc:
++                valid=False;observed=dict(error=str(exc))
++            rec=dict(name=name,status='PASS' if valid else 'FAIL',runs=runs,
++                     report_observations=observed)
++            records.append(rec);by_name[name]=rec;save()
++    print(json.dumps(dict(verdict=result['verdict'],counts=result['counts'],path=str(outfile))))
++    return int(result['verdict']!='PASS')
++
++
++if __name__=='__main__':
++    raise SystemExit(main())
+--- /dev/null
++++ b/tests/dsd/bench_p16.py
+@@ -0,0 +1,169 @@
++#!/usr/bin/env python3
++"""P16 paired packed/expanded end-to-end benchmark, native256 + simulated512/1024.
++
++The 512/1024 tests are *only* descriptor/transport bit oracles, not decoder
++runs, SRC checks, or authorization to write high-rate media. Small developer
++measurements quantify a mechanism; CPU speedups are host/workload dependent.
++"""
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import platform
++import statistics
++import subprocess
++import tempfile
++import time
++
++ROOT=Path(__file__).resolve().parents[2]
++CLOCKS=(22579200,45158400)
++
++
++def atomic(path, value):
++    temp=path.with_suffix('.json.tmp')
++    temp.write_text(json.dumps(value,indent=2,sort_keys=True,allow_nan=False)+'\n')
++    temp.replace(path)
++
++
++def sha(data): return hashlib.sha256(data).hexdigest()
++
++
++def run(command, packed, output_dir, key, timeout):
++    stamp=output_dir/(key+'.time')
++    env=os.environ.copy()
++    env.update(SOX_OPTS='',OMP_NUM_THREADS='1',LC_ALL='C')
++    if packed: env['SOX_DSD_PACKED_INPUT']='1'
++    else:env.pop('SOX_DSD_PACKED_INPUT',None)
++    wrapper=['/usr/bin/time','-f','%e %U %S %M','-o',str(stamp)] \
++        if Path('/usr/bin/time').is_file() else []
++    t=time.perf_counter()
++    cp=subprocess.run(wrapper+[str(x) for x in command],cwd=ROOT,env=env,
++        stdin=subprocess.DEVNULL,capture_output=True,timeout=timeout)
++    elapsed=time.perf_counter()-t
++    time_fields=stamp.read_text().strip().split() if stamp.is_file() else []
++    stats=dict(wall_seconds=float(time_fields[0]),cpu_user_seconds=float(time_fields[1]),
++               cpu_system_seconds=float(time_fields[2]),peak_rss_kib=int(time_fields[3])) \
++        if len(time_fields)==4 else None
++    if stats is not None:
++        stats['cpu_seconds']=stats['cpu_user_seconds']+stats['cpu_system_seconds']
++    return dict(command=[str(x) for x in command],packed=packed,exit=cp.returncode,
++        sha256=sha(cp.stdout),pcm_bytes=len(cp.stdout),
++        raw_stderr=cp.stderr.decode(errors='replace')[-1000:],
++        process_time=stats,outer_wall_seconds=elapsed)
++
++
++def main():
++    ap=argparse.ArgumentParser(description=__doc__)
++    ap.add_argument('--sox',type=Path,default=ROOT/'src/sox')
++    ap.add_argument('--unit',type=Path,default=ROOT/'test/dsd_test_p16')
++    ap.add_argument('--results',type=Path,default=ROOT/'tests/dsd/results/P16/bench/packed-input')
++    ap.add_argument('--duration',type=float,default=.5)
++    ap.add_argument('--repetitions',type=int,default=3)
++    ap.add_argument('--timeout',type=int,default=180)
++    args=ap.parse_args()
++    if not 0.005<=args.duration<=5 or not 1<=args.repetitions<=20 or not 1<=args.timeout<=1200:
++        ap.error('invalid duration/repetitions/timeout')
++    args.sox=args.sox.resolve();args.unit=args.unit.resolve()
++    for p in (args.sox,args.unit):
++        if not p.is_file():ap.error(f'missing binary: {p}')
++    args.results.mkdir(parents=True,exist_ok=True)
++    outfile=args.results/'paired.json'
++    report=dict(schema='P16/paired/1',configuration=dict(duration=args.duration,
++        repetitions=args.repetitions,sox_sha256=sha(args.sox.read_bytes()),
++        unit_sha256=sha(args.unit.read_bytes()),build_host=platform.platform(),
++        hostname=platform.node(),machine=platform.machine(),
++        cpu_model=next((line.split(':',1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines()
++                        if line.startswith('model name')),None) if Path('/proc/cpuinfo').is_file() else None),
++        observations=[],simulated=[],unrun_gates=[
++            'Physical DSD512/DSD1024 decoder/SRC/writer not implemented or authorized',
++            'Dedicated isolated physical CPU multi-host performance qualification not run'],
++        methodology='two file formats at DSD256; matched expanded/packed output and time/RSS; rates 512/1024 only bit-address simulation')
++    def update():
++        rows=report['observations']+report['simulated']
++        report['verdict']='PASS' if rows and all(r.get('status')=='PASS' for r in rows) else 'FAIL'
++        atomic(outfile,report)
++    with tempfile.TemporaryDirectory(prefix='sox-p16-bench-') as root:
++        d=Path(root)
++        for rate in (11289600,):
++            frames=int(rate*args.duration)//8*8
++            for ext in ('dsf','dff'):
++                path=d/f'bench-{rate}.{ext}'
++                fixture=[str(args.unit),'fixture',str(path),str(rate),'2',str(frames)]
++                cp=subprocess.run(fixture,cwd=ROOT,capture_output=True,text=True,timeout=300)
++                if cp.returncode:
++                    report['observations'].append(dict(name=f'{rate}-{ext}',status='FAIL',
++                        fixture=fixture,exit=cp.returncode,stderr=cp.stderr[-2000:]))
++                    update();continue
++                sample_bytes=frames*2*4
++                native_bytes=((frames+7)//8)*2
++                # File I/O already reads packed bytes in BOTH variants;
++                # these figures are the bytes crossing the reader->DSP API,
++                # not physical disk-traffic reductions.
++                case=dict(name=f'{rate}-{ext}',status='PASS',rate_hz=rate,
++                    channels=2,frames=frames,file_bytes=path.stat().st_size,
++                    interstage_bytes_expanded=sample_bytes,interstage_bytes_packed=native_bytes,
++                    interstage_payload_traffic_reduction_ratio=sample_bytes/native_bytes,
++                    trials=[])
++                for trial in range(args.repetitions):
++                    command=[str(args.sox),'--dsd-mode','auto','--combine=merge',
++                        '--dsd-layout-loss','warn','--dsd-decode',
++                        'decode.mastering.v2.dsd256','-D',str(path),'-r','88200',
++                        '-t','raw','-e','signed-integer','-b','32','-']
++                    # Alternating order mitigates some source-cache bias; does
++                    # not make an uncontrolled/shared host suitable for sign-off.
++                    order=(True,False) if trial%2 else (False,True)
++                    runs={}
++                    for ispacked in order:
++                        runname=('packed' if ispacked else 'expanded')+str(trial)
++                        try: rr=run(command,ispacked,d,runname,args.timeout)
++                        except (OSError,subprocess.TimeoutExpired) as e:
++                            rr=dict(exit=None,error=str(e),packed=ispacked)
++                        runs['packed' if ispacked else 'expanded']=rr
++                    a=runs['expanded'];b=runs['packed']
++                    correct=(a.get('exit')==0 and b.get('exit')==0 and
++                             a.get('sha256')==b.get('sha256') and
++                             a.get('pcm_bytes')==b.get('pcm_bytes') and
++                             a.get('pcm_bytes',0)>0)
++                    case['trials'].append(dict(order=['packed' if x else 'expanded' for x in order],
++                        expanded=a,packed=b,status='PASS' if correct else 'FAIL'))
++                    if not correct:case['status']='FAIL'
++                    report['observations']=[r for r in report['observations'] if r['name']!=case['name']]+[case]
++                    update()
++                stats=[(t['expanded'].get('process_time'),t['packed'].get('process_time'))
++                       for t in case['trials'] if t['status']=='PASS']
++                if len(stats)==args.repetitions and all(x and y for x,y in stats):
++                    e=statistics.median(x['cpu_seconds'] for x,y in stats)
++                    p=statistics.median(y['cpu_seconds'] for x,y in stats)
++                    case['median_cpu_expanded_seconds']=e
++                    case['median_cpu_packed_seconds']=p
++                    case['paired_median_cpu_ratio_expanded_over_packed']=(e/p if p else None)
++                    case['median_maxrss_expanded_kib']=statistics.median(x['peak_rss_kib'] for x,y in stats)
++                    case['median_maxrss_packed_kib']=statistics.median(y['peak_rss_kib'] for x,y in stats)
++                update()
++        for rate in CLOCKS:
++            frames=int(rate*min(args.duration,.25))
++            cmd=[str(args.unit),'simulate',str(rate),str(frames)]
++            try:
++                r=run(cmd,False,d,f'sim-{rate}',args.timeout)
++                # Here stdout is a summary string, not audio. The checked C
++                # simulation exits nonzero on any mismatched physical bit.
++                result=dict(name=f'simulated-{rate}',status='PASS' if r['exit']==0 else 'FAIL',
++                            logical_native_hz=rate,frames=frames,channels=2,
++                            packed_payload_bytes=((frames+7)//8)*2,
++                            expanded_equivalent_bytes=frames*2*4,
++                            theoretical_interstage_ratio=(frames*2*4)/(((frames+7)//8)*2),
++                            transport_validation=r,decoder_enabled=False,writer_enabled=False)
++            except (OSError,subprocess.TimeoutExpired) as e:
++                result=dict(name=f'simulated-{rate}',status='FAIL',error=str(e))
++            report['simulated'].append(result);update()
++    print(json.dumps(dict(verdict=report.get('verdict'),
++        cases=[(r['name'],r['status']) for r in report['observations']+report['simulated']],
++        result_path=str(outfile))))
++    return int(report['verdict']!='PASS')
++
++
++if __name__=='__main__':
++    raise SystemExit(main())
+--- /dev/null
++++ b/scripts/p16_verify_inputs.py
+@@ -0,0 +1,93 @@
++#!/usr/bin/env python3
++"""P16 source/evidence-input inventory; neither P15 nor P16 acceptance authority.
++
++Create-only (--write), or verify a recorded P16 manifest (--verify). Changes
++require a newly named review manifest; no in-place recertification shortcut.
++"""
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import sys
++
++ROOT=Path(__file__).resolve().parents[1]
++FILES=(
++    'Makefile.am', 'src/Makefile.am', 'src/dsf.c', 'src/dsdiff.c',
++    'src/dsd_decode.c', 'src/dsd_decode.h', 'src/dsd_public.c',
++    'src/dsd_packed.c', 'src/dsd_packed.h', 'src/sox_dsd.h',
++    'src/sox_ng.c', 'test/Makefile.am',
++    'tests/dsd/test_p16.c', 'tests/dsd/test_p16.py',
++    'tests/dsd/bench_p16.py', 'tests/dsd/test_dff_writer.c',
++    'tests/dsd/run.py', 'tests/dsd/measure.py', 'tests/dsd/bench.py',
++    'docs/dsd/handoffs/P16.md',
++    'docs/dsd/P00_P16_EVIDENCE_WORKFLOW_2026-10-20.md',
++    'docs/dsd/amendments/P16_AUTHORIZATION_2026-10-20.md',
++    'docs/dsd/sows/P16.md',
++    'docs/dsd/DSD_DESIGN.md', 'docs/dsd/IMPLEMENTATION_PLAN.md',
++    'scripts/p16_dev_input_drift.py', 'scripts/p16_verify_inputs.py',
++    'tests/dsd/fixtures/manifest.json',
++)
++
++
++def source_file(name):
++    p=ROOT/name
++    if p.is_symlink() or not p.is_file():
++        raise ValueError('missing/symlink source input: '+name)
++    return p
++
++
++def sha(path):
++    h=hashlib.sha256()
++    with path.open('rb') as f:
++        for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
++    return h.hexdigest()
++
++
++def snapshot():
++    p00=source_file('tests/dsd/results/P00/P00_SHA256SUMS.txt')
++    if sha(p00)!='f3b06a48cae0e0bb451c8bac0a476364dea3017d82c66d9dd1b2abaf2b9aac4f':
++        raise ValueError('historical P00 index changed')
++    return dict(schema='P16/source-inputs/1',certified=False,
++        review_authority='nonqualifying self-generated developer inventory',
++        baseline_archive_sha256='c43d8367c8f6426db3fe72b71e29b09e75dc51d52bcf129c73f8d8f5a6b34366',
++        supplied_git_revision='f01d2687 (claimed by dispatch; no .git in archive)',
++        p00_sha256=sha(p00),
++        excludes='1350 historical arrays .npz and one filter study .npz absent in supplied snapshot',
++        files=[dict(path=name,sha256=sha(source_file(name)),
++                    bytes=source_file(name).stat().st_size) for name in FILES])
++
++
++def main():
++    ap=argparse.ArgumentParser(description=__doc__)
++    mode=ap.add_mutually_exclusive_group(required=True)
++    mode.add_argument('--write',type=Path)
++    mode.add_argument('--verify',type=Path)
++    a=ap.parse_args()
++    try:
++        actual=snapshot()
++        if a.write:
++            p=a.write
++            p.parent.mkdir(parents=True,exist_ok=True)
++            data=(json.dumps(actual,indent=2,sort_keys=True)+'\n').encode()
++            if p.exists():
++                if p.is_symlink() or p.read_bytes()!=data:
++                    raise ValueError('existing P16 input manifest differs; use a new checkpoint path')
++            else:
++                with p.open('xb') as f:f.write(data)
++            print('P16 source inventory created/unchanged:',p)
++        else:
++            p=a.verify
++            if p.is_symlink() or not p.is_file():raise ValueError('manifest missing or symlink')
++            expected=json.loads(p.read_bytes())
++            if expected!=actual:raise ValueError('P16 source input bytes differ from recorded manifest')
++            print(f'P16 source inventory PASS: {len(FILES)} inputs verified')
++        return 0
++    except (ValueError,KeyError,OSError,json.JSONDecodeError) as e:
++        print('P16 source inventory REFUSED:',e,file=sys.stderr)
++        return 1
++
++
++if __name__=='__main__':
++    raise SystemExit(main())
+--- /dev/null
++++ b/docs/dsd/handoffs/P16.md
+@@ -0,0 +1,56 @@
++# P16: packed native DSD input, engineering handoff
++
++**Revision:** 2026-10-20 P16 engineering continuation, based on operator snapshot `f01d2687` (`sox_dsd-p16-f01d2687.tar.gz`). The supplied archive SHA-256 is `c43d8367c8f6426db3fe72b71e29b09e75dc51d52bcf129c73f8d8f5a6b34366`. The archive contained no `.git` directory; this is a complete source/evidence continuation, **not** a purported Git descendant or signed release certificate.
++
++**Authority and boundaries:** `docs/dsd/amendments/P16_AUTHORIZATION_2026-10-20.md` authorizes P16 and closes P15 by operator decision. It explicitly preserves two OPEN proof obligations. This work neither closes those proofs nor changes the historical P00 index or P15 admissions. P17/P18 work and high-rate writers are not authorized by this packet.
++
++## Implementation
++
++- Added additive, versioned `sox_dsd_packed_block_t` and `sox_dsd_read_packed` / `sox_dsd_decoder_process_packed` entry points (`src/sox_dsd.h`, `src/dsd_packed.{h,c}`). The descriptor specifies buffer extent, physical channel/byte strides, LSB/MSB order, first-bit offset, final valid-bit count and valid frame count. Bounds and overflow validation occurs before bit addressing. A returned block **borrows** reader-owned bytes and must be consumed before the next reader block, seek or close.
++- DSF returns planar bytes from the *same normalized block cache* already used by expanded reads. Physically MSB-first DSF is reversed once into the cache, then exposed as LSB chronological bits. DFF returns channel-clustered, MSB-first bytes, reuses the current partial cluster, and only allocates a bounded 1,024-cluster batch on demand. Neither path reconstructs 32-bit graph samples. No new independently advancing file cursor is introduced.
++- Packed and expanded access modes are mutually exclusive on a handle until a successful seek. Failed mode switching does not advance the reader. The only update of `ft->olength` for packed reads is in the public packed dispatcher. Successful seek resets the access mode and stale error state; EOF and native frame accounting retain their original contracts.
++- The packed decoder feeds identical scalar/SSE2/AVX1/AVX2/AVX-512F binary64 FIR state (±1.0) directly from bits, with no table approximations, new SRC, modulator, writer or generic SoX sample-type change. Shared `src/dsd_public.c` downstream SRC and finite-count contracts are reused for expanded and packed inputs. A public test compares complete binary64 output **bit-for-bit** against the expanded reference.
++- The CLI adapter opts in with **`SOX_DSD_PACKED_INPUT=1`**; the ordinary expanded path remains the default. When the P14 native-statistics report is enabled, the adapter deliberately falls back to expanded input so that the existing observational report remains authoritative. Use `-V4` to see `P16: native packed input enabled` when the packed adapter is actually selected. The native DSD writer/repack path is unaffected.
++- `test/dsd_test_dff_writer` compiles a privately injected copy of `src/dsdiff.c`; its new externally visible reader symbol must be test-renamed alongside the registry symbols. That **test-scoped** link correction has no behavioral effect on the production DFF writer.
++
++## Files changed
++
++Production: `src/sox_dsd.h`, `src/dsd_packed.h` (new), `src/dsd_packed.c` (new), `src/dsf.c`, `src/dsdiff.c`, `src/dsd_decode.h`, `src/dsd_decode.c`, `src/dsd_public.c`, `src/sox_ng.c`, `src/Makefile.am`.
++
++Qualification and build: `Makefile.am`, `test/Makefile.am`, `tests/dsd/test_p16.c` (new), `tests/dsd/test_p16.py` (new), `tests/dsd/bench_p16.py` (new), `tests/dsd/test_dff_writer.c`, `tests/dsd/run.py`, `tests/dsd/measure.py`, `tests/dsd/bench.py`. The P16 make target inherits the P00–P14 tests, adds its physical reader and exact-FIR unit cases through the shared phase runner, and adds the real CLI integration suite. P15's closed source-bound release gate is **not** silently re-certified against changed P16 sources.
++
++## Directly observed correctness evidence
++
++- `./test/dsd_test_p16`: PASS. **4,695,450** physical packed blocks checked; **183,833,677** assertions, with DSF LSB/MSB and DFF, 1/2/6 channels, first-bit offsets 0–7, ten request capacities, block boundaries, a partial DSF tail, EOF, seeks, mode rejection, zero-length requests, and once-only `olength`. A separate malformed-descriptor gate rejected **10** invalid descriptors. Captured in `tests/dsd/results/P16/build/reader-unit-3.stdout`.
++- `./test/dsd_test_p16 matrix`: PASS. **2,880** native64/128/256 × 3 profiles × 4 PCM rates × 5 FIR tiers × 2 layouts × 8 offsets combinations; 2/6 channel cases; 0 unavailable on this x86 host. **673,920** assertions, including complete byte-equal binary64 output and exact finite counts. `tests/dsd/results/P16/build/matrix-2.stdout`.
++- `python3 tests/dsd/test_p16.py --results tests/dsd/results/P16/integration-full`: PASS, **219** cases. Uses actual CLI decoding and asserts the opt-in debug marker, byte-equal signed-32 PCM, real native DSF/DFF reads at all three rates, profiles, mono/stereo/6-channel inputs, two PCM output rates, scalar/AVX2 overrides, byte-identical native writer output with/without the opt-in, and P14-report fallback. `tests/dsd/results/P16/integration-full/packed-cli.json`.
++- `python3 tests/dsd/run.py --phase P16 --results tests/dsd/results/P16 ...`: PASS, **38** cases (the inherited 36-case floor plus two executable P16 unit gates), 0 fails/xfails/xpasses. `tests/dsd/results/P16/run.json`.
++- `make check`: PASS; `make check-rename`: PASS. Generic behavior and installed-name aliases were not changed.
++- `python3 tests/dsd/test_p14.py ... --results tests/dsd/results/P16/report`: PASS for the independent native report/observer suite; `report/integration-p14.json`.
++- `python3 tests/dsd/measure.py --phase P16 --results tests/dsd/results/P16/numeric`: **PASS, observed exit 0** on the complete rerun; **10 passed, 0 failed**, including frozen analysis-v1 checks and P14 independent SOS/native band checks. The first outer tool session timed out despite having written `measure.json`; it was not counted as a successful command. The completed rerun is recorded in `build/measure-complete.exit` and `build/commands.tsv`. Existing inherited qualification gaps in that report are unchanged.
++- `python3 tests/dsd/bench.py --phase P16 --results tests/dsd/results/P16/bench`: observed exit **0**, 36/36 development benchmark cases PASS and separate paired packed-input benchmark PASS. `bench/bench.json`, `bench/packed-input/paired.json`.
++- Full inherited `make check-dsd DSD_PHASE=P16`: **PASS, observed exit 0** on the second complete run. This includes P00–P14 inherited executable gates, P13 forced-ISA coverage, P14 reporting/numerics and P16 real CLI integration (**219/219 PASS**). Log and exit receipt: `tests/dsd/results/P16/build/check-dsd-full-2.stdout`, `.stderr`, `.exit`. The first attempt hit the **260-second outer tool timeout after P07**; it was not counted as PASS. Its raw logs remain in `build/make-check-dsd.*`. A separate P07 public-rate golden regression (9/9) also passed.
++
++The command log (`tests/dsd/results/P16/build/commands.tsv`) includes intermediate failures that were **diagnosed and corrected**, not erased: wrong DFF registry symbol during initial integration, a missing fixture encoding initializer, a test harness stderr truncation causing a false packed-marker failure, and a P01 injected-copy link collision. These are not outstanding source failures.
++
++## Benchmark and interpretation
++
++Paired development profile: x86-64 GNU/Linux shared/virtualized host, GCC 14.2, `-O2 -g`, static libSoX, 0.5 seconds of DSD256 2-channel source, one mastering-v2 output at 88.2 kHz, 3 repetitions/format. Both paths produce **identical PCM SHA-256** in every trial. Times below are **median process CPU seconds**, not wall-clock guarantees:
++
++- **DSF:** expanded **0.29 s**, packed **0.28 s**; ratio **1.036×**. Median peak RSS 3,324 versus 3,224 KiB.
++- **DFF:** expanded **0.29 s**, packed **0.27 s**; ratio **1.074×**. Median peak RSS 3,280 versus 3,288 KiB.
++- At the reader-to-DSP boundary the native DSD256 input changes from four-byte expanded samples to one packed bit per sample: measured payload-accounting ratio **32:1** (2 channels × 5,644,800 native frames). **This is not a claim that disk I/O, total RSS or overall pipeline traffic decreased 32×**; native DSF/DFF files were already packed and remain so.
++- Simulated descriptor/bit-address checks at **DSD512 (22,579,200 Hz, 5,644,800 frames)** and **DSD1024 (45,158,400 Hz, 11,289,600 frames)** passed both physical layouts at seven-bit initial offset, without invoking a decoder or writer. Observed CPU ~0.26 s and ~0.52 s for those isolated bit-oracle runs. They are **not** high-rate DSP, SRC, sustained throughput, or media interoperability certification.
++
++The paired timings are short and host-specific. They show bounded memory and matched audio, not a universal acceleration or proof of worst-case latency. Before optimizing further, gather longer, noise-controlled workload profiles on physical hosts and verify that the improvement persists. No byte-contribution tables or speculative SIMD packing were introduced.
++
++## Provenance and continuation
++
++- Historical P00 `tests/dsd/results/P00/P00_SHA256SUMS.txt` SHA-256 remains **`f3b06a48cae0e0bb451c8bac0a476364dea3017d82c66d9dd1b2abaf2b9aac4f`**. The P15 admissions and frozen proof receipts were not modified.
++- `tests/dsd/results/P16/P16_DEV_CHECKPOINT_2026-10-20.json` is the early **nonqualifying** SHA/drift checkpoint; the final working-tree drift report is `P16_DEV_FINAL_2026-10-20.json`. `P16_SOURCE_INPUTS_2026-10-20.json` records individually verified source/handoff/input hashes and `P16_SOURCE_SHA256SUMS.txt` is a conventional review digest list. Verify the exact inventory with `python3 scripts/p16_verify_inputs.py --verify tests/dsd/results/P16/P16_SOURCE_INPUTS_2026-10-20.json`. The script refuses an in-place rewritten snapshot. The reconstructed review patch against the supplied source snapshot is `tests/dsd/results/P16/P16_SOURCE_DIFF.patch`. These artifacts are **developer-produced inventories**, not externally reviewed digests or a P15 retrospective source admission. The 1,351 missing `.npz` are the same explicitly excluded source payloads as in the supplied snapshot, not generated or falsified here.
++- Replay from the tree root: `autoreconf -fi`; `./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'`; `make -j2`; `make -C test dsd_test_p16 dsd_test_io dsd_test_dff_writer`; `make check`; `make check-rename`; `python3 tests/dsd/run.py --phase P16 --results tests/dsd/results/P16`; `python3 tests/dsd/test_p16.py --results tests/dsd/results/P16/integration-full`; `python3 tests/dsd/measure.py --phase P16 --results tests/dsd/results/P16/numeric`; `python3 tests/dsd/bench.py --phase P16 --results tests/dsd/results/P16/bench`; `make check-dsd DSD_PHASE=P16`. Dependencies include `numpy`, `scipy`, `mpmath`, **`jsonschema`**, plus the configured optional build dependencies.
++- The tree and raw evidence are retained in the multipart archive. Reassemble with the accompanying SHA-256-verified script and independently verify the named source hashes before resuming. Do **not** replace the historical P00 manifest or use P15 source-admission changes to make actively modified P16 sources appear historically certified.
++
++## Final phase-gate state
++
++**P16 implementation and inherited phase gate: PASS for tested native DSD64/128/256 paths.** The completed inherited `make check-dsd` returned 0. P16 has not automatically acquired external release sign-off. Still unrun: controlled physical multi-host performance runs, independent real-world corpus/long soaks, and actual 512/1024 decoder/writer interoperability (reserved for later phases). P15's two exact formal proof obligations remain **OPEN** by prior operator decision. These are explicitly scoped evidence limitations, not newly asserted implementation defects. The **next permitted phase is only P17 following its separate authority**, not an implicit DSD512/1024 enablement from the P16 descriptor.

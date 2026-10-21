@@ -1,0 +1,35 @@
+sox:      SoX DSD v14.8.0+git
+uname:    Linux 60bf945deb38 6.18.55 #1 SMP Wed Oct 14 19:45:18 UTC 2026 x86_64
+compiler: gcc 14.2.0
+arch:     1288 48 88 L OMP
+sox INFO formats: detected file format type `dsf'
+
+Input File     : '/tmp/sox_p16_Y4m9IA/p16-1.dsf'
+Channels       : 1
+Sample Rate    : 2.8224e+06
+Precision      : 1-bit
+Duration       : 00:00:00.01 = 32773 samples ~ 0.870881 CDDA sectors
+File Size      : 8.28k
+Bit Rate       : 5.64M
+Sample Encoding: 1-bit Direct Stream Digital
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+
+sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)
+sox WARN sox_ng: discarding DSD channel layout for `raw' (--dsd-layout-loss warn)
+
+Output File    : 'tests/dsd/results/P16/smoke/packed-v4.raw'
+Channels       : 1
+Sample Rate    : 88200
+Precision      : 32-bit
+Sample Encoding: 32-bit Signed Integer PCM
+Endian Type    : little
+Reverse Nibbles: no
+Reverse Bits   : no
+Comment        : 'Processed by SoX'
+
+sox DBUG sox_ng: P16: native packed input enabled for '/tmp/sox_p16_Y4m9IA/p16-1.dsf'
+sox INFO sox_ng: effects chain: input        88200Hz  1 channels (multi) 32 bits unknown length
+sox INFO sox_ng: effects chain: output       88200Hz  1 channels (multi) 32 bits unknown length
+sox DBUG sox_ng: start-up time = 0.000322

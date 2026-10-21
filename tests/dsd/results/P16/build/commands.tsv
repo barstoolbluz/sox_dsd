@@ -1,0 +1,48 @@
+timestamp_utc	exit	command
+2026-10-21T02:49:34Z	0	autoreconf -fi
+2026-10-21T02:49:41Z	0	./configure --disable-shared --without-libltdl CFLAGS='-O2 -g'
+2026-10-21T02:50:01Z	2	make -j2
+2026-10-21T02:50:09Z	0	make -j2 (after correcting DSDIFF handler name)
+2026-10-21T02:51:43Z	0	autoreconf/configure/make/test/dsd_test_p16
+2026-10-21T02:51:53Z	1	./test/dsd_test_p16
+2026-10-21T02:52:25Z	0	./test/dsd_test_p16 (corrected encoding-info fixture default)
+2026-10-21T02:52:38Z	0	./test/dsd_test_p16 matrix
+2026-10-21T02:53:42Z	0	./test/dsd_test_p16 matrix (explicit mode selector)
+2026-10-21T02:53:58Z	0	make -j2 (packed debug marker)
+2026-10-21T02:56:27Z 0 make -j2 (bounded fixture/simulated-clock test)
+2026-10-21T02:57:06Z 0 make -C test dsd_test_p16
+2026-10-21T02:57:06Z 0 python3 tests/dsd/test_p16.py --quick
+2026-10-21T02:57:49Z 0 autoreconf -fi (P16 runner registration)
+2026-10-21T02:57:56Z 0 ./configure P16
+2026-10-21T02:57:56Z 0 make -j2 P16
+2026-10-21T02:58:35Z 0 python3 tests/dsd/bench_p16.py smoke
+2026-10-21T02:58:45Z 0 ./test/dsd_test_p16
+2026-10-21T02:58:49Z 0 ./test/dsd_test_p16 matrix
+2026-10-21T02:58:55Z 1 python3 tests/dsd/test_p16.py --results .../integration-full
+2026-10-21T02:59:12Z 0 python3 tests/dsd/test_p16.py (marker full-stderr fix)
+2026-10-21T02:59:31Z 0 scripts/p16_dev_input_drift.py ...
+2026-10-21T02:59:48Z 0 make check
+2026-10-21T02:59:48Z 0 make check-rename
+2026-10-21T02:59:48Z 2 python3 tests/dsd/run.py --phase P16 ...
+2026-10-21T02:59:56Z 2 make -C test dsd_test_io dsd_test_dff_writer
+2026-10-21T03:00:14Z 0 make -C test dsd_test_dff_writer (symbol injection test isolation)
+2026-10-21T03:00:26Z 0 python3 tests/dsd/run.py --phase P16 (reader & FIR tier registry)
+2026-10-21T03:01:37Z 0 python3 tests/dsd/bench_p16.py --results .../packed-input
+2026-10-21T03:02:43Z 0 make -C test dsd_test_p16 (descriptor negative cases)
+2026-10-21T03:02:51Z 0 ./test/dsd_test_p16 (negative descriptors)
+2026-10-21T03:02:56Z 0 python3 tests/dsd/test_p16.py (native I/O hashes + harness pin)
+2026-10-21T03:03:11Z 0 make -C test dsd_test_p09 dsd_test_p14
+2026-10-21T03:04:33Z 0 timeout 135s python3 tests/dsd/bench.py --phase P16
+2026-10-21T03:05:01Z 0 python3 tests/dsd/test_p14.py --results P16/report
+2026-10-21T03:05:07Z 0 python3 tests/dsd/run.py --phase P16 final
+2026-10-21T03:05:15Z 0 make check final
+2026-10-21T03:05:15Z 0 make check-rename final
+2026-10-21T03:05:56Z 0 python3 tests/dsd/test_p16.py (P14 reporter opt-in fallback)
+2026-10-21T03:06:06Z 0 timeout 75s tests/dsd/test_p07_public_rate.py --sox src/sox
+2026-10-21T03:07:20Z	0	make check-dsd DSD_PHASE=P16 (second complete run)
+2026-10-21T03:08:46Z	0	python3 tests/dsd/measure.py --phase P16 --results P16/numeric (full)
+2026-10-21T03:09:31Z 1 scripts/p16_dev_input_drift.py --out P16_DEV_FINAL_2026-10-20.json
+2026-10-21T03:09:32Z 0 scripts/p16_verify_inputs.py --write P16_SOURCE_INPUTS_2026-10-20.json
+2026-10-21T03:09:33Z 0 scripts/p16_verify_inputs.py --verify P16_SOURCE_INPUTS_2026-10-20.json
+2026-10-21T03:09:33Z 0 sha256sum --check P16_SOURCE_SHA256SUMS.txt
+2026-10-21T03:09:44Z 0 scripts/p16_dev_input_drift.py --out P16_DEV_FINAL_2026-10-20.json (P00 indexed test excludes --include)
