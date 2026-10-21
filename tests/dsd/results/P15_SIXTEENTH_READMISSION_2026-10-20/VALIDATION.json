@@ -1,0 +1,88 @@
+{
+  "adversarial_checks": [
+    "test current revision tamper refused",
+    "non-target admission revision tamper refused",
+    "follow-on readmission tamper refused",
+    "on-host comparator positive and wrong-control replay verified with mocked binary digests",
+    "tampered fixture payload checksum refused",
+    "unrelated host-local executables route to skip",
+    "P16 dev drift detects modification but does not self-approve"
+  ],
+  "completed_tests": [
+    {
+      "command": "python3 -m pytest -q tests/dsd/test_p15_sixteenth_readmission.py tests/dsd/test_p15_remaining_math.py tests/dsd/test_p15_current_closeout.py",
+      "failed": 0,
+      "passed": 23,
+      "skipped": 1
+    },
+    {
+      "command": "python3 -m pytest -q tests/dsd/test_p15_opt_source_rebind.py tests/dsd/test_p15_src_bound_operator.py tests/dsd/test_p15_src_complete_aliases.py tests/dsd/test_p15_src_continuum_bounds.py tests/dsd/test_p15_src_operator_observations.py tests/dsd/test_p15_high_rate_coverage_report.py tests/dsd/test_p15_closeout_review.py",
+      "failed": 0,
+      "passed": 42,
+      "skipped": 2,
+      "subtests_passed": 76
+    },
+    {
+      "command": "python3 scripts/verify_p15_sixteenth_readmission.py --inventory",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 scripts/p16_dev_input_drift.py",
+      "new_p00_drift": 0,
+      "status": "PASS"
+    }
+  ],
+  "current_admission_sha256": "e22bfb2341c4f694e232d4386b3a027846a8792adf67605a27445542a788eaa8",
+  "date": "2026-10-20",
+  "included_qualification_logs": [
+    "pytest_targeted.log",
+    "pytest_operator.log",
+    "pytest_broad_incomplete.log",
+    "readmission_verification.json",
+    "p16_baseline_drift.json",
+    "installer_adversarial.log"
+  ],
+  "incomplete_tests": [
+    {
+      "command": "python3 -m pytest -q tests/dsd/test_p15_*.py",
+      "observation": "pytest displayed progress through 19% with no failure prior to timeout; not counted as pass",
+      "status": "TIMED_OUT_AFTER_200_SECONDS"
+    }
+  ],
+  "installer_qualification": {
+    "atomic_per_file_writes": true,
+    "mixed_old_new_resume": true,
+    "new_audit_directory_created_if_absent": true,
+    "nonqualifying_p16_drift_rejected_by_p15_gate": true,
+    "not_a_multi_file_atomic_transaction": true,
+    "preflight_rejects_tampered_binding": true,
+    "repeat_apply_idempotent": true,
+    "tested_against_reconstructed_previous_admission": true
+  },
+  "limitations": [
+    "Recording-host executable digest precondition was simulated for playback of retained comparator receipts; no recording-host executables are shipped.",
+    "This narrow admission changes no source operator or historical receipt.",
+    "Non-P00 P16 files are not discovered by the drift tool without explicit --include.",
+    "No P16 release decision or mathematical proof is granted."
+  ],
+  "original_p00_preimages_changed": 0,
+  "p00_sha256": "f3b06a48cae0e0bb451c8bac0a476364dea3017d82c66d9dd1b2abaf2b9aac4f",
+  "p15_inventory": {
+    "admitted_current_revisions": 32,
+    "entries": 52416,
+    "missing_intentionally_excluded_npz": 1351,
+    "result": "PASS"
+  },
+  "patch_exact_sha256": "d1ca3e707bdd030b16b4179c0b7008b875bacd9c681ec7e89ba2576a1c5d95fe",
+  "production_c_sources_changed": 0,
+  "qualification": {
+    "mathematical_certificates_reproved": false,
+    "physical_comparator_replayed_with_original_executables": false,
+    "proofs_regenerated": false,
+    "release_qualified": false
+  },
+  "schema": "P15/sixteenth-readmission-validation/1",
+  "source_test_after_sha256": "4f92486d3c81563309e9d7159d8d0d6ff7d57b3cb4175264f03f3298399a926d",
+  "stage_snapshots_changed": 0,
+  "status": "READMITTED_AND_FOCUSED_REGRESSIONS_PASSED"
+}

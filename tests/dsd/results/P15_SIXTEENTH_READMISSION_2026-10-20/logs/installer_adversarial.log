@@ -1,0 +1,11 @@
+Source: reconstructed original admitted tree (51k+ files hard-linked for fixture).
+Preflight of untouched reconstructed tree: 2 old, 8 absent -> PASS.
+Full installation after correcting new-audit-parent creation: PASS.
+Verify-only and second apply (idempotency): PASS.
+Simulated interrupted publication (two old files, eight already new): PASS.
+Tampered active 88200-48000 operator-binding.json: REFUSED in preflight.
+Restored binding to verified baseline: verify-only PASS.
+Simulated unadmitted P16 mutation of test_p15_remaining_math.py:
+  nonqualifying P16 drift report: one changed P00-indexed file, no certification;
+  P15 readmission verifier: REFUSED (unexpected SHA-256).
+Original P00 index and 32 admitted preimages unchanged.
