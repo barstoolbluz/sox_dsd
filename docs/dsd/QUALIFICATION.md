@@ -15,6 +15,15 @@ blocking ones. The evidence reviewers still report `BLOCKED`,
 deliberately left that way: they report what the evidence supports, and an
 operator decision is not evidence.
 
+**2026-10-21: the continuum-extrema obligation is permanently waived.**
+`docs/dsd/amendments/CONTINUUM_EXTREMA_WAIVER_2026-10-21.md` waives
+interval-certified continuous-frequency extrema and coherent-alias
+certificates for the entire DSD engine, including the P17 DSD512/1024
+families and any later rate family. Sampled spectral acceptance is the
+project standard. The reviewers still report the gate OPEN because a waiver
+is not evidence; the waiver governs. Do not propose, scope or cost that work
+again.
+
 **Everything below this entry is historical.** Statements in it that first
 release, v2 default promotion or P16 are unauthorized were true when written
 and are superseded here.
