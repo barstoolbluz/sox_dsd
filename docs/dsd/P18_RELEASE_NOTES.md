@@ -1,0 +1,7 @@
+# P18 release notes — higher-rate capability machinery, no enablement
+
+P18 adds an internal, source-bound decision for each DSD512/DSD1024 native file operation and DoP transport. **No new high-rate file, decoder, encoder, or device capability is enabled.** Attempts to read or write such rates report an explicit format/operation capability refusal, rather than silently down-rating or borrowing DSD256 DSP parameters. Explicit DoP transports at 1.4112 MHz and 2.8224 MHz are arithmetically recognized but refused until separate qualification. WSD high-rate reads are also refused.
+
+An independent synthetic fixture matrix covers DSF blocks, DSDIFF chunk padding, byte orders, 1/2/6-channel layouts, 64-bit extent accounting, DoP markers and tails. These tests are not independent playback or real-media evidence. DSD64/128/256 behavior and public ABI remain unchanged, subject to the inherited regression gates. See `P18_COMPATIBILITY_LEDGER.md`, `P18_RELEASE_MANIFEST.json` and `handoffs/P18.md` for exact current results and limitations.
+
+P18 corrective update (2026-10-21): explicitly requested DSD512/1024 writes are refused before the generic SoX rate negotiator, including default/legacy CLI modes and `sox_open_write()` calls; they can no longer produce DSD256 files. Uppercase `.DFF` and `-t DFF` now report the DSDIFF-specific refusal. No high-rate capability has been enabled and lower-rate format negotiation is unchanged.

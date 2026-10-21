@@ -329,6 +329,16 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   if (requested_domain == LSX_DSD_NATIVE) {
     if (!all_native && !output_hz) output_hz=2822400;
     if (all_native && !output_hz) output_hz=native_rate;
+    if (output_hz==22579200u || output_hz==45158400u) {
+      lsx_dsd_endpoint endpoint=LSX_DSD_ENDPOINT_DSF;
+      if ((spec->output_type && !lsx_strcasecmp(spec->output_type,"dff")) ||
+          (spec->output_path && strlen(spec->output_path)>=4 &&
+           !lsx_strcasecmp(spec->output_path+strlen(spec->output_path)-4,".dff")))
+        endpoint=LSX_DSD_ENDPOINT_DFF;
+      return fail(error,n,"%s write at %u Hz unavailable: %s",
+          lsx_dsd_endpoint_name(endpoint),output_hz,
+          lsx_dsd_capability_description(output_hz,endpoint,LSX_DSD_OPERATION_WRITE));
+    }
     if (!lsx_dsd_rate_find(output_hz) ||
         !(lsx_dsd_rate_find(output_hz)->capabilities & LSX_DSD_WRITE_NATIVE))
       return fail(error,n,"native DSD writer is disabled or unsupported at %u Hz",output_hz);
@@ -552,14 +562,19 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
       }
       if (domain!=LSX_DSD_NATIVE)
         return fail(error,n,"dop requires native DSD at effect %lu",(unsigned long)(i+1));
-      if (!lsx_dsd_integer_rate(rate,&p->native_output_hz) ||
-          !lsx_dsd_rate_find(p->native_output_hz) ||
-          !(lsx_dsd_rate_find(p->native_output_hz)->capabilities & LSX_DSD_DOP))
-        return fail(error,n,"DoP requires a supported current native DSD clock");
+      if (!lsx_dsd_integer_rate(rate,&p->native_output_hz))
+        return fail(error,n,"DoP requires an exact uint32 native clock");
+      if (lsx_dsd_capability_check(p->native_output_hz,
+              LSX_DSD_ENDPOINT_DOP,LSX_DSD_OPERATION_TRANSPORT)!=LSX_DSD_CAP_OK)
+        return fail(error,n,"DoP transport at %u Hz unavailable: %s",
+            p->native_output_hz,
+            lsx_dsd_capability_description(p->native_output_hz,
+                LSX_DSD_ENDPOINT_DOP,LSX_DSD_OPERATION_TRANSPORT));
       if (spec->requested_output_rate && spec->requested_output_rate!=rate/16)
         return fail(error,n,"DoP output rate mismatch: native %.0f Hz needs %.0f Hz output",rate,rate/16);
-      output_hz=p->native_output_hz/16;
-      rate/=16;
+      if (!lsx_dsd_dop_pcm_rate(p->native_output_hz,&output_hz))
+        return fail(error,n,"DoP transport requires an exact native/16 PCM rate");
+      rate=output_hz;
       domain=LSX_DOP_TRANSPORT;
       ++p->dop_count;
       p->trim_native_seek=0;

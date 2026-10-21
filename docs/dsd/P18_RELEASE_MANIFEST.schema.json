@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "P18 fail-closed capability release decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "phase", "decision", "source_lineage", "authority_sha256", "p17_qualification_sha256", "p17_dsp_qualified", "high_rate_capability_enabled", "capabilities", "source_sha256", "fixture_manifest_sha256", "gates", "unrun_independent_gates", "device_claims"],
+  "properties": {
+    "schema": {"const":"P18/capability-release/1"},
+    "phase": {"const":"P18"},
+    "decision": {"enum":["P18_COMPLETE_FAIL_CLOSED","P18_INCOMPLETE_FAIL_CLOSED"]},
+    "source_lineage": {"type":"string","minLength":1},
+    "authority_sha256": {"$ref":"#/$defs/hash"},
+    "p17_qualification_sha256": {"$ref":"#/$defs/hash"},
+    "p17_dsp_qualified": {"const":false},
+    "high_rate_capability_enabled": {"const":false},
+    "capabilities": {"type":"array","minItems":12,"maxItems":12,
+      "items": {"type":"object","additionalProperties":false,
+        "required":["native_hz","rate_label","endpoint","operation","enabled","reason","transport_pcm_hz"],
+        "properties":{
+          "native_hz":{"enum":[22579200,45158400]},
+          "rate_label":{"enum":["DSD512","DSD1024"]},
+          "endpoint":{"enum":["DSF","DSDIFF","DoP","WSD"]},
+          "operation":{"enum":["read","write","transport"]},
+          "enabled":{"const":false},
+          "reason":{"const":"P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD"},
+          "transport_pcm_hz":{"type":["integer","null"],"minimum":1}
+        }}},
+    "source_sha256":{"type":"object","minProperties":6,"additionalProperties":{"$ref":"#/$defs/hash"}},
+    "fixture_manifest_sha256":{"$ref":"#/$defs/hash"},
+    "gates":{"type":"object","additionalProperties":{"type":"object","required":["status","path","sha256"],"properties":{
+        "status":{"enum":["PASS","FAIL","UNRUN"]},"path":{"type":"string"},"detail":{"type":"string"},"sha256":{"anyOf":[{"$ref":"#/$defs/hash"},{"type":"null"}]}}}},
+    "unrun_independent_gates":{"type":"array","minItems":4,"items":{"type":"string"}},
+    "device_claims":{"const":[]}
+  },
+  "$defs":{"hash":{"type":"string","pattern":"^[0-9a-f]{64}$"}}
+}

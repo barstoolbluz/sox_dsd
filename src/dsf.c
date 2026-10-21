@@ -22,6 +22,7 @@
  */
 
 #include "sox_i.h"
+#include "dsd.h"
 #include "dsd_layout_i.h"
 #include "dsd_packed.h"
 #include "id3.h"
@@ -83,7 +84,7 @@ static int dsf_startread(sox_format_t *ft)
 	uint32_t magic;
 	uint64_t csize;
 	uint32_t v;
-	uint64_t bytes_per_block, blocks, required_bytes, data_bytes;
+	uint64_t required_bytes, data_bytes;
 	uint64_t physical_size;
 
 	if (lsx_readdw(ft, &magic) || magic != DSF_TAG) {
@@ -165,14 +166,18 @@ static int dsf_startread(sox_format_t *ft)
 		lsx_fail_errno(ft, SOX_EHDR, "invalid DSF format dimensions");
 		return SOX_EHDR;
 	}
-	bytes_per_block = (uint64_t)dsf->block_size * 8;
-	blocks = dsf->scount / bytes_per_block +
-		(dsf->scount % bytes_per_block != 0);
-	if (blocks > UINT64_MAX / ((uint64_t)dsf->block_size * dsf->chan_num)) {
+	if (lsx_dsd_capability_check(dsf->sfreq, LSX_DSD_ENDPOINT_DSF,
+            LSX_DSD_OPERATION_READ)!=LSX_DSD_CAP_OK) {
+        lsx_fail_errno(ft, SOX_EFMT, "DSF read at %u Hz unavailable: %s",
+            dsf->sfreq, lsx_dsd_capability_description(dsf->sfreq,
+                LSX_DSD_ENDPOINT_DSF, LSX_DSD_OPERATION_READ));
+        return SOX_EFMT;
+    }
+    if (!lsx_dsd_dsf_extent(dsf->scount, dsf->chan_num,
+            dsf->block_size, &required_bytes)) {
 		lsx_fail_errno(ft, SOX_EHDR, "DSF block count overflow");
 		return SOX_EHDR;
 	}
-	required_bytes = blocks * dsf->block_size * dsf->chan_num;
 	physical_size = lsx_filelength(ft);
 	if (data_bytes < required_bytes ||
 	    data_bytes > UINT64_MAX - HEADER_SIZE ||
@@ -413,6 +418,17 @@ static int dsf_startwrite(sox_format_t *ft)
 {
 	struct dsf *dsf = ft->priv;
 
+    uint32_t rate;
+    if (!lsx_dsd_integer_rate(ft->signal.rate, &rate) ||
+        lsx_dsd_capability_check(rate, LSX_DSD_ENDPOINT_DSF,
+            LSX_DSD_OPERATION_WRITE)!=LSX_DSD_CAP_OK) {
+        lsx_fail_errno(ft, SOX_EFMT,
+            "DSF write at %.9g Hz unavailable: %s", ft->signal.rate,
+            lsx_dsd_integer_rate(ft->signal.rate, &rate) ?
+                lsx_dsd_capability_description(rate, LSX_DSD_ENDPOINT_DSF,
+                    LSX_DSD_OPERATION_WRITE) : "native rate not a uint32 integer");
+        return SOX_EFMT;
+    }
 	dsf->version = 1;
 	dsf->format_id = 0;
 	dsf->chan_type = dsf->layout_state.layout ?
@@ -423,7 +439,7 @@ static int dsf_startwrite(sox_format_t *ft)
 		return SOX_EFMT;
 	}
 	dsf->chan_num = ft->signal.channels;
-	dsf->sfreq = ft->signal.rate;
+	dsf->sfreq = rate;
 	dsf->bps = ft->encoding.bits_per_sample;
 	dsf->block_size = 4096;
 

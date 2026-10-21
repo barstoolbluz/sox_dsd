@@ -144,7 +144,7 @@ def main() -> int:
             except (subprocess.TimeoutExpired,OSError) as exc:
                 p09_runs.append(dict(name=name,status='fail',error=str(exc)))
         passed.extend(p09_runs)
-    if args.phase in ('P14','P15','P16','P17'):
+    if args.phase in ('P14','P15','P16','P17','P18'):
         command=[sys.executable,str(ROOT/'tests/dsd/test_p14_numeric.py'),
             '--unit',str(ROOT/'test/dsd_test_p14'),
             '--sox',str(args.sox), '--results',str(args.results/'native-sos')]
@@ -158,7 +158,7 @@ def main() -> int:
             case=dict(name='P14_independent_digital_SOS_and_native_band',
                       status='fail',error=str(exc))
         passed.append(case)
-    if args.phase=='P17':
+    if args.phase in ('P17','P18'):
         # Separate P17 sampled/finite evidence; it cannot promote a profile.
         command=[sys.executable,str(ROOT/'tests/dsd/test_p17_numeric.py'),
                  '--results',str(args.results/'highrate-development')]
@@ -225,7 +225,7 @@ def main() -> int:
         result['independent_analysis']['candidate_qualification']=qualification['status']
         result['quality_measurements'].append(dict(status='unpromoted',path='numeric/qualification.json'))
         if cp.returncode not in (0,2):result['summary']['failed']+=1
-    if args.phase=='P17':
+    if args.phase in ('P17','P18'):
         result['summary']['unrun_gates']=[
             'DSD512/DSD1024 independent external licensed/reference media and transport interoperability',
             'continuous-frequency composite/alias interval extremum proof',
@@ -235,6 +235,18 @@ def main() -> int:
         result['summary']['qualification_status']='UNQUALIFIED (P17 development only)'
         result['quality_measurements'].append(dict(status='sampled-and-finite-development-only',
              path='highrate-development/qualification.json',qualified=False))
+    if args.phase=='P18':
+        result['summary']['unrun_gates']=[
+            'P17 independent high-rate DSP certification, real media and continuous spectral bounds',
+            'DSD512/DSD1024 external decoder/player and physical device interoperability',
+            'DSD512/DSD1024 file and DoP production throughput: not authorized to execute',
+            'P18 high-rate write/transport promotion withheld by operator authority']
+        result['summary']['qualification_status']='P18 FAIL_CLOSED (all higher-rate endpoints disabled)'
+        result['p18_capability_policy']={
+            'manifest':'docs/dsd/P18_RELEASE_MANIFEST.json',
+            'qualification':'UNQUALIFIED; no higher-rate DSP/container/transport enabled',
+            'independent_highrate_media':'UNRUN',
+            'numerical_coefficients_modified':False}
     if args.phase=='P15':
         # P00-P14 historical report text predates the P10 positive review.
         # Never substitute a frozen P10 certificate for a P15 release result.

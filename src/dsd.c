@@ -20,6 +20,106 @@ static lsx_dsd_rate const dsd_rates[] = {
   {45158400, 1024, "DSD1024", 0, NULL, NULL, NULL}
 };
 
+/* P18 is explicit evidence-bound authorization, not a size check. No build
+ * flag or environment setting may flip these high-rate operations on. */
+typedef struct {uint32_t rate; lsx_dsd_endpoint endpoint;
+    lsx_dsd_operation operation; lsx_dsd_cap_result decision;} cap_row;
+static const cap_row p18_closed[] = {
+  {22579200,LSX_DSD_ENDPOINT_DSF,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED},
+  {22579200,LSX_DSD_ENDPOINT_DSF,LSX_DSD_OPERATION_WRITE,LSX_DSD_CAP_UNQUALIFIED},
+  {45158400,LSX_DSD_ENDPOINT_DSF,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED},
+  {45158400,LSX_DSD_ENDPOINT_DSF,LSX_DSD_OPERATION_WRITE,LSX_DSD_CAP_UNQUALIFIED},
+  {22579200,LSX_DSD_ENDPOINT_DFF,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED},
+  {22579200,LSX_DSD_ENDPOINT_DFF,LSX_DSD_OPERATION_WRITE,LSX_DSD_CAP_UNQUALIFIED},
+  {45158400,LSX_DSD_ENDPOINT_DFF,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED},
+  {45158400,LSX_DSD_ENDPOINT_DFF,LSX_DSD_OPERATION_WRITE,LSX_DSD_CAP_UNQUALIFIED},
+  {22579200,LSX_DSD_ENDPOINT_DOP,LSX_DSD_OPERATION_TRANSPORT,LSX_DSD_CAP_UNQUALIFIED},
+  {45158400,LSX_DSD_ENDPOINT_DOP,LSX_DSD_OPERATION_TRANSPORT,LSX_DSD_CAP_UNQUALIFIED},
+  /* WSD is not an enabled P18 destination, even though its reader can
+   * encounter future-rate labels. */
+  {22579200,LSX_DSD_ENDPOINT_WSD,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED},
+  {45158400,LSX_DSD_ENDPOINT_WSD,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED}
+};
+
+const char *lsx_dsd_endpoint_name(lsx_dsd_endpoint endpoint)
+{
+  switch (endpoint) {
+    case LSX_DSD_ENDPOINT_DSF: return "DSF";
+    case LSX_DSD_ENDPOINT_DFF: return "DSDIFF";
+    case LSX_DSD_ENDPOINT_DOP: return "DoP";
+    case LSX_DSD_ENDPOINT_WSD: return "WSD";
+    default: return "unknown DSD endpoint";
+  }
+}
+
+lsx_dsd_cap_result lsx_dsd_capability_check(uint32_t native_hz,
+    lsx_dsd_endpoint endpoint, lsx_dsd_operation operation)
+{
+  size_t i;
+  const lsx_dsd_rate *r;
+  unsigned bit;
+  for (i=0;i<sizeof(p18_closed)/sizeof(p18_closed[0]);++i)
+    if (p18_closed[i].rate==native_hz && p18_closed[i].endpoint==endpoint &&
+        p18_closed[i].operation==operation)
+      return p18_closed[i].decision;
+  if ((endpoint==LSX_DSD_ENDPOINT_DOP && operation!=LSX_DSD_OPERATION_TRANSPORT) ||
+      (endpoint!=LSX_DSD_ENDPOINT_DOP && operation==LSX_DSD_OPERATION_TRANSPORT) ||
+      endpoint>LSX_DSD_ENDPOINT_WSD || operation>LSX_DSD_OPERATION_TRANSPORT ||
+      !native_hz || native_hz>=22579200u)
+    return LSX_DSD_CAP_UNSUPPORTED;
+  /* Old low-rate format readers accept some nonstandard labels; do not
+   * change that preexisting parser policy in this high-rate phase. */
+  if (operation==LSX_DSD_OPERATION_READ) return LSX_DSD_CAP_OK;
+  r=lsx_dsd_rate_find(native_hz);
+  bit=operation==LSX_DSD_OPERATION_TRANSPORT?LSX_DSD_DOP:LSX_DSD_WRITE_NATIVE;
+  return r && (r->capabilities & bit)?LSX_DSD_CAP_OK:LSX_DSD_CAP_UNSUPPORTED;
+}
+
+const char *lsx_dsd_capability_description(uint32_t native_hz,
+    lsx_dsd_endpoint endpoint, lsx_dsd_operation operation)
+{
+  lsx_dsd_cap_result r=lsx_dsd_capability_check(native_hz,endpoint,operation);
+  if (r==LSX_DSD_CAP_UNQUALIFIED)
+    return "P18 capability disabled: P17 high-rate DSP qualification incomplete; no file/transport authorization";
+  if (r==LSX_DSD_CAP_UNSUPPORTED)
+    return "DSD rate, format or operation not supported";
+  return "available";
+}
+
+int lsx_dsd_dop_pcm_rate(uint32_t native_hz, uint32_t *pcm_hz)
+{
+  if (!pcm_hz || !native_hz || native_hz%16u) return 0;
+  *pcm_hz=native_hz/16u;
+  return 1;
+}
+
+int lsx_dsd_dsf_extent(uint64_t frames, unsigned channels,
+    uint32_t block_size, uint64_t *payload_bytes)
+{
+  uint64_t bits_per_block, blocks, per_block;
+  if (!channels || !block_size || !payload_bytes) return 0;
+  bits_per_block=(uint64_t)block_size*8u;
+  blocks=frames/bits_per_block + (frames%bits_per_block!=0);
+  per_block=(uint64_t)block_size*channels;
+  if (blocks > UINT64_MAX/per_block) return 0;
+  *payload_bytes=blocks*per_block;
+  return 1;
+}
+
+int lsx_dsd_dff_extent(uint64_t frames, unsigned channels,
+    uint64_t *payload_bytes, uint64_t *chunk_span)
+{
+  uint64_t bytes_per_channel, bytes;
+  if (!channels || !payload_bytes || !chunk_span) return 0;
+  bytes_per_channel=frames/8u+(frames%8u!=0);
+  if (bytes_per_channel>UINT64_MAX/channels) return 0;
+  bytes=bytes_per_channel*channels;
+  if (bytes>UINT64_MAX-12u-(bytes&1u)) return 0;
+  *payload_bytes=bytes;
+  *chunk_span=12u+bytes+(bytes&1u);
+  return 1;
+}
+
 lsx_dsd_rate const *lsx_dsd_rate_find(uint64_t hz)
 {
   size_t i;

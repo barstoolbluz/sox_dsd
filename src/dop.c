@@ -17,6 +17,7 @@
  */
 
 #include "sox_i.h"
+#include "dsd.h"
 
 typedef struct dop {
   sox_sample_t *buf;
@@ -35,10 +36,24 @@ static int dop_start(sox_effect_t *eff)
     return SOX_EOF;
   }
 
-  if (eff->in_signal.rate != 16 * eff->out_signal.rate) {
-    lsx_fail("incorrect output rate, should be %.1fk",
-             eff->in_signal.rate / 16 / 1000);
-    return SOX_EOF;
+  {
+    uint32_t native, transport;
+    if (!lsx_dsd_integer_rate(eff->in_signal.rate, &native) ||
+        !lsx_dsd_dop_pcm_rate(native, &transport) ||
+        lsx_dsd_capability_check(native, LSX_DSD_ENDPOINT_DOP,
+            LSX_DSD_OPERATION_TRANSPORT) != LSX_DSD_CAP_OK) {
+      lsx_fail("DoP transport capability unavailable at %.9g Hz: %s",
+          eff->in_signal.rate,
+          lsx_dsd_integer_rate(eff->in_signal.rate, &native) ?
+              lsx_dsd_capability_description(native, LSX_DSD_ENDPOINT_DOP,
+                  LSX_DSD_OPERATION_TRANSPORT) : "invalid native clock");
+      return SOX_EOF;
+    }
+    if (eff->out_signal.rate != transport) {
+      lsx_fail("DoP transport output at %.9g Hz required for native %u Hz",
+          (double)transport,native);
+      return SOX_EOF;
+    }
   }
 
   eff->out_signal.precision = 24;

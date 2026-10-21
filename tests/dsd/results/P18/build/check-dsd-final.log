@@ -1,0 +1,457 @@
+Making all in libdolbyb
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/libdolbyb'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/libdolbyb'
+Making all in libebur128
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/libebur128'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/libebur128'
+Making all in lpc10
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/lpc10'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/lpc10'
+Making all in libgsm
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/libgsm'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/libgsm'
+Making all in src
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/src'
+make  all-am
+make[2]: Entering directory '/mnt/data/p18-work/sox_dsd/src'
+make[2]: Leaving directory '/mnt/data/p18-work/sox_dsd/src'
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/src'
+Making all in test
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd'
+make check-dsd-optimization
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd'
+Making all in libdolbyb
+make[2]: Entering directory '/mnt/data/p18-work/sox_dsd/libdolbyb'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/mnt/data/p18-work/sox_dsd/libdolbyb'
+Making all in libebur128
+make[2]: Entering directory '/mnt/data/p18-work/sox_dsd/libebur128'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/mnt/data/p18-work/sox_dsd/libebur128'
+Making all in lpc10
+make[2]: Entering directory '/mnt/data/p18-work/sox_dsd/lpc10'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/mnt/data/p18-work/sox_dsd/lpc10'
+Making all in libgsm
+make[2]: Entering directory '/mnt/data/p18-work/sox_dsd/libgsm'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/mnt/data/p18-work/sox_dsd/libgsm'
+Making all in src
+make[2]: Entering directory '/mnt/data/p18-work/sox_dsd/src'
+make  all-am
+make[3]: Entering directory '/mnt/data/p18-work/sox_dsd/src'
+make[3]: Leaving directory '/mnt/data/p18-work/sox_dsd/src'
+make[2]: Leaving directory '/mnt/data/p18-work/sox_dsd/src'
+Making all in test
+make[2]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+make[2]: Entering directory '/mnt/data/p18-work/sox_dsd'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/mnt/data/p18-work/sox_dsd'
+make -C test dsd_test_decode_optimization
+make[2]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[2]: 'dsd_test_decode_optimization' is up to date.
+make[2]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+/mnt/data/p18-work/sox_dsd/test/dsd_test_decode_optimization scalar
+decoder optimization PASS (113573 assertions, 1270 stream cases, scalar)
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd'
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p14' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p10' is up to date.
+make[1]: 'sox_p10_candidate' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+make -C test dsd_test_io
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_io' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+make -C test dsd_test_dff_writer
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_dff_writer' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p16' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p17' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p18' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+python3 ./tests/dsd/run.py --phase P18 --results /mnt/data/p18-work/sox_dsd/tests/dsd/results/P18 --sox /mnt/data/p18-work/sox_dsd/src/sox --probe /mnt/data/p18-work/sox_dsd/test/dsd_test_io --writer-unit /mnt/data/p18-work/sox_dsd/test/dsd_test_dff_writer
+PASS  unit_exact_integer_counts
+PASS  unit_explicit_xfail_classifier
+PASS  unit_P01_xfail_mutation_transition
+PASS  unit_dff_chunk_spans
+PASS  unit_hand_derived_bit_order_dsd_dop
+PASS  unit_reproducible_fixture_generator
+PASS  unit_independent_chunk_and_bit_oracles
+PASS  dsf_normal_mono_96
+PASS  dsf_normal_stereo_96
+PASS  dsf_fourchannel_type4_audio
+PASS  dsf_sixchannel_audio
+PASS  dff_normal_stereo_128
+PASS  dff_manf_core_corrected_control
+PASS  dsf_rewind_core_corrected_control
+PASS  dsf_small_capacity_one_frame
+PASS  dff_small_capacity_one_frame
+PASS  dsf_one_frame_first_bit
+PASS  dsf_empty_file
+PASS  dff_single_byte_cluster
+PASS  dsf_msb_first_8bit_storage
+PASS  dsf_rewind_generic_core_position
+PASS  dsf_multichannel_public_seek_offset16
+PASS  dff_multichannel_public_seek_offset16
+PASS  dff_trailing_manf_generic_counter
+PASS  wsd_normal_mono_16
+PASS  wsd_small_capacity_one_frame
+PASS  wav_rewind_after_manual_core_position_correction
+PASS  dff_writer_cmpr_name_length
+PASS  dff_writer_frm8_parent_size
+PASS  dff_writer_completed_tail_audio_count
+PASS  dff_writer_odd_payload_external_pad
+PASS  dff_writer_uninitialized_first_cluster_1ch
+PASS  dff_writer_uninitialized_first_cluster_4ch
+PASS  dsf_type5_channel_identity_loss
+PASS  dop_cli_hand_vector_transport_markers
+PASS  integration_xfail_audio_mutation_rejection
+PASS  P16_native_packed_reader_contract
+PASS  P16_binary64_packed_versus_expanded_FIR_ISA_matrix
+PASS  P17_highrate_registry_delay_and_capabilities
+PASS  P17_highrate_packed_expanded_isa_matrix
+PASS  P17_unqualified_exact_rate_sdm_candidates
+PASS  P18_registry_closed_gate
+PASS  P18_transport_closed_gate
+PASS  P18_sizes_closed_gate
+PASS  P18_closed_high_rate_format_and_packed_CLI
+{"verdict": "pass", "counts": {"pass": 45, "xfail": 0, "xpass": 0, "fail": 0, "skip": 0}, "result_path": "/mnt/data/p18-work/sox_dsd/tests/dsd/results/P18/run.json"}
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_dop_capacity' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+P02 DoP capacity: 29 independent assertions PASS
+P02 streaming/extent/forward-only/CLI: 706/706 PASS, 0 FAIL; /mnt/data/p18-work/sox_dsd/tests/dsd/results/P18/streaming/streaming.json
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_seek_contract' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+PASS dsf-lsb-1ch
+PASS dsf-msb-1ch
+PASS dff-1ch
+PASS wsd-1ch
+PASS wav-pcm-1ch
+PASS raw-pcm-1ch
+PASS smp-mono
+PASS prc-alaw-mono
+PASS dsf-0-frames
+PASS dsf-1-frames
+PASS dsf-7-frames
+PASS dsf-9-frames
+PASS dsf-32769-frames
+PASS dff-0-frames
+PASS dff-8-frames
+PASS dsf-lsb-2ch
+PASS dsf-msb-2ch
+PASS dff-2ch
+PASS wsd-2ch
+PASS wav-pcm-2ch
+PASS raw-pcm-2ch
+PASS msu-stereo
+PASS dsf-lsb-3ch
+PASS dsf-msb-3ch
+PASS dff-3ch
+PASS wsd-3ch
+PASS wav-pcm-3ch
+PASS raw-pcm-3ch
+PASS dsf-lsb-4ch
+PASS dsf-msb-4ch
+PASS dff-4ch
+PASS wsd-4ch
+PASS wav-pcm-4ch
+PASS raw-pcm-4ch
+PASS dsf-lsb-5ch
+PASS dsf-msb-5ch
+PASS dff-5ch
+PASS wsd-5ch
+PASS wav-pcm-5ch
+PASS raw-pcm-5ch
+PASS dsf-lsb-6ch
+PASS dsf-msb-6ch
+PASS dff-6ch
+PASS wsd-6ch
+PASS wav-pcm-6ch
+PASS raw-pcm-6ch
+PASS dff-empty-1ch-no-manf
+PASS dff-empty-1ch-manf
+PASS dff-eight-1ch-manf-control
+PASS dff-empty-2ch-no-manf
+PASS dff-empty-2ch-manf
+PASS dff-eight-2ch-manf-control
+PASS dff-empty-6ch-no-manf
+PASS dff-empty-6ch-manf
+PASS dff-eight-6ch-manf-control
+PASS wav-gsm-unsupported-without-movement
+PASS cli-wav-optimized-trim-1ch
+PASS cli-wav-optimized-trim-2ch
+PASS cli-wav-optimized-trim-6ch
+{"fail": 0, "pass": 59, "unrun_optional": ["flac", "vorbis", "opus", "wavpack"]}
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_layout' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+PASS public_layout_ownership_type4_type5_and_mappings
+PASS copy_owned_original_CHNL_LSCO_swap_lsco
+PASS copy_owned_original_CHNL_LSCO_context
+PASS copy_owned_original_CHNL_LSCO_ambiguous
+PASS copy_owned_original_CHNL_LSCO_type5_standard
+PASS copy_owned_original_CHNL_LSCO_stereo_lsco0
+PASS copy_owned_original_CHNL_LSCO_five_lsco3
+PASS copy_owned_original_CHNL_LSCO_six_lsco4
+PASS library_clone_dsf_type4
+PASS library_clone_dsf_type5
+PASS library_clone_dsf_msb_bps8
+PASS stream_info_original_dsf_type_bit_order_and_roles
+PASS wsd_ch_asn_opaque_provenance_no_speaker_guess
+PASS LSCO_known_consistent_and_inconsistent_keeps_explicit_CHNL
+PASS dff_standard_to_native_dsf5
+PASS dff_context_to_dsf_unrepresentable_rejected
+PASS dff_context_explicit_assignment_native_dsf5
+PASS dsf_to_dff_standard_IDs_and_bit_sequences
+PASS wav_float_mask_order_with_explicit_input_swap
+PASS wav_pcm16_mask_order_with_explicit_input_swap
+PASS wav_ambiguous_side_vs_back_reject
+PASS wav_ambiguous_side_vs_back_unspecified_mask_override
+PASS wav_ambiguous_explicit_side_assignment
+PASS wav_remix_and_mask_order_compose_to_canonical_samples
+PASS WAV_extensible_FC_maps_to_FC_and_DSF_Type5
+PASS channels_noop_native_mono_96.dsf
+PASS channels_noop_native_stereo_96.dsf
+PASS channels_noop_native_type4_quad_96.dsf
+PASS channels_noop_native_type5_quad_96.dsf
+PASS channels_noop_DFF_stereo_CHNL_LSCO
+PASS channels_noop_DFF_quad_CHNL_LSCO
+PASS channels_reduction_clears_DFF_roles
+PASS channels_expansion_clears_DFF_roles
+PASS channels_noop_stereo_WAV_mask_and_samples
+PASS conventional_PCM_mono_WAV_to_DSF_and_DFF
+PASS conventional_PCM_stereo_WAV_to_DSF_and_DFF
+PASS PCM_explicit_assignment_overrides_conventional_stereo
+PASS WAV_extensible_side_roles_not_replaced_with_stereo
+PASS WAV_explicit_unsupported_mask_not_guessed
+PASS unknown_four_channel_PCM_requires_assignment_for_DSF
+PASS ordinary_PCM_to_PCM_no_mask_or_sample_change
+PASS PCM_WAV_channel_mask_does_not_change_ordinary_PCM_policy
+PASS remix_pure_permutation_retains_DFF_channel_IDs
+PASS remix_mixing_invalidates_original_channel_IDs
+PASS metadata_loss_default_reject_explicit_warn
+PASS DSDIFF_surround_ambiguous_DSF_rejected
+{"fail": 0, "pass_": 46}
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_plan' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+P05 plan unit: 184 assertions, 0 failed
+P05 CLI plan: 160 pass, 0 fail, 160 total
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_decode' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+P06 scalar unit PASS (93643 assertions; 6 profiles, 1/2/5/6 channels, lengths 0..33 and ring wrap)
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_decode_faults' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+P06 allocation cleanup/alignment PASS (52 assertions; 4 injected failures)
+P06 scalar oracle PASS: 1056 vectors, 58408 frame/channel samples, 5656 high-precision checks; largest bound fraction 0.000033; 8.6s
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p07' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+P07 171537 assertions, 0 failures
+{"pass_count": 66, "fail_count": 0, "results": "integration.json"}
+P07 output failures: 12 pass, 0 fail, 0 unrun
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p07_reference' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+88200->48000: interior_max=1.24369e-10 interior_rms=3.76497e-11 edge_max=0.00117357
+176400->96000: interior_max=1.74113e-10 interior_rms=5.60242e-11 edge_max=0.00113851
+352800->192000: interior_max=2.04915e-10 interior_rms=6.15505e-11 edge_max=0.00112634
+88200->96000: interior_max=1.42769e-10 interior_rms=6.12258e-11 edge_max=0.00308455
+176400->48000: interior_max=1.53433e-10 interior_rms=6.28177e-11 edge_max=0.000294636
+352800->384000: interior_max=1.55745e-10 interior_rms=6.72323e-11 edge_max=0.00316812
+master64 -> 48000: max=0.00472316, interior=7.62126e-10
+master128 -> 96000: max=0.00399483, interior=6.97421e-10
+master256 -> 192000: max=0.00722468, interior=4.52381e-10
+wide64 -> 48000: max=0.00597626, interior=7.56329e-10
+wide128 -> 96000: max=0.00597626, interior=7.56329e-10
+wide256 -> 192000: max=0.00597626, interior=7.56329e-10
+master64 -> 88200: max=1.77636e-15, interior=1.77636e-15
+wide128 -> 176400: max=1.77636e-15, interior=1.77636e-15
+P07 private SRC impulse/phase PASS: 18 independently compared finite pulses
+P07 public rate: 9 P06-hotfix PCM goldens PASS
+P08 integration: 28 passed, 0 failed
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p09' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+{"coefficients": 12, "unit": "P09 unit assertions passed: 15128"}
+{"failed": 0, "passed": 8, "results": "/mnt/data/p18-work/sox_dsd/tests/dsd/results/P18/numeric"}
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p11' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+PASS cpuid mock, XCR0, independent family policy, negative-zero
+PASS documented override, per-context retention, public option precedence/ABI
+P11 host feature mask=3 (SSE2=1 AVX1=1)
+P12 host feature mask=31 (SSE2=1 AVX1=1 AVX2=1 FMA=1)
+PASS FIR tier=scalar odd taps, aligned/unaligned, tails, stride, oracle
+PASS SDM tier=scalar 4/6/8 states, monitor, guarded failure, block invariance
+PASS FIR tier=sse2 odd taps, aligned/unaligned, tails, stride, oracle
+PASS SDM tier=sse2 4/6/8 states, monitor, guarded failure, block invariance
+PASS FIR tier=avx1 odd taps, aligned/unaligned, tails, stride, oracle
+PASS SDM tier=avx1 4/6/8 states, monitor, guarded failure, block invariance
+PASS FIR tier=avx2 odd taps, aligned/unaligned, tails, stride, oracle
+PASS SDM tier=avx2 4/6/8 states, monitor, guarded failure, block invariance
+P11 kernel unit suite PASS
+P12 kernel unit suite PASS
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p12_bounds' is up to date.
+make[1]: 'dsd_test_p13' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+P12 protected-page FIR spans PASS (2512 comparisons)
+P13 PASS CPUID AVX-512F/AVX2 mask, XCR0, FMA failure, defaults
+P13 PASS FIR 190404 page-bounded comparisons, taps 1..257, tails 0..23
+P13 PASS SDM orders 4/6/8, tail blocks, guards, monitor, determinism
+P13 PASS AVX-512F executable qualification
+P13 CLI decode-scalar-buffer-thread-byte-invariance PASS
+P13 CLI decode-sse2-buffer-thread-byte-invariance PASS
+P13 CLI decode-avx1-buffer-thread-byte-invariance PASS
+P13 CLI decode-avx2-buffer-thread-byte-invariance PASS
+P13 CLI decode-avx512-buffer-thread-byte-invariance PASS
+P13 CLI decode-forced-avx2-fma-rejected PASS
+P13 CLI decode-forced-unsupported-rejected PASS
+P13 CLI encode-scalar-buffer-thread-byte-invariance PASS
+P13 CLI encode-sse2-buffer-thread-byte-invariance PASS
+P13 CLI encode-avx1-buffer-thread-byte-invariance PASS
+P13 CLI encode-avx2-buffer-thread-byte-invariance PASS
+P13 CLI encode-avx512-buffer-thread-byte-invariance PASS
+P13 CLI encode-forced-avx2-fma-rejected PASS
+P13 CLI encode-forced-unsupported-rejected PASS
+P13 CLI native-both-families-inactive PASS
+P13 forced end-to-end PASS 45 executions
+PASS decode-1ch-scalar-buffer-invariance 
+PASS decode-1ch-avx2-buffer-invariance 
+PASS decode-1ch-avx512-buffer-invariance 
+PASS decode-1ch-scalar-avx2-lsb 0
+PASS decode-1ch-scalar-avx512-lsb 0
+PASS encode-1ch-scalar-buffer-invariance 
+PASS encode-1ch-avx2-buffer-invariance 
+PASS encode-1ch-avx512-buffer-invariance 
+PASS decode-2ch-scalar-buffer-invariance 
+PASS decode-2ch-avx2-buffer-invariance 
+PASS decode-2ch-avx512-buffer-invariance 
+PASS decode-2ch-scalar-avx2-lsb 0
+PASS decode-2ch-scalar-avx512-lsb 0
+PASS encode-2ch-scalar-buffer-invariance 
+PASS encode-2ch-avx2-buffer-invariance 
+PASS encode-2ch-avx512-buffer-invariance 
+PASS decode-5ch-scalar-buffer-invariance 
+PASS decode-5ch-avx2-buffer-invariance 
+PASS decode-5ch-avx512-buffer-invariance 
+PASS decode-5ch-scalar-avx2-lsb 0
+PASS decode-5ch-scalar-avx512-lsb 0
+PASS encode-5ch-scalar-buffer-invariance 
+PASS encode-5ch-avx2-buffer-invariance 
+PASS encode-5ch-avx512-buffer-invariance 
+PASS decode-6ch-scalar-buffer-invariance 
+PASS decode-6ch-avx2-buffer-invariance 
+PASS decode-6ch-avx512-buffer-invariance 
+PASS decode-6ch-scalar-avx2-lsb 0
+PASS decode-6ch-scalar-avx512-lsb 0
+PASS encode-6ch-scalar-buffer-invariance 
+PASS encode-6ch-avx2-buffer-invariance 
+PASS encode-6ch-avx512-buffer-invariance 
+P13 channels PASS 48 executions
+P11 analysis-v1 2822400 scalar gain 5e-06 residual -146.545 spur -171.315
+P11 analysis-v1 2822400 sse2 gain 5e-06 residual -146.502 spur -171.188
+P11 analysis-v1 2822400 avx1 gain 5e-06 residual -146.502 spur -171.188
+P11 analysis-v1 2822400 avx2 gain 5e-06 residual -146.502 spur -171.188
+P11 analysis-v1 2822400 avx512 gain 5e-06 residual -146.502 spur -171.188
+P13 cross-ISA 2822400 sse2 PASS
+P13 cross-ISA 2822400 avx1 PASS
+P13 cross-ISA 2822400 avx2 PASS
+P13 cross-ISA 2822400 avx512 PASS
+P11 analysis-v1 5644800 scalar gain 0.0 residual -197.743 spur -222.294
+P11 analysis-v1 5644800 sse2 gain 0.0 residual -197.742 spur -222.36
+P11 analysis-v1 5644800 avx1 gain 0.0 residual -197.742 spur -222.36
+P11 analysis-v1 5644800 avx2 gain 0.0 residual -197.742 spur -222.36
+P11 analysis-v1 5644800 avx512 gain 0.0 residual -197.742 spur -222.36
+P13 cross-ISA 5644800 sse2 PASS
+P13 cross-ISA 5644800 avx1 PASS
+P13 cross-ISA 5644800 avx2 PASS
+P13 cross-ISA 5644800 avx512 PASS
+P11 analysis-v1 11289600 scalar gain -0.0 residual -248.662 spur -270.27
+P11 analysis-v1 11289600 sse2 gain -0.0 residual -248.638 spur -270.092
+P11 analysis-v1 11289600 avx1 gain -0.0 residual -248.638 spur -270.092
+P11 analysis-v1 11289600 avx2 gain -0.0 residual -248.638 spur -270.092
+P11 analysis-v1 11289600 avx512 gain -0.0 residual -248.638 spur -270.092
+P13 cross-ISA 11289600 sse2 PASS
+P13 cross-ISA 11289600 avx1 PASS
+P13 cross-ISA 11289600 avx2 PASS
+P13 cross-ISA 11289600 avx512 PASS
+PASS baseline_dispatch_no_zmm
+PASS baseline_scalar_no_zmm
+PASS sse2_no_zmm
+PASS avx1_no_zmm
+PASS avx2_no_zmm
+PASS baseline_dispatch_no_fma
+PASS baseline_scalar_no_fma
+PASS sse2_no_fma
+PASS avx1_no_fma
+PASS avx2_no_fma
+PASS avx512_no_fma
+PASS avx512_zmm_execution
+PASS avx512_full_width_permutations
+PASS avx512_masked_tail_load
+PASS avx512_no_known_non_F_subsets
+PASS isolated_compiler_flags
+PASS no_global_avx512
+PASS baseline_dispatch_no_avx
+PASS avx1_no_avx2
+PASS avx512_declares_implicit_avx2
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p14' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+PASS bit_exact_chunk_continuity_and_golden
+PASS native_audio_bit_hash_unchanged_with_dsdstat_and_a
+PASS schema_order_and_repeatability
+PASS stdout_report_and_audio_conflict
+PASS named_report_path_and_overwrite_policy
+PASS plan_only_report_destination_safety
+PASS uncreated_output_aliases_do_not_replace_audio
+PASS dsdstat_rejects_pcm_without_implicit_modulation
+PASS actual_forced_decoder_profile_coefficient_kernel
+PASS pcm_source_encoding_clock_and_container
+PASS decoder_latency_components_and_byte_identity
+PASS fatal_clipping_status_and_partial_output_cleanup
+PASS dop_transport_completion_accounting
+PASS test_candidate_actual_encoder_and_monitor_provenance
+PASS test_candidate_encoder_failure_and_first_event
+PASS sigint_cancellation_preserves_final_status
+PASS independent_butterworth5_sos
+PASS sacd_exponential_reference
+PASS original_native_ultrasonic_band
+make[1]: Entering directory '/mnt/data/p18-work/sox_dsd/test'
+make[1]: 'dsd_test_p16' is up to date.
+make[1]: Leaving directory '/mnt/data/p18-work/sox_dsd/test'
+Traceback (most recent call last):
+  File "/mnt/data/p18-work/sox_dsd/./tests/dsd/test_p16.py", line 200, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/mnt/data/p18-work/sox_dsd/./tests/dsd/test_p16.py", line 195, in main
+    print(json.dumps(dict(verdict=result['verdict'],counts=result['counts'],path=str(outfile))))
+                                  ~~~~~~^^^^^^^^^^^
+KeyError: 'verdict'
+make: *** [Makefile:1606: check-dsd] Error 1

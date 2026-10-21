@@ -174,3 +174,9 @@ EXTRA_PROGRAMS += dsd_test_p16
 dsd_test_p16_SOURCES = ../tests/dsd/test_p16.c
 dsd_test_p16_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p16_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P18 capability-matrix and checked uint64 accounting, high rates disabled.
+EXTRA_PROGRAMS += dsd_test_p18
+dsd_test_p18_SOURCES = ../tests/dsd/test_p18.c
+dsd_test_p18_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p18_LDADD = $(top_builddir)/src/libsox_ng.la

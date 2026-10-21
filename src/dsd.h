@@ -155,6 +155,29 @@ typedef struct {
   char const *encoder_filter_name; /* Low-level SDM selection; not mastering. */
 } lsx_dsd_plan;
 
+/* P18 fail-closed, private rate x endpoint x operation authorization.
+ * NO high-rate row is qualified. A structurally representable file/DoP
+ * rate is not a valid DSP, software or physical-device certificate. */
+typedef enum { LSX_DSD_ENDPOINT_DSF, LSX_DSD_ENDPOINT_DFF,
+               LSX_DSD_ENDPOINT_DOP, LSX_DSD_ENDPOINT_WSD } lsx_dsd_endpoint;
+typedef enum { LSX_DSD_OPERATION_READ, LSX_DSD_OPERATION_WRITE,
+               LSX_DSD_OPERATION_TRANSPORT } lsx_dsd_operation;
+typedef enum { LSX_DSD_CAP_OK, LSX_DSD_CAP_UNQUALIFIED,
+               LSX_DSD_CAP_UNSUPPORTED } lsx_dsd_cap_result;
+lsx_dsd_cap_result lsx_dsd_capability_check(uint32_t native_hz,
+    lsx_dsd_endpoint endpoint, lsx_dsd_operation operation);
+const char *lsx_dsd_capability_description(uint32_t native_hz,
+    lsx_dsd_endpoint endpoint, lsx_dsd_operation operation);
+const char *lsx_dsd_endpoint_name(lsx_dsd_endpoint endpoint);
+/* Arithmetic is meaningful for unsupported transports, but calculation is
+ * NEVER permission to negotiate a transport. Zero/non-integral clocks fail. */
+int lsx_dsd_dop_pcm_rate(uint32_t native_hz, uint32_t *pcm_hz);
+/* Checked size/rounding for physical accounting without allocating media. */
+int lsx_dsd_dsf_extent(uint64_t frames, unsigned channels,
+    uint32_t block_size, uint64_t *payload_bytes);
+int lsx_dsd_dff_extent(uint64_t frames, unsigned channels,
+    uint64_t *payload_bytes, uint64_t *chunk_span);
+
 lsx_dsd_rate const *lsx_dsd_rate_find(uint64_t hz);
 int lsx_dsd_integer_rate(double value, uint32_t *out);
 int lsx_dsd_checked_interleaved(uint64_t frames, unsigned channels, uint64_t *out);

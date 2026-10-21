@@ -221,30 +221,33 @@ check-rename: all
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.
 .PHONY: check-dsd
-DSD_PHASE ?= P17
+DSD_PHASE ?= P18
 DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
 check-dsd: all
 	$(MAKE) check-dsd-optimization
-	@if ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ); then \
+	@if ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ); then \
 	  $(MAKE) -C test dsd_test_p14$(EXEEXT); \
 	fi
-	@if ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ) ); then \
+	@if ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_p10$(EXEEXT) sox_p10_candidate$(EXEEXT); \
 	fi
-	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ) ); then \
+	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  python3 -c 'import mpmath, numpy, scipy' || { \
 	    echo "UNRUN: required P06/P07 numerical gate (mpmath/numpy/scipy not installed)" >&2; exit 2; }; \
 	fi
 	$(MAKE) -C test dsd_test_io$(EXEEXT)
 	$(MAKE) -C test dsd_test_dff_writer$(EXEEXT)
-	@if test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17"; then \
+	@if test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18"; then \
 	  $(MAKE) -C test dsd_test_p16$(EXEEXT) || exit $$?; \
 	fi
-	@if test "$(DSD_PHASE)" = "P17"; then \
+	@if test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18"; then \
 	  $(MAKE) -C test dsd_test_p17$(EXEEXT) || exit $$?; \
 	fi
+	@if test "$(DSD_PHASE)" = "P18"; then \
+	  $(MAKE) -C test dsd_test_p18$(EXEEXT) || exit $$?; \
+	fi
 	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
-	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ) ); then \
+	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_streaming.py \
@@ -252,28 +255,28 @@ check-dsd: all
 	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/streaming; \
 	fi
-	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ) ); then \
+	@if test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_seek_contract$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_seek.py \
 	    --probe $(abs_builddir)/test/dsd_test_seek_contract$(EXEEXT) \
 	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/seek; \
 	fi
-	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ) ); then \
+	@if test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_layout$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_layout.py \
 	    --unit $(abs_builddir)/test/dsd_test_layout$(EXEEXT) \
 	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/layout; \
 	fi
-	@if test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ) ); then \
+	@if test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_plan$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_plan$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_plan.py \
 	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/plan; \
 	fi
-	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ) ); then \
+	@if test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_decode$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_decode$(EXEEXT) && \
 	  $(MAKE) -C test dsd_test_decode_faults$(EXEEXT) && \
@@ -283,7 +286,7 @@ check-dsd: all
 	    --results $(DSD_RESULTS)/scalar; \
 	fi
 
-	@if test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ) ); then \
+	@if test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_p07$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_p07$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p07.py \
@@ -306,14 +309,14 @@ check-dsd: all
 	    --sox $(abs_builddir)/src/sox; \
 	fi
 
-	@if test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ) ); then \
+	@if test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  python3 $(srcdir)/tests/dsd/test_p08.py \
 	    --sox $(abs_builddir)/src/sox \
 	    --results $(DSD_RESULTS)/integration; \
 	fi
 
 # P00 distributable design/test inputs (generated raw runs live in the continuation archive).
-	@if test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ) ); then \
+	@if test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_p09$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p09.py \
 	    --unit $(abs_builddir)/test/dsd_test_p09$(EXEEXT) \
@@ -322,7 +325,7 @@ check-dsd: all
 	    --results $(DSD_RESULTS)/numeric; \
 	fi
 
-	@if ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ) ); then \
+	@if ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_p11$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_p11$(EXEEXT) && \
 	  if test "$(DSD_PHASE)" = "P11"; then \
@@ -357,7 +360,7 @@ check-dsd: all
 # P13: independent AVX-512F execution plus the retained four-tier coverage.
 # The static ISA audit is additional evidence, never a substitute for the
 # executable CPUID/XCR0, guard-page and production CLI tests.
-	@if ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ) ); then \
+	@if ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_p12_bounds$(EXEEXT) dsd_test_p13$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_p12_bounds$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_p13$(EXEEXT) && \
@@ -380,7 +383,7 @@ check-dsd: all
 	fi
 
 # P14's independent native-bit, final-report, and digital-filter tests.
-	@if ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ) ) ); then \
+	@if ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ); then \
 	  $(MAKE) -C test dsd_test_p14$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p14.py \
 	    --sox $(abs_builddir)/src/sox \
@@ -403,7 +406,7 @@ check-dsd: all
 
 # P16: real native packed input gate. P15 is operator-authorized and stays
 # source-bound; P16 may inherit P00-P14 tests but cannot rewrite its receipts.
-	@if ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" ); then \
+	@if ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ); then \
 	  $(MAKE) -C test dsd_test_p16$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p16.py \
 	    --sox $(abs_builddir)/src/sox \
@@ -414,7 +417,7 @@ check-dsd: all
 
 # P17: experimental high-rate DSP only. The P16 gate above remains inherited;
 # this tests strict descriptor/SDM qualification and finite packed parity.
-	@if test "$(DSD_PHASE)" = "P17"; then \
+	@if test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18"; then \
 	  $(MAKE) -C test dsd_test_p17$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/generate_p17_profiles.py --check && \
 	  python3 $(srcdir)/tests/dsd/test_p17_numeric.py --results $(DSD_RESULTS)/numeric-p17; \
@@ -691,3 +694,24 @@ EXTRA_DIST += src/sdm_p17_candidates.h tests/dsd/test_p17.c \
   tests/dsd/generate_p17_profiles.py tests/dsd/reference/p17_profiles.json \
   tests/dsd/test_p17_numeric.py tests/dsd/bench_p17.py \
   docs/dsd/handoffs/P17.md
+
+# P18 closed capability release machinery and synthetic reference fixtures.
+EXTRA_DIST += tests/dsd/test_p18.c tests/dsd/test_p18.py \
+  docs/dsd/handoffs/P18.md docs/dsd/handoffs/P18_CHECKPOINT.md \
+  docs/dsd/P18_COMPATIBILITY_LEDGER.md docs/dsd/P18_RELEASE_NOTES.md \
+  docs/dsd/P18_RELEASE_MANIFEST.json docs/dsd/P18_RELEASE_MANIFEST.schema.json \
+  tests/dsd/reference/p18_fixture_matrix.json tests/dsd/seal_p18_manifest.py \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-1-1.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-1-17.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-1-32769.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-2-1.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-2-17.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-2-32769.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-6-1.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-6-17.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-6-32769.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-1.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-17.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-32769.dsf \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-1.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-17.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-32769.dsf \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-1.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-17.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-32769.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-1-1.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-1-17.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-1-32769.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-2-1.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-2-17.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-2-32769.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-6-1.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-6-17.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-6-32769.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-1.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-17.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-32769.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-1.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-17.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-32769.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-1.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-17.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-32769.dsf \
+  tests/dsd/fixtures/p18/p18-dop-22579200-2-17.pcm24le tests/dsd/fixtures/p18/p18-dop-22579200-2-33.pcm24le tests/dsd/fixtures/p18/p18-dop-45158400-2-17.pcm24le \
+  tests/dsd/fixtures/p18/p18-dop-45158400-2-33.pcm24le

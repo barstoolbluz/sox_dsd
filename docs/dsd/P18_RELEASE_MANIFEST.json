@@ -1,0 +1,246 @@
+{
+  "authority_sha256": "c7a3592ca81726e0ee2df24d7340295bab3450e9aad20645f8094a17a8ec94f3",
+  "capabilities": [
+    {
+      "enabled": false,
+      "endpoint": "DSF",
+      "native_hz": 22579200,
+      "operation": "read",
+      "rate_label": "DSD512",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": null
+    },
+    {
+      "enabled": false,
+      "endpoint": "DSF",
+      "native_hz": 22579200,
+      "operation": "write",
+      "rate_label": "DSD512",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": null
+    },
+    {
+      "enabled": false,
+      "endpoint": "DSDIFF",
+      "native_hz": 22579200,
+      "operation": "read",
+      "rate_label": "DSD512",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": null
+    },
+    {
+      "enabled": false,
+      "endpoint": "DSDIFF",
+      "native_hz": 22579200,
+      "operation": "write",
+      "rate_label": "DSD512",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": null
+    },
+    {
+      "enabled": false,
+      "endpoint": "DoP",
+      "native_hz": 22579200,
+      "operation": "transport",
+      "rate_label": "DSD512",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": 1411200
+    },
+    {
+      "enabled": false,
+      "endpoint": "WSD",
+      "native_hz": 22579200,
+      "operation": "read",
+      "rate_label": "DSD512",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": null
+    },
+    {
+      "enabled": false,
+      "endpoint": "DSF",
+      "native_hz": 45158400,
+      "operation": "read",
+      "rate_label": "DSD1024",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": null
+    },
+    {
+      "enabled": false,
+      "endpoint": "DSF",
+      "native_hz": 45158400,
+      "operation": "write",
+      "rate_label": "DSD1024",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": null
+    },
+    {
+      "enabled": false,
+      "endpoint": "DSDIFF",
+      "native_hz": 45158400,
+      "operation": "read",
+      "rate_label": "DSD1024",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": null
+    },
+    {
+      "enabled": false,
+      "endpoint": "DSDIFF",
+      "native_hz": 45158400,
+      "operation": "write",
+      "rate_label": "DSD1024",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": null
+    },
+    {
+      "enabled": false,
+      "endpoint": "DoP",
+      "native_hz": 45158400,
+      "operation": "transport",
+      "rate_label": "DSD1024",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": 2822400
+    },
+    {
+      "enabled": false,
+      "endpoint": "WSD",
+      "native_hz": 45158400,
+      "operation": "read",
+      "rate_label": "DSD1024",
+      "reason": "P17_HIGH_RATE_DSP_UNQUALIFIED_AND_P18_ENABLEMENT_WITHHELD",
+      "transport_pcm_hz": null
+    }
+  ],
+  "decision": "P18_COMPLETE_FAIL_CLOSED",
+  "device_claims": [],
+  "fixture_manifest_sha256": "4e76f1c5e7a1ab6ff3683e3e2be24a4d1835a2e1c51bd2aabe3139143fbc011b",
+  "gates": {
+    "bench_command_development": {
+      "detail": "recorded process exit code 0",
+      "path": "tests/dsd/results/P18/build/bench-p18-qualified.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "status": "PASS"
+    },
+    "check_dsd": {
+      "detail": "recorded process exit code 0",
+      "path": "tests/dsd/results/P18/build/check-dsd-qualified.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "status": "PASS"
+    },
+    "check_rename": {
+      "detail": "recorded process exit code 0",
+      "path": "tests/dsd/results/P18/build/check-rename-qualified.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "status": "PASS"
+    },
+    "explicit_p18_runner": {
+      "detail": "recorded process exit code 0",
+      "path": "tests/dsd/results/P18/build/run-p18-qualified.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "status": "PASS"
+    },
+    "fixture_matrix": {
+      "detail": "independent deterministic reference records only",
+      "path": "tests/dsd/reference/p18_fixture_matrix.json",
+      "sha256": "4e76f1c5e7a1ab6ff3683e3e2be24a4d1835a2e1c51bd2aabe3139143fbc011b",
+      "status": "PASS"
+    },
+    "generic_sox": {
+      "detail": "recorded process exit code 0",
+      "path": "tests/dsd/results/P18/build/make-check.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "status": "PASS"
+    },
+    "inherited_bench": {
+      "detail": "inherited rates only; high-rate end-to-end intentionally unrun",
+      "path": "tests/dsd/results/P18/bench/bench.json",
+      "sha256": "88db1e8d0b27b099efb119d82e12a885040d285a80e911eb3909ca92db328248",
+      "status": "PASS"
+    },
+    "native_p18_unit": {
+      "detail": "recorded process exit code 0",
+      "path": "tests/dsd/results/P18/build/unit-p18.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "status": "PASS"
+    },
+    "numeric_command_development": {
+      "detail": "recorded process exit code 0",
+      "path": "tests/dsd/results/P18/build/measure-p18-qualified.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "status": "PASS"
+    },
+    "numerical_development": {
+      "detail": "unqualified rate-specific DSP preserved; sampled development only",
+      "path": "tests/dsd/results/P18/numeric/measure.json",
+      "sha256": "6209fae45358d106174454cd723b32d07c57a0c744d36575acf861eedefb4e93",
+      "status": "PASS"
+    },
+    "p16_cached_replay": {
+      "detail": "recorded process exit code 0",
+      "path": "tests/dsd/results/P18/build/p16-cached-qualified.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "status": "PASS"
+    },
+    "p16_fresh_replay": {
+      "detail": "recorded process exit code 0",
+      "path": "tests/dsd/results/P18/build/p16-fresh-qualified.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "status": "PASS"
+    },
+    "p16_packed_cli": {
+      "detail": "219 real-SoX packed/expanded parity cases; sealed configuration token and raw receipt",
+      "path": "tests/dsd/results/P18/integration/packed-cli.json",
+      "sha256": "21afc1c3ccec83ac131fbadae6be7d0950fa459574e345a17ddf551d53d43450",
+      "status": "PASS"
+    },
+    "p18_cli": {
+      "detail": "SoX high-rate refusal/legacy native roundtrip CLI",
+      "path": "tests/dsd/results/P18/integration/capability-integration.json",
+      "sha256": "218ce128db3049357ca30e33cc9ed2e73a2b96edc7d4feedd034bbc69c90a407",
+      "status": "PASS"
+    },
+    "p18_run": {
+      "detail": "inherited and P18 C/CLI tests",
+      "path": "tests/dsd/results/P18/run.json",
+      "sha256": "7d4f286f5feda10e6dbe0a2370b2f94bfeaf0a94204e5e9aaa3e0f2ba8db483a",
+      "status": "PASS"
+    }
+  },
+  "high_rate_capability_enabled": false,
+  "p17_dsp_qualified": false,
+  "p17_qualification_sha256": "9b254a08affd9f548617efc2611d0a30e83354984a0a26b9aa7cd6e4d1bed82f",
+  "phase": "P18",
+  "schema": "P18/capability-release/1",
+  "source_lineage": "Supplied 51c391f2 working set, synthetic Git baseline (no original .git)",
+  "source_sha256": {
+    "Makefile.am": "3c36f371ca0d6f1ae61dd036e10f3831be499364c8b69678ec6927bd65398440",
+    "README.md": "4f22c204f13c771841c5f5ccac30cd71e71d615822d6ab6977e7363f31f5d938",
+    "docs/dsd/P18_COMPATIBILITY_LEDGER.md": "59ffbb7a62fbb1240747bcaa7ea111f1318e159f6eddcca56bc5bf4a07de5fdf",
+    "docs/dsd/P18_RELEASE_MANIFEST.schema.json": "981e53f6d11f9d7e95a6234affbd82859755f0522ea72db9c667a61d3bd7df03",
+    "docs/dsd/P18_RELEASE_NOTES.md": "4a03ed52cda89291629c3b06b21efd09891692aa25cbc6af842a718f54f01475",
+    "docs/dsd/README.md": "10055ef2f40a1b4ffae0fafcb90ec4560a93e080cbc8a937e9906e7c3beaf6d7",
+    "sox.1": "b76abe40fc693f2c0583f5666abdaee2c51c86b4d6268caadf2f8d351f66da56",
+    "src/dop.c": "a864d4c2940574d7cc38a7d5dc78716f9d6b1697a22f2dfe997cf44d33873cd3",
+    "src/dsd.c": "97df8e6410cd05640a28c618959658b06c7e9b002cb4ea692a372a9800a4d7fa",
+    "src/dsd.h": "e867434c8a5a50fe25e988bbade8d39da91926e276333060f3a885fc20d177d4",
+    "src/dsd_plan.c": "216684edb3a27f8c4d04dd7cce7393a233c6fde00235eb5b2c85773d189d4d41",
+    "src/dsdiff.c": "a1ee18db2ce12b815412a14e9cc21d19e5bbdd70c021eebeaab5b39da7689cac",
+    "src/dsf.c": "9e569fa6bf7e4bfebf74527fbfd8e0eb8b973e3b362c324d8ce8589f5d442d67",
+    "src/formats.c": "4159c671a2cfbe7a8d2e51f7006a09801100c04fd1034b0ae8a70299772b90a1",
+    "test/Makefile.am": "832ec638fd8b713f4dc7bf047638f9f715ab170536a55064e537813c57758f65",
+    "tests/dsd/bench.py": "74064d99fc74f445c0abb7be76d580c32bdc4b42a3b56dc27ac903557fb46b73",
+    "tests/dsd/measure.py": "8041d5419554cbce5a62e64807538e8c665e0859003d107e84b678ea9a29bba0",
+    "tests/dsd/run.py": "ed524a3568c298d474d037ad67b7127884934e84f0bdd79d11536efd33f2d10e",
+    "tests/dsd/seal_p18_manifest.py": "aedc8e11baf4b31ee29ac7da3212d010b672859b0c78f05c7422bb584f57446a",
+    "tests/dsd/test_p16.py": "87e61728d9b78f4e41c9860b0979b8eba9e48094762a8517166ceed74864f45d",
+    "tests/dsd/test_p18.c": "82073ebeea236370fe8a52a5269c5757787a6a3ada22955c334a9baf195f9a59",
+    "tests/dsd/test_p18.py": "37389a4b2c8d00012adafc556b618d2ed0479116bd3b09d08aab688f00385899"
+  },
+  "unrun_independent_gates": [
+    "Independent 512/1024 commercial/reference media, known-answer release decoding and cross-player readback",
+    "P17 certified exact-rate numerical and sustained ISA/soak qualification",
+    "Actual high-rate writer/file roundtrips and physical channel/layout interoperability",
+    "Actual 1.4112/2.8224 MHz DoP transport, host negotiation and device qualification",
+    "High-rate end-to-end runtime throughput, memory and storage traffic",
+    "P15 standing source qualification obligations remain OPEN"
+  ]
+}

@@ -22,6 +22,7 @@
  */
 
 #include "sox_i.h"
+#include "dsd.h"
 #include "dsd_layout_i.h"
 #include "dsd_packed.h"
 
@@ -225,6 +226,13 @@ static int dff_startread(sox_format_t *ft)
 				if (physical && frame_size > physical - 12)
 					lsx_warn("legacy DSDIFF audio chunk is missing its required external pad byte at EOF");
 			}
+            if (lsx_dsd_capability_check(rate, LSX_DSD_ENDPOINT_DFF,
+                    LSX_DSD_OPERATION_READ)!=LSX_DSD_CAP_OK) {
+                lsx_fail_errno(ft, SOX_EFMT, "DSDIFF read at %u Hz unavailable: %s",
+                    rate, lsx_dsd_capability_description(rate,
+                        LSX_DSD_ENDPOINT_DFF, LSX_DSD_OPERATION_READ));
+                return SOX_EFMT;
+            }
 			dff->data_size = chunk_size;
 			dff->buf = lsx_malloc(channels);
 			if (!dff->buf)
@@ -573,6 +581,16 @@ static int dff_startwrite(sox_format_t *ft)
 	struct dsdiff *dff = ft->priv;
 	int err;
 
+    uint32_t rate;
+    if (!lsx_dsd_integer_rate(ft->signal.rate, &rate) ||
+        lsx_dsd_capability_check(rate, LSX_DSD_ENDPOINT_DFF,
+            LSX_DSD_OPERATION_WRITE)!=LSX_DSD_CAP_OK) {
+        lsx_fail_errno(ft, SOX_EFMT, "DSDIFF write at %.9g Hz unavailable: %s",
+            ft->signal.rate, lsx_dsd_integer_rate(ft->signal.rate, &rate) ?
+                lsx_dsd_capability_description(rate, LSX_DSD_ENDPOINT_DFF,
+                    LSX_DSD_OPERATION_WRITE) : "native rate not a uint32 integer");
+        return SOX_EFMT;
+    }
 	if (ft->signal.channels > DFF_MAX_CHANNELS) {
 		lsx_fail_errno(ft, SOX_EOF, "too many channels");
 		return SOX_EOF;
@@ -829,6 +847,13 @@ static int wsd_startread(sox_format_t *ft)
 		lsx_fail_errno(ft, SOX_EHDR, "invalid WSD audio extent");
 		return SOX_EHDR;
 	}
+    if (lsx_dsd_capability_check(fs, LSX_DSD_ENDPOINT_WSD,
+            LSX_DSD_OPERATION_READ)!=LSX_DSD_CAP_OK) {
+        lsx_fail_errno(ft, SOX_EFMT, "WSD read at %u Hz unavailable: %s", fs,
+            lsx_dsd_capability_description(fs,LSX_DSD_ENDPOINT_WSD,
+                LSX_DSD_OPERATION_READ));
+        return SOX_EFMT;
+    }
 	{
 		off_t pos = lsx_tell(ft);
 		if (pos < 0 || (uint64_t)pos > data_sp ||
