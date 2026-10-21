@@ -25,7 +25,8 @@ from p15_native_coefficient_interval import certificate as native_cert,Certifica
 from p15_src_stagewise_continuum import (certificate as spectral_cert,
     Unproved,complete_paths,PROFILE_BANDS)
 from p15_src_complete_aliases import native_profile
-from p15_dsd256_comparator_2026 import (verify as verify_match,InvalidReceipt,command)
+from p15_dsd256_comparator_2026 import (verify as verify_match,InvalidReceipt,command,
+                                         file_sha as comparator_file_sha)
 
 RESULT=THIS/'results/P15_REMAINING_PROOF_2026-10-16'
 STAGES=ACTIVE_STAGE_ROOT
@@ -134,6 +135,18 @@ class ComparatorTests(unittest.TestCase):
         sox=ROOT/'src/sox';candidate=ROOT/'test/sox_p10_candidate'
         if not sox.is_file() or not candidate.is_file():
             self.skipTest('no locally compiled source-bound binaries; run on build host')
+        # Presence is not identity. The receipt binds the exact executables
+        # that produced it, so a host holding its own build is as unable to
+        # replay this as a host holding none, and skips for the same reason.
+        # Only the executable binding is excused here: schema, source and
+        # per-file digests stay fail-closed inside verify_match.
+        recorded=json.loads((RESULT/'ps-matched-comparator'/'RECEIPT.json')
+                            .read_text())['executable_sha256']
+        local={'sox':comparator_file_sha(sox),
+               'candidate':comparator_file_sha(candidate)}
+        if recorded!=local:
+            self.skipTest('locally compiled binaries are not the ones the '
+                          'receipt records; run on the recording build host')
         good=verify_match(RESULT/'ps-matched-comparator',sox,candidate)
         bad=verify_match(RESULT/'ps-matched-comparator-negative-selftest',sox,candidate,allow_wrong=True)
         self.assertTrue(good['spectrally_matched_on_fixture'])
