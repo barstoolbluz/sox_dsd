@@ -152,7 +152,15 @@ static void test_invalid(void)
     lsx_dsd_reconstruction_destroy(ctx);
   }
   ctx=NULL;
-  CHECK(lsx_dsd_reconstruction_create(45158400,LSX_DSD_PROFILE_MASTERING,1,&ctx)==SOX_DSD_UNSUPPORTED);
+  /* The P17 private high-rate engine is available experimentally; no high-rate
+   * file, transport or public qualified writer capability follows from it. */
+  CHECK(lsx_dsd_reconstruction_create(45158400,LSX_DSD_PROFILE_MASTERING,1,&ctx)==SOX_DSD_OK);
+  {lsx_dsd_reconstruction_info info;
+   CHECK(lsx_dsd_reconstruction_info_get(ctx,&info)==SOX_DSD_OK);
+   CHECK(info.stages==8 && info.factor==256);
+  }
+  lsx_dsd_reconstruction_destroy(ctx);ctx=NULL;
+  CHECK(lsx_dsd_reconstruction_create(45158400,LSX_DSD_PROFILE_MASTERING_V2,1,&ctx)==SOX_DSD_UNSUPPORTED);
   CHECK(ctx==NULL);
   CHECK(lsx_dsd_reconstruction_create(2822400,LSX_DSD_PROFILE_LEGACY,1,&ctx)==SOX_DSD_UNSUPPORTED);
   CHECK(lsx_dsd_reconstruction_create(2822400,LSX_DSD_PROFILE_MASTERING,0,&ctx)==SOX_DSD_BAD_ARGUMENT);

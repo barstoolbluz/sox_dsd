@@ -163,6 +163,12 @@ dsd_test_p15_instrument_SOURCES = ../tests/dsd/test_p15_instrument.c
 dsd_test_p15_instrument_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p15_instrument_LDADD = $(top_builddir)/src/libsox_ng.la
 
+# P17 private high-rate decimator/SDM candidate tests; no writer interface.
+EXTRA_PROGRAMS += dsd_test_p17
+dsd_test_p17_SOURCES = ../tests/dsd/test_p17.c ../src/sdm.c
+dsd_test_p17_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p17_LDADD = $(top_builddir)/src/libsox_ng.la
+
 # P16 optional borrowed packed reader and same-FIR finite parity matrix.
 EXTRA_PROGRAMS += dsd_test_p16
 dsd_test_p16_SOURCES = ../tests/dsd/test_p16.c

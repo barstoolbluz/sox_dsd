@@ -13,12 +13,12 @@ typedef struct lsx_dsd_reconstruction lsx_dsd_reconstruction;
 typedef struct {
   uint32_t native_hz, intermediate_hz;
   unsigned channels, stages, factor;
-  unsigned taps[6], phases[6];
+  unsigned taps[8], phases[8];
   uint64_t delay_native_frames, discard_frames;
   size_t allocated_bytes; /* current owned heap storage, including alignment */
 } lsx_dsd_reconstruction_info;
 
-/* P06 supports mastering/wideband at only 64/128/256 native rates.
+/* P06-P17 private mastering/wideband engine; P17 high-rate is experimental.
  * Input is interleaved canonical native bits: +/-SOX_SAMPLE_MAX.
  * Output is interleaved doubles in theoretical +/-1 native full-scale.
  * On entry frame counts are capacities; on return actual counts.

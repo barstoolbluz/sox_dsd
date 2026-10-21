@@ -144,7 +144,7 @@ def main() -> int:
             except (subprocess.TimeoutExpired,OSError) as exc:
                 p09_runs.append(dict(name=name,status='fail',error=str(exc)))
         passed.extend(p09_runs)
-    if args.phase in ('P14','P15','P16'):
+    if args.phase in ('P14','P15','P16','P17'):
         command=[sys.executable,str(ROOT/'tests/dsd/test_p14_numeric.py'),
             '--unit',str(ROOT/'test/dsd_test_p14'),
             '--sox',str(args.sox), '--results',str(args.results/'native-sos')]
@@ -156,6 +156,22 @@ def main() -> int:
                                   evidence='native-sos/numeric-p14.json'))
         except (OSError,subprocess.TimeoutExpired) as exc:
             case=dict(name='P14_independent_digital_SOS_and_native_band',
+                      status='fail',error=str(exc))
+        passed.append(case)
+    if args.phase=='P17':
+        # Separate P17 sampled/finite evidence; it cannot promote a profile.
+        command=[sys.executable,str(ROOT/'tests/dsd/test_p17_numeric.py'),
+                 '--results',str(args.results/'highrate-development')]
+        try:
+            proc=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=600)
+            case=dict(name='P17_highrate_independent_FIR_and_SDM_development',
+                      status='pass' if proc.returncode==0 else 'fail',
+                      detail=dict(exit=proc.returncode,stdout=proc.stdout[-2000:],
+                                  stderr=proc.stderr[-2000:],
+                                  evidence='highrate-development/qualification.json',
+                                  qualified=False,writer_enabled=False))
+        except (subprocess.TimeoutExpired,OSError) as exc:
+            case=dict(name='P17_highrate_independent_FIR_and_SDM_development',
                       status='fail',error=str(exc))
         passed.append(case)
     analysis_procedures = (dict(metrology.ANALYSIS_V1) if int(args.phase[1:]) < 9 else
@@ -209,6 +225,16 @@ def main() -> int:
         result['independent_analysis']['candidate_qualification']=qualification['status']
         result['quality_measurements'].append(dict(status='unpromoted',path='numeric/qualification.json'))
         if cp.returncode not in (0,2):result['summary']['failed']+=1
+    if args.phase=='P17':
+        result['summary']['unrun_gates']=[
+            'DSD512/DSD1024 independent external licensed/reference media and transport interoperability',
+            'continuous-frequency composite/alias interval extremum proof',
+            '30-minute-per-rate high-rate mastering/ultrasonic soak and 1-hour sustained ISA runs',
+            'physical Intel/AMD AVX-512 cross-host metrology and performance qualification',
+            'P18 writer/container/DoP authorization and compatibility']
+        result['summary']['qualification_status']='UNQUALIFIED (P17 development only)'
+        result['quality_measurements'].append(dict(status='sampled-and-finite-development-only',
+             path='highrate-development/qualification.json',qualified=False))
     if args.phase=='P15':
         # P00-P14 historical report text predates the P10 positive review.
         # Never substitute a frozen P10 certificate for a P15 release result.

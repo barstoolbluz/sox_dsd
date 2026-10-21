@@ -656,6 +656,8 @@ static const sdm_filter_t sdm_filters[] = {
   },
 };
 
+#include "sdm_p17_candidates.h"
+
 /* Exact-rate entries are independent of the legacy array search order.
  * Deliberately refer to the original literal coefficient tables: copying or
  * recalculating their decimal constants could change one or more bits. The
@@ -673,6 +675,11 @@ static const sdm_profile_t sdm_profiles[] = {
   {"encode.mastering.v1.dsd64",  &sdm_filters[29],  88200},
   {"encode.mastering.v1.dsd128", &sdm_filters[19], 176400},
   {"encode.mastering.v1.dsd256", &sdm_filters[9],  176400},
+  /* P17 unit-delay SDM coefficients use the SAME normalized NTF/STF, but
+   * are bound to NEW sample-clock identities and are NOT qualified. The
+   * legacy <=rate lookup never sees these private candidates. */
+  {"encode.mastering.v1.dsd512", &lsx_sdm_p17_candidates[0], 176400},
+  {"encode.mastering.v1.dsd1024", &lsx_sdm_p17_candidates[1], 176400},
   {"encode.diagnostic.sdm6.v1.dsd64",   &sdm_filters[25],  88200},
   {"encode.diagnostic.sdm6.v1.dsd128",  &sdm_filters[15], 176400},
   {"encode.diagnostic.sdm6.v1.dsd256",  &sdm_filters[5],  176400},

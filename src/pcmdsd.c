@@ -29,7 +29,15 @@ static const lsx_pcmdsd_profile profiles[] = {
   {"encode.mastering.v1.dsd128",5644800,176400,30000,60000,
     lsx_pcmdsd_coeff_master128,77,lsx_pcmdsd_guards[1],1,LSX_PCMDSD_CERTIFICATE_SHA256},
   {"encode.mastering.v1.dsd256",11289600,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256}
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256},
+  /* P17: exactly keyed experimental DSP candidates only. The R=176400 Hz
+   * prefilter has the same normalized 40/80k edges as its existing v1 bank.
+   * State guard bounds are NOT inherited or certified for these clocks.
+   * lsx_pcmdsd_create() rejects both; only candidate_create() can use them. */
+  {"encode.mastering.v1.dsd512",22579200,176400,40000,80000,
+    lsx_pcmdsd_coeff_master64_256,61,NULL,0,NULL},
+  {"encode.mastering.v1.dsd1024",45158400,176400,40000,80000,
+    lsx_pcmdsd_coeff_master64_256,61,NULL,0,NULL}
 };
 
 struct lsx_pcmdsd {
