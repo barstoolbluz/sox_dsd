@@ -73,6 +73,15 @@ static const lsx_dsd_frontend_profile dsd_frontends[] = {
   { 2822400,  88200, LSX_DSD_PROFILE_WIDEBAND,  35280,  44100, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd64"},
   { 5644800, 176400, LSX_DSD_PROFILE_WIDEBAND,  70560,  88200, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd128"},
   {11289600, 352800, LSX_DSD_PROFILE_WIDEBAND, 141120, 176400, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd256"},
+  /* P17 internal research profiles. The immutable P06 final bank is reused at
+   * the same 352800-Hz clock (mastering), or the same normalized edge ratios
+   * at an increased final clock (wideband). Only the HALF-BAND cascade grows.
+   * dsd_rates[] capabilities remain ZERO; neither a file nor a DoP writer is
+   * enabled by these internal records. No mastering-v2 profile is inferred. */
+  {22579200, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 7, LSX_DSD_BANK_MASTER64_256,  5476, "decode.mastering.v1.dsd512"},
+  {45158400, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 8, LSX_DSD_BANK_MASTER64_256, 10980, "decode.mastering.v1.dsd1024"},
+  {22579200, 705600, LSX_DSD_PROFILE_WIDEBAND, 282240, 352800, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd512"},
+  {45158400,1411200, LSX_DSD_PROFILE_WIDEBAND, 564480, 705600, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd1024"},
   { 2822400,  88200, LSX_DSD_PROFILE_MASTERING_V2,  25000,  40000, 5, LSX_DSD_BANK_MASTER64_V2, 1636, "decode.mastering.v2.dsd64"},
   { 5644800, 176400, LSX_DSD_PROFILE_MASTERING_V2,  48000,  60000, 5, LSX_DSD_BANK_MASTER128_V2, 3428, "decode.mastering.v2.dsd128"},
   {11289600, 176400, LSX_DSD_PROFILE_MASTERING_V2,  66000,  80000, 6, LSX_DSD_BANK_MASTER256_V2, 6052, "decode.mastering.v2.dsd256"}

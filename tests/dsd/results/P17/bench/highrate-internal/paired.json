@@ -1,0 +1,4261 @@
+{
+  "binary_sha256": "e4314acb56b4dbf840a871ee4c91a2043ad876fe47156159dc81187fc207a328",
+  "cases": [
+    {
+      "channels": 1,
+      "id": "R22579200-P0-C1",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 7225344,
+      "interstage_payload_bytes_packed": 225792,
+      "median_expanded_dsp_wall_seconds": 0.042730596,
+      "median_expanded_peak_rss_kib": 1176,
+      "median_packed_dsp_wall_seconds": 0.04579432,
+      "median_packed_peak_rss_kib": 1176,
+      "packed_dsp_speedup_ratio": 0.933098165886075,
+      "profile": "mastering",
+      "rate_hz": 22579200,
+      "samples_per_channel": 1806336,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.04605491299980713,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.04,
+              "wall_seconds": 0.04
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 7225344,
+              "packed": 0,
+              "pcm_digest_fnv64": "ca6ad707ac716b45",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.042312655
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.042312655,\"input_payload_bytes\":7225344,\"pcm_digest_fnv64\":\"ca6ad707ac716b45\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.05014061900010347,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.04,
+              "wall_seconds": 0.04
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 225792,
+              "packed": 1,
+              "pcm_digest_fnv64": "ca6ad707ac716b45",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.04579432
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.045794320,\"input_payload_bytes\":225792,\"pcm_digest_fnv64\":\"ca6ad707ac716b45\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.05052177000015945,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.04,
+              "wall_seconds": 0.04
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 7225344,
+              "packed": 0,
+              "pcm_digest_fnv64": "ca6ad707ac716b45",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.046204224
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.046204224,\"input_payload_bytes\":7225344,\"pcm_digest_fnv64\":\"ca6ad707ac716b45\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.04837585699988267,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.04,
+              "wall_seconds": 0.04
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 225792,
+              "packed": 1,
+              "pcm_digest_fnv64": "ca6ad707ac716b45",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.043370287
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.043370287,\"input_payload_bytes\":225792,\"pcm_digest_fnv64\":\"ca6ad707ac716b45\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.047428748999664094,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.04,
+              "wall_seconds": 0.04
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 7225344,
+              "packed": 0,
+              "pcm_digest_fnv64": "ca6ad707ac716b45",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.042730596
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.042730596,\"input_payload_bytes\":7225344,\"pcm_digest_fnv64\":\"ca6ad707ac716b45\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.05533541999966474,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.05,
+              "wall_seconds": 0.05
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 225792,
+              "packed": 1,
+              "pcm_digest_fnv64": "ca6ad707ac716b45",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.051171261
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.051171261,\"input_payload_bytes\":225792,\"pcm_digest_fnv64\":\"ca6ad707ac716b45\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.04503574699992896,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.03,
+              "wall_seconds": 0.04
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 7225344,
+              "packed": 0,
+              "pcm_digest_fnv64": "ca6ad707ac716b45",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.042196718
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.042196718,\"input_payload_bytes\":7225344,\"pcm_digest_fnv64\":\"ca6ad707ac716b45\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.04592929599994022,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.04,
+              "wall_seconds": 0.04
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 225792,
+              "packed": 1,
+              "pcm_digest_fnv64": "ca6ad707ac716b45",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.04132679
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.041326790,\"input_payload_bytes\":225792,\"pcm_digest_fnv64\":\"ca6ad707ac716b45\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 2,
+      "id": "R22579200-P0-C2",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 14450688,
+      "interstage_payload_bytes_packed": 451584,
+      "median_expanded_dsp_wall_seconds": 0.081230991,
+      "median_expanded_peak_rss_kib": 1176,
+      "median_packed_dsp_wall_seconds": 0.07991528,
+      "median_packed_peak_rss_kib": 1176,
+      "packed_dsp_speedup_ratio": 1.0164638226882268,
+      "profile": "mastering",
+      "rate_hz": 22579200,
+      "samples_per_channel": 1806336,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.08541074199956711,
+            "process_usage": {
+              "peak_rss_kib": 1288,
+              "system_seconds": 0.0,
+              "user_seconds": 0.07,
+              "wall_seconds": 0.08
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "a98c307b385bd8ee",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.080516504
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.080516504,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"a98c307b385bd8ee\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.08347802099979162,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.07,
+              "wall_seconds": 0.08
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "a98c307b385bd8ee",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.07991528
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.079915280,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"a98c307b385bd8ee\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.10386857499997859,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.09,
+              "wall_seconds": 0.1
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "a98c307b385bd8ee",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.099335588
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.099335588,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"a98c307b385bd8ee\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.09882590999995955,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.09,
+              "wall_seconds": 0.09
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "a98c307b385bd8ee",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.089602668
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.089602668,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"a98c307b385bd8ee\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.09312793700019029,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.08,
+              "wall_seconds": 0.08
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "a98c307b385bd8ee",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.081230991
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.081230991,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"a98c307b385bd8ee\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.07728709999992134,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.07,
+              "wall_seconds": 0.07
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "a98c307b385bd8ee",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.073106852
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.073106852,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"a98c307b385bd8ee\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.08131609800011574,
+            "process_usage": {
+              "peak_rss_kib": 1184,
+              "system_seconds": 0.0,
+              "user_seconds": 0.07,
+              "wall_seconds": 0.07
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "a98c307b385bd8ee",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.077336088
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.077336088,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"a98c307b385bd8ee\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.07678717699991466,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.06,
+              "wall_seconds": 0.07
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "a98c307b385bd8ee",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.072539069
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.072539069,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"a98c307b385bd8ee\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 6,
+      "id": "R22579200-P0-C6",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 43352064,
+      "interstage_payload_bytes_packed": 1354752,
+      "median_expanded_dsp_wall_seconds": 0.279985741,
+      "median_expanded_peak_rss_kib": 1304,
+      "median_packed_dsp_wall_seconds": 0.280357702,
+      "median_packed_peak_rss_kib": 1304,
+      "packed_dsp_speedup_ratio": 0.9986732627734266,
+      "profile": "mastering",
+      "rate_hz": 22579200,
+      "samples_per_channel": 1806336,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.28422976899992136,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.27,
+              "wall_seconds": 0.28
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 43352064,
+              "packed": 0,
+              "pcm_digest_fnv64": "1dfd2ca20e12a797",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.279985741
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.279985741,\"input_payload_bytes\":43352064,\"pcm_digest_fnv64\":\"1dfd2ca20e12a797\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.30235927900002935,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.3,
+              "wall_seconds": 0.3
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 1354752,
+              "packed": 1,
+              "pcm_digest_fnv64": "1dfd2ca20e12a797",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.298573332
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.298573332,\"input_payload_bytes\":1354752,\"pcm_digest_fnv64\":\"1dfd2ca20e12a797\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.274101440999857,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.27,
+              "wall_seconds": 0.27
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 43352064,
+              "packed": 0,
+              "pcm_digest_fnv64": "1dfd2ca20e12a797",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.269934279
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.269934279,\"input_payload_bytes\":43352064,\"pcm_digest_fnv64\":\"1dfd2ca20e12a797\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.2597814920000019,
+            "process_usage": {
+              "peak_rss_kib": 1432,
+              "system_seconds": 0.0,
+              "user_seconds": 0.25,
+              "wall_seconds": 0.25
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 1354752,
+              "packed": 1,
+              "pcm_digest_fnv64": "1dfd2ca20e12a797",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.255595084
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.255595084,\"input_payload_bytes\":1354752,\"pcm_digest_fnv64\":\"1dfd2ca20e12a797\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.33071336499961035,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.32,
+              "wall_seconds": 0.32
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 43352064,
+              "packed": 0,
+              "pcm_digest_fnv64": "1dfd2ca20e12a797",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.318845043
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.318845043,\"input_payload_bytes\":43352064,\"pcm_digest_fnv64\":\"1dfd2ca20e12a797\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.284308991999751,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.27,
+              "wall_seconds": 0.28
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 1354752,
+              "packed": 1,
+              "pcm_digest_fnv64": "1dfd2ca20e12a797",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.280357702
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.280357702,\"input_payload_bytes\":1354752,\"pcm_digest_fnv64\":\"1dfd2ca20e12a797\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.22805575299980774,
+            "process_usage": {
+              "peak_rss_kib": 1432,
+              "system_seconds": 0.0,
+              "user_seconds": 0.22,
+              "wall_seconds": 0.22
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 43352064,
+              "packed": 0,
+              "pcm_digest_fnv64": "1dfd2ca20e12a797",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.223788706
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":0,\"packed\":0,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.223788706,\"input_payload_bytes\":43352064,\"pcm_digest_fnv64\":\"1dfd2ca20e12a797\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.28559015599967097,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.28,
+              "wall_seconds": 0.28
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 1354752,
+              "packed": 1,
+              "pcm_digest_fnv64": "1dfd2ca20e12a797",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.28111831
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":0,\"packed\":1,\"frames\":1806336,\"pcm_frames\":14112,\"wall_seconds\":0.281118310,\"input_payload_bytes\":1354752,\"pcm_digest_fnv64\":\"1dfd2ca20e12a797\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 1,
+      "id": "R22579200-P1-C1",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 7225344,
+      "interstage_payload_bytes_packed": 225792,
+      "median_expanded_dsp_wall_seconds": 0.06737399,
+      "median_expanded_peak_rss_kib": 1184,
+      "median_packed_dsp_wall_seconds": 0.057481745,
+      "median_packed_peak_rss_kib": 1176,
+      "packed_dsp_speedup_ratio": 1.1720936794803287,
+      "profile": "wideband",
+      "rate_hz": 22579200,
+      "samples_per_channel": 1806336,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.05618068600006154,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.05,
+              "wall_seconds": 0.05
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 7225344,
+              "packed": 0,
+              "pcm_digest_fnv64": "390370dd718e9c30",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.052974615
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.052974615,\"input_payload_bytes\":7225344,\"pcm_digest_fnv64\":\"390370dd718e9c30\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.05311869500019384,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.04,
+              "wall_seconds": 0.04
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 225792,
+              "packed": 1,
+              "pcm_digest_fnv64": "390370dd718e9c30",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.04710805
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.047108050,\"input_payload_bytes\":225792,\"pcm_digest_fnv64\":\"390370dd718e9c30\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.07640159999982643,
+            "process_usage": {
+              "peak_rss_kib": 1184,
+              "system_seconds": 0.0,
+              "user_seconds": 0.06,
+              "wall_seconds": 0.07
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 7225344,
+              "packed": 0,
+              "pcm_digest_fnv64": "390370dd718e9c30",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.06737399
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.067373990,\"input_payload_bytes\":7225344,\"pcm_digest_fnv64\":\"390370dd718e9c30\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.0710834619999332,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.06,
+              "wall_seconds": 0.06
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 225792,
+              "packed": 1,
+              "pcm_digest_fnv64": "390370dd718e9c30",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.066650628
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.066650628,\"input_payload_bytes\":225792,\"pcm_digest_fnv64\":\"390370dd718e9c30\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.08042745299962917,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.07,
+              "wall_seconds": 0.07
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 7225344,
+              "packed": 0,
+              "pcm_digest_fnv64": "390370dd718e9c30",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.075244549
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.075244549,\"input_payload_bytes\":7225344,\"pcm_digest_fnv64\":\"390370dd718e9c30\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.0632073860001583,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.06,
+              "wall_seconds": 0.06
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 225792,
+              "packed": 1,
+              "pcm_digest_fnv64": "390370dd718e9c30",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.057481745
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.057481745,\"input_payload_bytes\":225792,\"pcm_digest_fnv64\":\"390370dd718e9c30\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.0665983559997585,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.06,
+              "wall_seconds": 0.06
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 7225344,
+              "packed": 0,
+              "pcm_digest_fnv64": "390370dd718e9c30",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.05975245
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.059752450,\"input_payload_bytes\":7225344,\"pcm_digest_fnv64\":\"390370dd718e9c30\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.05808358000012959,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.05,
+              "wall_seconds": 0.05
+            },
+            "result": {
+              "channels": 1,
+              "frames": 1806336,
+              "input_payload_bytes": 225792,
+              "packed": 1,
+              "pcm_digest_fnv64": "390370dd718e9c30",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.053860062
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.053860062,\"input_payload_bytes\":225792,\"pcm_digest_fnv64\":\"390370dd718e9c30\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 2,
+      "id": "R22579200-P1-C2",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 14450688,
+      "interstage_payload_bytes_packed": 451584,
+      "median_expanded_dsp_wall_seconds": 0.112763775,
+      "median_expanded_peak_rss_kib": 1176,
+      "median_packed_dsp_wall_seconds": 0.10716306,
+      "median_packed_peak_rss_kib": 1176,
+      "packed_dsp_speedup_ratio": 1.0522634851972312,
+      "profile": "wideband",
+      "rate_hz": 22579200,
+      "samples_per_channel": 1806336,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.120450455000082,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.11,
+              "wall_seconds": 0.11
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "284b3fec8dfe4edd",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.112763775
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.112763775,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"284b3fec8dfe4edd\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.1104969660000279,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.1,
+              "wall_seconds": 0.1
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "284b3fec8dfe4edd",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.104750218
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.104750218,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"284b3fec8dfe4edd\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.1935223259997656,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.19,
+              "wall_seconds": 0.19
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "284b3fec8dfe4edd",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.188666787
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.188666787,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"284b3fec8dfe4edd\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.11606102499990811,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.1,
+              "wall_seconds": 0.11
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "284b3fec8dfe4edd",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.110984285
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.110984285,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"284b3fec8dfe4edd\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.10316277400033869,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.09,
+              "wall_seconds": 0.1
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "284b3fec8dfe4edd",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.099094921
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.099094921,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"284b3fec8dfe4edd\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.11330174400018223,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.1,
+              "wall_seconds": 0.1
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "284b3fec8dfe4edd",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.10716306
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.107163060,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"284b3fec8dfe4edd\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.11461298899985195,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.1,
+              "wall_seconds": 0.11
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "284b3fec8dfe4edd",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.10746984
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.107469840,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"284b3fec8dfe4edd\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.07962122499975521,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.07,
+              "wall_seconds": 0.07
+            },
+            "result": {
+              "channels": 2,
+              "frames": 1806336,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "284b3fec8dfe4edd",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.075034506
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.075034506,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"284b3fec8dfe4edd\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 6,
+      "id": "R22579200-P1-C6",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 43352064,
+      "interstage_payload_bytes_packed": 1354752,
+      "median_expanded_dsp_wall_seconds": 0.356509247,
+      "median_expanded_peak_rss_kib": 1304,
+      "median_packed_dsp_wall_seconds": 0.357510305,
+      "median_packed_peak_rss_kib": 1304,
+      "packed_dsp_speedup_ratio": 0.9971999184750773,
+      "profile": "wideband",
+      "rate_hz": 22579200,
+      "samples_per_channel": 1806336,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.6657628620000651,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.63,
+              "wall_seconds": 0.65
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 43352064,
+              "packed": 0,
+              "pcm_digest_fnv64": "ba2a92925b834be5",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.643737093
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.643737093,\"input_payload_bytes\":43352064,\"pcm_digest_fnv64\":\"ba2a92925b834be5\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.9985275599997294,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.01,
+              "user_seconds": 0.97,
+              "wall_seconds": 0.99
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 1354752,
+              "packed": 1,
+              "pcm_digest_fnv64": "ba2a92925b834be5",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.979197581
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.979197581,\"input_payload_bytes\":1354752,\"pcm_digest_fnv64\":\"ba2a92925b834be5\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.3368973839997125,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.33,
+              "wall_seconds": 0.33
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 43352064,
+              "packed": 0,
+              "pcm_digest_fnv64": "ba2a92925b834be5",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.330901374
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.330901374,\"input_payload_bytes\":43352064,\"pcm_digest_fnv64\":\"ba2a92925b834be5\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.32129650100023355,
+            "process_usage": {
+              "peak_rss_kib": 1308,
+              "system_seconds": 0.0,
+              "user_seconds": 0.31,
+              "wall_seconds": 0.31
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 1354752,
+              "packed": 1,
+              "pcm_digest_fnv64": "ba2a92925b834be5",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.316064897
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.316064897,\"input_payload_bytes\":1354752,\"pcm_digest_fnv64\":\"ba2a92925b834be5\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.36179913799969654,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.35,
+              "wall_seconds": 0.35
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 43352064,
+              "packed": 0,
+              "pcm_digest_fnv64": "ba2a92925b834be5",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.356509247
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.356509247,\"input_payload_bytes\":43352064,\"pcm_digest_fnv64\":\"ba2a92925b834be5\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.36166486799993436,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.36,
+              "wall_seconds": 0.36
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 1354752,
+              "packed": 1,
+              "pcm_digest_fnv64": "ba2a92925b834be5",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.357510305
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.357510305,\"input_payload_bytes\":1354752,\"pcm_digest_fnv64\":\"ba2a92925b834be5\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.3442303369997717,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.32,
+              "wall_seconds": 0.33
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 43352064,
+              "packed": 0,
+              "pcm_digest_fnv64": "ba2a92925b834be5",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.332932603
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":1,\"packed\":0,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.332932603,\"input_payload_bytes\":43352064,\"pcm_digest_fnv64\":\"ba2a92925b834be5\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "1",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.42589800700034175,
+            "process_usage": {
+              "peak_rss_kib": 1432,
+              "system_seconds": 0.0,
+              "user_seconds": 0.41,
+              "wall_seconds": 0.42
+            },
+            "result": {
+              "channels": 6,
+              "frames": 1806336,
+              "input_payload_bytes": 1354752,
+              "packed": 1,
+              "pcm_digest_fnv64": "ba2a92925b834be5",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.418527062
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":6,\"profile\":1,\"packed\":1,\"frames\":1806336,\"pcm_frames\":56448,\"wall_seconds\":0.418527062,\"input_payload_bytes\":1354752,\"pcm_digest_fnv64\":\"ba2a92925b834be5\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 1,
+      "id": "R45158400-P0-C1",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 14450688,
+      "interstage_payload_bytes_packed": 451584,
+      "median_expanded_dsp_wall_seconds": 0.100484288,
+      "median_expanded_peak_rss_kib": 1304,
+      "median_packed_dsp_wall_seconds": 0.087862682,
+      "median_packed_peak_rss_kib": 1176,
+      "packed_dsp_speedup_ratio": 1.1436514992792959,
+      "profile": "mastering",
+      "rate_hz": 45158400,
+      "samples_per_channel": 3612672,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.1043988139999783,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.1,
+              "wall_seconds": 0.1
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "721aebb187aca047",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.100484288
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.100484288,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"721aebb187aca047\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.08537785500038808,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.08,
+              "wall_seconds": 0.08
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "721aebb187aca047",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.080965713
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.080965713,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"721aebb187aca047\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.11145074500018382,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.09,
+              "wall_seconds": 0.1
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "721aebb187aca047",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.100715141
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.100715141,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"721aebb187aca047\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.09679313299966452,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.08,
+              "wall_seconds": 0.09
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "721aebb187aca047",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.087862682
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.087862682,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"721aebb187aca047\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.0840892400001394,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.07,
+              "wall_seconds": 0.08
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "721aebb187aca047",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.080207772
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.080207772,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"721aebb187aca047\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.09834488400019836,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.09,
+              "wall_seconds": 0.09
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "721aebb187aca047",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.094330969
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.094330969,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"721aebb187aca047\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.09416783100004977,
+            "process_usage": {
+              "peak_rss_kib": 1184,
+              "system_seconds": 0.0,
+              "user_seconds": 0.08,
+              "wall_seconds": 0.08
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "721aebb187aca047",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.087233402
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.087233402,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"721aebb187aca047\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.0879389909996462,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.08,
+              "wall_seconds": 0.08
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "721aebb187aca047",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.083305781
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.083305781,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"721aebb187aca047\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 2,
+      "id": "R45158400-P0-C2",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 28901376,
+      "interstage_payload_bytes_packed": 903168,
+      "median_expanded_dsp_wall_seconds": 0.223625099,
+      "median_expanded_peak_rss_kib": 1180,
+      "median_packed_dsp_wall_seconds": 0.189419714,
+      "median_packed_peak_rss_kib": 1176,
+      "packed_dsp_speedup_ratio": 1.1805798577016118,
+      "profile": "mastering",
+      "rate_hz": 45158400,
+      "samples_per_channel": 3612672,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.2285165500002222,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.22,
+              "wall_seconds": 0.22
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 28901376,
+              "packed": 0,
+              "pcm_digest_fnv64": "a380cde5cb8fb99e",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.223625099
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.223625099,\"input_payload_bytes\":28901376,\"pcm_digest_fnv64\":\"a380cde5cb8fb99e\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.2223024320001059,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.21,
+              "wall_seconds": 0.21
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 903168,
+              "packed": 1,
+              "pcm_digest_fnv64": "a380cde5cb8fb99e",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.215797834
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.215797834,\"input_payload_bytes\":903168,\"pcm_digest_fnv64\":\"a380cde5cb8fb99e\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.23335050900004717,
+            "process_usage": {
+              "peak_rss_kib": 1180,
+              "system_seconds": 0.0,
+              "user_seconds": 0.22,
+              "wall_seconds": 0.22
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 28901376,
+              "packed": 0,
+              "pcm_digest_fnv64": "a380cde5cb8fb99e",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.22443025
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.224430250,\"input_payload_bytes\":28901376,\"pcm_digest_fnv64\":\"a380cde5cb8fb99e\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.19625654199990095,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.18,
+              "wall_seconds": 0.19
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 903168,
+              "packed": 1,
+              "pcm_digest_fnv64": "a380cde5cb8fb99e",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.189419714
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.189419714,\"input_payload_bytes\":903168,\"pcm_digest_fnv64\":\"a380cde5cb8fb99e\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.20519376699985514,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.18,
+              "wall_seconds": 0.19
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 28901376,
+              "packed": 0,
+              "pcm_digest_fnv64": "a380cde5cb8fb99e",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.187743408
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.187743408,\"input_payload_bytes\":28901376,\"pcm_digest_fnv64\":\"a380cde5cb8fb99e\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.16691584999989573,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.16,
+              "wall_seconds": 0.16
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 903168,
+              "packed": 1,
+              "pcm_digest_fnv64": "a380cde5cb8fb99e",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.162051103
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.162051103,\"input_payload_bytes\":903168,\"pcm_digest_fnv64\":\"a380cde5cb8fb99e\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.19160310999996,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.18,
+              "wall_seconds": 0.18
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 28901376,
+              "packed": 0,
+              "pcm_digest_fnv64": "a380cde5cb8fb99e",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.183480183
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.183480183,\"input_payload_bytes\":28901376,\"pcm_digest_fnv64\":\"a380cde5cb8fb99e\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.20288848999962283,
+            "process_usage": {
+              "peak_rss_kib": 1176,
+              "system_seconds": 0.0,
+              "user_seconds": 0.19,
+              "wall_seconds": 0.2
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 903168,
+              "packed": 1,
+              "pcm_digest_fnv64": "a380cde5cb8fb99e",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.198449083
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.198449083,\"input_payload_bytes\":903168,\"pcm_digest_fnv64\":\"a380cde5cb8fb99e\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 6,
+      "id": "R45158400-P0-C6",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 86704128,
+      "interstage_payload_bytes_packed": 2709504,
+      "median_expanded_dsp_wall_seconds": 0.616831725,
+      "median_expanded_peak_rss_kib": 1304,
+      "median_packed_dsp_wall_seconds": 0.617753625,
+      "median_packed_peak_rss_kib": 1304,
+      "packed_dsp_speedup_ratio": 0.9985076574823823,
+      "profile": "mastering",
+      "rate_hz": 45158400,
+      "samples_per_channel": 3612672,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.6533813470000496,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.64,
+              "wall_seconds": 0.64
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 86704128,
+              "packed": 0,
+              "pcm_digest_fnv64": "aff31ce4aac9c6dd",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.643037693
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.643037693,\"input_payload_bytes\":86704128,\"pcm_digest_fnv64\":\"aff31ce4aac9c6dd\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.633903164000003,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.61,
+              "wall_seconds": 0.62
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 2709504,
+              "packed": 1,
+              "pcm_digest_fnv64": "aff31ce4aac9c6dd",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.617753625
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.617753625,\"input_payload_bytes\":2709504,\"pcm_digest_fnv64\":\"aff31ce4aac9c6dd\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.6229488309995759,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.61,
+              "wall_seconds": 0.61
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 86704128,
+              "packed": 0,
+              "pcm_digest_fnv64": "aff31ce4aac9c6dd",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.616831725
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.616831725,\"input_payload_bytes\":86704128,\"pcm_digest_fnv64\":\"aff31ce4aac9c6dd\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.6321423999997933,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.61,
+              "wall_seconds": 0.62
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 2709504,
+              "packed": 1,
+              "pcm_digest_fnv64": "aff31ce4aac9c6dd",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.619240099
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.619240099,\"input_payload_bytes\":2709504,\"pcm_digest_fnv64\":\"aff31ce4aac9c6dd\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.553013997999642,
+            "process_usage": {
+              "peak_rss_kib": 1432,
+              "system_seconds": 0.0,
+              "user_seconds": 0.54,
+              "wall_seconds": 0.55
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 86704128,
+              "packed": 0,
+              "pcm_digest_fnv64": "aff31ce4aac9c6dd",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.548547375
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.548547375,\"input_payload_bytes\":86704128,\"pcm_digest_fnv64\":\"aff31ce4aac9c6dd\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.6107632819998798,
+            "process_usage": {
+              "peak_rss_kib": 1308,
+              "system_seconds": 0.0,
+              "user_seconds": 0.6,
+              "wall_seconds": 0.6
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 2709504,
+              "packed": 1,
+              "pcm_digest_fnv64": "aff31ce4aac9c6dd",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.60324286
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.603242860,\"input_payload_bytes\":2709504,\"pcm_digest_fnv64\":\"aff31ce4aac9c6dd\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.7643468400001439,
+            "process_usage": {
+              "peak_rss_kib": 1416,
+              "system_seconds": 0.0,
+              "user_seconds": 0.75,
+              "wall_seconds": 0.76
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 86704128,
+              "packed": 0,
+              "pcm_digest_fnv64": "aff31ce4aac9c6dd",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.759635473
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":0,\"packed\":0,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.759635473,\"input_payload_bytes\":86704128,\"pcm_digest_fnv64\":\"aff31ce4aac9c6dd\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "0",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.7349224029999277,
+            "process_usage": {
+              "peak_rss_kib": 1432,
+              "system_seconds": 0.0,
+              "user_seconds": 0.72,
+              "wall_seconds": 0.72
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 2709504,
+              "packed": 1,
+              "pcm_digest_fnv64": "aff31ce4aac9c6dd",
+              "pcm_frames": 14112,
+              "profile": 0,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.725082436
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":0,\"packed\":1,\"frames\":3612672,\"pcm_frames\":14112,\"wall_seconds\":0.725082436,\"input_payload_bytes\":2709504,\"pcm_digest_fnv64\":\"aff31ce4aac9c6dd\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 1,
+      "id": "R45158400-P1-C1",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 14450688,
+      "interstage_payload_bytes_packed": 451584,
+      "median_expanded_dsp_wall_seconds": 0.124473267,
+      "median_expanded_peak_rss_kib": 1600,
+      "median_packed_dsp_wall_seconds": 0.121746258,
+      "median_packed_peak_rss_kib": 1584,
+      "packed_dsp_speedup_ratio": 1.0223991196509712,
+      "profile": "wideband",
+      "rate_hz": 45158400,
+      "samples_per_channel": 3612672,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.12505617199985863,
+            "process_usage": {
+              "peak_rss_kib": 1600,
+              "system_seconds": 0.0,
+              "user_seconds": 0.1,
+              "wall_seconds": 0.11
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "e96f014511283293",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.108942815
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.108942815,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"e96f014511283293\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.09952120399975684,
+            "process_usage": {
+              "peak_rss_kib": 1592,
+              "system_seconds": 0.0,
+              "user_seconds": 0.09,
+              "wall_seconds": 0.09
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "e96f014511283293",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.095486717
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.095486717,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"e96f014511283293\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.12913879999996425,
+            "process_usage": {
+              "peak_rss_kib": 1472,
+              "system_seconds": 0.0,
+              "user_seconds": 0.12,
+              "wall_seconds": 0.12
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "e96f014511283293",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.124473267
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.124473267,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"e96f014511283293\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.12508159999970303,
+            "process_usage": {
+              "peak_rss_kib": 1464,
+              "system_seconds": 0.0,
+              "user_seconds": 0.12,
+              "wall_seconds": 0.12
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "e96f014511283293",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.121746258
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.121746258,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"e96f014511283293\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.1334510090000549,
+            "process_usage": {
+              "peak_rss_kib": 1600,
+              "system_seconds": 0.0,
+              "user_seconds": 0.13,
+              "wall_seconds": 0.13
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "e96f014511283293",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.128725105
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.128725105,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"e96f014511283293\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.13472965899973133,
+            "process_usage": {
+              "peak_rss_kib": 1584,
+              "system_seconds": 0.0,
+              "user_seconds": 0.12,
+              "wall_seconds": 0.13
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "e96f014511283293",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.124020122
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.124020122,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"e96f014511283293\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "1",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.11253935600007026,
+            "process_usage": {
+              "peak_rss_kib": 1480,
+              "system_seconds": 0.0,
+              "user_seconds": 0.1,
+              "wall_seconds": 0.11
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 14450688,
+              "packed": 0,
+              "pcm_digest_fnv64": "e96f014511283293",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.108349774
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.108349774,\"input_payload_bytes\":14450688,\"pcm_digest_fnv64\":\"e96f014511283293\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "1",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.11554636900018522,
+            "process_usage": {
+              "peak_rss_kib": 1472,
+              "system_seconds": 0.0,
+              "user_seconds": 0.11,
+              "wall_seconds": 0.11
+            },
+            "result": {
+              "channels": 1,
+              "frames": 3612672,
+              "input_payload_bytes": 451584,
+              "packed": 1,
+              "pcm_digest_fnv64": "e96f014511283293",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.110545126
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":1,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.110545126,\"input_payload_bytes\":451584,\"pcm_digest_fnv64\":\"e96f014511283293\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 2,
+      "id": "R45158400-P1-C2",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 28901376,
+      "interstage_payload_bytes_packed": 903168,
+      "median_expanded_dsp_wall_seconds": 0.206528713,
+      "median_expanded_peak_rss_kib": 1728,
+      "median_packed_dsp_wall_seconds": 0.196686854,
+      "median_packed_peak_rss_kib": 1724,
+      "packed_dsp_speedup_ratio": 1.0500382145519498,
+      "profile": "wideband",
+      "rate_hz": 45158400,
+      "samples_per_channel": 3612672,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.2137279660000786,
+            "process_usage": {
+              "peak_rss_kib": 1728,
+              "system_seconds": 0.0,
+              "user_seconds": 0.21,
+              "wall_seconds": 0.21
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 28901376,
+              "packed": 0,
+              "pcm_digest_fnv64": "533a93a279e53890",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.209613858
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.209613858,\"input_payload_bytes\":28901376,\"pcm_digest_fnv64\":\"533a93a279e53890\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.21898793499985914,
+            "process_usage": {
+              "peak_rss_kib": 1904,
+              "system_seconds": 0.0,
+              "user_seconds": 0.21,
+              "wall_seconds": 0.21
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 903168,
+              "packed": 1,
+              "pcm_digest_fnv64": "533a93a279e53890",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.214816225
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.214816225,\"input_payload_bytes\":903168,\"pcm_digest_fnv64\":\"533a93a279e53890\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.20981919899986679,
+            "process_usage": {
+              "peak_rss_kib": 1724,
+              "system_seconds": 0.0,
+              "user_seconds": 0.2,
+              "wall_seconds": 0.2
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 28901376,
+              "packed": 0,
+              "pcm_digest_fnv64": "533a93a279e53890",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.206528713
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.206528713,\"input_payload_bytes\":28901376,\"pcm_digest_fnv64\":\"533a93a279e53890\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.19089556500011895,
+            "process_usage": {
+              "peak_rss_kib": 1724,
+              "system_seconds": 0.0,
+              "user_seconds": 0.18,
+              "wall_seconds": 0.18
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 903168,
+              "packed": 1,
+              "pcm_digest_fnv64": "533a93a279e53890",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.186454189
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.186454189,\"input_payload_bytes\":903168,\"pcm_digest_fnv64\":\"533a93a279e53890\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.19271083300009195,
+            "process_usage": {
+              "peak_rss_kib": 1888,
+              "system_seconds": 0.0,
+              "user_seconds": 0.19,
+              "wall_seconds": 0.19
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 28901376,
+              "packed": 0,
+              "pcm_digest_fnv64": "533a93a279e53890",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.189026888
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.189026888,\"input_payload_bytes\":28901376,\"pcm_digest_fnv64\":\"533a93a279e53890\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.20176945699995485,
+            "process_usage": {
+              "peak_rss_kib": 1720,
+              "system_seconds": 0.0,
+              "user_seconds": 0.19,
+              "wall_seconds": 0.19
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 903168,
+              "packed": 1,
+              "pcm_digest_fnv64": "533a93a279e53890",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.196686854
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.196686854,\"input_payload_bytes\":903168,\"pcm_digest_fnv64\":\"533a93a279e53890\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "2",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.20447679900007643,
+            "process_usage": {
+              "peak_rss_kib": 1728,
+              "system_seconds": 0.0,
+              "user_seconds": 0.2,
+              "wall_seconds": 0.2
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 28901376,
+              "packed": 0,
+              "pcm_digest_fnv64": "533a93a279e53890",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.200052674
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.200052674,\"input_payload_bytes\":28901376,\"pcm_digest_fnv64\":\"533a93a279e53890\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "2",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.19665793900003337,
+            "process_usage": {
+              "peak_rss_kib": 1728,
+              "system_seconds": 0.0,
+              "user_seconds": 0.19,
+              "wall_seconds": 0.19
+            },
+            "result": {
+              "channels": 2,
+              "frames": 3612672,
+              "input_payload_bytes": 903168,
+              "packed": 1,
+              "pcm_digest_fnv64": "533a93a279e53890",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.192405429
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":2,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.192405429,\"input_payload_bytes\":903168,\"pcm_digest_fnv64\":\"533a93a279e53890\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "channels": 6,
+      "id": "R45158400-P1-C6",
+      "interstage_bytes_ratio_expanded_over_packed": 32.0,
+      "interstage_payload_bytes_expanded": 86704128,
+      "interstage_payload_bytes_packed": 2709504,
+      "median_expanded_dsp_wall_seconds": 0.690913298,
+      "median_expanded_peak_rss_kib": 2368,
+      "median_packed_dsp_wall_seconds": 0.756413392,
+      "median_packed_peak_rss_kib": 2368,
+      "packed_dsp_speedup_ratio": 0.9134070143485773,
+      "profile": "wideband",
+      "rate_hz": 45158400,
+      "samples_per_channel": 3612672,
+      "source_audio_seconds": 0.08,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.7009025559996189,
+            "process_usage": {
+              "peak_rss_kib": 2368,
+              "system_seconds": 0.0,
+              "user_seconds": 0.68,
+              "wall_seconds": 0.69
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 86704128,
+              "packed": 0,
+              "pcm_digest_fnv64": "39dfb09faf68c897",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.690913298
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.690913298,\"input_payload_bytes\":86704128,\"pcm_digest_fnv64\":\"39dfb09faf68c897\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.6927239599999666,
+            "process_usage": {
+              "peak_rss_kib": 2368,
+              "system_seconds": 0.0,
+              "user_seconds": 0.68,
+              "wall_seconds": 0.69
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 2709504,
+              "packed": 1,
+              "pcm_digest_fnv64": "39dfb09faf68c897",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.687203094
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.687203094,\"input_payload_bytes\":2709504,\"pcm_digest_fnv64\":\"39dfb09faf68c897\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.6814166860003752,
+            "process_usage": {
+              "peak_rss_kib": 2368,
+              "system_seconds": 0.0,
+              "user_seconds": 0.67,
+              "wall_seconds": 0.67
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 86704128,
+              "packed": 0,
+              "pcm_digest_fnv64": "39dfb09faf68c897",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.676292661
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.676292661,\"input_payload_bytes\":86704128,\"pcm_digest_fnv64\":\"39dfb09faf68c897\"}\n"
+          },
+          "index": 1,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.766263206000076,
+            "process_usage": {
+              "peak_rss_kib": 2364,
+              "system_seconds": 0.0,
+              "user_seconds": 0.75,
+              "wall_seconds": 0.76
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 2709504,
+              "packed": 1,
+              "pcm_digest_fnv64": "39dfb09faf68c897",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.756413392
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.756413392,\"input_payload_bytes\":2709504,\"pcm_digest_fnv64\":\"39dfb09faf68c897\"}\n"
+          },
+          "status": "PASS"
+        },
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.7159779150001668,
+            "process_usage": {
+              "peak_rss_kib": 2368,
+              "system_seconds": 0.0,
+              "user_seconds": 0.71,
+              "wall_seconds": 0.71
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 86704128,
+              "packed": 0,
+              "pcm_digest_fnv64": "39dfb09faf68c897",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.710846768
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.710846768,\"input_payload_bytes\":86704128,\"pcm_digest_fnv64\":\"39dfb09faf68c897\"}\n"
+          },
+          "index": 2,
+          "match": true,
+          "order": [
+            "packed",
+            "expanded"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.7874312890003239,
+            "process_usage": {
+              "peak_rss_kib": 2368,
+              "system_seconds": 0.0,
+              "user_seconds": 0.78,
+              "wall_seconds": 0.78
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 2709504,
+              "packed": 1,
+              "pcm_digest_fnv64": "39dfb09faf68c897",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.782027989
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.782027989,\"input_payload_bytes\":2709504,\"pcm_digest_fnv64\":\"39dfb09faf68c897\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "6",
+              "0",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.7127983320001476,
+            "process_usage": {
+              "peak_rss_kib": 2392,
+              "system_seconds": 0.0,
+              "user_seconds": 0.69,
+              "wall_seconds": 0.7
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 86704128,
+              "packed": 0,
+              "pcm_digest_fnv64": "39dfb09faf68c897",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.704341042
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":1,\"packed\":0,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.704341042,\"input_payload_bytes\":86704128,\"pcm_digest_fnv64\":\"39dfb09faf68c897\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "45158400",
+              "1",
+              "6",
+              "1",
+              "0.08"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.6760144929999115,
+            "process_usage": {
+              "peak_rss_kib": 2400,
+              "system_seconds": 0.0,
+              "user_seconds": 0.67,
+              "wall_seconds": 0.67
+            },
+            "result": {
+              "channels": 6,
+              "frames": 3612672,
+              "input_payload_bytes": 2709504,
+              "packed": 1,
+              "pcm_digest_fnv64": "39dfb09faf68c897",
+              "pcm_frames": 56448,
+              "profile": 1,
+              "rate_hz": 45158400,
+              "status": "PASS",
+              "wall_seconds": 0.668662125
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"channels\":6,\"profile\":1,\"packed\":1,\"frames\":3612672,\"pcm_frames\":56448,\"wall_seconds\":0.668662125,\"input_payload_bytes\":2709504,\"pcm_digest_fnv64\":\"39dfb09faf68c897\"}\n"
+          },
+          "status": "PASS"
+        }
+      ]
+    }
+  ],
+  "configuration": {
+    "duration_seconds": 0.08,
+    "encoder_sdm_tier": "scalar",
+    "repetitions": 3,
+    "timeout_seconds": 1800,
+    "warmups": 1
+  },
+  "encoders": [
+    {
+      "experimental": true,
+      "id": "encode-22579200-scalar",
+      "median_composite_dsp_wall_seconds": 0.100178839,
+      "median_peak_rss_kib": 3372,
+      "median_process_wall_seconds": 0.1,
+      "native_digest_fnv64": "92fa0a82e46a644d",
+      "native_frames_per_second": 18031113.33721885,
+      "rate_hz": 22579200,
+      "status": "PASS",
+      "trials": [
+        {
+          "command": [
+            "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+            "bench-encode",
+            "22579200",
+            "0.08"
+          ],
+          "exit_code": 0,
+          "outer_wall_seconds": 0.10500360000014552,
+          "process_usage": {
+            "peak_rss_kib": 3368,
+            "system_seconds": 0.0,
+            "user_seconds": 0.09,
+            "wall_seconds": 0.1
+          },
+          "result": {
+            "native_digest_fnv64": "92fa0a82e46a644d",
+            "native_frames": 1806336,
+            "peak_scaled": 0.0579999676,
+            "rate_hz": 22579200,
+            "source_frames": 14112,
+            "source_hz": 176400,
+            "state0_peak": 3.10141626,
+            "status": "PASS",
+            "wall_seconds": 0.100178839
+          },
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"source_hz\":176400,\"source_frames\":14112,\"native_frames\":1806336,\"wall_seconds\":0.100178839,\"state0_peak\":3.10141626,\"peak_scaled\":0.0579999676,\"native_digest_fnv64\":\"92fa0a82e46a644d\"}\n"
+        },
+        {
+          "command": [
+            "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+            "bench-encode",
+            "22579200",
+            "0.08"
+          ],
+          "exit_code": 0,
+          "outer_wall_seconds": 0.10967007699991882,
+          "process_usage": {
+            "peak_rss_kib": 3380,
+            "system_seconds": 0.0,
+            "user_seconds": 0.09,
+            "wall_seconds": 0.1
+          },
+          "result": {
+            "native_digest_fnv64": "92fa0a82e46a644d",
+            "native_frames": 1806336,
+            "peak_scaled": 0.0579999676,
+            "rate_hz": 22579200,
+            "source_frames": 14112,
+            "source_hz": 176400,
+            "state0_peak": 3.10141626,
+            "status": "PASS",
+            "wall_seconds": 0.103516821
+          },
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"source_hz\":176400,\"source_frames\":14112,\"native_frames\":1806336,\"wall_seconds\":0.103516821,\"state0_peak\":3.10141626,\"peak_scaled\":0.0579999676,\"native_digest_fnv64\":\"92fa0a82e46a644d\"}\n"
+        },
+        {
+          "command": [
+            "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+            "bench-encode",
+            "22579200",
+            "0.08"
+          ],
+          "exit_code": 0,
+          "outer_wall_seconds": 0.10245770699975765,
+          "process_usage": {
+            "peak_rss_kib": 3372,
+            "system_seconds": 0.0,
+            "user_seconds": 0.09,
+            "wall_seconds": 0.1
+          },
+          "result": {
+            "native_digest_fnv64": "92fa0a82e46a644d",
+            "native_frames": 1806336,
+            "peak_scaled": 0.0579999676,
+            "rate_hz": 22579200,
+            "source_frames": 14112,
+            "source_hz": 176400,
+            "state0_peak": 3.10141626,
+            "status": "PASS",
+            "wall_seconds": 0.09737997
+          },
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"source_hz\":176400,\"source_frames\":14112,\"native_frames\":1806336,\"wall_seconds\":0.097379970,\"state0_peak\":3.10141626,\"peak_scaled\":0.0579999676,\"native_digest_fnv64\":\"92fa0a82e46a644d\"}\n"
+        }
+      ],
+      "warmups": [
+        {
+          "command": [
+            "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+            "bench-encode",
+            "22579200",
+            "0.08"
+          ],
+          "exit_code": 0,
+          "outer_wall_seconds": 0.10635788500030685,
+          "process_usage": {
+            "peak_rss_kib": 3284,
+            "system_seconds": 0.0,
+            "user_seconds": 0.09,
+            "wall_seconds": 0.1
+          },
+          "result": {
+            "native_digest_fnv64": "92fa0a82e46a644d",
+            "native_frames": 1806336,
+            "peak_scaled": 0.0579999676,
+            "rate_hz": 22579200,
+            "source_frames": 14112,
+            "source_hz": 176400,
+            "state0_peak": 3.10141626,
+            "status": "PASS",
+            "wall_seconds": 0.100514939
+          },
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"source_hz\":176400,\"source_frames\":14112,\"native_frames\":1806336,\"wall_seconds\":0.100514939,\"state0_peak\":3.10141626,\"peak_scaled\":0.0579999676,\"native_digest_fnv64\":\"92fa0a82e46a644d\"}\n"
+        }
+      ]
+    },
+    {
+      "experimental": true,
+      "id": "encode-45158400-scalar",
+      "median_composite_dsp_wall_seconds": 0.193687064,
+      "median_peak_rss_kib": 4868,
+      "median_process_wall_seconds": 0.19,
+      "native_digest_fnv64": "d157f7868b8fd06d",
+      "native_frames_per_second": 18652107.81448987,
+      "rate_hz": 45158400,
+      "status": "PASS",
+      "trials": [
+        {
+          "command": [
+            "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+            "bench-encode",
+            "45158400",
+            "0.08"
+          ],
+          "exit_code": 0,
+          "outer_wall_seconds": 0.2201012850000552,
+          "process_usage": {
+            "peak_rss_kib": 4868,
+            "system_seconds": 0.01,
+            "user_seconds": 0.19,
+            "wall_seconds": 0.21
+          },
+          "result": {
+            "native_digest_fnv64": "d157f7868b8fd06d",
+            "native_frames": 3612672,
+            "peak_scaled": 0.0579999676,
+            "rate_hz": 45158400,
+            "source_frames": 14112,
+            "source_hz": 176400,
+            "state0_peak": 3.1248995,
+            "status": "PASS",
+            "wall_seconds": 0.21407005
+          },
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"source_hz\":176400,\"source_frames\":14112,\"native_frames\":3612672,\"wall_seconds\":0.214070050,\"state0_peak\":3.1248995,\"peak_scaled\":0.0579999676,\"native_digest_fnv64\":\"d157f7868b8fd06d\"}\n"
+        },
+        {
+          "command": [
+            "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+            "bench-encode",
+            "45158400",
+            "0.08"
+          ],
+          "exit_code": 0,
+          "outer_wall_seconds": 0.19879295800001273,
+          "process_usage": {
+            "peak_rss_kib": 4932,
+            "system_seconds": 0.01,
+            "user_seconds": 0.18,
+            "wall_seconds": 0.19
+          },
+          "result": {
+            "native_digest_fnv64": "d157f7868b8fd06d",
+            "native_frames": 3612672,
+            "peak_scaled": 0.0579999676,
+            "rate_hz": 45158400,
+            "source_frames": 14112,
+            "source_hz": 176400,
+            "state0_peak": 3.1248995,
+            "status": "PASS",
+            "wall_seconds": 0.193687064
+          },
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"source_hz\":176400,\"source_frames\":14112,\"native_frames\":3612672,\"wall_seconds\":0.193687064,\"state0_peak\":3.1248995,\"peak_scaled\":0.0579999676,\"native_digest_fnv64\":\"d157f7868b8fd06d\"}\n"
+        },
+        {
+          "command": [
+            "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+            "bench-encode",
+            "45158400",
+            "0.08"
+          ],
+          "exit_code": 0,
+          "outer_wall_seconds": 0.18765801300014573,
+          "process_usage": {
+            "peak_rss_kib": 4800,
+            "system_seconds": 0.0,
+            "user_seconds": 0.18,
+            "wall_seconds": 0.18
+          },
+          "result": {
+            "native_digest_fnv64": "d157f7868b8fd06d",
+            "native_frames": 3612672,
+            "peak_scaled": 0.0579999676,
+            "rate_hz": 45158400,
+            "source_frames": 14112,
+            "source_hz": 176400,
+            "state0_peak": 3.1248995,
+            "status": "PASS",
+            "wall_seconds": 0.182332142
+          },
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"source_hz\":176400,\"source_frames\":14112,\"native_frames\":3612672,\"wall_seconds\":0.182332142,\"state0_peak\":3.1248995,\"peak_scaled\":0.0579999676,\"native_digest_fnv64\":\"d157f7868b8fd06d\"}\n"
+        }
+      ],
+      "warmups": [
+        {
+          "command": [
+            "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+            "bench-encode",
+            "45158400",
+            "0.08"
+          ],
+          "exit_code": 0,
+          "outer_wall_seconds": 0.2207191879997481,
+          "process_usage": {
+            "peak_rss_kib": 4920,
+            "system_seconds": 0.01,
+            "user_seconds": 0.19,
+            "wall_seconds": 0.21
+          },
+          "result": {
+            "native_digest_fnv64": "d157f7868b8fd06d",
+            "native_frames": 3612672,
+            "peak_scaled": 0.0579999676,
+            "rate_hz": 45158400,
+            "source_frames": 14112,
+            "source_hz": 176400,
+            "state0_peak": 3.1248995,
+            "status": "PASS",
+            "wall_seconds": 0.204337224
+          },
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":45158400,\"source_hz\":176400,\"source_frames\":14112,\"native_frames\":3612672,\"wall_seconds\":0.204337224,\"state0_peak\":3.1248995,\"peak_scaled\":0.0579999676,\"native_digest_fnv64\":\"d157f7868b8fd06d\"}\n"
+        }
+      ]
+    }
+  ],
+  "host": {
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "machine": "x86_64",
+    "node": "7d8133c4a95e",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "python": "3.13.5"
+  },
+  "methodology": "process-level paired/interleaved alternating order, checked bit equality; /usr/bin/time wall CPU RSS when available",
+  "qualified": false,
+  "schema": "P17/highrate-internal-paired-benchmark/1",
+  "status": "PASS_DEVELOPMENT_TESTS_UNQUALIFIED",
+  "unrun_gates": [
+    "physical calibrated hardware, reference DSD512/1024 media and transports",
+    "multi-host full-duration thermal/sustained qualification",
+    "end-to-end SDM encoder profiling isolated from SRC and FIR"
+  ],
+  "writer_enabled": false
+}

@@ -267,7 +267,7 @@ def main():
         perf=performance_summary(args.results.parent/'performance')
         report['p10_paired_throughput']=dict(status=perf['status'],evidence='../performance/summary.json')
         report['summary']['p10_throughput_qualification']=perf['status']
-    if args.phase in ('P14','P15','P16'):
+    if args.phase in ('P14','P15','P16','P17'):
         command=[sys.executable,str(ROOT/'tests/dsd/bench_p14.py'),
                  '--sox',str(args.sox), '--results',str(args.results/'observer-overhead')]
         try:
@@ -303,6 +303,26 @@ def main():
                 evidence='p13-avx512-vs-avx2/benchmark-matrix.json')
             missing.append('P13 AVX2/AVX-512F comparison unrun or timed out')
         if missing: report['summary']['status']='incomplete'
+        atomic_json(outfile,report)
+    if args.phase == 'P17':
+        command=[sys.executable,str(ROOT/'tests/dsd/bench_p17.py'),
+            '--unit',str(ROOT/'test/dsd_test_p17'),
+            '--results',str(args.results/'highrate-internal'),
+            '--duration',repr(max(.08,args.duration)),
+            '--repetitions',str(max(3,args.repetitions)),
+            '--warmups',str(max(1,args.warmups))]
+        try:
+            cp=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=3600)
+            report['p17_highrate_internal_dsp']=dict(exit=cp.returncode,
+                status='PASS' if cp.returncode==0 else 'FAIL',
+                stdout_tail=cp.stdout[-3000:],stderr_tail=cp.stderr[-3000:],
+                evidence='highrate-internal/paired.json',qualified=False,
+                distinction='experimental private DSP only; no high-rate writers or release metrology')
+            if cp.returncode:missing.append('P17 high-rate paired DSP/encoder development benchmark failed')
+        except (OSError,subprocess.TimeoutExpired) as exc:
+            report['p17_highrate_internal_dsp']=dict(status='FAIL',error=str(exc),qualified=False)
+            missing.append('P17 high-rate paired benchmark incomplete')
+        if missing:report['summary']['status']='incomplete'
         atomic_json(outfile,report)
     if args.phase == 'P16':
         command=[sys.executable,str(ROOT/'tests/dsd/bench_p16.py'),

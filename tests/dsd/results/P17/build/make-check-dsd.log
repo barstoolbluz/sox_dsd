@@ -1,0 +1,131 @@
+Making all in libdolbyb
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd/libdolbyb'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd/libdolbyb'
+Making all in libebur128
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd/libebur128'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd/libebur128'
+Making all in lpc10
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd/lpc10'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd/lpc10'
+Making all in libgsm
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd/libgsm'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd/libgsm'
+Making all in src
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd/src'
+make  all-am
+make[2]: Entering directory '/mnt/data/p17-work/sox_dsd/src'
+make[2]: Leaving directory '/mnt/data/p17-work/sox_dsd/src'
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd/src'
+Making all in test
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd/test'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd/test'
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd'
+make check-dsd-optimization
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd'
+Making all in libdolbyb
+make[2]: Entering directory '/mnt/data/p17-work/sox_dsd/libdolbyb'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/mnt/data/p17-work/sox_dsd/libdolbyb'
+Making all in libebur128
+make[2]: Entering directory '/mnt/data/p17-work/sox_dsd/libebur128'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/mnt/data/p17-work/sox_dsd/libebur128'
+Making all in lpc10
+make[2]: Entering directory '/mnt/data/p17-work/sox_dsd/lpc10'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/mnt/data/p17-work/sox_dsd/lpc10'
+Making all in libgsm
+make[2]: Entering directory '/mnt/data/p17-work/sox_dsd/libgsm'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/mnt/data/p17-work/sox_dsd/libgsm'
+Making all in src
+make[2]: Entering directory '/mnt/data/p17-work/sox_dsd/src'
+make  all-am
+make[3]: Entering directory '/mnt/data/p17-work/sox_dsd/src'
+make[3]: Leaving directory '/mnt/data/p17-work/sox_dsd/src'
+make[2]: Leaving directory '/mnt/data/p17-work/sox_dsd/src'
+Making all in test
+make[2]: Entering directory '/mnt/data/p17-work/sox_dsd/test'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/mnt/data/p17-work/sox_dsd/test'
+make[2]: Entering directory '/mnt/data/p17-work/sox_dsd'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/mnt/data/p17-work/sox_dsd'
+make -C test dsd_test_decode_optimization
+make[2]: Entering directory '/mnt/data/p17-work/sox_dsd/test'
+  CC       dsd_test_decode_optimization-test_decode_optimization.o
+  CCLD     dsd_test_decode_optimization
+make[2]: Leaving directory '/mnt/data/p17-work/sox_dsd/test'
+/mnt/data/p17-work/sox_dsd/test/dsd_test_decode_optimization scalar
+decoder optimization PASS (113573 assertions, 1270 stream cases, scalar)
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd'
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd/test'
+  CC       dsd_test_p14-test_p14.o
+  CCLD     dsd_test_p14
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd/test'
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd/test'
+  CC       dsd_test_p10-test_p10.o
+  CC       dsd_test_p10-sdm.o
+  CCLD     dsd_test_p10
+  CC       sox_p10_candidate-sox_ng.o
+  CC       sox_p10_candidate-p10_candidate_cli.o
+  CCLD     sox_p10_candidate
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd/test'
+make -C test dsd_test_io
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd/test'
+  CC       dsd_test_io-test_io.o
+  CCLD     dsd_test_io
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd/test'
+make -C test dsd_test_dff_writer
+make[1]: Entering directory '/mnt/data/p17-work/sox_dsd/test'
+  CC       dsd_test_dff_writer-test_dff_writer.o
+  CCLD     dsd_test_dff_writer
+make[1]: Leaving directory '/mnt/data/p17-work/sox_dsd/test'
+python3 ./tests/dsd/run.py --phase P17 --results /mnt/data/p17-work/sox_dsd/tests/dsd/results/P17 --sox /mnt/data/p17-work/sox_dsd/src/sox --probe /mnt/data/p17-work/sox_dsd/test/dsd_test_io --writer-unit /mnt/data/p17-work/sox_dsd/test/dsd_test_dff_writer
+PASS  unit_exact_integer_counts
+PASS  unit_explicit_xfail_classifier
+PASS  unit_P01_xfail_mutation_transition
+PASS  unit_dff_chunk_spans
+PASS  unit_hand_derived_bit_order_dsd_dop
+PASS  unit_reproducible_fixture_generator
+PASS  unit_independent_chunk_and_bit_oracles
+PASS  dsf_normal_mono_96
+PASS  dsf_normal_stereo_96
+PASS  dsf_fourchannel_type4_audio
+PASS  dsf_sixchannel_audio
+PASS  dff_normal_stereo_128
+PASS  dff_manf_core_corrected_control
+PASS  dsf_rewind_core_corrected_control
+PASS  dsf_small_capacity_one_frame
+PASS  dff_small_capacity_one_frame
+PASS  dsf_one_frame_first_bit
+PASS  dsf_empty_file
+PASS  dff_single_byte_cluster
+PASS  dsf_msb_first_8bit_storage
+PASS  dsf_rewind_generic_core_position
+PASS  dsf_multichannel_public_seek_offset16
+PASS  dff_multichannel_public_seek_offset16
+PASS  dff_trailing_manf_generic_counter
+PASS  wsd_normal_mono_16
+PASS  wsd_small_capacity_one_frame
+PASS  wav_rewind_after_manual_core_position_correction
+PASS  dff_writer_cmpr_name_length
+PASS  dff_writer_frm8_parent_size
+PASS  dff_writer_completed_tail_audio_count
+PASS  dff_writer_odd_payload_external_pad
+PASS  dff_writer_uninitialized_first_cluster_1ch
+PASS  dff_writer_uninitialized_first_cluster_4ch
+PASS  dsf_type5_channel_identity_loss
+PASS  dop_cli_hand_vector_transport_markers
+PASS  integration_xfail_audio_mutation_rejection
+FAIL  P16_native_packed_reader_contract
+FAIL  P16_binary64_packed_versus_expanded_FIR_ISA_matrix
+PASS  P17_highrate_registry_delay_and_capabilities
+make: *** [Makefile:1579: check-dsd] Terminated

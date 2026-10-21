@@ -1,0 +1,270 @@
+{
+  "binary_sha256": "7321ed8943ac2aabdaa15f30bcd1e83e5511d7f169f52d15146162c171312004",
+  "cases": [
+    {
+      "channels": 1,
+      "id": "R22579200-P0-C1",
+      "interstage_bytes_ratio_expanded_over_packed": 31.998582816651904,
+      "interstage_payload_bytes_expanded": 361264,
+      "interstage_payload_bytes_packed": 11290,
+      "median_expanded_peak_rss_kib": 1304,
+      "median_expanded_wall_seconds": 0.01,
+      "median_packed_peak_rss_kib": 1304,
+      "median_packed_wall_seconds": 0.0,
+      "packed_speedup_wall_ratio": null,
+      "profile": "mastering",
+      "rate_hz": 22579200,
+      "samples_per_channel": 90316,
+      "source_audio_seconds": 0.004,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "1",
+              "0",
+              "0.004"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.01946198799987542,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.0,
+              "wall_seconds": 0.01
+            },
+            "result": {
+              "channels": 1,
+              "frames": 90316,
+              "input_payload_bytes": 361264,
+              "packed": 0,
+              "pcm_digest_fnv64": "61bd1479a1b6309f",
+              "pcm_frames": 706,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.0078121
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":0,\"packed\":0,\"frames\":90316,\"pcm_frames\":706,\"wall_seconds\":0.007812100,\"input_payload_bytes\":361264,\"pcm_digest_fnv64\":\"61bd1479a1b6309f\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "1",
+              "1",
+              "0.004"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.00776084299991453,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.0,
+              "wall_seconds": 0.0
+            },
+            "result": {
+              "channels": 1,
+              "frames": 90316,
+              "input_payload_bytes": 11290,
+              "packed": 1,
+              "pcm_digest_fnv64": "61bd1479a1b6309f",
+              "pcm_frames": 706,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.001762009
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":1,\"profile\":0,\"packed\":1,\"frames\":90316,\"pcm_frames\":706,\"wall_seconds\":0.001762009,\"input_payload_bytes\":11290,\"pcm_digest_fnv64\":\"61bd1479a1b6309f\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": []
+    },
+    {
+      "channels": 2,
+      "id": "R22579200-P0-C2",
+      "interstage_bytes_ratio_expanded_over_packed": 31.998582816651904,
+      "interstage_payload_bytes_expanded": 722528,
+      "interstage_payload_bytes_packed": 22580,
+      "median_expanded_peak_rss_kib": 1304,
+      "median_expanded_wall_seconds": 0.01,
+      "median_packed_peak_rss_kib": 1312,
+      "median_packed_wall_seconds": 0.0,
+      "packed_speedup_wall_ratio": null,
+      "profile": "mastering",
+      "rate_hz": 22579200,
+      "samples_per_channel": 90316,
+      "source_audio_seconds": 0.004,
+      "status": "PASS",
+      "traffic_scope": "logical reader-to-DSP payload, not measured DRAM or disk traffic",
+      "trials": [
+        {
+          "expanded": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "2",
+              "0",
+              "0.004"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.014248279999947044,
+            "process_usage": {
+              "peak_rss_kib": 1304,
+              "system_seconds": 0.0,
+              "user_seconds": 0.01,
+              "wall_seconds": 0.01
+            },
+            "result": {
+              "channels": 2,
+              "frames": 90316,
+              "input_payload_bytes": 722528,
+              "packed": 0,
+              "pcm_digest_fnv64": "3f8e4d45ca33cc5b",
+              "pcm_frames": 706,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.008336916
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":0,\"packed\":0,\"frames\":90316,\"pcm_frames\":706,\"wall_seconds\":0.008336916,\"input_payload_bytes\":722528,\"pcm_digest_fnv64\":\"3f8e4d45ca33cc5b\"}\n"
+          },
+          "index": 0,
+          "match": true,
+          "order": [
+            "expanded",
+            "packed"
+          ],
+          "packed": {
+            "command": [
+              "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+              "bench",
+              "22579200",
+              "0",
+              "2",
+              "1",
+              "0.004"
+            ],
+            "exit_code": 0,
+            "outer_wall_seconds": 0.012588397999934386,
+            "process_usage": {
+              "peak_rss_kib": 1312,
+              "system_seconds": 0.0,
+              "user_seconds": 0.0,
+              "wall_seconds": 0.0
+            },
+            "result": {
+              "channels": 2,
+              "frames": 90316,
+              "input_payload_bytes": 22580,
+              "packed": 1,
+              "pcm_digest_fnv64": "3f8e4d45ca33cc5b",
+              "pcm_frames": 706,
+              "profile": 0,
+              "rate_hz": 22579200,
+              "status": "PASS",
+              "wall_seconds": 0.006140316
+            },
+            "status": "PASS",
+            "stderr_tail": "",
+            "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"channels\":2,\"profile\":0,\"packed\":1,\"frames\":90316,\"pcm_frames\":706,\"wall_seconds\":0.006140316,\"input_payload_bytes\":22580,\"pcm_digest_fnv64\":\"3f8e4d45ca33cc5b\"}\n"
+          },
+          "status": "PASS"
+        }
+      ],
+      "warmups": []
+    }
+  ],
+  "configuration": {
+    "duration_seconds": 0.004,
+    "encoder_sdm_tier": "scalar",
+    "repetitions": 1,
+    "timeout_seconds": 1800,
+    "warmups": 0
+  },
+  "encoders": [
+    {
+      "experimental": true,
+      "id": "encode-22579200-scalar",
+      "median_peak_rss_kib": 3268,
+      "median_process_wall_seconds": 0.0,
+      "native_digest_fnv64": "baed0f2d02a8ee68",
+      "native_frames_per_second": null,
+      "rate_hz": 22579200,
+      "status": "PASS",
+      "trials": [
+        {
+          "command": [
+            "/mnt/data/p17-work/sox_dsd/test/dsd_test_p17",
+            "bench-encode",
+            "22579200",
+            "0.004"
+          ],
+          "exit_code": 0,
+          "outer_wall_seconds": 0.01125815200020952,
+          "process_usage": {
+            "peak_rss_kib": 3268,
+            "system_seconds": 0.0,
+            "user_seconds": 0.0,
+            "wall_seconds": 0.0
+          },
+          "result": {
+            "native_digest_fnv64": "baed0f2d02a8ee68",
+            "native_frames": 90240,
+            "peak_scaled": 0.0577121203,
+            "rate_hz": 22579200,
+            "source_frames": 705,
+            "source_hz": 176400,
+            "state0_peak": 2.57409549,
+            "status": "PASS",
+            "wall_seconds": 0.006443026
+          },
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "{\"status\":\"PASS\",\"rate_hz\":22579200,\"source_hz\":176400,\"source_frames\":705,\"native_frames\":90240,\"wall_seconds\":0.006443026,\"state0_peak\":2.57409549,\"peak_scaled\":0.0577121203,\"native_digest_fnv64\":\"baed0f2d02a8ee68\"}\n"
+        }
+      ],
+      "warmups": []
+    }
+  ],
+  "host": {
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "machine": "x86_64",
+    "node": "7d8133c4a95e",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "python": "3.13.5"
+  },
+  "methodology": "process-level paired/interleaved alternating order, checked bit equality; /usr/bin/time wall CPU RSS when available",
+  "qualified": false,
+  "schema": "P17/highrate-internal-paired-benchmark/1",
+  "status": "PASS_DEVELOPMENT_TESTS_UNQUALIFIED",
+  "unrun_gates": [
+    "physical calibrated hardware, reference DSD512/1024 media and transports",
+    "multi-host full-duration thermal/sustained qualification",
+    "end-to-end SDM encoder profiling isolated from SRC and FIR"
+  ],
+  "writer_enabled": false
+}

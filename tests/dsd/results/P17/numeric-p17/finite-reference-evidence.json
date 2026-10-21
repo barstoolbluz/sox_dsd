@@ -1,0 +1,97 @@
+{
+  "cases": [
+    {
+      "channels": 1,
+      "checked_fir_samples": 9,
+      "expected_output_frames": 129,
+      "independent_fir_roundoff_bound": 5.711665364494722e-11,
+      "max_absolute_fir_error": 2.7755575615628914e-17,
+      "native_frames": 32769,
+      "output_sha256": "d9646514697fcd38902d0465044cc657f8a8431dd909ad2ca1eac6fe10e1b8aa",
+      "profile": "decode.mastering.v1.dsd1024",
+      "status": "PASS"
+    },
+    {
+      "channels": 6,
+      "checked_fir_samples": 54,
+      "expected_output_frames": 129,
+      "independent_fir_roundoff_bound": 5.711665364494722e-11,
+      "max_absolute_fir_error": 5.898059818321144e-17,
+      "native_frames": 32769,
+      "output_sha256": "f7176e513c0ce71c99d0fd2cdce1f740726fb6a5860b12324d7812a2c143c7e1",
+      "profile": "decode.mastering.v1.dsd1024",
+      "status": "PASS"
+    },
+    {
+      "channels": 1,
+      "checked_fir_samples": 9,
+      "expected_output_frames": 257,
+      "independent_fir_roundoff_bound": 3.373181561325595e-11,
+      "max_absolute_fir_error": 5.551115123125783e-17,
+      "native_frames": 32769,
+      "output_sha256": "bcdfa5248ff3c63327536d6591fe7b8743364f934319f006f96ec94d098bb1c8",
+      "profile": "decode.mastering.v1.dsd512",
+      "status": "PASS"
+    },
+    {
+      "channels": 6,
+      "checked_fir_samples": 54,
+      "expected_output_frames": 257,
+      "independent_fir_roundoff_bound": 3.373181561325595e-11,
+      "max_absolute_fir_error": 8.326672684688674e-17,
+      "native_frames": 32769,
+      "output_sha256": "02dcba6e6cb60e246d9f25ed24d5300e4e9cc543a153ebd56ac0402aa6e5b538",
+      "profile": "decode.mastering.v1.dsd512",
+      "status": "PASS"
+    },
+    {
+      "channels": 1,
+      "checked_fir_samples": 9,
+      "expected_output_frames": 1025,
+      "independent_fir_roundoff_bound": 1.9904881672110637e-11,
+      "max_absolute_fir_error": 2.220446049250313e-16,
+      "native_frames": 32769,
+      "output_sha256": "8d2726ff8e0701d3477955d108ec5e07904616644a1d6dc3cae0b05be7f81e92",
+      "profile": "decode.wideband.v1.dsd1024",
+      "status": "PASS"
+    },
+    {
+      "channels": 6,
+      "checked_fir_samples": 54,
+      "expected_output_frames": 1025,
+      "independent_fir_roundoff_bound": 1.9904881672110637e-11,
+      "max_absolute_fir_error": 1.5265566588595902e-16,
+      "native_frames": 32769,
+      "output_sha256": "8872b9d353912bb343393673df8a0d2500d8efe0456cf6b41be34a13ab27aa3d",
+      "profile": "decode.wideband.v1.dsd1024",
+      "status": "PASS"
+    },
+    {
+      "channels": 1,
+      "checked_fir_samples": 9,
+      "expected_output_frames": 1025,
+      "independent_fir_roundoff_bound": 1.9904881672110637e-11,
+      "max_absolute_fir_error": 2.220446049250313e-16,
+      "native_frames": 32769,
+      "output_sha256": "8d2726ff8e0701d3477955d108ec5e07904616644a1d6dc3cae0b05be7f81e92",
+      "profile": "decode.wideband.v1.dsd512",
+      "status": "PASS"
+    },
+    {
+      "channels": 6,
+      "checked_fir_samples": 54,
+      "expected_output_frames": 1025,
+      "independent_fir_roundoff_bound": 1.9904881672110637e-11,
+      "max_absolute_fir_error": 1.5265566588595902e-16,
+      "native_frames": 32769,
+      "output_sha256": "8872b9d353912bb343393673df8a0d2500d8efe0456cf6b41be34a13ab27aa3d",
+      "profile": "decode.wideband.v1.dsd512",
+      "status": "PASS"
+    }
+  ],
+  "method": "expanded coefficient polynomial + zero-extension + longdouble scalar inner product at beginnings/middle/EOF; P15 section 8.6 bound",
+  "qualified": false,
+  "schema": "P17/independent-finite-fir/1",
+  "source_bits": "independent fixed-seed PCG64; binary64 production exporter has no reference coefficients",
+  "status": "PASS"
+}

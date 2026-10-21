@@ -37,14 +37,22 @@ static void envelope(void)
   double bounds[8]={.1,.1,.1,.1,.1,.1,.1,.1};
   for (i=0;i<3;i++) {
     const lsx_pcmdsd_profile *d=lsx_pcmdsd_profile_find(rates[i]);
-    CHECK(d && d->native_hz==rates[i] && !d->qualified);
+    /* P15 promoted the original 64/128/256 mastering profiles. The P10
+     * developmental test must assert current positive qualification, not
+     * resurrect its pre-P15 unavailable-profile assumption. */
+    CHECK(d && d->native_hz==rates[i] && d->qualified && d->bounds);
     CHECK(d->working_hz==(i?176400:88200));
     CHECK(d->pass_hz==(i==0?20000:i==1?30000:40000));
     p=(void *)1;
-    CHECK(lsx_pcmdsd_create(48000,rates[i],.5,0,&p)==SOX_DSD_UNSUPPORTED && !p);
+    CHECK(lsx_pcmdsd_create(48000,rates[i],.5,0,&p)==SOX_DSD_OK && p);
+    lsx_pcmdsd_destroy(p);p=NULL;
   }
   p=(void *)1;
-  CHECK(lsx_pcmdsd_candidate_create(48000,22579200,.5,0,NULL,NULL,&p)==SOX_DSD_UNSUPPORTED && !p);
+  /* P17 adds an explicitly unqualified, test-only composite candidate.
+   * The production constructor must still refuse the rate. */
+  CHECK(lsx_pcmdsd_create(48000,22579200,.5,0,&p)==SOX_DSD_UNSUPPORTED && !p);
+  CHECK(lsx_pcmdsd_candidate_create(48000,22579200,.5,0,NULL,NULL,&p)==SOX_DSD_OK && p);
+  lsx_pcmdsd_destroy(p);p=NULL;
   CHECK(lsx_pcmdsd_candidate_create(0,2822400,.5,0,NULL,NULL,&p)==SOX_DSD_BAD_ARGUMENT && !p);
   CHECK(lsx_pcmdsd_candidate_create(48000,5644800,.5,0,profile,NULL,&p)==SOX_DSD_UNSUPPORTED && !p);
   p=create(88200,2822400,.5,test_bounds);

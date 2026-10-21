@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LSX_DSD_MAX_STAGES 6
+#define LSX_DSD_MAX_STAGES 8
 #define LSX_DSD_ALIGN 64
 
 typedef struct {
@@ -91,6 +91,8 @@ sox_dsd_status_t lsx_dsd_reconstruction_create_kernel(
   if (!channels) return SOX_DSD_BAD_ARGUMENT;
   if (!desc) return SOX_DSD_UNSUPPORTED;
   depth = desc->stages;
+  if (depth < 1 || depth > LSX_DSD_MAX_STAGES ||
+      rate % desc->intermediate_hz) return SOX_DSD_UNSUPPORTED;
   switch (desc->last_bank) {
     case LSX_DSD_BANK_MASTER64_256: last = &m64; break;
     case LSX_DSD_BANK_MASTER128: last = &m128; break;

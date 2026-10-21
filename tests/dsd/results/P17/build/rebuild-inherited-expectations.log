@@ -1,0 +1,26 @@
+make: Entering directory '/mnt/data/p17-work/sox_dsd/test'
+  CC       dsd_test_plan-test_plan.o
+  CC       dsd_test_decode-test_decode.o
+  CC       dsd_test_p17-test_p17.o
+  CC       dsd_test_p10-test_p10.o
+../tests/dsd/test_p17.c: In function 'bench':
+../tests/dsd/test_p17.c:373:10: warning: format '%lu' expects argument of type 'long unsigned int', but argument 9 has type 'long long unsigned int' [-Wformat=]
+  373 |   printf("{\"status\":\"PASS\",\"rate_hz\":%u,\"channels\":%u,"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+......
+  378 |     packed?((frames+7)/8)*channels:frames*channels*4ULL,hash);
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   long long unsigned int
+In file included from ../src/util.h:39,
+                 from ../src/sox_i.h:23,
+                 from ../src/sdm.h:22,
+                 from ../src/pcmdsd.h:8,
+                 from ../tests/dsd/test_p17.c:10:
+/usr/include/inttypes.h:105:41: note: format string is defined here
+  105 | # define PRIu64         __PRI64_PREFIX "u"
+  CCLD     dsd_test_decode
+  CCLD     dsd_test_plan
+  CCLD     dsd_test_p10
+  CCLD     dsd_test_p17
+make: Leaving directory '/mnt/data/p17-work/sox_dsd/test'

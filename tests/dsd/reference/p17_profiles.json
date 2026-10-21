@@ -1,0 +1,177 @@
+{
+  "generator": "tests/dsd/generate_p17_profiles.py",
+  "limitation": "no DSD512/1024 independent licensed media, DAC/player evidence, sustained high-rate soak or production writer/transport qualification",
+  "qualified_highrate_writers": [],
+  "rates_hz": [
+    22579200,
+    45158400
+  ],
+  "reconstruction": {
+    "decode.mastering.v1.dsd1024": {
+      "delay_native_frames": 10980,
+      "discard_output_frames": 42,
+      "experimental_only": true,
+      "factor": 256,
+      "intermediate_hz": 176400,
+      "last_bank": "master64_256",
+      "last_stage_input_hz": 352800,
+      "native_hz": 45158400,
+      "pass_hz": 40000,
+      "phase_native_frames": 228,
+      "qualified": false,
+      "reconstruction_bank_reuse": "certified immutable v1 bank at identical input clock (mastering) or identical normalized edges (wideband)",
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master64_256"
+      ],
+      "stage_phases": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "stop_hz": 80000
+    },
+    "decode.mastering.v1.dsd512": {
+      "delay_native_frames": 5476,
+      "discard_output_frames": 42,
+      "experimental_only": true,
+      "factor": 128,
+      "intermediate_hz": 176400,
+      "last_bank": "master64_256",
+      "last_stage_input_hz": 352800,
+      "native_hz": 22579200,
+      "pass_hz": 40000,
+      "phase_native_frames": 100,
+      "qualified": false,
+      "reconstruction_bank_reuse": "certified immutable v1 bank at identical input clock (mastering) or identical normalized edges (wideband)",
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master64_256"
+      ],
+      "stage_phases": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "stop_hz": 80000
+    },
+    "decode.wideband.v1.dsd1024": {
+      "delay_native_frames": 2468,
+      "discard_output_frames": 77,
+      "experimental_only": true,
+      "factor": 32,
+      "intermediate_hz": 1411200,
+      "last_bank": "wideband",
+      "last_stage_input_hz": 2822400,
+      "native_hz": 45158400,
+      "pass_hz": 564480,
+      "phase_native_frames": 4,
+      "qualified": false,
+      "reconstruction_bank_reuse": "certified immutable v1 bank at identical input clock (mastering) or identical normalized edges (wideband)",
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "wideband"
+      ],
+      "stage_phases": [
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "stop_hz": 705600
+    },
+    "decode.wideband.v1.dsd512": {
+      "delay_native_frames": 2468,
+      "discard_output_frames": 77,
+      "experimental_only": true,
+      "factor": 32,
+      "intermediate_hz": 705600,
+      "last_bank": "wideband",
+      "last_stage_input_hz": 1411200,
+      "native_hz": 22579200,
+      "pass_hz": 282240,
+      "phase_native_frames": 4,
+      "qualified": false,
+      "reconstruction_bank_reuse": "certified immutable v1 bank at identical input clock (mastering) or identical normalized edges (wideband)",
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "wideband"
+      ],
+      "stage_phases": [
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "stop_hz": 352800
+    }
+  },
+  "schema": "P17/highrate-profiles/1",
+  "sdm_candidates": {
+    "22579200": {
+      "basis": "unit-delay discrete-time recurrence contains no clock-dependent terms; mapping z^-1 to the new native sample clock preserves normalized NTF/STF and state units, not a finite-stream stability guarantee",
+      "experimental_only": true,
+      "id": "encode.mastering.v1.dsd512",
+      "normalized_a_sha256": "672e6caadebd7e9f67b8a51051a3e3d75a5f7c5acf689768f6ab094d995ceb43",
+      "normalized_coefficients_from": "sdm_filters[9] (sdm-8 DSD256), same z-domain STF/NTF under sample-time scaling",
+      "normalized_g_sha256": "23b10e2fcb501162fdd0fd7bd9c8cd1dce46496c5b6f8fb0fb64fc7cbf5f2c14",
+      "order": 8,
+      "pass_hz": 40000,
+      "prefilter": "master64_256 at 176400 Hz; normalized P=40000/176400, S=80000/176400",
+      "production_entry": false,
+      "qualified": false,
+      "rate_hz": 22579200,
+      "recurrence_clock_hz": 22579200,
+      "state_scale": 1,
+      "stop_hz": 80000,
+      "working_hz": 176400
+    },
+    "45158400": {
+      "basis": "unit-delay discrete-time recurrence contains no clock-dependent terms; mapping z^-1 to the new native sample clock preserves normalized NTF/STF and state units, not a finite-stream stability guarantee",
+      "experimental_only": true,
+      "id": "encode.mastering.v1.dsd1024",
+      "normalized_a_sha256": "672e6caadebd7e9f67b8a51051a3e3d75a5f7c5acf689768f6ab094d995ceb43",
+      "normalized_coefficients_from": "sdm_filters[9] (sdm-8 DSD256), same z-domain STF/NTF under sample-time scaling",
+      "normalized_g_sha256": "23b10e2fcb501162fdd0fd7bd9c8cd1dce46496c5b6f8fb0fb64fc7cbf5f2c14",
+      "order": 8,
+      "pass_hz": 40000,
+      "prefilter": "master64_256 at 176400 Hz; normalized P=40000/176400, S=80000/176400",
+      "production_entry": false,
+      "qualified": false,
+      "rate_hz": 45158400,
+      "recurrence_clock_hz": 45158400,
+      "state_scale": 1,
+      "stop_hz": 80000,
+      "working_hz": 176400
+    }
+  },
+  "source_revision": "998b08dc"
+}
