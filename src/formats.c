@@ -28,6 +28,7 @@
 
 #include "sox_i.h"
 #include "dsd_layout_i.h"
+#include "dsd.h"
 
 #include <ctype.h>
 #include <fcntl.h>
@@ -1284,6 +1285,25 @@ static sox_format_t * open_write(
     goto error;
 
   ft->handler = *handler;
+  /* The generic rate negotiator may substitute DSD256 for an explicit
+   * DSD512/1024 request.  Refuse an unqualified native writer here, while
+   * the original rate and resolved handler are still available and before
+   * any output file can be opened or truncated. */
+  if (!strcmp(handler->names[0], "dsf") || !strcmp(handler->names[0], "dff")) {
+    uint32_t hz;
+    if (lsx_dsd_integer_rate(signal->rate, &hz) &&
+        (hz == 22579200u || hz == 45158400u)) {
+      lsx_dsd_endpoint endpoint = !strcmp(handler->names[0], "dsf") ?
+          LSX_DSD_ENDPOINT_DSF : LSX_DSD_ENDPOINT_DFF;
+      if (lsx_dsd_capability_check(hz, endpoint, LSX_DSD_OPERATION_WRITE) !=
+          LSX_DSD_CAP_OK) {
+        lsx_fail("%s write at %u Hz unavailable: %s",
+            lsx_dsd_endpoint_name(endpoint), hz,
+            lsx_dsd_capability_description(hz, endpoint, LSX_DSD_OPERATION_WRITE));
+        goto error;
+      }
+    }
+  }
   /* Reject incompatible metadata before truncating a destination file. */
   if (layout) {
     unsigned i, type;

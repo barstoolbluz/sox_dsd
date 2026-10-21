@@ -192,6 +192,8 @@ def main():
             rec=dict(name=name,status='PASS' if valid else 'FAIL',runs=runs,
                      report_observations=observed)
             records.append(rec);by_name[name]=rec;save()
+    # An entirely cached PASS replay calls no in-loop save(); finalize anyway.
+    save()
     print(json.dumps(dict(verdict=result['verdict'],counts=result['counts'],path=str(outfile))))
     return int(result['verdict']!='PASS')
 

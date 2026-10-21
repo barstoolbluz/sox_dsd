@@ -21,7 +21,8 @@ than treating all DSD-to-PCM conversions as interchangeable.
 
 **DSD512 and DSD1024 are next on the roadmap.** We plan to support them
 as native DSD formats, with the decoding, encoding, filtering, performance
-work and tests that go with that. They are not shipped features yet.
+work and tests that go with that. They are not shipped features yet. P18 has added explicit per-format and per-transport refusal gates; see
+[the compatibility ledger](docs/dsd/P18_COMPATIBILITY_LEDGER.md).
 
 The source-aware v2 mastering reconstruction is the default for DSD64,
 DSD128 and DSD256. The earlier v1 filters are preserved and remain

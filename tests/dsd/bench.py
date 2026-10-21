@@ -267,7 +267,7 @@ def main():
         perf=performance_summary(args.results.parent/'performance')
         report['p10_paired_throughput']=dict(status=perf['status'],evidence='../performance/summary.json')
         report['summary']['p10_throughput_qualification']=perf['status']
-    if args.phase in ('P14','P15','P16','P17'):
+    if args.phase in ('P14','P15','P16','P17','P18'):
         command=[sys.executable,str(ROOT/'tests/dsd/bench_p14.py'),
                  '--sox',str(args.sox), '--results',str(args.results/'observer-overhead')]
         try:
@@ -304,7 +304,7 @@ def main():
             missing.append('P13 AVX2/AVX-512F comparison unrun or timed out')
         if missing: report['summary']['status']='incomplete'
         atomic_json(outfile,report)
-    if args.phase == 'P17':
+    if args.phase in ('P17','P18'):
         command=[sys.executable,str(ROOT/'tests/dsd/bench_p17.py'),
             '--unit',str(ROOT/'test/dsd_test_p17'),
             '--results',str(args.results/'highrate-internal'),
@@ -339,6 +339,15 @@ def main():
             report['p16_packed_input']=dict(status='FAIL',error=str(exc))
             missing.append('P16 packed-input benchmark unrun or timed out')
         if missing:report['summary']['status']='incomplete'
+    if args.phase=='P18':
+        report['p18_highrate_end_to_end']={
+            'status':'UNRUN_AUTHORIZATION_WITHHELD',
+            'rate_hz':[22579200,45158400],
+            'formats':['DSF','DSDIFF','DoP'],
+            'reason':'P17 DSP certification not passed; P18 high-rate endpoints are closed',
+            'throughput':'UNRUN', 'memory':'UNRUN', 'storage_traffic':'UNRUN',
+            'device_interoperability':'UNRUN',
+            'synthetic_fixture_checks':'tests/dsd/results/P18/integration/capability-integration.json'}
     atomic_json(outfile,report)
     print(json.dumps(dict(summary=report['summary'], path=str(outfile))))
     if missing:return 1

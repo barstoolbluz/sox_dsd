@@ -663,7 +663,7 @@ def main():
     ap.add_argument('--only',default='*',help='glob-select named tests, no automatic skip')
     args=ap.parse_args()
     runner=Runner(args);runner.register_units();runner.register_integrations()
-    if args.phase in ('P16', 'P17'):
+    if args.phase in ('P16', 'P17', 'P18'):
         def p16_executable(suffix, timeout):
             def gate():
                 command = [str(ROOT/'test/dsd_test_p16'), *suffix]
@@ -679,7 +679,7 @@ def main():
         runner.add('P16_binary64_packed_versus_expanded_FIR_ISA_matrix',
                    'unit',p16_executable(['matrix'],180))
 
-    if args.phase == 'P17':
+    if args.phase in ('P17','P18'):
         for label,mode,timeout in [('highrate_registry_delay_and_capabilities','unit',120),
                                     ('highrate_packed_expanded_isa_matrix','matrix',900),
                                     ('unqualified_exact_rate_sdm_candidates','encode',180)]:
@@ -690,6 +690,24 @@ def main():
                 require(result['stdout'].startswith('P17 '),'P17 missing executable summary')
                 return dict(correct=True,command=command,summary=result['stdout'].strip())
             runner.add('P17_'+label,'unit',gate)
+    if args.phase == 'P18':
+        for label in ('registry','transport','sizes'):
+            def gate(part=label):
+                command=[str(ROOT/'test/dsd_test_p18'),part]
+                result=runner.invoke(command,timeout=120)
+                require(result['exit']==0, f'P18 {part}: '+result['stderr'][-1500:])
+                require(result['stdout'].startswith('P18 PASS '), 'P18 missing native gate summary')
+                return dict(correct=True,command=command,summary=result['stdout'].strip())
+            runner.add('P18_'+label+'_closed_gate', 'unit', gate)
+        def fixture_cli():
+            command=[sys.executable,str(ROOT/'tests/dsd/test_p18.py'),
+                '--sox',str(args.sox),'--results',str(args.results/'integration')]
+            result=runner.invoke(command,timeout=300)
+            require(result['exit']==0, 'P18 independent synthetic CLI matrix: '+result['stderr'][-1500:])
+            require('P18 PASS ' in result['stdout'], 'P18 matrix summary missing')
+            return dict(correct=True,command=command,summary=result['stdout'].strip(),
+                evidence='integration/capability-integration.json')
+        runner.add('P18_closed_high_rate_format_and_packed_CLI','integration',fixture_cli)
     if not args.sox.is_file() or not args.probe.is_file():
         ap.error('missing built sox and test/dsd_test_io; build with make and make -C test dsd_test_io')
     floor=runner.run()
