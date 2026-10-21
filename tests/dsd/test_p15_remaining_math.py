@@ -71,7 +71,9 @@ class FFTCoeffTests(unittest.TestCase):
         changed={k for k in result['source_sha256'] if
                  result['source_sha256'][k]!=frozen['source_sha256'][k]}
         self.assertEqual(changed,{'src/rate_poly_fir0.h',
-                                  'tests/dsd/p15_src_capture_matrix.py'})
+                                  'tests/dsd/p15_src_capture_matrix.py',
+                                  'src/dsd.c', 'src/dsd_public.c',
+                                  'test/Makefile.am'})
         self.assertEqual({k:v for k,v in result.items() if k!='source_sha256'},
                          {k:v for k,v in frozen.items() if k!='source_sha256'})
         with tempfile.TemporaryDirectory() as d:

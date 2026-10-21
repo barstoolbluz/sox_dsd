@@ -23,6 +23,8 @@ from p15_r5_exact_trig import TrigRefusal
 from p15_src_bound_operator import source_identity,sha_file,load_snapshot
 from p15_src_capture_matrix import DEFAULT as STAGES,verify_pair
 from p15_full_band_campaign import canonical_plan,digest
+from p15_historical_campaign_binding import historical_bindings
+from p15_current_closeout import REBOUND, _reviewed_rebind_admission, _admitted_revision
 
 ROOT=Path(__file__).resolve().parents[2]
 RECEIPTS=ROOT/'tests/dsd/results/P15_full_band_campaign_certified_2026-10-18/receipts'
@@ -38,9 +40,20 @@ PROFILE_BANDS={
 }
 
 
-def code_hashes():
+def code_hashes(*, historical=False):
     folder=Path(__file__).parent
-    return {name:sha_file(folder/name) for name in MODULES}
+    hashes={name:sha_file(folder/name) for name in MODULES}
+    if historical:
+        # Historical mathematical receipts name the *original*, P00-pinned
+        # verifier method. Rebinding logic was added later: never rewrite the
+        # source identity of the historical R6 method by using our new hash.
+        rel='tests/dsd/p15_r6_witness.py'
+        revisions,audit=_reviewed_rebind_admission()
+        row=revisions[rel]
+        _admitted_revision(rel,row['historical_sha256'],
+                           row['current_sha256'],revisions,audit)
+        hashes['p15_r6_witness.py']=row['historical_sha256']
+    return hashes
 
 
 def canonical_receipt(path:Path):
@@ -70,19 +83,24 @@ def input_binding(path):
     R,Fout=job['intermediate_hz'],job['output_hz']
     stages=STAGES/f'{R}-{Fout}'
     _raw,op=verify_pair(stages,R,Fout)
-    source=source_identity()
     raw=json.loads(path.read_text())
-    if raw.get('binding',{}).get('source')!=source:
-        raise ExactRefusal('historical source hash is not the current stage source')
-    if raw.get('binding',{}).get('design')!=sha_file(ROOT/'docs/dsd/DSD_DESIGN.md'):
-        raise ExactRefusal('historical governing design hash mismatch')
+    # The certified-2026-10-18 receipts are immutable historical inputs.
+    # Read their exact pre-rebind source and binding through independently
+    # admitted P00 preimages; still verify the *current* C stage bytes via
+    # verify_pair above. This does not grant current-source proof reuse.
+    historical=historical_bindings()
+    if raw.get('binding')!=historical:
+        raise ExactRefusal('historical receipt does not match admitted source lineage')
+    archived=ROOT/REBOUND/'preimages'/(
+        'tests/dsd/results/P15_SRC_STAGE_BOUND_OPT_2026-10-17/'
+        f'{R}-{Fout}/operator-binding.json')
     return job,op,dict(
         schema='P15/R6/exact-source-and-prover-binding/1',
-        source=source,design=sha_file(ROOT/'docs/dsd/DSD_DESIGN.md'),
+        source=historical['source'],design=historical['design'],
         capture_stage=sha_file(stages/'stage-snapshot.json'),
-        capture_binding=sha_file(stages/'operator-binding.json'),
+        capture_binding=sha_file(archived),
         original_receipt_name=path.name,original_receipt_sha256=sha_file(path),
-        exact_method_sources=code_hashes())
+        exact_method_sources=code_hashes(historical=True))
 
 
 def new_engine(job,op,max_fir_evals):
@@ -171,6 +189,8 @@ def _atomic(path,content,*,replace=False):
 def run_producer(original,output,checkpoint,*,max_leaf_visits=16,
                  max_fir_evals=120,deadline_seconds=50,resume=False):
     job,op,binding=input_binding(original)
+    if binding['source']!=source_identity():
+        raise ExactRefusal('historical receipt is replay-only; new proof requires current-source inputs')
     lo=frac(job['lo']);hi=frac(job['hi'])
     pending=[(lo,hi)];accepted=[];visited=0
     if resume and checkpoint.exists():

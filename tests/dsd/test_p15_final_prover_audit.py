@@ -27,6 +27,7 @@ from p15_src_branch_bound import bound_population, exact_l1_gain
 from p15_src_stagewise_continuum import (AliasPath, BranchBoundary,
     _next_ceil_transition, _next_floor_transition, bounds_single, complete_paths)
 from p15_full_band_campaign import canonical_plan, receipt_path, bindings, check_one
+from p15_historical_campaign_binding import historical_bindings
 from p15_final_receipt_adjudicator import audit_receipt, UnacceptableReceipt
 
 
@@ -135,12 +136,12 @@ class OriginalProverAdversarial(unittest.TestCase):
         forged = json.loads(json.dumps(d))
         forged['certificate']['max_native_stop_source_transfer_upper'] = .1
         with self.assertRaisesRegex(UnacceptableReceipt, 'contradicts policy'):
-            audit_receipt(forged, job, bindings())
+            audit_receipt(forged, job, historical_bindings())
         # The historical campaign's check_one trusts its PASS flag: this is
         # a provenance-checker gap, not a demonstrated miscomputed FIR bound.
         with TemporaryDirectory() as temp:
             receipt_path(Path(temp), job).write_text(json.dumps(forged))
-            self.assertEqual(check_one(Path(temp), job, bindings())['certificate']['status'],
+            self.assertEqual(check_one(Path(temp), job, historical_bindings())['certificate']['status'],
                              'PASS-LOCAL-STOP-SOURCE')
 
     def test_policy_forgeries_refused(self):
@@ -152,11 +153,11 @@ class OriginalProverAdversarial(unittest.TestCase):
             forged = json.loads(json.dumps(original))
             forged['certificate'][field] = value
             with self.assertRaises(UnacceptableReceipt):
-                audit_receipt(forged, job, bindings())
+                audit_receipt(forged, job, historical_bindings())
         forged = json.loads(json.dumps(original))
         forged['certificate']['max_coherent_alias_upper'] = 1e-8
         with self.assertRaises(UnacceptableReceipt):
-            audit_receipt(forged, job, bindings())
+            audit_receipt(forged, job, historical_bindings())
 
     def test_inward_dyadic_rounding_would_be_caught(self):
         from p15_src_fixed_interval import _mpf_dyadic

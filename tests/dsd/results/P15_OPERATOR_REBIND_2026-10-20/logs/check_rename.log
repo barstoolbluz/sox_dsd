@@ -1,0 +1,32 @@
+Making all in libdolbyb
+make[1]: Entering directory '/mnt/data/p15_operator_build/libdolbyb'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p15_operator_build/libdolbyb'
+Making all in libebur128
+make[1]: Entering directory '/mnt/data/p15_operator_build/libebur128'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p15_operator_build/libebur128'
+Making all in lpc10
+make[1]: Entering directory '/mnt/data/p15_operator_build/lpc10'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p15_operator_build/lpc10'
+Making all in libgsm
+make[1]: Entering directory '/mnt/data/p15_operator_build/libgsm'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p15_operator_build/libgsm'
+Making all in src
+make[1]: Entering directory '/mnt/data/p15_operator_build/src'
+make  all-am
+make[2]: Entering directory '/mnt/data/p15_operator_build/src'
+make[2]: Leaving directory '/mnt/data/p15_operator_build/src'
+make[1]: Leaving directory '/mnt/data/p15_operator_build/src'
+Making all in test
+make[1]: Entering directory '/mnt/data/p15_operator_build/test'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p15_operator_build/test'
+make[1]: Entering directory '/mnt/data/p15_operator_build'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/mnt/data/p15_operator_build'
+/bin/bash ./libtool --mode=execute -dlopen /mnt/data/p15_operator_build/src/libsox_ng.la \
+  /bin/bash /mnt/data/p15_operator_work/sox_dsd/tests/rename_smoke.sh /mnt/data/p15_operator_build/src "yes" "yes"
+PASS rename smoke (sox + installed alias policy)

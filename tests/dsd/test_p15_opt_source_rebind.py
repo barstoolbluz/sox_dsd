@@ -34,8 +34,13 @@ class RebindTests(unittest.TestCase):
                 self.assertFalse(after['qualified'])
                 changed={name for name,h in after['source_sha256'].items()
                          if h!=before['source_sha256'][name]}
+                # Frozen 2026-10-16 -> current: first the two optimization
+                # changes, then three reviewed 2026-10-20 non-SRC drifts.
+                # This exact set stays fail-closed on any subsequent edit.
                 self.assertEqual(changed,{'src/rate_poly_fir0.h',
-                                          'tests/dsd/p15_src_capture_matrix.py'})
+                                          'tests/dsd/p15_src_capture_matrix.py',
+                                          'src/dsd.c', 'src/dsd_public.c',
+                                          'test/Makefile.am'})
                 self.assertEqual((op.input_hz,op.output_hz),(a,b))
         self.assertEqual(len(source_operators(canonical_plan('1000'))),24)
 

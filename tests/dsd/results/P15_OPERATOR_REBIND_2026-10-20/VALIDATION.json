@@ -1,0 +1,83 @@
+{
+  "artifacts": [
+    "VALIDATION.json",
+    "RECAPTURE_AUDIT.json",
+    "BUILD_PROVENANCE.json",
+    "OPERATOR_VERIFICATION.md",
+    "ADMISSION.json",
+    "HISTORICAL_CAMPAIGN_VALIDATION.json"
+  ],
+  "exporter_wrapper_sha256": "badf376065a42d49f0541108038f27cb4b78cbdb97eafb8bcaa3f9e50462dbcb",
+  "limitations": [
+    "A matching stage capture does not demonstrate that changed defaults or runtime selection cannot change full-chain output.",
+    "The 11,516 certificate checks validate retained reports and acceptance inequalities, not all underlying spectral proofs.",
+    "The original P00 inventory, 11,516 certificates, historical P10 evidence and frozen stage snapshots are never rewritten.",
+    "1,351 explicitly excluded .npz payloads were not available for full raw-sample replay.",
+    "Out-of-tree make check-dsd expects generated source-tree header and object paths; temporary symlinks are verification-only and excluded from deliverables.",
+    "The historic current-source closeout gate remains BLOCKED; this task does not assert P16 release authorization."
+  ],
+  "missing_or_retyped_original_files": 0,
+  "original_archive_regular_files_verified": 51066,
+  "original_files_changed": 32,
+  "original_stage_snapshots_changed": 0,
+  "production_c_audio_files_changed": 0,
+  "qualified_release_by_this_rebind": false,
+  "raw_transport": {
+    "excluded_npz_count_per_supplied_brief": 1351,
+    "historical_certificate_source_identity_preserved": true,
+    "omitted_raw_vectors_not_recomputed_or_fabricated": true
+  },
+  "reviewed_drift_sha256": {
+    "src/dsd.c": {
+      "after": "19d5222974d5029a2226251c62078c3b9318d0ec9713f0b03fd267ab67491032",
+      "before": "376427406ba7f1e96463b82d308651d548ba4121bf4ad6a04148a415980aff5c"
+    },
+    "src/dsd_public.c": {
+      "after": "c29f4786f3dc1ab5f163858f87073b9a42f8fb5809ebe40aa90f14ffe0a28a1b",
+      "before": "26b22da56992da1c3cf6151e309dac759235199449b1c2336476766600d8c8be"
+    },
+    "test/Makefile.am": {
+      "after": "a960da6c2e26d3065ba00b6984f5dfb66353d609e6929dc8c029fb5c708bcc74",
+      "before": "49fb31d45f2e019395743a3937f7692cb44552547a9e4380ce40abc9eb1b9429"
+    }
+  },
+  "schema": "P15/2026-10-20-operator-rebind-validation/1",
+  "scope": "independent source/operator identity and historical provenance correction, NOT new full-chain DSP or mathematical proof",
+  "source_archive_sha256": "a7ffd051e93c1774c73c28ada387388226e087b5e433f0f30ce67b8eb4c756b1",
+  "source_commit_advertised": "adebf704",
+  "source_identity_and_operators": {
+    "active_matrix_cells": 72,
+    "alias_families_at_1khz": 214432,
+    "all_35_hash_pins_retained": true,
+    "binding_changes_limited_to": [
+      "source_sha256",
+      "exporter_sha256"
+    ],
+    "historical_P00_inventory_unchanged": true,
+    "historically_indexed_revisions_with_explicit_version_admission": 32,
+    "matrix_summary_changes_limited_to": [
+      "source_sha256"
+    ],
+    "repeat_mechanical_capture": "PASS_READ_ONLY_NO_CHANGE",
+    "stage_realizations_recaptured": 24,
+    "stage_snapshot_bytes_identical": 24
+  },
+  "source_input_count": 35,
+  "testing": {
+    "additional_source_only_regression_tests_passed": 23,
+    "alternate_exporter_wrapper_sha256_independent_replay": "PASS",
+    "historical_11516_receipts": 11516,
+    "historical_receipt_consistency_status": "RECEIPTS_CONSISTENT_WITH_REPORTED_POLICY_NOT_INDEPENDENT_MATH_PROOF",
+    "make_check_dsd_DSD_PHASE_P15": "PASS",
+    "make_check_rename": "PASS",
+    "preflighted_patch_application_and_idempotent_rerun": "PASS",
+    "python_p15_cases_passed": 298,
+    "python_p15_cases_skipped": 14,
+    "python_p15_failures_or_errors": 0,
+    "python_p15_subtests_passed": 272,
+    "python_p15_test_files": 38,
+    "recovery_adversarial_test_exit_status": 0,
+    "recovery_adversarial_tests_passed": 3
+  },
+  "verdict": "OPERATOR_REBIND_AND_HISTORICAL_LINEAGE_VERIFIED_NO_NEW_CERTIFICATION"
+}

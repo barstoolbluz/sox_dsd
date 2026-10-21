@@ -1,0 +1,35 @@
+{
+  "active_stages": "tests/dsd/results/P15_SRC_STAGE_BOUND_OPT_2026-10-17",
+  "c_gate_status": "PASS",
+  "checked_aliases": 214432,
+  "checked_cells": 72,
+  "checked_stages": 24,
+  "date": "2026-10-20",
+  "immutable_previous_evidence": "tests/dsd/results/P15_OPERATOR_REBIND_2026-10-20/preimages",
+  "input_source_sha256": "a7ffd051e93c1774c73c28ada387388226e087b5e433f0f30ce67b8eb4c756b1",
+  "manual_resume_steps": [
+    "Inspect VALIDATION.json, BUILD_PROVENANCE.json and OPERATOR_VERIFICATION.md.",
+    "Rebuild exporter with ordered SRC CFLAGS against this exact snapshot.",
+    "Run scripts/rebind_p15_src_operator.py with --exporter (no --publish) for idempotent verification.",
+    "If a prior publication was interrupted, invoke scripts/recover_p15_src_operator_rebind.py with --exporter and --publish.",
+    "Run python3 -m pytest -q tests/dsd/test_p15_*.py and source-only verification.",
+    "Do not upgrade historical full-chain P15 certificates to new source identity without independent proof."
+  ],
+  "python_suite_status": "298 pass, 14 skip, 272 subtests pass, 0 fail (38 test_p15_*.py)",
+  "recovery_test_status": 0,
+  "schema": "P15/operator-rebind-handoff-resumption/1",
+  "source_changes_reviewed": {
+    "src/dsd.c": {
+      "after": "19d5222974d5029a2226251c62078c3b9318d0ec9713f0b03fd267ab67491032",
+      "before": "376427406ba7f1e96463b82d308651d548ba4121bf4ad6a04148a415980aff5c"
+    },
+    "src/dsd_public.c": {
+      "after": "c29f4786f3dc1ab5f163858f87073b9a42f8fb5809ebe40aa90f14ffe0a28a1b",
+      "before": "26b22da56992da1c3cf6151e309dac759235199449b1c2336476766600d8c8be"
+    },
+    "test/Makefile.am": {
+      "after": "a960da6c2e26d3065ba00b6984f5dfb66353d609e6929dc8c029fb5c708bcc74",
+      "before": "49fb31d45f2e019395743a3937f7692cb44552547a9e4380ce40abc9eb1b9429"
+    }
+  }
+}
