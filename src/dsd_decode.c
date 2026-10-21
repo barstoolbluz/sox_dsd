@@ -9,6 +9,7 @@
  * Rounding mode is inherited.  No modification to the caller FP environment.
  */
 #include "dsd_decode.h"
+#include "dsd_packed.h"
 #include "dsd_coeffs.h"
 #include "dsd_coeffs_v2.h"
 #include "dsd_kernels.h"
@@ -460,6 +461,78 @@ sox_dsd_status_t lsx_dsd_reconstruction_process(
   *output_frames = produced;
   if (consumed < avail) return SOX_DSD_NEED_OUTPUT;
   return SOX_DSD_NEED_INPUT;
+}
+
+/* P16 first-stage ingestion. The address calculation reads *one bit*
+ * directly from the borrowed layout; its numerical value and selected FIR
+ * function are exactly those of the existing expanded front end. There is no
+ * int32 graph block, coefficient table, independent phase or output queue. */
+sox_dsd_status_t lsx_dsd_reconstruction_process_packed(
+    lsx_dsd_reconstruction *ctx, const sox_dsd_packed_block_t *b, size_t start,
+    size_t *input_frames, double *pcm, size_t *output_frames)
+{
+  size_t avail, limit, consumed = 0, produced = 0;
+  if (!ctx) return SOX_DSD_BAD_ARGUMENT;
+  if (!input_frames || !output_frames)
+    return ctx->error = SOX_DSD_BAD_ARGUMENT;
+  avail = *input_frames;
+  limit = *output_frames;
+  *input_frames = *output_frames = 0;
+  if (ctx->error) return ctx->error;
+  if (ctx->finish_started) return SOX_DSD_BAD_ARGUMENT;
+  if (!limit) return SOX_DSD_NEED_OUTPUT;
+  if (!pcm || !b || !lsx_dsd_packed_validate(b) ||
+      b->channels != ctx->info.channels || start > b->frames ||
+      avail > b->frames - start ||
+      (ctx->info.channels && limit > SIZE_MAX / ctx->info.channels))
+    return ctx->error = SOX_DSD_BAD_ARGUMENT;
+  if (ctx->real_frames > UINT64_MAX - ctx->info.delay_native_frames - ctx->info.factor ||
+      avail > UINT64_MAX - ctx->info.delay_native_frames - ctx->info.factor - ctx->real_frames)
+    return ctx->error = SOX_DSD_NUMERIC_ERROR;
+#define LSX_DSD_STREAM_PACKED(FEED) do {                                    \
+  while (consumed < avail && produced < limit) {                            \
+    unsigned c;                                                             \
+    int got = 0;                                                            \
+    for (c = 0; c < ctx->info.channels; ++c) {                               \
+      double x = lsx_dsd_packed_bit(b,start+consumed,c) ? 1.0 : -1.0;       \
+      int event = FEED(ctx,c,0,x,&ctx->frame[c]);                            \
+      if (!c) got = event;                                                  \
+    }                                                                       \
+    if (got) {                                                              \
+      uint64_t index = ctx->raw_outputs++;                                  \
+      if (index >= ctx->info.discard_frames) {                               \
+        for (c = 0; c < ctx->info.channels; ++c)                              \
+          pcm[produced * ctx->info.channels + c] = ctx->frame[c];            \
+        ++ctx->emitted;                                                     \
+        ++produced;                                                         \
+      }                                                                     \
+    }                                                                       \
+    ++consumed; ++ctx->real_frames;                                         \
+  }                                                                         \
+} while (0)
+  if (ctx->fir == &lsx_dsd_kernel_scalar)
+    LSX_DSD_STREAM_PACKED(feed_scalar);
+#if defined(HAVE_DSD_SSE2)
+  else if (ctx->fir == &lsx_dsd_kernel_sse2)
+    LSX_DSD_STREAM_PACKED(feed_sse2);
+#endif
+#if defined(HAVE_DSD_AVX1)
+  else if (ctx->fir == &lsx_dsd_kernel_avx1)
+    LSX_DSD_STREAM_PACKED(feed_avx1);
+#endif
+#if defined(HAVE_DSD_AVX2)
+  else if (ctx->fir == &lsx_dsd_kernel_avx2)
+    LSX_DSD_STREAM_PACKED(feed_avx2);
+#endif
+#if defined(HAVE_DSD_AVX512)
+  else if (ctx->fir == &lsx_dsd_kernel_avx512)
+    LSX_DSD_STREAM_PACKED(feed_avx512);
+#endif
+  else return SOX_DSD_UNSUPPORTED;
+#undef LSX_DSD_STREAM_PACKED
+  *input_frames = consumed;
+  *output_frames = produced;
+  return consumed < avail ? SOX_DSD_NEED_OUTPUT : SOX_DSD_NEED_INPUT;
 }
 
 sox_dsd_status_t lsx_dsd_reconstruction_finish(

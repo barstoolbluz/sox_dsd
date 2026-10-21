@@ -663,6 +663,22 @@ def main():
     ap.add_argument('--only',default='*',help='glob-select named tests, no automatic skip')
     args=ap.parse_args()
     runner=Runner(args);runner.register_units();runner.register_integrations()
+    if args.phase == 'P16':
+        def p16_executable(suffix, timeout):
+            def gate():
+                command = [str(ROOT/'test/dsd_test_p16'), *suffix]
+                result = runner.invoke(command, timeout=timeout)
+                require(result['exit'] == 0,
+                        f'P16 executable exit {result["exit"]}: {result["stderr"][-1500:]}')
+                require(result['stdout'].startswith('P16 '),
+                        'P16 executable returned no pass summary')
+                return dict(correct=True, command=command,
+                            summary=result['stdout'].strip())
+            return gate
+        runner.add('P16_native_packed_reader_contract', 'unit',p16_executable([],180))
+        runner.add('P16_binary64_packed_versus_expanded_FIR_ISA_matrix',
+                   'unit',p16_executable(['matrix'],180))
+
     if not args.sox.is_file() or not args.probe.is_file():
         ap.error('missing built sox and test/dsd_test_io; build with make and make -C test dsd_test_io')
     floor=runner.run()

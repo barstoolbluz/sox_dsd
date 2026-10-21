@@ -267,7 +267,7 @@ def main():
         perf=performance_summary(args.results.parent/'performance')
         report['p10_paired_throughput']=dict(status=perf['status'],evidence='../performance/summary.json')
         report['summary']['p10_throughput_qualification']=perf['status']
-    if args.phase in ('P14','P15'):
+    if args.phase in ('P14','P15','P16'):
         command=[sys.executable,str(ROOT/'tests/dsd/bench_p14.py'),
                  '--sox',str(args.sox), '--results',str(args.results/'observer-overhead')]
         try:
@@ -304,6 +304,21 @@ def main():
             missing.append('P13 AVX2/AVX-512F comparison unrun or timed out')
         if missing: report['summary']['status']='incomplete'
         atomic_json(outfile,report)
+    if args.phase == 'P16':
+        command=[sys.executable,str(ROOT/'tests/dsd/bench_p16.py'),
+                 '--sox',str(args.sox),'--results',str(args.results/'packed-input')]
+        try:
+            cp=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=1800)
+            report['p16_packed_input']=dict(exit=cp.returncode,
+                status='PASS' if cp.returncode==0 else 'FAIL',
+                stdout_tail=cp.stdout[-2500:],stderr_tail=cp.stderr[-2500:],
+                evidence='packed-input/paired.json',
+                distinction='single-host development measurement, not a 512/1024 decoder claim')
+            if cp.returncode: missing.append('P16 paired packed-input throughput or simulated descriptor failed')
+        except (OSError,subprocess.TimeoutExpired) as exc:
+            report['p16_packed_input']=dict(status='FAIL',error=str(exc))
+            missing.append('P16 packed-input benchmark unrun or timed out')
+        if missing:report['summary']['status']='incomplete'
     atomic_json(outfile,report)
     print(json.dumps(dict(summary=report['summary'], path=str(outfile))))
     if missing:return 1

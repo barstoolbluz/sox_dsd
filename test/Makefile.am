@@ -162,3 +162,9 @@ EXTRA_PROGRAMS += dsd_test_p15_instrument
 dsd_test_p15_instrument_SOURCES = ../tests/dsd/test_p15_instrument.c
 dsd_test_p15_instrument_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p15_instrument_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P16 optional borrowed packed reader and same-FIR finite parity matrix.
+EXTRA_PROGRAMS += dsd_test_p16
+dsd_test_p16_SOURCES = ../tests/dsd/test_p16.c
+dsd_test_p16_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p16_LDADD = $(top_builddir)/src/libsox_ng.la

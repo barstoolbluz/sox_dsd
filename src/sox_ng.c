@@ -170,6 +170,8 @@ static sox_option_t show_progress = sox_option_default;
 typedef struct {
   sox_dsd_decoder_t *decoder;
   sox_sample_t *native;
+  sox_dsd_packed_block_t packed;
+  sox_bool use_packed;
   double *pcm;
   size_t pending, cursor;
   unsigned channels;
@@ -648,7 +650,16 @@ static void dsd_adapter_start(file_t *f)
       free(a);exit(2);
     }
   }
-  a->native=lsx_malloc(DSD_ADAPTER_NATIVE_FRAMES*a->channels*sizeof(*a->native));
+  /* Explicitly opt-in. Keep the P14 native observation/report path on its
+   * original expanded representation until its own packed oracle is added. */
+  a->use_packed = getenv("SOX_DSD_PACKED_INPUT") &&
+      !strcmp(getenv("SOX_DSD_PACKED_INPUT"),"1") &&
+      sox_dsd_packed_supported(f->ft) && !dsd_report_active;
+  sox_dsd_packed_block_init(&a->packed);
+  if (a->use_packed)
+    lsx_debug("P16: native packed input enabled for '%s'",f->filename);
+  else
+    a->native=lsx_malloc(DSD_ADAPTER_NATIVE_FRAMES*a->channels*sizeof(*a->native));
   a->pcm=lsx_malloc(DSD_ADAPTER_PCM_FRAMES*a->channels*sizeof(*a->pcm));
   sox_dsd_decode_options_init(&opt);
   opt.native_hz=native_hz;
@@ -675,14 +686,27 @@ static size_t dsd_adapter_read(file_t *f,sox_sample_t *out,size_t frames)
     sox_dsd_status_t rc;
     if (made>frames-total) made=frames-total;
     if (!a->eof && a->cursor==a->pending) {
-      size_t samples=sox_read(f->ft,a->native,
-          DSD_ADAPTER_NATIVE_FRAMES*a->channels);
+      size_t samples=0;
+      sox_dsd_status_t read_status=SOX_DSD_OK;
+      if (a->use_packed) {
+        read_status=sox_dsd_read_packed(f->ft,DSD_ADAPTER_NATIVE_FRAMES,&a->packed);
+        if (read_status==SOX_DSD_OK)
+          samples=a->packed.frames*a->channels;
+        else if (read_status==SOX_DSD_DONE)
+          samples=0;
+        else {
+          lsx_fail("P16: packed input read failed for '%s' (%d)",
+              f->filename,(int)read_status);
+          a->failed=sox_true;break;
+        }
+      } else
+        samples=sox_read(f->ft,a->native,DSD_ADAPTER_NATIVE_FRAMES*a->channels);
       if (samples%a->channels || (!samples && f->ft->sox_errno)) {
         lsx_fail("P08: input read failed for '%s': %s",f->filename,
             f->ft->sox_errno?sox_strerror(f->ft->sox_errno):"incomplete channel frame");
         a->failed=sox_true;break;
       }
-      if (!dsd_observe_input(f,a->native,samples)) {
+      if (!a->use_packed && !dsd_observe_input(f,a->native,samples)) {
         lsx_fail("P14: native source observation counter failed");
         a->failed=sox_true;break;
       }
@@ -714,8 +738,10 @@ static size_t dsd_adapter_read(file_t *f,sox_sample_t *out,size_t frames)
       if (rc==SOX_DSD_DONE) a->done=sox_true;
     } else {
       used=a->pending-a->cursor;
-      rc=sox_dsd_decoder_process(a->decoder,
-          a->native+a->cursor*a->channels,&used,a->pcm,&made);
+      rc=a->use_packed ? sox_dsd_decoder_process_packed(a->decoder,
+          &a->packed,a->cursor,&used,a->pcm,&made) :
+          sox_dsd_decoder_process(a->decoder,
+              a->native+a->cursor*a->channels,&used,a->pcm,&made);
       if ((rc!=SOX_DSD_NEED_INPUT && rc!=SOX_DSD_NEED_OUTPUT) ||
           (!made && !used)) {
         lsx_fail("P08: input decoder stalled for '%s' (%d)",f->filename,(int)rc);

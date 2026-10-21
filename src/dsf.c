@@ -23,6 +23,7 @@
 
 #include "sox_i.h"
 #include "dsd_layout_i.h"
+#include "dsd_packed.h"
 #include "id3.h"
 
 struct dsf {
@@ -44,6 +45,7 @@ struct dsf {
 	uint8_t *block;
 	uint64_t read_samp;
 	int write_failed; /* Latched payload error; never reuse a full failed block. */
+	unsigned access_mode; /* 0 untouched, 1 expanded, 2 packed; reset only by seek. */
 };
 
 #define TAG(a, b, c, d) ((a) | (b) << 8 | (c) << 16 | (d) << 24)
@@ -240,6 +242,11 @@ static size_t dsf_read(sox_format_t *ft, sox_sample_t *buf, size_t len)
 {
 	struct dsf *dsf = ft->priv;
 	uint64_t left = dsf->scount - dsf->read_samp;
+	if (len && dsf->access_mode == 2) {
+		ft->sox_errno = SOX_EINVAL; /* no change to the logical cursor */
+		return 0;
+	}
+	if (len) dsf->access_mode = 1;
 	size_t frames = min(len / dsf->chan_num, left);
 	size_t done = 0;
 
@@ -271,6 +278,54 @@ static size_t dsf_read(sox_format_t *ft, sox_sample_t *buf, size_t len)
 
 	dsf->read_samp += done;
 	return done * dsf->chan_num;
+}
+
+/* Borrow from the *same* normalized planar read cache as dsf_read.
+ * No second file cursor: core adds frames*channels to olength exactly once. */
+sox_dsd_status_t lsx_dsf_read_packed(sox_format_t *ft, size_t requested,
+    sox_dsd_packed_block_t *out)
+{
+  struct dsf *dsf = ft->priv;
+  size_t remain, frames, n, i;
+  unsigned first;
+  if (dsf->access_mode == 1) return SOX_DSD_BAD_ARGUMENT;
+  if (!requested || !out) return SOX_DSD_BAD_ARGUMENT;
+  if (!dsf->block || dsf->read_samp >= dsf->scount) return SOX_DSD_DONE;
+  /* Read failure does not commit a new mode or logical position. */
+  if (dsf->block_pos == dsf->block_size) {
+    n = (size_t)dsf->chan_num * dsf->block_size;
+    if (lsx_read_b_buf(ft, dsf->block, n) != n) {
+      ft->sox_errno = SOX_EOF;
+      return SOX_DSD_IO_ERROR;
+    }
+    if (dsf->bps == 8)
+      for (i = 0; i < n; ++i) dsf->block[i] = dsf_reverse_byte[dsf->block[i]];
+    dsf->block_pos = dsf->block_start;
+    dsf->block_start = 0;
+  }
+  remain = (size_t)dsf->block_size - dsf->block_pos;
+  /* Max 4096 bits per call; don't materialize or expose padding as audio. */
+  frames = remain * 8 - dsf->bit_pos;
+  if (frames > dsf->scount - dsf->read_samp)
+    frames = (size_t)(dsf->scount - dsf->read_samp);
+  if (frames > requested) frames = requested;
+  if (frames > 4096) frames = 4096;
+  if (!frames) return SOX_DSD_IO_ERROR;
+  first = dsf->bit_pos;
+  out->data = dsf->block + dsf->block_pos;
+  out->bytes = (size_t)dsf->block_size * dsf->chan_num - dsf->block_pos;
+  out->frames = frames;
+  out->channels = dsf->chan_num;
+  out->bit_offset = first;
+  out->last_valid_bits = (unsigned)((first + frames - 1) % 8 + 1);
+  out->channel_stride = dsf->block_size;
+  out->byte_stride = 1;
+  out->bit_order = SOX_DSD_PACKED_LSB; /* normalized in owned cache */
+  dsf->bit_pos = (unsigned)((first + frames) % 8);
+  dsf->block_pos += (unsigned)((first + frames) / 8);
+  dsf->read_samp += frames;
+  dsf->access_mode = 2;
+  return SOX_DSD_OK;
 }
 
 static int dsf_seek(sox_format_t * ft, sox_uint64_t offset)
@@ -307,6 +362,8 @@ static int dsf_seek(sox_format_t * ft, sox_uint64_t offset)
   dsf->block_start = block_start;
   dsf->bit_pos = frame % 8;
   dsf->read_samp = frame;
+  dsf->access_mode = 0; /* only a successful seek resets the reader mode */
+  ft->sox_errno = SOX_SUCCESS;
   return SOX_SUCCESS;
 }
 

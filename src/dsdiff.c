@@ -23,6 +23,7 @@
 
 #include "sox_i.h"
 #include "dsd_layout_i.h"
+#include "dsd_packed.h"
 
 struct dsdiff {
 	lsx_dsd_layout_state_t metadata;
@@ -31,6 +32,8 @@ struct dsdiff {
 	uint32_t bit_pos;
 	sox_bool cluster_valid;
 	int write_error;
+	unsigned access_mode; /* 0 pristine, 1 expanded, 2 packed */
+	uint8_t *packed_buf; /* allocated lazily, borrowed until next packed call */
 };
 
 #define ID(a, b, c, d) ((a) << 24 | (b) << 16 | (c) << 8 | (d))
@@ -308,6 +311,11 @@ static size_t LSX_DFF_READ_ALIGN dff_read(sox_format_t *ft, sox_sample_t *buf, s
     struct dsdiff *dff = ft->priv;
     size_t nc = ft->signal.channels;
     size_t frames = len / nc, done = 0;
+    if (frames && dff->access_mode == 2) {
+        ft->sox_errno = SOX_EINVAL;
+        return 0;
+    }
+    if (frames) dff->access_mode = 1;
 
     /* The generic reader uses length == 0 for unknown-length formats. */
     if (!dff->data_size || !frames)
@@ -348,6 +356,68 @@ static size_t LSX_DFF_READ_ALIGN dff_read(sox_format_t *ft, sox_sample_t *buf, s
     return done * nc;
 }
 
+/* DFF has channel-clustered bytes (one chronological byte per channel).
+ * Use the retained partial cluster first; batch aligned clusters into a
+ * bounded owned buffer. Reading ahead is not an independent logical cursor:
+ * every exposed bit is committed to the single core olength once only. */
+#define LSX_DFF_PACKED_CLUSTERS 1024u
+sox_dsd_status_t lsx_dff_read_packed(sox_format_t *ft, size_t requested,
+    sox_dsd_packed_block_t *out)
+{
+  struct dsdiff *dff = ft->priv;
+  unsigned nc = ft->signal.channels;
+  size_t frames, bytes;
+  if (dff->access_mode == 1) return SOX_DSD_BAD_ARGUMENT;
+  if (!requested || !out || !nc) return SOX_DSD_BAD_ARGUMENT;
+  if (dff->cluster_valid || dff->bit_pos || requested < 8) {
+    unsigned first = dff->bit_pos;
+    if (!dff->cluster_valid) {
+      if (lsx_read_b_buf(ft, dff->buf, nc) != nc) {
+        ft->sox_errno = SOX_EOF;
+        return SOX_DSD_IO_ERROR;
+      }
+      dff->cluster_valid = sox_true;
+    }
+    frames = min(requested, (size_t)(8 - first));
+    out->data = dff->buf;
+    out->bytes = nc;
+    out->bit_offset = first;
+    out->last_valid_bits = (unsigned)(first + frames);
+    dff->bit_pos += (unsigned)frames;
+    if (dff->bit_pos == 8) {
+      dff->bit_pos = 0;
+      dff->cluster_valid = sox_false;
+    }
+    out->byte_stride = nc;
+  } else {
+    size_t clusters = requested / 8;
+    if (clusters > LSX_DFF_PACKED_CLUSTERS)
+      clusters = LSX_DFF_PACKED_CLUSTERS;
+    if (clusters > SIZE_MAX / nc) return SOX_DSD_BAD_ARGUMENT;
+    bytes = clusters * nc;
+    if (!dff->packed_buf) {
+      dff->packed_buf = lsx_malloc(LSX_DFF_PACKED_CLUSTERS * (size_t)nc);
+      if (!dff->packed_buf) return SOX_DSD_NUMERIC_ERROR;
+    }
+    if (lsx_read_b_buf(ft, dff->packed_buf, bytes) != bytes) {
+      ft->sox_errno = SOX_EOF;
+      return SOX_DSD_IO_ERROR;
+    }
+    frames = clusters * 8;
+    out->data = dff->packed_buf;
+    out->bytes = bytes;
+    out->bit_offset = 0;
+    out->last_valid_bits = 8;
+    out->byte_stride = nc;
+  }
+  out->frames = frames;
+  out->channels = nc;
+  out->channel_stride = 1;
+  out->bit_order = SOX_DSD_PACKED_MSB;
+  dff->access_mode = 2;
+  return SOX_DSD_OK;
+}
+
 static int dff_seek(sox_format_t * ft, sox_uint64_t offset)
 {
   struct dsdiff *dff = ft->priv;
@@ -372,6 +442,8 @@ static int dff_seek(sox_format_t * ft, sox_uint64_t offset)
 
   dff->bit_pos = frame % 8;
   dff->cluster_valid = sox_false;
+  dff->access_mode = 0;
+  ft->sox_errno = SOX_SUCCESS;
   return SOX_SUCCESS;
 }
 
@@ -380,6 +452,7 @@ static int dff_stopread(sox_format_t *ft)
 	struct dsdiff *dff = ft->priv;
 
 	free(dff->buf);
+	free(dff->packed_buf);
 
 	return SOX_SUCCESS;
 }

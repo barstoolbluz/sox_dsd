@@ -40,6 +40,10 @@ const char *lsx_dsd_decoder_kernel_name(const sox_dsd_decoder_t *);
 sox_dsd_status_t lsx_dsd_reconstruction_process(
     lsx_dsd_reconstruction *, const sox_sample_t *bits, size_t *input_frames,
     double *pcm, size_t *output_frames);
+/* P16: same FIR state and phase clocks, packed-byte first-stage input. */
+sox_dsd_status_t lsx_dsd_reconstruction_process_packed(
+    lsx_dsd_reconstruction *, const sox_dsd_packed_block_t *, size_t start,
+    size_t *input_frames, double *pcm, size_t *output_frames);
 sox_dsd_status_t lsx_dsd_reconstruction_finish(
     lsx_dsd_reconstruction *, double *pcm, size_t *output_frames);
 sox_dsd_status_t lsx_dsd_reconstruction_info_get(
