@@ -39,12 +39,14 @@ class P15CurrentCloseoutTests(unittest.TestCase):
         self.assertEqual(result['src_numerical_disposition']['fractional_diagnostic_cases_disposed'], 36)
         self.assertEqual(result['src_numerical_disposition']['integer_ratio_additional_src_cells'], 36)
         self.assertGreaterEqual(result['transport']['inventory_entries'], 11124 + 5)
-        # The attached 2026-10-16 snapshot omits 945 measured arrays plus the
-        # separately indexed candidate_filter_coefficients.npz; its state
-        # snapshots and graph-raw payloads are actually present. An operator
-        # with the exact indexed omitted files restored should report zero.
+        self.assertEqual(result['transport']['versioned_rebind_entries'], 32)
+        self.assertTrue(result['transport']['dated_originals_untouched'])
+        # Earlier transport omitted 945 historical measured arrays plus
+        # candidate_filter_coefficients.npz. The 2026-10-20 source transport
+        # also omits 405 new v1/v2 matrix array payloads (1,351 total).
+        # An unstripped source transport can contain all recorded arrays.
         missing = sum(result['transport']['missing_expected_bulk_payloads'].values())
-        self.assertIn(missing, (0, 946))
+        self.assertIn(missing, (0, 946, 1351))
         if missing == 0:
             self.assertTrue(result['transport']['full_raw_replay_possible'])
         self.assertEqual((result['matrices']['v1']['scalar_cells'],
@@ -84,6 +86,22 @@ class P15CurrentCloseoutTests(unittest.TestCase):
         with patch.object(review, 'load', side_effect=corrupted):
             with self.assertRaisesRegex(review.InvalidEvidence, 'cell status/count mismatch'):
                 review.matrix(review.V2, 'v2')
+
+    def test_rebind_admission_rejects_false_hash_and_stage_laundering(self):
+        from copy import deepcopy
+        revisions, audit = review._reviewed_rebind_admission()
+        rel = str(review.ACTIVE_STAGES / '88200-48000/operator-binding.json')
+        expected = revisions[rel]['historical_sha256']
+        actual = revisions[rel]['current_sha256']
+        altered = deepcopy(revisions)
+        altered[rel]['current_sha256'] = '0'*64
+        with self.assertRaisesRegex(review.InvalidEvidence, 'invalid archived P00'):
+            review._admitted_revision(rel, expected, actual, altered, audit)
+        forged = deepcopy(audit)
+        next(p for p in forged['pairs'] if p['pair'] == '88200-48000')[
+            'stage_snapshot_sha256'] = '0'*64
+        with self.assertRaisesRegex(review.InvalidEvidence, 'invalid versioned operator'):
+            review._admitted_revision(rel, expected, actual, revisions, forged)
 
     def test_immutable_result_idempotent_and_conflict_refused(self):
         with tempfile.TemporaryDirectory() as tmp:

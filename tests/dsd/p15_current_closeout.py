@@ -34,6 +34,30 @@ CHANGED_SOURCE = {'src/dsd_plan.c', 'src/pcmdsd.c', 'src/pcmdsd.h', 'src/sdm.c'}
 # authority. Any subsequent amendment needs an explicit new adjudication.
 REVIEWED_DESIGN_SHA256 = '458537dbe9a2ea1e687b68f998f43a90de10c369b604f809c78cf80c2389b94b'
 REVIEWED_INTEL_SHA256 = '35e6eeff5f8fa584ec85659d9c70b12b825000be2aca50cbbb431b9b97ea5e84'
+REVIEWED_P00_INDEX_SHA256 = 'f3b06a48cae0e0bb451c8bac0a476364dea3017d82c66d9dd1b2abaf2b9aac4f'
+REBOUND = RESULTS / 'P15_OPERATOR_REBIND_2026-10-20'
+ACTIVE_STAGES = RESULTS / 'P15_SRC_STAGE_BOUND_OPT_2026-10-17'
+# This is the complete permitted overlap between the immutable P00 inventory
+# and this separately versioned mechanical operator rebinding. Do not admit
+# arbitrary changed files merely because they appear in a new manifest.
+REBOUND_PAIRS = (
+    '176400-192000', '176400-352800', '176400-384000', '176400-44100',
+    '176400-48000', '176400-705600', '176400-88200', '176400-96000',
+    '352800-176400', '352800-192000', '352800-384000', '352800-44100',
+    '352800-48000', '352800-705600', '352800-88200', '352800-96000',
+    '88200-176400', '88200-192000', '88200-352800', '88200-384000',
+    '88200-44100', '88200-48000', '88200-705600', '88200-96000',
+)
+ADMITTED_REVISIONS = frozenset(
+    str(ACTIVE_STAGES / pair / 'operator-binding.json') for pair in REBOUND_PAIRS
+) | frozenset((str(ACTIVE_STAGES / 'SUMMARY.json'),
+               'tests/dsd/test_p15_opt_source_rebind.py',
+               'tests/dsd/test_p15_current_closeout.py',
+               'tests/dsd/test_p15_remaining_math.py',
+               'tests/dsd/p15_r6_witness.py',
+               'tests/dsd/test_p15_final_prover_audit.py',
+               'tests/dsd/p15_final_receipt_adjudicator.py',
+               'tests/dsd/p15_current_closeout.py'))
 
 
 class InvalidEvidence(ValueError):
@@ -61,11 +85,77 @@ def digest(path: Path) -> str:
     return sha(ROOT / path)
 
 
+def _reviewed_rebind_admission() -> tuple[dict, dict]:
+    """Read a *separate* exact-revision ledger, never edit P00 inventory."""
+    admission = load(REBOUND / 'ADMISSION.json')
+    audit = load(REBOUND / 'RECAPTURE_AUDIT.json')
+    require(sha(ROOT / RESULTS / 'P00/P00_SHA256SUMS.txt') == REVIEWED_P00_INDEX_SHA256 and
+            admission.get('original_inventory_sha256') == REVIEWED_P00_INDEX_SHA256 and
+            admission.get('schema') == 'P15/rebound-P00-version-admission/1' and
+            set(admission.get('revisions', {})) == ADMITTED_REVISIONS and
+            audit.get('schema') == 'P15/mechanical-source-rebind-audit/1' and
+            audit.get('status') == 'CAPTURED_IDENTICAL_SOURCE_BOUND_UNCERTIFIED' and
+            audit.get('qualified') is False and
+            len(audit.get('pairs', [])) == 24 and
+            audit.get('distinct_src_realizations') == 24 and
+            audit.get('matrix_cells') == 72 and
+            audit.get('alias_families') == 214432 and
+            all(r.get('bytes_identical') is True for r in audit['pairs']),
+            'missing/invalid 2026-10-20 operator rebinding lineage')
+    from p15_src_bound_operator import source_identity
+    require(audit.get('source_sha256') == source_identity(),
+            'rebinding audit source identity has drifted')
+    return admission['revisions'], audit
+
+
+def _admitted_revision(relative: str, expected: str, actual: str,
+                       revisions: dict, audit: dict) -> None:
+    """Each admitted mutation must have its original P00-preimage intact."""
+    require(relative in ADMITTED_REVISIONS and relative in revisions,
+            'unreviewed P00 mutation: ' + relative)
+    entry = revisions[relative]
+    preimage = ROOT / REBOUND / 'preimages' / relative
+    require(not preimage.is_symlink() and preimage.is_file() and
+            entry.get('historical_sha256') == expected and
+            sha(preimage) == expected and entry.get('current_sha256') == actual,
+            'invalid archived P00 preimage/new digest: ' + relative)
+    if relative.startswith(str(ACTIVE_STAGES) + '/'):
+        before = json.loads(preimage.read_text())
+        after = load(Path(relative))
+        if relative.endswith('/operator-binding.json'):
+            pair = Path(relative).parent.name
+            recorded = {p['pair']: p for p in audit['pairs']}
+            row = recorded.get(pair)
+            from p15_src_bound_operator import source_identity
+            require(row is not None and row['previous_binding_sha256'] == expected and
+                    row['new_binding_sha256'] == actual and
+                    before['snapshot_sha256'] == after['snapshot_sha256'] ==
+                    row['stage_snapshot_sha256'] and
+                    after['source_sha256'] == source_identity() and
+                    after.get('status') == 'SOURCE_BOUND_UNCERTIFIED' and
+                    after.get('qualified') is False and
+                    {k: v for k,v in before.items() if k not in
+                     ('source_sha256', 'exporter_sha256')} ==
+                    {k: v for k,v in after.items() if k not in
+                     ('source_sha256', 'exporter_sha256')},
+                    'invalid versioned operator-binding reconciliation: ' + pair)
+        else:
+            from p15_src_bound_operator import source_identity
+            require(relative == str(ACTIVE_STAGES / 'SUMMARY.json') and
+                    after['source_sha256'] == source_identity() and
+                    {k:v for k,v in before.items() if k != 'source_sha256'} ==
+                    {k:v for k,v in after.items() if k != 'source_sha256'} and
+                    after.get('qualified') is False,
+                    'invalid versioned matrix summary reconciliation')
+
+
 def inventory() -> dict:
-    """Retain omitted measured payload identities; refuse other absence/drift."""
+    """Retain omitted payload identities; admit only backed-up reviewed revisions."""
     lines = (ROOT / RESULTS / 'P00/P00_SHA256SUMS.txt').read_text().splitlines()
     seen = set()
     omitted = {'arrays_npz': 0, 'supplemental_npz': 0, 'graph_raw': 0, 'state': 0}
+    admitted = set()
+    revisions = audit = None
     for line in lines:
         require(len(line) > 66 and line[64:66] == '  ', 'malformed P00 SHA line')
         expected, relative = line[:64], line[66:]
@@ -79,7 +169,12 @@ def inventory() -> dict:
                 'P00 inventory must exclude itself')
         full = ROOT / p
         if full.is_file():
-            require(sha(full) == expected, 'changed inventory entry: ' + relative)
+            actual = sha(full)
+            if actual != expected:
+                if revisions is None:
+                    revisions, audit = _reviewed_rebind_admission()
+                _admitted_revision(relative, expected, actual, revisions, audit)
+                admitted.add(relative)
         else:
             parts = p.parts
             if 'arrays' in parts and p.suffix == '.npz':
@@ -95,9 +190,14 @@ def inventory() -> dict:
                 omitted['state'] += 1
             else:
                 raise InvalidEvidence('unexpected missing P00 entry: ' + relative)
+    if admitted:
+        require(admitted == ADMITTED_REVISIONS,
+                'partial, surplus, or inconsistent P00 revision admission')
     return dict(inventory_entries=len(lines), missing_expected_bulk_payloads=omitted,
                 omitted_bulk_sha256_still_recorded=True,
-                full_raw_replay_possible=not any(omitted.values()))
+                full_raw_replay_possible=not any(omitted.values()),
+                dated_originals_untouched=True, versioned_rebind_entries=len(admitted),
+                current_files_not_identical_to_P00=bool(admitted))
 
 
 def lineage() -> dict:

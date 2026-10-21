@@ -16,7 +16,7 @@ import math
 from pathlib import Path
 import tarfile
 
-from p15_full_band_campaign import (SCHEMA, PROFILE_BANDS, bindings,
+from p15_full_band_campaign import (SCHEMA, PROFILE_BANDS,
     canonical_plan, check_one, digest, receipt_path)
 
 ARCHIVE_SHA256 = 'd058b3908817e01e937f49e0dfeee7194d847aae74f625043e881d8b8f0e9210'
@@ -108,7 +108,11 @@ def archive_compare(archive: Path, receipts: Path, expected_names: set[str]):
 
 def verify(receipts: Path, archive: Path | None = None):
     jobs = canonical_plan('1000')
-    binding = bindings()
+    # Do not pass current source_identity() to a 2026-10-18 historical receipt:
+    # the three independently reviewed Oct-20 nonstage edits would mask every
+    # policy check behind an early source-binding failure.
+    from p15_historical_campaign_binding import historical_bindings
+    binding = historical_bindings()
     if len(jobs) != 11516 or len({digest(j) for j in jobs}) != 11516:
         raise UnacceptableReceipt('canonical plan changed')
     if receipts.is_symlink() or not receipts.is_dir():
@@ -139,6 +143,7 @@ def verify(receipts: Path, archive: Path | None = None):
         'jobs': len(jobs), 'counts': dict(counts), 'prover_method_population': dict(methods),
         'receipt_sha256_inventory': inventory.hexdigest(),
         'limits': {'passband_db': '0.0001', 'coherent_unwanted_amplitude': '1e-8'},
+        'source_binding_status': 'HISTORICAL_SOURCE_WITH_SEPARATE_STAGE_REBIND',
         'qualified_mathematical_proof': False, 'qualified_release': False}
 
 
