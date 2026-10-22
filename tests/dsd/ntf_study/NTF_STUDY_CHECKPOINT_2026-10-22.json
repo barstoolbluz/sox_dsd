@@ -1,0 +1,87 @@
+{
+  "balanced_candidate_bitstream_sha256": "e87816a4b28b413aa19cbbd971638eb94571b62257d867f2b4a75b046aa150f6",
+  "balanced_candidate_name": "order7-pareto-g3p0",
+  "contents": [
+    "NTF_STUDY_REPORT_2026-10-22.md",
+    "REPLAY.md",
+    "designs.json",
+    "designs-sweep.json",
+    "design_ntf.py",
+    "instrument_candidates.py",
+    "render_experiments.py",
+    "analyze_renders.py",
+    "analyze_holdout_tones.py",
+    "generate_holdouts.py",
+    "generate_stress.py",
+    "test_ntf_study.py",
+    "evidence/"
+  ],
+  "date": "2026-10-22",
+  "key_findings": [
+    "Unconstrained optimized NTF candidates fail high-level one-bit stability screen; seven of eight nonfinite.",
+    "Same-order SDM7 with unchanged a and tripled nonzero g improves three main residual bands and passes 32s stress.",
+    "0-150k residual measured at 352800 PCM is NOT a fidelity test of source content above 88200 Hz.",
+    "Nominal P20 CLANS7 60-minute soak evidence is immutable, unrelated to the new candidate; high-rate qualified remains false.",
+    "No production C changes or historical receipt rewrites."
+  ],
+  "native_screen": {
+    "balanced_candidate_32s_excursions28": 0,
+    "balanced_candidate_32s_max28": 21,
+    "balanced_candidate_32s_min28": 7,
+    "balanced_candidate_32s_nonfinite_states": 0,
+    "balanced_candidate_nominal_32s_native_frames": 722534400,
+    "expanded_holdout_patterns": 9,
+    "independent_optimizer_designs": 8,
+    "one_optimized_design_passing_hot_case": "order6-band100k",
+    "optimized_designs_failed_hot_case": 7,
+    "primary_renders": 21,
+    "resonator_sweep_designs": 7
+  },
+  "next_if_pursued": [
+    "Independent full-length P20-equivalent candidate-specific soak with newly trained bounds",
+    "Additional clipping/idle-tone/spectral and real-media tests across admissible mastering amplitude ranges",
+    "Controlled repeated performance benchmark and independent spectral reconstruction validation",
+    "Reconsider upstream PCM working rate and prefilter only if source fidelity above 80-88.2 kHz is explicitly required"
+  ],
+  "not_included": [
+    "Large regenerated packed bitstreams",
+    "Generated PCM source binaries",
+    "Any claim of certified/hardware qualification or production enablement"
+  ],
+  "original_full_bundle_sha256": "eaea1a0fecb8a94d4e2ee9c8f38907e93d1357e6c91f9968fca56878ff3db6e6",
+  "primary_band_dbfs": {
+    "P20_CLANS7": [
+      -198.3,
+      -123.51,
+      -99.21
+    ],
+    "SDM7_g3": [
+      -200.93,
+      -162.2,
+      -127.8
+    ],
+    "bands_hz": [
+      [
+        0,
+        40000
+      ],
+      [
+        40000,
+        100000
+      ],
+      [
+        100000,
+        150000
+      ]
+    ]
+  },
+  "primary_reference_bitstream_sha256": "57bcd66963abc3cf7e12e78b638269960535f2a9fd577e3b9fc2d04df135dc77",
+  "primary_source_sha256": "ca844611f9ba9f7f95428f69927e62c03806ddde21d3e43e8d5b3ab46a95701a",
+  "replay_instruction": "Read REPLAY.md, start with tests and frozen bit hashes; do not alter original source or frozen receipts.",
+  "schema": "DSD512-NTF-study-checkpoint/1",
+  "source_hz": 176400,
+  "source_sdm_c_sha256": "6f845c659185f58b07fb4c38d72dc29b734931c7b0bbfaebaef8bee82a6da61f",
+  "stage": "complete-independent-research-not-a-qualification",
+  "test_native_hz": 22579200,
+  "unmodified_gate_status": "P20 soak CLOSED, P18 high-rate rows disabled, qualified=0; no changes"
+}
