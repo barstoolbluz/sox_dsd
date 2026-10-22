@@ -1,0 +1,50 @@
+{
+  "answer": "P19 3.67 dB figure is source-precision-limited; binary64 control shows ~37.47 dB intrinsic order-reduction penalty; P20 shows ~40.99 dB. -163.04 dBFS is observed, not a preselected target.",
+  "candidate_qualified": false,
+  "date_utc": "2026-10-22",
+  "diagnostic_receipt_path": "tests/dsd/results/P20_RESIDUAL_ASYMMETRY_2026-10-22/analysis.json",
+  "diagnostic_receipt_sha256": "5d646dee6f9709ae8b7e30ba983473935a0c2ac1b67819a991291df647c38d0b",
+  "frozen_operator_snapshots_sha256_verified": 66,
+  "frozen_p20_soak_gate": "PASS_SOAK_INPUT_GATE",
+  "frozen_p20_soak_native_frames": 81285120000,
+  "historical_P15": "UNAVAILABLE_INTENTIONALLY_OMITTED_INPUTS",
+  "host_numpy": "2.3.5",
+  "host_platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "host_python": "3.13.5",
+  "host_scipy": "1.17.0",
+  "next": "No additional code changes required to answer the brief. Carry this adjudication to audio qualification or capability policy only if independently authorized.",
+  "noise_penalty_db": {
+    "int32_equivalent": {
+      "dsd1024": 3.6725487028593875,
+      "dsd512": 37.100801688376066
+    },
+    "unquantized_f64": {
+      "dsd1024": 37.46749395896083,
+      "dsd512": 40.987257339721026
+    }
+  },
+  "production_capabilities_enabled": false,
+  "schema": "P20/residual-asymmetry-checkpoint/1",
+  "source_files_changed": false,
+  "source_label": "75f8e8c3",
+  "source_quantization_equivalent_dbfs": -200.42907562069814,
+  "source_working_set_sha256": "9cc1b8e058bbee966c9a527f35a447b399d643292d226eaecbffe2bcb92f4345",
+  "stages": {
+    "autoreconf_configure_make": "PASS",
+    "baseline_p20_manifest": "PASS_2370",
+    "diagnostic_unit": "PASS_4",
+    "input_archive_sha256": "PASS",
+    "make_check": "PASS",
+    "p10_native_unit": "PASS_105489",
+    "p17_native_unit": "PASS_32859",
+    "p18_native_unit": "PASS_398_DISABLED",
+    "p19_certificate": "PASS_UNQUALIFIED",
+    "p19_original_audio_replay": "PASS_IDENTICAL_BITSTREAM_V1_V2",
+    "p20_certificate": "PASS_UNQUALIFIED",
+    "p20_original_audio_replay": "PASS_IDENTICAL_BITSTREAM_V1_V2",
+    "prequantization_control_roundtrip": "PASS_BYTE_IDENTICAL_INT32_SOURCE",
+    "residual_band_parseval": "PASS",
+    "snapshot_digest_check": "PASS_66_OF_66"
+  },
+  "upstream_git_history_available": false
+}
