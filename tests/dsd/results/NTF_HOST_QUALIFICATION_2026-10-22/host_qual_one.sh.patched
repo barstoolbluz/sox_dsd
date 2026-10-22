@@ -1,0 +1,44 @@
+#!/bin/sh
+# Candidate-specific, clean host qualification. Never mutates the archive.
+set -eu
+if [ "$#" -ne 1 ]; then echo "usage: $0 ABSOLUTE-EMPTY-WORKSPACE" >&2; exit 2; fi
+ARCHIVE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+DEST=$1
+case $DEST in /*) ;; *) echo 'workspace must be an absolute path' >&2; exit 2 ;; esac
+if [ -e "$DEST" ]; then echo 'refusing pre-existing workspace: use a new path' >&2; exit 2; fi
+mkdir -p "$DEST/source" "$DEST/receipts" "$DEST/stress"
+cp -a "$ARCHIVE/sox_dsd/." "$DEST/source/"
+# Preserve archived receipts in ARCHIVE, not in new host training workspace.
+for key in o7_z5_hy o7_r5_a20 o7_r8_a20; do
+  rm -f "$DEST/source/tests/dsd/reference/ntf_new_${key}_guard.json"
+  rm -rf "$DEST/source/tests/dsd/results/NTF_NEW_$(printf '%s' "$key" | tr '[:lower:]' '[:upper:]')_QUALIFICATION"
+done
+(
+  cd "$DEST/source"
+  # The distributed source retains diagnostic build products as evidence.
+  # Remove them so a host run can never reuse an archived object or executable.
+  if [ -f Makefile ]; then make distclean; fi
+  rm -f test/dsd_test_p10 test/dsd_test_p1[0-9] test/dsd_test_io test/dsd_test_dff_writer test/dsd_test_p17_dsf src/sox src/libsox_ng.la
+  test ! -e src/libsox_ng_la-sdm.o
+  test ! -e test/dsd_test_p10
+  ./configure --disable-shared
+  make -j "$(getconf _NPROCESSORS_ONLN)"
+  make -C test dsd_test_p10
+  test/dsd_test_p10 --unit
+  for cand in ${ONLY_CAND:-o7-r5-a20 o7-r8-a20}; do
+    export NTF_NEW_CANDIDATE=$cand
+    echo "HOST QUALIFICATION $cand"
+    python3 tests/dsd/ntf_study/qualify_new_ntf.py training --jobs 4
+    python3 tests/dsd/ntf_study/qualify_new_ntf.py freeze
+    python3 tests/dsd/ntf_study/qualify_new_ntf.py verify
+    python3 tests/dsd/ntf_study/qualify_new_ntf.py holdout --jobs 4
+    python3 tests/dsd/ntf_study/qualify_new_ntf.py adjudicate
+    NTF_SOX_SOURCE="$DEST/source" NTF_EXTENDED_OUT="$DEST/stress/$cand" \
+      python3 "$ARCHIVE/research/extended_dc.py" --keys "$cand" --jobs 2
+    mkdir -p "$DEST/receipts/$cand"
+    python3 tests/dsd/ntf_study/qualify_new_ntf.py soak \
+      --kernel scalar --variant nominal --seconds 3600 --segment-seconds 60 \
+      --timeout 10800 --prefix "$DEST/receipts/$cand/nominal-3600"
+  done
+)
+echo 'Completed independent host-specific nominal soaks; review receipts before any promotion.'
