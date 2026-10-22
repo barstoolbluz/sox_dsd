@@ -9,6 +9,7 @@
 #include "dsd_stats.h"
 #include "pcmdsd_coeffs.h"
 #include "pcmdsd_guards.h"
+#include "pcmdsd_v2_guards.h"
 #include "rate_internal.h"
 #include "dsd_kernels.h"
 #include <inttypes.h>
@@ -32,12 +33,18 @@ static const lsx_pcmdsd_profile profiles[] = {
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256},
   /* P17: exactly keyed experimental DSP candidates only. The R=176400 Hz
    * prefilter has the same normalized 40/80k edges as its existing v1 bank.
-   * State guard bounds are NOT inherited or certified for these clocks.
-   * lsx_pcmdsd_create() rejects both; only candidate_create() can use them. */
+   * P17 state guards were trained independently at each native clock
+   * using P10's method, but this is NOT a release qualification.
+   * lsx_pcmdsd_create() rejects both; only candidate_create() can use them.
+   * Source-bound candidate SHA records are external to the production gate. */
   {"encode.mastering.v1.dsd512",22579200,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,NULL,0,NULL},
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],0,NULL},
   {"encode.mastering.v1.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,NULL,0,NULL}
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],0,NULL},
+  /* Separate v2 identity: independent CLANS-7 recurrence and guard derivation.
+   * Old v1 remains the first per-clock default for archived P17 replay. */
+  {"encode.mastering.v2.dsd1024",45158400,176400,40000,80000,
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_v2_guards,0,NULL}
 };
 
 struct lsx_pcmdsd {
@@ -86,6 +93,17 @@ const lsx_pcmdsd_profile *lsx_pcmdsd_profile_find(uint32_t hz)
     if (profiles[i].native_hz==hz) return &profiles[i];
   return NULL;
 }
+const lsx_pcmdsd_profile *lsx_pcmdsd_profile_find_id(uint32_t hz,
+    const char *id)
+{
+  size_t i;
+  if (!id) return NULL;
+  for (i=0;i<array_length(profiles);++i)
+    if (profiles[i].native_hz==hz && !strcmp(profiles[i].id,id))
+      return &profiles[i];
+  return NULL;
+}
+
 int lsx_pcmdsd_qualified(uint32_t hz)
 {
   const lsx_pcmdsd_profile *p=lsx_pcmdsd_profile_find(hz);
@@ -122,6 +140,13 @@ sox_dsd_status_t lsx_pcmdsd_candidate_create(uint32_t source_hz,
   if (!profile) return SOX_DSD_UNSUPPORTED;
   if (!control) control=sdm_profile_find(profile->id,native_hz);
   if (!control || sdm_profile_rate(control)!=native_hz) return SOX_DSD_UNSUPPORTED;
+  /* An explicitly named candidate chooses its matching composite definition;
+   * legacy diagnostic controls retain the existing per-clock default. */
+  {
+    const lsx_pcmdsd_profile *named=lsx_pcmdsd_profile_find_id(
+        native_hz,sdm_profile_id(control));
+    if (named) profile=named;
+  }
   if (bounds) for (i=0;i<8;++i)
     if (!isfinite(bounds[i]) || bounds[i]<=0) return SOX_DSD_BAD_ARGUMENT;
   p=calloc(1,sizeof(*p));

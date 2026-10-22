@@ -1,0 +1,57 @@
+Making all in libdolbyb
+make[1]: Entering directory '/mnt/data/p17work/sox_dsd/libdolbyb'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p17work/sox_dsd/libdolbyb'
+Making all in libebur128
+make[1]: Entering directory '/mnt/data/p17work/sox_dsd/libebur128'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p17work/sox_dsd/libebur128'
+Making all in lpc10
+make[1]: Entering directory '/mnt/data/p17work/sox_dsd/lpc10'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p17work/sox_dsd/lpc10'
+Making all in libgsm
+make[1]: Entering directory '/mnt/data/p17work/sox_dsd/libgsm'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p17work/sox_dsd/libgsm'
+Making all in src
+make[1]: Entering directory '/mnt/data/p17work/sox_dsd/src'
+  CC       libsox_ng_la-dsd_stats.lo
+  CC       libsox_ng_la-pcmdsd.lo
+  CCLD     libsox_ng.la
+copying selected object files to avoid basename conflicts...
+  CCLD     sox
+make  all-am
+make[2]: Entering directory '/mnt/data/p17work/sox_dsd/src'
+make[2]: Leaving directory '/mnt/data/p17work/sox_dsd/src'
+make[1]: Leaving directory '/mnt/data/p17work/sox_dsd/src'
+Making all in test
+make[1]: Entering directory '/mnt/data/p17work/sox_dsd/test'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/p17work/sox_dsd/test'
+make[1]: Entering directory '/mnt/data/p17work/sox_dsd'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/mnt/data/p17work/sox_dsd'
+make: Entering directory '/mnt/data/p17work/sox_dsd/test'
+  CC       dsd_test_p17-test_p17.o
+  CCLD     dsd_test_p10
+  CCLD     dsd_test_p17_dsf
+  CCLD     dsd_test_p18
+../tests/dsd/test_p17.c: In function 'bench':
+../tests/dsd/test_p17.c:376:10: warning: format '%lu' expects argument of type 'long unsigned int', but argument 9 has type 'long long unsigned int' [-Wformat=]
+  376 |   printf("{\"status\":\"PASS\",\"rate_hz\":%u,\"channels\":%u,"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+......
+  381 |     packed?((frames+7)/8)*channels:frames*channels*4ULL,hash);
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   long long unsigned int
+In file included from ../src/util.h:39,
+                 from ../src/sox_i.h:23,
+                 from ../src/sdm.h:22,
+                 from ../src/pcmdsd.h:8,
+                 from ../tests/dsd/test_p17.c:10:
+/usr/include/inttypes.h:105:41: note: format string is defined here
+  105 | # define PRIu64         __PRI64_PREFIX "u"
+  CCLD     dsd_test_p17
+make: Leaving directory '/mnt/data/p17work/sox_dsd/test'
