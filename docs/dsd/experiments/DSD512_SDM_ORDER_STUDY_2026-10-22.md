@@ -10,26 +10,46 @@ profile or changes a default.
 
 ## Question
 
-Is the inherited CLANS-7 recurrence mis-targeted for DSD512?
+Which modulator architecture gives the best measurable fidelity at DSD512
+across an explicitly chosen signal bandwidth?
 
-It was designed for DSD256's band. At 22,579,200 Hz with an extended
-reconstruction band it may be the wrong design rather than simply a
-high-order one. A purpose-built fourth-, fifth- or sixth-order modulator
-optimized for the extended band might deliver better in-band fidelity, a
-larger stability margin and lower cost simultaneously.
+Not "repair a 37 dB defect". That premise is withdrawn: the asymmetry which
+prompted this study was an artifact of our own measurement, whose stimulus
+was quantized to signed 32-bit PCM before encoding and so sat on a residual
+floor near -200.43 dBFS. Re-measured with binary64 input the order-reduction
+penalties are comparable, 40.99 dB at DSD512 against 37.47 dB at DSD1024,
+and no defect requires correction. See
+`tests/dsd/results/P20_OPERATOR_QUALIFICATION_2026-10-22/README.md`.
+
+The live question is different and better. The seventh-order candidate
+reuses historical DSD256 CLANS-7 coefficients and was selected because it
+passed the sustained population and stability gates that the eighth-order
+candidates failed. Its -163 dBFS residual is an observed property, not a
+chosen target, and -163 dBFS is not a ceiling on what is achievable. The
+relevant design variable is the complete noise transfer function, not merely
+its order.
+
+One measured fact frames the stakes: **99.9686% of that residual power lies
+between 40 and 88.2 kHz, and below 40 kHz it is about -198 dBFS.** Against a
+40 kHz mastering passband the order reduction costs almost nothing. The
+penalty matters only if the extended band is used, which is exactly the band
+this study examines.
 
 ## Hypotheses, stated so they can fail
 
-- **H1** A purpose-built design of order < 7, optimized for 0-100 kHz at this
-  clock, achieves lower in-band noise across 0-100 kHz than the inherited
-  CLANS-7 at order 7.
+- **H1** A purpose-built design of order < 7, optimized for the chosen band
+  at this clock, achieves lower in-band noise across 0-100 kHz than the
+  inherited CLANS-7 at order 7.
 - **H2** Stability margin increases monotonically as order falls.
 - **H3** Cost falls roughly linearly with order.
 
 **What makes CLANS-7 the winner.** If no lower-order candidate beats it on
-the 0-100 kHz aggregate while also clearing stability screening, H1 is
+the chosen-band aggregate while also clearing stability screening, H1 is
 rejected and the inherited design is retained. That outcome is a real result,
 not a failed experiment, and must be reported as such.
+
+The objective is to find the best DSD512 noise shaper, not to defend seventh
+order or to reproduce its historical coefficients.
 
 ## The measurement chain, and why the existing one will not do
 
@@ -64,8 +84,14 @@ Controls are the two existing candidates: `encode.mastering.v1.dsd512`
 
 ## Stimulus set
 
-A single 997 Hz tone is insufficient and was the weakness of the earlier
-diagnostic. Required, each digest-pinned:
+**Binary64 throughout, never quantized to int32 before encoding.** That
+quantization is what floor-limited the measurement which prompted this
+study, at about -200.43 dBFS, and it would hide any result better than that
+floor. Every stimulus is generated and retained as f64 and its digest
+recorded.
+
+A single 997 Hz tone is insufficient and was the other weakness of the
+earlier diagnostic. Required, each digest-pinned:
 
 1. Multitone, logarithmically spaced across 0-100 kHz, crest-controlled.
 2. Band-limited noise, 0-100 kHz, at -6 and -20 dBFS.
@@ -99,7 +125,15 @@ Through the wideband chain. Reported in explicit sub-bands rather than one
 aggregate, because a lower order may trade baseband for the top octave and
 that trade is the question:
 
-    0-20 kHz    20-40 kHz    40-100 kHz    0-100 kHz aggregate
+    0-20 kHz   20-40 kHz   40-100 kHz   100-150 kHz   aggregate
+
+Characterize to at least 0-100 kHz and preferably 0-150 kHz. The wideband
+chain's 352,800 Hz Nyquist accommodates both.
+
+Measured per candidate, not only noise power: spectral noise, distortion,
+**idle tones**, numerical stability, bitstream compliance and computational
+cost. Idle-tone behaviour is specifically included because low-order shapers
+are prone to it and a noise-power aggregate will not reveal it.
 
 Results are **sampled spectra, not interval-certified**, consistent with
 `amendments/CONTINUUM_EXTREMA_WAIVER_2026-10-21.md`. No continuum claim is
@@ -140,10 +174,10 @@ This is therefore at least two rounds, not one.
 
 ## Abort conditions
 
-- The residual asymmetry that motivated this study turns out to be an
-  artifact of our measurement rather than a property of the design. The
-  question in `sox_dsd-residual-asymmetry-brief.md` should be answered
-  before Phase 2 begins.
+- **Discharged.** The residual asymmetry was indeed an artifact of our
+  measurement, answered 2026-10-22, and the study is reframed accordingly
+  rather than abandoned. The reframing is the authority's own
+  recommendation.
 - No candidate of order < 7 clears Phase 2. H1 is then untestable and the
   study stops with that reported.
 
@@ -158,3 +192,8 @@ in this protocol, and sampled noise power is not a fidelity certificate.
 
 It cannot speak for DSD1024. The clock, the oversampling ratio and the band
 all differ.
+
+It must not change production code or relax an existing acceptance gate on
+the strength of short-window fidelity results. The CLANS-7 candidate remains
+the qualified experimental reference throughout, and a better short-window
+number is not grounds to displace it.

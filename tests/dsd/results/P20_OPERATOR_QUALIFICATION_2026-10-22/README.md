@@ -41,20 +41,40 @@ The CLI still refuses `encode.mastering.v1.dsd512`,
 candidate is reachable only through the private constructor, and all twelve
 P18 high-rate rows remain disabled.
 
-## One result that needs a decision
+## One result that needed a decision, now answered and corrected
 
-The independent SciPy reconstruction diagnostic puts v2's residual **37.1 dB
-above v1's**: -163.04 dBFS against -200.14, fundamental-to-residual 151.02 dB
-against 188.12. Zero clipping in both.
+**Our 37.1 dB figure was floor-limited and should not be cited.** The
+stimulus here was quantized to signed 32-bit PCM before encoding, which puts
+a residual measurement floor near -200.43 dBFS. The v1 number we recorded,
+-200.14 dBFS, was therefore measuring that floor rather than the modulator.
 
-For the DSD1024 correction the model measured a 3.67 dB increase and called
-it out. This is an order of magnitude larger, and it is the cost of the
-seventh-order recurrence that fixes the population defect.
+Repeated by the design authority with binary64 input, preserving the same
+encoder implementations and reconstruction coefficients:
 
-In absolute terms it is far below audibility; 24-bit PCM sits near -144
-dBFS. The tool states it is `comparison_only` and not an audio oracle. We
-are not treating it as a failure, and we are not treating it as nothing
-either. It is recorded here for the model and the operator to rule on.
+| rate | 8th order | 7th order | penalty |
+|---|---|---|---|
+| DSD512 | -204.04 dBFS | -163.06 dBFS | 40.99 dB |
+| DSD1024 | -238.75 dBFS | -201.26 dBFS | 37.47 dB |
+
+The penalties are comparable once the source-quantization floor is removed,
+so the asymmetry we reported does not exist and no defect requires
+correction.
+
+Two things from that ruling are worth keeping in view.
+
+-163 dBFS was **not a chosen fidelity target**. The seventh-order candidate
+reused historical DSD256 CLANS-7 coefficients and was selected because it
+passed the sustained population and stability requirements that the
+eighth-order candidates failed. The residual is an observed property, not an
+objective.
+
+**99.9686% of that residual power lies between 40 and 88.2 kHz.** Below 40
+kHz it is approximately -198 dBFS. So against the mastering profile's 40 kHz
+passband the order reduction costs almost nothing; the penalty only matters
+if the extended band is actually used.
+
+The original figures below are left unchanged as the record of what we
+measured. They are superseded, not deleted.
 
 ## Status
 
