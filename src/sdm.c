@@ -658,6 +658,7 @@ static const sdm_filter_t sdm_filters[] = {
 
 #include "sdm_p17_candidates.h"
 #include "sdm_p19_candidates.h"
+#include "sdm_p20_candidates.h"
 
 /* Exact-rate entries are independent of the legacy array search order.
  * Deliberately refer to the original literal coefficient tables: copying or
@@ -680,6 +681,7 @@ static const sdm_profile_t sdm_profiles[] = {
    * are bound to NEW sample-clock identities and are NOT qualified. The
    * legacy <=rate lookup never sees these private candidates. */
   {"encode.mastering.v1.dsd512", &lsx_sdm_p17_candidates[0], 176400},
+  {"encode.mastering.v2.dsd512", &lsx_sdm_p20_dsd512, 176400},
   {"encode.mastering.v1.dsd1024", &lsx_sdm_p17_candidates[1], 176400},
   {"encode.mastering.v2.dsd1024", &lsx_sdm_p19_dsd1024, 176400},
   {"encode.diagnostic.sdm6.v1.dsd64",   &sdm_filters[25],  88200},

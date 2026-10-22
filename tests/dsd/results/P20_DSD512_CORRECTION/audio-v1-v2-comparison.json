@@ -1,0 +1,82 @@
+{
+  "candidate_qualified": false,
+  "comparison_only": true,
+  "method": "upfirdn cascade 6 halfbands and one mastering, 128:1; fitted fundamental and DC over 0.4..1.2 sec",
+  "native_hz": 22579200,
+  "original_source_sha256": "b8e8d07fa56c346147850c32e1faeead2ef3aab0dbd681435083176a8a52cd4d",
+  "output_hz": 176400,
+  "reference_coeff_sha256": "853c3e4c1902124513d99706a40a08c9b33363f7e18810ec41a955ab0b598d17",
+  "schema": "P20/SDM-v1-v2-independent-FIR-decimation/1",
+  "source_kernel": "scalar",
+  "stimulus": {
+    "configuration_sha256": "6b1de335f4ff0ba780bf8996208cc9a233952cee04ab0574fcd1b879281ae164",
+    "frames": 282240,
+    "graph_normalization": "int32/SOX_SAMPLE_MAX",
+    "source_f64le_sha256": "b8e8d07fa56c346147850c32e1faeead2ef3aab0dbd681435083176a8a52cd4d",
+    "source_i32le_sha256": "f6bb86eb579a0903f3e3a7905752a37e64bf110ed229e7392abc5c2026b83d98",
+    "source_peak": 0.501187233487697,
+    "source_rms": 0.3406540387326141
+  },
+  "versions": {
+    "v1": {
+      "binary_cpu_seconds": 1.238773,
+      "diagnostic": {
+        "analyzed_pcm_frames": 141120,
+        "clipping_count": 0,
+        "fitted_dc": -1.7139416955311134e-13,
+        "fundamental_peak": 0.2505936167452435,
+        "fundamental_rms": 0.17719644572262444,
+        "fundamental_to_residual_db": 188.1167842887673,
+        "residual_dbfs_rms": -200.13738420441746,
+        "residual_rms": 6.960105008487271e-11
+      },
+      "encoded_sha256": "aeebc5a934b7fe3205de710f3e1a6017bb0b9c1116d2577576d8f142a1d75477",
+      "excursions28": 0,
+      "max_abs_state": [
+        3.49803647764096,
+        12.96723543133404,
+        82.41849135955711,
+        553.3895001005072,
+        3897.876012171593,
+        27378.905865853245,
+        212320.4743087289,
+        2653417.636483378
+      ],
+      "numeric_profile_id": "encode.mastering.v1.dsd512",
+      "observed_elapsed_seconds": 4.059398694000038,
+      "output_bytes": 4515840,
+      "output_native_frames": 36126720,
+      "renderer_sha256": "ef99611b51a81a8046c4be6a29e9d7e8df9ac88ec69cb2ec52284a36018d36ee"
+    },
+    "v2": {
+      "binary_cpu_seconds": 1.071581,
+      "diagnostic": {
+        "analyzed_pcm_frames": 141120,
+        "clipping_count": 0,
+        "fitted_dc": -1.9550384698196785e-13,
+        "fundamental_peak": 0.2505936167444054,
+        "fundamental_rms": 0.1771964457220318,
+        "fundamental_to_residual_db": 151.01600642401368,
+        "residual_dbfs_rms": -163.03660633969292,
+        "residual_rms": 4.984879737063803e-09
+      },
+      "encoded_sha256": "c3f94aeac3f03b97f50f4daf9ded44f4cb5054f269a3353cc93cfc3477d11ec2",
+      "excursions28": 0,
+      "max_abs_state": [
+        1.7835452992668976,
+        3.02578003825602,
+        13.61904559702697,
+        139.94672823762747,
+        1959.8661044602761,
+        41192.39893655077,
+        1988467.2071411381,
+        0
+      ],
+      "numeric_profile_id": "encode.mastering.v2.dsd512",
+      "observed_elapsed_seconds": 3.0492401190000464,
+      "output_bytes": 4515840,
+      "output_native_frames": 36126720,
+      "renderer_sha256": "ef99611b51a81a8046c4be6a29e9d7e8df9ac88ec69cb2ec52284a36018d36ee"
+    }
+  }
+}

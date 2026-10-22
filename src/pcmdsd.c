@@ -10,6 +10,7 @@
 #include "pcmdsd_coeffs.h"
 #include "pcmdsd_guards.h"
 #include "pcmdsd_v2_guards.h"
+#include "pcmdsd_p20_guards.h"
 #include "rate_internal.h"
 #include "dsd_kernels.h"
 #include <inttypes.h>
@@ -39,6 +40,10 @@ static const lsx_pcmdsd_profile profiles[] = {
    * Source-bound candidate SHA records are external to the production gate. */
   {"encode.mastering.v1.dsd512",22579200,176400,40000,80000,
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],0,NULL},
+  /* P20: independently named CLANS-7 DSD512 experiment. The v1 clock
+   * default, P17 evidence and production allow-lists are unchanged. */
+  {"encode.mastering.v2.dsd512",22579200,176400,40000,80000,
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_p20_guards,0,NULL},
   {"encode.mastering.v1.dsd1024",45158400,176400,40000,80000,
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],0,NULL},
   /* Separate v2 identity: independent CLANS-7 recurrence and guard derivation.

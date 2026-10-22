@@ -53,6 +53,22 @@ static void envelope(void)
   CHECK(lsx_pcmdsd_create(48000,22579200,.5,0,&p)==SOX_DSD_UNSUPPORTED && !p);
   CHECK(lsx_pcmdsd_candidate_create(48000,22579200,.5,0,NULL,NULL,&p)==SOX_DSD_OK && p);
   lsx_pcmdsd_destroy(p);p=NULL;
+  /* P20 DSD512 v2 is separate, always unqualified and opt-in for tests. */
+  {
+    const char *id="encode.mastering.v2.dsd512";
+    const lsx_pcmdsd_profile *v2=lsx_pcmdsd_profile_find_id(22579200,id);
+    const sdm_profile_t *ctl=sdm_profile_find(id,22579200);
+    const double *a,*g;unsigned order;
+    CHECK(lsx_pcmdsd_profile_find(22579200) &&
+        !strcmp(lsx_pcmdsd_profile_find(22579200)->id,"encode.mastering.v1.dsd512"));
+    CHECK(v2 && !v2->qualified && !v2->certificate_sha256 && v2->bounds);
+    CHECK(ctl && sdm_profile_rate(ctl)==22579200);
+    CHECK(!sdm_profile_coefficients(ctl,&a,&g,&order) && order==7);
+    CHECK(lsx_pcmdsd_create(176400,22579200,.5,0,&p)==SOX_DSD_UNSUPPORTED && !p);
+    CHECK(lsx_pcmdsd_candidate_create(176400,22579200,.5,0,ctl,v2->bounds,&p)==SOX_DSD_OK && p);
+    CHECK(lsx_pcmdsd_profile_of(p)==v2);
+    lsx_pcmdsd_destroy(p);p=NULL;
+  }
   /* P19 correction is an explicitly selected, separately guarded v2
    * candidate. The v1 default, original coefficients and public gate stay. */
   {
@@ -355,14 +371,19 @@ static int save_soak_state(const char *path,lsx_pcmdsd *p,uint64_t bits_hash)
 }
 static int soak(int argc,char **argv)
 {
-  int corrected=!strcmp(argv[1],"--soak-dsd1024-v2") ||
+  int d1024_v2=!strcmp(argv[1],"--soak-dsd1024-v2") ||
       !strcmp(argv[1],"--soak-nominal-dsd1024-v2");
+  int d512_v2=!strcmp(argv[1],"--soak-dsd512-v2") ||
+      !strcmp(argv[1],"--soak-nominal-dsd512-v2");
+  int corrected=d1024_v2||d512_v2;
   int nominal_v2=!strcmp(argv[1],"--soak-nominal-v2") ||
-      !strcmp(argv[1],"--soak-nominal-dsd1024-v2");
+      !strcmp(argv[1],"--soak-nominal-dsd1024-v2") ||
+      !strcmp(argv[1],"--soak-nominal-dsd512-v2");
   uint32_t native=(uint32_t)strtoul(argv[2],NULL,10);
   uint64_t seconds=strtoull(argv[3],NULL,10),segment=strtoull(argv[4],NULL,10);
-  const lsx_pcmdsd_profile *profile=corrected?
+  const lsx_pcmdsd_profile *profile=d1024_v2?
       lsx_pcmdsd_profile_find_id(native,"encode.mastering.v2.dsd1024"):
+      d512_v2?lsx_pcmdsd_profile_find_id(native,"encode.mastering.v2.dsd512"):
       lsx_pcmdsd_profile_find(native);
   const char *prefix=argv[5];
   double input[4096];sox_sample_t output[8192];lsx_pcmdsd *p=NULL;
@@ -579,7 +600,9 @@ int main(int argc,char **argv)
   else if (argc==6 && (!strcmp(argv[1],"--soak") ||
       !strcmp(argv[1],"--soak-nominal-v2") ||
       !strcmp(argv[1],"--soak-dsd1024-v2") ||
-      !strcmp(argv[1],"--soak-nominal-dsd1024-v2"))) rc=soak(argc,argv);
+      !strcmp(argv[1],"--soak-nominal-dsd1024-v2") ||
+      !strcmp(argv[1],"--soak-dsd512-v2") ||
+      !strcmp(argv[1],"--soak-nominal-dsd512-v2"))) rc=soak(argc,argv);
   else if (argc==6 && !strcmp(argv[1],"--stage-probe")) rc=stage_probe(argc,argv);
   else if (argc==5 && !strcmp(argv[1],"--state-bench"))
     rc=state_bench((unsigned)strtoul(argv[2],NULL,10),strtoul(argv[3],NULL,10),argv[4]);
