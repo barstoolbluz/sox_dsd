@@ -51,6 +51,8 @@ const lsx_pcmdsd_profile *lsx_pcmdsd_profile_of(const lsx_pcmdsd *);
 double lsx_pcmdsd_reference_scale(const lsx_pcmdsd *);
 
 const lsx_pcmdsd_profile *lsx_pcmdsd_profile_find(uint32_t);
+/* Private exact-ID lookup for unqualified candidate instrumentation. */
+const lsx_pcmdsd_profile *lsx_pcmdsd_profile_find_id(uint32_t, const char *);
 int lsx_pcmdsd_qualified(uint32_t);
 sox_dsd_status_t lsx_pcmdsd_create(uint32_t input_hz, uint32_t native_hz,
     double reference_scale, unsigned channel, lsx_pcmdsd **);

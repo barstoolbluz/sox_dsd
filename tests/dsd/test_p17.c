@@ -8,6 +8,7 @@
 #include "dsd_packed.h"
 #include "dsd.h"
 #include "pcmdsd.h"
+#include "pcmdsd_guards.h"
 #include "sdm.h"
 #include <stdint.h>
 #include <inttypes.h>
@@ -119,7 +120,9 @@ static void unit(void)
     CHECK(!rate->decode_mastering_id && !rate->decode_wideband_id && !rate->encode_mastering_id);
     CHECK(master && wide && encoder && sdm);
     CHECK(encoder->qualified==0 && encoder->certificate_sha256==NULL);
-    CHECK(encoder->bounds==NULL);
+    CHECK(encoder->bounds!=NULL);
+    for(unsigned coord=0;coord<8;coord++)
+      CHECK(encoder->bounds[coord]==lsx_pcmdsd_guards[i+3][coord]);
     CHECK(!lsx_pcmdsd_qualified(hz));
     CHECK(master->intermediate_hz==176400 && master->pass_hz==40000 && master->stop_hz==80000);
     CHECK(wide->intermediate_hz==hz/32 && wide->pass_hz==wide->intermediate_hz*.4);

@@ -180,3 +180,9 @@ EXTRA_PROGRAMS += dsd_test_p18
 dsd_test_p18_SOURCES = ../tests/dsd/test_p18.c
 dsd_test_p18_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p18_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# P17 qualification-only full-file DSF probe; production read gate stays shut.
+EXTRA_PROGRAMS += dsd_test_p17_dsf
+dsd_test_p17_dsf_SOURCES = ../tests/dsd/p17_dsf_probe.c
+dsd_test_p17_dsf_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_p17_dsf_LDADD = $(top_builddir)/src/libsox_ng.la
