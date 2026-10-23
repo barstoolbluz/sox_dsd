@@ -1,0 +1,83 @@
+{
+  "candidate_qualified": false,
+  "experimental_only": true,
+  "halfband_taps": 57,
+  "integrated_sine_equivalent_dbfs": {
+    "0_40k": -194.0015215756351,
+    "100_150k": -132.67585896961245,
+    "150_176p4k": -127.32480348352973,
+    "40_100k": -149.42451649085024
+  },
+  "key": "sdm-4-g0p25",
+  "last_fir_beta": 22,
+  "last_fir_taps": 401,
+  "note": "Reconstruction of 176.4-kHz source; bands above 88.2-kHz contain noise, not transmitted source fidelity",
+  "number_of_2x_decimations": 7,
+  "packed_sha256": "aa5ae321e745ece7bf0301c318fedb3499debe6f173aa3851d38beac205204c6",
+  "reconstructed_rate_hz": 352800,
+  "render_receipt_sha256": "c0eccc3ff6fc56ef3370847285c01c0af9f0d88868e988040c52a14ad080e31b",
+  "schema": "DSD1024-NTF-reconstruction/1",
+  "spectrum": {
+    "fit_tone_hz": 997.0,
+    "fitted_dc": 7.401951859594273e-14,
+    "fundamental_peak": 0.25059361812018016,
+    "parts": {
+      "0-20000Hz": {
+        "rms": 8.524392751689195e-11,
+        "sine_equivalent_dbfs": -198.37643102082308,
+        "strongest_fft_bin_hz": 2991.25,
+        "strongest_fft_bin_peak_dbfs": -223.55961335562904
+      },
+      "100000-120000Hz": {
+        "rms": 5.27771393753254e-08,
+        "sine_equivalent_dbfs": -142.54078310520947,
+        "strongest_fft_bin_hz": 119773.75,
+        "strongest_fft_bin_peak_dbfs": -181.1281680848191
+      },
+      "120000-150000Hz": {
+        "rms": 1.5561438983135663e-07,
+        "sine_equivalent_dbfs": -133.14870495951567,
+        "strongest_fft_bin_hz": 148657.5,
+        "strongest_fft_bin_peak_dbfs": -172.8825758183374
+      },
+      "150000-176400Hz": {
+        "rms": 3.042599769227498e-07,
+        "sine_equivalent_dbfs": -127.32480348352973,
+        "strongest_fft_bin_hz": 163983.75,
+        "strongest_fft_bin_peak_dbfs": -167.93246090093714
+      },
+      "20000-40000Hz": {
+        "rms": 1.1239154155959504e-10,
+        "sine_equivalent_dbfs": -195.97502748279535,
+        "strongest_fft_bin_hz": 29195.0,
+        "strongest_fft_bin_peak_dbfs": -234.38637961039944
+      },
+      "40000-60000Hz": {
+        "rms": 1.4075558037638756e-09,
+        "sine_equivalent_dbfs": -174.02038760647972,
+        "strongest_fft_bin_hz": 57970.0,
+        "strongest_fft_bin_peak_dbfs": -210.7351909255959
+      },
+      "60000-80000Hz": {
+        "rms": 7.427604403927051e-09,
+        "sine_equivalent_dbfs": -159.57272474234634,
+        "strongest_fft_bin_hz": 77830.0,
+        "strongest_fft_bin_peak_dbfs": -196.2598637488945
+      },
+      "80000-100000Hz": {
+        "rms": 2.266483358956609e-08,
+        "sine_equivalent_dbfs": -149.8826493490363,
+        "strongest_fft_bin_hz": 99630.0,
+        "strongest_fft_bin_peak_dbfs": -188.61949640907469
+      }
+    },
+    "rms": 3.466212102869798e-07,
+    "sample_hz": 352800,
+    "sine_equivalent_dbfs": -126.19259735654337,
+    "start_s": 0.4,
+    "stop_s": 1.2,
+    "unwindowed_total_sine_equivalent_dbfs": -126.20151891046842,
+    "window": "kaiser_beta30_power_compensated"
+  },
+  "status": "screen-passed"
+}

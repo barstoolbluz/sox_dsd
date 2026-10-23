@@ -1,0 +1,91 @@
+{
+  "bands": {
+    "1000000-2000000Hz": {
+      "integrated_power": 0.0038863556522184288,
+      "integrated_power_db": -24.104574583095058,
+      "largest_bin_frequency_hz": 1072870.3125,
+      "largest_bin_power_db": -50.55304779414536,
+      "largest_bin_to_band_median_db": 6.908465882405959,
+      "spur_warning": "Peak bin is a diagnostic, not proof of tonal spurs; 689-Hz bins and 0.4s averaging."
+    },
+    "10000000-22579200Hz": {
+      "integrated_power": 0.8627965309077787,
+      "integrated_power_db": -0.6409160975706529,
+      "largest_bin_frequency_hz": 16935089.0625,
+      "largest_bin_power_db": -34.20984480975053,
+      "largest_bin_to_band_median_db": 9.160858578784499,
+      "spur_warning": "Peak bin is a diagnostic, not proof of tonal spurs; 689-Hz bins and 0.4s averaging."
+    },
+    "150000-500000Hz": {
+      "integrated_power": 1.341360780676623e-09,
+      "integrated_power_db": -88.72454395911521,
+      "largest_bin_frequency_hz": 496814.0625,
+      "largest_bin_power_db": -105.03583350283016,
+      "largest_bin_to_band_median_db": 29.84394011025467,
+      "spur_warning": "Peak bin is a diagnostic, not proof of tonal spurs; 689-Hz bins and 0.4s averaging."
+    },
+    "2000000-5000000Hz": {
+      "integrated_power": 0.014720370696862193,
+      "integrated_power_db": -18.32081253206767,
+      "largest_bin_frequency_hz": 4820681.25,
+      "largest_bin_power_db": -51.93122355797897,
+      "largest_bin_to_band_median_db": 2.9816603686162346,
+      "spur_warning": "Peak bin is a diagnostic, not proof of tonal spurs; 689-Hz bins and 0.4s averaging."
+    },
+    "500000-1000000Hz": {
+      "integrated_power": 0.0002105380273853382,
+      "integrated_power_db": -36.766694504599215,
+      "largest_bin_frequency_hz": 999829.6875,
+      "largest_bin_power_db": -55.291157062732836,
+      "largest_bin_to_band_median_db": 21.933009892649867,
+      "spur_warning": "Peak bin is a diagnostic, not proof of tonal spurs; 689-Hz bins and 0.4s averaging."
+    },
+    "5000000-10000000Hz": {
+      "integrated_power": 0.08698857192344049,
+      "integrated_power_db": -10.605377988364378,
+      "largest_bin_frequency_hz": 9856350.0,
+      "largest_bin_power_db": -46.491902432408864,
+      "largest_bin_to_band_median_db": 2.8447481043109746,
+      "spur_warning": "Peak bin is a diagnostic, not proof of tonal spurs; 689-Hz bins and 0.4s averaging."
+    }
+  },
+  "bit_order": "MSB first; 1->+1, 0->-1",
+  "illustrative_filters": {
+    "butterworth_2pole_100000hz_above150k": {
+      "model": "illustrative digital Butterworth magnitude squared; no DAC/EMI/IMD inference",
+      "weighted_ultrasonic_power": 2.0933929856772583e-07,
+      "weighted_ultrasonic_power_db": -66.79149235354433
+    },
+    "butterworth_2pole_200000hz_above150k": {
+      "model": "illustrative digital Butterworth magnitude squared; no DAC/EMI/IMD inference",
+      "weighted_ultrasonic_power": 3.3461672685306925e-06,
+      "weighted_ultrasonic_power_db": -54.75452353276737
+    },
+    "butterworth_4pole_100000hz_above150k": {
+      "model": "illustrative digital Butterworth magnitude squared; no DAC/EMI/IMD inference",
+      "weighted_ultrasonic_power": 1.3611991051379221e-11,
+      "weighted_ultrasonic_power_db": -108.66078345084449
+    },
+    "butterworth_4pole_200000hz_above150k": {
+      "model": "illustrative digital Butterworth magnitude squared; no DAC/EMI/IMD inference",
+      "weighted_ultrasonic_power": 3.48464536146934e-09,
+      "weighted_ultrasonic_power_db": -84.57841414235696
+    }
+  },
+  "input_sha256": "ca844611f9ba9f7f95428f69927e62c03806ddde21d3e43e8d5b3ab46a95701a",
+  "interpretation": "Raw native PSD power, NOT reconstructed sine-equivalent residual dBFS or analog hardware certification.",
+  "key": "sdm-8-g0p25",
+  "native_bits_per_sample": 1,
+  "native_hz": 45158400,
+  "native_render_receipt_sha256": "c88acbe2fa7d5d36a99d5bf3844259bda4ca93dcbd757a8a048ef12d67bbee4d",
+  "nfft": 65536,
+  "normalization": "one-sided Hann Welch density scaled so integrated bipolar +/-1 power is 1; dB=10log10(power)",
+  "overlap": 0,
+  "packed_sha256": "b5ff99634d24ac04e4be0fe2297881c51ca48d0b3756cba0df87d87a7d018b68",
+  "schema": "DSD1024-NTF-R2-native-PSD/1",
+  "segment_duration_s": 0.0014512471655328798,
+  "segments": 275,
+  "source_analysis_start_s": 0.4,
+  "source_analysis_stop_s": 0.7990929705215419,
+  "total_bipolar_power": 1.0
+}
