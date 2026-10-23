@@ -663,6 +663,21 @@ def main():
     ap.add_argument('--only',default='*',help='glob-select named tests, no automatic skip')
     args=ap.parse_args()
     runner=Runner(args);runner.register_units();runner.register_integrations()
+    # The P10 native unit binary is built by check-dsd from P10 onward but its
+    # --unit run was only ever registered under --phase P10, so the default
+    # P18 gate built it and never executed it. A P21 review found it failing
+    # in-tree for three days on assertions the enablement had obsoleted. Run
+    # it wherever it is built.
+    if args.phase in ('P10','P11','P12','P13','P14','P15','P16','P17','P18'):
+        def p10_unit():
+            command=[str(ROOT/'test/dsd_test_p10'),'--unit']
+            result=runner.invoke(command,timeout=300)
+            require(result['exit']==0,
+                    f'P10 unit exit {result["exit"]}: {result["stderr"][-1500:]}')
+            return dict(correct=True,command=command,
+                        summary=result['stdout'].strip().splitlines()[-1]
+                            if result['stdout'].strip() else '')
+        runner.add('P10_native_unit_contract','unit',p10_unit)
     if args.phase in ('P16', 'P17', 'P18'):
         def p16_executable(suffix, timeout):
             def gate():

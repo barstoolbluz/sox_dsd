@@ -113,8 +113,7 @@ static void numeric(void)
   CLOSE(pass,70560);CLOSE(stop,88200);CLOSE(r,176400);
   CHECK(lsx_dsd_profile_edges(11289600,LSX_DSD_PROFILE_WIDEBAND,&pass,&stop,&r));
   CLOSE(pass,141120);CLOSE(stop,176400);CLOSE(r,352800);
-  /* P17 has explicit experimental DSP edges, but high-rate capability bits
-   * remain zero: exposing an edge is NOT writer or planner authorization. */
+  /* These v1 high-rate DSP edges remain fixed despite P21 authorization. */
   CHECK(lsx_dsd_profile_edges(22579200,LSX_DSD_PROFILE_MASTERING,&pass,&stop,&r));
   CLOSE(pass,40000);CLOSE(stop,80000);CLOSE(r,176400);
   CHECK(lsx_dsd_profile_edges(45158400,LSX_DSD_PROFILE_MASTERING,&pass,&stop,&r));

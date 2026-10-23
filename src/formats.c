@@ -1285,21 +1285,28 @@ static sox_format_t * open_write(
     goto error;
 
   ft->handler = *handler;
-  /* The generic rate negotiator may substitute DSD256 for an explicit
-   * DSD512/1024 request.  Refuse an unqualified native writer here, while
-   * the original rate and resolved handler are still available and before
-   * any output file can be opened or truncated. */
+  /* Once DSD512/1024 are open, the generic negotiator would otherwise
+   * silently round a noncanonical HIGH native rate up to another qualified
+   * clock. Validate the original request before opening/truncating the file;
+   * retain the inherited low-rate negotiation policy unchanged. Also reject
+   * impossible channel counts before invoking either container's writer. */
   if (!strcmp(handler->names[0], "dsf") || !strcmp(handler->names[0], "dff")) {
+    int dsf_writer=!strcmp(handler->names[0],"dsf");
+    lsx_dsd_endpoint endpoint=dsf_writer?
+        LSX_DSD_ENDPOINT_DSF:LSX_DSD_ENDPOINT_DFF;
     uint32_t hz;
-    if (lsx_dsd_integer_rate(signal->rate, &hz) &&
-        (hz == 22579200u || hz == 45158400u)) {
-      lsx_dsd_endpoint endpoint = !strcmp(handler->names[0], "dsf") ?
-          LSX_DSD_ENDPOINT_DSF : LSX_DSD_ENDPOINT_DFF;
-      if (lsx_dsd_capability_check(hz, endpoint, LSX_DSD_OPERATION_WRITE) !=
-          LSX_DSD_CAP_OK) {
-        lsx_fail("%s write at %u Hz unavailable: %s",
-            lsx_dsd_endpoint_name(endpoint), hz,
-            lsx_dsd_capability_description(hz, endpoint, LSX_DSD_OPERATION_WRITE));
+    if ((dsf_writer && signal->channels>LSX_DSD_DSF_MAX_CHANNELS) ||
+        (!dsf_writer && signal->channels>LSX_DSD_DFF_MAX_CHANNELS)) {
+      lsx_fail("%s cannot write %u channels",lsx_dsd_endpoint_name(endpoint),
+          signal->channels);
+      goto error;
+    }
+    if (!isfinite(signal->rate) || signal->rate>11289600.) {
+      if (!lsx_dsd_integer_rate(signal->rate,&hz) ||
+          lsx_dsd_capability_check(hz,endpoint,LSX_DSD_OPERATION_WRITE)!=
+              LSX_DSD_CAP_OK) {
+        lsx_fail("%s write at %.9g Hz unavailable: high native rate must be explicitly authorized",
+            lsx_dsd_endpoint_name(endpoint),signal->rate);
         goto error;
       }
     }

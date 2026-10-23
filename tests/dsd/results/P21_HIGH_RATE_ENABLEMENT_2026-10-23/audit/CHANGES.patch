@@ -1,0 +1,651 @@
+--- a/docs/dsd/README.md
++++ b/docs/dsd/README.md
+@@ -13,9 +13,14 @@
+ extension as present merely because the type system can represent its rates.
+ 
+ **P18 (2026-10-21):** Higher-rate capability checks and synthetic test fixtures
+-are implemented, but DSD512/DSD1024 DSF/DSDIFF/DoP remain disabled.
+-See `P18_COMPATIBILITY_LEDGER.md`, `P18_RELEASE_MANIFEST.json`, and
+-`handoffs/P18.md` for operation-specific decisions and evidence limits.
++were implemented with DSD512/1024 DSF/DSDIFF/DoP disabled. That archived
++state is retained in `P18_COMPATIBILITY_LEDGER.md`, `P18_RELEASE_MANIFEST.json`,
++and `handoffs/P18.md`.
++
++**P21 (2026-10-23):** DSD512/1024 DSF and DSDIFF reads/writes, WSD reads,
++and DoP transport are enabled. The high-rate mastering encoders select v2;
++v1 remains unqualified. See `amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md`
++for the live authorization decision and its limits.
+ 
+ ## Contents
+ 
+--- a/README.md
++++ b/README.md
+@@ -19,13 +19,16 @@
+ It adds DSD-aware planning and versioned reconstruction filters rather
+ than treating all DSD-to-PCM conversions as interchangeable.
+ 
+-**DSD512 and DSD1024 are next on the roadmap.** We plan to support them
+-as native DSD formats, with the decoding, encoding, filtering, performance
+-work and tests that go with that. They are not shipped features yet. P18 has added explicit per-format and per-transport refusal gates; see
+-[the compatibility ledger](docs/dsd/P18_COMPATIBILITY_LEDGER.md).
++**DSD512 and DSD1024 file and transport paths are enabled as of P21
++(2026-10-23).** DSF and DSDIFF support native read/write, WSD supports
++native read, and DoP transport is enabled for both clocks. The qualified
++high-rate mastering encoders are v2 CLANS-7; the v1 high-rate encoders
++remain unqualified. File and DoP authorization does not establish support
++on any particular player, DAC or transport device. See
++[the P21 authorization record](docs/dsd/amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md).
+ 
+ The source-aware v2 mastering reconstruction is the default for DSD64,
+-DSD128 and DSD256. The earlier v1 filters are preserved and remain
++DSD128, DSD256, DSD512 and DSD1024. The earlier v1 filters are preserved and remain
+ selectable. To ask for v1 explicitly:
+ 
+     sox --dsd-mode auto --dsd-decode decode.mastering.v1.dsd64 \
+--- a/sox.1
++++ b/sox.1
+@@ -1488,13 +1488,14 @@
+    sox --dsd-mode native in.dsf out.dff
+ .XX
+ .PP
+-P18 installs operation-specific refusal gates for DSD512 (22,579,200 Hz)
+-and DSD1024 (45,158,400 Hz) DSF/DSDIFF file I/O and DoP transport.
+-These higher rates are disabled because their DSP qualification has not
+-passed.  An output request is refused, not silently reduced to DSD256.
+-DoP would require 1,411,200 Hz or 2,822,400 Hz lossless 24-bit PCM,
+-respectively, but neither rate is authorized as a high-rate DoP output.
+-A representable sample-rate field does not imply software or DAC support.
++P21 enables DSD512 (22,579,200 Hz) and DSD1024 (45,158,400 Hz)
++DSF/DSDIFF file reading and writing, WSD reading, and DoP transport.
++Mastering encoding at both rates selects the qualified v2 CLANS-7 profiles;
++the high-rate v1 encoders remain unqualified.  The DoP transport rates
++are 1,411,200 Hz and 2,822,400 Hz lossless 24-bit PCM, respectively.
++Noncanonical high native DSD rates are rejected rather than silently
++substituted. File/transport authorization does not establish support on
++any particular software player, DAC or transport device.
+ .PP
+ The reconstruction filter can be forced to an available P06 tier with
+ .BR SOX_DSD_KERNEL_FIR ;
+--- a/src/dsd.c
++++ b/src/dsd.c
+@@ -45,15 +45,21 @@
+ {
+   const lsx_dsd_rate *r;
+   unsigned bit;
+-  if ((endpoint==LSX_DSD_ENDPOINT_DOP && operation!=LSX_DSD_OPERATION_TRANSPORT) ||
++  if (endpoint<LSX_DSD_ENDPOINT_DSF || endpoint>LSX_DSD_ENDPOINT_WSD ||
++      operation<LSX_DSD_OPERATION_READ || operation>LSX_DSD_OPERATION_TRANSPORT ||
++      (endpoint==LSX_DSD_ENDPOINT_DOP && operation!=LSX_DSD_OPERATION_TRANSPORT) ||
+       (endpoint!=LSX_DSD_ENDPOINT_DOP && operation==LSX_DSD_OPERATION_TRANSPORT) ||
+-      endpoint>LSX_DSD_ENDPOINT_WSD || operation>LSX_DSD_OPERATION_TRANSPORT ||
++      (endpoint==LSX_DSD_ENDPOINT_WSD && operation==LSX_DSD_OPERATION_WRITE) ||
+       !native_hz || native_hz>45158400u)
+     return LSX_DSD_CAP_UNSUPPORTED;
+-  /* Old low-rate format readers accept some nonstandard labels; do not
+-   * change that preexisting parser policy in this high-rate phase. */
+-  if (operation==LSX_DSD_OPERATION_READ) return LSX_DSD_CAP_OK;
+   r=lsx_dsd_rate_find(native_hz);
++  if (operation==LSX_DSD_OPERATION_READ) {
++    /* Retain the inherited nonstandard low-rate file-label policy, but do
++     * not accidentally authorize arbitrary clocks in the P21 high range. */
++    return (native_hz<=11289600u ||
++        (r && (r->capabilities & LSX_DSD_READ_NATIVE))) ?
++        LSX_DSD_CAP_OK : LSX_DSD_CAP_UNSUPPORTED;
++  }
+   bit=operation==LSX_DSD_OPERATION_TRANSPORT?LSX_DSD_DOP:LSX_DSD_WRITE_NATIVE;
+   return r && (r->capabilities & bit)?LSX_DSD_CAP_OK:LSX_DSD_CAP_UNSUPPORTED;
+ }
+@@ -63,7 +69,7 @@
+ {
+   lsx_dsd_cap_result r=lsx_dsd_capability_check(native_hz,endpoint,operation);
+   if (r==LSX_DSD_CAP_UNQUALIFIED)
+-    return "P18 capability disabled: P17 high-rate DSP qualification incomplete; no file/transport authorization";
++    return "DSD rate, endpoint or operation is not authorized";
+   if (r==LSX_DSD_CAP_UNSUPPORTED)
+     return "DSD rate, format or operation not supported";
+   return "available";
+@@ -156,11 +162,9 @@
+   { 2822400,  88200, LSX_DSD_PROFILE_WIDEBAND,  35280,  44100, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd64"},
+   { 5644800, 176400, LSX_DSD_PROFILE_WIDEBAND,  70560,  88200, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd128"},
+   {11289600, 352800, LSX_DSD_PROFILE_WIDEBAND, 141120, 176400, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd256"},
+-  /* P17 internal research profiles. The immutable P06 final bank is reused at
+-   * the same 352800-Hz clock (mastering), or the same normalized edge ratios
+-   * at an increased final clock (wideband). Only the HALF-BAND cascade grows.
+-   * dsd_rates[] capabilities remain ZERO; neither a file nor a DoP writer is
+-   * enabled by these internal records. No mastering-v2 profile is inferred. */
++  /* The v1 high-rate frontends reuse the P06 banks. Mastering retains its
++   * 176400-Hz clock; wideband scales its intermediate clock with the native
++   * rate. P21 authorizes the associated file and transport read operations. */
+   {22579200, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 7, LSX_DSD_BANK_MASTER64_256,  5476, "decode.mastering.v1.dsd512"},
+   {45158400, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 8, LSX_DSD_BANK_MASTER64_256, 10980, "decode.mastering.v1.dsd1024"},
+   {22579200, 705600, LSX_DSD_PROFILE_WIDEBAND, 282240, 352800, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd512"},
+--- a/src/dsd.h
++++ b/src/dsd.h
+@@ -32,8 +32,8 @@
+ } lsx_dsd_rate;
+ 
+ typedef enum {LSX_DSD_MODE_LEGACY, LSX_DSD_MODE_AUTO, LSX_DSD_MODE_NATIVE} lsx_dsd_mode;
+-/* Existing numeric values and v1 semantics are frozen. Generic mastering stays
+- * v1 while P15's release gate is blocked. v2 is explicitly selected only. */
++/* Existing numeric values and v1 semantics are frozen. The mastering alias
++ * selects v1; unpinned auto reconstruction selects v2. */
+ typedef enum {LSX_DSD_PROFILE_MASTERING=0, LSX_DSD_PROFILE_WIDEBAND=1,
+               LSX_DSD_PROFILE_LEGACY=2, LSX_DSD_PROFILE_MASTERING_V2=3} lsx_dsd_decode;
+ typedef enum {LSX_DSD_ENCODE_MASTERING, LSX_DSD_ENCODE_LEGACY,
+@@ -155,15 +155,18 @@
+   char const *encoder_filter_name; /* Low-level SDM selection; not mastering. */
+ } lsx_dsd_plan;
+ 
+-/* P18 fail-closed, private rate x endpoint x operation authorization.
+- * NO high-rate row is qualified. A structurally representable file/DoP
+- * rate is not a valid DSP, software or physical-device certificate. */
++/* Private rate x endpoint x operation authorization. P21 permits the
++ * enumerated high-rate operations; unlisted operations remain unsupported.
++ * Authorization does not certify software or physical-device compatibility. */
+ typedef enum { LSX_DSD_ENDPOINT_DSF, LSX_DSD_ENDPOINT_DFF,
+                LSX_DSD_ENDPOINT_DOP, LSX_DSD_ENDPOINT_WSD } lsx_dsd_endpoint;
+ typedef enum { LSX_DSD_OPERATION_READ, LSX_DSD_OPERATION_WRITE,
+                LSX_DSD_OPERATION_TRANSPORT } lsx_dsd_operation;
+ typedef enum { LSX_DSD_CAP_OK, LSX_DSD_CAP_UNQUALIFIED,
+                LSX_DSD_CAP_UNSUPPORTED } lsx_dsd_cap_result;
++/* Limits shared with the DSF and DSDIFF writers' pre-open validation. */
++#define LSX_DSD_DSF_MAX_CHANNELS 6u
++#define LSX_DSD_DFF_MAX_CHANNELS 1000u
+ lsx_dsd_cap_result lsx_dsd_capability_check(uint32_t native_hz,
+     lsx_dsd_endpoint endpoint, lsx_dsd_operation operation);
+ const char *lsx_dsd_capability_description(uint32_t native_hz,
+--- a/src/dsdiff.c
++++ b/src/dsdiff.c
+@@ -465,7 +465,7 @@
+ 	return SOX_SUCCESS;
+ }
+ 
+-#define DFF_MAX_CHANNELS	1000
++#define DFF_MAX_CHANNELS LSX_DSD_DFF_MAX_CHANNELS
+ #define DFF_CMPR_NAME		"not compressed"
+ 
+ /* Chunk sizes exclude their headers and external even-byte padding. */
+--- a/src/dsf.c
++++ b/src/dsf.c
+@@ -147,7 +147,7 @@
+ 		return SOX_EFMT;
+ 	}
+ 
+-	if (dsf->chan_num < 1 || dsf->chan_num > 6) {
++	if (dsf->chan_num < 1 || dsf->chan_num > LSX_DSD_DSF_MAX_CHANNELS) {
+ 		lsx_fail_errno(ft, SOX_EHDR, "invalid channel count %d",
+ 			       dsf->chan_num);
+ 		return SOX_EHDR;
+--- a/src/formats.c
++++ b/src/formats.c
+@@ -1285,21 +1285,28 @@
+     goto error;
+ 
+   ft->handler = *handler;
+-  /* The generic rate negotiator may substitute DSD256 for an explicit
+-   * DSD512/1024 request.  Refuse an unqualified native writer here, while
+-   * the original rate and resolved handler are still available and before
+-   * any output file can be opened or truncated. */
++  /* Once DSD512/1024 are open, the generic negotiator would otherwise
++   * silently round a noncanonical HIGH native rate up to another qualified
++   * clock. Validate the original request before opening/truncating the file;
++   * retain the inherited low-rate negotiation policy unchanged. Also reject
++   * impossible channel counts before invoking either container's writer. */
+   if (!strcmp(handler->names[0], "dsf") || !strcmp(handler->names[0], "dff")) {
++    int dsf_writer=!strcmp(handler->names[0],"dsf");
++    lsx_dsd_endpoint endpoint=dsf_writer?
++        LSX_DSD_ENDPOINT_DSF:LSX_DSD_ENDPOINT_DFF;
+     uint32_t hz;
+-    if (lsx_dsd_integer_rate(signal->rate, &hz) &&
+-        (hz == 22579200u || hz == 45158400u)) {
+-      lsx_dsd_endpoint endpoint = !strcmp(handler->names[0], "dsf") ?
+-          LSX_DSD_ENDPOINT_DSF : LSX_DSD_ENDPOINT_DFF;
+-      if (lsx_dsd_capability_check(hz, endpoint, LSX_DSD_OPERATION_WRITE) !=
+-          LSX_DSD_CAP_OK) {
+-        lsx_fail("%s write at %u Hz unavailable: %s",
+-            lsx_dsd_endpoint_name(endpoint), hz,
+-            lsx_dsd_capability_description(hz, endpoint, LSX_DSD_OPERATION_WRITE));
++    if ((dsf_writer && signal->channels>LSX_DSD_DSF_MAX_CHANNELS) ||
++        (!dsf_writer && signal->channels>LSX_DSD_DFF_MAX_CHANNELS)) {
++      lsx_fail("%s cannot write %u channels",lsx_dsd_endpoint_name(endpoint),
++          signal->channels);
++      goto error;
++    }
++    if (!isfinite(signal->rate) || signal->rate>11289600.) {
++      if (!lsx_dsd_integer_rate(signal->rate,&hz) ||
++          lsx_dsd_capability_check(hz,endpoint,LSX_DSD_OPERATION_WRITE)!=
++              LSX_DSD_CAP_OK) {
++        lsx_fail("%s write at %.9g Hz unavailable: high native rate must be explicitly authorized",
++            lsx_dsd_endpoint_name(endpoint),signal->rate);
+         goto error;
+       }
+     }
+--- a/src/sox_ng.c
++++ b/src/sox_ng.c
+@@ -3341,7 +3341,7 @@
+ "--dsd-mode auto|native|legacy  Opt in to P08 domain routing; default remains legacy",
+ "--dsd-decode conservative|mastering|wideband|legacy|decode.mastering.v2.dsd<rate>",
+ "                         Unpinned auto reconstruction defaults to mastering v2; explicit mastering/conservative select v1",
+-"--dsd-encode mastering|legacy|experimental|encode.mastering.v1.dsd<rate>",
++"--dsd-encode mastering|legacy|experimental|encode.mastering.v{1,2}.dsd<rate>",
+ "                         Mastering encoding is active for native DSD64 to DSD1024; guards remain enforced",
+ "--dsd-level preserve|sacd  Decoder level convention",
+ "--dsd-clip warn|error    Graph-boundary clipping policy",
+@@ -3916,7 +3916,7 @@
+           int profile;
+           if (!lsx_dsd_profile_parse(optstate.arg,1,&profile,
+                 &dsd_policy.encode_pinned_native_hz)) {
+-            lsx_fail("--dsd-encode requires mastering, legacy, experimental, or a supported encode.mastering.v1.dsd* ID");
++            lsx_fail("--dsd-encode requires mastering, legacy, experimental, or a supported versioned encode.mastering ID");
+             exit(1);
+           }
+           dsd_policy.encode=(lsx_dsd_encode)profile;
+--- a/tests/dsd/test_decode.c
++++ b/tests/dsd/test_decode.c
+@@ -152,8 +152,7 @@
+     lsx_dsd_reconstruction_destroy(ctx);
+   }
+   ctx=NULL;
+-  /* The P17 private high-rate engine is available experimentally; no high-rate
+-   * file, transport or public qualified writer capability follows from it. */
++  /* The v1 high-rate decode profile remains accessible after P21 enablement. */
+   CHECK(lsx_dsd_reconstruction_create(45158400,LSX_DSD_PROFILE_MASTERING,1,&ctx)==SOX_DSD_OK);
+   {lsx_dsd_reconstruction_info info;
+    CHECK(lsx_dsd_reconstruction_info_get(ctx,&info)==SOX_DSD_OK);
+--- a/tests/dsd/test_p10.c
++++ b/tests/dsd/test_p10.c
+@@ -48,43 +48,62 @@
+     lsx_pcmdsd_destroy(p);p=NULL;
+   }
+   p=(void *)1;
+-  /* P17 adds an explicitly unqualified, test-only composite candidate.
+-   * The production constructor must still refuse the rate. */
+-  CHECK(lsx_pcmdsd_create(48000,22579200,.5,0,&p)==SOX_DSD_UNSUPPORTED && !p);
++  /* P21 promotes v2 at DSD512; the regular constructor must now succeed
++   * and the private candidate constructor must default to that same row. */
++  CHECK(lsx_pcmdsd_create(48000,22579200,.5,0,&p)==SOX_DSD_OK && p);
++  CHECK(!strcmp(lsx_pcmdsd_profile_of(p)->id,"encode.mastering.v2.dsd512"));
++  lsx_pcmdsd_destroy(p);p=NULL;
+   CHECK(lsx_pcmdsd_candidate_create(48000,22579200,.5,0,NULL,NULL,&p)==SOX_DSD_OK && p);
++  CHECK(!strcmp(lsx_pcmdsd_profile_of(p)->id,"encode.mastering.v2.dsd512"));
+   lsx_pcmdsd_destroy(p);p=NULL;
+-  /* P20 DSD512 v2 is separate, always unqualified and opt-in for tests. */
++  /* Both v1 and v2 are still addressable independently by exact candidate ID. */
+   {
+     const char *id="encode.mastering.v2.dsd512";
+     const lsx_pcmdsd_profile *v2=lsx_pcmdsd_profile_find_id(22579200,id);
+     const sdm_profile_t *ctl=sdm_profile_find(id,22579200);
+     const double *a,*g;unsigned order;
+-    CHECK(lsx_pcmdsd_profile_find(22579200) &&
+-        !strcmp(lsx_pcmdsd_profile_find(22579200)->id,"encode.mastering.v1.dsd512"));
+-    CHECK(v2 && !v2->qualified && !v2->certificate_sha256 && v2->bounds);
++    const char *old_id="encode.mastering.v1.dsd512";
++    const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(22579200,old_id);
++    const sdm_profile_t *old_control=sdm_profile_find(old_id,22579200);
++    CHECK(lsx_pcmdsd_profile_find(22579200)==v2);
++    CHECK(v2 && v2->qualified && v2->certificate_sha256 && v2->bounds);
++    CHECK(v1 && !v1->qualified && !v1->certificate_sha256 && old_control);
+     CHECK(ctl && sdm_profile_rate(ctl)==22579200);
+     CHECK(!sdm_profile_coefficients(ctl,&a,&g,&order) && order==7);
+-    CHECK(lsx_pcmdsd_create(176400,22579200,.5,0,&p)==SOX_DSD_UNSUPPORTED && !p);
++    CHECK(lsx_pcmdsd_create(176400,22579200,.5,0,&p)==SOX_DSD_OK && p);
++    CHECK(lsx_pcmdsd_profile_of(p)==v2);
++    lsx_pcmdsd_destroy(p);p=NULL;
+     CHECK(lsx_pcmdsd_candidate_create(176400,22579200,.5,0,ctl,v2->bounds,&p)==SOX_DSD_OK && p);
+     CHECK(lsx_pcmdsd_profile_of(p)==v2);
+     lsx_pcmdsd_destroy(p);p=NULL;
++    CHECK(lsx_pcmdsd_candidate_create(176400,22579200,.5,0,old_control,v1->bounds,&p)==SOX_DSD_OK && p);
++    CHECK(lsx_pcmdsd_profile_of(p)==v1);
++    lsx_pcmdsd_destroy(p);p=NULL;
+   }
+-  /* P19 correction is an explicitly selected, separately guarded v2
+-   * candidate. The v1 default, original coefficients and public gate stay. */
++  /* P21 promotes P19's v2 DSD1024 candidate. Its v1 counterpart remains
++   * unqualified and retains its exact-name replay path. */
+   {
+     const char *v2_id="encode.mastering.v2.dsd1024";
+     const lsx_pcmdsd_profile *v2=lsx_pcmdsd_profile_find_id(45158400,v2_id);
+     const sdm_profile_t *control=sdm_profile_find(v2_id,45158400);
+     const double *a,*g;unsigned order;
+-    CHECK(lsx_pcmdsd_profile_find(45158400) &&
+-        !strcmp(lsx_pcmdsd_profile_find(45158400)->id,"encode.mastering.v1.dsd1024"));
+-    CHECK(v2 && !v2->qualified && !v2->certificate_sha256 && v2->bounds);
++    const char *old_id="encode.mastering.v1.dsd1024";
++    const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(45158400,old_id);
++    const sdm_profile_t *old_control=sdm_profile_find(old_id,45158400);
++    CHECK(lsx_pcmdsd_profile_find(45158400)==v2);
++    CHECK(v2 && v2->qualified && v2->certificate_sha256 && v2->bounds);
++    CHECK(v1 && !v1->qualified && !v1->certificate_sha256 && old_control);
+     CHECK(control && sdm_profile_rate(control)==45158400);
+     CHECK(!sdm_profile_coefficients(control,&a,&g,&order) && order==7);
+-    CHECK(lsx_pcmdsd_create(176400,45158400,.5,0,&p)==SOX_DSD_UNSUPPORTED && !p);
++    CHECK(lsx_pcmdsd_create(176400,45158400,.5,0,&p)==SOX_DSD_OK && p);
++    CHECK(lsx_pcmdsd_profile_of(p)==v2);
++    lsx_pcmdsd_destroy(p);p=NULL;
+     CHECK(lsx_pcmdsd_candidate_create(176400,45158400,.5,0,control,v2->bounds,&p)==SOX_DSD_OK && p);
+     CHECK(lsx_pcmdsd_profile_of(p)==v2);
+     lsx_pcmdsd_destroy(p);p=NULL;
++    CHECK(lsx_pcmdsd_candidate_create(176400,45158400,.5,0,old_control,v1->bounds,&p)==SOX_DSD_OK && p);
++    CHECK(lsx_pcmdsd_profile_of(p)==v1);
++    lsx_pcmdsd_destroy(p);p=NULL;
+   }
+   CHECK(lsx_pcmdsd_candidate_create(0,2822400,.5,0,NULL,NULL,&p)==SOX_DSD_BAD_ARGUMENT && !p);
+   CHECK(lsx_pcmdsd_candidate_create(48000,5644800,.5,0,profile,NULL,&p)==SOX_DSD_UNSUPPORTED && !p);
+--- a/tests/dsd/test_p18.c
++++ b/tests/dsd/test_p18.c
+@@ -1,6 +1,6 @@
+-/* P18 unit gate: private rate x container x operation decisions are independent
+- * of field width and of the P17 *development* coefficient candidates.
+- * No high-rate effect or file writer is invoked as if it were qualified.
++/* P18/P21 unit gate: rate x endpoint x operation decisions are independent
++ * of field width and of P17 development-only encoder candidates.
++ * High-rate native writers are explicitly authorized only at named clocks.
+  */
+ #define _POSIX_C_SOURCE 200809L
+ #include "dsd.h"
+@@ -44,6 +44,8 @@
+         LSX_DSD_OPERATION_TRANSPORT)==LSX_DSD_CAP_OK);
+     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_WSD,
+         LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_OK);
++    CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_WSD,
++        LSX_DSD_OPERATION_WRITE)==LSX_DSD_CAP_UNSUPPORTED);
+     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_DOP,
+         LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
+     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_DSF,
+@@ -62,11 +64,27 @@
+         CHECK(lsx_dsd_capability_check(low[i],f,o)==LSX_DSD_CAP_OK);
+     CHECK(lsx_dsd_capability_check(low[i],LSX_DSD_ENDPOINT_DOP,
+         LSX_DSD_OPERATION_TRANSPORT)==LSX_DSD_CAP_OK);
++    CHECK(lsx_dsd_capability_check(low[i],LSX_DSD_ENDPOINT_WSD,
++        LSX_DSD_OPERATION_WRITE)==LSX_DSD_CAP_UNSUPPORTED);
+   }
+   CHECK(lsx_dsd_capability_check(45158401,LSX_DSD_ENDPOINT_DSF,
+       LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
+   CHECK(lsx_dsd_capability_check(0,LSX_DSD_ENDPOINT_DFF,
+       LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
++  CHECK(lsx_dsd_capability_check(2822400u,(lsx_dsd_endpoint)-1,
++      LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
++  CHECK(lsx_dsd_capability_check(2822400u,LSX_DSD_ENDPOINT_DSF,
++      (lsx_dsd_operation)-1)==LSX_DSD_CAP_UNSUPPORTED);
++  /* Read compatibility below DSD512 is inherited, but arbitrary high
++   * labels were never opened as part of the twelve P21 capability rows. */
++  for (i=0;i<3;i++) {
++    const uint32_t gap[]={11289601u,22579201u,30000000u};
++    for (f=LSX_DSD_ENDPOINT_DSF;f<=LSX_DSD_ENDPOINT_WSD;f++)
++      CHECK(lsx_dsd_capability_check(gap[i],f,LSX_DSD_OPERATION_READ)==
++          LSX_DSD_CAP_UNSUPPORTED);
++  }
++  CHECK(lsx_dsd_capability_check(1234567u,LSX_DSD_ENDPOINT_DSF,
++      LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_OK);
+   return 0;
+ }
+ 
+@@ -163,15 +181,9 @@
+   return 0;
+ }
+ 
+-/* Direct public API callers must not be able to bypass the CLI planner.
+- * Exercise both writers at both disabled rates; preserve existing file data
+- * to verify refusal happens before opening or truncating the destination. */
+-/* Was writer_api_denial through P20. P21 authorized both high rates, so the
+- * assertion inverts: the writer must now open, and must keep the rate it was
+- * asked for rather than letting the negotiator substitute DSD256. The
+- * fail-closed-before-truncate path in formats.c open_write() is unchanged and
+- * still guards any endpoint the capability table refuses; it is simply no
+- * longer reachable at these two rates. */
++/* Public API checks: authorized clocks open at their requested rates.
++ * Noncanonical higher clocks and unsupported channel counts must fail before
++ * overwriting an existing destination, even without CLI domain planning. */
+ static int writer_api_authorized(void)
+ {
+   static const uint32_t high[]={22579200u,45158400u};
+@@ -203,10 +215,66 @@
+   return 0;
+ }
+ 
++/* These failures must leave a pre-existing destination byte-for-byte intact.
++ * Public library users can bypass CLI planning and overwrite prompts, so
++ * the API itself is responsible for refusing before fopen(..., "w+b"). */
++static int writer_api_fail_closed(void)
++{
++  static const struct {
++    const char *format;
++    double rate;
++    unsigned channels;
++  } cases[]={
++    {"dsf",11289601.,2}, {"dff",11289601.,2},
++    {"dsf",22579201.,2}, {"dff",22579201.,2},
++    {"dsf",30000000.,2}, {"dff",30000000.,2},
++    {"dsf",45158401.,2}, {"dff",45158401.,2},
++    {"dsf",45158400.5,2}, {"dff",45158400.5,2},
++    {"dsf",45158400.,7}, {"dff",45158400.,1001}
++  };
++  static const char sentinel[]="P21 existing destination must survive\n";
++  char path[]="/tmp/sox-p21-deny-XXXXXX";
++  char got[sizeof(sentinel)];
++  sox_signalinfo_t sig={0};
++  sox_encodinginfo_t enc={0};
++  struct stat st;
++  size_t i;
++  int fd=mkstemp(path);
++  CHECK(fd>=0);
++  CHECK(sox_init()==SOX_SUCCESS);
++  sox_init_encodinginfo(&enc);
++  enc.encoding=SOX_ENCODING_DSD;
++  enc.bits_per_sample=1;
++  sig.precision=1;
++  for (i=0;i<sizeof(cases)/sizeof(*cases);i++) {
++    sox_format_t *ft;
++    sig.rate=cases[i].rate;
++    sig.channels=cases[i].channels;
++    CHECK(ftruncate(fd,0)==0);
++    CHECK(lseek(fd,0,SEEK_SET)==0);
++    CHECK(write(fd,sentinel,sizeof(sentinel))==(ssize_t)sizeof(sentinel));
++    ft=sox_open_write(path,&sig,&enc,cases[i].format,NULL,NULL);
++    if (ft) {
++      sox_close(ft);
++      fprintf(stderr,"P21 FAIL: unexpected %s writer accepted %.9g Hz, %u channels\n",
++          cases[i].format,cases[i].rate,cases[i].channels);
++      return 1;
++    }
++    CHECK(fstat(fd,&st)==0 && st.st_size==(off_t)sizeof(sentinel));
++    CHECK(lseek(fd,0,SEEK_SET)==0);
++    CHECK(read(fd,got,sizeof(got))==(ssize_t)sizeof(got));
++    CHECK(!memcmp(got,sentinel,sizeof(got)));
++  }
++  CHECK(sox_quit()==SOX_SUCCESS);
++  CHECK(close(fd)==0);
++  CHECK(unlink(path)==0);
++  return 0;
++}
++
+ int main(int argc, char **argv)
+ {
+   if (argc==1 || !strcmp(argv[1],"registry")) {
+-    if (capabilities() || writer_api_authorized()) return 1;
++    if (capabilities() || writer_api_authorized() || writer_api_fail_closed()) return 1;
+     if (argc>1) goto done;
+   }
+   if (argc==1 || !strcmp(argv[1],"transport")) {
+--- a/tests/dsd/test_p18.py
++++ b/tests/dsd/test_p18.py
+@@ -7,9 +7,10 @@
+ high-rate fixture is still not software or device interoperability.
+ 
+ What this file is now for: an opened rate must be carried through, not
+-silently substituted. The negotiator used to be stopped by refusal; now only
+-the write-rate tables stop it, so every output case below reparses what was
+-actually written and asserts the rate it asked for. Two refusals survive and
++silently substituted. The write-rate tables admit both new exact rates; a
++separate pre-open gate rejects noncanonical high rates rather than allowing
++the generic negotiator to round one to another. Every positive output case
++reparses the file and asserts the rate requested. Two refusals survive and
+ are still asserted, because neither came from P18: native mode cannot change
+ DSD rate without reconstruction, and the channel-layout guard still fires on
+ destinations that cannot carry a named layout.
+@@ -25,6 +26,7 @@
+ import sys
+ import tempfile
+ import time
++import wave
+ 
+ from reference import fixtures, verify
+ 
+@@ -195,8 +197,8 @@
+         if status!='PASS':print('P18 FAIL',name,details,flush=True)
+     with tempfile.TemporaryDirectory(prefix='sox-p18-') as tmp:
+         work=pathlib.Path(tmp)
+-        # Existing high-rate input handlers must not accept a syntactically
+-        # valid file, including packed reader opt-in (no bypass).
++        # The opened high-rate readers must accept structurally valid files,
++        # including the packed reader path.
+         for native in RATES:
+             for ext in ('dsf','dff'):
+                 for chans in CHANNELS:
+@@ -219,8 +221,7 @@
+                                 expected=f'read accepted and reported at {native} Hz',
+                                 reported_rate=seen,
+                                 fixture_sha256=sha(inp.read_bytes()),packed=packed))
+-        # The inherited WSD native reader must not bypass high-rate refusal.
+-        # WSD is safety coverage, not a claimed new P18 format capability.
++        # P21 also enables the inherited WSD reader at the two named clocks.
+         for native in RATES:
+             for chans in CHANNELS:
+                 name=f'wsd-{native}-{chans}'
+@@ -236,6 +237,108 @@
+                 store(name,'PASS' if okay else 'FAIL',dict(output=got,reported_rate=seen,
+                     reference_sha256=sha(source.read_bytes()),
+                     expected=f'WSD read accepted and reported at {native} Hz'))
++        # The P21 v2 decode rows must work in the planned CLI path, not
++        # merely instantiate through the private P17 constructor.
++        for native in RATES:
++            key=f'auto-decode-v2-{native}'
++            if key in old:report['cases'].append(old[key]);continue
++            inp=VECTORS/f'p18-{native}-dsf-1-2-32769.dsf'
++            dst=work/f'auto-decode-{native}.wav'
++            got=command_result([args.sox,'-V2','--dsd-mode','auto','-D',
++                '-t','dsf',inp,'-r','176400',dst],environment)
++            details=None;okay=False
++            if got['exit']==0 and dst.is_file():
++                with wave.open(str(dst),'rb') as decoded:
++                    details=dict(rate=decoded.getframerate(),
++                        channels=decoded.getnchannels(),frames=decoded.getnframes(),
++                        output_sha256=sha(dst.read_bytes()))
++                    okay=(details['rate']==176400 and details['channels']==2
++                          and details['frames']>0)
++            store(key,'PASS' if okay else 'FAIL',dict(output=got,
++                expected='planned high-rate v2 native-to-PCM decode',reference=details))
++        # Production v2 encoder selection, native rate preservation and plan
++        # reporting must agree on both DSF and DSDIFF destinations.
++        source_pcm=work/'auto-v2-source.wav'
++        with wave.open(str(source_pcm),'wb') as encoded:
++            encoded.setparams((2,2,176400,4096,'NONE','not compressed'))
++            encoded.writeframes(b'\0\0'*2*4096)
++        for native in RATES:
++            for ext in ('dsf','dff'):
++                key=f'auto-encode-v2-{native}-{ext}'
++                if key in old:report['cases'].append(old[key]);continue
++                dst=work/f'auto-encode-{native}.{ext}'
++                cmd=[args.sox,'-V2','--dsd-mode','auto','-D',source_pcm,
++                    '-r',str(native),dst]
++                got=command_result(cmd,environment)
++                ref=None;okay=False
++                if got['exit']==0 and dst.is_file():
++                    raw=dst.read_bytes()
++                    desc=verify.decode_dsf(raw) if ext=='dsf' else verify.decode_dff(raw)
++                    plan_cmd=[args.sox,'--dsd-plan','-D',source_pcm,
++                              '-r',str(native),dst]
++                    plan=subprocess.run(list(map(str,plan_cmd)),cwd=ROOT,
++                        env=environment,stdin=subprocess.DEVNULL,
++                        capture_output=True,timeout=45)
++                    chosen=None
++                    if plan.returncode==0:
++                        chosen=json.loads(plan.stdout)['encoder']['id']
++                    ref=dict(rate=desc['rate'],channels=desc['channels'],
++                        frames=desc['frames'],encoder_id=chosen,
++                        output_sha256=sha(raw))
++                    okay=(desc['rate']==native and desc['channels']==2 and
++                          desc['frames']>0 and
++                          chosen==f'encode.mastering.v2.dsd{native//44100}')
++                store(key,'PASS' if okay else 'FAIL',dict(output=got,
++                    expected='qualified v2 encoder, declared in plan and on disk',
++                    reference=ref))
++        # P21 does not authorize the gaps between canonical high rates.
++        # Syntactically valid headers must be refused by every native reader.
++        for invalid in (11_289_601,22_579_201,30_000_000):
++            for ext in ('dsf','dff','wsd'):
++                key=f'read-noncanonical-{invalid}-{ext}'
++                if key in old:report['cases'].append(old[key]);continue
++                bits=fixtures.bits(16,2)
++                source=work/f'invalid-{invalid}.{ext}'
++                maker={'dsf':fixtures.make_dsf,'dff':fixtures.make_dff,
++                       'wsd':fixtures.make_wsd}[ext]
++                source.write_bytes(maker(bits,invalid))
++                got=command_result([args.sox,'-V2','--dsd-layout-loss','warn',
++                    '-t',ext,source,'-n'],environment)
++                okay=got['exit']!=0
++                store(key,'PASS' if okay else 'FAIL',dict(output=got,
++                    expected='reject noncanonical high native read rate',
++                    header_rate=invalid,format=ext,
++                    source_sha256=sha(source.read_bytes())))
++        # Default and explicit legacy bypass DSD planner checks; preflight
++        # must reject noncanonical requests without replacing existing data.
++        for invalid in (11_289_601,22_579_201,30_000_000,45_158_401):
++            for ext in ('dsf','dff'):
++                for mode in ('default','legacy'):
++                    key=f'write-noncanonical-{mode}-{invalid}-{ext}'
++                    if key in old:report['cases'].append(old[key]);continue
++                    dst=work/f'invalid-{mode}-{invalid}.{ext}'
++                    sentinel=b'P21-existing-contents-must-survive\n'
++                    dst.write_bytes(sentinel)
++                    cmd=[args.sox,'-y','-V2']
++                    if mode=='legacy':cmd+=['--dsd-mode','legacy']
++                    cmd+=['-D',ROOT/'tests/dsd/fixtures/stereo_96.dsf',
++                          '-r',str(invalid),dst]
++                    got=command_result(cmd,environment)
++                    kept=dst.read_bytes()==sentinel
++                    okay=got['exit']!=0 and kept
++                    store(key,'PASS' if okay else 'FAIL',dict(output=got,
++                        expected='reject before opening/truncating destination',
++                        destination_preserved=kept))
++        key='versioned-encoder-help'
++        if key in old:report['cases'].append(old[key])
++        else:
++            got=command_result([args.sox,'--help'],environment)
++            proc=subprocess.run([str(args.sox),'--help'],cwd=ROOT,env=environment,
++                stdin=subprocess.DEVNULL,capture_output=True,timeout=45)
++            matches=b'encode.mastering.v{1,2}.dsd<rate>' in proc.stdout
++            store(key,'PASS' if got['exit']==0 and matches else 'FAIL',
++                dict(output=got,expected='v1 and v2 explicit encoder IDs in CLI help',
++                    contains_versioned_id=matches))
+         # A refusal that is NOT P18 and must survive its removal: native mode
+         # moves native bits and cannot change DSD rate without reconstruction.
+         # The source here is DSD64, so asking for 512/1024 in native mode is
+@@ -252,12 +355,9 @@
+                 okay=got['exit']!=0 and expected in got['stderr'] and not dst.exists()
+                 store(key,'PASS' if okay else 'FAIL',dict(output=got,expected=expected,
+                     destination_absent=not dst.exists()))
+-        # The case this file now exists for. Default and legacy mode let generic
+-        # format negotiation silently substitute DSD256 for DSD512/1024; P18
+-        # caught that by refusing the rate outright. With the rows open the
+-        # only thing standing between a request and a quietly down-rated file
+-        # is the writer rate table, so reparse the result and require the rate
+-        # that was asked for. A substitution now shows up as a FAIL here.
++        # Positive high-rate writes must use the requested clock, including
++        # the default/legacy mode that skips the new domain planner. Reparse
++        # the file rather than trusting the command exit status.
+         for native in RATES:
+             for ext in ('dsf','dff'):
+                 for mode in ('default','legacy'):
+--- a/tests/dsd/test_plan.c
++++ b/tests/dsd/test_plan.c
+@@ -113,8 +113,7 @@
+   CLOSE(pass,70560);CLOSE(stop,88200);CLOSE(r,176400);
+   CHECK(lsx_dsd_profile_edges(11289600,LSX_DSD_PROFILE_WIDEBAND,&pass,&stop,&r));
+   CLOSE(pass,141120);CLOSE(stop,176400);CLOSE(r,352800);
+-  /* P17 has explicit experimental DSP edges, but high-rate capability bits
+-   * remain zero: exposing an edge is NOT writer or planner authorization. */
++  /* These v1 high-rate DSP edges remain fixed despite P21 authorization. */
+   CHECK(lsx_dsd_profile_edges(22579200,LSX_DSD_PROFILE_MASTERING,&pass,&stop,&r));
+   CLOSE(pass,40000);CLOSE(stop,80000);CLOSE(r,176400);
+   CHECK(lsx_dsd_profile_edges(45158400,LSX_DSD_PROFILE_MASTERING,&pass,&stop,&r));

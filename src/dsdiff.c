@@ -465,7 +465,7 @@ static int dff_stopread(sox_format_t *ft)
 	return SOX_SUCCESS;
 }
 
-#define DFF_MAX_CHANNELS	1000
+#define DFF_MAX_CHANNELS LSX_DSD_DFF_MAX_CHANNELS
 #define DFF_CMPR_NAME		"not compressed"
 
 /* Chunk sizes exclude their headers and external even-byte padding. */

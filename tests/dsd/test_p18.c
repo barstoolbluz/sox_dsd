@@ -1,6 +1,6 @@
-/* P18 unit gate: private rate x container x operation decisions are independent
- * of field width and of the P17 *development* coefficient candidates.
- * No high-rate effect or file writer is invoked as if it were qualified.
+/* P18/P21 unit gate: rate x endpoint x operation decisions are independent
+ * of field width and of P17 development-only encoder candidates.
+ * High-rate native writers are explicitly authorized only at named clocks.
  */
 #define _POSIX_C_SOURCE 200809L
 #include "dsd.h"
@@ -44,6 +44,8 @@ static int capabilities(void)
         LSX_DSD_OPERATION_TRANSPORT)==LSX_DSD_CAP_OK);
     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_WSD,
         LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_OK);
+    CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_WSD,
+        LSX_DSD_OPERATION_WRITE)==LSX_DSD_CAP_UNSUPPORTED);
     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_DOP,
         LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_DSF,
@@ -62,11 +64,27 @@ static int capabilities(void)
         CHECK(lsx_dsd_capability_check(low[i],f,o)==LSX_DSD_CAP_OK);
     CHECK(lsx_dsd_capability_check(low[i],LSX_DSD_ENDPOINT_DOP,
         LSX_DSD_OPERATION_TRANSPORT)==LSX_DSD_CAP_OK);
+    CHECK(lsx_dsd_capability_check(low[i],LSX_DSD_ENDPOINT_WSD,
+        LSX_DSD_OPERATION_WRITE)==LSX_DSD_CAP_UNSUPPORTED);
   }
   CHECK(lsx_dsd_capability_check(45158401,LSX_DSD_ENDPOINT_DSF,
       LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
   CHECK(lsx_dsd_capability_check(0,LSX_DSD_ENDPOINT_DFF,
       LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
+  CHECK(lsx_dsd_capability_check(2822400u,(lsx_dsd_endpoint)-1,
+      LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
+  CHECK(lsx_dsd_capability_check(2822400u,LSX_DSD_ENDPOINT_DSF,
+      (lsx_dsd_operation)-1)==LSX_DSD_CAP_UNSUPPORTED);
+  /* Read compatibility below DSD512 is inherited, but arbitrary high
+   * labels were never opened as part of the twelve P21 capability rows. */
+  for (i=0;i<3;i++) {
+    const uint32_t gap[]={11289601u,22579201u,30000000u};
+    for (f=LSX_DSD_ENDPOINT_DSF;f<=LSX_DSD_ENDPOINT_WSD;f++)
+      CHECK(lsx_dsd_capability_check(gap[i],f,LSX_DSD_OPERATION_READ)==
+          LSX_DSD_CAP_UNSUPPORTED);
+  }
+  CHECK(lsx_dsd_capability_check(1234567u,LSX_DSD_ENDPOINT_DSF,
+      LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_OK);
   return 0;
 }
 
@@ -163,15 +181,9 @@ static int sizes(void)
   return 0;
 }
 
-/* Direct public API callers must not be able to bypass the CLI planner.
- * Exercise both writers at both disabled rates; preserve existing file data
- * to verify refusal happens before opening or truncating the destination. */
-/* Was writer_api_denial through P20. P21 authorized both high rates, so the
- * assertion inverts: the writer must now open, and must keep the rate it was
- * asked for rather than letting the negotiator substitute DSD256. The
- * fail-closed-before-truncate path in formats.c open_write() is unchanged and
- * still guards any endpoint the capability table refuses; it is simply no
- * longer reachable at these two rates. */
+/* Public API checks: authorized clocks open at their requested rates.
+ * Noncanonical higher clocks and unsupported channel counts must fail before
+ * overwriting an existing destination, even without CLI domain planning. */
 static int writer_api_authorized(void)
 {
   static const uint32_t high[]={22579200u,45158400u};
@@ -203,10 +215,66 @@ static int writer_api_authorized(void)
   return 0;
 }
 
+/* These failures must leave a pre-existing destination byte-for-byte intact.
+ * Public library users can bypass CLI planning and overwrite prompts, so
+ * the API itself is responsible for refusing before fopen(..., "w+b"). */
+static int writer_api_fail_closed(void)
+{
+  static const struct {
+    const char *format;
+    double rate;
+    unsigned channels;
+  } cases[]={
+    {"dsf",11289601.,2}, {"dff",11289601.,2},
+    {"dsf",22579201.,2}, {"dff",22579201.,2},
+    {"dsf",30000000.,2}, {"dff",30000000.,2},
+    {"dsf",45158401.,2}, {"dff",45158401.,2},
+    {"dsf",45158400.5,2}, {"dff",45158400.5,2},
+    {"dsf",45158400.,7}, {"dff",45158400.,1001}
+  };
+  static const char sentinel[]="P21 existing destination must survive\n";
+  char path[]="/tmp/sox-p21-deny-XXXXXX";
+  char got[sizeof(sentinel)];
+  sox_signalinfo_t sig={0};
+  sox_encodinginfo_t enc={0};
+  struct stat st;
+  size_t i;
+  int fd=mkstemp(path);
+  CHECK(fd>=0);
+  CHECK(sox_init()==SOX_SUCCESS);
+  sox_init_encodinginfo(&enc);
+  enc.encoding=SOX_ENCODING_DSD;
+  enc.bits_per_sample=1;
+  sig.precision=1;
+  for (i=0;i<sizeof(cases)/sizeof(*cases);i++) {
+    sox_format_t *ft;
+    sig.rate=cases[i].rate;
+    sig.channels=cases[i].channels;
+    CHECK(ftruncate(fd,0)==0);
+    CHECK(lseek(fd,0,SEEK_SET)==0);
+    CHECK(write(fd,sentinel,sizeof(sentinel))==(ssize_t)sizeof(sentinel));
+    ft=sox_open_write(path,&sig,&enc,cases[i].format,NULL,NULL);
+    if (ft) {
+      sox_close(ft);
+      fprintf(stderr,"P21 FAIL: unexpected %s writer accepted %.9g Hz, %u channels\n",
+          cases[i].format,cases[i].rate,cases[i].channels);
+      return 1;
+    }
+    CHECK(fstat(fd,&st)==0 && st.st_size==(off_t)sizeof(sentinel));
+    CHECK(lseek(fd,0,SEEK_SET)==0);
+    CHECK(read(fd,got,sizeof(got))==(ssize_t)sizeof(got));
+    CHECK(!memcmp(got,sentinel,sizeof(got)));
+  }
+  CHECK(sox_quit()==SOX_SUCCESS);
+  CHECK(close(fd)==0);
+  CHECK(unlink(path)==0);
+  return 0;
+}
+
 int main(int argc, char **argv)
 {
   if (argc==1 || !strcmp(argv[1],"registry")) {
-    if (capabilities() || writer_api_authorized()) return 1;
+    if (capabilities() || writer_api_authorized() || writer_api_fail_closed()) return 1;
     if (argc>1) goto done;
   }
   if (argc==1 || !strcmp(argv[1],"transport")) {

@@ -45,15 +45,21 @@ lsx_dsd_cap_result lsx_dsd_capability_check(uint32_t native_hz,
 {
   const lsx_dsd_rate *r;
   unsigned bit;
-  if ((endpoint==LSX_DSD_ENDPOINT_DOP && operation!=LSX_DSD_OPERATION_TRANSPORT) ||
+  if (endpoint<LSX_DSD_ENDPOINT_DSF || endpoint>LSX_DSD_ENDPOINT_WSD ||
+      operation<LSX_DSD_OPERATION_READ || operation>LSX_DSD_OPERATION_TRANSPORT ||
+      (endpoint==LSX_DSD_ENDPOINT_DOP && operation!=LSX_DSD_OPERATION_TRANSPORT) ||
       (endpoint!=LSX_DSD_ENDPOINT_DOP && operation==LSX_DSD_OPERATION_TRANSPORT) ||
-      endpoint>LSX_DSD_ENDPOINT_WSD || operation>LSX_DSD_OPERATION_TRANSPORT ||
+      (endpoint==LSX_DSD_ENDPOINT_WSD && operation==LSX_DSD_OPERATION_WRITE) ||
       !native_hz || native_hz>45158400u)
     return LSX_DSD_CAP_UNSUPPORTED;
-  /* Old low-rate format readers accept some nonstandard labels; do not
-   * change that preexisting parser policy in this high-rate phase. */
-  if (operation==LSX_DSD_OPERATION_READ) return LSX_DSD_CAP_OK;
   r=lsx_dsd_rate_find(native_hz);
+  if (operation==LSX_DSD_OPERATION_READ) {
+    /* Retain the inherited nonstandard low-rate file-label policy, but do
+     * not accidentally authorize arbitrary clocks in the P21 high range. */
+    return (native_hz<=11289600u ||
+        (r && (r->capabilities & LSX_DSD_READ_NATIVE))) ?
+        LSX_DSD_CAP_OK : LSX_DSD_CAP_UNSUPPORTED;
+  }
   bit=operation==LSX_DSD_OPERATION_TRANSPORT?LSX_DSD_DOP:LSX_DSD_WRITE_NATIVE;
   return r && (r->capabilities & bit)?LSX_DSD_CAP_OK:LSX_DSD_CAP_UNSUPPORTED;
 }
@@ -63,7 +69,7 @@ const char *lsx_dsd_capability_description(uint32_t native_hz,
 {
   lsx_dsd_cap_result r=lsx_dsd_capability_check(native_hz,endpoint,operation);
   if (r==LSX_DSD_CAP_UNQUALIFIED)
-    return "P18 capability disabled: P17 high-rate DSP qualification incomplete; no file/transport authorization";
+    return "DSD rate, endpoint or operation is not authorized";
   if (r==LSX_DSD_CAP_UNSUPPORTED)
     return "DSD rate, format or operation not supported";
   return "available";
@@ -156,11 +162,9 @@ static const lsx_dsd_frontend_profile dsd_frontends[] = {
   { 2822400,  88200, LSX_DSD_PROFILE_WIDEBAND,  35280,  44100, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd64"},
   { 5644800, 176400, LSX_DSD_PROFILE_WIDEBAND,  70560,  88200, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd128"},
   {11289600, 352800, LSX_DSD_PROFILE_WIDEBAND, 141120, 176400, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd256"},
-  /* P17 internal research profiles. The immutable P06 final bank is reused at
-   * the same 352800-Hz clock (mastering), or the same normalized edge ratios
-   * at an increased final clock (wideband). Only the HALF-BAND cascade grows.
-   * dsd_rates[] capabilities remain ZERO; neither a file nor a DoP writer is
-   * enabled by these internal records. No mastering-v2 profile is inferred. */
+  /* The v1 high-rate frontends reuse the P06 banks. Mastering retains its
+   * 176400-Hz clock; wideband scales its intermediate clock with the native
+   * rate. P21 authorizes the associated file and transport read operations. */
   {22579200, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 7, LSX_DSD_BANK_MASTER64_256,  5476, "decode.mastering.v1.dsd512"},
   {45158400, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 8, LSX_DSD_BANK_MASTER64_256, 10980, "decode.mastering.v1.dsd1024"},
   {22579200, 705600, LSX_DSD_PROFILE_WIDEBAND, 282240, 352800, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd512"},

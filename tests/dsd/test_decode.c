@@ -152,8 +152,7 @@ static void test_invalid(void)
     lsx_dsd_reconstruction_destroy(ctx);
   }
   ctx=NULL;
-  /* The P17 private high-rate engine is available experimentally; no high-rate
-   * file, transport or public qualified writer capability follows from it. */
+  /* The v1 high-rate decode profile remains accessible after P21 enablement. */
   CHECK(lsx_dsd_reconstruction_create(45158400,LSX_DSD_PROFILE_MASTERING,1,&ctx)==SOX_DSD_OK);
   {lsx_dsd_reconstruction_info info;
    CHECK(lsx_dsd_reconstruction_info_get(ctx,&info)==SOX_DSD_OK);
