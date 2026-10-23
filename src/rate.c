@@ -687,8 +687,8 @@ static int rate_init(
   for (i = 0, s = p->stages; i < p->num_stages; ++i, ++s) {
     lsx_fifo_create(&s->fifo, (int)sizeof(sample_t));
     memset(lsx_fifo_reserve(&s->fifo, s->preload), 0, sizeof(sample_t)*s->preload);
-    lsx_debug("%5zi|%-5zi preload=%zi remL=%i",
-        s->pre, s->pre_post - s->pre, s->preload, s->remL);
+    lsx_debug("%5i|%-5i preload=%i remL=%i",
+        (int)s->pre, (int)(s->pre_post - s->pre), (int)s->preload, s->remL);
   }
   lsx_fifo_create(&s->fifo, (int)sizeof(sample_t));
 

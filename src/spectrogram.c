@@ -1189,7 +1189,9 @@ static int stop_spectrogram(sox_effect_t * effp) /* only called, by end(), on fl
 	float log_scale = (float)(p->rows - 1) /
                           (log10_high_freq - log10_low_freq);
         /* Whether to add labels on positions 2 and 5 or one to nine */
-        enum { undecided, two_and_five, one_to_nine } intra_labels = undecided;
+        enum {
+          undecided, two_and_five, one_to_nine, none
+        } intra_labels = undecided;
 
 	sprintf(text, "Frequency (Hz)");
 	print_up(10, below + (c_rows - font_X * (int)strlen(text)) / 2, Text, text);
@@ -1235,22 +1237,27 @@ static int stop_spectrogram(sox_effect_t * effp) /* only called, by end(), on fl
                * different rounded Y positions of 9 and 10 in different decades.
                */
 	      {
-                int y9, y10;
+                int y5, y9, y10;
 	        int j, y;
 
                 switch (intra_labels) {
+                case none:
+                  break;
                 case undecided:
                   /* Put them on every tick if the distance between 9 and 10
                    * respects the minimum label spacing, 2 and 5 otherwise */
+                  y5  = (log10f((float)( 5 * f)) - log10_low_freq) * log_scale;
                   y9  = (log10f((float)( 9 * f)) - log10_low_freq) * log_scale;
                   y10 = (log10f((float)(10 * f)) - log10_low_freq) * log_scale;
                   if (y10 - y9 >= (font_y * 3) / 2) {
                     intra_labels = one_to_nine;
                     goto one_to_nine;
-                  } else {
+                  }
+                  if (y10 - y5 >= (font_y * 3) / 2) {
                     intra_labels = two_and_five;
                     goto two_and_five;
                   }
+                  intra_labels = none;
                   break;
                 case one_to_nine:
 one_to_nine:      for (j = 1; j <= 9; j++) {

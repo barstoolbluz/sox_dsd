@@ -20,10 +20,11 @@ AC_PREREQ([2.62])
 
 # SoX DSD versions independently of sox_ng. See docs/UPSTREAM.md: the
 # upstream base is recorded in the version string, not in this number, so
-# that a sync from sox_ng does not move our release identity.
+# that a sync from sox_ng does not move our release identity. On a sync,
+# this conflicts against upstream's AC_INIT: keep ours, bump the base.
 AC_INIT([sox_dsd], [1.0.0], [https://github.com/barstoolbluz/sox_dsd/issues])
-AC_SUBST([SOX_DSD_UPSTREAM_BASE], [14.8.0.1])
-AC_DEFINE([SOX_DSD_UPSTREAM_BASE], ["14.8.0.1"],
+AC_SUBST([SOX_DSD_UPSTREAM_BASE], [14.8.1])
+AC_DEFINE([SOX_DSD_UPSTREAM_BASE], ["14.8.1"],
           [sox_ng release this tree was last synchronised with])
 
 AC_CONFIG_MACRO_DIR([m4])
@@ -48,7 +49,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 
 dnl Increase version when binary compatibility with previous version is broken
-SHLIB_VERSION=3:0:0
+SHLIB_VERSION=5:0:0
 AC_SUBST(SHLIB_VERSION)
 
 AC_ARG_WITH(libltdl,

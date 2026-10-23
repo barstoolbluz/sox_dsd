@@ -5,6 +5,35 @@ This file contains a list of all changes starting after the release of
 sox-11gamma.
 
 
+sox_ng-14.8.1	2026-08-29
+-------------
+
+Bug fixes since 14.8.0:
+
+  o Disallow piped commands in playlists to prevevt command injection
+  o Quote filename arguments to lsx_popen() to avoid command injection
+  o Quote special characters in Windows file names
+  o Limit --{input-}buffer to 1GB and reject negative values
+  o Prefer alsa to pulseaudio (Debian's new pipewire-pulseaudio is broken)
+  o mod: Reject zero-length loops instead of dividing by zero
+  o mod: Bound sample interpolation to avoid buffer overflow
+  o nsp: Reject oversized note chunks
+  o waveaudio: Pause before shutting down so audio is not truncated
+  o chorus: Fix glitches with extreme modulation
+  o rate: Use size_t for all memory sizes avoiding possible 32-bit overflow
+  o spectrogram: Fix non-FFTW builds giving an all-black graph
+  o spectrogram: Avoid overlapping frequency labels at 2 and 5
+  o spectrogram: Handle labels at time 0 when --buffer 32
+  o spectrogram: Only warn about faster y-sizes when -y is given
+  o spectrogram: Use the standard frequency parser for ranges
+  o -h followed by several effect/format names separates them with a blank line
+  o Bump SHLIB_VERSION
+  o Various minor fixes to the documentation
+
+Thanks to breakingbad of PJSK CTF, Acts1631, MarcroSoft, OpenClaw Dev (!)
+and prof-spock for security analyses and fixes.
+
+
 sox_ng-14.8.0	2026-05-18
 -------------
 
@@ -66,6 +95,7 @@ Bug fixes:
   o ladspa: Allow plugins that take no input
   o libsox: Warn and fail if they read an output or write an input file
   o mad: Catch and report decoder error messages
+  o noisered: Fail when input has more channels than profile; don't segfault
   o ogg: Detect disk-full when writing and stop
   o pitch: Error about a bad cents value instead of tempo about a bad factor
   o pulseaudio: Ignore zero-length writes, which it supposedly doesn't like

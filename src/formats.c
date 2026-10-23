@@ -633,18 +633,18 @@ static FILE * open_url(char const * identifier)
     return NULL;
 #else
     FILE *f;	/* The file descriptor to read from the pipe */
-    static const char * const command_args[][2] = {
+    static const char * const command_args[][7] = {
     /* Try wget before wget2 as it's more likely to be installed
      * unless configured --with-curl
      */
 # if USING_CURL
-	{ "curl",  "-f --no-cert-status -s -o -" },
-	{ "wget",  "--no-check-certificate -q -O -" },
-	{ "wget2", "--no-check-certificate -q -O -" },
+        { "curl",  "-f", "--no-cert-status", "-s", "-o", "-", NULL },
+        { "wget",  "--no-check-certificate", "-q", "-O", "-", NULL },
+        { "wget2", "--no-check-certificate", "-q", "-O", "-", NULL },
 # else
-	{ "wget",  "--no-check-certificate -q -O -" },
-	{ "wget2", "--no-check-certificate -q -O -" },
-	{ "curl",  "-f --no-cert-status -s -o -" },
+        { "wget",  "--no-check-certificate", "-q", "-O", "-", NULL },
+        { "wget2", "--no-check-certificate", "-q", "-O", "-", NULL },
+        { "curl",  "-f", "--no-cert-status", "-s", "-o", "-", NULL },
 # endif
     };
     static const char shutup[] =
@@ -653,8 +653,8 @@ static FILE * open_url(char const * identifier)
 # else
         "> /dev/null 2>&1"; /* 2>&1 prevents "sh:  1: wget: not found." */
 # endif
-    char * command;
-    unsigned i;
+    char * command_argv[8];
+    unsigned i, j;
 
     /* See which of wget, wget2 and curl are installed
      *
@@ -662,32 +662,25 @@ static FILE * open_url(char const * identifier)
      * because its --version text is >1024 bytes and the pipe breaks
      * making it look like wget is not installed.
      */
-    command = NULL;
     for (i = 0; i < sizeof(command_args) / sizeof(*command_args); i++) {
         char tryit[36]; /* >= 5 + 1 + 9 + 1 + 16 + 1 == 33 */
         sprintf(tryit, "%s --version %s", command_args[i][0], shutup);
         f = popen(tryit, POPEN_MODE);
-        if (f && pclose(f) == 0) {
-	   /* This is actually slightly longer because
-	    * we must add a nul but lose several %sses */
-           command = lsx_malloc(strlen(command_args[i][0]) +
-	                        strlen(command_args[i][1]) +
-				strlen(identifier));
-           sprintf(command, "%s %s \"%s\"", command_args[i][0],
-					    command_args[i][1],
-	                                    identifier);
+        if (f && pclose(f) == 0)
 	   break;
-        }
     }
-    if (!command) {
+    if (i == sizeof(command_args) / sizeof(*command_args)) {
         lsx_fail("to read URLs, please install wget, wget2 or curl");
 	return NULL;
     }
 
-    f = popen(command, POPEN_MODE);
+    for (j = 0; command_args[i][j]; ++j)
+      command_argv[j] = (char *)command_args[i][j];
+    command_argv[j++] = (char *)identifier;
+    command_argv[j] = NULL;
+    f = lsx_popen(command_argv, 'r', (int)(j - 1));
     if (f == NULL) {
-        lsx_fail("cannot popen `%s'", command);
-        free(command);
+        lsx_fail("cannot execute URL downloader `%s'", command_args[i][0]);
         return f;
     }
 
@@ -702,7 +695,6 @@ static FILE * open_url(char const * identifier)
 
         if ((c = getc(f)) != EOF) {
             (void) ungetc(c, f);
-            free(command);
             return f;
         }
     }
@@ -725,7 +717,7 @@ static FILE * open_url(char const * identifier)
         } else if (status == -1) {
 	    /* Something went very wrong */
 	    s = strerror(errno);
-	} else if (strncmp(command, "wget", 4) == 0) switch (status) {
+	} else if (strncmp(command_args[i][0], "wget", 4) == 0) switch (status) {
 	/* Decode the exit status into a meaning */
 	case 1: s = "Generic error code"; break;
 	case 2: s = "Parse error of command line/.wgetrc/.netrc"; break;
@@ -736,7 +728,7 @@ static FILE * open_url(char const * identifier)
 	case 7: s = "Protocol errors"; break;
 	case 8: s = "Server issued an error response"; break;
 	default: s = "Unrecognized exit code from wget"; break;
-	} else if (strncmp(command, "curl", 4) == 0) switch (status) {
+	} else if (strncmp(command_args[i][0], "curl", 4) == 0) switch (status) {
 	case 1: s = "Unsupported protocol"; break;
 	case 2: s = "Failed to initialize."; break;
 	case 3: s = "URL malformed"; break;
@@ -824,7 +816,6 @@ static FILE * open_url(char const * identifier)
 
 	/* And report the failure*/
 	lsx_fail("%s", s);
-	free(command);
 	return NULL;
     }
 #endif

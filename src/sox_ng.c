@@ -3782,7 +3782,7 @@ static char parse_gopts_and_fopts(file_t * f)
         break;
 
       case 1:
-#define SOX_BUFMIN 32
+#define SOX_BUFMIN 16
 #define SOX_BUFMAX (1 << 30)  /* 1 GB */
         if (optstate.arg[0] == '-' || sscanf(optstate.arg, "%i %c", &i, &dummy) != 1) {
           lsx_fail("invalid buffer size `%s'", optstate.arg);
@@ -3792,8 +3792,8 @@ static char parse_gopts_and_fopts(file_t * f)
           lsx_fail("buffer size `%s' must be <= %d", optstate.arg, SOX_BUFMAX);
           exit(1);
         }
-        if (i < SOX_BUFMIN) {
-          lsx_fail("buffer size `%s' must be >= %d", optstate.arg, SOX_BUFMIN);
+        if (i <= SOX_BUFMIN) {
+          lsx_fail("buffer size `%s' must be > %d", optstate.arg, SOX_BUFMIN);
           exit(1);
         }
         sox_globals.bufsiz = i;
@@ -3835,8 +3835,8 @@ static char parse_gopts_and_fopts(file_t * f)
           lsx_fail("buffer size `%s' must be <= %d", optstate.arg, SOX_BUFMAX);
           exit(1);
         }
-        if (i < SOX_BUFMIN) {
-          lsx_fail("buffer size `%s' must be >= %d", optstate.arg, SOX_BUFMIN);
+        if (i <= SOX_BUFMIN) {
+          lsx_fail("buffer size `%s' must be > %d", optstate.arg, SOX_BUFMIN);
           exit(1);
         }
         sox_globals.input_bufsiz = i;
@@ -3976,17 +3976,23 @@ static char parse_gopts_and_fopts(file_t * f)
         /* --help-effect and --help-format */
         char *arg = optstate.argv[optstate.ind];
         sox_effect_handler_t const *handler;
+        /* To separate multiple entries with a blank line */
+        static sox_bool have_printed = sox_false;
 
         if (!strcmp(arg, "all")) {
           lsx_fail("Use --help-format all or --help-effect all");
           exit(1);
         }
         if ((handler = sox_find_effect(arg)) != NULL) {
+          if (have_printed) putchar('\n');
           (void) usage_effect(arg);
+          have_printed = sox_true;
           continue;
         }
         if (sox_find_format(arg, sox_false) != NULL) {
+          if (have_printed) putchar('\n');
           (void) usage_format(arg);
+          have_printed = sox_true;
           continue;
         }
         lsx_fail("Cannot find a format or effect called `%s'", arg);
@@ -4158,6 +4164,7 @@ static char const * device_name(char const * const type)
   return name? from_env? from_env : name : NULL;
 }
 
+#ifndef _WIN32
 static char const * try_device(char const * name)
 {
   sox_format_handler_t const * handler = sox_find_format(name, sox_false);
@@ -4176,6 +4183,7 @@ static char const * try_device(char const * name)
   }
   return NULL;
 }
+#endif
 
 static char const * set_default_device(file_t * f)
 {
@@ -4187,8 +4195,8 @@ static char const * set_default_device(file_t * f)
   f->filetype = "waveaudio";
 #else
   if (!f->filetype) f->filetype = try_device("coreaudio");
-  if (!f->filetype) f->filetype = try_device("pulseaudio");
   if (!f->filetype) f->filetype = try_device("alsa");
+  if (!f->filetype) f->filetype = try_device("pulseaudio");
   if (!f->filetype) f->filetype = try_device("waveaudio");
   if (!f->filetype) f->filetype = try_device("sndio");
   if (!f->filetype) f->filetype = try_device("oss");

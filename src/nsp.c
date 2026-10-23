@@ -120,7 +120,11 @@ int lsx_nspstartread(sox_format_t * ft)
       /* NOTE chunk */
       if (lsx_readdw(ft, &chunksize))
         read_error();
-      comment = lsx_malloc(chunksize + 1);
+      if (chunksize == UINT32_MAX) {
+        lsx_fail_errno(ft, SOX_EHDR, "NOTE chunk is too large");
+        return SOX_EOF;
+      }
+      comment = lsx_malloc((size_t)chunksize + 1);
       if (lsx_reads(ft, comment, (size_t)chunksize))
         read_error();
       if(strlen(comment) != 0)
