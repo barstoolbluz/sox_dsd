@@ -572,6 +572,9 @@ Case3:
                         _Channel[k].Porting=1;
                         goto CaseA;
                     case 0x9: /* Sample Offset */
+                        if (_Channel[k].SampleToPlay < 0 ||
+                            _Channel[k].SampleToPlay >= 31)
+                            break;
                         _Channel[k].SampleIndex=(c3/256.0)*_ModuleHead.Sample[_Channel[k].SampleToPlay].Size;
                         _Channel[k].Mute=0;
                         DontResetSampleIndex=-1;
@@ -643,8 +646,7 @@ CaseA:
                 float    faktors;
                 int      ks,gs;
                 
-                if (_ModuleHead.Sample[_Channel[k].SampleToPlay].LoopStart!=0
-                ||  _ModuleHead.Sample[_Channel[k].SampleToPlay].LoopLength>2) {
+                if (_ModuleHead.Sample[_Channel[k].SampleToPlay].LoopLength>2) {
                     while ((unsigned long)_Channel[k].SampleIndex>=
                         ((unsigned long)_ModuleHead.Sample[_Channel[k].SampleToPlay].LoopStart)
                         +((unsigned long)_ModuleHead.Sample[_Channel[k].SampleToPlay].LoopLength)
@@ -660,7 +662,8 @@ CaseA:
                 ints=_Channel[k].SampleIndex;
                 faktors=_Channel[k].SampleIndex-(float)ints;
                 ks=_Sample[0][_Channel[k].SampleToPlay][ints  ];
-                gs=_Sample[0][_Channel[k].SampleToPlay][ints+1];
+                gs=ints + 1 < _ModuleHead.Sample[_Channel[k].SampleToPlay].Size
+                    ? _Sample[0][_Channel[k].SampleToPlay][ints+1] : ks;
                 if (!_Channel[k].UserMuted) {
                     HalfBufferSample+=(
                         ks+((gs-ks)*faktors)

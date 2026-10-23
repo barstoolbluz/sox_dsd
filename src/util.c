@@ -399,6 +399,7 @@ LSX_UNUSED
   char *p, *q;
   char *command;
   char *filename = argv[filename_index];
+  size_t filename_len;
   int nchars;
   int i;
 #endif
@@ -467,50 +468,59 @@ LSX_UNUSED
 #elif HAVE_POPEN
 
   /* Quote special characters in the filename. */
-  /* At worst, we need to prefix every character with an escape character
-   * and add the final \0 */
-  quoted_filename = lsx_malloc(strlen(filename) * 2 + 1);
-  for (p=filename, q=quoted_filename; *p; p++, q++) {
-    switch (*p) {
-#ifdef _WIN32
-  /* To protect space, tab, comma, semicolon, equals within filenames
-   * the whole thing needs to be double-quoted.
-   * There is also the escape character ^ which removes special meaning
-   * from the following character, including itslf but it seems
-   * not to be active within a pair of double quotes.
-   *
-   * We could just add ^ before
-   *    & \ < > ^ | space, tab, comma, semicolon, equals and double quote
-   *
-   * Windows filenames cannot contain < > : " / \ | ? * or control characters.
-   */
-    case '&':
-    case '\\':
-    case '<`':
-    case '>`':
-    case '^':
-    case '|':
-    case ' ':
-    case '\t':
-    case ',':
-    case ';':
-    case '=':
-    case '"':
-      *q++ = '^';
-#else
-    /* This is for the Unix shell. */
-    case '"':
-    case '`':
-    case '\\':
-    case '$':
-    case '\n':
-      *q++ = '\\';
-#endif
-      break;
-    }
-    *q = *p;
+  /* On Unix, single quote the complete filename.  An embedded single quote
+   * needs four extra characters: close quote, escaped quote, open quote.
+   * Windows uses the existing escape syntax and can require one escape per
+   * input character. */
+  filename_len = strlen(filename);
+  if (filename_len > ((size_t)-1 - 3) / 4) {
+    errno = EOVERFLOW;
+    return NULL;
   }
+  quoted_filename = lsx_malloc(filename_len * 4 + 3);
+#ifdef _WIN32
+  /* popen() hands the command to cmd.exe, but cmd is not the only thing that
+   * splits it up: after cmd is done, the child's own C runtime parses what is
+   * left into argv, and it splits on unquoted whitespace all over again.
+   *
+   * Escaping a space with ^ only satisfies the first of those. The caret is
+   * consumed by cmd, and the child then sees a bare space and splits there,
+   * so ffmpeg reading `my file.m4a' is handed `my' and `file.m4a' as two
+   * arguments, opens neither, and writes nothing -- which reaches SoX as
+   * "premature EOF" rather than as an error.
+   *
+   * Double quotes are understood by both, so quote the whole name instead.
+   * Windows filenames cannot contain " < > | ? * so there is nothing inside
+   * that needs escaping, with one exception: a run of backslashes just before
+   * the closing quote would escape it, so those are doubled.
+   *
+   * Not fixed here: cmd expands %VAR% inside double quotes too, and there is
+   * no way to escape a percent sign on a command line, only in a batch file.
+   * A filename containing one will still fail.
+   */
+  q = quoted_filename;
+  *q++ = '"';
+  for (p = filename; *p; p++)
+    *q++ = *p;
+  for (p = filename + filename_len; p > filename && p[-1] == '\\'; p--)
+    *q++ = '\\';
+  *q++ = '"';
   *q = '\0';
+#else
+  q = quoted_filename;
+  *q++ = '\'';
+  for (p=filename; *p; ++p) {
+    if (*p == '\'') {
+      *q++ = '\'';
+      *q++ = '\\';
+      *q++ = '\'';
+      *q++ = '\'';
+    } else
+      *q++ = *p;
+  }
+  *q++ = '\'';
+  *q = '\0';
+#endif
 
   argv[filename_index] = quoted_filename;
 

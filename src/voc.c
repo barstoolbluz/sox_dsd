@@ -333,7 +333,7 @@ static size_t read_samples_voc(sox_format_t * ft, sox_sample_t * buf,
     return 0;
 
   if (v->size == 0) {
-    lsx_warn("VOC input: zero file size");
+    lsx_fail_errno(ft, SOX_EFMT, "VOC input: zero file size");
     return 0;
   }
 
