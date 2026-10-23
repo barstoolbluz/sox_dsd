@@ -123,7 +123,13 @@ static void numeric(void)
   CLOSE(pass,282240);CLOSE(stop,352800);CLOSE(r,705600);
   CHECK(lsx_dsd_profile_edges(45158400,LSX_DSD_PROFILE_WIDEBAND,&pass,&stop,&r));
   CLOSE(pass,564480);CLOSE(stop,705600);CLOSE(r,1411200);
-  CHECK(!lsx_dsd_profile_edges(45158400,LSX_DSD_PROFILE_MASTERING_V2,&pass,&stop,&r));
+  /* P21: v2 decode exists at both high clocks, carrying the DSD256 edges
+   * unchanged because the 176400 intermediate caps them. Through P20 these
+   * asserted that no v2 profile resolved above DSD256. */
+  CHECK(lsx_dsd_profile_edges(22579200,LSX_DSD_PROFILE_MASTERING_V2,&pass,&stop,&r));
+  CLOSE(pass,66000);CLOSE(stop,80000);CLOSE(r,176400);
+  CHECK(lsx_dsd_profile_edges(45158400,LSX_DSD_PROFILE_MASTERING_V2,&pass,&stop,&r));
+  CLOSE(pass,66000);CLOSE(stop,80000);CLOSE(r,176400);
   CHECK(!lsx_dsd_profile_edges(2822400,LSX_DSD_PROFILE_LEGACY,&pass,&stop,&r));
   CLOSE(lsx_dsd_effective_bandwidth(20000,88200,88200),20000);
   CLOSE(lsx_dsd_effective_bandwidth(35280,88200,44100),20947.5);

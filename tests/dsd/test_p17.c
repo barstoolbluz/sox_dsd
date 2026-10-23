@@ -145,7 +145,28 @@ static void unit(void)
     CHECK(wide->stop_hz==wide->intermediate_hz*.5);
     CHECK(master->stages==(i?8u:7u) && master->delay_native_frames==(i?10980u:5476u));
     CHECK(wide->stages==5 && wide->delay_native_frames==2468);
-    CHECK(lsx_dsd_frontend_profile_find(hz,LSX_DSD_PROFILE_MASTERING_V2)==NULL);
+    /* P21: v2 decode exists at both clocks. Through P20 this asserted NULL.
+     * It reuses the DSD256 v2 bank at the same 176400 intermediate and the
+     * same 66k/80k edges, growing only the half-band cascade, so the edges
+     * must match DSD256's exactly and only stages and delay may differ. */
+    {
+      const lsx_dsd_frontend_profile *v2=
+          lsx_dsd_frontend_profile_find(hz,LSX_DSD_PROFILE_MASTERING_V2);
+      const lsx_dsd_frontend_profile *ref=
+          lsx_dsd_frontend_profile_find(11289600,LSX_DSD_PROFILE_MASTERING_V2);
+      lsx_dsd_reconstruction *d2=NULL;lsx_dsd_reconstruction_info i2;
+      CHECK(v2 && ref);
+      CHECK(v2->intermediate_hz==ref->intermediate_hz);
+      CHECK(v2->pass_hz==ref->pass_hz && v2->stop_hz==ref->stop_hz);
+      CHECK(v2->last_bank==ref->last_bank);
+      CHECK(v2->stages==(i?8u:7u));
+      CHECK(v2->delay_native_frames==(i?24292u:12132u));
+      CHECK(lsx_dsd_reconstruction_create(hz,LSX_DSD_PROFILE_MASTERING_V2,1,&d2)==SOX_DSD_OK);
+      CHECK(lsx_dsd_reconstruction_info_get(d2,&i2)==SOX_DSD_OK);
+      CHECK(i2.stages==v2->stages && i2.factor==hz/176400);
+      CHECK(i2.delay_native_frames==v2->delay_native_frames);
+      lsx_dsd_reconstruction_destroy(d2);
+    }
     CHECK(lsx_dsd_reconstruction_create(hz,LSX_DSD_PROFILE_MASTERING,1,&d)==SOX_DSD_OK);
     CHECK(lsx_dsd_reconstruction_info_get(d,&info)==SOX_DSD_OK);
     CHECK(info.stages==master->stages && info.factor==hz/176400);
