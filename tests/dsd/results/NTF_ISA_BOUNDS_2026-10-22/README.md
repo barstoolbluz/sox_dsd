@@ -49,3 +49,33 @@ It does not establish all-ISA equivalence in general: one host, one native
 rate, 60-second renders rather than sustained soaks, and bit-identity between
 tiers is neither claimed nor required. A 3,600-second soak on a vector tier
 remains unrun.
+
+## Addendum: real music across the same five tiers
+
+20 further renders, both finalists x five kernels x two commercial stimuli,
+the hottest at peak 0.451 and a 96 kHz vinyl rip. All 20 pass: zero nonfinite
+states, zero overloads, peak guard utilisation 6.4%.
+
+Output bitstream digests were captured this time, which the DC runs did not
+do. The result is sharper than "not bit-identical":
+
+**Exactly two distinct bitstreams per case. SSE2, AVX1, AVX2 and AVX-512 are
+byte-identical to each other; scalar alone differs.** The four vector paths
+share one arithmetic ordering.
+
+Gate figures follow the same split and differ by at most one where they
+differ at all: r5/src5 min28 9 scalar against 10 vector, r8/src1 max28 17
+against 18 and run 4 against 3.
+
+### A correction to the DC conclusion above
+
+The DC section observes that vector kernels use slightly less state than
+scalar and calls that the desirable direction. On real music that does not
+hold universally: **r8 on src5 shows 6.35% for the vector tiers against
+6.34% for scalar**, the one case where a vector path uses marginally more.
+
+The margin is a hundredth of a percentage point against a ceiling with
+roughly 15x headroom, so it changes nothing practically. It does mean the
+generalisation was drawn from two DC fixtures and is not a property of the
+kernels. Scalar-trained bounds hold on every tier and every stimulus tested;
+that claim stands. "Vector is always more conservative" does not.
