@@ -1,0 +1,136 @@
+--- a/tests/dsd/test_p10.c
++++ b/tests/dsd/test_p10.c
+@@ -3,6 +3,7 @@
+  * This tool is not the installed CLI and cannot promote a mastering profile. */
+ #include "sox_i.h"
+ #include "pcmdsd.h"
++#include <errno.h>
+ #include <inttypes.h>
+ #include <math.h>
+ #include <stdint.h>
+@@ -245,10 +246,22 @@
+   free(temporary);return result;
+ }
+ 
++/* Experimental one-instance soak and guarded render consume explicit P10-trained
++ * bounds. The wrapper authenticates the immutable guard JSON and candidate. */
++static int parse_bound(const char *word,double *value)
++{
++  char *end;
++  errno=0;
++  *value=strtod(word,&end);
++  return errno==0 && end!=word && *end=='\0' && isfinite(*value) && *value>0.;
++}
++
+ /* Packed chronological bits, MSB first. A partial failed block is never
+  * written; the separate JSON preserves the failure and committed prefix. */
+ static int render(int argc,char **argv)
+ {
++  int experimental=!strcmp(argv[1],"--render-candidate");
++  double candidate_bounds[8];unsigned j;
+   uint32_t source=(uint32_t)strtoul(argv[2],NULL,10),native=(uint32_t)strtoul(argv[3],NULL,10);
+   const char *id=argv[4],*mode=argv[6];
+   double scale=strtod(argv[5],NULL);
+@@ -264,10 +277,16 @@
+   if (named) profile=named;
+   unsigned byte=0,bits=0;int status=SOX_DSD_OK,io_error=0;
+   clock_t start=clock();
++  if (experimental) {
++    if(argc!=18 || native!=22579200 || strcmp(mode,"guarded") ||
++       strncmp(id,"encode.experimental.ntf.",24))return 2;
++    for(j=0;j<8;j++)if(!parse_bound(argv[10+j],&candidate_bounds[j]))return 2;
++    in_batch=4096;out_batch=8192;
++  }
+   if (!profile || !control || !in_batch || !out_batch || in_batch>1048576 || out_batch>1048576) return 2;
+   if (strcmp(mode,"training") && strcmp(mode,"guarded")) return 2;
+   status=lsx_pcmdsd_candidate_create(source,native,scale,0,control,
+-      !strcmp(mode,"training")?NULL:profile->bounds,&p);
++      !strcmp(mode,"training")?NULL:experimental?candidate_bounds:profile->bounds,&p);
+   if (status!=SOX_DSD_OK) {fprintf(stderr,"candidate create failed: %d\n",status);return 2;}
+   in=!strcmp(argv[7],"-")?stdin:fopen(argv[7],"rb");out=fopen(argv[8],"wb");
+   input=malloc(in_batch*sizeof(*input));output=malloc(out_batch*sizeof(*output));
+@@ -371,6 +390,12 @@
+ }
+ static int soak(int argc,char **argv)
+ {
++  int experimental=!strcmp(argv[1],"--soak-candidate") ||
++      !strcmp(argv[1],"--soak-candidate-nominal");
++  const char *candidate_id=experimental?argv[6]:NULL;
++  double candidate_bounds[8];
++  const sdm_profile_t *candidate_sdm=NULL;
++  unsigned j;
+   int d1024_v2=!strcmp(argv[1],"--soak-dsd1024-v2") ||
+       !strcmp(argv[1],"--soak-nominal-dsd1024-v2");
+   int d512_v2=!strcmp(argv[1],"--soak-dsd512-v2") ||
+@@ -378,7 +403,8 @@
+   int corrected=d1024_v2||d512_v2;
+   int nominal_v2=!strcmp(argv[1],"--soak-nominal-v2") ||
+       !strcmp(argv[1],"--soak-nominal-dsd1024-v2") ||
+-      !strcmp(argv[1],"--soak-nominal-dsd512-v2");
++      !strcmp(argv[1],"--soak-nominal-dsd512-v2") ||
++      !strcmp(argv[1],"--soak-candidate-nominal");
+   uint32_t native=(uint32_t)strtoul(argv[2],NULL,10);
+   uint64_t seconds=strtoull(argv[3],NULL,10),segment=strtoull(argv[4],NULL,10);
+   const lsx_pcmdsd_profile *profile=d1024_v2?
+@@ -392,9 +418,19 @@
+   int status=SOX_DSD_OK,rc=1;clock_t start=clock();
+   (void)argc;
+   if(!path||!profile||!seconds||!segment||segment>seconds||seconds>86400)goto done;
++  if(experimental) {
++    const char *suffix;
++    if(argc!=15 || native!=22579200 || !candidate_id ||
++       strncmp(candidate_id,"encode.experimental.ntf.",24) ||
++       !(suffix=strstr(candidate_id,".dsd512")) || strcmp(suffix,".dsd512"))goto done;
++    for(j=0;j<8;j++)if(!parse_bound(argv[7+j],&candidate_bounds[j]))goto done;
++    candidate_sdm=sdm_profile_find(candidate_id,native);
++    if(!candidate_sdm || sdm_profile_rate(candidate_sdm)!=native)goto done;
++  }
+   target=seconds*profile->working_hz;next=segment*profile->working_hz;
+   status=lsx_pcmdsd_candidate_create(profile->working_hz,native,.5,0,
+-      corrected?sdm_profile_find(profile->id,native):NULL,profile->bounds,&p);
++      experimental?candidate_sdm:corrected?sdm_profile_find(profile->id,native):NULL,
++      experimental?candidate_bounds:profile->bounds,&p);
+   if(status!=SOX_DSD_OK)goto done;
+   while(accepted<target) {
+     size_t i,available=(size_t)min((uint64_t)array_length(input),target-accepted),used=0;
+@@ -412,7 +448,8 @@
+       snprintf(path,pathlen,"%s-%04" PRIu64 ".state",prefix,++sequence);
+       if(save_soak_state(path,p,hash))goto report;
+       snprintf(path,pathlen,"%s-progress.json",prefix);
+-      if(write_report(path,p,status,profile->working_hz,native,profile->id,"soak-progress",
++      if(write_report(path,p,status,profile->working_hz,native,
++          experimental?candidate_id:profile->id,"soak-progress",
+           (double)(clock()-start)/CLOCKS_PER_SEC))goto done;
+       fprintf(stdout,"soak %u accepted=%" PRIu64 " segment=%" PRIu64 "\n",native,accepted,sequence);fflush(stdout);
+       next+=segment*profile->working_hz;
+@@ -432,7 +469,9 @@
+     if(save_soak_state(path,p,hash))rc=1;
+   }
+   snprintf(path,pathlen,"%s-result.json",prefix);
+-  if(write_report(path,p,status,profile->working_hz,native,profile->id,
++  if(write_report(path,p,status,profile->working_hz,native,
++      experimental?candidate_id:profile->id,
++      experimental?(nominal_v2?"soak-candidate-nominal":"soak-candidate"):
+       nominal_v2?"soak-nominal-v2":"soak",
+       (double)(clock()-start)/CLOCKS_PER_SEC))rc=1;
+ done:
+@@ -597,15 +636,18 @@
+   if (argc==2 && !strcmp(argv[1],"--unit")) {
+     envelope();failed_block_commit();stream_tests();printf("{\"assertions\":%lu,\"failures\":0}\n",checks);rc=0;
+   } else if (argc>=10 && argc<=12 && !strcmp(argv[1],"--render")) rc=render(argc,argv);
++  else if (argc==18 && !strcmp(argv[1],"--render-candidate")) rc=render(argc,argv);
+   else if (argc==6 && (!strcmp(argv[1],"--soak") ||
+       !strcmp(argv[1],"--soak-nominal-v2") ||
+       !strcmp(argv[1],"--soak-dsd1024-v2") ||
+       !strcmp(argv[1],"--soak-nominal-dsd1024-v2") ||
+       !strcmp(argv[1],"--soak-dsd512-v2") ||
+       !strcmp(argv[1],"--soak-nominal-dsd512-v2"))) rc=soak(argc,argv);
++  else if (argc==15 && (!strcmp(argv[1],"--soak-candidate") ||
++      !strcmp(argv[1],"--soak-candidate-nominal"))) rc=soak(argc,argv);
+   else if (argc==6 && !strcmp(argv[1],"--stage-probe")) rc=stage_probe(argc,argv);
+   else if (argc==5 && !strcmp(argv[1],"--state-bench"))
+     rc=state_bench((unsigned)strtoul(argv[2],NULL,10),strtoul(argv[3],NULL,10),argv[4]);
+-  else fprintf(stderr,"usage: %s --unit | --render sourceHz nativeHz profile scale training|guarded input.f64le bits report.json [inputBatch outputBatch] | --soak[-nominal-v2] nativeHz seconds segmentSeconds prefix\n",argv[0]);
++  else fprintf(stderr,"usage: %s --unit | --render sourceHz nativeHz profile scale training|guarded input.f64le bits report.json [inputBatch outputBatch] | --soak[-nominal-v2] nativeHz seconds segmentSeconds prefix | --render-candidate sourceHz nativeHz profile scale guarded input.f64le bits report.json bound[0..7] | --soak-candidate[-nominal] nativeHz seconds segmentSeconds prefix candidate-id bound[0..7]\n",argv[0]);
+   sox_quit();return rc;
+ }

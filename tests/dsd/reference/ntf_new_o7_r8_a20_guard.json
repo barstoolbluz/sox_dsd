@@ -1,0 +1,82 @@
+{
+  "bounds": [
+    64.0,
+    128.0,
+    512.0,
+    4096.0,
+    32768.0,
+    262144.0,
+    4194304.0,
+    16.0
+  ],
+  "candidate_definition": {
+    "a": [
+      "0x1.ad7ed2c151b94p-1",
+      "0x1.4a92c6593308fp-2",
+      "0x1.2f2b666ff14edp-4",
+      "0x1.669f194b7a7b1p-7",
+      "0x1.11279d0aaccd6p-10",
+      "0x1.f3865a0978c98p-15",
+      "0x1.7a98f51e80d0dp-20"
+    ],
+    "g": [
+      "0x0.0p+0",
+      "0x1.61bb0b769da38p-15",
+      "0x0.0p+0",
+      "0x1.c3831ccb6e324p-14",
+      "0x0.0p+0",
+      "0x1.f1d9d22a83bf0p-12",
+      "0x0.0p+0"
+    ]
+  },
+  "derivation": "2**ceil(log2(16*max(1, per-coordinate maximum over admitted training)))",
+  "holdout_used_to_set_bounds": false,
+  "p20_clans7_guard_sha256": "426a4d250e36e05c01db6adde608fd26a9fb107f9c4070b967a6ed5a0b43947c",
+  "profile": "encode.experimental.ntf.o7-r8-a20.dsd512",
+  "qualified": false,
+  "rate_hz": 22579200,
+  "rejected_case_count": 0,
+  "schema": "NTF/new-P10-frozen-guards/1",
+  "source_sha256": {
+    "src/ntf_experiment_candidates.h": "bbc1a31ed925b371cf571b62635a52e3168e237e8971278a97dfeef16cf8eec4",
+    "src/sdm.c": "484c0ac4855c2d7ffbba86890d9530243b7e1b2076ce9fc277d71fd7f023ee4d",
+    "tests/dsd/ntf_study/designs-new-native.json": "09d777b946ec53671b2e5c11158e8fdbb51f5b6491ba41b1338c734611fa3602",
+    "tests/dsd/ntf_study/qualify_new_ntf.py": "d9a0e3c601503724e2be241cbd3b446a487cf408d45ce21968f77d7380b8f0ff",
+    "tests/dsd/p10_corpus.py": "edf7efa794c346c6581db7c338ec39025da64a270243313065738210ae3a0809",
+    "tests/dsd/p17_qualify_guards.py": "eefa01e1906e7b1645d432787c90eff4d7cdf269e032e8236ede06f6386bb460",
+    "tests/dsd/test_p10.c": "e8cf616cd115e5767023a83015ad4f7f33a8a4cafa1a268bf37cdd662845ee79"
+  },
+  "split": "P10/P17 unguarded training, independent guarded P17 holdout",
+  "training_case_count": 17,
+  "training_executable_sha256": "65383d09c7fd546d788b50092d8568cce9fc1ca6976a3f6d061313fd808efe47",
+  "training_max_abs_state": [
+    2.3880142677234857,
+    6.408065230236813,
+    31.719179188268786,
+    194.29978330991187,
+    1477.1703814862678,
+    13929.884330615969,
+    211141.91316921535,
+    0.0
+  ],
+  "training_receipts_sha256": {
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/00-silence.json": "0df5b2b89d48ef804f32e976f5d1dbb7e7b9821ea6876f155fdf6b95ab3fe374",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/01-tone997-high.json": "a73c810672c8b32d6f71d3c5b3a514c49f8f840cda46bd535caa366fba1a2351",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/02-tone997-mid.json": "6f8bafe3b2c83d6a9ae432e7a7525ae045aaab02cf9f8cbeecf97f25e18853aa",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/03-tone997-low.json": "d0a57e5c416c1b01066b1f800f5f306f7a92b74dc1a019c16a4a82b520deaf6c",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/04-dc-positive.json": "6dee48ae118499e7c97f3f9cbbd6efb51430e6d29130d80a59eb1aba66334e69",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/05-dc-negative.json": "10ecf7e8927d7b8ad8c8547a449ac6856b4a2f7ba8a7456eaad460e714bbf819",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/06-sweep.json": "4c8c4f3931922e8c3d511aa3b7ebdd60c19976e3bde9f90390b1ed84f09f9c99",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/07-multitone.json": "641137f9cb27ade451f233b9edc459a435a148882a8cf4de1d39e10179371b92",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/08-noise.json": "5ad07160b92373572c7adb04c0d2081751624ad4d3eaea6b09a8dd9ef89aeea0",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/09-impulse.json": "ecf030cda832c0ecc9bfb4597043b23b5d995dea6621073525471d551d931e7f",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/10-bandlimited-step.json": "56faa4c4f5bb792d62985744b6e343c50ebbcda3ad60e4c49b26209e3cddc1cd",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/11-limited.json": "b36a9bcdbadbb341f82987348fb68d6ef52bfaf147c10ee54c5b23a61ea4cd91",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/12-starts.json": "cdd0a4917b7bbd31ca62f40905411b032717cebb66eeb14b79ffe9ca33299232",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/13-edge.json": "67d143ab9a2a4e889113e21fb7791fda54917095a075b6d9c85fd7f72a4dcfad",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/14-sustained-60s.json": "7dceee5b5719ff563131bd079790d2857bfc8343f549358c37f871bf7be6d7b8",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/15-48k-tone.json": "3e34fa86399ea8391c38d7810102473c3b33465c55c15146b5791985b569734a",
+    "tests/dsd/results/NTF_NEW_O7_R8_A20_QUALIFICATION/training/16-705k-noise.json": "3e5eeb3659a9924b3bb5b32a4caf6f8655c2f7ce32ab673be1f804962aa9b1a8"
+  },
+  "working_hz": 176400
+}
