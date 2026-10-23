@@ -1,0 +1,1975 @@
+{
+  "caveats": [
+    "Ten production families from DSD256 are rebinding seeds, not qualified at DSD1024.",
+    "The DSD512 redesigns are transported with exact binary64 coefficient words.",
+    "g scaling is bounded topology-preserving resonator exploration, not global optimum.",
+    "Sampled peak gain and pole radius are NEVER the nonlinear stability gate.",
+    "The 176400-Hz input pipeline cannot transmit material above 88200 Hz."
+  ],
+  "designs": {
+    "clans-4": {
+      "a": [
+        "0x1.00d44c40d035cp+0",
+        "0x1.6b7eb6bd0b396p-2",
+        "0x1.cea5821020c33p-5",
+        "0x1.05885ef33c1bfp-8"
+      ],
+      "family": "clans-4",
+      "g": [
+        "0x1.240af9031fa27p-16",
+        "0x0.0p+0",
+        "0x1.d463c4e1434ecp-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -130.1797226629245,
+        "ntf_100_150k_db": -95.1258190597455,
+        "ntf_150_300k_db": -69.88550473743842,
+        "ntf_40_100k_db": -118.52014603411595,
+        "pole_max_radius": 0.8814692779347969,
+        "sampled_peak_gain": 1.7231985075587404
+      },
+      "order": 4,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-4-g0p25": {
+      "a": [
+        "0x1.00d44c40d035cp+0",
+        "0x1.6b7eb6bd0b396p-2",
+        "0x1.cea5821020c33p-5",
+        "0x1.05885ef33c1bfp-8"
+      ],
+      "family": "clans-4",
+      "g": [
+        "0x1.240af9031fa27p-18",
+        "0x0.0p+0",
+        "0x1.d463c4e1434ecp-16",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -152.71862346933088,
+        "ntf_100_150k_db": -92.17823867010311,
+        "ntf_150_300k_db": -69.18558560789384,
+        "ntf_40_100k_db": -109.83229558856799,
+        "pole_max_radius": 0.8806620161659323,
+        "sampled_peak_gain": 1.7232029984032327
+      },
+      "order": 4,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-4-g0p5": {
+      "a": [
+        "0x1.00d44c40d035cp+0",
+        "0x1.6b7eb6bd0b396p-2",
+        "0x1.cea5821020c33p-5",
+        "0x1.05885ef33c1bfp-8"
+      ],
+      "family": "clans-4",
+      "g": [
+        "0x1.240af9031fa27p-17",
+        "0x0.0p+0",
+        "0x1.d463c4e1434ecp-15",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -140.91394087384228,
+        "ntf_100_150k_db": -93.08540807356923,
+        "ntf_150_300k_db": -69.41536551189252,
+        "ntf_40_100k_db": -112.21130560257632,
+        "pole_max_radius": 0.8809332347774297,
+        "sampled_peak_gain": 1.723201501447242
+      },
+      "order": 4,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-4-g2p0": {
+      "a": [
+        "0x1.00d44c40d035cp+0",
+        "0x1.6b7eb6bd0b396p-2",
+        "0x1.cea5821020c33p-5",
+        "0x1.05885ef33c1bfp-8"
+      ],
+      "family": "clans-4",
+      "g": [
+        "0x1.240af9031fa27p-15",
+        "0x0.0p+0",
+        "0x1.d463c4e1434ecp-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -117.05112266772386,
+        "ntf_100_150k_db": -100.5913712391248,
+        "ntf_150_300k_db": -70.8717724081876,
+        "ntf_40_100k_db": -115.96100036915803,
+        "pole_max_radius": 0.882516883295371,
+        "sampled_peak_gain": 1.723192519875678
+      },
+      "order": 4,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-5": {
+      "a": [
+        "0x1.1a2495a1de594p+0",
+        "0x1.bbd990d4b1899p-2",
+        "0x1.26099cdb27b5cp-4",
+        "0x1.25d7a377c3c53p-8",
+        "0x1.6912509b463fcp-14"
+      ],
+      "family": "clans-5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.6e4a4ae2280b4p-15",
+        "0x0.0p+0",
+        "0x1.0355ae6f652c2p-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -140.2177379318475,
+        "ntf_100_150k_db": -99.036357579954,
+        "ntf_150_300k_db": -69.66996940266534,
+        "ntf_40_100k_db": -127.6405026616633,
+        "pole_max_radius": 0.9484227392723115,
+        "sampled_peak_gain": 1.822806625262558
+      },
+      "order": 5,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-5-g0p25": {
+      "a": [
+        "0x1.1a2495a1de594p+0",
+        "0x1.bbd990d4b1899p-2",
+        "0x1.26099cdb27b5cp-4",
+        "0x1.25d7a377c3c53p-8",
+        "0x1.6912509b463fcp-14"
+      ],
+      "family": "clans-5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.6e4a4ae2280b4p-17",
+        "0x0.0p+0",
+        "0x1.0355ae6f652c2p-15",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -169.59083949496542,
+        "ntf_100_150k_db": -95.00544004429148,
+        "ntf_150_300k_db": -68.791675595031,
+        "ntf_40_100k_db": -115.78905150912482,
+        "pole_max_radius": 0.9626035326237173,
+        "sampled_peak_gain": 1.8228038927021093
+      },
+      "order": 5,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-5-g0p5": {
+      "a": [
+        "0x1.1a2495a1de594p+0",
+        "0x1.bbd990d4b1899p-2",
+        "0x1.26099cdb27b5cp-4",
+        "0x1.25d7a377c3c53p-8",
+        "0x1.6912509b463fcp-14"
+      ],
+      "family": "clans-5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.6e4a4ae2280b4p-16",
+        "0x0.0p+0",
+        "0x1.0355ae6f652c2p-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -155.90636634730853,
+        "ntf_100_150k_db": -96.2537889866835,
+        "ntf_150_300k_db": -69.07856588954259,
+        "ntf_40_100k_db": -118.9024437230629,
+        "pole_max_radius": 0.9598483204140646,
+        "sampled_peak_gain": 1.8228048035597644
+      },
+      "order": 5,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-5-g2p0": {
+      "a": [
+        "0x1.1a2495a1de594p+0",
+        "0x1.bbd990d4b1899p-2",
+        "0x1.26099cdb27b5cp-4",
+        "0x1.25d7a377c3c53p-8",
+        "0x1.6912509b463fcp-14"
+      ],
+      "family": "clans-5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.6e4a4ae2280b4p-14",
+        "0x0.0p+0",
+        "0x1.0355ae6f652c2p-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -126.16389381869952,
+        "ntf_100_150k_db": -106.43402814888809,
+        "ntf_150_300k_db": -70.92726393712537,
+        "ntf_40_100k_db": -125.77357859433798,
+        "pole_max_radius": 0.9494340829996892,
+        "sampled_peak_gain": 1.8228102686180925
+      },
+      "order": 5,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-6": {
+      "a": [
+        "0x1.fe76ccc47296fp-1",
+        "0x1.624e935fbf25dp-2",
+        "0x1.d6825c70c8276p-5",
+        "0x1.4530318c12160p-8",
+        "0x1.c5a78a6402e47p-13",
+        "0x1.d04f64fa6fffcp-19"
+      ],
+      "family": "clans-6",
+      "g": [
+        "0x1.1fbabc5be0c5ep-17",
+        "0x0.0p+0",
+        "0x1.1427051fbaae8p-14",
+        "0x0.0p+0",
+        "0x1.129988f6a5165p-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -157.82440950802825,
+        "ntf_100_150k_db": -106.63224052288898,
+        "ntf_150_300k_db": -70.19128715014094,
+        "ntf_40_100k_db": -140.91936187562462,
+        "pole_max_radius": 0.9435477220067247,
+        "sampled_peak_gain": 1.7207981453406813
+      },
+      "order": 6,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-6-g0p25": {
+      "a": [
+        "0x1.fe76ccc47296fp-1",
+        "0x1.624e935fbf25dp-2",
+        "0x1.d6825c70c8276p-5",
+        "0x1.4530318c12160p-8",
+        "0x1.c5a78a6402e47p-13",
+        "0x1.d04f64fa6fffcp-19"
+      ],
+      "family": "clans-6",
+      "g": [
+        "0x1.1fbabc5be0c5ep-19",
+        "0x0.0p+0",
+        "0x1.1427051fbaae8p-16",
+        "0x0.0p+0",
+        "0x1.129988f6a5165p-15",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -191.79839209651564,
+        "ntf_100_150k_db": -101.66085053995027,
+        "ntf_150_300k_db": -69.250366883331,
+        "ntf_40_100k_db": -126.29454141361231,
+        "pole_max_radius": 0.9614901152585567,
+        "sampled_peak_gain": 1.7208003914266576
+      },
+      "order": 6,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-6-g0p5": {
+      "a": [
+        "0x1.fe76ccc47296fp-1",
+        "0x1.624e935fbf25dp-2",
+        "0x1.d6825c70c8276p-5",
+        "0x1.4530318c12160p-8",
+        "0x1.c5a78a6402e47p-13",
+        "0x1.d04f64fa6fffcp-19"
+      ],
+      "family": "clans-6",
+      "g": [
+        "0x1.1fbabc5be0c5ep-18",
+        "0x0.0p+0",
+        "0x1.1427051fbaae8p-15",
+        "0x0.0p+0",
+        "0x1.129988f6a5165p-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -174.78267286352573,
+        "ntf_100_150k_db": -103.20348347783188,
+        "ntf_150_300k_db": -69.55387169167128,
+        "ntf_40_100k_db": -130.08427047257933,
+        "pole_max_radius": 0.9550672701290079,
+        "sampled_peak_gain": 1.7207996427291772
+      },
+      "order": 6,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-6-g2p0": {
+      "a": [
+        "0x1.fe76ccc47296fp-1",
+        "0x1.624e935fbf25dp-2",
+        "0x1.d6825c70c8276p-5",
+        "0x1.4530318c12160p-8",
+        "0x1.c5a78a6402e47p-13",
+        "0x1.d04f64fa6fffcp-19"
+      ],
+      "family": "clans-6",
+      "g": [
+        "0x1.1fbabc5be0c5ep-16",
+        "0x0.0p+0",
+        "0x1.1427051fbaae8p-13",
+        "0x0.0p+0",
+        "0x1.129988f6a5165p-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -142.0655816029784,
+        "ntf_100_150k_db": -115.74123712618663,
+        "ntf_150_300k_db": -71.59391400854662,
+        "ntf_40_100k_db": -139.9579459052594,
+        "pole_max_radius": 0.9570438722458885,
+        "sampled_peak_gain": 1.7207951505894385
+      },
+      "order": 6,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-7": {
+      "a": [
+        "0x1.1b366e8f27ddap+0",
+        "0x1.b04456dc422ccp-2",
+        "0x1.35151cf8c016fp-4",
+        "0x1.cf72919034587p-8",
+        "0x1.723e910875961p-12",
+        "0x1.2a85751a0c7fep-17",
+        "0x1.f1efaf5000004p-25"
+      ],
+      "family": "clans-7",
+      "g": [
+        "0x0.0p+0",
+        "0x1.a02758c7c8842p-16",
+        "0x0.0p+0",
+        "0x1.5b5129d78fd7ep-14",
+        "0x0.0p+0",
+        "0x1.1c7c78184b489p-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -170.80983168382284,
+        "ntf_100_150k_db": -111.66479801420822,
+        "ntf_150_300k_db": -71.96018633462174,
+        "ntf_40_100k_db": -150.53317063023803,
+        "pole_max_radius": 0.9495603962268097,
+        "sampled_peak_gain": 1.8403249676750433
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-7-g0p25": {
+      "a": [
+        "0x1.1b366e8f27ddap+0",
+        "0x1.b04456dc422ccp-2",
+        "0x1.35151cf8c016fp-4",
+        "0x1.cf72919034587p-8",
+        "0x1.723e910875961p-12",
+        "0x1.2a85751a0c7fep-17",
+        "0x1.f1efaf5000004p-25"
+      ],
+      "family": "clans-7",
+      "g": [
+        "0x0.0p+0",
+        "0x1.a02758c7c8842p-18",
+        "0x0.0p+0",
+        "0x1.5b5129d78fd7ep-16",
+        "0x0.0p+0",
+        "0x1.1c7c78184b489p-15",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -208.0504861641663,
+        "ntf_100_150k_db": -106.36143468928665,
+        "ntf_150_300k_db": -71.43802213363446,
+        "ntf_40_100k_db": -133.05400090317102,
+        "pole_max_radius": 0.9876779218108211,
+        "sampled_peak_gain": 1.840323424468299
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-7-g0p5": {
+      "a": [
+        "0x1.1b366e8f27ddap+0",
+        "0x1.b04456dc422ccp-2",
+        "0x1.35151cf8c016fp-4",
+        "0x1.cf72919034587p-8",
+        "0x1.723e910875961p-12",
+        "0x1.2a85751a0c7fep-17",
+        "0x1.f1efaf5000004p-25"
+      ],
+      "family": "clans-7",
+      "g": [
+        "0x0.0p+0",
+        "0x1.a02758c7c8842p-17",
+        "0x0.0p+0",
+        "0x1.5b5129d78fd7ep-15",
+        "0x0.0p+0",
+        "0x1.1c7c78184b489p-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -188.74366799653512,
+        "ntf_100_150k_db": -107.94652676587964,
+        "ntf_150_300k_db": -71.60714613526211,
+        "ntf_40_100k_db": -137.51924012929024,
+        "pole_max_radius": 0.9840149946476481,
+        "sampled_peak_gain": 1.840323938871933
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-7-g2p0": {
+      "a": [
+        "0x1.1b366e8f27ddap+0",
+        "0x1.b04456dc422ccp-2",
+        "0x1.35151cf8c016fp-4",
+        "0x1.cf72919034587p-8",
+        "0x1.723e910875961p-12",
+        "0x1.2a85751a0c7fep-17",
+        "0x1.f1efaf5000004p-25"
+      ],
+      "family": "clans-7",
+      "g": [
+        "0x0.0p+0",
+        "0x1.a02758c7c8842p-15",
+        "0x0.0p+0",
+        "0x1.5b5129d78fd7ep-13",
+        "0x0.0p+0",
+        "0x1.1c7c78184b489p-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -151.86086456442592,
+        "ntf_100_150k_db": -122.26018175174545,
+        "ntf_150_300k_db": -72.74516541226417,
+        "ntf_40_100k_db": -152.69265510553203,
+        "pole_max_radius": 0.9783923932551727,
+        "sampled_peak_gain": 1.8403270252646466
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-8": {
+      "a": [
+        "0x1.26e2046079045p+0",
+        "0x1.171157f6f2914p-1",
+        "0x1.1c10a78a251bbp-3",
+        "0x1.534627f502743p-6",
+        "0x1.e64b61af4496ep-10",
+        "0x1.94149fbf0203ep-14",
+        "0x1.6947ad3113ffcp-19",
+        "0x1.7e6a145fffff6p-26"
+      ],
+      "family": "clans-8",
+      "g": [
+        "0x1.5412e99e79d7bp-18",
+        "0x0.0p+0",
+        "0x1.5ce71c28aa725p-15",
+        "0x0.0p+0",
+        "0x1.90e274970b238p-14",
+        "0x0.0p+0",
+        "0x1.233a94bf958b8p-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -204.5496358364312,
+        "ntf_100_150k_db": -136.4840794428085,
+        "ntf_150_300k_db": -88.60006442609378,
+        "ntf_40_100k_db": -181.10002878604635,
+        "pole_max_radius": 0.9499594880355916,
+        "sampled_peak_gain": 1.8374889565407866
+      },
+      "order": 8,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-8-g0p25": {
+      "a": [
+        "0x1.26e2046079045p+0",
+        "0x1.171157f6f2914p-1",
+        "0x1.1c10a78a251bbp-3",
+        "0x1.534627f502743p-6",
+        "0x1.e64b61af4496ep-10",
+        "0x1.94149fbf0203ep-14",
+        "0x1.6947ad3113ffcp-19",
+        "0x1.7e6a145fffff6p-26"
+      ],
+      "family": "clans-8",
+      "g": [
+        "0x1.5412e99e79d7bp-20",
+        "0x0.0p+0",
+        "0x1.5ce71c28aa725p-17",
+        "0x0.0p+0",
+        "0x1.90e274970b238p-16",
+        "0x0.0p+0",
+        "0x1.233a94bf958b8p-15",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -249.19305601808983,
+        "ntf_100_150k_db": -130.22260955167604,
+        "ntf_150_300k_db": -87.8168793991042,
+        "ntf_40_100k_db": -161.27176798839105,
+        "pole_max_radius": 0.9838869734083052,
+        "sampled_peak_gain": 1.8374908460609334
+      },
+      "order": 8,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-8-g0p5": {
+      "a": [
+        "0x1.26e2046079045p+0",
+        "0x1.171157f6f2914p-1",
+        "0x1.1c10a78a251bbp-3",
+        "0x1.534627f502743p-6",
+        "0x1.e64b61af4496ep-10",
+        "0x1.94149fbf0203ep-14",
+        "0x1.6947ad3113ffcp-19",
+        "0x1.7e6a145fffff6p-26"
+      ],
+      "family": "clans-8",
+      "g": [
+        "0x1.5412e99e79d7bp-19",
+        "0x0.0p+0",
+        "0x1.5ce71c28aa725p-16",
+        "0x0.0p+0",
+        "0x1.90e274970b238p-15",
+        "0x0.0p+0",
+        "0x1.233a94bf958b8p-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -227.37039991321416,
+        "ntf_100_150k_db": -132.12268505197034,
+        "ntf_150_300k_db": -88.06958749392051,
+        "ntf_40_100k_db": -166.33617110900434,
+        "pole_max_radius": 0.9799102154714395,
+        "sampled_peak_gain": 1.8374902162193008
+      },
+      "order": 8,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "clans-8-g2p0": {
+      "a": [
+        "0x1.26e2046079045p+0",
+        "0x1.171157f6f2914p-1",
+        "0x1.1c10a78a251bbp-3",
+        "0x1.534627f502743p-6",
+        "0x1.e64b61af4496ep-10",
+        "0x1.94149fbf0203ep-14",
+        "0x1.6947ad3113ffcp-19",
+        "0x1.7e6a145fffff6p-26"
+      ],
+      "family": "clans-8",
+      "g": [
+        "0x1.5412e99e79d7bp-17",
+        "0x0.0p+0",
+        "0x1.5ce71c28aa725p-14",
+        "0x0.0p+0",
+        "0x1.90e274970b238p-13",
+        "0x0.0p+0",
+        "0x1.233a94bf958b8p-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -184.39542709159247,
+        "ntf_100_150k_db": -148.58025709509013,
+        "ntf_150_300k_db": -89.78760528536469,
+        "ntf_40_100k_db": -182.73377428248813,
+        "pole_max_radius": 0.9746763353135103,
+        "sampled_peak_gain": 1.8374864372027595
+      },
+      "order": 8,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "d512-r5-a20": {
+      "a": [
+        "0x1.ad7ed2c151b94p-1",
+        "0x1.4a92c6593308fp-2",
+        "0x1.2f2b666ff14edp-4",
+        "0x1.669f194b7a7b1p-7",
+        "0x1.11279d0aaccd6p-10",
+        "0x1.f3865a0978c98p-15",
+        "0x1.7a98f51e80d0dp-20"
+      ],
+      "family": "dsd512-r5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.381d8295d6632p-16",
+        "0x0.0p+0",
+        "0x1.e63e6dc762fb0p-14",
+        "0x0.0p+0",
+        "0x1.0e430bb0adeb5p-11",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "DSD512-redesign-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -183.32875577157537,
+        "ntf_100_150k_db": -140.1295379696528,
+        "ntf_150_300k_db": -91.84078749448238,
+        "ntf_40_100k_db": -159.89605612378546,
+        "pole_max_radius": 0.9336664829817526,
+        "sampled_peak_gain": 1.5321507379820019
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:o7-r5-a20"
+    },
+    "d512-r5-a20-g0p25": {
+      "a": [
+        "0x1.ad7ed2c151b94p-1",
+        "0x1.4a92c6593308fp-2",
+        "0x1.2f2b666ff14edp-4",
+        "0x1.669f194b7a7b1p-7",
+        "0x1.11279d0aaccd6p-10",
+        "0x1.f3865a0978c98p-15",
+        "0x1.7a98f51e80d0dp-20"
+      ],
+      "family": "dsd512-r5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.381d8295d6632p-18",
+        "0x0.0p+0",
+        "0x1.e63e6dc762fb0p-16",
+        "0x0.0p+0",
+        "0x1.0e430bb0adeb5p-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "DSD512-redesign-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -212.57198106861748,
+        "ntf_100_150k_db": -130.58481960869713,
+        "ntf_150_300k_db": -87.46293402642429,
+        "ntf_40_100k_db": -166.6048677726498,
+        "pole_max_radius": 0.9400540189067826,
+        "sampled_peak_gain": 1.532150114050586
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:o7-r5-a20"
+    },
+    "d512-r5-a20-g0p5": {
+      "a": [
+        "0x1.ad7ed2c151b94p-1",
+        "0x1.4a92c6593308fp-2",
+        "0x1.2f2b666ff14edp-4",
+        "0x1.669f194b7a7b1p-7",
+        "0x1.11279d0aaccd6p-10",
+        "0x1.f3865a0978c98p-15",
+        "0x1.7a98f51e80d0dp-20"
+      ],
+      "family": "dsd512-r5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.381d8295d6632p-17",
+        "0x0.0p+0",
+        "0x1.e63e6dc762fb0p-15",
+        "0x0.0p+0",
+        "0x1.0e430bb0adeb5p-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "DSD512-redesign-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -194.70582251265733,
+        "ntf_100_150k_db": -137.86012713705676,
+        "ntf_150_300k_db": -88.81020106053865,
+        "ntf_40_100k_db": -163.59339469063246,
+        "pole_max_radius": 0.9372476300360935,
+        "sampled_peak_gain": 1.5321503220283168
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:o7-r5-a20"
+    },
+    "d512-r5-a20-g2p0": {
+      "a": [
+        "0x1.ad7ed2c151b94p-1",
+        "0x1.4a92c6593308fp-2",
+        "0x1.2f2b666ff14edp-4",
+        "0x1.669f194b7a7b1p-7",
+        "0x1.11279d0aaccd6p-10",
+        "0x1.f3865a0978c98p-15",
+        "0x1.7a98f51e80d0dp-20"
+      ],
+      "family": "dsd512-r5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.381d8295d6632p-15",
+        "0x0.0p+0",
+        "0x1.e63e6dc762fb0p-13",
+        "0x0.0p+0",
+        "0x1.0e430bb0adeb5p-10",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "DSD512-redesign-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -164.70905715696236,
+        "ntf_100_150k_db": -134.66603596830598,
+        "ntf_150_300k_db": -99.91849831643935,
+        "ntf_40_100k_db": -151.09417873548114,
+        "pole_max_radius": 0.9593201809788144,
+        "sampled_peak_gain": 1.5321515698822332
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:o7-r5-a20"
+    },
+    "d512-r5-a20-g4p0": {
+      "a": [
+        "0x1.ad7ed2c151b94p-1",
+        "0x1.4a92c6593308fp-2",
+        "0x1.2f2b666ff14edp-4",
+        "0x1.669f194b7a7b1p-7",
+        "0x1.11279d0aaccd6p-10",
+        "0x1.f3865a0978c98p-15",
+        "0x1.7a98f51e80d0dp-20"
+      ],
+      "family": "dsd512-r5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.381d8295d6632p-14",
+        "0x0.0p+0",
+        "0x1.e63e6dc762fb0p-12",
+        "0x0.0p+0",
+        "0x1.0e430bb0adeb5p-9",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 4.0,
+      "kind": "DSD512-redesign-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -146.79210758150822,
+        "ntf_100_150k_db": -131.2537897788474,
+        "ntf_150_300k_db": -103.91593046987512,
+        "ntf_40_100k_db": -139.3452564264334,
+        "pole_max_radius": 0.9782645536274371,
+        "sampled_peak_gain": 1.5321532336542294
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:o7-r5-a20"
+    },
+    "d512-r8-a20": {
+      "a": [
+        "0x1.ad7ed2c151b94p-1",
+        "0x1.4a92c6593308fp-2",
+        "0x1.2f2b666ff14edp-4",
+        "0x1.669f194b7a7b1p-7",
+        "0x1.11279d0aaccd6p-10",
+        "0x1.f3865a0978c98p-15",
+        "0x1.7a98f51e80d0dp-20"
+      ],
+      "family": "dsd512-r8",
+      "g": [
+        "0x0.0p+0",
+        "0x1.61bb0b769da38p-15",
+        "0x0.0p+0",
+        "0x1.c3831ccb6e324p-14",
+        "0x0.0p+0",
+        "0x1.f1d9d22a83bf0p-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "DSD512-redesign-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -174.75210034809413,
+        "ntf_100_150k_db": -142.9513817631935,
+        "ntf_150_300k_db": -91.47750089655999,
+        "ntf_40_100k_db": -161.30005706819023,
+        "pole_max_radius": 0.9303187754412172,
+        "sampled_peak_gain": 1.5321517319617126
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:o7-r8-a20"
+    },
+    "d512-r8-a20-g0p25": {
+      "a": [
+        "0x1.ad7ed2c151b94p-1",
+        "0x1.4a92c6593308fp-2",
+        "0x1.2f2b666ff14edp-4",
+        "0x1.669f194b7a7b1p-7",
+        "0x1.11279d0aaccd6p-10",
+        "0x1.f3865a0978c98p-15",
+        "0x1.7a98f51e80d0dp-20"
+      ],
+      "family": "dsd512-r8",
+      "g": [
+        "0x0.0p+0",
+        "0x1.61bb0b769da38p-17",
+        "0x0.0p+0",
+        "0x1.c3831ccb6e324p-16",
+        "0x0.0p+0",
+        "0x1.f1d9d22a83bf0p-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "DSD512-redesign-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -216.15208405079326,
+        "ntf_100_150k_db": -130.28240462045457,
+        "ntf_150_300k_db": -87.3981657445515,
+        "ntf_40_100k_db": -165.15480969771562,
+        "pole_max_radius": 0.9403476902922474,
+        "sampled_peak_gain": 1.5321503625480415
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:o7-r8-a20"
+    },
+    "d512-r8-a20-g0p5": {
+      "a": [
+        "0x1.ad7ed2c151b94p-1",
+        "0x1.4a92c6593308fp-2",
+        "0x1.2f2b666ff14edp-4",
+        "0x1.669f194b7a7b1p-7",
+        "0x1.11279d0aaccd6p-10",
+        "0x1.f3865a0978c98p-15",
+        "0x1.7a98f51e80d0dp-20"
+      ],
+      "family": "dsd512-r8",
+      "g": [
+        "0x0.0p+0",
+        "0x1.61bb0b769da38p-16",
+        "0x0.0p+0",
+        "0x1.c3831ccb6e324p-15",
+        "0x0.0p+0",
+        "0x1.f1d9d22a83bf0p-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "DSD512-redesign-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -195.74403500646952,
+        "ntf_100_150k_db": -136.7408095134688,
+        "ntf_150_300k_db": -88.66502673046651,
+        "ntf_40_100k_db": -165.98836684420263,
+        "pole_max_radius": 0.9380970020516161,
+        "sampled_peak_gain": 1.5321508190215436
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:o7-r8-a20"
+    },
+    "d512-r8-a20-g2p0": {
+      "a": [
+        "0x1.ad7ed2c151b94p-1",
+        "0x1.4a92c6593308fp-2",
+        "0x1.2f2b666ff14edp-4",
+        "0x1.669f194b7a7b1p-7",
+        "0x1.11279d0aaccd6p-10",
+        "0x1.f3865a0978c98p-15",
+        "0x1.7a98f51e80d0dp-20"
+      ],
+      "family": "dsd512-r8",
+      "g": [
+        "0x0.0p+0",
+        "0x1.61bb0b769da38p-14",
+        "0x0.0p+0",
+        "0x1.c3831ccb6e324p-13",
+        "0x0.0p+0",
+        "0x1.f1d9d22a83bf0p-11",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "DSD512-redesign-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -155.72067872076065,
+        "ntf_100_150k_db": -135.8971751104025,
+        "ntf_150_300k_db": -98.67688295268196,
+        "ntf_40_100k_db": -157.35748775893111,
+        "pole_max_radius": 0.9567395291283745,
+        "sampled_peak_gain": 1.5321535578147254
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:o7-r8-a20"
+    },
+    "d512-r8-a20-g4p0": {
+      "a": [
+        "0x1.ad7ed2c151b94p-1",
+        "0x1.4a92c6593308fp-2",
+        "0x1.2f2b666ff14edp-4",
+        "0x1.669f194b7a7b1p-7",
+        "0x1.11279d0aaccd6p-10",
+        "0x1.f3865a0978c98p-15",
+        "0x1.7a98f51e80d0dp-20"
+      ],
+      "family": "dsd512-r8",
+      "g": [
+        "0x0.0p+0",
+        "0x1.61bb0b769da38p-13",
+        "0x0.0p+0",
+        "0x1.c3831ccb6e324p-12",
+        "0x0.0p+0",
+        "0x1.f1d9d22a83bf0p-10",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 4.0,
+      "kind": "DSD512-redesign-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -139.24534468684098,
+        "ntf_100_150k_db": -139.40427478437653,
+        "ntf_150_300k_db": -106.4703734232238,
+        "ntf_40_100k_db": -138.11142079114128,
+        "pole_max_radius": 0.9762457370964223,
+        "sampled_peak_gain": 1.532157209411444
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:o7-r8-a20"
+    },
+    "d512-sdm7-g3": {
+      "a": [
+        "0x1.90c934ab34faep-1",
+        "0x1.35224dc95ab91p-2",
+        "0x1.2db584b8bb203p-4",
+        "0x1.8ffe4992648a1p-7",
+        "0x1.6604623d5a212p-10",
+        "0x1.91bba51c8e6fep-14",
+        "0x1.a46c3a31ffff8p-19"
+      ],
+      "family": "dsd512-balance",
+      "g": [
+        "0x0.0p+0",
+        "0x1.381d8295d6632p-14",
+        "0x0.0p+0",
+        "0x1.047cdf61abe1ep-12",
+        "0x0.0p+0",
+        "0x1.aabab42470ecep-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "DSD512-balance-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -167.02348556772617,
+        "ntf_100_150k_db": -165.2388597995167,
+        "ntf_150_300k_db": -97.54194653831615,
+        "ntf_40_100k_db": -167.04715014149133,
+        "pole_max_radius": 0.9626856793554452,
+        "sampled_peak_gain": 1.4801819303195833
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:order7-pareto-g3p0"
+    },
+    "d512-sdm7-g3-g0p25": {
+      "a": [
+        "0x1.90c934ab34faep-1",
+        "0x1.35224dc95ab91p-2",
+        "0x1.2db584b8bb203p-4",
+        "0x1.8ffe4992648a1p-7",
+        "0x1.6604623d5a212p-10",
+        "0x1.91bba51c8e6fep-14",
+        "0x1.a46c3a31ffff8p-19"
+      ],
+      "family": "dsd512-balance",
+      "g": [
+        "0x0.0p+0",
+        "0x1.381d8295d6632p-16",
+        "0x0.0p+0",
+        "0x1.047cdf61abe1ep-14",
+        "0x0.0p+0",
+        "0x1.aabab42470ecep-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "DSD512-balance-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -209.18083046723925,
+        "ntf_100_150k_db": -137.15541681065818,
+        "ntf_150_300k_db": -93.2497681505511,
+        "ntf_40_100k_db": -172.13752778268938,
+        "pole_max_radius": 0.961694963501181,
+        "sampled_peak_gain": 1.4801798087448386
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:order7-pareto-g3p0"
+    },
+    "d512-sdm7-g3-g0p5": {
+      "a": [
+        "0x1.90c934ab34faep-1",
+        "0x1.35224dc95ab91p-2",
+        "0x1.2db584b8bb203p-4",
+        "0x1.8ffe4992648a1p-7",
+        "0x1.6604623d5a212p-10",
+        "0x1.91bba51c8e6fep-14",
+        "0x1.a46c3a31ffff8p-19"
+      ],
+      "family": "dsd512-balance",
+      "g": [
+        "0x0.0p+0",
+        "0x1.381d8295d6632p-15",
+        "0x0.0p+0",
+        "0x1.047cdf61abe1ep-13",
+        "0x0.0p+0",
+        "0x1.aabab42470ecep-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "DSD512-balance-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -187.73243211795312,
+        "ntf_100_150k_db": -143.50604637488098,
+        "ntf_150_300k_db": -94.61435251831571,
+        "ntf_40_100k_db": -186.47282593529883,
+        "pole_max_radius": 0.9620090836294203,
+        "sampled_peak_gain": 1.4801805159430943
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:order7-pareto-g3p0"
+    },
+    "d512-sdm7-g3-g2p0": {
+      "a": [
+        "0x1.90c934ab34faep-1",
+        "0x1.35224dc95ab91p-2",
+        "0x1.2db584b8bb203p-4",
+        "0x1.8ffe4992648a1p-7",
+        "0x1.6604623d5a212p-10",
+        "0x1.91bba51c8e6fep-14",
+        "0x1.a46c3a31ffff8p-19"
+      ],
+      "family": "dsd512-balance",
+      "g": [
+        "0x0.0p+0",
+        "0x1.381d8295d6632p-13",
+        "0x0.0p+0",
+        "0x1.047cdf61abe1ep-11",
+        "0x0.0p+0",
+        "0x1.aabab42470ecep-11",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "DSD512-balance-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -148.51343828127963,
+        "ntf_100_150k_db": -145.54136482346865,
+        "ntf_150_300k_db": -104.49822493520607,
+        "ntf_40_100k_db": -148.19244766815913,
+        "pole_max_radius": 0.9641486157103493,
+        "sampled_peak_gain": 1.4862787998865663
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:order7-pareto-g3p0"
+    },
+    "d512-sdm7-g3-g4p0": {
+      "a": [
+        "0x1.90c934ab34faep-1",
+        "0x1.35224dc95ab91p-2",
+        "0x1.2db584b8bb203p-4",
+        "0x1.8ffe4992648a1p-7",
+        "0x1.6604623d5a212p-10",
+        "0x1.91bba51c8e6fep-14",
+        "0x1.a46c3a31ffff8p-19"
+      ],
+      "family": "dsd512-balance",
+      "g": [
+        "0x0.0p+0",
+        "0x1.381d8295d6632p-12",
+        "0x0.0p+0",
+        "0x1.047cdf61abe1ep-10",
+        "0x0.0p+0",
+        "0x1.aabab42470ecep-10",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 4.0,
+      "kind": "DSD512-balance-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -131.76168218888964,
+        "ntf_100_150k_db": -133.8923335788574,
+        "ntf_150_300k_db": -125.25161376507428,
+        "ntf_40_100k_db": -126.81950877330387,
+        "pole_max_radius": 0.9671435503777623,
+        "sampled_peak_gain": 1.543020478892322
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "designs-new-native.json:order7-pareto-g3p0"
+    },
+    "sdm-4": {
+      "a": [
+        "0x1.bd4f665d14da5p-1",
+        "0x1.6eacaaaf05d3bp-2",
+        "0x1.48c461759c31ep-4",
+        "0x1.0848884c70baep-7"
+      ],
+      "family": "sdm-4",
+      "g": [
+        "0x1.240af9031fa27p-16",
+        "0x0.0p+0",
+        "0x1.d463c4e1434ecp-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -136.24817819892408,
+        "ntf_100_150k_db": -101.1827224198008,
+        "ntf_150_300k_db": -75.903122411836,
+        "ntf_40_100k_db": -124.58362226156417,
+        "pole_max_radius": 0.8784614506247207,
+        "sampled_peak_gain": 1.5501000414087505
+      },
+      "order": 4,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-4-g0p25": {
+      "a": [
+        "0x1.bd4f665d14da5p-1",
+        "0x1.6eacaaaf05d3bp-2",
+        "0x1.48c461759c31ep-4",
+        "0x1.0848884c70baep-7"
+      ],
+      "family": "sdm-4",
+      "g": [
+        "0x1.240af9031fa27p-18",
+        "0x0.0p+0",
+        "0x1.d463c4e1434ecp-16",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -158.81895788615057,
+        "ntf_100_150k_db": -98.2662888253072,
+        "ntf_150_300k_db": -75.23079296256192,
+        "ntf_40_100k_db": -115.92747330389983,
+        "pole_max_radius": 0.8780649624100383,
+        "sampled_peak_gain": 1.5501033039230694
+      },
+      "order": 4,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-4-g0p5": {
+      "a": [
+        "0x1.bd4f665d14da5p-1",
+        "0x1.6eacaaaf05d3bp-2",
+        "0x1.48c461759c31ep-4",
+        "0x1.0848884c70baep-7"
+      ],
+      "family": "sdm-4",
+      "g": [
+        "0x1.240af9031fa27p-17",
+        "0x0.0p+0",
+        "0x1.d463c4e1434ecp-15",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -147.00348237981518,
+        "ntf_100_150k_db": -99.16304684281938,
+        "ntf_150_300k_db": -75.45134895542458,
+        "ntf_40_100k_db": -118.29579424995018,
+        "pole_max_radius": 0.878196953685567,
+        "sampled_peak_gain": 1.550102216412174
+      },
+      "order": 4,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-4-g2p0": {
+      "a": [
+        "0x1.bd4f665d14da5p-1",
+        "0x1.6eacaaaf05d3bp-2",
+        "0x1.48c461759c31ep-4",
+        "0x1.0848884c70baep-7"
+      ],
+      "family": "sdm-4",
+      "g": [
+        "0x1.240af9031fa27p-15",
+        "0x0.0p+0",
+        "0x1.d463c4e1434ecp-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -123.07730739272435,
+        "ntf_100_150k_db": -106.6071500926416,
+        "ntf_150_300k_db": -76.85298707690472,
+        "ntf_40_100k_db": -121.984135152193,
+        "pole_max_radius": 0.8789924383264248,
+        "sampled_peak_gain": 1.5500956914753787
+      },
+      "order": 4,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-5": {
+      "a": [
+        "0x1.9d93d1090cb18p-1",
+        "0x1.4408df5d4b53ap-2",
+        "0x1.2e613554500efp-4",
+        "0x1.4c5f5dcb50fedp-7",
+        "0x1.53090e1b07f02p-11"
+      ],
+      "family": "sdm-5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.6e4a4ae2280b4p-15",
+        "0x0.0p+0",
+        "0x1.0355ae6f652c2p-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -156.96237206390762,
+        "ntf_100_150k_db": -114.69703619683328,
+        "ntf_150_300k_db": -82.7120469200203,
+        "ntf_40_100k_db": -143.88900834984065,
+        "pole_max_radius": 0.9250560286605387,
+        "sampled_peak_gain": 1.5001255010793926
+      },
+      "order": 5,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-5-g0p25": {
+      "a": [
+        "0x1.9d93d1090cb18p-1",
+        "0x1.4408df5d4b53ap-2",
+        "0x1.2e613554500efp-4",
+        "0x1.4c5f5dcb50fedp-7",
+        "0x1.53090e1b07f02p-11"
+      ],
+      "family": "sdm-5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.6e4a4ae2280b4p-17",
+        "0x0.0p+0",
+        "0x1.0355ae6f652c2p-15",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -186.8669932556534,
+        "ntf_100_150k_db": -110.9849186609585,
+        "ntf_150_300k_db": -81.83643210890446,
+        "ntf_40_100k_db": -132.4785197423019,
+        "pole_max_radius": 0.9248901353159104,
+        "sampled_peak_gain": 1.500124170236498
+      },
+      "order": 5,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-5-g0p5": {
+      "a": [
+        "0x1.9d93d1090cb18p-1",
+        "0x1.4408df5d4b53ap-2",
+        "0x1.2e613554500efp-4",
+        "0x1.4c5f5dcb50fedp-7",
+        "0x1.53090e1b07f02p-11"
+      ],
+      "family": "sdm-5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.6e4a4ae2280b4p-16",
+        "0x0.0p+0",
+        "0x1.0355ae6f652c2p-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -173.01580475960918,
+        "ntf_100_150k_db": -112.12713893117538,
+        "ntf_150_300k_db": -82.12395996019815,
+        "ntf_40_100k_db": -135.43978976011533,
+        "pole_max_radius": 0.9249444631356288,
+        "sampled_peak_gain": 1.5001246138531217
+      },
+      "order": 5,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-5-g2p0": {
+      "a": [
+        "0x1.9d93d1090cb18p-1",
+        "0x1.4408df5d4b53ap-2",
+        "0x1.2e613554500efp-4",
+        "0x1.4c5f5dcb50fedp-7",
+        "0x1.53090e1b07f02p-11"
+      ],
+      "family": "sdm-5",
+      "g": [
+        "0x0.0p+0",
+        "0x1.6e4a4ae2280b4p-14",
+        "0x0.0p+0",
+        "0x1.0355ae6f652c2p-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -142.2534148934049,
+        "ntf_100_150k_db": -121.67231434373775,
+        "ntf_150_300k_db": -83.94518329899996,
+        "ntf_40_100k_db": -141.62710731482693,
+        "pole_max_radius": 0.9252912992511093,
+        "sampled_peak_gain": 1.5001272755040342
+      },
+      "order": 5,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-6": {
+      "a": [
+        "0x1.9e21d7d58d945p-1",
+        "0x1.481acf02bbf95p-2",
+        "0x1.41e33f1084377p-4",
+        "0x1.98e22857e7dbcp-7",
+        "0x1.3db9daa1b3f1ap-10",
+        "0x1.cebc1c589c005p-15"
+      ],
+      "family": "sdm-6",
+      "g": [
+        "0x1.1fbabc5be0c5ep-17",
+        "0x0.0p+0",
+        "0x1.1427051fbaae8p-14",
+        "0x0.0p+0",
+        "0x1.129988f6a5165p-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -180.60619800366248,
+        "ntf_100_150k_db": -128.65172442815452,
+        "ntf_150_300k_db": -89.96700781174818,
+        "ntf_40_100k_db": -163.36229250194916,
+        "pole_max_radius": 0.946895876614594,
+        "sampled_peak_gain": 1.500154025912161
+      },
+      "order": 6,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-6-g0p25": {
+      "a": [
+        "0x1.9e21d7d58d945p-1",
+        "0x1.481acf02bbf95p-2",
+        "0x1.41e33f1084377p-4",
+        "0x1.98e22857e7dbcp-7",
+        "0x1.3db9daa1b3f1ap-10",
+        "0x1.cebc1c589c005p-15"
+      ],
+      "family": "sdm-6",
+      "g": [
+        "0x1.1fbabc5be0c5ep-19",
+        "0x0.0p+0",
+        "0x1.1427051fbaae8p-16",
+        "0x0.0p+0",
+        "0x1.129988f6a5165p-15",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -215.4700663727188,
+        "ntf_100_150k_db": -124.14213677159795,
+        "ntf_150_300k_db": -88.8725450227973,
+        "ntf_40_100k_db": -149.43216112200105,
+        "pole_max_radius": 0.9471149304309158,
+        "sampled_peak_gain": 1.50015548657776
+      },
+      "order": 6,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-6-g0p5": {
+      "a": [
+        "0x1.9e21d7d58d945p-1",
+        "0x1.481acf02bbf95p-2",
+        "0x1.41e33f1084377p-4",
+        "0x1.98e22857e7dbcp-7",
+        "0x1.3db9daa1b3f1ap-10",
+        "0x1.cebc1c589c005p-15"
+      ],
+      "family": "sdm-6",
+      "g": [
+        "0x1.1fbabc5be0c5ep-18",
+        "0x0.0p+0",
+        "0x1.1427051fbaae8p-15",
+        "0x0.0p+0",
+        "0x1.129988f6a5165p-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -198.14963698095096,
+        "ntf_100_150k_db": -125.53233039247685,
+        "ntf_150_300k_db": -89.23226990240396,
+        "ntf_40_100k_db": -152.98344627741733,
+        "pole_max_radius": 0.9470430731467305,
+        "sampled_peak_gain": 1.500154999687677
+      },
+      "order": 6,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-6-g2p0": {
+      "a": [
+        "0x1.9e21d7d58d945p-1",
+        "0x1.481acf02bbf95p-2",
+        "0x1.41e33f1084377p-4",
+        "0x1.98e22857e7dbcp-7",
+        "0x1.3db9daa1b3f1ap-10",
+        "0x1.cebc1c589c005p-15"
+      ],
+      "family": "sdm-6",
+      "g": [
+        "0x1.1fbabc5be0c5ep-16",
+        "0x0.0p+0",
+        "0x1.1427051fbaae8p-13",
+        "0x0.0p+0",
+        "0x1.129988f6a5165p-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -163.82521035014014,
+        "ntf_100_150k_db": -137.14090563435235,
+        "ntf_150_300k_db": -91.50350119863711,
+        "ntf_40_100k_db": -161.64210564144443,
+        "pole_max_radius": 0.9465867941351367,
+        "sampled_peak_gain": 1.500152078379686
+      },
+      "order": 6,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-7": {
+      "a": [
+        "0x1.90c934ab34faep-1",
+        "0x1.35224dc95ab91p-2",
+        "0x1.2db584b8bb203p-4",
+        "0x1.8ffe4992648a1p-7",
+        "0x1.6604623d5a212p-10",
+        "0x1.91bba51c8e6fep-14",
+        "0x1.a46c3a31ffff8p-19"
+      ],
+      "family": "sdm-7",
+      "g": [
+        "0x0.0p+0",
+        "0x1.a02758c7c8842p-16",
+        "0x0.0p+0",
+        "0x1.5b5129d78fd7ep-14",
+        "0x0.0p+0",
+        "0x1.1c7c78184b489p-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -200.61434713688155,
+        "ntf_100_150k_db": -139.07901489870525,
+        "ntf_150_300k_db": -93.69799781716809,
+        "ntf_40_100k_db": -179.21882497754768,
+        "pole_max_radius": 0.9617975118589414,
+        "sampled_peak_gain": 1.4801800444783293
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-7-g0p25": {
+      "a": [
+        "0x1.90c934ab34faep-1",
+        "0x1.35224dc95ab91p-2",
+        "0x1.2db584b8bb203p-4",
+        "0x1.8ffe4992648a1p-7",
+        "0x1.6604623d5a212p-10",
+        "0x1.91bba51c8e6fep-14",
+        "0x1.a46c3a31ffff8p-19"
+      ],
+      "family": "sdm-7",
+      "g": [
+        "0x0.0p+0",
+        "0x1.a02758c7c8842p-18",
+        "0x0.0p+0",
+        "0x1.5b5129d78fd7ep-16",
+        "0x0.0p+0",
+        "0x1.1c7c78184b489p-15",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -240.83052224276446,
+        "ntf_100_150k_db": -133.7223691959466,
+        "ntf_150_300k_db": -92.37210287002411,
+        "ntf_40_100k_db": -162.7840272843504,
+        "pole_max_radius": 0.9614970957891276,
+        "sampled_peak_gain": 1.4801793372756251
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-7-g0p5": {
+      "a": [
+        "0x1.90c934ab34faep-1",
+        "0x1.35224dc95ab91p-2",
+        "0x1.2db584b8bb203p-4",
+        "0x1.8ffe4992648a1p-7",
+        "0x1.6604623d5a212p-10",
+        "0x1.91bba51c8e6fep-14",
+        "0x1.a46c3a31ffff8p-19"
+      ],
+      "family": "sdm-7",
+      "g": [
+        "0x0.0p+0",
+        "0x1.a02758c7c8842p-17",
+        "0x0.0p+0",
+        "0x1.5b5129d78fd7ep-15",
+        "0x0.0p+0",
+        "0x1.1c7c78184b489p-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -220.40624533184857,
+        "ntf_100_150k_db": -135.37786390292786,
+        "ntf_150_300k_db": -92.8078715734436,
+        "ntf_40_100k_db": -166.94508008536815,
+        "pole_max_radius": 0.9615947732686481,
+        "sampled_peak_gain": 1.4801795730106027
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-7-g2p0": {
+      "a": [
+        "0x1.90c934ab34faep-1",
+        "0x1.35224dc95ab91p-2",
+        "0x1.2db584b8bb203p-4",
+        "0x1.8ffe4992648a1p-7",
+        "0x1.6604623d5a212p-10",
+        "0x1.91bba51c8e6fep-14",
+        "0x1.a46c3a31ffff8p-19"
+      ],
+      "family": "sdm-7",
+      "g": [
+        "0x0.0p+0",
+        "0x1.a02758c7c8842p-15",
+        "0x0.0p+0",
+        "0x1.5b5129d78fd7ep-13",
+        "0x0.0p+0",
+        "0x1.1c7c78184b489p-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -178.8420947993603,
+        "ntf_100_150k_db": -149.12225725283534,
+        "ntf_150_300k_db": -95.55889563076362,
+        "ntf_40_100k_db": -179.72386050264984,
+        "pole_max_radius": 0.9622283355104261,
+        "sampled_peak_gain": 1.480180987404885
+      },
+      "order": 7,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-8": {
+      "a": [
+        "0x1.7c12a0afe3005p-1",
+        "0x1.170ca689a451ap-2",
+        "0x1.06ba2f75adc4ep-4",
+        "0x1.590b8c91dea79p-7",
+        "0x1.42e781a5ecd18p-10",
+        "0x1.a153b43db31a0p-14",
+        "0x1.5861db5c3affbp-18",
+        "0x1.02b31c1effff5p-23"
+      ],
+      "family": "sdm-8",
+      "g": [
+        "0x1.5412e99e79d7bp-18",
+        "0x0.0p+0",
+        "0x1.5ce71c28aa725p-15",
+        "0x0.0p+0",
+        "0x1.90e274970b238p-14",
+        "0x0.0p+0",
+        "0x1.233a94bf958b8p-13",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 1.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -215.95735691053304,
+        "ntf_100_150k_db": -146.24446495329826,
+        "ntf_150_300k_db": -94.16935303799347,
+        "ntf_40_100k_db": -191.75525615486063,
+        "pole_max_radius": 0.9720479913768549,
+        "sampled_peak_gain": 1.450186870662835
+      },
+      "order": 8,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-8-g0p25": {
+      "a": [
+        "0x1.7c12a0afe3005p-1",
+        "0x1.170ca689a451ap-2",
+        "0x1.06ba2f75adc4ep-4",
+        "0x1.590b8c91dea79p-7",
+        "0x1.42e781a5ecd18p-10",
+        "0x1.a153b43db31a0p-14",
+        "0x1.5861db5c3affbp-18",
+        "0x1.02b31c1effff5p-23"
+      ],
+      "family": "sdm-8",
+      "g": [
+        "0x1.5412e99e79d7bp-20",
+        "0x0.0p+0",
+        "0x1.5ce71c28aa725p-17",
+        "0x0.0p+0",
+        "0x1.90e274970b238p-16",
+        "0x0.0p+0",
+        "0x1.233a94bf958b8p-15",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.25,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -262.6886922402424,
+        "ntf_100_150k_db": -139.9681897438613,
+        "ntf_150_300k_db": -92.66187517118325,
+        "ntf_40_100k_db": -172.7593652624023,
+        "pole_max_radius": 0.9704791757987357,
+        "sampled_peak_gain": 1.4501876136817022
+      },
+      "order": 8,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-8-g0p5": {
+      "a": [
+        "0x1.7c12a0afe3005p-1",
+        "0x1.170ca689a451ap-2",
+        "0x1.06ba2f75adc4ep-4",
+        "0x1.590b8c91dea79p-7",
+        "0x1.42e781a5ecd18p-10",
+        "0x1.a153b43db31a0p-14",
+        "0x1.5861db5c3affbp-18",
+        "0x1.02b31c1effff5p-23"
+      ],
+      "family": "sdm-8",
+      "g": [
+        "0x1.5412e99e79d7bp-19",
+        "0x0.0p+0",
+        "0x1.5ce71c28aa725p-16",
+        "0x0.0p+0",
+        "0x1.90e274970b238p-15",
+        "0x0.0p+0",
+        "0x1.233a94bf958b8p-14",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 0.5,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -240.1147573316735,
+        "ntf_100_150k_db": -141.91355066141253,
+        "ntf_150_300k_db": -93.15511439112865,
+        "ntf_40_100k_db": -177.56818655336104,
+        "pole_max_radius": 0.9710259449103764,
+        "sampled_peak_gain": 1.4501873660082887
+      },
+      "order": 8,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    },
+    "sdm-8-g2p0": {
+      "a": [
+        "0x1.7c12a0afe3005p-1",
+        "0x1.170ca689a451ap-2",
+        "0x1.06ba2f75adc4ep-4",
+        "0x1.590b8c91dea79p-7",
+        "0x1.42e781a5ecd18p-10",
+        "0x1.a153b43db31a0p-14",
+        "0x1.5861db5c3affbp-18",
+        "0x1.02b31c1effff5p-23"
+      ],
+      "family": "sdm-8",
+      "g": [
+        "0x1.5412e99e79d7bp-17",
+        "0x0.0p+0",
+        "0x1.5ce71c28aa725p-14",
+        "0x0.0p+0",
+        "0x1.90e274970b238p-13",
+        "0x0.0p+0",
+        "0x1.233a94bf958b8p-12",
+        "0x0.0p+0"
+      ],
+      "g_multiplier": 2.0,
+      "kind": "original-256x44100-rebound",
+      "linearized_ntf": {
+        "note": "Linearized additive-noise screening ONLY, not a nonlinear stability certificate",
+        "ntf_0_40k_db": -193.84327300300626,
+        "ntf_100_150k_db": -157.91932735813353,
+        "ntf_150_300k_db": -96.313429549253,
+        "ntf_40_100k_db": -192.20128500080722,
+        "pole_max_radius": 0.9738638105207054,
+        "sampled_peak_gain": 1.4501858799774319
+      },
+      "order": 8,
+      "producer": "exact binary64 multiply",
+      "promoted": false,
+      "qualified": false,
+      "source": "src/sdm.c"
+    }
+  },
+  "incumbent_key": "clans-7",
+  "native_hz": 45158400,
+  "schema": "DSD1024-NTF-nonproduction-designs/1",
+  "source_sha256": {
+    "src/sdm.c": "6f845c659185f58b07fb4c38d72dc29b734931c7b0bbfaebaef8bee82a6da61f",
+    "src/sdm_p19_candidates.h": "e6f559f29e8e9153e4f67d8498ae0a8cdb5416e9e2a4195353c6853af972e9d7",
+    "tests/dsd/ntf_study/designs-new-native.json": "09d777b946ec53671b2e5c11158e8fdbb51f5b6491ba41b1338c734611fa3602"
+  },
+  "working_hz": 176400
+}

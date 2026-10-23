@@ -1,0 +1,72 @@
+{
+  "schema": "DSD1024-NTF-checkpoint/1",
+  "checkpoint_date": "2026-10-23",
+  "checkpoint_state": "EXPERIMENT_AND_HANDOFF_COMPLETED__NO_PRODUCTION_AUTHORIZATION",
+  "authority": "BRIEF_2026-10-23.md",
+  "input_archive": "sox_dsd-a5e77be5d-working-set.tar.zst",
+  "input_archive_sha256": "bf0ae0b2344abb22c6592a5acf7cb2c586155ad7e5d9d219f58ce329ca3960c2",
+  "original_source_tree_bit_identical_files": 3056,
+  "original_source_tree_modified_files": 0,
+  "source_target": "sox_dsd/main@a5e77be5d working-set (not complete repository)",
+  "source_rate_hz": 176400,
+  "dsd1024_rate_hz": 45158400,
+  "design_catalogue_sha256": "f6ef9af08482ed3bbd7f5e88297e95ce419252dfbd56e87fdfe686f2e9400d12",
+  "incumbent": "encode.mastering.v2.dsd1024 / clans-7",
+  "completed": {
+    "experimental_designs": 55,
+    "historical_families_included": 10,
+    "native_screen_receipts": 220,
+    "passed_native_short_screens": 220,
+    "native_primary_spectrum_receipts": 55,
+    "rule_passing_research_designs": 23,
+    "uninterrupted_native_32_second_finalists": 5,
+    "native_finalist_receipts": 20,
+    "holdout_tone_spectra": 10,
+    "alternative_fir_spectra": 4,
+    "incumbent_p19_training_maxima_exact_equal": 8,
+    "incumbent_p19_qualification_training_receipts": 17,
+    "incumbent_p19_requalified_holdout_passes": 36,
+    "new_python_unit_tests_passing": 12,
+    "original_archive_files_verified_unchanged": 3056,
+    "bitstream_regeneration_test": "PASS, deleted native packed file restored byte-identically"
+  },
+  "files": {
+    "study_program": "study.py",
+    "design_generation": "model.py",
+    "frozen_catalogue": "designs.json",
+    "native_requalification": "requalify.py",
+    "evidence_verification": "verify_evidence.py",
+    "report": "REPORT_2026-10-23.md",
+    "replay_steps": "REPLAY.md",
+    "primary_comparison": "evidence/comparison.json",
+    "primary_registrations": "evidence/experimental-registry.json",
+    "native_environment": "evidence/native-environment.json",
+    "incumbent_requalification_result": "evidence/requalification/result.json"
+  },
+  "decisions": {
+    "independent_dsd1024_candidate_selection": true,
+    "investigate_first": ["sdm-8", "sdm-8-g2p0"],
+    "backup_independent_family": "clans-8",
+    "dsd512_seed_not_promoted_by_default": true,
+    "self_generated_media_for_independent_read_qualification": false,
+    "production_coefficient_change": false,
+    "capability_enablement": false,
+    "gate_relaxation": false,
+    "continuum_extrema_waiver_unmodified": true
+  },
+  "uncompleted_release_gates": [
+    "candidate_specific 3600-second native stability soaks and guard bounds",
+    "candidate-specific requalification with 36/36 holdouts",
+    "candidate-level five-tier ISA and performance tests",
+    "independently sourced programme/audio and DSD1024 read media",
+    "full omitted repository P15 archive qualification"
+  ],
+  "known_preexisting_authority_warning": {
+    "manifest": "P20_RESIDUAL_ASYMMETRY_SHA256SUMS.txt",
+    "source_file": "tests/dsd/results/P20_OPERATOR_QUALIFICATION_2026-10-22/README.md",
+    "manifest_expected_sha256": "4e73674fb8daf708bf8a6c391f7bcd58bc49b444a8336a58da27631a51f3b0e1",
+    "original_archive_actual_sha256": "5f5d9a8e9df6d2e8035b006d96535165d61e6768bd264b6a1b00b5eb69c8a790",
+    "status": "KNOWN_PREEXISTING__LEFT_UNTOUCHED"
+  },
+  "how_to_continue": "Read REPORT_2026-10-23.md and REPLAY.md, run sha256sum -c STUDY_SHA256SUMS.txt, python3 -B -m unittest -v test_study.py, and python3 -B verify_evidence.py; then qualify each shortlisted experimental design independently."
+}
