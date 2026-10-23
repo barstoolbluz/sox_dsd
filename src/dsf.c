@@ -578,7 +578,10 @@ LSX_FORMAT_HANDLER(dsf)
 		SOX_ENCODING_DSD, 1, 0,
 		0 };
 	static sox_rate_t const write_rates[] = {
-		64*44100, 128*44100, 256*44100,
+		/* P21: 512x and 1024x opened 2026-10-23. The capability table in
+		 * dsd.c remains the authorization; this list only has to stop
+		 * the rate negotiator silently substituting a lower one. */
+		64*44100, 128*44100, 256*44100, 512*44100, 1024*44100,
 		0 };
 	static sox_format_handler_t const handler = {
 		SOX_LIB_VERSION_CODE,

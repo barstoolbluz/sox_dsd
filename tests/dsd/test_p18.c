@@ -26,26 +26,35 @@ static int capabilities(void)
   const uint32_t high[]={22579200u,45158400u};
   const uint32_t low[]={2822400u,5644800u,11289600u};
   size_t i; int f,o;
+  /* P21, 2026-10-23: all twelve high-rate rows are open by operator
+   * declaration. The high rates are now asserted exactly like the low ones;
+   * the malformed endpoint/operation pairings below must still be refused,
+   * because opening a rate must not open a combination that never existed. */
   for (i=0;i<2;i++) {
     const lsx_dsd_rate *r=lsx_dsd_rate_find(high[i]);
-    CHECK(r && !r->capabilities && !r->decode_mastering_id &&
-        !r->decode_wideband_id && !r->encode_mastering_id);
+    CHECK(r && r->capabilities && r->decode_mastering_id &&
+        r->decode_wideband_id && r->encode_mastering_id);
     for (f=LSX_DSD_ENDPOINT_DSF;f<=LSX_DSD_ENDPOINT_DFF;f++) {
       for (o=LSX_DSD_OPERATION_READ;o<=LSX_DSD_OPERATION_WRITE;o++) {
-        CHECK(lsx_dsd_capability_check(high[i],f,o)==LSX_DSD_CAP_UNQUALIFIED);
-        CHECK(strstr(lsx_dsd_capability_description(high[i],f,o),
-            "P17 high-rate DSP qualification incomplete")!=NULL);
+        CHECK(lsx_dsd_capability_check(high[i],f,o)==LSX_DSD_CAP_OK);
+        CHECK(!strcmp(lsx_dsd_capability_description(high[i],f,o),"available"));
       }
     }
     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_DOP,
-        LSX_DSD_OPERATION_TRANSPORT)==LSX_DSD_CAP_UNQUALIFIED);
+        LSX_DSD_OPERATION_TRANSPORT)==LSX_DSD_CAP_OK);
     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_WSD,
-        LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNQUALIFIED);
+        LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_OK);
     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_DOP,
         LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_DSF,
         LSX_DSD_OPERATION_TRANSPORT)==LSX_DSD_CAP_UNSUPPORTED);
+    /* the qualified encoder at each clock is v2, not the defective v1 */
+    CHECK(!strcmp(r->encode_mastering_id,
+        high[i]==22579200u?"encode.mastering.v2.dsd512":"encode.mastering.v2.dsd1024"));
   }
+  /* one past the top supported rate stays unsupported */
+  CHECK(lsx_dsd_capability_check(45158400u*2,LSX_DSD_ENDPOINT_DSF,
+      LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
   for (i=0;i<3;i++) {
     CHECK(lsx_dsd_rate_find(low[i]) && lsx_dsd_rate_find(low[i])->capabilities);
     for (f=LSX_DSD_ENDPOINT_DSF;f<=LSX_DSD_ENDPOINT_DFF;f++)
@@ -93,7 +102,10 @@ static int rates_and_dop(void)
     effect.in_signal.channels=2;
     effect.out_signal.rate=transport[i];
     effect.out_signal.channels=2;
-    CHECK(h->start(&effect)!=SOX_SUCCESS); /* refusal before buffer allocate */
+    /* P21: DoP transport is authorized at both high rates, so start() now
+     * succeeds and allocates. Through P20 this asserted refusal. */
+    CHECK(h->start(&effect)==SOX_SUCCESS);
+    if (h->stop) h->stop(&effect);
     free(effect.priv);
   }
   return 0;
@@ -101,7 +113,8 @@ static int rates_and_dop(void)
 
 /* Sparse arithmetic exercises durations far beyond uint32 sample counts.
  * The results are compared against independent quotient/remainder formulas.
- * No high-rate disk output is created: it is unauthorized by P18. */
+ * No high-rate disk output is created here; this case is about the extent
+ * arithmetic alone, not about what P21 authorized. */
 static int sizes(void)
 {
   const uint64_t frames[]={0,1,7,8,9,32768,32769,
@@ -153,20 +166,22 @@ static int sizes(void)
 /* Direct public API callers must not be able to bypass the CLI planner.
  * Exercise both writers at both disabled rates; preserve existing file data
  * to verify refusal happens before opening or truncating the destination. */
-static int writer_api_denial(void)
+/* Was writer_api_denial through P20. P21 authorized both high rates, so the
+ * assertion inverts: the writer must now open, and must keep the rate it was
+ * asked for rather than letting the negotiator substitute DSD256. The
+ * fail-closed-before-truncate path in formats.c open_write() is unchanged and
+ * still guards any endpoint the capability table refuses; it is simply no
+ * longer reachable at these two rates. */
+static int writer_api_authorized(void)
 {
   static const uint32_t high[]={22579200u,45158400u};
   static const char *types[]={"dsf","dff"};
-  static const char sentinel[]="P18 KEEP EXISTING BYTES";
-  char path[]="/tmp/sox-p18-api-XXXXXX";
-  char actual[sizeof(sentinel)];
+  char path[]="/tmp/sox-p21-api-XXXXXX";
   sox_signalinfo_t sig={0};
   sox_encodinginfo_t enc={0};
-  struct stat st;
   size_t i,j;
   int fd=mkstemp(path);
   CHECK(fd>=0);
-  CHECK(write(fd,sentinel,sizeof(sentinel))==(ssize_t)sizeof(sentinel));
   CHECK(sox_init()==SOX_SUCCESS);
   sig.channels=2;
   sig.precision=1;
@@ -176,11 +191,10 @@ static int writer_api_denial(void)
   for (i=0;i<sizeof(high)/sizeof(*high);i++) {
     sig.rate=high[i];
     for (j=0;j<sizeof(types)/sizeof(*types);j++) {
-      CHECK(sox_open_write(path,&sig,&enc,types[j],NULL,NULL)==NULL);
-      CHECK(!fstat(fd,&st) && st.st_size==(off_t)sizeof(sentinel));
-      CHECK(lseek(fd,0,SEEK_SET)==0);
-      CHECK(read(fd,actual,sizeof(actual))==(ssize_t)sizeof(actual));
-      CHECK(!memcmp(actual,sentinel,sizeof(actual)));
+      sox_format_t *ft=sox_open_write(path,&sig,&enc,types[j],NULL,NULL);
+      CHECK(ft!=NULL);
+      CHECK(ft->signal.rate==(sox_rate_t)high[i]);
+      CHECK(sox_close(ft)==SOX_SUCCESS);
     }
   }
   CHECK(sox_quit()==SOX_SUCCESS);
@@ -192,7 +206,7 @@ static int writer_api_denial(void)
 int main(int argc, char **argv)
 {
   if (argc==1 || !strcmp(argv[1],"registry")) {
-    if (capabilities() || writer_api_denial()) return 1;
+    if (capabilities() || writer_api_authorized()) return 1;
     if (argc>1) goto done;
   }
   if (argc==1 || !strcmp(argv[1],"transport")) {
@@ -206,6 +220,6 @@ int main(int argc, char **argv)
   if (argc>1 && strcmp(argv[1],"registry") && strcmp(argv[1],"transport") &&
       strcmp(argv[1],"sizes")) {fprintf(stderr,"usage: dsd_test_p18 [registry|transport|sizes]\n");return 2;}
 done:
-  printf("P18 PASS %lu checks (high-rate capabilities disabled)\n",checks);
+  printf("P18 PASS %lu checks (all twelve high-rate rows open (P21))\n",checks);
   return 0;
 }

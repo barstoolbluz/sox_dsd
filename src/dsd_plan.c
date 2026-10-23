@@ -329,15 +329,20 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   if (requested_domain == LSX_DSD_NATIVE) {
     if (!all_native && !output_hz) output_hz=2822400;
     if (all_native && !output_hz) output_hz=native_rate;
+    /* P21: ask the capability table rather than refusing the two high rates
+     * outright. The endpoint still has to be resolved first so a refusal,
+     * if one comes, names the format the user actually asked for. */
     if (output_hz==22579200u || output_hz==45158400u) {
       lsx_dsd_endpoint endpoint=LSX_DSD_ENDPOINT_DSF;
       if ((spec->output_type && !lsx_strcasecmp(spec->output_type,"dff")) ||
           (spec->output_path && strlen(spec->output_path)>=4 &&
            !lsx_strcasecmp(spec->output_path+strlen(spec->output_path)-4,".dff")))
         endpoint=LSX_DSD_ENDPOINT_DFF;
-      return fail(error,n,"%s write at %u Hz unavailable: %s",
-          lsx_dsd_endpoint_name(endpoint),output_hz,
-          lsx_dsd_capability_description(output_hz,endpoint,LSX_DSD_OPERATION_WRITE));
+      if (lsx_dsd_capability_check(output_hz,endpoint,
+            LSX_DSD_OPERATION_WRITE)!=LSX_DSD_CAP_OK)
+        return fail(error,n,"%s write at %u Hz unavailable: %s",
+            lsx_dsd_endpoint_name(endpoint),output_hz,
+            lsx_dsd_capability_description(output_hz,endpoint,LSX_DSD_OPERATION_WRITE));
     }
     if (!lsx_dsd_rate_find(output_hz) ||
         !(lsx_dsd_rate_find(output_hz)->capabilities & LSX_DSD_WRITE_NATIVE))

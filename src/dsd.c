@@ -16,30 +16,18 @@ static lsx_dsd_rate const dsd_rates[] = {
    "decode.mastering.v1.dsd128", "decode.wideband.v1.dsd128", "encode.mastering.v1.dsd128"},
   {11289600, 256, "DSD256", CAPS_QUALIFIED,
    "decode.mastering.v1.dsd256", "decode.wideband.v1.dsd256", "encode.mastering.v1.dsd256"},
-  {22579200, 512, "DSD512", 0, NULL, NULL, NULL},
-  {45158400, 1024, "DSD1024", 0, NULL, NULL, NULL}
+  {22579200, 512, "DSD512", CAPS_QUALIFIED,
+   "decode.mastering.v1.dsd512", "decode.wideband.v1.dsd512", "encode.mastering.v2.dsd512"},
+  {45158400, 1024, "DSD1024", CAPS_QUALIFIED,
+   "decode.mastering.v1.dsd1024", "decode.wideband.v1.dsd1024", "encode.mastering.v2.dsd1024"}
 };
 
-/* P18 is explicit evidence-bound authorization, not a size check. No build
- * flag or environment setting may flip these high-rate operations on. */
-typedef struct {uint32_t rate; lsx_dsd_endpoint endpoint;
-    lsx_dsd_operation operation; lsx_dsd_cap_result decision;} cap_row;
-static const cap_row p18_closed[] = {
-  {22579200,LSX_DSD_ENDPOINT_DSF,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED},
-  {22579200,LSX_DSD_ENDPOINT_DSF,LSX_DSD_OPERATION_WRITE,LSX_DSD_CAP_UNQUALIFIED},
-  {45158400,LSX_DSD_ENDPOINT_DSF,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED},
-  {45158400,LSX_DSD_ENDPOINT_DSF,LSX_DSD_OPERATION_WRITE,LSX_DSD_CAP_UNQUALIFIED},
-  {22579200,LSX_DSD_ENDPOINT_DFF,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED},
-  {22579200,LSX_DSD_ENDPOINT_DFF,LSX_DSD_OPERATION_WRITE,LSX_DSD_CAP_UNQUALIFIED},
-  {45158400,LSX_DSD_ENDPOINT_DFF,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED},
-  {45158400,LSX_DSD_ENDPOINT_DFF,LSX_DSD_OPERATION_WRITE,LSX_DSD_CAP_UNQUALIFIED},
-  {22579200,LSX_DSD_ENDPOINT_DOP,LSX_DSD_OPERATION_TRANSPORT,LSX_DSD_CAP_UNQUALIFIED},
-  {45158400,LSX_DSD_ENDPOINT_DOP,LSX_DSD_OPERATION_TRANSPORT,LSX_DSD_CAP_UNQUALIFIED},
-  /* WSD is not an enabled P18 destination, even though its reader can
-   * encounter future-rate labels. */
-  {22579200,LSX_DSD_ENDPOINT_WSD,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED},
-  {45158400,LSX_DSD_ENDPOINT_WSD,LSX_DSD_OPERATION_READ,LSX_DSD_CAP_UNQUALIFIED}
-};
+/* P21: the operator declared the evidence satisfied and opened all twelve
+ * high-rate rows on 2026-10-23. The closed-row table that previously stood
+ * here is gone because it held no rows. To re-close one, reinstate a table
+ * of {rate, endpoint, operation, LSX_DSD_CAP_UNQUALIFIED} and consult it
+ * first in lsx_dsd_capability_check(); authorization stays explicit and
+ * table-driven rather than a size check. */
 
 const char *lsx_dsd_endpoint_name(lsx_dsd_endpoint endpoint)
 {
@@ -55,17 +43,12 @@ const char *lsx_dsd_endpoint_name(lsx_dsd_endpoint endpoint)
 lsx_dsd_cap_result lsx_dsd_capability_check(uint32_t native_hz,
     lsx_dsd_endpoint endpoint, lsx_dsd_operation operation)
 {
-  size_t i;
   const lsx_dsd_rate *r;
   unsigned bit;
-  for (i=0;i<sizeof(p18_closed)/sizeof(p18_closed[0]);++i)
-    if (p18_closed[i].rate==native_hz && p18_closed[i].endpoint==endpoint &&
-        p18_closed[i].operation==operation)
-      return p18_closed[i].decision;
   if ((endpoint==LSX_DSD_ENDPOINT_DOP && operation!=LSX_DSD_OPERATION_TRANSPORT) ||
       (endpoint!=LSX_DSD_ENDPOINT_DOP && operation==LSX_DSD_OPERATION_TRANSPORT) ||
       endpoint>LSX_DSD_ENDPOINT_WSD || operation>LSX_DSD_OPERATION_TRANSPORT ||
-      !native_hz || native_hz>=22579200u)
+      !native_hz || native_hz>45158400u)
     return LSX_DSD_CAP_UNSUPPORTED;
   /* Old low-rate format readers accept some nonstandard labels; do not
    * change that preexisting parser policy in this high-rate phase. */
