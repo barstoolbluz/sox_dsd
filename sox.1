@@ -1488,13 +1488,14 @@ Examples (input paths and output formats must have compatible channel layouts):
    sox --dsd-mode native in.dsf out.dff
 .XX
 .PP
-P18 installs operation-specific refusal gates for DSD512 (22,579,200 Hz)
-and DSD1024 (45,158,400 Hz) DSF/DSDIFF file I/O and DoP transport.
-These higher rates are disabled because their DSP qualification has not
-passed.  An output request is refused, not silently reduced to DSD256.
-DoP would require 1,411,200 Hz or 2,822,400 Hz lossless 24-bit PCM,
-respectively, but neither rate is authorized as a high-rate DoP output.
-A representable sample-rate field does not imply software or DAC support.
+P21 enables DSD512 (22,579,200 Hz) and DSD1024 (45,158,400 Hz)
+DSF/DSDIFF file reading and writing, WSD reading, and DoP transport.
+Mastering encoding at both rates selects the qualified v2 CLANS-7 profiles;
+the high-rate v1 encoders remain unqualified.  The DoP transport rates
+are 1,411,200 Hz and 2,822,400 Hz lossless 24-bit PCM, respectively.
+Noncanonical high native DSD rates are rejected rather than silently
+substituted. File/transport authorization does not establish support on
+any particular software player, DAC or transport device.
 .PP
 The reconstruction filter can be forced to an available P06 tier with
 .BR SOX_DSD_KERNEL_FIR ;

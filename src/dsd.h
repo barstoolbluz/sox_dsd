@@ -32,8 +32,8 @@ typedef struct {
 } lsx_dsd_rate;
 
 typedef enum {LSX_DSD_MODE_LEGACY, LSX_DSD_MODE_AUTO, LSX_DSD_MODE_NATIVE} lsx_dsd_mode;
-/* Existing numeric values and v1 semantics are frozen. Generic mastering stays
- * v1 while P15's release gate is blocked. v2 is explicitly selected only. */
+/* Existing numeric values and v1 semantics are frozen. The mastering alias
+ * selects v1; unpinned auto reconstruction selects v2. */
 typedef enum {LSX_DSD_PROFILE_MASTERING=0, LSX_DSD_PROFILE_WIDEBAND=1,
               LSX_DSD_PROFILE_LEGACY=2, LSX_DSD_PROFILE_MASTERING_V2=3} lsx_dsd_decode;
 typedef enum {LSX_DSD_ENCODE_MASTERING, LSX_DSD_ENCODE_LEGACY,
@@ -155,15 +155,18 @@ typedef struct {
   char const *encoder_filter_name; /* Low-level SDM selection; not mastering. */
 } lsx_dsd_plan;
 
-/* P18 fail-closed, private rate x endpoint x operation authorization.
- * NO high-rate row is qualified. A structurally representable file/DoP
- * rate is not a valid DSP, software or physical-device certificate. */
+/* Private rate x endpoint x operation authorization. P21 permits the
+ * enumerated high-rate operations; unlisted operations remain unsupported.
+ * Authorization does not certify software or physical-device compatibility. */
 typedef enum { LSX_DSD_ENDPOINT_DSF, LSX_DSD_ENDPOINT_DFF,
                LSX_DSD_ENDPOINT_DOP, LSX_DSD_ENDPOINT_WSD } lsx_dsd_endpoint;
 typedef enum { LSX_DSD_OPERATION_READ, LSX_DSD_OPERATION_WRITE,
                LSX_DSD_OPERATION_TRANSPORT } lsx_dsd_operation;
 typedef enum { LSX_DSD_CAP_OK, LSX_DSD_CAP_UNQUALIFIED,
                LSX_DSD_CAP_UNSUPPORTED } lsx_dsd_cap_result;
+/* Limits shared with the DSF and DSDIFF writers' pre-open validation. */
+#define LSX_DSD_DSF_MAX_CHANNELS 6u
+#define LSX_DSD_DFF_MAX_CHANNELS 1000u
 lsx_dsd_cap_result lsx_dsd_capability_check(uint32_t native_hz,
     lsx_dsd_endpoint endpoint, lsx_dsd_operation operation);
 const char *lsx_dsd_capability_description(uint32_t native_hz,

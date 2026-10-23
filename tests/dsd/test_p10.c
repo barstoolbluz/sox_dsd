@@ -48,42 +48,61 @@ static void envelope(void)
     lsx_pcmdsd_destroy(p);p=NULL;
   }
   p=(void *)1;
-  /* P17 adds an explicitly unqualified, test-only composite candidate.
-   * The production constructor must still refuse the rate. */
-  CHECK(lsx_pcmdsd_create(48000,22579200,.5,0,&p)==SOX_DSD_UNSUPPORTED && !p);
-  CHECK(lsx_pcmdsd_candidate_create(48000,22579200,.5,0,NULL,NULL,&p)==SOX_DSD_OK && p);
+  /* P21 promotes v2 at DSD512; the regular constructor must now succeed
+   * and the private candidate constructor must default to that same row. */
+  CHECK(lsx_pcmdsd_create(48000,22579200,.5,0,&p)==SOX_DSD_OK && p);
+  CHECK(!strcmp(lsx_pcmdsd_profile_of(p)->id,"encode.mastering.v2.dsd512"));
   lsx_pcmdsd_destroy(p);p=NULL;
-  /* P20 DSD512 v2 is separate, always unqualified and opt-in for tests. */
+  CHECK(lsx_pcmdsd_candidate_create(48000,22579200,.5,0,NULL,NULL,&p)==SOX_DSD_OK && p);
+  CHECK(!strcmp(lsx_pcmdsd_profile_of(p)->id,"encode.mastering.v2.dsd512"));
+  lsx_pcmdsd_destroy(p);p=NULL;
+  /* Both v1 and v2 are still addressable independently by exact candidate ID. */
   {
     const char *id="encode.mastering.v2.dsd512";
     const lsx_pcmdsd_profile *v2=lsx_pcmdsd_profile_find_id(22579200,id);
     const sdm_profile_t *ctl=sdm_profile_find(id,22579200);
     const double *a,*g;unsigned order;
-    CHECK(lsx_pcmdsd_profile_find(22579200) &&
-        !strcmp(lsx_pcmdsd_profile_find(22579200)->id,"encode.mastering.v1.dsd512"));
-    CHECK(v2 && !v2->qualified && !v2->certificate_sha256 && v2->bounds);
+    const char *old_id="encode.mastering.v1.dsd512";
+    const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(22579200,old_id);
+    const sdm_profile_t *old_control=sdm_profile_find(old_id,22579200);
+    CHECK(lsx_pcmdsd_profile_find(22579200)==v2);
+    CHECK(v2 && v2->qualified && v2->certificate_sha256 && v2->bounds);
+    CHECK(v1 && !v1->qualified && !v1->certificate_sha256 && old_control);
     CHECK(ctl && sdm_profile_rate(ctl)==22579200);
     CHECK(!sdm_profile_coefficients(ctl,&a,&g,&order) && order==7);
-    CHECK(lsx_pcmdsd_create(176400,22579200,.5,0,&p)==SOX_DSD_UNSUPPORTED && !p);
+    CHECK(lsx_pcmdsd_create(176400,22579200,.5,0,&p)==SOX_DSD_OK && p);
+    CHECK(lsx_pcmdsd_profile_of(p)==v2);
+    lsx_pcmdsd_destroy(p);p=NULL;
     CHECK(lsx_pcmdsd_candidate_create(176400,22579200,.5,0,ctl,v2->bounds,&p)==SOX_DSD_OK && p);
     CHECK(lsx_pcmdsd_profile_of(p)==v2);
     lsx_pcmdsd_destroy(p);p=NULL;
+    CHECK(lsx_pcmdsd_candidate_create(176400,22579200,.5,0,old_control,v1->bounds,&p)==SOX_DSD_OK && p);
+    CHECK(lsx_pcmdsd_profile_of(p)==v1);
+    lsx_pcmdsd_destroy(p);p=NULL;
   }
-  /* P19 correction is an explicitly selected, separately guarded v2
-   * candidate. The v1 default, original coefficients and public gate stay. */
+  /* P21 promotes P19's v2 DSD1024 candidate. Its v1 counterpart remains
+   * unqualified and retains its exact-name replay path. */
   {
     const char *v2_id="encode.mastering.v2.dsd1024";
     const lsx_pcmdsd_profile *v2=lsx_pcmdsd_profile_find_id(45158400,v2_id);
     const sdm_profile_t *control=sdm_profile_find(v2_id,45158400);
     const double *a,*g;unsigned order;
-    CHECK(lsx_pcmdsd_profile_find(45158400) &&
-        !strcmp(lsx_pcmdsd_profile_find(45158400)->id,"encode.mastering.v1.dsd1024"));
-    CHECK(v2 && !v2->qualified && !v2->certificate_sha256 && v2->bounds);
+    const char *old_id="encode.mastering.v1.dsd1024";
+    const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(45158400,old_id);
+    const sdm_profile_t *old_control=sdm_profile_find(old_id,45158400);
+    CHECK(lsx_pcmdsd_profile_find(45158400)==v2);
+    CHECK(v2 && v2->qualified && v2->certificate_sha256 && v2->bounds);
+    CHECK(v1 && !v1->qualified && !v1->certificate_sha256 && old_control);
     CHECK(control && sdm_profile_rate(control)==45158400);
     CHECK(!sdm_profile_coefficients(control,&a,&g,&order) && order==7);
-    CHECK(lsx_pcmdsd_create(176400,45158400,.5,0,&p)==SOX_DSD_UNSUPPORTED && !p);
+    CHECK(lsx_pcmdsd_create(176400,45158400,.5,0,&p)==SOX_DSD_OK && p);
+    CHECK(lsx_pcmdsd_profile_of(p)==v2);
+    lsx_pcmdsd_destroy(p);p=NULL;
     CHECK(lsx_pcmdsd_candidate_create(176400,45158400,.5,0,control,v2->bounds,&p)==SOX_DSD_OK && p);
     CHECK(lsx_pcmdsd_profile_of(p)==v2);
+    lsx_pcmdsd_destroy(p);p=NULL;
+    CHECK(lsx_pcmdsd_candidate_create(176400,45158400,.5,0,old_control,v1->bounds,&p)==SOX_DSD_OK && p);
+    CHECK(lsx_pcmdsd_profile_of(p)==v1);
     lsx_pcmdsd_destroy(p);p=NULL;
   }
   CHECK(lsx_pcmdsd_candidate_create(0,2822400,.5,0,NULL,NULL,&p)==SOX_DSD_BAD_ARGUMENT && !p);

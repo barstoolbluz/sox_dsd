@@ -3341,7 +3341,7 @@ static void usage(void)
 "--dsd-mode auto|native|legacy  Opt in to P08 domain routing; default remains legacy",
 "--dsd-decode conservative|mastering|wideband|legacy|decode.mastering.v2.dsd<rate>",
 "                         Unpinned auto reconstruction defaults to mastering v2; explicit mastering/conservative select v1",
-"--dsd-encode mastering|legacy|experimental|encode.mastering.v1.dsd<rate>",
+"--dsd-encode mastering|legacy|experimental|encode.mastering.v{1,2}.dsd<rate>",
 "                         Mastering encoding is active for native DSD64 to DSD1024; guards remain enforced",
 "--dsd-level preserve|sacd  Decoder level convention",
 "--dsd-clip warn|error    Graph-boundary clipping policy",
@@ -3916,7 +3916,7 @@ static char parse_gopts_and_fopts(file_t * f)
           int profile;
           if (!lsx_dsd_profile_parse(optstate.arg,1,&profile,
                 &dsd_policy.encode_pinned_native_hz)) {
-            lsx_fail("--dsd-encode requires mastering, legacy, experimental, or a supported encode.mastering.v1.dsd* ID");
+            lsx_fail("--dsd-encode requires mastering, legacy, experimental, or a supported versioned encode.mastering ID");
             exit(1);
           }
           dsd_policy.encode=(lsx_dsd_encode)profile;

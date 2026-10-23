@@ -147,7 +147,7 @@ static int dsf_startread(sox_format_t *ft)
 		return SOX_EFMT;
 	}
 
-	if (dsf->chan_num < 1 || dsf->chan_num > 6) {
+	if (dsf->chan_num < 1 || dsf->chan_num > LSX_DSD_DSF_MAX_CHANNELS) {
 		lsx_fail_errno(ft, SOX_EHDR, "invalid channel count %d",
 			       dsf->chan_num);
 		return SOX_EHDR;

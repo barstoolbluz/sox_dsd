@@ -13,9 +13,14 @@ gated extension for packed input and DSD512/1024 — do not advertise the
 extension as present merely because the type system can represent its rates.
 
 **P18 (2026-10-21):** Higher-rate capability checks and synthetic test fixtures
-are implemented, but DSD512/DSD1024 DSF/DSDIFF/DoP remain disabled.
-See `P18_COMPATIBILITY_LEDGER.md`, `P18_RELEASE_MANIFEST.json`, and
-`handoffs/P18.md` for operation-specific decisions and evidence limits.
+were implemented with DSD512/1024 DSF/DSDIFF/DoP disabled. That archived
+state is retained in `P18_COMPATIBILITY_LEDGER.md`, `P18_RELEASE_MANIFEST.json`,
+and `handoffs/P18.md`.
+
+**P21 (2026-10-23):** DSD512/1024 DSF and DSDIFF reads/writes, WSD reads,
+and DoP transport are enabled. The high-rate mastering encoders select v2;
+v1 remains unqualified. See `amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md`
+for the live authorization decision and its limits.
 
 ## Contents
 

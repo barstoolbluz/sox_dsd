@@ -19,13 +19,16 @@ native DSF and DSDIFF I/O, DSD-to-PCM reconstruction, and DSD encoding.
 It adds DSD-aware planning and versioned reconstruction filters rather
 than treating all DSD-to-PCM conversions as interchangeable.
 
-**DSD512 and DSD1024 are next on the roadmap.** We plan to support them
-as native DSD formats, with the decoding, encoding, filtering, performance
-work and tests that go with that. They are not shipped features yet. P18 has added explicit per-format and per-transport refusal gates; see
-[the compatibility ledger](docs/dsd/P18_COMPATIBILITY_LEDGER.md).
+**DSD512 and DSD1024 file and transport paths are enabled as of P21
+(2026-10-23).** DSF and DSDIFF support native read/write, WSD supports
+native read, and DoP transport is enabled for both clocks. The qualified
+high-rate mastering encoders are v2 CLANS-7; the v1 high-rate encoders
+remain unqualified. File and DoP authorization does not establish support
+on any particular player, DAC or transport device. See
+[the P21 authorization record](docs/dsd/amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md).
 
 The source-aware v2 mastering reconstruction is the default for DSD64,
-DSD128 and DSD256. The earlier v1 filters are preserved and remain
+DSD128, DSD256, DSD512 and DSD1024. The earlier v1 filters are preserved and remain
 selectable. To ask for v1 explicitly:
 
     sox --dsd-mode auto --dsd-decode decode.mastering.v1.dsd64 \

@@ -7,9 +7,10 @@ reference bytes, never generated from a SoX writer, and a synthetic
 high-rate fixture is still not software or device interoperability.
 
 What this file is now for: an opened rate must be carried through, not
-silently substituted. The negotiator used to be stopped by refusal; now only
-the write-rate tables stop it, so every output case below reparses what was
-actually written and asserts the rate it asked for. Two refusals survive and
+silently substituted. The write-rate tables admit both new exact rates; a
+separate pre-open gate rejects noncanonical high rates rather than allowing
+the generic negotiator to round one to another. Every positive output case
+reparses the file and asserts the rate requested. Two refusals survive and
 are still asserted, because neither came from P18: native mode cannot change
 DSD rate without reconstruction, and the channel-layout guard still fires on
 destinations that cannot carry a named layout.
@@ -25,6 +26,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import wave
 
 from reference import fixtures, verify
 
@@ -195,8 +197,8 @@ def main():
         if status!='PASS':print('P18 FAIL',name,details,flush=True)
     with tempfile.TemporaryDirectory(prefix='sox-p18-') as tmp:
         work=pathlib.Path(tmp)
-        # Existing high-rate input handlers must not accept a syntactically
-        # valid file, including packed reader opt-in (no bypass).
+        # The opened high-rate readers must accept structurally valid files,
+        # including the packed reader path.
         for native in RATES:
             for ext in ('dsf','dff'):
                 for chans in CHANNELS:
@@ -219,8 +221,7 @@ def main():
                                 expected=f'read accepted and reported at {native} Hz',
                                 reported_rate=seen,
                                 fixture_sha256=sha(inp.read_bytes()),packed=packed))
-        # The inherited WSD native reader must not bypass high-rate refusal.
-        # WSD is safety coverage, not a claimed new P18 format capability.
+        # P21 also enables the inherited WSD reader at the two named clocks.
         for native in RATES:
             for chans in CHANNELS:
                 name=f'wsd-{native}-{chans}'
@@ -236,6 +237,108 @@ def main():
                 store(name,'PASS' if okay else 'FAIL',dict(output=got,reported_rate=seen,
                     reference_sha256=sha(source.read_bytes()),
                     expected=f'WSD read accepted and reported at {native} Hz'))
+        # The P21 v2 decode rows must work in the planned CLI path, not
+        # merely instantiate through the private P17 constructor.
+        for native in RATES:
+            key=f'auto-decode-v2-{native}'
+            if key in old:report['cases'].append(old[key]);continue
+            inp=VECTORS/f'p18-{native}-dsf-1-2-32769.dsf'
+            dst=work/f'auto-decode-{native}.wav'
+            got=command_result([args.sox,'-V2','--dsd-mode','auto','-D',
+                '-t','dsf',inp,'-r','176400',dst],environment)
+            details=None;okay=False
+            if got['exit']==0 and dst.is_file():
+                with wave.open(str(dst),'rb') as decoded:
+                    details=dict(rate=decoded.getframerate(),
+                        channels=decoded.getnchannels(),frames=decoded.getnframes(),
+                        output_sha256=sha(dst.read_bytes()))
+                    okay=(details['rate']==176400 and details['channels']==2
+                          and details['frames']>0)
+            store(key,'PASS' if okay else 'FAIL',dict(output=got,
+                expected='planned high-rate v2 native-to-PCM decode',reference=details))
+        # Production v2 encoder selection, native rate preservation and plan
+        # reporting must agree on both DSF and DSDIFF destinations.
+        source_pcm=work/'auto-v2-source.wav'
+        with wave.open(str(source_pcm),'wb') as encoded:
+            encoded.setparams((2,2,176400,4096,'NONE','not compressed'))
+            encoded.writeframes(b'\0\0'*2*4096)
+        for native in RATES:
+            for ext in ('dsf','dff'):
+                key=f'auto-encode-v2-{native}-{ext}'
+                if key in old:report['cases'].append(old[key]);continue
+                dst=work/f'auto-encode-{native}.{ext}'
+                cmd=[args.sox,'-V2','--dsd-mode','auto','-D',source_pcm,
+                    '-r',str(native),dst]
+                got=command_result(cmd,environment)
+                ref=None;okay=False
+                if got['exit']==0 and dst.is_file():
+                    raw=dst.read_bytes()
+                    desc=verify.decode_dsf(raw) if ext=='dsf' else verify.decode_dff(raw)
+                    plan_cmd=[args.sox,'--dsd-plan','-D',source_pcm,
+                              '-r',str(native),dst]
+                    plan=subprocess.run(list(map(str,plan_cmd)),cwd=ROOT,
+                        env=environment,stdin=subprocess.DEVNULL,
+                        capture_output=True,timeout=45)
+                    chosen=None
+                    if plan.returncode==0:
+                        chosen=json.loads(plan.stdout)['encoder']['id']
+                    ref=dict(rate=desc['rate'],channels=desc['channels'],
+                        frames=desc['frames'],encoder_id=chosen,
+                        output_sha256=sha(raw))
+                    okay=(desc['rate']==native and desc['channels']==2 and
+                          desc['frames']>0 and
+                          chosen==f'encode.mastering.v2.dsd{native//44100}')
+                store(key,'PASS' if okay else 'FAIL',dict(output=got,
+                    expected='qualified v2 encoder, declared in plan and on disk',
+                    reference=ref))
+        # P21 does not authorize the gaps between canonical high rates.
+        # Syntactically valid headers must be refused by every native reader.
+        for invalid in (11_289_601,22_579_201,30_000_000):
+            for ext in ('dsf','dff','wsd'):
+                key=f'read-noncanonical-{invalid}-{ext}'
+                if key in old:report['cases'].append(old[key]);continue
+                bits=fixtures.bits(16,2)
+                source=work/f'invalid-{invalid}.{ext}'
+                maker={'dsf':fixtures.make_dsf,'dff':fixtures.make_dff,
+                       'wsd':fixtures.make_wsd}[ext]
+                source.write_bytes(maker(bits,invalid))
+                got=command_result([args.sox,'-V2','--dsd-layout-loss','warn',
+                    '-t',ext,source,'-n'],environment)
+                okay=got['exit']!=0
+                store(key,'PASS' if okay else 'FAIL',dict(output=got,
+                    expected='reject noncanonical high native read rate',
+                    header_rate=invalid,format=ext,
+                    source_sha256=sha(source.read_bytes())))
+        # Default and explicit legacy bypass DSD planner checks; preflight
+        # must reject noncanonical requests without replacing existing data.
+        for invalid in (11_289_601,22_579_201,30_000_000,45_158_401):
+            for ext in ('dsf','dff'):
+                for mode in ('default','legacy'):
+                    key=f'write-noncanonical-{mode}-{invalid}-{ext}'
+                    if key in old:report['cases'].append(old[key]);continue
+                    dst=work/f'invalid-{mode}-{invalid}.{ext}'
+                    sentinel=b'P21-existing-contents-must-survive\n'
+                    dst.write_bytes(sentinel)
+                    cmd=[args.sox,'-y','-V2']
+                    if mode=='legacy':cmd+=['--dsd-mode','legacy']
+                    cmd+=['-D',ROOT/'tests/dsd/fixtures/stereo_96.dsf',
+                          '-r',str(invalid),dst]
+                    got=command_result(cmd,environment)
+                    kept=dst.read_bytes()==sentinel
+                    okay=got['exit']!=0 and kept
+                    store(key,'PASS' if okay else 'FAIL',dict(output=got,
+                        expected='reject before opening/truncating destination',
+                        destination_preserved=kept))
+        key='versioned-encoder-help'
+        if key in old:report['cases'].append(old[key])
+        else:
+            got=command_result([args.sox,'--help'],environment)
+            proc=subprocess.run([str(args.sox),'--help'],cwd=ROOT,env=environment,
+                stdin=subprocess.DEVNULL,capture_output=True,timeout=45)
+            matches=b'encode.mastering.v{1,2}.dsd<rate>' in proc.stdout
+            store(key,'PASS' if got['exit']==0 and matches else 'FAIL',
+                dict(output=got,expected='v1 and v2 explicit encoder IDs in CLI help',
+                    contains_versioned_id=matches))
         # A refusal that is NOT P18 and must survive its removal: native mode
         # moves native bits and cannot change DSD rate without reconstruction.
         # The source here is DSD64, so asking for 512/1024 in native mode is
@@ -252,12 +355,9 @@ def main():
                 okay=got['exit']!=0 and expected in got['stderr'] and not dst.exists()
                 store(key,'PASS' if okay else 'FAIL',dict(output=got,expected=expected,
                     destination_absent=not dst.exists()))
-        # The case this file now exists for. Default and legacy mode let generic
-        # format negotiation silently substitute DSD256 for DSD512/1024; P18
-        # caught that by refusing the rate outright. With the rows open the
-        # only thing standing between a request and a quietly down-rated file
-        # is the writer rate table, so reparse the result and require the rate
-        # that was asked for. A substitution now shows up as a FAIL here.
+        # Positive high-rate writes must use the requested clock, including
+        # the default/legacy mode that skips the new domain planner. Reparse
+        # the file rather than trusting the command exit status.
         for native in RATES:
             for ext in ('dsf','dff'):
                 for mode in ('default','legacy'):
