@@ -3219,14 +3219,19 @@ static void display_SoX_version(FILE * file)
 #endif
   const sox_version_info_t* info = sox_version_info();
 
+  /* SoX DSD numbers its own releases; the sox_ng release this tree was
+   * synchronised with is reported alongside rather than encoded in the
+   * version, so an upstream sync does not move our version. */
 #ifdef VERSION
-  fprintf(file, "%s:      SoX DSD v%s\n", sox_globals.myname, VERSION);
+  fprintf(file, "%s:      SoX DSD v%s (based on sox_ng %s)\n",
+      sox_globals.myname, VERSION, SOX_DSD_UPSTREAM_BASE);
 #else
-  fprintf(file, "%s:      SoX DSD v%s%s%s\n",
+  fprintf(file, "%s:      SoX DSD v%s%s%s (based on sox_ng %s)\n",
       sox_globals.myname,
       info->version,
       info->version_extra ? "-" : "",
-      info->version_extra ? info->version_extra : "");
+      info->version_extra ? info->version_extra : "",
+      SOX_DSD_UPSTREAM_BASE);
 #endif
 
   if (sox_globals.verbosity > 3) {
