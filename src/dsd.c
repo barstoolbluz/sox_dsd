@@ -167,7 +167,18 @@ static const lsx_dsd_frontend_profile dsd_frontends[] = {
   {45158400,1411200, LSX_DSD_PROFILE_WIDEBAND, 564480, 705600, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd1024"},
   { 2822400,  88200, LSX_DSD_PROFILE_MASTERING_V2,  25000,  40000, 5, LSX_DSD_BANK_MASTER64_V2, 1636, "decode.mastering.v2.dsd64"},
   { 5644800, 176400, LSX_DSD_PROFILE_MASTERING_V2,  48000,  60000, 5, LSX_DSD_BANK_MASTER128_V2, 3428, "decode.mastering.v2.dsd128"},
-  {11289600, 176400, LSX_DSD_PROFILE_MASTERING_V2,  66000,  80000, 6, LSX_DSD_BANK_MASTER256_V2, 6052, "decode.mastering.v2.dsd256"}
+  {11289600, 176400, LSX_DSD_PROFILE_MASTERING_V2,  66000,  80000, 6, LSX_DSD_BANK_MASTER256_V2, 6052, "decode.mastering.v2.dsd256"},
+  /* P21: v2 decode at the two high clocks. No new coefficients: the final
+   * bank, intermediate clock and band edges are those of the DSD256 v2
+   * profile, and only the half-band cascade grows, exactly as v1 reuses
+   * MASTER64_256 across DSD256/512/1024. The edges stay at 66k/80k because
+   * the intermediate clock stays at 176400 and its Nyquist is 88200, so the
+   * stop edge cannot usefully move; v1 holds its own edges constant from
+   * DSD256 up for the same reason. delay_native_frames follows the cascade
+   * identity 28*(2^(stages-1)-1) + ((taps-1)/2)*2^(stages-1), which
+   * reproduces all eight pre-existing published delays. */
+  {22579200, 176400, LSX_DSD_PROFILE_MASTERING_V2,  66000,  80000, 7, LSX_DSD_BANK_MASTER256_V2, 12132, "decode.mastering.v2.dsd512"},
+  {45158400, 176400, LSX_DSD_PROFILE_MASTERING_V2,  66000,  80000, 8, LSX_DSD_BANK_MASTER256_V2, 24292, "decode.mastering.v2.dsd1024"}
 };
 
 const lsx_dsd_frontend_profile *lsx_dsd_frontend_profile_find(
@@ -201,8 +212,13 @@ double lsx_dsd_effective_bandwidth(double pass, double intermediate, double outp
 
 int lsx_dsd_pcm_rate_supported(uint32_t hz)
 {
+  /* P21: 1411200 added. decode.wideband.v1.dsd1024 declares a 1411200 Hz
+   * intermediate, so without it that profile could never initialize and
+   * wideband decode at DSD1024 failed with BAD_ARGUMENT no matter what
+   * output rate was asked for. The list has never been strictly paired
+   * across the 44.1 and 48 kHz families; 705600 already has no 768000. */
   static uint32_t const rates[] = {
-    44100,48000,88200,96000,176400,192000,352800,384000,705600
+    44100,48000,88200,96000,176400,192000,352800,384000,705600,1411200
   };
   size_t i;
   for (i=0; i<sizeof(rates)/sizeof(rates[0]); ++i)

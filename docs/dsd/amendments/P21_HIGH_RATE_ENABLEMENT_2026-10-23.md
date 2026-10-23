@@ -25,6 +25,37 @@ measurement at all and that should stay legible to whoever reads this next.
   src/dsf.c        512x and 1024x added to write_rates so the negotiator
   src/dsdiff.c     stops substituting DSD256
 
+## v2 decode at both clocks
+
+Opening the capability rows was not sufficient for decode. The CLI's default
+decode kind is v2, and v2 decode profiles stopped at DSD256, so the planned
+path could not resolve one: `--dsd-mode auto` and `--dsd-plan` both failed
+with `no decoder profile for <rate> Hz`, while the default path worked only
+because the default mode is legacy, which skips domain planning.
+
+Two rows were added to `dsd_frontends[]`. They introduce no new
+coefficients. The final bank, intermediate clock and band edges are the
+DSD256 v2 profile's, and only the half-band cascade grows, exactly as v1
+reuses MASTER64_256 across DSD256, 512 and 1024. The edges stay at 66k/80k
+because the intermediate clock stays at 176400 and its Nyquist is 88200, so
+the stop edge cannot usefully move; v1 holds its own edges constant from
+DSD256 upward for the same reason.
+
+`delay_native_frames` is derived, not chosen. With the 57-tap half-band
+contributing a group delay of 28 at its own input rate,
+
+    delay_native = 28*(2^(stages-1) - 1) + ((taps-1)/2) * 2^(stages-1)
+
+reproduces all eight pre-existing published delays exactly, and gives 12132
+at seven stages and 24292 at eight.
+
+Before committing, the extension was compared against the qualified DSD256
+v2 profile on one source. The per-band difference between v2 and v1 matched
+to two decimals at both clocks: -0.01 dB in 0-20k, +1.16 against +1.15 in
+40-66k, +8.63 in 66-80k and +6.69 in 80-88.2k. In-band against ffmpeg it
+scored 0.99996, the same as v1. That is a comparison against an already
+qualified profile, not a qualification of this one.
+
 ## The v1 encoders stay disabled
 
 `encode.mastering.v1.dsd512` and `encode.mastering.v1.dsd1024` remain

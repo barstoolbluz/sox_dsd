@@ -160,8 +160,15 @@ static void test_invalid(void)
    CHECK(info.stages==8 && info.factor==256);
   }
   lsx_dsd_reconstruction_destroy(ctx);ctx=NULL;
-  CHECK(lsx_dsd_reconstruction_create(45158400,LSX_DSD_PROFILE_MASTERING_V2,1,&ctx)==SOX_DSD_UNSUPPORTED);
-  CHECK(ctx==NULL);
+  /* P21: v2 decode resolves at DSD1024 now; through P20 this was
+   * unsupported. Eight stages and factor 256, matching v1 at this clock. */
+  CHECK(lsx_dsd_reconstruction_create(45158400,LSX_DSD_PROFILE_MASTERING_V2,1,&ctx)==SOX_DSD_OK);
+  {lsx_dsd_reconstruction_info info;
+   CHECK(lsx_dsd_reconstruction_info_get(ctx,&info)==SOX_DSD_OK);
+   CHECK(info.stages==8 && info.factor==256);
+   CHECK(info.delay_native_frames==24292);
+  }
+  lsx_dsd_reconstruction_destroy(ctx);ctx=NULL;
   CHECK(lsx_dsd_reconstruction_create(2822400,LSX_DSD_PROFILE_LEGACY,1,&ctx)==SOX_DSD_UNSUPPORTED);
   CHECK(lsx_dsd_reconstruction_create(2822400,LSX_DSD_PROFILE_MASTERING,0,&ctx)==SOX_DSD_BAD_ARGUMENT);
   CHECK(lsx_dsd_reconstruction_create(2822400,LSX_DSD_PROFILE_MASTERING,1,NULL)==SOX_DSD_BAD_ARGUMENT);

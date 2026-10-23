@@ -1,0 +1,63 @@
+{
+  "added": [
+    "decode.mastering.v2.dsd512",
+    "decode.mastering.v2.dsd1024",
+    "pcm output rate 1411200"
+  ],
+  "cases": {
+    "dsd1024": {
+      "--dsd-decode conservative": {
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: `/home/daedalus/.claude/jobs/f4718c32/tmp/s.wav' output clipped 12240 samples; decrease volume?"
+      },
+      "--dsd-decode mastering": {
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: `/home/daedalus/.claude/jobs/f4718c32/tmp/s.wav' output clipped 12240 samples; decrease volume?"
+      },
+      "--dsd-decode wideband": {
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: `/home/daedalus/.claude/jobs/f4718c32/tmp/s.wav' output clipped 130130 samples; decrease volume?"
+      },
+      "--dsd-mode auto": {
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: `/home/daedalus/.claude/jobs/f4718c32/tmp/s.wav' output clipped 8830 samples; decrease volume?"
+      },
+      "--dsd-plan": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "default (v2)": {
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: `/home/daedalus/.claude/jobs/f4718c32/tmp/s.wav' output clipped 13186 samples; decrease volume?"
+      }
+    },
+    "dsd512": {
+      "--dsd-decode conservative": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "--dsd-decode mastering": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "--dsd-decode wideband": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "--dsd-mode auto": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "--dsd-plan": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "default (v2)": {
+        "exit": 0,
+        "stderr": ""
+      }
+    }
+  },
+  "note": "CLI decode reachability after the two v2 decode rows and the 1411200 Hz PCM output rate. Licensed source by hash only; wideband is driven at its own intermediate rate.",
+  "schema": "P21/decode-surface/2"
+}
