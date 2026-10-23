@@ -92,8 +92,14 @@ static void numeric(void)
   CHECK(lsx_dsd_rate_find(2822400)->multiplier==64);
   CHECK(lsx_dsd_rate_find(5644800)->multiplier==128);
   CHECK(lsx_dsd_rate_find(11289600)->multiplier==256);
-  CHECK(lsx_dsd_rate_find(22579200)->capabilities==0);
-  CHECK(lsx_dsd_rate_find(45158400)->capabilities==0);
+  /* P21, 2026-10-23: both high rates are authorized and carry the same
+   * capability set as the low rates. Through P20 these asserted zero. */
+  CHECK(lsx_dsd_rate_find(22579200)->multiplier==512);
+  CHECK(lsx_dsd_rate_find(45158400)->multiplier==1024);
+  CHECK(lsx_dsd_rate_find(22579200)->capabilities==
+        lsx_dsd_rate_find(11289600)->capabilities);
+  CHECK(lsx_dsd_rate_find(45158400)->capabilities==
+        lsx_dsd_rate_find(11289600)->capabilities);
   CHECK(!lsx_dsd_rate_find(3000000));
   CHECK(lsx_dsd_profile_edges(2822400,LSX_DSD_PROFILE_MASTERING,&pass,&stop,&r));
   CLOSE(pass,20000);CLOSE(stop,40000);CLOSE(r,88200);

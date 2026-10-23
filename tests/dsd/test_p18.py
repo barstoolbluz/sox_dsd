@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
-"""P18 closed high-rate file/DoP fixture and CLI proof.
+"""P21 open high-rate file/DoP fixture and CLI proof.
 
-Fixtures are independent reference bytes, never generated from a SoX writer.
-512/1024 reads and writes MUST fail with a capability-specific explanation.
-A synthetic high-rate fixture is not software or device interoperability.
-Every check has a recorded command, expected result and bounded file size.
+Was the P18 fail-closed proof; all twelve rows were opened on 2026-10-23 and
+every refusal assertion here inverted. Fixtures are still independent
+reference bytes, never generated from a SoX writer, and a synthetic
+high-rate fixture is still not software or device interoperability.
+
+What this file is now for: an opened rate must be carried through, not
+silently substituted. The negotiator used to be stopped by refusal; now only
+the write-rate tables stop it, so every output case below reparses what was
+actually written and asserts the rate it asked for. Two refusals survive and
+are still asserted, because neither came from P18: native mode cannot change
+DSD rate without reconstruction, and the channel-layout guard still fires on
+destinations that cannot carry a named layout.
 """
 from __future__ import annotations
 import argparse
@@ -107,6 +115,20 @@ def command_result(cmd, env, timeout=45):
         wall_seconds=time.perf_counter()-start)
 
 
+def probe_rate(sox, path, env):
+    """Header rate as the binary reports it, independent of the decode path.
+
+    command_result() deliberately keeps only a digest of stdout so receipts
+    stay bounded; this one case needs the value itself, so it gets its own
+    helper rather than widening that contract.
+    """
+    r=subprocess.run([str(sox),'--i','-r',str(path)],cwd=ROOT,env=env,
+        stdin=subprocess.DEVNULL,capture_output=True,timeout=45)
+    if r.returncode!=0:return None
+    try:return float(r.stdout.decode(errors='replace').strip())
+    except ValueError:return None
+
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox')
@@ -150,9 +172,13 @@ def main():
         sox_sha256=binary_hash,host=dict(machine=platform.machine(),
             system=platform.platform(),node=platform.node()),
         source_fixture_manifest_sha256=sha(REF.read_bytes()),
-        high_rate_enabled=False,claims='fail-closed CLI and synthetic fixture evidence only',
+        high_rate_enabled=True,
+        claims='CLI and synthetic fixture evidence that opened rates are carried, not substituted',
+        authorization='P21 operator declaration 2026-10-23; see '
+            'docs/dsd/amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md',
         cases=[],unrun_gates=['external DSD512/1024 playback, independent media and device',
-          'native high-rate writer/transport throughput prohibited by P18 authorization'])
+          'independent reader and audio reference gate for high-rate decode',
+          'native high-rate writer/transport throughput'])
     # Reuse passing checkpoints only if binary AND test inputs match.
     old={}
     if target.is_file():
@@ -182,11 +208,16 @@ def main():
                             inp=VECTORS/name
                             env=dict(environment)
                             if packed:env['SOX_DSD_PACKED_INPUT']='1'
-                            got=command_result([args.sox,'-V2','-t',ext,inp,'-n'],env)
-                            expected=f'{"DSF" if ext=="dsf" else "DSDIFF"} read at {native} Hz unavailable:'
-                            okay=got['exit']!=0 and expected in got['stderr'] and \
-                                'P17 high-rate DSP qualification incomplete' in got['stderr']
-                            store(key,'PASS' if okay else 'FAIL',dict(output=got,expected=expected,
+                            got=command_result([args.sox,'-V2','--dsd-layout-loss','warn',
+                                '-t',ext,inp,'-n'],env)
+                            # reparse the header independently of the decode path:
+                            # accepting the file is not the same as reading its rate
+                            seen=probe_rate(args.sox,inp,env)
+                            okay=(got['exit']==0 and 'unavailable' not in got['stderr']
+                                and seen==float(native))
+                            store(key,'PASS' if okay else 'FAIL',dict(output=got,
+                                expected=f'read accepted and reported at {native} Hz',
+                                reported_rate=seen,
                                 fixture_sha256=sha(inp.read_bytes()),packed=packed))
         # The inherited WSD native reader must not bypass high-rate refusal.
         # WSD is safety coverage, not a claimed new P18 format capability.
@@ -197,47 +228,56 @@ def main():
                 bits=fixtures.bits(16,chans,'distinct')
                 source=work/f'forbidden-{native}-{chans}.wsd'
                 source.write_bytes(fixtures.make_wsd(bits,native))
-                got=command_result([args.sox,'-V2','-t','wsd',source,'-n'],environment)
-                expected=f'WSD read at {native} Hz unavailable:'
-                okay=got['exit']!=0 and expected in got['stderr'] and \
-                    'P17 high-rate DSP qualification incomplete' in got['stderr']
-                store(name,'PASS' if okay else 'FAIL',dict(output=got,
-                    reference_sha256=sha(source.read_bytes()),expected=expected))
-        # Explicit high-rate output requests cannot become DSD256 or produce
-        # a misleading lower-rate file. Existing authorized input as source.
+                got=command_result([args.sox,'-V2','--dsd-layout-loss','warn',
+                    '-t','wsd',source,'-n'],environment)
+                seen=probe_rate(args.sox,source,environment)
+                okay=(got['exit']==0 and 'unavailable' not in got['stderr']
+                      and seen==float(native))
+                store(name,'PASS' if okay else 'FAIL',dict(output=got,reported_rate=seen,
+                    reference_sha256=sha(source.read_bytes()),
+                    expected=f'WSD read accepted and reported at {native} Hz'))
+        # A refusal that is NOT P18 and must survive its removal: native mode
+        # moves native bits and cannot change DSD rate without reconstruction.
+        # The source here is DSD64, so asking for 512/1024 in native mode is
+        # still an error, and must still leave no destination behind.
         for native in RATES:
             for ext in ('dsf','dff'):
-                key=f'output-{native}-{ext}'
+                key=f'output-native-mode-rate-change-{native}-{ext}'
                 if key in old:report['cases'].append(old[key]);continue
-                dst=work/f'forbidden-{native}.{ext}'
+                dst=work/f'highrate-{native}.{ext}'
                 got=command_result([args.sox,'-V2','--dsd-mode','native','-D',
                     ROOT/'tests/dsd/fixtures/stereo_96.dsf','-r',str(native),
                     '-t',ext,dst],environment)
-                expected=f'{"DSF" if ext=="dsf" else "DSDIFF"} write at {native} Hz unavailable:'
-                okay=got['exit']!=0 and expected in got['stderr'] and \
-                    'P17 high-rate DSP qualification incomplete' in got['stderr'] and not dst.exists()
+                expected='native mode cannot change DSD rate or channels without reconstruction'
+                okay=got['exit']!=0 and expected in got['stderr'] and not dst.exists()
                 store(key,'PASS' if okay else 'FAIL',dict(output=got,expected=expected,
                     destination_absent=not dst.exists()))
-        # Default and legacy mode bypassed the planner and permitted generic
-        # format negotiation to silently substitute DSD256 for DSD512/1024.
-        # The original rate must be rejected before an output is created.
+        # The case this file now exists for. Default and legacy mode let generic
+        # format negotiation silently substitute DSD256 for DSD512/1024; P18
+        # caught that by refusing the rate outright. With the rows open the
+        # only thing standing between a request and a quietly down-rated file
+        # is the writer rate table, so reparse the result and require the rate
+        # that was asked for. A substitution now shows up as a FAIL here.
         for native in RATES:
             for ext in ('dsf','dff'):
                 for mode in ('default','legacy'):
                     key=f'output-no-downrate-{mode}-{native}-{ext}'
                     if key in old:report['cases'].append(old[key]);continue
-                    dst=work/f'forbidden-{mode}-{native}.{ext}'
+                    dst=work/f'highrate-{mode}-{native}.{ext}'
                     cmd=[args.sox,'-V2']
                     if mode=='legacy':cmd+=['--dsd-mode','legacy']
                     cmd+=['-D',ROOT/'tests/dsd/fixtures/stereo_96.dsf',
                           '-r',str(native),dst]
                     got=command_result(cmd,environment)
-                    expected=f'{"DSF" if ext=="dsf" else "DSDIFF"} write at {native} Hz unavailable:'
-                    okay=(got['exit']!=0 and expected in got['stderr'] and
-                          'P17 high-rate DSP qualification incomplete' in got['stderr']
-                          and not dst.exists())
+                    okay=False;details=None
+                    if got['exit']==0 and dst.is_file():
+                        raw=dst.read_bytes()
+                        desc=verify.decode_dsf(raw) if ext=='dsf' else verify.decode_dff(raw)
+                        okay=desc['rate']==native and desc['channels']==2
+                        details=dict(written_rate=desc['rate'],channels=desc['channels'],
+                            physical_bytes=len(raw),output_sha256=sha(raw))
                     store(key,'PASS' if okay else 'FAIL',dict(output=got,
-                        expected=expected,destination_absent=not dst.exists()))
+                        expected=f'written at {native} Hz, not substituted',reference=details))
         # The planner must identify DSDIFF even if the destination suffix or
         # explicitly selected filetype is uppercase.  Leave generic effect
         # matching case-sensitive; this is only format-name matching.
@@ -245,19 +285,25 @@ def main():
             for form in ('suffix','type'):
                 key=f'output-dff-uppercase-{form}-{native}'
                 if key in old:report['cases'].append(old[key]);continue
-                dst=work/(f'forbidden-upper-{native}.DFF' if form=='suffix' else
-                          f'forbidden-explicit-type-{native}.data')
+                dst=work/(f'highrate-upper-{native}.DFF' if form=='suffix' else
+                          f'highrate-explicit-type-{native}.data')
                 cmd=[args.sox,'-V2','--dsd-mode','auto','-D',
                      ROOT/'tests/dsd/fixtures/stereo_96.dsf', '-r',str(native)]
                 if form=='type':cmd+=['-t','DFF']
                 cmd.append(dst)
                 got=command_result(cmd,environment)
-                expected=f'DSDIFF write at {native} Hz unavailable:'
-                okay=(got['exit']!=0 and expected in got['stderr'] and
-                      'P17 high-rate DSP qualification incomplete' in got['stderr']
-                      and not dst.exists())
+                okay=False;details=None
+                if got['exit']==0 and dst.is_file():
+                    raw=dst.read_bytes()
+                    # must really be DSDIFF, at the requested rate: decode_dff
+                    # rejects anything that is not a well-formed FRM8 form
+                    desc=verify.decode_dff(raw)
+                    okay=desc['rate']==native and desc['channels']==2
+                    details=dict(written_rate=desc['rate'],channels=desc['channels'],
+                        physical_bytes=len(raw),output_sha256=sha(raw))
                 store(key,'PASS' if okay else 'FAIL',dict(output=got,
-                    expected=expected,destination_absent=not dst.exists()))
+                    expected=f'DSDIFF written at {native} Hz from uppercase {form}',
+                    reference=details))
         # Unauthorized paths absent; approved DSD64 roundtrips still preserve
         # actual native bits, logical frames, and channel order.
         for ext in ('dsf','dff'):

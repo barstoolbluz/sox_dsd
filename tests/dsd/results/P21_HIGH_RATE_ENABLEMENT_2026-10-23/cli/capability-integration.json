@@ -1,0 +1,2742 @@
+{
+  "authorization": "P21 operator declaration 2026-10-23; see docs/dsd/amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md",
+  "cases": [
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "106bbe8859dc00e97ac299727048b312054fc897d1486245a5c0e5ab25bc9f6e",
+      "name": "input-22579200-dsf-1-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0016249208711087704
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "106bbe8859dc00e97ac299727048b312054fc897d1486245a5c0e5ab25bc9f6e",
+      "name": "input-22579200-dsf-1-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001404495444148779
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "263ce037286961b2c30b1fde41e324c8faef4b41e4c7435f61634f08cbf036ff",
+      "name": "input-22579200-dsf-1-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013377321884036064
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "263ce037286961b2c30b1fde41e324c8faef4b41e4c7435f61634f08cbf036ff",
+      "name": "input-22579200-dsf-1-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0018237847834825516
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "7f8e2b13e203efdcd2080b537eda71b361bda3e4737b0caa6649c82d34768019",
+      "name": "input-22579200-dsf-1-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0016904720105230808
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "7f8e2b13e203efdcd2080b537eda71b361bda3e4737b0caa6649c82d34768019",
+      "name": "input-22579200-dsf-1-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014164219610393047
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "a8b98b13bc467ba65401ab054353413c32f0decc361ebdf34288947961391995",
+      "name": "input-22579200-dsf-2-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013470868580043316
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "a8b98b13bc467ba65401ab054353413c32f0decc361ebdf34288947961391995",
+      "name": "input-22579200-dsf-2-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013552000746130943
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "c3ca888d8139fb3b1d7cfba2d4a5725ec3fda6cbe0667412efccbaecd11aee6c",
+      "name": "input-22579200-dsf-2-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001344042830169201
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "c3ca888d8139fb3b1d7cfba2d4a5725ec3fda6cbe0667412efccbaecd11aee6c",
+      "name": "input-22579200-dsf-2-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013621598482131958
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "4e1f121dcc099179743bc22e0fddb53d7ceb6d261804561dde873006d55b361e",
+      "name": "input-22579200-dsf-2-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0015282840467989445
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "4e1f121dcc099179743bc22e0fddb53d7ceb6d261804561dde873006d55b361e",
+      "name": "input-22579200-dsf-2-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014012297615408897
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "26287f98e9e779eae3161129bfa94445ec9f2faf28f19e2bab9d0decb53b0bff",
+      "name": "input-22579200-dsf-6-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013368907384574413
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "26287f98e9e779eae3161129bfa94445ec9f2faf28f19e2bab9d0decb53b0bff",
+      "name": "input-22579200-dsf-6-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013517141342163086
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "bc728991786a690ae0448021461f40aac6ac9f8262969b66b0a09ac70aaa01f4",
+      "name": "input-22579200-dsf-6-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014576860703527927
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "bc728991786a690ae0448021461f40aac6ac9f8262969b66b0a09ac70aaa01f4",
+      "name": "input-22579200-dsf-6-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014186170883476734
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "63d69cfb1f0e6c0443232bf961986b915714de7a2a294a4918e9f7a783210484",
+      "name": "input-22579200-dsf-6-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001572260633111
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "63d69cfb1f0e6c0443232bf961986b915714de7a2a294a4918e9f7a783210484",
+      "name": "input-22579200-dsf-6-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001527381595224142
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "ef3f304182c27dbc3ad1ec36611762ad6c0768f0438c58d178cdaabb2a472cb3",
+      "name": "input-22579200-dff-1-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-1-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013398458249866962
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "ef3f304182c27dbc3ad1ec36611762ad6c0768f0438c58d178cdaabb2a472cb3",
+      "name": "input-22579200-dff-1-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-1-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013587852008640766
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "27a1a0595fbe5fa5da4210576c9e49e929027eb4b58fefeda2bf9121822f37d0",
+      "name": "input-22579200-dff-1-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-1-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013287989422678947
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "27a1a0595fbe5fa5da4210576c9e49e929027eb4b58fefeda2bf9121822f37d0",
+      "name": "input-22579200-dff-1-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-1-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.00132472300902009
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "c2a5c1e2d76fca7762c1cec645230d032e66be4244a639edee35789faadff903",
+      "name": "input-22579200-dff-1-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-1-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014566038735210896
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "c2a5c1e2d76fca7762c1cec645230d032e66be4244a639edee35789faadff903",
+      "name": "input-22579200-dff-1-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-1-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001364183146506548
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "1300c9acc54732acbbda1f9671f655e89f703ed6b4f677536716b39edb89377e",
+      "name": "input-22579200-dff-2-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-2-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013081268407404423
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "1300c9acc54732acbbda1f9671f655e89f703ed6b4f677536716b39edb89377e",
+      "name": "input-22579200-dff-2-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-2-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013177418150007725
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "3cf580cc55cfb5194c7b8e2207d6c1b225da990d2d6b02cdb6d24a196c65d26b",
+      "name": "input-22579200-dff-2-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-2-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013012969866394997
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "3cf580cc55cfb5194c7b8e2207d6c1b225da990d2d6b02cdb6d24a196c65d26b",
+      "name": "input-22579200-dff-2-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-2-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013138060458004475
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "4df0d63914f24b78d82dc803f16954434452fc3fe8b607d3424943e487731bb7",
+      "name": "input-22579200-dff-2-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-2-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014059562236070633
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "4df0d63914f24b78d82dc803f16954434452fc3fe8b607d3424943e487731bb7",
+      "name": "input-22579200-dff-2-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-2-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014169239439070225
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "4e041a6eac3b968f127df0684922d2905ad68ed6ede2d82325d9b85386b8f8aa",
+      "name": "input-22579200-dff-6-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-6-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001313566230237484
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "4e041a6eac3b968f127df0684922d2905ad68ed6ede2d82325d9b85386b8f8aa",
+      "name": "input-22579200-dff-6-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-6-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012982930056750774
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "e68edf553cdc44290bd5b654e9718b8d3571ca2df0277b9401445ea6d4bb7ce5",
+      "name": "input-22579200-dff-6-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-6-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012760590761899948
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "e68edf553cdc44290bd5b654e9718b8d3571ca2df0277b9401445ea6d4bb7ce5",
+      "name": "input-22579200-dff-6-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-6-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012814057990908623
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "1b01eb7a256f9f23295f7c09f78b82fe9fc3bb51070fbc338664f09de1d31ff6",
+      "name": "input-22579200-dff-6-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-6-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014840462245047092
+      },
+      "packed": false,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 22579200 Hz",
+      "fixture_sha256": "1b01eb7a256f9f23295f7c09f78b82fe9fc3bb51070fbc338664f09de1d31ff6",
+      "name": "input-22579200-dff-6-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-22579200-dff-8-6-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014795688912272453
+      },
+      "packed": true,
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "36f2be948e241baf54b1a48cfcdd83289399b662a95850532c9ab24fdda28f8d",
+      "name": "input-45158400-dsf-1-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013024192303419113
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "36f2be948e241baf54b1a48cfcdd83289399b662a95850532c9ab24fdda28f8d",
+      "name": "input-45158400-dsf-1-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013107210397720337
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "ccf5cb54b6f739841812ac7e5e12158c96622e8ded9247ff03398a28787efab9",
+      "name": "input-45158400-dsf-1-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013340972363948822
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "ccf5cb54b6f739841812ac7e5e12158c96622e8ded9247ff03398a28787efab9",
+      "name": "input-45158400-dsf-1-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013066250830888748
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "b022c5656d3a9ed6a2866e5366de7efcaabb74bf1525c16160f252383d35c01a",
+      "name": "input-45158400-dsf-1-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013561006635427475
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "b022c5656d3a9ed6a2866e5366de7efcaabb74bf1525c16160f252383d35c01a",
+      "name": "input-45158400-dsf-1-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013560201041400433
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "e0c22381be7e1993b6a173b72a05f4ca37bd1e364bf51b016d84cd0cffec8d50",
+      "name": "input-45158400-dsf-2-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013133948668837547
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "e0c22381be7e1993b6a173b72a05f4ca37bd1e364bf51b016d84cd0cffec8d50",
+      "name": "input-45158400-dsf-2-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013110721483826637
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "a3ee3daaf2a0eba15d72a13a23d16783b46bab556814d6d85f578dbfbdf2e572",
+      "name": "input-45158400-dsf-2-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001306334976106882
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "a3ee3daaf2a0eba15d72a13a23d16783b46bab556814d6d85f578dbfbdf2e572",
+      "name": "input-45158400-dsf-2-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012600538320839405
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "2525db584d78544e482c19295b37cabe0622c6be064be63fb9ab90f837b41496",
+      "name": "input-45158400-dsf-2-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001391734927892685
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "2525db584d78544e482c19295b37cabe0622c6be064be63fb9ab90f837b41496",
+      "name": "input-45158400-dsf-2-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013957810588181019
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "d96063347cef7dedda4e1be0a85c9506afe8b6a209e2c44249a2921647311cb4",
+      "name": "input-45158400-dsf-6-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013533569872379303
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "d96063347cef7dedda4e1be0a85c9506afe8b6a209e2c44249a2921647311cb4",
+      "name": "input-45158400-dsf-6-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-1.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013311025686562061
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "3e3339e96a45d6f257c9f788ed833ca9a3c87982e19c14a8492a286153cecb99",
+      "name": "input-45158400-dsf-6-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013243118301033974
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "3e3339e96a45d6f257c9f788ed833ca9a3c87982e19c14a8492a286153cecb99",
+      "name": "input-45158400-dsf-6-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-17.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013387450017035007
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "755443a9d189b320c60a53158d37842009675a4388e536900a406e68b19af789",
+      "name": "input-45158400-dsf-6-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0015230062417685986
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "755443a9d189b320c60a53158d37842009675a4388e536900a406e68b19af789",
+      "name": "input-45158400-dsf-6-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dsf",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-32769.dsf",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001521172933280468
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "7e5fba343615b4dd1a7805305d6712f26a4cdd492b24ea3b1ed0b698483f6a68",
+      "name": "input-45158400-dff-1-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-1-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012966697104275227
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "7e5fba343615b4dd1a7805305d6712f26a4cdd492b24ea3b1ed0b698483f6a68",
+      "name": "input-45158400-dff-1-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-1-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014755628071725368
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "a20054c66b9a208d57e5b8e33b0e7b152225977893fdce7f28c0bc367ed37c16",
+      "name": "input-45158400-dff-1-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-1-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012849322520196438
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "a20054c66b9a208d57e5b8e33b0e7b152225977893fdce7f28c0bc367ed37c16",
+      "name": "input-45158400-dff-1-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-1-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012745563872158527
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "45663bb1ea63ab3edb7302e9e13517093a4eeac08f35f8f5b94b0532edde969d",
+      "name": "input-45158400-dff-1-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-1-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013361498713493347
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "45663bb1ea63ab3edb7302e9e13517093a4eeac08f35f8f5b94b0532edde969d",
+      "name": "input-45158400-dff-1-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-1-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014269291423261166
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "1a3cb2d77f5a1864908df569582b95436e51ac0881e3619bbb9102364e777809",
+      "name": "input-45158400-dff-2-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-2-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001291872002184391
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "1a3cb2d77f5a1864908df569582b95436e51ac0881e3619bbb9102364e777809",
+      "name": "input-45158400-dff-2-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-2-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013046017847955227
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "de15d22cddbca94029c5a82c8713ebbd178c312902c9d338bd7b3f149cfd2437",
+      "name": "input-45158400-dff-2-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-2-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012881769798696041
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "de15d22cddbca94029c5a82c8713ebbd178c312902c9d338bd7b3f149cfd2437",
+      "name": "input-45158400-dff-2-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-2-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013123643584549427
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "f188359065d5e44643113b2e91afd924a189090626d808c3914bc8195242a287",
+      "name": "input-45158400-dff-2-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-2-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014216210693120956
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "f188359065d5e44643113b2e91afd924a189090626d808c3914bc8195242a287",
+      "name": "input-45158400-dff-2-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-2-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0014164941385388374
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "f9572f2d90967f414efae5e5f3b51fca96869024bf83ec519b5661e33aa2abd5",
+      "name": "input-45158400-dff-6-1-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-6-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013036499731242657
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "f9572f2d90967f414efae5e5f3b51fca96869024bf83ec519b5661e33aa2abd5",
+      "name": "input-45158400-dff-6-1-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-6-1.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012735449708998203
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "9581abd32d7284e24c3cd0867282638ef55cabf6d49d1e5fbaa8fce4825cbfc1",
+      "name": "input-45158400-dff-6-17-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-6-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013000448234379292
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "9581abd32d7284e24c3cd0867282638ef55cabf6d49d1e5fbaa8fce4825cbfc1",
+      "name": "input-45158400-dff-6-17-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-6-17.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001316289883106947
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "f7cf85d0578129d89914e229008a513f2a9ab3025ae333e5e4010033a283a748",
+      "name": "input-45158400-dff-6-32769-packed0",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-6-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001422693021595478
+      },
+      "packed": false,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "read accepted and reported at 45158400 Hz",
+      "fixture_sha256": "f7cf85d0578129d89914e229008a513f2a9ab3025ae333e5e4010033a283a748",
+      "name": "input-45158400-dff-6-32769-packed1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "dff",
+          "<source>/tests/dsd/fixtures/p18/p18-45158400-dff-8-6-32769.dff",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN sox_ng: discarding DSD channel layout for `null' (--dsd-layout-loss warn)\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0015355139039456844
+      },
+      "packed": true,
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "WSD read accepted and reported at 22579200 Hz",
+      "name": "wsd-22579200-1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "wsd",
+          "/tmp/sox-p18-bgn9k1d3/forbidden-22579200-1.wsd",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012651709839701653
+      },
+      "reference_sha256": "18269c019cd081d5cd96f2b1269feb75d7a23e00bb33c171a12024f6149418ed",
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "WSD read accepted and reported at 22579200 Hz",
+      "name": "wsd-22579200-2",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "wsd",
+          "/tmp/sox-p18-bgn9k1d3/forbidden-22579200-2.wsd",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013707727193832397
+      },
+      "reference_sha256": "c5d61253fcdc97eaf524eaee61bad01c2ca04f0e852db3a316f20e20b230a241",
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "WSD read accepted and reported at 22579200 Hz",
+      "name": "wsd-22579200-6",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "wsd",
+          "/tmp/sox-p18-bgn9k1d3/forbidden-22579200-6.wsd",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013148481957614422
+      },
+      "reference_sha256": "c4b7a5064f83f0fc0b9bacd0dbbfe6e911e9d7d55aaaa8d7ce2cb301eab43e3d",
+      "reported_rate": 22579200.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "WSD read accepted and reported at 45158400 Hz",
+      "name": "wsd-45158400-1",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "wsd",
+          "/tmp/sox-p18-bgn9k1d3/forbidden-45158400-1.wsd",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013667470775544643
+      },
+      "reference_sha256": "d3e0a997e3c5287c6eac23e8e681c84e14c1b6c2921c57ee76821518b8d4fe33",
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "WSD read accepted and reported at 45158400 Hz",
+      "name": "wsd-45158400-2",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "wsd",
+          "/tmp/sox-p18-bgn9k1d3/forbidden-45158400-2.wsd",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013290992937982082
+      },
+      "reference_sha256": "58f7ab76e00e756a5e9f7cee44cb1942f07da2aef141878ab7319ee3446c69ab",
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "expected": "WSD read accepted and reported at 45158400 Hz",
+      "name": "wsd-45158400-6",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-layout-loss",
+          "warn",
+          "-t",
+          "wsd",
+          "/tmp/sox-p18-bgn9k1d3/forbidden-45158400-6.wsd",
+          "-n"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012749065645039082
+      },
+      "reference_sha256": "e8230daac4c6528dd1f3d576ba477d96d73da5ba1ff868500bbb507bebe21a98",
+      "reported_rate": 45158400.0,
+      "status": "PASS"
+    },
+    {
+      "destination_absent": true,
+      "expected": "native mode cannot change DSD rate or channels without reconstruction",
+      "name": "output-native-mode-rate-change-22579200-dsf",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "22579200",
+          "-t",
+          "dsf",
+          "/tmp/sox-p18-bgn9k1d3/highrate-22579200.dsf"
+        ],
+        "exit": 2,
+        "stderr": "sox FAIL sox_ng: P05 preflight: native mode cannot change DSD rate or channels without reconstruction\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012860442511737347
+      },
+      "status": "PASS"
+    },
+    {
+      "destination_absent": true,
+      "expected": "native mode cannot change DSD rate or channels without reconstruction",
+      "name": "output-native-mode-rate-change-22579200-dff",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "22579200",
+          "-t",
+          "dff",
+          "/tmp/sox-p18-bgn9k1d3/highrate-22579200.dff"
+        ],
+        "exit": 2,
+        "stderr": "sox FAIL sox_ng: P05 preflight: native mode cannot change DSD rate or channels without reconstruction\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013091289438307285
+      },
+      "status": "PASS"
+    },
+    {
+      "destination_absent": true,
+      "expected": "native mode cannot change DSD rate or channels without reconstruction",
+      "name": "output-native-mode-rate-change-45158400-dsf",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "45158400",
+          "-t",
+          "dsf",
+          "/tmp/sox-p18-bgn9k1d3/highrate-45158400.dsf"
+        ],
+        "exit": 2,
+        "stderr": "sox FAIL sox_ng: P05 preflight: native mode cannot change DSD rate or channels without reconstruction\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013099811039865017
+      },
+      "status": "PASS"
+    },
+    {
+      "destination_absent": true,
+      "expected": "native mode cannot change DSD rate or channels without reconstruction",
+      "name": "output-native-mode-rate-change-45158400-dff",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "45158400",
+          "-t",
+          "dff",
+          "/tmp/sox-p18-bgn9k1d3/highrate-45158400.dff"
+        ],
+        "exit": 2,
+        "stderr": "sox FAIL sox_ng: P05 preflight: native mode cannot change DSD rate or channels without reconstruction\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012675761245191097
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "written at 22579200 Hz, not substituted",
+      "name": "output-no-downrate-default-22579200-dsf",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "22579200",
+          "/tmp/sox-p18-bgn9k1d3/highrate-default-22579200.dsf"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN rate: rate clipped 684 samples; decrease volume?\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0018667406402528286
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "cebb56522043fe0bd2cae7d7f51185ec61803f8955c1c49657ef74f9bf576b59",
+        "physical_bytes": 8284,
+        "written_rate": 22579200
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "written at 22579200 Hz, not substituted",
+      "name": "output-no-downrate-legacy-22579200-dsf",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "legacy",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "22579200",
+          "/tmp/sox-p18-bgn9k1d3/highrate-legacy-22579200.dsf"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN rate: rate clipped 684 samples; decrease volume?\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0018706773407757282
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "cebb56522043fe0bd2cae7d7f51185ec61803f8955c1c49657ef74f9bf576b59",
+        "physical_bytes": 8284,
+        "written_rate": 22579200
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "written at 22579200 Hz, not substituted",
+      "name": "output-no-downrate-default-22579200-dff",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "22579200",
+          "/tmp/sox-p18-bgn9k1d3/highrate-default-22579200.dff"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN rate: rate clipped 684 samples; decrease volume?\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0018431139178574085
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "eb0426be262bd94e06f8a22b0e1d1acfc9ba47c15d5dbe2b9480a43efe7c967b",
+        "physical_bytes": 322,
+        "written_rate": 22579200
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "written at 22579200 Hz, not substituted",
+      "name": "output-no-downrate-legacy-22579200-dff",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "legacy",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "22579200",
+          "/tmp/sox-p18-bgn9k1d3/highrate-legacy-22579200.dff"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN rate: rate clipped 684 samples; decrease volume?\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0018367450684309006
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "eb0426be262bd94e06f8a22b0e1d1acfc9ba47c15d5dbe2b9480a43efe7c967b",
+        "physical_bytes": 322,
+        "written_rate": 22579200
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "written at 45158400 Hz, not substituted",
+      "name": "output-no-downrate-default-45158400-dsf",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "45158400",
+          "/tmp/sox-p18-bgn9k1d3/highrate-default-45158400.dsf"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN rate: rate clipped 1356 samples; decrease volume?\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0021414789371192455
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "ccf41f11d0d65d97f27d30a11a0ed5442644db63b525baa8052b691517ef8cea",
+        "physical_bytes": 8284,
+        "written_rate": 45158400
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "written at 45158400 Hz, not substituted",
+      "name": "output-no-downrate-legacy-45158400-dsf",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "legacy",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "45158400",
+          "/tmp/sox-p18-bgn9k1d3/highrate-legacy-45158400.dsf"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN rate: rate clipped 1356 samples; decrease volume?\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.002133046742528677
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "ccf41f11d0d65d97f27d30a11a0ed5442644db63b525baa8052b691517ef8cea",
+        "physical_bytes": 8284,
+        "written_rate": 45158400
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "written at 45158400 Hz, not substituted",
+      "name": "output-no-downrate-default-45158400-dff",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "45158400",
+          "/tmp/sox-p18-bgn9k1d3/highrate-default-45158400.dff"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN rate: rate clipped 1356 samples; decrease volume?\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.002127448096871376
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "e118d3b2de8f988d4e9d257808e52a329db5548ca518cf5caf92a6e6c98192bd",
+        "physical_bytes": 514,
+        "written_rate": 45158400
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "written at 45158400 Hz, not substituted",
+      "name": "output-no-downrate-legacy-45158400-dff",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "legacy",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "45158400",
+          "/tmp/sox-p18-bgn9k1d3/highrate-legacy-45158400.dff"
+        ],
+        "exit": 0,
+        "stderr": "sox WARN rate: rate clipped 1356 samples; decrease volume?\n",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.002241952810436487
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "e118d3b2de8f988d4e9d257808e52a329db5548ca518cf5caf92a6e6c98192bd",
+        "physical_bytes": 514,
+        "written_rate": 45158400
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "DSDIFF written at 22579200 Hz from uppercase suffix",
+      "name": "output-dff-uppercase-suffix-22579200",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "auto",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "22579200",
+          "/tmp/sox-p18-bgn9k1d3/highrate-upper-22579200.DFF"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.005919419229030609
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "0740dbf1012642b4cec76c1343eea6e67c8a17100924a8a36ddacb2462c8d669",
+        "physical_bytes": 322,
+        "written_rate": 22579200
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "DSDIFF written at 22579200 Hz from uppercase type",
+      "name": "output-dff-uppercase-type-22579200",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "auto",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "22579200",
+          "-t",
+          "DFF",
+          "/tmp/sox-p18-bgn9k1d3/highrate-explicit-type-22579200.data"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.005646351259201765
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "0740dbf1012642b4cec76c1343eea6e67c8a17100924a8a36ddacb2462c8d669",
+        "physical_bytes": 322,
+        "written_rate": 22579200
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "DSDIFF written at 45158400 Hz from uppercase suffix",
+      "name": "output-dff-uppercase-suffix-45158400",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "auto",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "45158400",
+          "/tmp/sox-p18-bgn9k1d3/highrate-upper-45158400.DFF"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.009775045327842236
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "05641a8ce3baac94b7afd099e3ab941c69e14e45163fb6955083f238034bcef1",
+        "physical_bytes": 514,
+        "written_rate": 45158400
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "DSDIFF written at 45158400 Hz from uppercase type",
+      "name": "output-dff-uppercase-type-45158400",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V2",
+          "--dsd-mode",
+          "auto",
+          "-D",
+          "<source>/tests/dsd/fixtures/stereo_96.dsf",
+          "-r",
+          "45158400",
+          "-t",
+          "DFF",
+          "/tmp/sox-p18-bgn9k1d3/highrate-explicit-type-45158400.data"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.010313640348613262
+      },
+      "reference": {
+        "channels": 2,
+        "output_sha256": "05641a8ce3baac94b7afd099e3ab941c69e14e45163fb6955083f238034bcef1",
+        "physical_bytes": 514,
+        "written_rate": 45158400
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "legacy-roundtrip-dsf-1-17",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/legacy-in-1.dsf",
+          "-t",
+          "dsf",
+          "/tmp/sox-p18-bgn9k1d3/legacy-out-1.dsf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013550091534852982
+      },
+      "reference": {
+        "frames": 17,
+        "output_sha256": "cb09e3cdd9eb506bf3777c42b569ef472fbf4aaaad23f6a4282b56af860ab7b0",
+        "physical_bytes": 4188
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "legacy-roundtrip-dsf-2-17",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/legacy-in-2.dsf",
+          "-t",
+          "dsf",
+          "/tmp/sox-p18-bgn9k1d3/legacy-out-2.dsf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013037496246397495
+      },
+      "reference": {
+        "frames": 17,
+        "output_sha256": "9d4f35e46aeb59bbd32aa68864bf49ceca025d0a06fab99085b5c1704dd813ed",
+        "physical_bytes": 8284
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "legacy-roundtrip-dsf-6-17",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/legacy-in-6.dsf",
+          "-t",
+          "dsf",
+          "/tmp/sox-p18-bgn9k1d3/legacy-out-6.dsf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0013758898712694645
+      },
+      "reference": {
+        "frames": 17,
+        "output_sha256": "c260fbe611cb47a8a3928f546b344f23a5423db0dcfb4598372ff73799ddd58d",
+        "physical_bytes": 24668
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "legacy-roundtrip-dff-1-17",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/legacy-in-1.dff",
+          "-t",
+          "dff",
+          "/tmp/sox-p18-bgn9k1d3/legacy-out-1.dff"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.00135447783395648
+      },
+      "reference": {
+        "frames": 24,
+        "output_sha256": "8229c6434f8893a08949937938c17e7b3f9d17d35ddc30b45b21346680cab3d3",
+        "physical_bytes": 130
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "legacy-roundtrip-dff-2-17",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/legacy-in-2.dff",
+          "-t",
+          "dff",
+          "/tmp/sox-p18-bgn9k1d3/legacy-out-2.dff"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012701093219220638
+      },
+      "reference": {
+        "frames": 24,
+        "output_sha256": "3ec3a5734121d4fcfb47d13a1c2df97c8654ce226bda201a7f3e052027cf9fc5",
+        "physical_bytes": 136
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "legacy-roundtrip-dff-6-17",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/legacy-in-6.dff",
+          "-t",
+          "dff",
+          "/tmp/sox-p18-bgn9k1d3/legacy-out-6.dff"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001301037147641182
+      },
+      "reference": {
+        "frames": 24,
+        "output_sha256": "59a5db06b69848ccd0204fff18c6fb60e6f057407b9d0ade83062a3757757b48",
+        "physical_bytes": 164
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "qualified-writer-2822400-dsf",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/qualified-source-2822400.dsf",
+          "-r",
+          "2822400",
+          "/tmp/sox-p18-bgn9k1d3/qualified-output-2822400.dsf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001287315972149372
+      },
+      "reference": {
+        "frames": 17,
+        "output_sha256": "9d4f35e46aeb59bbd32aa68864bf49ceca025d0a06fab99085b5c1704dd813ed",
+        "physical_bytes": 8284
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "qualified-writer-2822400-dff",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/qualified-source-2822400.dsf",
+          "-r",
+          "2822400",
+          "/tmp/sox-p18-bgn9k1d3/qualified-output-2822400.dff"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001195766031742096
+      },
+      "reference": {
+        "frames": 24,
+        "output_sha256": "3ec3a5734121d4fcfb47d13a1c2df97c8654ce226bda201a7f3e052027cf9fc5",
+        "physical_bytes": 136
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "qualified-writer-5644800-dsf",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/qualified-source-5644800.dsf",
+          "-r",
+          "5644800",
+          "/tmp/sox-p18-bgn9k1d3/qualified-output-5644800.dsf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012839608825743198
+      },
+      "reference": {
+        "frames": 17,
+        "output_sha256": "4d57645345cd515eb6fd3992856d58df01d34423407619b859506caff3ff1ede",
+        "physical_bytes": 8284
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "qualified-writer-5644800-dff",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/qualified-source-5644800.dsf",
+          "-r",
+          "5644800",
+          "/tmp/sox-p18-bgn9k1d3/qualified-output-5644800.dff"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012842807918787003
+      },
+      "reference": {
+        "frames": 24,
+        "output_sha256": "90c3d3709d9c6163b9b5bc87c90e1015df3107c68dfeb654efbccc8e329625b8",
+        "physical_bytes": 136
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "qualified-writer-11289600-dsf",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/qualified-source-11289600.dsf",
+          "-r",
+          "11289600",
+          "/tmp/sox-p18-bgn9k1d3/qualified-output-11289600.dsf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.001223146915435791
+      },
+      "reference": {
+        "frames": 17,
+        "output_sha256": "5c045380345ec0e652febbe4637eca167f365d50d988a610abc512745ffe06f2",
+        "physical_bytes": 8284
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "qualified-writer-11289600-dff",
+      "output": {
+        "command": [
+          "<source>/src/sox",
+          "-V1",
+          "--dsd-mode",
+          "native",
+          "-D",
+          "/tmp/sox-p18-bgn9k1d3/qualified-source-11289600.dsf",
+          "-r",
+          "11289600",
+          "/tmp/sox-p18-bgn9k1d3/qualified-output-11289600.dff"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wall_seconds": 0.0012161866761744022
+      },
+      "reference": {
+        "frames": 24,
+        "output_sha256": "bb07fc06d7b8ffe81953188d650d3f08fe6c3122be1738a200ae7b67ea766e23",
+        "physical_bytes": 136
+      },
+      "status": "PASS"
+    }
+  ],
+  "claims": "CLI and synthetic fixture evidence that opened rates are carried, not substituted",
+  "config_sha256": "5fd2c9ef11e053fb0bf9b22952acb02639f0295d3fd8179bfc84b9013f0a7ecc",
+  "high_rate_enabled": true,
+  "host": {
+    "machine": "x86_64",
+    "node": "ethos",
+    "system": "Linux-6.12.85+deb13-amd64-x86_64-with-glibc2.44"
+  },
+  "schema": "P18/capability-integration/1",
+  "source_fixture_manifest_sha256": "4e76f1c5e7a1ab6ff3683e3e2be24a4d1835a2e1c51bd2aabe3139143fbc011b",
+  "sox_sha256": "1030610c3847fabc2297f6393a949492d19123e6f6f01078dbe8064cde367cfb",
+  "summary": {
+    "FAIL": 0,
+    "PASS": 106
+  },
+  "unrun_gates": [
+    "external DSD512/1024 playback, independent media and device",
+    "independent reader and audio reference gate for high-rate decode",
+    "native high-rate writer/transport throughput"
+  ],
+  "verdict": "PASS"
+}

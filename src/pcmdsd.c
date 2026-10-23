@@ -32,24 +32,30 @@ static const lsx_pcmdsd_profile profiles[] = {
     lsx_pcmdsd_coeff_master128,77,lsx_pcmdsd_guards[1],1,LSX_PCMDSD_CERTIFICATE_SHA256},
   {"encode.mastering.v1.dsd256",11289600,176400,40000,80000,
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  /* P17: exactly keyed experimental DSP candidates only. The R=176400 Hz
-   * prefilter has the same normalized 40/80k edges as its existing v1 bank.
-   * P17 state guards were trained independently at each native clock
-   * using P10's method, but this is NOT a release qualification.
-   * lsx_pcmdsd_create() rejects both; only candidate_create() can use them.
-   * Source-bound candidate SHA records are external to the production gate. */
+  /* P21, 2026-10-23: the operator declared the high-rate evidence satisfied
+   * and authorized both clocks. The qualified profile at each is the v2
+   * CLANS-7 recurrence, which passed training 17/17, verify 17, holdout
+   * 36/36, cross-ISA and an uninterrupted 3,600-second nominal soak.
+   *
+   * v2 is ordered FIRST at each clock deliberately: lsx_pcmdsd_profile_find()
+   * returns the first row matching a rate, so this is what binds the rate and
+   * what lsx_pcmdsd_create() will build.
+   *
+   * The v1 rows below it stay qualified=0 and remain reachable only by exact
+   * id, for archived P17/P19 replay. They are NOT merely older: v1.dsd512
+   * failed the sustained nominal gate at min28 6, and v1.dsd1024 is the
+   * defective eighth order. Do not promote either without new evidence.
+   *
+   * certificate_sha256 names the coefficient manifest, not the modulator;
+   * both v2 profiles use the already-certified 61-tap master64_256 bank. */
+  {"encode.mastering.v2.dsd512",22579200,176400,40000,80000,
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_p20_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256},
   {"encode.mastering.v1.dsd512",22579200,176400,40000,80000,
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],0,NULL},
-  /* P20: independently named CLANS-7 DSD512 experiment. The v1 clock
-   * default, P17 evidence and production allow-lists are unchanged. */
-  {"encode.mastering.v2.dsd512",22579200,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_p20_guards,0,NULL},
-  {"encode.mastering.v1.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],0,NULL},
-  /* Separate v2 identity: independent CLANS-7 recurrence and guard derivation.
-   * Old v1 remains the first per-clock default for archived P17 replay. */
   {"encode.mastering.v2.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_v2_guards,0,NULL}
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_v2_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256},
+  {"encode.mastering.v1.dsd1024",45158400,176400,40000,80000,
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],0,NULL}
 };
 
 struct lsx_pcmdsd {
