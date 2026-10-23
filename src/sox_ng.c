@@ -3342,7 +3342,7 @@ static void usage(void)
 "--dsd-decode conservative|mastering|wideband|legacy|decode.mastering.v2.dsd<rate>",
 "                         Unpinned auto reconstruction defaults to mastering v2; explicit mastering/conservative select v1",
 "--dsd-encode mastering|legacy|experimental|encode.mastering.v1.dsd<rate>",
-"                         Mastering v1 encoding is active for native DSD64/128/256; guards remain enforced",
+"                         Mastering encoding is active for native DSD64 to DSD1024; guards remain enforced",
 "--dsd-level preserve|sacd  Decoder level convention",
 "--dsd-clip warn|error    Graph-boundary clipping policy",
 "--dsd-bandwidth adapt|strict  PCM reconstruction passband policy",
