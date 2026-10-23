@@ -1,0 +1,42 @@
+{
+  "amplitude_g3_failures": [
+    0.98,
+    0.99,
+    1.0
+  ],
+  "amplitude_rows": 16,
+  "date": "2026-10-22",
+  "failed_dc_corpus": [
+    {
+      "case_receipt_sha256": "a5d32f5e65e85ec68f67d1932edbd0f82a9f72d1e59760d76db9d614c4785785",
+      "failure_code": 3,
+      "first_bad_native_frame": 10129308,
+      "longest_run": 445,
+      "name": "dc-positive"
+    },
+    {
+      "case_receipt_sha256": "000f00ef9d5b8df566dec3aaa948258d4a613bfe7556acd9b459b9e8c9f0f536",
+      "failure_code": 3,
+      "first_bad_native_frame": 10129308,
+      "longest_run": 445,
+      "name": "dc-negative"
+    }
+  ],
+  "frozen_guard_created": false,
+  "full_sustained_soak_run": false,
+  "fullscale_gain_failures": 14,
+  "fullscale_gain_rows": 14,
+  "original_negative_clans7_training_sha256": "1bead733a05a0a6472413731d4d2dd98a8c71979cde5ae363abf9ac121d7ded8",
+  "original_p20_guard_sha256": "426a4d250e36e05c01db6adde608fd26a9fb107f9c4070b967a6ed5a0b43947c",
+  "original_positive_clans7_training_sha256": "94717fcc517a34c9e65a4fa3083315b29601963722bd15a8cd8fce102420ee9c",
+  "original_study_sha256": "9a1388880aeac0d412770dd004ed02ba40b0a09dc32ba5a35c31b074fdb4f7b0",
+  "profile": "encode.experimental.ntf.order7-pareto-g3p0.dsd512",
+  "reproduction_sha256": {
+    "dc-positive-experimental.json": "ccaa1c5a0b0e20e61470090d5b506cdebd932947018273a3adc24cea6f3029c0",
+    "dc-positive-original.json": "4a398823a340178d02980cd24e8fa5501dad6f1f0d7b563144c6fa7f2d740e4a"
+  },
+  "result": "REJECTED_TRAINING",
+  "schema": "NTF/g3-rejection-disposition/1",
+  "soak_contract_tests_passed": 6,
+  "unit_assertions": 105489
+}
