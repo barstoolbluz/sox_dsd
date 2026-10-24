@@ -7,8 +7,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 4.0)
 
 PROJECT(SoX_DSD
-        VERSION 14.8.0
+        VERSION 1.0.0
         LANGUAGES C)
+
+# Keep this release baseline in sync with configure.ac on upstream sync.
+SET(SOX_DSD_UPSTREAM_BASE "14.8.1")
 
 # =============================
 # === program configuration ===

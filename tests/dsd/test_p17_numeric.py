@@ -143,7 +143,7 @@ def bit_sequences(frames,ch):
     rng=np.random.Generator(np.random.PCG64(0x17cafe+ch))
     return rng.integers(0,2,size=(frames,ch),dtype=np.uint8)
 
-def finite_cases(banks,manifest):
+def finite_cases(banks,manifest,unit=FIR):
     cases=[]
     for key,m in sorted(manifest['reconstruction'].items()):
         profile=1 if '.wideband.' in key else 0
@@ -154,7 +154,7 @@ def finite_cases(banks,manifest):
         expected=N//D+(N%D!=0)
         for channels in (1,6):
             bits=bit_sequences(N,channels)
-            command=[str(FIR),'export',str(m['native_hz']),str(profile),str(channels),str(N)]
+            command=[str(unit),'export',str(m['native_hz']),str(profile),str(channels),str(N)]
             cp=subprocess.run(command,cwd=ROOT,input=bits.tobytes(),capture_output=True,timeout=180)
             assert cp.returncode==0,cp.stderr.decode(errors='replace')[-1000:]
             assert b'P17_EXPORT_OK' in cp.stderr
@@ -186,7 +186,7 @@ def finite_cases(banks,manifest):
       method='expanded coefficient polynomial + zero-extension + longdouble scalar inner product at beginnings/middle/EOF; P15 section 8.6 bound',
       cases=cases)
 
-def sdm_cases(duration=4096):
+def sdm_cases(duration=4096,unit=FIR):
     cases=[]
     # Exactly coherent in the source signal generator. Tone is well below the
     # required .5 envelope; a deliberate overload is tested separately in C.
@@ -196,7 +196,7 @@ def sdm_cases(duration=4096):
     for hz in (22579200,45158400):
         trials=[]
         for tier in ('scalar','sse2','avx1','avx2','avx512'):
-            command=[str(FIR),'encode-export',str(hz),str(duration)]
+            command=[str(unit),'encode-export',str(hz),str(duration)]
             cp=subprocess.run(command,input=waveform.tobytes(),capture_output=True,
                  cwd=ROOT,timeout=150,env={**os.environ,'SOX_DSD_KERNEL_SDM':tier})
             if cp.returncode:
@@ -234,7 +234,11 @@ def main():
     ap.add_argument('--results',type=Path,default=ROOT/'tests/dsd/results/P17/numeric-p17')
     ap.add_argument('--fft',type=int,default=1<<19)
     ap.add_argument('--source-frames',type=int,default=4096)
+    ap.add_argument('--unit',type=Path,default=FIR,
+                    help='built P17 native exporter (out-of-tree builds supported)')
     args=ap.parse_args()
+    unit=args.unit.resolve()
+    if not unit.is_file():ap.error('P17 native exporter missing: '+str(unit))
     if args.fft<1<<17 or args.fft>1<<21 or args.fft&(args.fft-1):ap.error('fft size must be a power of two between 2^17 and 2^21')
     if not 256<=args.source_frames<=65536:ap.error('source-frames out of range')
     args.results.mkdir(parents=True,exist_ok=True)
@@ -242,8 +246,8 @@ def main():
     t0=time.monotonic()
     records=[]
     for name,producer,file in [('spectral_grid',lambda:spectral_cases(bank_words(),manifest,args.fft),'filter-development-evidence.json'),
-                               ('finite_oracle',lambda:finite_cases(bank_words(),manifest),'finite-reference-evidence.json'),
-                               ('candidate_sdm',lambda:sdm_cases(args.source_frames),'sdm-candidate-diagnostics.json')]:
+                               ('finite_oracle',lambda:finite_cases(bank_words(),manifest,unit),'finite-reference-evidence.json'),
+                               ('candidate_sdm',lambda:sdm_cases(args.source_frames,unit),'sdm-candidate-diagnostics.json')]:
         try:out=producer()
         except Exception as error:out=dict(schema='P17/error/1',status='FAIL',error=repr(error))
         atomic(args.results/file,out)

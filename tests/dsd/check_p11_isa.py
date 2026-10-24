@@ -58,11 +58,14 @@ def inspect_objdump(path):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--results',type=Path,required=True)
+    parser.add_argument('--build-root',type=Path,default=ROOT,
+                        help='configured build tree containing the compiled objects')
     a=parser.parse_args()
+    build=a.build_root.resolve()
     report=dict(schema='P11/ISA-audit/1',objects={},checks={},errors=[],
        note='Static audit of built objects only; execution tests and AVX1-only hardware are independent gates')
     for tier,source in OBJECTS.items():
-        obj=ROOT/source
+        obj=build/source
         if not obj.is_file():
             report['errors'].append(f'missing built object {source}')
             continue
@@ -77,7 +80,7 @@ def main():
         report['checks']['avx1_no_avx2']=not bool(d['avx1']['possible_avx2_mnemonics'])
         report['checks']['avx1_no_fma']=not bool(d['avx1']['fma_mnemonics'])
         report['checks']['sse2_no_fma']=not bool(d['sse2']['fma_mnemonics'])
-        m=ROOT/'src/Makefile'
+        m=build/'src/Makefile'
         flags=m.read_text() if m.is_file() else ''
         report['checks']['explicit_avx1_flags']=bool(re.search(
             r'DSD_AVX1_CFLAGS\s*=.*-mavx\s+-mno-avx2\s+-mno-fma\b.*-fno-lto',flags))

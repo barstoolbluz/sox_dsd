@@ -12,12 +12,15 @@ from check_p11_isa import ROOT,OBJECTS,inspect_objdump
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--results',type=Path,required=True)
+    ap.add_argument('--build-root',type=Path,default=ROOT,
+                    help='configured build tree containing the compiled objects')
     a=ap.parse_args()
+    build=a.build_root.resolve()
     report={'schema':'P12/ISA-audit/1','checks':{},'objects':{},'errors':[],
         'limits':'Static disassembly alone does not establish executable ISA compatibility or throughput'}
     objects=dict(OBJECTS,avx2='src/libdsd_kernels_avx2_la-dsd_kernels_avx2.o')
     for name,path in objects.items():
-        full=ROOT/path
+        full=build/path
         if not full.is_file():
             report['errors'].append('missing object: '+path)
             continue
@@ -40,7 +43,7 @@ def main():
         check['avx2_full_width_permute']=v['avx2']['avx_mnemonics'].get('vpermpd',0)>=2
         for name in objects:
             check[name+'_no_fma']=not v[name]['fma_mnemonics']
-        config=(ROOT/'src/Makefile').read_text()
+        config=(build/'src/Makefile').read_text()
         check['avx2_isolated_flags']=bool(re.search(
             r'DSD_AVX2_CFLAGS\s*=.*-mavx2\s+-mno-fma\s+-ffp-contract=off\s+-fno-lto',config))
         check['avx1_non_avx2_flags']=bool(re.search(

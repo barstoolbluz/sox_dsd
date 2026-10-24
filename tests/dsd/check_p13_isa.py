@@ -16,13 +16,16 @@ from check_p11_isa import ROOT, OBJECTS, inspect_objdump
 def main():
     a=argparse.ArgumentParser(description=__doc__)
     a.add_argument('--results',type=Path,required=True)
+    a.add_argument('--build-root',type=Path,default=ROOT,
+                   help='configured build tree containing the compiled objects')
     args=a.parse_args()
+    build=args.build_root.resolve()
     objs={**OBJECTS,'avx2':'src/libdsd_kernels_avx2_la-dsd_kernels_avx2.o',
           'avx512':'src/libdsd_kernels_avx512_la-dsd_kernels_avx512.o'}
     report=dict(schema='P13/ISA-isolation/1',objects={},checks={},errors=[],
         limitations='Object ISA inspection; executable CPU/XCR0 and hardware tests are separate')
     for name,rel in objs.items():
-        p=ROOT/rel
+        p=build/rel
         if not p.is_file():
             report['errors'].append(f'missing {rel}')
             continue
@@ -40,11 +43,11 @@ def main():
     if len(report['objects'])==len(objs):
         checks=report['checks']
         for name in ('baseline_dispatch','baseline_scalar','sse2','avx1','avx2'):
-            cp=subprocess.run(['objdump','-d',str(ROOT/objs[name])],capture_output=True,text=True)
+            cp=subprocess.run(['objdump','-d',str(build/objs[name])],capture_output=True,text=True)
             checks[name+'_no_zmm']=not bool(re.search(r'%zmm\d+|%k[1-7]\b',cp.stdout))
         for name in objs:
             checks[name+'_no_fma']=not report['objects'][name]['fma_mnemonics']
-        cp=subprocess.run(['objdump','-d',str(ROOT/objs['avx512'])],capture_output=True,text=True)
+        cp=subprocess.run(['objdump','-d',str(build/objs['avx512'])],capture_output=True,text=True)
         asm=cp.stdout
         checks['avx512_zmm_execution']=bool(re.search(r'%zmm\d+',asm))
         checks['avx512_full_width_permutations']=len(re.findall(r'\bvperm(?:t2|i2)?pd\b',asm))>=2
@@ -56,7 +59,7 @@ def main():
         # appear unless the flags or toolchain are broken.
         forbidden=r'\b(?:vpmovb2m|vpmovw2m|vpmovm2b|vpmovm2w|vpermi2q|vpermt2q|vpmullq|vpbroadcastb|vpbroadcastw)\b'
         checks['avx512_no_known_non_F_subsets']=not bool(re.search(forbidden,asm))
-        config=(ROOT/'src/Makefile').read_text()
+        config=(build/'src/Makefile').read_text()
         checks['isolated_compiler_flags']=bool(re.search(
             r'DSD_AVX512_CFLAGS\s*=.*-mavx512f\s+-mno-avx512dq\s+-mno-avx512bw\s+-mno-avx512vl\s+-mno-fma\s+-ffp-contract=off\s+-fno-lto',config))
         checks['no_global_avx512']=not bool(re.search(r'^CFLAGS\s*=[^\n]*-mavx512f',config,re.M))

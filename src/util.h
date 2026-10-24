@@ -286,3 +286,7 @@ extern int lsx_sscanf(const char *str, const char *format, ...);
 #define sscanf lsx_sscanf
 
 extern FILE *lsx_popen(char **argv, char type, int filename_index);
+extern int lsx_is_child_pipe(FILE *stream);
+extern void lsx_abort_child_pipe(FILE *stream);
+extern int lsx_close_pipe_or_file(FILE *stream, int libc_pipe);
+extern int lsx_finalize_child_read(sox_format_t *ft);

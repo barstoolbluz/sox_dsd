@@ -20,7 +20,142 @@
 #include <ctype.h>
 #if HAVE_PIPE && HAVE_FORK
 #include <unistd.h>
+#include <sys/wait.h>
+#include <pthread.h>
+#include <signal.h>
 #endif
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+/* Track only streams created by lsx_popen.  A fork/exec pipe must be waited
+ * with waitpid(), never passed to libc pclose(); on Windows and other
+ * no-fork platforms libc popen streams must still use pclose().
+ * Entries are removed before closing a stream so a recycled FILE* cannot
+ * accidentally inherit a previous child's identity. */
+typedef struct lsx_child_pipe {
+  FILE *stream;
+#if HAVE_PIPE && HAVE_FORK
+  pid_t pid;
+#endif
+  struct lsx_child_pipe *next;
+} lsx_child_pipe;
+
+static lsx_child_pipe *lsx_child_pipes;
+#if HAVE_PIPE && HAVE_FORK
+static pthread_mutex_t lsx_child_pipes_lock = PTHREAD_MUTEX_INITIALIZER;
+#define LSX_PIPE_LOCK()   (void)pthread_mutex_lock(&lsx_child_pipes_lock)
+#define LSX_PIPE_UNLOCK() (void)pthread_mutex_unlock(&lsx_child_pipes_lock)
+#elif defined(_WIN32)
+static SRWLOCK lsx_child_pipes_lock = SRWLOCK_INIT;
+#define LSX_PIPE_LOCK()   AcquireSRWLockExclusive(&lsx_child_pipes_lock)
+#define LSX_PIPE_UNLOCK() ReleaseSRWLockExclusive(&lsx_child_pipes_lock)
+#else
+/* No-fork POSIX builds with popen() still use the libc stream association.
+ * These targets historically have no cross-thread process API. */
+#define LSX_PIPE_LOCK()   ((void)0)
+#define LSX_PIPE_UNLOCK() ((void)0)
+#endif
+
+static void lsx_track_child_pipe(FILE *stream,
+#if HAVE_PIPE && HAVE_FORK
+                                 pid_t pid
+#else
+                                 int unused LSX_UNUSED
+#endif
+)
+{
+  lsx_child_pipe *entry = lsx_malloc(sizeof(*entry));
+  entry->stream = stream;
+#if HAVE_PIPE && HAVE_FORK
+  entry->pid = pid;
+#endif
+  LSX_PIPE_LOCK();
+  entry->next = lsx_child_pipes;
+  lsx_child_pipes = entry;
+  LSX_PIPE_UNLOCK();
+}
+
+int lsx_is_child_pipe(FILE *stream)
+{
+  lsx_child_pipe *entry;
+  int found = 0;
+  if (!stream) return 0;
+  LSX_PIPE_LOCK();
+  for (entry = lsx_child_pipes; entry; entry = entry->next)
+    if (entry->stream == stream) { found = 1; break; }
+  LSX_PIPE_UNLOCK();
+  return found;
+}
+
+/* Abort only children this library still owns, and only after the caller
+ * has decided the transport cannot complete. SIGKILL prevents a stalled or
+ * endless producer from holding the subsequent waitpid() indefinitely. */
+void lsx_abort_child_pipe(FILE *stream)
+{
+#if HAVE_PIPE && HAVE_FORK
+  lsx_child_pipe *entry;
+  if (!stream) return;
+  LSX_PIPE_LOCK();
+  for (entry = lsx_child_pipes; entry; entry = entry->next)
+    if (entry->stream == stream) {
+      (void)kill(entry->pid, SIGKILL);
+      break;
+    }
+  LSX_PIPE_UNLOCK();
+#else
+  (void)stream;
+#endif
+}
+
+/* libc_pipe is true for user-provided `|command' streams; false for ordinary
+ * file streams. Both cases may also hold an lsx_popen-owned child stream. */
+int lsx_close_pipe_or_file(FILE *stream, int libc_pipe)
+{
+  lsx_child_pipe **link, *entry = NULL;
+  if (!stream) return 0;
+  LSX_PIPE_LOCK();
+  for (link = &lsx_child_pipes; *link; link = &(*link)->next) {
+    if ((*link)->stream == stream) {
+      entry = *link;
+      *link = entry->next;
+      break;
+    }
+  }
+  LSX_PIPE_UNLOCK();
+  if (entry) {
+#if HAVE_PIPE && HAVE_FORK
+    int status = 0, close_errno = 0, wait_error = 0;
+    pid_t child = entry->pid;
+    if (fclose(stream)) close_errno = errno;
+    free(entry);
+    /* EINTR must not turn a live downloader into an orphan. */
+    while (waitpid(child, &status, 0) < 0) {
+      if (errno == EINTR) continue;
+      wait_error = errno;
+      break;
+    }
+    if (close_errno || wait_error) {
+      errno = close_errno ? close_errno : wait_error;
+      return -1;
+    }
+    return status; /* native pclose() wait-status contract */
+#else
+    free(entry);
+# if HAVE_POPEN
+    return pclose(stream);
+# else
+    return fclose(stream);
+# endif
+#endif
+  }
+#if HAVE_POPEN
+  if (libc_pipe) return pclose(stream);
+#else
+  (void)libc_pipe;
+#endif
+  return fclose(stream);
+}
 
 int lsx_strcasecmp(const char * s1, const char * s2)
 {
@@ -393,6 +528,7 @@ LSX_UNUSED
 #if HAVE_PIPE && HAVE_FORK
   FILE *iop;
   int pdes[2];
+  pid_t child;
 #elif HAVE_POPEN
   FILE *iop;
   char *quoted_filename;
@@ -420,7 +556,8 @@ LSX_UNUSED
   if (pipe(pdes) < 0) {
     return NULL;
   }
-  switch (fork()) {
+  child = fork();
+  switch (child) {
     int i;
 
   case -1:      /* Error. */
@@ -455,14 +592,23 @@ LSX_UNUSED
     _exit(127);
     /* NOTREACHED */
   }
-  /* Parent; assume fdopen can't fail. */
+  /* In the parent, retain the exact child PID until the matching close. */
   if (type == 'r') {
-    iop = fdopen(pdes[0], mode);
     close(pdes[1]);
+    iop = fdopen(pdes[0], mode);
+    if (!iop) close(pdes[0]);
   } else {
-    iop = fdopen(pdes[1], mode);
     close(pdes[0]);
+    iop = fdopen(pdes[1], mode);
+    if (!iop) close(pdes[1]);
   }
+  if (!iop) {
+    int saved_errno = errno, status;
+    while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
+    errno = saved_errno;
+    return NULL;
+  }
+  lsx_track_child_pipe(iop, child);
   return iop;
 
 #elif HAVE_POPEN
@@ -536,6 +682,7 @@ LSX_UNUSED
   free(quoted_filename);
   iop = popen(command, mode);
   free(command);
+  if (iop) lsx_track_child_pipe(iop, 0);
   return iop;
 
 #else

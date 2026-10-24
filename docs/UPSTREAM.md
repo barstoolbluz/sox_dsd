@@ -9,7 +9,7 @@ SoX DSD versions itself from `1.0.0`, not from sox_ng's number. The sox_ng
 release a tree is synchronised with is recorded separately, in
 `SOX_DSD_UPSTREAM_BASE` in `configure.ac`, and printed by `sox --version`:
 
-    sox:      SoX DSD v1.0.0 (based on sox_ng 14.8.0.1)
+    sox:      SoX DSD v1.0.0 (based on sox_ng 14.8.1)
 
 The alternative, versioning as `14.8.0.1+dsd.N`, was rejected deliberately.
 Under that scheme a sync to sox_ng 14.9 would move our version for reasons
@@ -44,8 +44,9 @@ Then, in one commit:
    extent `src/dsf.c` and `src/dsdiff.c`. The 40 DSD-specific files in
    `src/` cannot conflict, which is why keeping the hooks small and clearly
    delimited is worth the effort at review time.
-2. Update `SOX_DSD_UPSTREAM_BASE` in `configure.ac` to the new sox_ng
-   release, and nothing else about the version.
+2. Update `SOX_DSD_UPSTREAM_BASE` in `configure.ac` and
+   `cmake-buildsetup/CMakeLists.txt` to the new sox_ng release. Leave
+   SoX DSD's own release version unchanged.
 3. Re-run `autoreconf -fi && ./configure && make clean && make`. The clean
    is not optional after `autoreconf`: stale objects from the previous
    configuration produce link errors that look like missing symbols in

@@ -32,6 +32,11 @@
 
 #include <ctype.h>
 #include <fcntl.h>
+#include <time.h>
+#if HAVE_SYS_SELECT_H && HAVE_FCNTL_H && HAVE_UNISTD_H && !defined(_WIN32)
+#include <sys/select.h>
+#include <unistd.h>
+#endif
 
 #ifdef __ANDROID__
   /* From Termux to "Get rid of references to leaked builtins"
@@ -559,13 +564,122 @@ static sox_bool is_url(char const * text)
 
 static int xfclose(FILE * file, lsx_io_type io_type)
 {
-  if (file == NULL) return SOX_SUCCESS;  /* Shouldn't happen */
-#if HAVE_POPEN
-  return io_type != lsx_io_file ? pclose(file) : fclose(file);
-#else
-  (void) io_type;
-  return fclose(file);
+  return lsx_close_pipe_or_file(file, io_type == lsx_io_pipe);
+}
+
+/* A decoder can stop at the end of its audio payload while the transport
+ * still contains perfectly valid container metadata. Never close our end of
+ * a downloader pipe early and then construe the SIGPIPE we caused as an HTTP
+ * failure. The downloader's success is established only at true pipe EOF.
+ *
+ * On POSIX use nonblocking stdio reads and a select-based deadline. Besides
+ * bounding idle servers, the overall deadline prevents infinite/live streams
+ * from holding final output publication forever after finite audio ends.
+ * In unsupported CRT pipe configurations, EOF is still mandatory but a
+ * platform-provided read may block; this requires host-specific qualification.
+ */
+static int drain_child_reader(sox_format_t *ft)
+{
+  FILE *stream = (FILE *)ft->fp;
+  char discard[32768];
+  time_t started = time(NULL), progressed = started;
+#if HAVE_SYS_SELECT_H && HAVE_FCNTL_H && HAVE_UNISTD_H && !defined(_WIN32)
+  int fd = fileno(stream);
+  int original_flags = fd >= 0 ? fcntl(fd, F_GETFL) : -1;
+  if (fd < 0 || fd >= FD_SETSIZE || original_flags < 0 ||
+      fcntl(fd, F_SETFL, original_flags | O_NONBLOCK) < 0) {
+    lsx_fail("cannot safely drain URL transport `%s': %s",
+             ft->filename, strerror(errno));
+    return SOX_EOF;
+  }
 #endif
+  for (;;) {
+    size_t n;
+    int read_errno;
+    time_t now = time(NULL);
+    /* Check on every iteration, including a busy producer that never stalls. */
+    if (now != (time_t)-1 && started != (time_t)-1 &&
+        difftime(now, started) >= 120.) {
+      lsx_fail("URL transport did not reach EOF within 120 seconds: `%s'", ft->filename);
+      break;
+    }
+    errno = 0;
+    n = fread(discard, 1, sizeof(discard), stream);
+    read_errno = errno;
+    if (n) progressed = now;
+    if (feof(stream)) {
+#if HAVE_SYS_SELECT_H && HAVE_FCNTL_H && HAVE_UNISTD_H && !defined(_WIN32)
+      (void)fcntl(fd, F_SETFL, original_flags);
+#endif
+      return SOX_SUCCESS;
+    }
+    if (ferror(stream)) {
+#if HAVE_SYS_SELECT_H && HAVE_FCNTL_H && HAVE_UNISTD_H && !defined(_WIN32)
+      if (read_errno == EINTR || read_errno == EAGAIN ||
+          read_errno == EWOULDBLOCK) {
+        fd_set readfds;
+        struct timeval wait_time;
+        int ready;
+        clearerr(stream);
+        now = time(NULL);
+        if (now != (time_t)-1 && progressed != (time_t)-1 &&
+            difftime(now, progressed) >= 30.) {
+          lsx_fail("URL transport stalled before EOF: `%s'", ft->filename);
+          break;
+        }
+        FD_ZERO(&readfds);
+        FD_SET(fd, &readfds);
+        wait_time.tv_sec = 1;
+        wait_time.tv_usec = 0;
+        ready = select(fd + 1, &readfds, NULL, NULL, &wait_time);
+        if (ready < 0 && errno != EINTR) {
+          lsx_fail("URL transport wait failed: `%s': %s", ft->filename, strerror(errno));
+          break;
+        }
+        continue;
+      }
+#endif
+      lsx_fail("URL transport read failed before EOF: `%s': %s",
+               ft->filename, strerror(read_errno ? read_errno : EIO));
+      break;
+    }
+    if (!n) {
+      lsx_fail("URL transport yielded neither data nor EOF: `%s'", ft->filename);
+      break;
+    }
+  }
+#if HAVE_SYS_SELECT_H && HAVE_FCNTL_H && HAVE_UNISTD_H && !defined(_WIN32)
+  (void)fcntl(fd, F_SETFL, original_flags);
+#endif
+  return SOX_EOF;
+}
+
+/* Complete externally launched input streams before the CLI can announce a
+ * successful output or publish a completed DSD receipt. Keep format metadata
+ * alive for reporting; the ordinary sox_close() will release it afterwards.
+ * stopread must run exactly once, and before the underlying stream closes. */
+int lsx_finalize_child_read(sox_format_t *ft)
+{
+  int result = SOX_SUCCESS;
+  if (!ft || ft->mode != 'r' || !lsx_is_child_pipe((FILE *)ft->fp))
+    return SOX_SUCCESS;
+  if (ft->handler.stopread) {
+    result = (*ft->handler.stopread)(ft);
+    ft->handler.stopread = NULL;
+  }
+  /* A successful finite audio decode does not imply the download is at EOF.
+   * stopread can finalize a decoder but does not consume later RIFF chunks.
+   * If draining fails, terminate the owned child before the blocking reap. */
+  if (result == SOX_SUCCESS && drain_child_reader(ft) != SOX_SUCCESS)
+    result = SOX_EOF;
+  if (result != SOX_SUCCESS)
+    lsx_abort_child_pipe((FILE *)ft->fp);
+  if (ft->fp && xfclose((FILE *)ft->fp, ft->io_type) != 0) {
+    lsx_fail("input downloader or decoder did not complete successfully: `%s'", ft->filename);
+    result = SOX_EOF;
+  }
+  ft->fp = NULL;
+  return result;
 }
 
 #if HAVE_POPEN
@@ -702,14 +816,14 @@ static FILE * open_url(char const * identifier)
     /* We got EOF immediately so either it's a zero-length file
      * or something went wrong. */
     {
-	int status = pclose(f);
+        int status = lsx_close_pipe_or_file(f, 0);
         char const *s;
 
-#ifdef WEXITSTATUS
-        /* Some pclose()s return the command's exit status;
-         * others return a code that you have to decode with WEXITSTATUS
-         */
-        status = WEXITSTATUS(status);
+#ifdef WIFEXITED
+        if (status != -1 && WIFEXITED(status))
+          status = WEXITSTATUS(status);
+        else if (status != -1)
+          status = 128; /* signalled or otherwise unsuccessful */
 #endif
 	if (status == 0) {
 	    /* Nothing went wrong. It's a zero-length file. */

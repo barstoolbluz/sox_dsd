@@ -4742,6 +4742,22 @@ int main(int argc, char **argv)
       lsx_warn("`%s' balancing clipped %" PRIu64 " samples; decrease volume?",
           files[i]->filename, files[i]->volume_clips);
 
+  /* A subprocess can emit a syntactically complete audio file and still
+   * fail (HTTP error, truncated response, decoder failure). Reap and check
+   * all external readers BEFORE closing the output, issuing "complete" DSD
+   * evidence, or setting success. Keep the reader metadata alive for the
+   * DSD report; ordinary cleanup owns the final format-object free. */
+  {
+    int input_failed = 0;
+    for (i = 0; i < input_count; ++i)
+      if (files[i]->ft && lsx_finalize_child_read(files[i]->ft) != SOX_SUCCESS)
+        input_failed = 1;
+    if (input_failed) {
+      cleanup(); /* The still-open regular output is removed on failure. */
+      return 2;
+    }
+  }
+
   /* The output file must be closed *after* collecting its clip statistics,
    * but before announcing completion.  A failed close is a failed command. */
   if (ofile->ft && close_output_checked() != SOX_SUCCESS) {
