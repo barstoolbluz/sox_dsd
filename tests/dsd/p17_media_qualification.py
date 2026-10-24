@@ -41,6 +41,9 @@ def main():
     a.add_argument('--tiers',default='scalar')
     a.add_argument('--timeout-per-track',type=int,default=14400)
     a.add_argument('--require-media',action='store_true')
+    a.add_argument('--independent-reader-evidence',type=Path,
+        default=ROOT/'tests/dsd/results/P21_INDEPENDENT_READER_2026-10-24/independent-reader-evidence.json',
+        help='verdict from tests/dsd/p21_independent_reader.py; absent means UNRUN')
     args=a.parse_args();args.probe=args.probe.resolve();args.results=args.results.resolve()
     if args.expected_dsd512_tracks<1 or args.timeout_per_track<1:
         a.error('track count and timeout must be positive')
@@ -118,6 +121,36 @@ def main():
         len(r512)==len(dsd512)*len(tiers)*2 and
         all(x['status']=='PASS_FUNCTIONAL_ONLY' for x in r512) and
         all(x['source_sha256'] in dsd512|dsd1024 for x in cases))
+    # The independent-reader gate used to be the literal string 'UNRUN' and an
+    # all-False profile map, which is indistinguishable from a gate that cannot
+    # pass. It is now derived from p21_independent_reader.py, and still reports
+    # UNRUN when that evidence is absent. DSD1024 stays unqualified regardless:
+    # no independent media exists for it, so nothing can be compared.
+    reader_gate, reader_ref, reader = 'UNRUN', None, None
+    if args.independent_reader_evidence is not None and args.independent_reader_evidence.is_file():
+        reader = load(args.independent_reader_evidence)
+        if reader.get('schema') != 'P21/independent-reader-evidence/1':
+            raise RuntimeError('unrecognised independent-reader evidence schema')
+        reader_gate = reader.get('independent_reader_and_audio_reference_gate', 'UNRUN')
+        reader_ref = dict(
+            path=str(args.independent_reader_evidence.relative_to(ROOT)),
+            runner_sha256=reader.get('runner_sha256'),
+            sox_sha256=reader.get('sox_sha256'),
+            tracks=reader.get('tracks'), case_count=reader.get('case_count'),
+            media_sha256_match=sorted(reader.get('media_sha256', []))==sorted(dsd512))
+    reader_profiles = (reader or {}).get('profiles_qualified', {})
+    profile_qualification = {}
+    for rate in (512, 1024):
+        for kind in ('mastering', 'wideband'):
+            for version in ('v1', 'v2'):
+                pid = f'decode.{kind}.{version}.dsd{rate}'
+                # qualified only where a reader comparison actually passed, and
+                # only at the clock the compared media is
+                base = f'decode.{kind}.{version}'
+                profile_qualification[pid] = bool(
+                    rate == 512 and reader_gate == 'PASS'
+                    and reader_profiles.get(base) is True
+                    and reader_ref is not None and reader_ref['media_sha256_match'])
     report=dict(schema='P17/commercial-decoder-evidence/1',
         probe_sha256=binary_sha,runner_sha256=runner_sha,
         host=dict(node=platform.node(),os=platform.platform(),machine=platform.machine()),
@@ -127,12 +160,12 @@ def main():
         full_file_functional_gate='PASS' if complete else ('FAIL' if failed else 'UNRUN_OR_INCOMPLETE'),
         media_sha256=sorted(dsd512|dsd1024),
         case_receipts={f'full_file/{x["source_id"]}-{x["profile"]}-{x["tier"]}.json':x['status'] for x in cases},
-        decoder_profile_qualified={f'decode.{p}.v1.dsd{rate}':False
-            for rate in (512,1024) for p in ('mastering','wideband')},
-        independent_reader_and_audio_reference_gate='UNRUN',
+        decoder_profile_qualified=profile_qualification,
+        independent_reader_and_audio_reference_gate=reader_gate,
+        independent_reader_evidence=reader_ref,
         missing_media='No independent DSD1024 licensed media provided',
         device_claims=[],public_capabilities_enabled=False,qualification='UNQUALIFIED',
-        note='Licensed full files were not part of uploaded code bundle; internal PCM parity does not establish an independent decoder oracle')
+        note='Licensed full files were not part of uploaded code bundle; internal PCM parity does not establish an independent decoder oracle. The independent-reader gate is a second-implementation audio comparison: it establishes container parse, interleave, bit order, alignment and gross gain, not filter equivalence or device interoperability.')
     atomic(args.results/'commercial-decode-evidence.json',report)
     print('MEDIA',report['full_file_functional_gate'],len(dsd512),'DSD512 tracks')
     return 0 if (complete or not args.require_media) and not failed else 1
