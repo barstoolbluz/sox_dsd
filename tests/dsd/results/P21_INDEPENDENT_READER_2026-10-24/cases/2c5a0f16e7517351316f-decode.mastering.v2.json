@@ -1,0 +1,56 @@
+{
+  "cli_decode_flag": "(default)",
+  "does_not_establish": "filter equivalence, device interoperability",
+  "elapsed_seconds": 16.630688589066267,
+  "establishes": "container parse, interleave, bit order, alignment, gross gain",
+  "failure_reasons": [],
+  "metrics": {
+    "analysis_band_hz": [
+      0,
+      20000
+    ],
+    "channels": [
+      {
+        "channel": 0,
+        "cross_channel_pearson_r": 0.11646690798751431,
+        "level_delta_db": 2.3830996207799224e-05,
+        "pearson_r": 0.9999833369039719
+      },
+      {
+        "channel": 1,
+        "cross_channel_pearson_r": 0.11682409113953456,
+        "level_delta_db": 2.5767544516457107e-05,
+        "pearson_r": 0.9999890379721693
+      }
+    ],
+    "control_pearson_r": [
+      -0.007901922528286665,
+      0.006867406957741809
+    ],
+    "frames_compared": 1764000
+  },
+  "output_hz": 176400,
+  "profile_id": "decode.mastering.v2",
+  "reference": [
+    "ffmpeg version 7.1.3-0+deb13u1 Copyright (c) 2000-2025 the FFmpeg developers"
+  ],
+  "reference_exit": 0,
+  "reference_stderr_tail": "",
+  "runner_sha256": "4140a7f83a074cffb9d238c8909c0b31cdf97d36dcecc95098913e9395dd8552",
+  "schema": "P21/independent-reader-case/1",
+  "seconds": 10.0,
+  "source_bytes": 2154455290,
+  "source_id": "2c5a0f16e7517351316f",
+  "source_sha256": "2c5a0f16e7517351316f9263937b4db5b17c6b2c1edfbc4fa7fb2925cf5b94ee",
+  "sox_exit": 0,
+  "sox_sha256": "03786db4125f5c00f47e806d8225a8cf717a068caafc3e3dbf92e6dd52d82989",
+  "sox_stderr_tail": "sox WARN sox_ng: discarding DSD channel layout for `f8' (--dsd-layout-loss warn)\n",
+  "start_seconds": 5.0,
+  "status": "PASS",
+  "thresholds": {
+    "max_control_pearson": 0.5,
+    "max_level_delta_db": 0.1,
+    "min_channel_margin": 0.01,
+    "min_pearson": 0.999
+  }
+}

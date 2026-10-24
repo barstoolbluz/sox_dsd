@@ -1,0 +1,82 @@
+{
+  "case_count": 36,
+  "case_receipts": {
+    "cases/11ba327933f930e89001-decode.mastering.v1.json": "PASS",
+    "cases/11ba327933f930e89001-decode.mastering.v2.json": "PASS",
+    "cases/11ba327933f930e89001-decode.wideband.v1.json": "PASS",
+    "cases/17a480473673186c112a-decode.mastering.v1.json": "PASS",
+    "cases/17a480473673186c112a-decode.mastering.v2.json": "PASS",
+    "cases/17a480473673186c112a-decode.wideband.v1.json": "PASS",
+    "cases/2c5a0f16e7517351316f-decode.mastering.v1.json": "PASS",
+    "cases/2c5a0f16e7517351316f-decode.mastering.v2.json": "PASS",
+    "cases/2c5a0f16e7517351316f-decode.wideband.v1.json": "PASS",
+    "cases/48f40bd356e51ba9a8c2-decode.mastering.v1.json": "PASS",
+    "cases/48f40bd356e51ba9a8c2-decode.mastering.v2.json": "PASS",
+    "cases/48f40bd356e51ba9a8c2-decode.wideband.v1.json": "PASS",
+    "cases/4910e88a2611adf64147-decode.mastering.v1.json": "PASS",
+    "cases/4910e88a2611adf64147-decode.mastering.v2.json": "PASS",
+    "cases/4910e88a2611adf64147-decode.wideband.v1.json": "PASS",
+    "cases/7354fb734394a72e9391-decode.mastering.v1.json": "PASS",
+    "cases/7354fb734394a72e9391-decode.mastering.v2.json": "PASS",
+    "cases/7354fb734394a72e9391-decode.wideband.v1.json": "PASS",
+    "cases/7d9106d9edee23b5b7df-decode.mastering.v1.json": "PASS",
+    "cases/7d9106d9edee23b5b7df-decode.mastering.v2.json": "PASS",
+    "cases/7d9106d9edee23b5b7df-decode.wideband.v1.json": "PASS",
+    "cases/bd77575cfc9034e4a4d1-decode.mastering.v1.json": "PASS",
+    "cases/bd77575cfc9034e4a4d1-decode.mastering.v2.json": "PASS",
+    "cases/bd77575cfc9034e4a4d1-decode.wideband.v1.json": "PASS",
+    "cases/d394b11ca29dfcc735ee-decode.mastering.v1.json": "PASS",
+    "cases/d394b11ca29dfcc735ee-decode.mastering.v2.json": "PASS",
+    "cases/d394b11ca29dfcc735ee-decode.wideband.v1.json": "PASS",
+    "cases/dd0a7a47018f029161e1-decode.mastering.v1.json": "PASS",
+    "cases/dd0a7a47018f029161e1-decode.mastering.v2.json": "PASS",
+    "cases/dd0a7a47018f029161e1-decode.wideband.v1.json": "PASS",
+    "cases/f74629d238f4c78d5edb-decode.mastering.v1.json": "PASS",
+    "cases/f74629d238f4c78d5edb-decode.mastering.v2.json": "PASS",
+    "cases/f74629d238f4c78d5edb-decode.wideband.v1.json": "PASS",
+    "cases/fa5d910162a04e936285-decode.mastering.v1.json": "PASS",
+    "cases/fa5d910162a04e936285-decode.mastering.v2.json": "PASS",
+    "cases/fa5d910162a04e936285-decode.wideband.v1.json": "PASS"
+  },
+  "device_claims": [],
+  "does_not_establish": "Filter equivalence; the reference reconstructs differently by design. Device interoperability. DSD1024 read, for which no independent media exists.",
+  "establishes": "A second independently written reader recovers the same audio from the same file: container parse, interleave, bit order, alignment and gross gain.",
+  "host": {
+    "machine": "x86_64",
+    "node": "ethos",
+    "os": "Linux-6.12.85+deb13-amd64-x86_64-with-glibc2.44"
+  },
+  "independent_reader_and_audio_reference_gate": "PASS",
+  "media_sha256": [
+    "11ba327933f930e8900150037d010923400ffbcf175ed3bef47501607ac6a687",
+    "17a480473673186c112abf8a98ab417eb659addf4356b7a953b01a3d6c44f134",
+    "2c5a0f16e7517351316f9263937b4db5b17c6b2c1edfbc4fa7fb2925cf5b94ee",
+    "48f40bd356e51ba9a8c2e719169eb02cbadd7fe681229c2fdb525e9f53905b80",
+    "4910e88a2611adf64147eefc16ce55791bbc28cbfa6a673804725f40318d96ed",
+    "7354fb734394a72e9391cdc12b42f43cd7330541f9947729e1501bc6988f97b6",
+    "7d9106d9edee23b5b7df8ff832af1bc42cf3c5a2f209fcfca957beb898c1b6ac",
+    "bd77575cfc9034e4a4d1a8e40526826c7eee95a886da4b3b3715b4f3ef44fe9a",
+    "d394b11ca29dfcc735eebeb9add26b3b7b41fd01152b3d7dc13b76b564aca502",
+    "dd0a7a47018f029161e18dd1b303ec7ccec7bc17b974dae687c34161bfbfeb86",
+    "f74629d238f4c78d5edb04e50323b7afa1bff772969997c5d9baf6aa1b0cd7ee",
+    "fa5d910162a04e936285fb0c188bd15c6da670b6e678ac482f5e520353344227"
+  ],
+  "profiles_qualified": {
+    "decode.mastering.v1": true,
+    "decode.mastering.v2": true,
+    "decode.wideband.v1": true
+  },
+  "reference": [
+    "ffmpeg version 7.1.3-0+deb13u1 Copyright (c) 2000-2025 the FFmpeg developers"
+  ],
+  "runner_sha256": "4140a7f83a074cffb9d238c8909c0b31cdf97d36dcecc95098913e9395dd8552",
+  "schema": "P21/independent-reader-evidence/1",
+  "sox_sha256": "03786db4125f5c00f47e806d8225a8cf717a068caafc3e3dbf92e6dd52d82989",
+  "thresholds": {
+    "max_control_pearson": 0.5,
+    "max_level_delta_db": 0.1,
+    "min_channel_margin": 0.01,
+    "min_pearson": 0.999
+  },
+  "tracks": 12
+}
