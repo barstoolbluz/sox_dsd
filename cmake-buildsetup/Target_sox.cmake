@@ -29,6 +29,7 @@ UTIL_List_constructFromOther(soXSourceFileList
 
 SET(soXCompileDefinitionList
     SOX_IMPORT
+    SOX_DSD_UPSTREAM_BASE=\"${SOX_DSD_UPSTREAM_BASE}\"
 )
 
 #===============

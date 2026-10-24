@@ -1,0 +1,44 @@
+{
+  "base_regular_files": 4125,
+  "changed_or_new_paths": [
+    "test/Makefile.am",
+    "test/run_check_staged.py",
+    "tests/dsd/test_layout.py"
+  ],
+  "corrected_regular_files": 4126,
+  "date": "2026-10-23",
+  "evidence": [
+    "evidence/R3/installer_adversarial.json",
+    "evidence/R3/make_check_readonly.log",
+    "evidence/R3/make_check_sync_rename_readonly.log",
+    "evidence/R3/P04_fixture_byte_equivalence.json",
+    "evidence/R3/P04_layout_readonly.log",
+    "evidence/R3/make_check_dsd_P18_readonly.log",
+    "evidence/R3/P18_run.json",
+    "evidence/R3/python_extractall_overlay_adversarial.json"
+  ],
+  "gates": {
+    "R2_to_R3_git_patch_replay_4126_hashes": "PASS",
+    "actual_sox_version": "SoX DSD v1.0.0 (based on sox_ng 14.8.1)",
+    "clean_out_of_tree_autoreconf_configure_make": "PASS",
+    "full_CMake_4_build": "NOT RUN",
+    "generated_P04_audio_fixtures_byte_equivalent_to_committed": "PASS (14/14)",
+    "make_distcheck": "NOT RUN",
+    "native_Windows_MSVC_WinMM": "NOT RUN",
+    "omitted_historical_P15_evidence": "NOT AVAILABLE",
+    "overlay_full_tree_content_authentication_and_idempotency": "PASS",
+    "overlay_zip_extraction_modes": "PASS (real Python zipfile.extractall, umask 022 R2 baseline, install, repeat, adversarial source corruption refusal)",
+    "read_only_source_P04_layout_oracle": "PASS (46/46)",
+    "read_only_source_full_P18_DSD_gate": "PASS (46/46 runner, downstream integration and numeric stages)",
+    "read_only_source_unprivileged_make_check": "PASS (73 OK, 8 expected VOID, 81 executed)",
+    "read_only_source_unprivileged_make_check_rename": "PASS",
+    "read_only_source_unprivileged_make_check_sync": "PASS",
+    "source_tar_4126_sha256_roundtrip": "PASS"
+  },
+  "new_paths": [
+    "test/run_check_staged.py"
+  ],
+  "schema": 1,
+  "source_stage": "R2 -> R3",
+  "source_tar_sha256": "0c272e982ffc3a21083b873f119e89cf1ac470c7ba09ac09756c3b1f8364254e"
+}

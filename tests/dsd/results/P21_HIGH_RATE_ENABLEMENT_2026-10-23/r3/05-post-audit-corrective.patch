@@ -1,0 +1,960 @@
+diff --git a/Makefile.am b/Makefile.am
+index eea1eff..4933513 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -37,6 +37,7 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
+ 	     README.md RULES.md RULES-issues.md RULES-wiki.md \
+ 	     docs/UPSTREAM.md \
+ 	     tests/sync/test_url_process.py tests/sync/test_p10_path.py \
++             tests/sync/test_p16_p18_path.py tests/sync/test_waveaudio_teardown.py \
+ 	     README.sh FEATURES.in test/* issues wiki/* \
+              tests/rename_smoke.sh
+ 
+@@ -249,7 +250,7 @@ check-dsd: all
+ 	@if test "$(DSD_PHASE)" = "P18"; then \
+ 	  $(MAKE) -C test dsd_test_p18$(EXEEXT) || exit $$?; \
+ 	fi
+-	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT) --p10-unit $(abs_builddir)/test/dsd_test_p10$(EXEEXT)
++	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT) --p10-unit $(abs_builddir)/test/dsd_test_p10$(EXEEXT) --p16-unit $(abs_builddir)/test/dsd_test_p16$(EXEEXT) --p17-unit $(abs_builddir)/test/dsd_test_p17$(EXEEXT) --p18-unit $(abs_builddir)/test/dsd_test_p18$(EXEEXT)
+ 	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
+ 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
+@@ -356,7 +357,7 @@ check-dsd: all
+ 	    --unit $(abs_builddir)/test/dsd_test_p11$(EXEEXT) \
+ 	    --results $(DSD_RESULTS)/cross-isa && \
+ 	  python3 $(srcdir)/tests/dsd/check_p12_isa.py \
+-	    --results $(DSD_RESULTS)/isa; \
++	    --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
+ 	fi
+ 
+ 
+@@ -382,7 +383,7 @@ check-dsd: all
+ 	    --unit $(abs_builddir)/test/dsd_test_p11$(EXEEXT) \
+ 	    --results $(DSD_RESULTS)/cross-isa && \
+ 	  python3 $(srcdir)/tests/dsd/check_p13_isa.py \
+-	    --results $(DSD_RESULTS)/isa; \
++	    --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
+ 	fi
+ 
+ # P14's independent native-bit, final-report, and digital-filter tests.
+@@ -423,7 +424,7 @@ check-dsd: all
+ 	@if test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18"; then \
+ 	  $(MAKE) -C test dsd_test_p17$(EXEEXT) && \
+ 	  python3 $(srcdir)/tests/dsd/generate_p17_profiles.py --check && \
+-	  python3 $(srcdir)/tests/dsd/test_p17_numeric.py --results $(DSD_RESULTS)/numeric-p17; \
++	  python3 $(srcdir)/tests/dsd/test_p17_numeric.py --unit $(abs_builddir)/test/dsd_test_p17$(EXEEXT) --results $(DSD_RESULTS)/numeric-p17; \
+ 	fi
+ 
+ 
+@@ -728,4 +729,11 @@ check-sync-p10: all
+ 	$(MAKE) -C test dsd_test_p10$(EXEEXT) dsd_test_io$(EXEEXT)
+ 	python3 $(srcdir)/tests/sync/test_p10_path.py --source $(abs_srcdir) --build $(abs_builddir)
+ 
+-check-sync: check-sync-url check-sync-p10
++check-sync-p16-p18: all
++	$(MAKE) -C test dsd_test_io$(EXEEXT) dsd_test_p16$(EXEEXT) dsd_test_p17$(EXEEXT) dsd_test_p18$(EXEEXT)
++	python3 $(srcdir)/tests/sync/test_p16_p18_path.py --source $(abs_srcdir) --build $(abs_builddir)
++
++check-sync-waveaudio:
++	python3 $(srcdir)/tests/sync/test_waveaudio_teardown.py --source $(abs_srcdir)
++
++check-sync: check-sync-url check-sync-p10 check-sync-p16-p18 check-sync-waveaudio
+diff --git a/src/bit-rot/mmsystem.h b/src/bit-rot/mmsystem.h
+index c6b0e3b..7a3a040 100644
+--- a/src/bit-rot/mmsystem.h
++++ b/src/bit-rot/mmsystem.h
+@@ -16,6 +16,7 @@ enum {
+   WAVE_MAPPER,
+   WAVERR_STILLPLAYING,
+   WHDR_DONE,
++  WHDR_PREPARED,
+   WHDR_INQUEUE
+ };
+ 
+@@ -67,6 +68,7 @@ MMRESULT WINAPI waveInGetDevCapsA(UINT,LPWAVEINCAPSA,UINT);
+ MMRESULT WINAPI waveInGetNumDevs(void);
+ MMRESULT WINAPI waveInOpen(HWAVEIN*,UINT,WAVEFORMATEX*,DWORD*,DWORD*,DWORD);
+ MMRESULT WINAPI waveInPrepareHeader(HWAVEIN,LPWAVEHDR,UINT);
++MMRESULT WINAPI waveInUnprepareHeader(HWAVEIN,LPWAVEHDR,UINT);
+ MMRESULT WINAPI waveInReset(HWAVEIN);
+ MMRESULT WINAPI waveInStart(HWAVEIN);
+ MMRESULT WINAPI waveOutClose(HWAVEOUT);
+@@ -74,6 +76,7 @@ MMRESULT WINAPI waveOutGetDevCapsA(UINT,LPWAVEOUTCAPSA,UINT);
+ MMRESULT WINAPI waveOutGetNumDevs(void);
+ MMRESULT WINAPI waveOutOpen(HWAVEOUT*,UINT,WAVEFORMATEX*,DWORD*,DWORD*,DWORD);
+ MMRESULT WINAPI waveOutPrepareHeader(HWAVEOUT,LPWAVEHDR,UINT);
++MMRESULT WINAPI waveOutUnprepareHeader(HWAVEOUT,LPWAVEHDR,UINT);
+ MMRESULT WINAPI waveOutReset(HWAVEOUT);
+ MMRESULT WINAPI waveOutWrite(HWAVEOUT,LPWAVEHDR,UINT);
+ 
+diff --git a/src/formats.c b/src/formats.c
+index 852b856..1faeea3 100644
+--- a/src/formats.c
++++ b/src/formats.c
+@@ -32,6 +32,11 @@
+ 
+ #include <ctype.h>
+ #include <fcntl.h>
++#include <time.h>
++#if HAVE_SYS_SELECT_H && HAVE_FCNTL_H && HAVE_UNISTD_H && !defined(_WIN32)
++#include <sys/select.h>
++#include <unistd.h>
++#endif
+ 
+ #ifdef __ANDROID__
+   /* From Termux to "Get rid of references to leaked builtins"
+@@ -562,6 +567,93 @@ static int xfclose(FILE * file, lsx_io_type io_type)
+   return lsx_close_pipe_or_file(file, io_type == lsx_io_pipe);
+ }
+ 
++/* A decoder can stop at the end of its audio payload while the transport
++ * still contains perfectly valid container metadata. Never close our end of
++ * a downloader pipe early and then construe the SIGPIPE we caused as an HTTP
++ * failure. The downloader's success is established only at true pipe EOF.
++ *
++ * On POSIX use nonblocking stdio reads and a select-based deadline. Besides
++ * bounding idle servers, the overall deadline prevents infinite/live streams
++ * from holding final output publication forever after finite audio ends.
++ * In unsupported CRT pipe configurations, EOF is still mandatory but a
++ * platform-provided read may block; this requires host-specific qualification.
++ */
++static int drain_child_reader(sox_format_t *ft)
++{
++  FILE *stream = (FILE *)ft->fp;
++  char discard[32768];
++  time_t started = time(NULL), progressed = started;
++#if HAVE_SYS_SELECT_H && HAVE_FCNTL_H && HAVE_UNISTD_H && !defined(_WIN32)
++  int fd = fileno(stream);
++  int original_flags = fd >= 0 ? fcntl(fd, F_GETFL) : -1;
++  if (fd < 0 || fd >= FD_SETSIZE || original_flags < 0 ||
++      fcntl(fd, F_SETFL, original_flags | O_NONBLOCK) < 0) {
++    lsx_fail("cannot safely drain URL transport `%s': %s",
++             ft->filename, strerror(errno));
++    return SOX_EOF;
++  }
++#endif
++  for (;;) {
++    size_t n;
++    int read_errno;
++    time_t now = time(NULL);
++    /* Check on every iteration, including a busy producer that never stalls. */
++    if (now != (time_t)-1 && started != (time_t)-1 &&
++        difftime(now, started) >= 120.) {
++      lsx_fail("URL transport did not reach EOF within 120 seconds: `%s'", ft->filename);
++      break;
++    }
++    errno = 0;
++    n = fread(discard, 1, sizeof(discard), stream);
++    read_errno = errno;
++    if (n) progressed = now;
++    if (feof(stream)) {
++#if HAVE_SYS_SELECT_H && HAVE_FCNTL_H && HAVE_UNISTD_H && !defined(_WIN32)
++      (void)fcntl(fd, F_SETFL, original_flags);
++#endif
++      return SOX_SUCCESS;
++    }
++    if (ferror(stream)) {
++#if HAVE_SYS_SELECT_H && HAVE_FCNTL_H && HAVE_UNISTD_H && !defined(_WIN32)
++      if (read_errno == EINTR || read_errno == EAGAIN ||
++          read_errno == EWOULDBLOCK) {
++        fd_set readfds;
++        struct timeval wait_time;
++        int ready;
++        clearerr(stream);
++        now = time(NULL);
++        if (now != (time_t)-1 && progressed != (time_t)-1 &&
++            difftime(now, progressed) >= 30.) {
++          lsx_fail("URL transport stalled before EOF: `%s'", ft->filename);
++          break;
++        }
++        FD_ZERO(&readfds);
++        FD_SET(fd, &readfds);
++        wait_time.tv_sec = 1;
++        wait_time.tv_usec = 0;
++        ready = select(fd + 1, &readfds, NULL, NULL, &wait_time);
++        if (ready < 0 && errno != EINTR) {
++          lsx_fail("URL transport wait failed: `%s': %s", ft->filename, strerror(errno));
++          break;
++        }
++        continue;
++      }
++#endif
++      lsx_fail("URL transport read failed before EOF: `%s': %s",
++               ft->filename, strerror(read_errno ? read_errno : EIO));
++      break;
++    }
++    if (!n) {
++      lsx_fail("URL transport yielded neither data nor EOF: `%s'", ft->filename);
++      break;
++    }
++  }
++#if HAVE_SYS_SELECT_H && HAVE_FCNTL_H && HAVE_UNISTD_H && !defined(_WIN32)
++  (void)fcntl(fd, F_SETFL, original_flags);
++#endif
++  return SOX_EOF;
++}
++
+ /* Complete externally launched input streams before the CLI can announce a
+  * successful output or publish a completed DSD receipt. Keep format metadata
+  * alive for reporting; the ordinary sox_close() will release it afterwards.
+@@ -575,6 +667,13 @@ int lsx_finalize_child_read(sox_format_t *ft)
+     result = (*ft->handler.stopread)(ft);
+     ft->handler.stopread = NULL;
+   }
++  /* A successful finite audio decode does not imply the download is at EOF.
++   * stopread can finalize a decoder but does not consume later RIFF chunks.
++   * If draining fails, terminate the owned child before the blocking reap. */
++  if (result == SOX_SUCCESS && drain_child_reader(ft) != SOX_SUCCESS)
++    result = SOX_EOF;
++  if (result != SOX_SUCCESS)
++    lsx_abort_child_pipe((FILE *)ft->fp);
+   if (ft->fp && xfclose((FILE *)ft->fp, ft->io_type) != 0) {
+     lsx_fail("input downloader or decoder did not complete successfully: `%s'", ft->filename);
+     result = SOX_EOF;
+diff --git a/src/util.c b/src/util.c
+index 71a9197..4d2b431 100644
+--- a/src/util.c
++++ b/src/util.c
+@@ -22,6 +22,7 @@
+ #include <unistd.h>
+ #include <sys/wait.h>
+ #include <pthread.h>
++#include <signal.h>
+ #endif
+ #ifdef _WIN32
+ #include <windows.h>
+@@ -87,6 +88,26 @@ int lsx_is_child_pipe(FILE *stream)
+   return found;
+ }
+ 
++/* Abort only children this library still owns, and only after the caller
++ * has decided the transport cannot complete. SIGKILL prevents a stalled or
++ * endless producer from holding the subsequent waitpid() indefinitely. */
++void lsx_abort_child_pipe(FILE *stream)
++{
++#if HAVE_PIPE && HAVE_FORK
++  lsx_child_pipe *entry;
++  if (!stream) return;
++  LSX_PIPE_LOCK();
++  for (entry = lsx_child_pipes; entry; entry = entry->next)
++    if (entry->stream == stream) {
++      (void)kill(entry->pid, SIGKILL);
++      break;
++    }
++  LSX_PIPE_UNLOCK();
++#else
++  (void)stream;
++#endif
++}
++
+ /* libc_pipe is true for user-provided `|command' streams; false for ordinary
+  * file streams. Both cases may also hold an lsx_popen-owned child stream. */
+ int lsx_close_pipe_or_file(FILE *stream, int libc_pipe)
+diff --git a/src/util.h b/src/util.h
+index 166bf57..5870293 100644
+--- a/src/util.h
++++ b/src/util.h
+@@ -287,5 +287,6 @@ extern int lsx_sscanf(const char *str, const char *format, ...);
+ 
+ extern FILE *lsx_popen(char **argv, char type, int filename_index);
+ extern int lsx_is_child_pipe(FILE *stream);
++extern void lsx_abort_child_pipe(FILE *stream);
+ extern int lsx_close_pipe_or_file(FILE *stream, int libc_pipe);
+ extern int lsx_finalize_child_read(sox_format_t *ft);
+diff --git a/src/waveaudio.c b/src/waveaudio.c
+index 277ffea..6151627 100644
+--- a/src/waveaudio.c
++++ b/src/waveaudio.c
+@@ -43,7 +43,10 @@ typedef struct waveaudio_priv_t
+    * data[buf_len*sample_size*1], etc. The dwUser field contains the number
+    * of samples of this buffer that have already been processed.
+    */
+-  WAVEHDR headers[num_buffers];
++  /* Headers MUST outlive the format object if WinMM refuses to close: the
++   * driver can retain WAVEHDR pointers after waveOutClose(STILLPLAYING).
++   * Keep them separately allocated from ft->priv for that error path. */
++  WAVEHDR *headers;
+ 
+   /* The combined data area shared by all transfer buffers.
+    * size = (bufsiz rounded up to a multiple of 32 samples) * num_buffers.
+@@ -134,40 +137,93 @@ static int drain_output(sox_format_t* ft, priv_t *priv)
+   }
+ }
+ 
++/* Release driver-owned resources only after a successful device close.
++ * If a faulty driver refuses close, the audio data, prepared headers and
++ * callback event must all remain valid. In that exceptional state they are
++ * deliberately quarantined until process exit; freeing them would be UAF.
++ * This is a bounded, error-only leak, never the successful shutdown path. */
+ static int stop(sox_format_t* ft)
+ {
+   priv_t *priv = (priv_t*)ft->priv;
+   int result = SOX_SUCCESS;
+-  if (priv == NULL) return SOX_EOF;
++  int device_still_owns_memory = 0;
++  unsigned i;
++  MMRESULT error;
++  if (!priv) return SOX_EOF;
+ 
+-  if (priv->hin)
+-  {
+-    waveInReset(priv->hin);
+-    waveInClose(priv->hin);
+-  }
+-  
+-  if (priv->hout)
+-  {
+-    /* Reset only after all pending playback has completed (or on timeout).
+-     * Resetting immediately discards the tail, while a fixed sleep blocks
+-     * even when the queue is empty and may be too short for some buffers. */
+-    if (drain_output(ft, priv) != SOX_SUCCESS) result = SOX_EOF;
+-    if (waveOutReset(priv->hout) != MMSYSERR_NOERROR) {
+-      lsx_fail_errno(ft, SOX_EOF, "waveOutReset failed");
++  if (priv->hin) {
++    error = waveInReset(priv->hin);
++    if (error != MMSYSERR_NOERROR) {
++      fail(ft, error, "waveInReset");
+       result = SOX_EOF;
+     }
+-    if (waveOutClose(priv->hout) != MMSYSERR_NOERROR) {
+-      lsx_fail_errno(ft, SOX_EOF, "waveOutClose failed");
++    if (priv->headers)
++      for (i = 0; i < num_buffers; ++i)
++        if (priv->headers[i].dwFlags & WHDR_PREPARED) {
++          error = waveInUnprepareHeader(priv->hin, &priv->headers[i],
++                                        sizeof(priv->headers[i]));
++          if (error != MMSYSERR_NOERROR) {
++            fail(ft, error, "waveInUnprepareHeader");
++            result = SOX_EOF;
++          }
++        }
++    error = waveInClose(priv->hin);
++    if (error == MMSYSERR_NOERROR)
++      priv->hin = NULL;
++    else {
++      fail(ft, error, "waveInClose");
++      device_still_owns_memory = 1;
+       result = SOX_EOF;
+     }
+   }
+ 
+-  if (priv->block_finished_event)
+-    CloseHandle(priv->block_finished_event);
++  if (priv->hout) {
++    /* Wait for completed playback before reset; reset is still required to
++     * return queued buffers on a deadline or driver error. */
++    if (drain_output(ft, priv) != SOX_SUCCESS)
++      result = SOX_EOF;
++    error = waveOutReset(priv->hout);
++    if (error != MMSYSERR_NOERROR) {
++      fail(ft, error, "waveOutReset");
++      result = SOX_EOF;
++    }
++    if (priv->headers)
++      for (i = 0; i < num_buffers; ++i)
++        if (priv->headers[i].dwFlags & WHDR_PREPARED) {
++          error = waveOutUnprepareHeader(priv->hout, &priv->headers[i],
++                                         sizeof(priv->headers[i]));
++          if (error != MMSYSERR_NOERROR) {
++            fail(ft, error, "waveOutUnprepareHeader");
++            result = SOX_EOF;
++          }
++        }
++    error = waveOutClose(priv->hout);
++    if (error == MMSYSERR_NOERROR)
++      priv->hout = NULL;
++    else {
++      fail(ft, error, "waveOutClose");
++      device_still_owns_memory = 1;
++      result = SOX_EOF;
++    }
++  }
+ 
+-  if (priv->data)
++  if (device_still_owns_memory) {
++    /* The library frees ft->priv after stop(). Headers live on the heap and
++     * remain at their original addresses, with their backing data and event.
++     * WinMM can still call back or refer to queued headers. Never close the
++     * event/free the memory until the device has truly closed. */
++    lsx_fail_errno(ft, SOX_EOF,
++        "waveaudio device remained open; retaining its queued headers, audio and event");
++  } else {
++    if (priv->block_finished_event) {
++      CloseHandle(priv->block_finished_event);
++      priv->block_finished_event = NULL;
++    }
++    free(priv->headers);
++    priv->headers = NULL;
+     free(priv->data);
+-
++    priv->data = NULL;
++  }
+   return result;
+ }
+ 
+@@ -367,6 +423,9 @@ static int start(sox_format_t* ft)
+   }
+ 
+   priv->buf_len = ((sox_globals.bufsiz >> priv->sample_shift) + 31) & ~31u;
++  /* Headers are referenced asynchronously by WinMM; in particular a failed
++   * close must not leave pointers into a freed sox_format_t. */
++  priv->headers = lsx_calloc(num_buffers, sizeof(*priv->headers));
+   priv->data = lsx_malloc((priv->buf_len * num_buffers) << priv->sample_shift);
+ 
+   priv->block_finished_event = CreateEventA(NULL, sox_false, sox_false, NULL);
+diff --git a/test/Makefile.am b/test/Makefile.am
+index 45e7dd0..62b3680 100644
+--- a/test/Makefile.am
++++ b/test/Makefile.am
+@@ -12,13 +12,17 @@ wav_size_state_test_CPPFLAGS = -I$(top_srcdir)/src
+ 
+ CLEANFILES = samples$(EXEEXT) samples.o
+ 
+-samples$(EXEEXT): samples.c
+-	$(CC) -o samples$(EXEEXT) samples.c
++samples$(EXEEXT): $(srcdir)/samples.c
++	$(CC) -o samples$(EXEEXT) $(srcdir)/samples.c
+ 
++# In VPATH builds the regression BUG-* cases live in $(srcdir), not in the
++# build/test directory. Run the complete suite there, with an absolute path
++# to the freshly built executable and the native test helper.
+ check-am: samples$(EXEEXT) wav_size_state_test$(EXEEXT)
+-	sox=../../src/sox \
++	cd '$(abs_srcdir)' && \
++	sox='$(abs_top_builddir)/src/sox$(EXEEXT)' \
+ 	wav_size_state_test='$(abs_builddir)/wav_size_state_test$(EXEEXT)' \
+-	sh $(srcdir)/check.sh -n
++	$(SHELL) ./check.sh -n
+ 
+ dist-hook:
+ 	rm -f $(distdir)/samples$(EXEEXT) $(distdir)/samples.o
+diff --git a/tests/dsd/check_p11_isa.py b/tests/dsd/check_p11_isa.py
+index 5e78ad4..67972ea 100644
+--- a/tests/dsd/check_p11_isa.py
++++ b/tests/dsd/check_p11_isa.py
+@@ -58,11 +58,14 @@ def inspect_objdump(path):
+ def main():
+     parser=argparse.ArgumentParser(description=__doc__)
+     parser.add_argument('--results',type=Path,required=True)
++    parser.add_argument('--build-root',type=Path,default=ROOT,
++                        help='configured build tree containing the compiled objects')
+     a=parser.parse_args()
++    build=a.build_root.resolve()
+     report=dict(schema='P11/ISA-audit/1',objects={},checks={},errors=[],
+        note='Static audit of built objects only; execution tests and AVX1-only hardware are independent gates')
+     for tier,source in OBJECTS.items():
+-        obj=ROOT/source
++        obj=build/source
+         if not obj.is_file():
+             report['errors'].append(f'missing built object {source}')
+             continue
+@@ -77,7 +80,7 @@ def main():
+         report['checks']['avx1_no_avx2']=not bool(d['avx1']['possible_avx2_mnemonics'])
+         report['checks']['avx1_no_fma']=not bool(d['avx1']['fma_mnemonics'])
+         report['checks']['sse2_no_fma']=not bool(d['sse2']['fma_mnemonics'])
+-        m=ROOT/'src/Makefile'
++        m=build/'src/Makefile'
+         flags=m.read_text() if m.is_file() else ''
+         report['checks']['explicit_avx1_flags']=bool(re.search(
+             r'DSD_AVX1_CFLAGS\s*=.*-mavx\s+-mno-avx2\s+-mno-fma\b.*-fno-lto',flags))
+diff --git a/tests/dsd/check_p12_isa.py b/tests/dsd/check_p12_isa.py
+index fa37093..4f63ae0 100644
+--- a/tests/dsd/check_p12_isa.py
++++ b/tests/dsd/check_p12_isa.py
+@@ -12,12 +12,15 @@ from check_p11_isa import ROOT,OBJECTS,inspect_objdump
+ def main():
+     ap=argparse.ArgumentParser(description=__doc__)
+     ap.add_argument('--results',type=Path,required=True)
++    ap.add_argument('--build-root',type=Path,default=ROOT,
++                    help='configured build tree containing the compiled objects')
+     a=ap.parse_args()
++    build=a.build_root.resolve()
+     report={'schema':'P12/ISA-audit/1','checks':{},'objects':{},'errors':[],
+         'limits':'Static disassembly alone does not establish executable ISA compatibility or throughput'}
+     objects=dict(OBJECTS,avx2='src/libdsd_kernels_avx2_la-dsd_kernels_avx2.o')
+     for name,path in objects.items():
+-        full=ROOT/path
++        full=build/path
+         if not full.is_file():
+             report['errors'].append('missing object: '+path)
+             continue
+@@ -40,7 +43,7 @@ def main():
+         check['avx2_full_width_permute']=v['avx2']['avx_mnemonics'].get('vpermpd',0)>=2
+         for name in objects:
+             check[name+'_no_fma']=not v[name]['fma_mnemonics']
+-        config=(ROOT/'src/Makefile').read_text()
++        config=(build/'src/Makefile').read_text()
+         check['avx2_isolated_flags']=bool(re.search(
+             r'DSD_AVX2_CFLAGS\s*=.*-mavx2\s+-mno-fma\s+-ffp-contract=off\s+-fno-lto',config))
+         check['avx1_non_avx2_flags']=bool(re.search(
+diff --git a/tests/dsd/check_p13_isa.py b/tests/dsd/check_p13_isa.py
+index c89915e..a38633f 100644
+--- a/tests/dsd/check_p13_isa.py
++++ b/tests/dsd/check_p13_isa.py
+@@ -16,13 +16,16 @@ from check_p11_isa import ROOT, OBJECTS, inspect_objdump
+ def main():
+     a=argparse.ArgumentParser(description=__doc__)
+     a.add_argument('--results',type=Path,required=True)
++    a.add_argument('--build-root',type=Path,default=ROOT,
++                   help='configured build tree containing the compiled objects')
+     args=a.parse_args()
++    build=args.build_root.resolve()
+     objs={**OBJECTS,'avx2':'src/libdsd_kernels_avx2_la-dsd_kernels_avx2.o',
+           'avx512':'src/libdsd_kernels_avx512_la-dsd_kernels_avx512.o'}
+     report=dict(schema='P13/ISA-isolation/1',objects={},checks={},errors=[],
+         limitations='Object ISA inspection; executable CPU/XCR0 and hardware tests are separate')
+     for name,rel in objs.items():
+-        p=ROOT/rel
++        p=build/rel
+         if not p.is_file():
+             report['errors'].append(f'missing {rel}')
+             continue
+@@ -40,11 +43,11 @@ def main():
+     if len(report['objects'])==len(objs):
+         checks=report['checks']
+         for name in ('baseline_dispatch','baseline_scalar','sse2','avx1','avx2'):
+-            cp=subprocess.run(['objdump','-d',str(ROOT/objs[name])],capture_output=True,text=True)
++            cp=subprocess.run(['objdump','-d',str(build/objs[name])],capture_output=True,text=True)
+             checks[name+'_no_zmm']=not bool(re.search(r'%zmm\d+|%k[1-7]\b',cp.stdout))
+         for name in objs:
+             checks[name+'_no_fma']=not report['objects'][name]['fma_mnemonics']
+-        cp=subprocess.run(['objdump','-d',str(ROOT/objs['avx512'])],capture_output=True,text=True)
++        cp=subprocess.run(['objdump','-d',str(build/objs['avx512'])],capture_output=True,text=True)
+         asm=cp.stdout
+         checks['avx512_zmm_execution']=bool(re.search(r'%zmm\d+',asm))
+         checks['avx512_full_width_permutations']=len(re.findall(r'\bvperm(?:t2|i2)?pd\b',asm))>=2
+@@ -56,7 +59,7 @@ def main():
+         # appear unless the flags or toolchain are broken.
+         forbidden=r'\b(?:vpmovb2m|vpmovw2m|vpmovm2b|vpmovm2w|vpermi2q|vpermt2q|vpmullq|vpbroadcastb|vpbroadcastw)\b'
+         checks['avx512_no_known_non_F_subsets']=not bool(re.search(forbidden,asm))
+-        config=(ROOT/'src/Makefile').read_text()
++        config=(build/'src/Makefile').read_text()
+         checks['isolated_compiler_flags']=bool(re.search(
+             r'DSD_AVX512_CFLAGS\s*=.*-mavx512f\s+-mno-avx512dq\s+-mno-avx512bw\s+-mno-avx512vl\s+-mno-fma\s+-ffp-contract=off\s+-fno-lto',config))
+         checks['no_global_avx512']=not bool(re.search(r'^CFLAGS\s*=[^\n]*-mavx512f',config,re.M))
+diff --git a/tests/dsd/run.py b/tests/dsd/run.py
+index 7094d89..583d8d2 100644
+--- a/tests/dsd/run.py
++++ b/tests/dsd/run.py
+@@ -661,11 +661,17 @@ def main():
+     ap.add_argument('--writer-unit',type=pathlib.Path,default=ROOT/'test/dsd_test_dff_writer')
+     ap.add_argument('--p10-unit',type=pathlib.Path,
+                     help='P10 native unit executable; defaults beside --probe')
++    for phase in ('p16','p17','p18'):
++        ap.add_argument('--'+phase+'-unit',type=pathlib.Path,
++                        help=phase.upper()+' native unit executable; defaults beside --probe')
+     ap.add_argument('--mode',choices=('unit','integration','all'),default='all')
+     ap.add_argument('--only',default='*',help='glob-select named tests, no automatic skip')
+     args=ap.parse_args()
+     if args.p10_unit is None:
+         args.p10_unit=args.probe.with_name('dsd_test_p10'+args.probe.suffix)
++    for phase in ('p16','p17','p18'):
++        if getattr(args,phase+'_unit') is None:
++            setattr(args,phase+'_unit',args.probe.with_name('dsd_test_'+phase+args.probe.suffix))
+     runner=Runner(args);runner.register_units();runner.register_integrations()
+     # The P10 native unit binary is built by check-dsd from P10 onward but its
+     # --unit run was only ever registered under --phase P10, so the default
+@@ -685,7 +691,7 @@ def main():
+     if args.phase in ('P16', 'P17', 'P18'):
+         def p16_executable(suffix, timeout):
+             def gate():
+-                command = [str(ROOT/'test/dsd_test_p16'), *suffix]
++                command = [str(args.p16_unit), *suffix]
+                 result = runner.invoke(command, timeout=timeout)
+                 require(result['exit'] == 0,
+                         f'P16 executable exit {result["exit"]}: {result["stderr"][-1500:]}')
+@@ -703,7 +709,7 @@ def main():
+                                     ('highrate_packed_expanded_isa_matrix','matrix',900),
+                                     ('unqualified_exact_rate_sdm_candidates','encode',180)]:
+             def gate(name=mode, limit=timeout):
+-                command=[str(ROOT/'test/dsd_test_p17'),name]
++                command=[str(args.p17_unit),name]
+                 result=runner.invoke(command,timeout=limit)
+                 require(result['exit']==0,f'P17 {name}: '+result['stderr'][-1500:])
+                 require(result['stdout'].startswith('P17 '),'P17 missing executable summary')
+@@ -712,7 +718,7 @@ def main():
+     if args.phase == 'P18':
+         for label in ('registry','transport','sizes'):
+             def gate(part=label):
+-                command=[str(ROOT/'test/dsd_test_p18'),part]
++                command=[str(args.p18_unit),part]
+                 result=runner.invoke(command,timeout=120)
+                 require(result['exit']==0, f'P18 {part}: '+result['stderr'][-1500:])
+                 require(result['stdout'].startswith('P18 PASS '), 'P18 missing native gate summary')
+diff --git a/tests/dsd/test_p17_numeric.py b/tests/dsd/test_p17_numeric.py
+index c6183b9..703bbb8 100644
+--- a/tests/dsd/test_p17_numeric.py
++++ b/tests/dsd/test_p17_numeric.py
+@@ -143,7 +143,7 @@ def bit_sequences(frames,ch):
+     rng=np.random.Generator(np.random.PCG64(0x17cafe+ch))
+     return rng.integers(0,2,size=(frames,ch),dtype=np.uint8)
+ 
+-def finite_cases(banks,manifest):
++def finite_cases(banks,manifest,unit=FIR):
+     cases=[]
+     for key,m in sorted(manifest['reconstruction'].items()):
+         profile=1 if '.wideband.' in key else 0
+@@ -154,7 +154,7 @@ def finite_cases(banks,manifest):
+         expected=N//D+(N%D!=0)
+         for channels in (1,6):
+             bits=bit_sequences(N,channels)
+-            command=[str(FIR),'export',str(m['native_hz']),str(profile),str(channels),str(N)]
++            command=[str(unit),'export',str(m['native_hz']),str(profile),str(channels),str(N)]
+             cp=subprocess.run(command,cwd=ROOT,input=bits.tobytes(),capture_output=True,timeout=180)
+             assert cp.returncode==0,cp.stderr.decode(errors='replace')[-1000:]
+             assert b'P17_EXPORT_OK' in cp.stderr
+@@ -186,7 +186,7 @@ def finite_cases(banks,manifest):
+       method='expanded coefficient polynomial + zero-extension + longdouble scalar inner product at beginnings/middle/EOF; P15 section 8.6 bound',
+       cases=cases)
+ 
+-def sdm_cases(duration=4096):
++def sdm_cases(duration=4096,unit=FIR):
+     cases=[]
+     # Exactly coherent in the source signal generator. Tone is well below the
+     # required .5 envelope; a deliberate overload is tested separately in C.
+@@ -196,7 +196,7 @@ def sdm_cases(duration=4096):
+     for hz in (22579200,45158400):
+         trials=[]
+         for tier in ('scalar','sse2','avx1','avx2','avx512'):
+-            command=[str(FIR),'encode-export',str(hz),str(duration)]
++            command=[str(unit),'encode-export',str(hz),str(duration)]
+             cp=subprocess.run(command,input=waveform.tobytes(),capture_output=True,
+                  cwd=ROOT,timeout=150,env={**os.environ,'SOX_DSD_KERNEL_SDM':tier})
+             if cp.returncode:
+@@ -234,7 +234,11 @@ def main():
+     ap.add_argument('--results',type=Path,default=ROOT/'tests/dsd/results/P17/numeric-p17')
+     ap.add_argument('--fft',type=int,default=1<<19)
+     ap.add_argument('--source-frames',type=int,default=4096)
++    ap.add_argument('--unit',type=Path,default=FIR,
++                    help='built P17 native exporter (out-of-tree builds supported)')
+     args=ap.parse_args()
++    unit=args.unit.resolve()
++    if not unit.is_file():ap.error('P17 native exporter missing: '+str(unit))
+     if args.fft<1<<17 or args.fft>1<<21 or args.fft&(args.fft-1):ap.error('fft size must be a power of two between 2^17 and 2^21')
+     if not 256<=args.source_frames<=65536:ap.error('source-frames out of range')
+     args.results.mkdir(parents=True,exist_ok=True)
+@@ -242,8 +246,8 @@ def main():
+     t0=time.monotonic()
+     records=[]
+     for name,producer,file in [('spectral_grid',lambda:spectral_cases(bank_words(),manifest,args.fft),'filter-development-evidence.json'),
+-                               ('finite_oracle',lambda:finite_cases(bank_words(),manifest),'finite-reference-evidence.json'),
+-                               ('candidate_sdm',lambda:sdm_cases(args.source_frames),'sdm-candidate-diagnostics.json')]:
++                               ('finite_oracle',lambda:finite_cases(bank_words(),manifest,unit),'finite-reference-evidence.json'),
++                               ('candidate_sdm',lambda:sdm_cases(args.source_frames,unit),'sdm-candidate-diagnostics.json')]:
+         try:out=producer()
+         except Exception as error:out=dict(schema='P17/error/1',status='FAIL',error=repr(error))
+         atomic(args.results/file,out)
+diff --git a/tests/dsd/test_seek.py b/tests/dsd/test_seek.py
+index 2923be6..ab98a65 100755
+--- a/tests/dsd/test_seek.py
++++ b/tests/dsd/test_seek.py
+@@ -183,7 +183,12 @@ def main():
+ 
+         # Optional codecs use their own *sequential* decode as the comparison.
+         # The frozen PCM source is still independent of the SoX writer.
+-        config = (ROOT/'src/soxconfig.h').read_text()
++        # VPATH builds generate soxconfig.h beside the configured executable,
++        # not in the immutable source tree. Inspect the exact binary's config.
++        config_path = Path(args.sox).resolve().parent/'soxconfig.h'
++        if not config_path.is_file():
++            raise AssertionError('configured build header missing: '+str(config_path))
++        config = config_path.read_text()
+         for name, macros, suffix, options in [
+             ('flac', ('HAVE_FLAC',), '.flac', []),
+             ('vorbis', ('HAVE_VORBIS', 'HAVE_VORBISENC', 'HAVE_VORBISFILE'), '.ogg', []),
+diff --git a/mnt/data/sox_dsd_14_8_1_corrective_R2_work/sox_dsd/tests/sync/test_p16_p18_path.py b/tests/sync/test_p16_p18_path.py
+new file mode 100755
+index 0000000..ba34baf
+--- /dev/null
++++ b/tests/sync/test_p16_p18_path.py
+@@ -0,0 +1,66 @@
++#!/usr/bin/env python3
++"""Exercise actual P16/P17/P18 native executables with isolated source/build.
++
++Uses the real build binaries, but runs the runner with a source tree that has
++no test executables. A stale source-relative executable path is a hard fail.
++"""
++import argparse
++import json
++from pathlib import Path
++import shutil
++import subprocess
++import sys
++import tempfile
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--source',type=Path,required=True)
++    parser.add_argument('--build',type=Path,required=True)
++    args = parser.parse_args()
++    source=args.source.resolve(); build=args.build.resolve()
++    exe='.exe' if sys.platform=='win32' else ''
++    with tempfile.TemporaryDirectory(prefix='sox-dsd-p16-18-outtree-') as temp:
++        root=Path(temp)
++        for name, is_dir in [('tests/dsd/run.py',False),
++                             ('tests/dsd/reference',True),
++                             ('tests/dsd/fixtures/manifest.json',False),
++                             ('src/dsdiff.c',False),
++                             ('docs/dsd/DSD_DESIGN.md',False)]:
++            dst=root/name;dst.parent.mkdir(parents=True,exist_ok=True)
++            if is_dir: shutil.copytree(source/name,dst)
++            else: shutil.copy2(source/name,dst)
++        for phase,unit,test_name in [
++            ('P16','p16','P16_native_packed_reader_contract'),
++            ('P17','p17','P17_highrate_registry_delay_and_capabilities'),
++            ('P18','p18','P18_registry_closed_gate')]:
++            binary=build/'test'/('dsd_test_'+unit+exe)
++            if not binary.is_file(): raise AssertionError(f'missing native binary {binary}')
++            command=[sys.executable,str(root/'tests/dsd/run.py'),
++                     '--phase',phase,'--mode','unit','--only',test_name,
++                     '--results',str(root/('result-'+phase)),
++                     '--sox',str(build/'src'/('sox'+exe)),
++                     '--probe',str(build/'test'/('dsd_test_io'+exe)),
++                     '--'+unit+'-unit',str(binary)]
++            got=subprocess.run(command,cwd=root,capture_output=True,
++                               text=True,timeout=200)
++            receipt=json.loads((root/('result-'+phase)/'run.json').read_text())
++            if (got.returncode or receipt.get('verdict')!='pass' or
++                    len(receipt['tests'])!=1 or
++                    receipt['tests'][0]['name']!=test_name or
++                    receipt['tests'][0]['status']!='pass'):
++                raise AssertionError(f'{phase} external unit failed: {got.stderr[-1000:]}')
++            # A nonexistent path must fail; never fall back to ROOT/test.
++            missing=root/('missing-'+phase)
++            command[command.index(str(binary))]=str(missing)
++            failed=subprocess.run(command,cwd=root,capture_output=True,
++                                  text=True,timeout=200)
++            failed_receipt=json.loads((root/('result-'+phase)/'run.json').read_text())
++            if not failed.returncode or failed_receipt['verdict']!='fail':
++                raise AssertionError(f'{phase} missing executable passed silently')
++            print(json.dumps({'phase':phase,'test':test_name,'actual':'PASS',
++                              'absent_executable':'FAIL_CLOSED'},sort_keys=True))
++
++
++if __name__=='__main__':
++    main()
+diff --git a/tests/sync/test_url_process.py b/tests/sync/test_url_process.py
+index c179aaa..e4008f5 100644
+--- a/tests/sync/test_url_process.py
++++ b/tests/sync/test_url_process.py
+@@ -61,6 +61,43 @@ exit "$SYNC_STATUS"
+                             'output_exists': out.exists(),
+                             'url_argv_preserved': True})
+ 
++        # A valid finite WAV can have container metadata *after* the audio
++        # payload. Closing the downloader after the last sample, instead of
++        # draining to real EOF, causes self-induced SIGPIPE and false failure.
++        # Use 8 MiB so the trailing RIFF chunk cannot fit into the pipe.
++        import struct
++        trailer = root/'with-trailing-junk.wav'
++        original = sample.read_bytes()
++        extra = b'JUNK' + struct.pack('<I', 8 * 1024 * 1024) + b'Z'*(8 * 1024 * 1024)
++        trailer.write_bytes(original[:4] + struct.pack('<I', len(original) + len(extra) - 8)
++                            + original[8:] + extra)
++        with wave.open(str(trailer), 'rb') as wf:
++            if wf.getnframes() != 512 or wf.readframes(512) != b'\0\0'*512:
++                raise AssertionError('trailing-metadata fixture is not a valid WAV')
++        env['SYNC_SAMPLE'] = str(trailer)
++        local_output = root/'local-trailer.wav'
++        local = subprocess.run([str(sox.resolve()),str(trailer),str(local_output)],
++                               env=env, cwd=root, capture_output=True,text=True,timeout=30)
++        if local.returncode != 0:
++            raise AssertionError('local RIFF/JUNK fixture was rejected')
++        for status in ('0','9'):
++            env['SYNC_STATUS'] = status
++            out = root/f'trailer-{status}.wav'
++            got = subprocess.run([str(sox.resolve()),'http://offline.invalid/trailer.wav',
++                                  str(out)],env=env,cwd=root,capture_output=True,
++                                 text=True, timeout=35)
++            if status == '0':
++                if got.returncode or not out.is_file() or out.read_bytes()!=local_output.read_bytes():
++                    raise AssertionError('valid RIFF/JUNK URL rejected or PCM changed: '
++                                         +got.stderr[-800:])
++            elif not got.returncode or out.exists():
++                raise AssertionError('RIFF/JUNK downloader exit 9 was accepted')
++            results.append({'source':'RIFF/WAV 8MiB trailing JUNK',
++                            'downloader_exit':status,'sox_exit':got.returncode,
++                            'output_exists':out.exists(),
++                            'decoded_output_matches_local':status=='0'})
++        env['SYNC_SAMPLE'] = str(sample)
++
+         # A completed native DSD stream must not be marked successful in the
+         # structured report until the downloader's final exit status is known.
+         dsf = root/'source.dsf'
+diff --git a/mnt/data/sox_dsd_14_8_1_corrective_R2_work/sox_dsd/tests/sync/test_waveaudio_teardown.py b/tests/sync/test_waveaudio_teardown.py
+new file mode 100755
+index 0000000..66fe34d
+--- /dev/null
++++ b/tests/sync/test_waveaudio_teardown.py
+@@ -0,0 +1,170 @@
++#!/usr/bin/env python3
++"""Compile and run exact production waveOut drain/stop bodies with WinMM shims.
++
++This is a deterministic failure-ownership probe, NOT a native Windows proof.
++A native Windows/MSVC build and hardware qualification remain required.
++"""
++import argparse
++import json
++from pathlib import Path
++import subprocess
++import tempfile
++
++PREFIX=r'''
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdint.h>
++#include <stddef.h>
++#include <string.h>
++#define num_buffers 4
++#define WHDR_INQUEUE 16
++#define WHDR_DONE 1
++#define WHDR_PREPARED 2
++#define MMSYSERR_NOERROR 0
++#define WAVERR_STILLPLAYING 33
++#define SOX_SUCCESS 0
++#define SOX_EOF -1
++#define WAIT_OBJECT_0 0
++#define WAIT_TIMEOUT 258
++#define WAIT_FAILED 0xFFFFFFFFu
++typedef uint32_t DWORD;
++typedef uint64_t ULONGLONG;
++typedef unsigned MMRESULT;
++typedef void *HANDLE, *HWAVEIN, *HWAVEOUT;
++typedef struct { DWORD dwFlags, dwBufferLength; } WAVEHDR;
++typedef struct {
++  HWAVEIN hin;
++  HWAVEOUT hout;
++  HANDLE block_finished_event;
++  WAVEHDR *headers;
++  char *data;
++  size_t buf_len;
++  unsigned current;
++  unsigned char sample_shift;
++} priv_t;
++typedef struct {
++  void *priv;
++  struct {double rate; unsigned channels;} signal;
++} sox_format_t;
++static int scenario, freed, event_closed, errors, unprepared, driver_open;
++static ULONGLONG clock_now;
++static priv_t *active;
++static void tracked_free(void *p) { if (p) { ++freed; free(p); } }
++#define free tracked_free
++#define lsx_fail_errno(ft,code,...) (void)(ft),(void)(code),++errors
++static void fail(sox_format_t *ft, unsigned code, char const *context)
++{ (void)ft;(void)code;(void)context;++errors; }
++static DWORD GetLastError(void) {return 5;}
++static ULONGLONG GetTickCount64(void) {return clock_now;}
++static DWORD WaitForSingleObject(HANDLE event, DWORD millis) {
++  (void)event;
++  clock_now+=millis;
++  if (scenario==6) return WAIT_TIMEOUT;
++  for (unsigned i=0;i<num_buffers;i++)active->headers[i].dwFlags|=WHDR_DONE;
++  return WAIT_OBJECT_0;
++}
++static int CloseHandle(HANDLE handle) { (void)handle;event_closed++;return 1;}
++static MMRESULT waveInReset(HWAVEIN h) { (void)h;return scenario==3?5:0; }
++static MMRESULT waveInUnprepareHeader(HWAVEIN h,WAVEHDR *head,unsigned size) {
++  (void)h;(void)head;(void)size;unprepared++;
++  return scenario==3 ? WAVERR_STILLPLAYING:0;
++}
++static MMRESULT waveInClose(HWAVEIN h) {
++  (void)h; if (scenario==3)return WAVERR_STILLPLAYING;
++  driver_open=0;return 0;
++}
++static MMRESULT waveOutReset(HWAVEOUT h) {
++  (void)h;return scenario==1?5:0;
++}
++static MMRESULT waveOutUnprepareHeader(HWAVEOUT h,WAVEHDR *head,unsigned size) {
++  (void)h;(void)head;(void)size;unprepared++;
++  return scenario==1 ? WAVERR_STILLPLAYING : 0;
++}
++static MMRESULT waveOutClose(HWAVEOUT h) {
++  (void)h;
++  if (scenario==1 || scenario==2)return WAVERR_STILLPLAYING;
++  driver_open=0;return 0;
++}
++'''
++SUFFIX=r'''
++static int run_case(int mode) {
++  sox_format_t ft;
++  priv_t priv;
++  int ret, expected, expected_frees, expected_closes, expected_unprep;
++  memset(&ft,0,sizeof ft);memset(&priv,0,sizeof priv);
++  ft.priv=&priv;ft.signal.rate=44100;ft.signal.channels=1;
++  scenario=mode;freed=event_closed=errors=unprepared=0;
++  driver_open = mode !=4;
++  clock_now=10000;
++  priv.headers=calloc(num_buffers,sizeof(WAVEHDR));
++  priv.data=malloc(4096);
++  priv.block_finished_event=(HANDLE)(uintptr_t)1;
++  if (!priv.headers||!priv.data)return 30;
++  priv.hout= mode==3 || mode==4 ? NULL:(HWAVEOUT)(uintptr_t)2;
++  priv.hin=mode==3?(HWAVEIN)(uintptr_t)3:NULL;
++  for (int i=0;i<num_buffers;i++) {
++    priv.headers[i].dwFlags = mode==4?0:(WHDR_PREPARED|WHDR_DONE);
++    priv.headers[i].dwBufferLength=1024;
++  }
++  if (mode==6) for(int i=0;i<num_buffers;i++)priv.headers[i].dwFlags=WHDR_PREPARED|WHDR_INQUEUE;
++  active=&priv;
++  ret=stop(&ft);
++  expected=(mode==0 || mode==4)?0:-1;
++  expected_frees=(mode==1 || mode==2 || mode==3)?0:2;
++  expected_closes=(mode==1 || mode==2 || mode==3)?0:1;
++  expected_unprep=mode==4?0:4;
++  if (ret!=expected || freed!=expected_frees ||
++      event_closed!=expected_closes || unprepared!=expected_unprep ||
++      (driver_open && (freed||event_closed)) ||
++      (driver_open && !priv.headers)) {
++    fprintf(stderr,"bad mode %d: result %d, freed %d, event %d, unprepared %d, open %d\n",
++            mode, ret, freed,event_closed,unprepared,driver_open);
++    return 31;
++  }
++  printf("PASS scenario=%d error=%d freed=%d event_closed=%d driver_open=%d\n",
++         mode,ret,freed,event_closed,driver_open);
++  return 0;
++}
++int main(void) {
++  for(int scenario_id=0;scenario_id<=6;scenario_id++) {
++    if(scenario_id==5)continue;
++    int ret=run_case(scenario_id);
++    if(ret)return ret;
++  }
++  return 0;
++}
++'''
++
++
++def extract(source: str):
++    start=source.index('static int drain_output(')
++    end=source.index('static unsigned check_format(', start)
++    body=source[start:end]
++    if 'waveOutUnprepareHeader' not in body or 'device_still_owns_memory' not in body:
++        raise AssertionError('source no longer contains expected Windows teardown implementation')
++    return body
++
++
++def main():
++    ap=argparse.ArgumentParser()
++    ap.add_argument('--source',type=Path,required=True)
++    ap.add_argument('--cc',default='cc')
++    args=ap.parse_args()
++    source=(args.source/'src/waveaudio.c').read_text()
++    with tempfile.TemporaryDirectory(prefix='sox-waveaudio-') as temp:
++        path=Path(temp)
++        (path/'mock.c').write_text(PREFIX+extract(source)+SUFFIX)
++        cc=subprocess.run([args.cc,'-std=c99','-Wall','-Wextra','-Werror',
++                           '-o',str(path/'mock'),str(path/'mock.c')],
++                          capture_output=True,text=True,timeout=30)
++        if cc.returncode:
++            raise AssertionError('WinMM teardown mock compilation failed: '+cc.stderr[-1500:])
++        run=subprocess.run([str(path/'mock')],capture_output=True,text=True,timeout=30)
++        if run.returncode or run.stdout.count('PASS scenario=')!=6:
++            raise AssertionError('WinMM teardown mock failed: '+run.stderr+' '+run.stdout)
++        print(json.dumps({'status':'PASS','source':'exact delivered drain/stop C functions',
++                          'native_windows':False,'cases':run.stdout.strip().splitlines()},
++                         sort_keys=True))
++
++if __name__=='__main__':
++    main()

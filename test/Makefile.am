@@ -1,4 +1,4 @@
-EXTRA_DIST = samples.c \
+EXTRA_DIST = samples.c run_check_staged.py \
   BUG-libsndfile-float-level/README \
   BUG-libsndfile-float-level/run \
   BUG-libsndfile-float-level/sox-f32-minus20.caf \
@@ -12,13 +12,21 @@ wav_size_state_test_CPPFLAGS = -I$(top_srcdir)/src
 
 CLEANFILES = samples$(EXEEXT) samples.o
 
-samples$(EXEEXT): samples.c
-	$(CC) -o samples$(EXEEXT) samples.c
+samples$(EXEEXT): $(srcdir)/samples.c
+	$(CC) -o samples$(EXEEXT) $(srcdir)/samples.c
 
+# Legacy BUG/CVE tests write output into their working directories.  A
+# source-tree invocation fails with immutable/VPATH sources.  Stage fixture
+# copies under the build directory so all cases execute with writable scratch
+# space, while references such as ../../src/monkey.wav still resolve.
 check-am: samples$(EXEEXT) wav_size_state_test$(EXEEXT)
-	sox=../../src/sox \
-	wav_size_state_test='$(abs_builddir)/wav_size_state_test$(EXEEXT)' \
-	sh $(srcdir)/check.sh -n
+	python3 '$(abs_srcdir)/run_check_staged.py' \
+	  --source-test '$(abs_srcdir)' \
+	  --source-monkey '$(abs_top_srcdir)/src/monkey.wav' \
+	  --build-test '$(abs_builddir)' \
+	  --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' \
+	  --samples '$(abs_builddir)/samples$(EXEEXT)' \
+	  --wav-size-state-test '$(abs_builddir)/wav_size_state_test$(EXEEXT)'
 
 dist-hook:
 	rm -f $(distdir)/samples$(EXEEXT) $(distdir)/samples.o

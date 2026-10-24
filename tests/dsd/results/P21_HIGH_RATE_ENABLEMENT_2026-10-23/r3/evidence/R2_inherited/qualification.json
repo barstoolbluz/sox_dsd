@@ -1,0 +1,53 @@
+{
+  "environment": "Linux out-of-tree Autotools build; source and build in separate directories",
+  "evidence": [
+    "evidence/P18_run.json",
+    "evidence/autoreconf.log",
+    "evidence/build.log",
+    "evidence/check-dsd-P18.log",
+    "evidence/check-rename.log",
+    "evidence/check-sync.log",
+    "evidence/check.log",
+    "evidence/configure.log",
+    "evidence/overlay_identity_results.json",
+    "evidence/patch_replay_results.json"
+  ],
+  "gates": {
+    "8MiB trailing RIFF metadata followed by downloader exit9 fails closed": "PASS",
+    "8MiB trailing RIFF metadata successful URL conversion": "PASS",
+    "R1 to R2 patch replay + exact 4125-file comparison": "PASS",
+    "autoreconf -fi": "PASS",
+    "configure --disable-shared --without-libltdl": "PASS",
+    "full CMake 4 project build": "NOT RUN",
+    "installer full-tree corruption, idempotency, resume and extra-file refusal": "PASS",
+    "make": "PASS",
+    "make check": "PASS",
+    "make check-dsd DSD_PHASE=P18": "PASS",
+    "make check-rename": "PASS",
+    "make check-sync": "PASS",
+    "make distcheck": "NOT RUN",
+    "native DSD exit9 fails and report is not complete": "PASS",
+    "native Windows/MSVC/WinMM hardware": "NOT RUN",
+    "omitted historical P15 evidence qualification": "NOT RUN",
+    "source-extracted WinMM teardown C fault mock": "PASS"
+  },
+  "input": {
+    "R1_archive_sha256": "2a04d02e54de8424898fbd5c5c48f8999435ccabcc35409450f2fe176cf60cdb",
+    "source_stage": "SoX DSD 14.8.1 Corrective R1"
+  },
+  "notable_counts": {
+    "DSD_numerical": "8/8",
+    "P02_streaming": "706/706",
+    "P18_phase_runner": "46/46",
+    "packed_cli": "219/219"
+  },
+  "output": {
+    "R1_unchanged_regular_files": 4109,
+    "R2_archive_sha256": "287584ab00cb5348f39c2f62771ec1b8bd892ecda11bc3bdffa9a663d3db15ae",
+    "changed_new_paths": 16,
+    "new_paths": 2,
+    "previous_regular_files": 4123,
+    "source_regular_files": 4125
+  },
+  "schema": 1
+}

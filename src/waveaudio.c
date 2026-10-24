@@ -43,7 +43,10 @@ typedef struct waveaudio_priv_t
    * data[buf_len*sample_size*1], etc. The dwUser field contains the number
    * of samples of this buffer that have already been processed.
    */
-  WAVEHDR headers[num_buffers];
+  /* Headers MUST outlive the format object if WinMM refuses to close: the
+   * driver can retain WAVEHDR pointers after waveOutClose(STILLPLAYING).
+   * Keep them separately allocated from ft->priv for that error path. */
+  WAVEHDR *headers;
 
   /* The combined data area shared by all transfer buffers.
    * size = (bufsiz rounded up to a multiple of 32 samples) * num_buffers.
@@ -83,45 +86,145 @@ static void fail(sox_format_t* ft, unsigned code, const char* context)
     lsx_fail_errno(ft, SOX_EOF, "%s failed with unrecognized MMSYSERR code: %d", context, (int)code);
 }
 
+/* On Windows an output completion event is signalled once for each processed
+ * buffer. Check all queued headers: one wake-up does not mean the entire
+ * queue is finished. A bounded deadline avoids hanging indefinitely on a
+ * faulty device; no sleep is needed when all headers are already done. */
+static int drain_output(sox_format_t* ft, priv_t *priv)
+{
+  ULONGLONG deadline;
+  DWORD max_wait;
+  double pending_bytes = 0;
+  unsigned i;
+  if (!priv->block_finished_event) return SOX_SUCCESS;
+  for (i = 0; i < num_buffers; ++i)
+    if ((priv->headers[i].dwFlags & WHDR_INQUEUE) &&
+        !(priv->headers[i].dwFlags & WHDR_DONE))
+      pending_bytes += priv->headers[i].dwBufferLength;
+  if (!pending_bytes) return SOX_SUCCESS;
+  /* Only num_buffers blocks can remain. Allow their nominal duration plus
+   * five seconds of scheduling slack without overflowing a DWORD timer. */
+  {
+    double bytes_per_second = ft->signal.rate * ft->signal.channels *
+        (1u << priv->sample_shift);
+    double millis = bytes_per_second > 0 ?
+        5000. + 1000. * pending_bytes / bytes_per_second : 60000.;
+    max_wait = (DWORD)(millis < 60000. ? millis : 60000.);
+  }
+  deadline = GetTickCount64() + max_wait;
+  for (;;) {
+    int queued = 0;
+    ULONGLONG now;
+    DWORD remaining, result;
+    for (i = 0; i < num_buffers; ++i)
+      if ((priv->headers[i].dwFlags & WHDR_INQUEUE) &&
+          !(priv->headers[i].dwFlags & WHDR_DONE))
+        queued = 1;
+    if (!queued) return SOX_SUCCESS;
+    now = GetTickCount64();
+    if (now >= deadline) {
+      lsx_fail_errno(ft, SOX_EOF, "waveOut playback did not drain before deadline");
+      return SOX_EOF;
+    }
+    remaining = (DWORD)(deadline - now);
+    result = WaitForSingleObject(priv->block_finished_event, remaining);
+    if (result == WAIT_OBJECT_0) continue;
+    if (result == WAIT_FAILED)
+      fail(ft, GetLastError(), "WaitForSingleObject(waveOut)");
+    else
+      lsx_fail_errno(ft, SOX_EOF, "waveOut playback completion timed out");
+    return SOX_EOF;
+  }
+}
+
+/* Release driver-owned resources only after a successful device close.
+ * If a faulty driver refuses close, the audio data, prepared headers and
+ * callback event must all remain valid. In that exceptional state they are
+ * deliberately quarantined until process exit; freeing them would be UAF.
+ * This is a bounded, error-only leak, never the successful shutdown path. */
 static int stop(sox_format_t* ft)
 {
   priv_t *priv = (priv_t*)ft->priv;
-  if (priv == NULL) return SOX_EOF;
+  int result = SOX_SUCCESS;
+  int device_still_owns_memory = 0;
+  unsigned i;
+  MMRESULT error;
+  if (!priv) return SOX_EOF;
 
-  if (priv->hin)
-  {
-    waveInReset(priv->hin);
-    waveInClose(priv->hin);
+  if (priv->hin) {
+    error = waveInReset(priv->hin);
+    if (error != MMSYSERR_NOERROR) {
+      fail(ft, error, "waveInReset");
+      result = SOX_EOF;
+    }
+    if (priv->headers)
+      for (i = 0; i < num_buffers; ++i)
+        if (priv->headers[i].dwFlags & WHDR_PREPARED) {
+          error = waveInUnprepareHeader(priv->hin, &priv->headers[i],
+                                        sizeof(priv->headers[i]));
+          if (error != MMSYSERR_NOERROR) {
+            fail(ft, error, "waveInUnprepareHeader");
+            result = SOX_EOF;
+          }
+        }
+    error = waveInClose(priv->hin);
+    if (error == MMSYSERR_NOERROR)
+      priv->hin = NULL;
+    else {
+      fail(ft, error, "waveInClose");
+      device_still_owns_memory = 1;
+      result = SOX_EOF;
+    }
   }
-  
-  if (priv->hout)
-  {
-    /* If we shut down immediately, sound output is interrupted a fraction
-     * of a second before the end of the piece. This avoids that. */
-    sleep(1);
 
-    /*
-     * "The waveOutReset function stops playback on the given waveform-audio
-     * output device and resets the current position to zero.
-     * All pending playback buffers are marked as done (WHDR_DONE) and
-     * returned to the application."
-     *
-     * learn.microsoft.com/en-us/windows/win32/api/mmeapi/nf-mmeapi-waveoutreset
-     *
-     * "All pending playback buffers are marked as done" so that's presumably
-     * why the audio got truncated.
-     */
-    waveOutReset(priv->hout);
-    waveOutClose(priv->hout);
+  if (priv->hout) {
+    /* Wait for completed playback before reset; reset is still required to
+     * return queued buffers on a deadline or driver error. */
+    if (drain_output(ft, priv) != SOX_SUCCESS)
+      result = SOX_EOF;
+    error = waveOutReset(priv->hout);
+    if (error != MMSYSERR_NOERROR) {
+      fail(ft, error, "waveOutReset");
+      result = SOX_EOF;
+    }
+    if (priv->headers)
+      for (i = 0; i < num_buffers; ++i)
+        if (priv->headers[i].dwFlags & WHDR_PREPARED) {
+          error = waveOutUnprepareHeader(priv->hout, &priv->headers[i],
+                                         sizeof(priv->headers[i]));
+          if (error != MMSYSERR_NOERROR) {
+            fail(ft, error, "waveOutUnprepareHeader");
+            result = SOX_EOF;
+          }
+        }
+    error = waveOutClose(priv->hout);
+    if (error == MMSYSERR_NOERROR)
+      priv->hout = NULL;
+    else {
+      fail(ft, error, "waveOutClose");
+      device_still_owns_memory = 1;
+      result = SOX_EOF;
+    }
   }
 
-  if (priv->block_finished_event)
-    CloseHandle(priv->block_finished_event);
-
-  if (priv->data)
+  if (device_still_owns_memory) {
+    /* The library frees ft->priv after stop(). Headers live on the heap and
+     * remain at their original addresses, with their backing data and event.
+     * WinMM can still call back or refer to queued headers. Never close the
+     * event/free the memory until the device has truly closed. */
+    lsx_fail_errno(ft, SOX_EOF,
+        "waveaudio device remained open; retaining its queued headers, audio and event");
+  } else {
+    if (priv->block_finished_event) {
+      CloseHandle(priv->block_finished_event);
+      priv->block_finished_event = NULL;
+    }
+    free(priv->headers);
+    priv->headers = NULL;
     free(priv->data);
-
-  return SOX_SUCCESS;
+    priv->data = NULL;
+  }
+  return result;
 }
 
 static unsigned check_format(
@@ -320,6 +423,9 @@ static int start(sox_format_t* ft)
   }
 
   priv->buf_len = ((sox_globals.bufsiz >> priv->sample_shift) + 31) & ~31u;
+  /* Headers are referenced asynchronously by WinMM; in particular a failed
+   * close must not leave pointers into a freed sox_format_t. */
+  priv->headers = lsx_calloc(num_buffers, sizeof(*priv->headers));
   priv->data = lsx_malloc((priv->buf_len * num_buffers) << priv->sample_shift);
 
   priv->block_finished_event = CreateEventA(NULL, sox_false, sox_false, NULL);

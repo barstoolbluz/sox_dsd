@@ -183,7 +183,12 @@ def main():
 
         # Optional codecs use their own *sequential* decode as the comparison.
         # The frozen PCM source is still independent of the SoX writer.
-        config = (ROOT/'src/soxconfig.h').read_text()
+        # VPATH builds generate soxconfig.h beside the configured executable,
+        # not in the immutable source tree. Inspect the exact binary's config.
+        config_path = Path(args.sox).resolve().parent/'soxconfig.h'
+        if not config_path.is_file():
+            raise AssertionError('configured build header missing: '+str(config_path))
+        config = config_path.read_text()
         for name, macros, suffix, options in [
             ('flac', ('HAVE_FLAC',), '.flac', []),
             ('vorbis', ('HAVE_VORBIS', 'HAVE_VORBISENC', 'HAVE_VORBISFILE'), '.ogg', []),

@@ -35,6 +35,9 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
 	     sox_ng.pc.in sox_dsd.mk COPYING AUTHORS INSTALL \
 	     README.win32 scripts/batch-example.bat \
 	     README.md RULES.md RULES-issues.md RULES-wiki.md \
+	     docs/UPSTREAM.md \
+	     tests/sync/test_url_process.py tests/sync/test_p10_path.py \
+             tests/sync/test_p16_p18_path.py tests/sync/test_waveaudio_teardown.py \
 	     README.sh FEATURES.in test/* issues wiki/* \
              tests/rename_smoke.sh
 
@@ -247,7 +250,7 @@ check-dsd: all
 	@if test "$(DSD_PHASE)" = "P18"; then \
 	  $(MAKE) -C test dsd_test_p18$(EXEEXT) || exit $$?; \
 	fi
-	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
+	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT) --p10-unit $(abs_builddir)/test/dsd_test_p10$(EXEEXT) --p16-unit $(abs_builddir)/test/dsd_test_p16$(EXEEXT) --p17-unit $(abs_builddir)/test/dsd_test_p17$(EXEEXT) --p18-unit $(abs_builddir)/test/dsd_test_p18$(EXEEXT)
 	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
@@ -354,7 +357,7 @@ check-dsd: all
 	    --unit $(abs_builddir)/test/dsd_test_p11$(EXEEXT) \
 	    --results $(DSD_RESULTS)/cross-isa && \
 	  python3 $(srcdir)/tests/dsd/check_p12_isa.py \
-	    --results $(DSD_RESULTS)/isa; \
+	    --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
 	fi
 
 
@@ -380,7 +383,7 @@ check-dsd: all
 	    --unit $(abs_builddir)/test/dsd_test_p11$(EXEEXT) \
 	    --results $(DSD_RESULTS)/cross-isa && \
 	  python3 $(srcdir)/tests/dsd/check_p13_isa.py \
-	    --results $(DSD_RESULTS)/isa; \
+	    --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
 	fi
 
 # P14's independent native-bit, final-report, and digital-filter tests.
@@ -421,7 +424,7 @@ check-dsd: all
 	@if test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18"; then \
 	  $(MAKE) -C test dsd_test_p17$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/generate_p17_profiles.py --check && \
-	  python3 $(srcdir)/tests/dsd/test_p17_numeric.py --results $(DSD_RESULTS)/numeric-p17; \
+	  python3 $(srcdir)/tests/dsd/test_p17_numeric.py --unit $(abs_builddir)/test/dsd_test_p17$(EXEEXT) --results $(DSD_RESULTS)/numeric-p17; \
 	fi
 
 
@@ -716,3 +719,21 @@ EXTRA_DIST += tests/dsd/test_p18.c tests/dsd/test_p18.py \
   tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-1.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-17.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-32769.dsf \
   tests/dsd/fixtures/p18/p18-dop-22579200-2-17.pcm24le tests/dsd/fixtures/p18/p18-dop-22579200-2-33.pcm24le tests/dsd/fixtures/p18/p18-dop-45158400-2-17.pcm24le \
   tests/dsd/fixtures/p18/p18-dop-45158400-2-33.pcm24le
+
+# Scoped upstream-sync lifecycle regressions; no external network or fixtures.
+.PHONY: check-sync-url check-sync-p10 check-sync
+check-sync-url: all
+	python3 $(srcdir)/tests/sync/test_url_process.py --sox $(abs_builddir)/src/sox$(EXEEXT)
+
+check-sync-p10: all
+	$(MAKE) -C test dsd_test_p10$(EXEEXT) dsd_test_io$(EXEEXT)
+	python3 $(srcdir)/tests/sync/test_p10_path.py --source $(abs_srcdir) --build $(abs_builddir)
+
+check-sync-p16-p18: all
+	$(MAKE) -C test dsd_test_io$(EXEEXT) dsd_test_p16$(EXEEXT) dsd_test_p17$(EXEEXT) dsd_test_p18$(EXEEXT)
+	python3 $(srcdir)/tests/sync/test_p16_p18_path.py --source $(abs_srcdir) --build $(abs_builddir)
+
+check-sync-waveaudio:
+	python3 $(srcdir)/tests/sync/test_waveaudio_teardown.py --source $(abs_srcdir)
+
+check-sync: check-sync-url check-sync-p10 check-sync-p16-p18 check-sync-waveaudio

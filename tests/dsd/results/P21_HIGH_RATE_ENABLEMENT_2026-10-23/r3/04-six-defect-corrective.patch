@@ -1,0 +1,713 @@
+diff --git a/Makefile.am b/Makefile.am
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -35,6 +35,8 @@
+ 	     sox_ng.pc.in sox_dsd.mk COPYING AUTHORS INSTALL \
+ 	     README.win32 scripts/batch-example.bat \
+ 	     README.md RULES.md RULES-issues.md RULES-wiki.md \
++	     docs/UPSTREAM.md \
++	     tests/sync/test_url_process.py tests/sync/test_p10_path.py \
+ 	     README.sh FEATURES.in test/* issues wiki/* \
+              tests/rename_smoke.sh
+ 
+@@ -247,7 +249,7 @@
+ 	@if test "$(DSD_PHASE)" = "P18"; then \
+ 	  $(MAKE) -C test dsd_test_p18$(EXEEXT) || exit $$?; \
+ 	fi
+-	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT)
++	python3 $(srcdir)/tests/dsd/run.py --phase $(DSD_PHASE) --results $(DSD_RESULTS) --sox $(abs_builddir)/src/sox --probe $(abs_builddir)/test/dsd_test_io$(EXEEXT) --writer-unit $(abs_builddir)/test/dsd_test_dff_writer$(EXEEXT) --p10-unit $(abs_builddir)/test/dsd_test_p10$(EXEEXT)
+ 	@if test "$(DSD_PHASE)" = "P02" || test "$(DSD_PHASE)" = "P03" || test "$(DSD_PHASE)" = "P04" || test "$(DSD_PHASE)" = "P05" || test "$(DSD_PHASE)" = "P06" || test "$(DSD_PHASE)" = "P07" || test "$(DSD_PHASE)" = "P08" || test "$(DSD_PHASE)" = "P09" || ( test "$(DSD_PHASE)" = "P10" || ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ) ); then \
+ 	  $(MAKE) -C test dsd_test_dop_capacity$(EXEEXT) && \
+ 	  $(abs_builddir)/test/dsd_test_dop_capacity$(EXEEXT) && \
+@@ -716,3 +718,14 @@
+   tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-1.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-17.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-32769.dsf \
+   tests/dsd/fixtures/p18/p18-dop-22579200-2-17.pcm24le tests/dsd/fixtures/p18/p18-dop-22579200-2-33.pcm24le tests/dsd/fixtures/p18/p18-dop-45158400-2-17.pcm24le \
+   tests/dsd/fixtures/p18/p18-dop-45158400-2-33.pcm24le
++
++# Scoped upstream-sync lifecycle regressions; no external network or fixtures.
++.PHONY: check-sync-url check-sync-p10 check-sync
++check-sync-url: all
++	python3 $(srcdir)/tests/sync/test_url_process.py --sox $(abs_builddir)/src/sox$(EXEEXT)
++
++check-sync-p10: all
++	$(MAKE) -C test dsd_test_p10$(EXEEXT) dsd_test_io$(EXEEXT)
++	python3 $(srcdir)/tests/sync/test_p10_path.py --source $(abs_srcdir) --build $(abs_builddir)
++
++check-sync: check-sync-url check-sync-p10
+diff --git a/cmake-buildsetup/CMakeLists.txt b/cmake-buildsetup/CMakeLists.txt
+--- a/cmake-buildsetup/CMakeLists.txt
++++ b/cmake-buildsetup/CMakeLists.txt
+@@ -7,8 +7,11 @@
+ CMAKE_MINIMUM_REQUIRED(VERSION 4.0)
+ 
+ PROJECT(SoX_DSD
+-        VERSION 14.8.0
++        VERSION 1.0.0
+         LANGUAGES C)
++
++# Keep this release baseline in sync with configure.ac on upstream sync.
++SET(SOX_DSD_UPSTREAM_BASE "14.8.1")
+ 
+ # =============================
+ # === program configuration ===
+diff --git a/cmake-buildsetup/Target_libsox.cmake b/cmake-buildsetup/Target_libsox.cmake
+--- a/cmake-buildsetup/Target_libsox.cmake
++++ b/cmake-buildsetup/Target_libsox.cmake
+@@ -838,6 +838,11 @@
+ 
+ TARGET_LINK_LIBRARIES(${targetName} PUBLIC ${platformLibraryList})
+ 
++IF(HAVE_PIPE AND HAVE_FORK)
++    FIND_PACKAGE(Threads REQUIRED)
++    TARGET_LINK_LIBRARIES(${targetName} PUBLIC Threads::Threads)
++ENDIF()
++
+ # add external libraries
+ SET(externalLibraryNameList
+     FFTW Flac Id3tag Mad MP3Lame Ogg Opus Opusfile Png Sndfile Speex
+diff --git a/cmake-buildsetup/Target_sox.cmake b/cmake-buildsetup/Target_sox.cmake
+--- a/cmake-buildsetup/Target_sox.cmake
++++ b/cmake-buildsetup/Target_sox.cmake
+@@ -29,6 +29,7 @@
+ 
+ SET(soXCompileDefinitionList
+     SOX_IMPORT
++    SOX_DSD_UPSTREAM_BASE=\"${SOX_DSD_UPSTREAM_BASE}\"
+ )
+ 
+ #===============
+diff --git a/configure.ac b/configure.ac
+--- a/configure.ac
++++ b/configure.ac
+@@ -556,11 +556,21 @@
+     if test "$using_ffmpeg" = yes
+     then
+       # ffmpeg.c can use these to improve autodetection when stdin is a pipe
++      dnl pipe/fork probes are shared with the URL process runner below.
+       AC_CHECK_FUNCS(pipe fork)
+     fi
+ fi
+ 
+ 
++
++dnl Custom fork/exec pipes require a mutex-protected PID/FILE* registry.
++dnl Some systems need -lpthread; pthread symbols are in libc on others.
++AS_IF([test "x$ac_cv_func_pipe" = xyes && test "x$ac_cv_func_fork" = xyes], [
++  AC_CHECK_HEADERS([pthread.h], [],
++                   [AC_MSG_FAILURE([fork pipes require pthread.h])])
++  AC_SEARCH_LIBS([pthread_mutex_lock], [pthread], [],
++                 [AC_MSG_FAILURE([fork pipes require POSIX thread mutexes])])
++])
+ 
+ dnl Check for MP3-reading libraries
+ 
+diff --git a/docs/UPSTREAM.md b/docs/UPSTREAM.md
+--- a/docs/UPSTREAM.md
++++ b/docs/UPSTREAM.md
+@@ -9,7 +9,7 @@
+ release a tree is synchronised with is recorded separately, in
+ `SOX_DSD_UPSTREAM_BASE` in `configure.ac`, and printed by `sox --version`:
+ 
+-    sox:      SoX DSD v1.0.0 (based on sox_ng 14.8.0.1)
++    sox:      SoX DSD v1.0.0 (based on sox_ng 14.8.1)
+ 
+ The alternative, versioning as `14.8.0.1+dsd.N`, was rejected deliberately.
+ Under that scheme a sync to sox_ng 14.9 would move our version for reasons
+@@ -44,8 +44,9 @@
+    extent `src/dsf.c` and `src/dsdiff.c`. The 40 DSD-specific files in
+    `src/` cannot conflict, which is why keeping the hooks small and clearly
+    delimited is worth the effort at review time.
+-2. Update `SOX_DSD_UPSTREAM_BASE` in `configure.ac` to the new sox_ng
+-   release, and nothing else about the version.
++2. Update `SOX_DSD_UPSTREAM_BASE` in `configure.ac` and
++   `cmake-buildsetup/CMakeLists.txt` to the new sox_ng release. Leave
++   SoX DSD's own release version unchanged.
+ 3. Re-run `autoreconf -fi && ./configure && make clean && make`. The clean
+    is not optional after `autoreconf`: stale objects from the previous
+    configuration produce link errors that look like missing symbols in
+diff --git a/src/formats.c b/src/formats.c
+--- a/src/formats.c
++++ b/src/formats.c
+@@ -559,13 +559,28 @@
+ 
+ static int xfclose(FILE * file, lsx_io_type io_type)
+ {
+-  if (file == NULL) return SOX_SUCCESS;  /* Shouldn't happen */
+-#if HAVE_POPEN
+-  return io_type != lsx_io_file ? pclose(file) : fclose(file);
+-#else
+-  (void) io_type;
+-  return fclose(file);
+-#endif
++  return lsx_close_pipe_or_file(file, io_type == lsx_io_pipe);
++}
++
++/* Complete externally launched input streams before the CLI can announce a
++ * successful output or publish a completed DSD receipt. Keep format metadata
++ * alive for reporting; the ordinary sox_close() will release it afterwards.
++ * stopread must run exactly once, and before the underlying stream closes. */
++int lsx_finalize_child_read(sox_format_t *ft)
++{
++  int result = SOX_SUCCESS;
++  if (!ft || ft->mode != 'r' || !lsx_is_child_pipe((FILE *)ft->fp))
++    return SOX_SUCCESS;
++  if (ft->handler.stopread) {
++    result = (*ft->handler.stopread)(ft);
++    ft->handler.stopread = NULL;
++  }
++  if (ft->fp && xfclose((FILE *)ft->fp, ft->io_type) != 0) {
++    lsx_fail("input downloader or decoder did not complete successfully: `%s'", ft->filename);
++    result = SOX_EOF;
++  }
++  ft->fp = NULL;
++  return result;
+ }
+ 
+ #if HAVE_POPEN
+@@ -702,14 +717,14 @@
+     /* We got EOF immediately so either it's a zero-length file
+      * or something went wrong. */
+     {
+-	int status = pclose(f);
++        int status = lsx_close_pipe_or_file(f, 0);
+         char const *s;
+ 
+-#ifdef WEXITSTATUS
+-        /* Some pclose()s return the command's exit status;
+-         * others return a code that you have to decode with WEXITSTATUS
+-         */
+-        status = WEXITSTATUS(status);
++#ifdef WIFEXITED
++        if (status != -1 && WIFEXITED(status))
++          status = WEXITSTATUS(status);
++        else if (status != -1)
++          status = 128; /* signalled or otherwise unsuccessful */
+ #endif
+ 	if (status == 0) {
+ 	    /* Nothing went wrong. It's a zero-length file. */
+diff --git a/src/sox_ng.c b/src/sox_ng.c
+--- a/src/sox_ng.c
++++ b/src/sox_ng.c
+@@ -4742,6 +4742,22 @@
+       lsx_warn("`%s' balancing clipped %" PRIu64 " samples; decrease volume?",
+           files[i]->filename, files[i]->volume_clips);
+ 
++  /* A subprocess can emit a syntactically complete audio file and still
++   * fail (HTTP error, truncated response, decoder failure). Reap and check
++   * all external readers BEFORE closing the output, issuing "complete" DSD
++   * evidence, or setting success. Keep the reader metadata alive for the
++   * DSD report; ordinary cleanup owns the final format-object free. */
++  {
++    int input_failed = 0;
++    for (i = 0; i < input_count; ++i)
++      if (files[i]->ft && lsx_finalize_child_read(files[i]->ft) != SOX_SUCCESS)
++        input_failed = 1;
++    if (input_failed) {
++      cleanup(); /* The still-open regular output is removed on failure. */
++      return 2;
++    }
++  }
++
+   /* The output file must be closed *after* collecting its clip statistics,
+    * but before announcing completion.  A failed close is a failed command. */
+   if (ofile->ft && close_output_checked() != SOX_SUCCESS) {
+diff --git a/src/util.c b/src/util.c
+--- a/src/util.c
++++ b/src/util.c
+@@ -20,7 +20,121 @@
+ #include <ctype.h>
+ #if HAVE_PIPE && HAVE_FORK
+ #include <unistd.h>
+-#endif
++#include <sys/wait.h>
++#include <pthread.h>
++#endif
++#ifdef _WIN32
++#include <windows.h>
++#endif
++
++/* Track only streams created by lsx_popen.  A fork/exec pipe must be waited
++ * with waitpid(), never passed to libc pclose(); on Windows and other
++ * no-fork platforms libc popen streams must still use pclose().
++ * Entries are removed before closing a stream so a recycled FILE* cannot
++ * accidentally inherit a previous child's identity. */
++typedef struct lsx_child_pipe {
++  FILE *stream;
++#if HAVE_PIPE && HAVE_FORK
++  pid_t pid;
++#endif
++  struct lsx_child_pipe *next;
++} lsx_child_pipe;
++
++static lsx_child_pipe *lsx_child_pipes;
++#if HAVE_PIPE && HAVE_FORK
++static pthread_mutex_t lsx_child_pipes_lock = PTHREAD_MUTEX_INITIALIZER;
++#define LSX_PIPE_LOCK()   (void)pthread_mutex_lock(&lsx_child_pipes_lock)
++#define LSX_PIPE_UNLOCK() (void)pthread_mutex_unlock(&lsx_child_pipes_lock)
++#elif defined(_WIN32)
++static SRWLOCK lsx_child_pipes_lock = SRWLOCK_INIT;
++#define LSX_PIPE_LOCK()   AcquireSRWLockExclusive(&lsx_child_pipes_lock)
++#define LSX_PIPE_UNLOCK() ReleaseSRWLockExclusive(&lsx_child_pipes_lock)
++#else
++/* No-fork POSIX builds with popen() still use the libc stream association.
++ * These targets historically have no cross-thread process API. */
++#define LSX_PIPE_LOCK()   ((void)0)
++#define LSX_PIPE_UNLOCK() ((void)0)
++#endif
++
++static void lsx_track_child_pipe(FILE *stream,
++#if HAVE_PIPE && HAVE_FORK
++                                 pid_t pid
++#else
++                                 int unused LSX_UNUSED
++#endif
++)
++{
++  lsx_child_pipe *entry = lsx_malloc(sizeof(*entry));
++  entry->stream = stream;
++#if HAVE_PIPE && HAVE_FORK
++  entry->pid = pid;
++#endif
++  LSX_PIPE_LOCK();
++  entry->next = lsx_child_pipes;
++  lsx_child_pipes = entry;
++  LSX_PIPE_UNLOCK();
++}
++
++int lsx_is_child_pipe(FILE *stream)
++{
++  lsx_child_pipe *entry;
++  int found = 0;
++  if (!stream) return 0;
++  LSX_PIPE_LOCK();
++  for (entry = lsx_child_pipes; entry; entry = entry->next)
++    if (entry->stream == stream) { found = 1; break; }
++  LSX_PIPE_UNLOCK();
++  return found;
++}
++
++/* libc_pipe is true for user-provided `|command' streams; false for ordinary
++ * file streams. Both cases may also hold an lsx_popen-owned child stream. */
++int lsx_close_pipe_or_file(FILE *stream, int libc_pipe)
++{
++  lsx_child_pipe **link, *entry = NULL;
++  if (!stream) return 0;
++  LSX_PIPE_LOCK();
++  for (link = &lsx_child_pipes; *link; link = &(*link)->next) {
++    if ((*link)->stream == stream) {
++      entry = *link;
++      *link = entry->next;
++      break;
++    }
++  }
++  LSX_PIPE_UNLOCK();
++  if (entry) {
++#if HAVE_PIPE && HAVE_FORK
++    int status = 0, close_errno = 0, wait_error = 0;
++    pid_t child = entry->pid;
++    if (fclose(stream)) close_errno = errno;
++    free(entry);
++    /* EINTR must not turn a live downloader into an orphan. */
++    while (waitpid(child, &status, 0) < 0) {
++      if (errno == EINTR) continue;
++      wait_error = errno;
++      break;
++    }
++    if (close_errno || wait_error) {
++      errno = close_errno ? close_errno : wait_error;
++      return -1;
++    }
++    return status; /* native pclose() wait-status contract */
++#else
++    free(entry);
++# if HAVE_POPEN
++    return pclose(stream);
++# else
++    return fclose(stream);
++# endif
++#endif
++  }
++#if HAVE_POPEN
++  if (libc_pipe) return pclose(stream);
++#else
++  (void)libc_pipe;
++#endif
++  return fclose(stream);
++}
+ 
+ int lsx_strcasecmp(const char * s1, const char * s2)
+ {
+@@ -393,6 +507,7 @@
+ #if HAVE_PIPE && HAVE_FORK
+   FILE *iop;
+   int pdes[2];
++  pid_t child;
+ #elif HAVE_POPEN
+   FILE *iop;
+   char *quoted_filename;
+@@ -420,7 +535,8 @@
+   if (pipe(pdes) < 0) {
+     return NULL;
+   }
+-  switch (fork()) {
++  child = fork();
++  switch (child) {
+     int i;
+ 
+   case -1:      /* Error. */
+@@ -455,14 +571,23 @@
+     _exit(127);
+     /* NOTREACHED */
+   }
+-  /* Parent; assume fdopen can't fail. */
++  /* In the parent, retain the exact child PID until the matching close. */
+   if (type == 'r') {
++    close(pdes[1]);
+     iop = fdopen(pdes[0], mode);
+-    close(pdes[1]);
++    if (!iop) close(pdes[0]);
+   } else {
++    close(pdes[0]);
+     iop = fdopen(pdes[1], mode);
+-    close(pdes[0]);
+-  }
++    if (!iop) close(pdes[1]);
++  }
++  if (!iop) {
++    int saved_errno = errno, status;
++    while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
++    errno = saved_errno;
++    return NULL;
++  }
++  lsx_track_child_pipe(iop, child);
+   return iop;
+ 
+ #elif HAVE_POPEN
+@@ -536,6 +661,7 @@
+   free(quoted_filename);
+   iop = popen(command, mode);
+   free(command);
++  if (iop) lsx_track_child_pipe(iop, 0);
+   return iop;
+ 
+ #else
+diff --git a/src/util.h b/src/util.h
+--- a/src/util.h
++++ b/src/util.h
+@@ -286,3 +286,6 @@
+ #define sscanf lsx_sscanf
+ 
+ extern FILE *lsx_popen(char **argv, char type, int filename_index);
++extern int lsx_is_child_pipe(FILE *stream);
++extern int lsx_close_pipe_or_file(FILE *stream, int libc_pipe);
++extern int lsx_finalize_child_read(sox_format_t *ft);
+diff --git a/src/waveaudio.c b/src/waveaudio.c
+--- a/src/waveaudio.c
++++ b/src/waveaudio.c
+@@ -83,9 +83,61 @@
+     lsx_fail_errno(ft, SOX_EOF, "%s failed with unrecognized MMSYSERR code: %d", context, (int)code);
+ }
+ 
++/* On Windows an output completion event is signalled once for each processed
++ * buffer. Check all queued headers: one wake-up does not mean the entire
++ * queue is finished. A bounded deadline avoids hanging indefinitely on a
++ * faulty device; no sleep is needed when all headers are already done. */
++static int drain_output(sox_format_t* ft, priv_t *priv)
++{
++  ULONGLONG deadline;
++  DWORD max_wait;
++  double pending_bytes = 0;
++  unsigned i;
++  if (!priv->block_finished_event) return SOX_SUCCESS;
++  for (i = 0; i < num_buffers; ++i)
++    if ((priv->headers[i].dwFlags & WHDR_INQUEUE) &&
++        !(priv->headers[i].dwFlags & WHDR_DONE))
++      pending_bytes += priv->headers[i].dwBufferLength;
++  if (!pending_bytes) return SOX_SUCCESS;
++  /* Only num_buffers blocks can remain. Allow their nominal duration plus
++   * five seconds of scheduling slack without overflowing a DWORD timer. */
++  {
++    double bytes_per_second = ft->signal.rate * ft->signal.channels *
++        (1u << priv->sample_shift);
++    double millis = bytes_per_second > 0 ?
++        5000. + 1000. * pending_bytes / bytes_per_second : 60000.;
++    max_wait = (DWORD)(millis < 60000. ? millis : 60000.);
++  }
++  deadline = GetTickCount64() + max_wait;
++  for (;;) {
++    int queued = 0;
++    ULONGLONG now;
++    DWORD remaining, result;
++    for (i = 0; i < num_buffers; ++i)
++      if ((priv->headers[i].dwFlags & WHDR_INQUEUE) &&
++          !(priv->headers[i].dwFlags & WHDR_DONE))
++        queued = 1;
++    if (!queued) return SOX_SUCCESS;
++    now = GetTickCount64();
++    if (now >= deadline) {
++      lsx_fail_errno(ft, SOX_EOF, "waveOut playback did not drain before deadline");
++      return SOX_EOF;
++    }
++    remaining = (DWORD)(deadline - now);
++    result = WaitForSingleObject(priv->block_finished_event, remaining);
++    if (result == WAIT_OBJECT_0) continue;
++    if (result == WAIT_FAILED)
++      fail(ft, GetLastError(), "WaitForSingleObject(waveOut)");
++    else
++      lsx_fail_errno(ft, SOX_EOF, "waveOut playback completion timed out");
++    return SOX_EOF;
++  }
++}
++
+ static int stop(sox_format_t* ft)
+ {
+   priv_t *priv = (priv_t*)ft->priv;
++  int result = SOX_SUCCESS;
+   if (priv == NULL) return SOX_EOF;
+ 
+   if (priv->hin)
+@@ -96,23 +148,18 @@
+   
+   if (priv->hout)
+   {
+-    /* If we shut down immediately, sound output is interrupted a fraction
+-     * of a second before the end of the piece. This avoids that. */
+-    sleep(1);
+-
+-    /*
+-     * "The waveOutReset function stops playback on the given waveform-audio
+-     * output device and resets the current position to zero.
+-     * All pending playback buffers are marked as done (WHDR_DONE) and
+-     * returned to the application."
+-     *
+-     * learn.microsoft.com/en-us/windows/win32/api/mmeapi/nf-mmeapi-waveoutreset
+-     *
+-     * "All pending playback buffers are marked as done" so that's presumably
+-     * why the audio got truncated.
+-     */
+-    waveOutReset(priv->hout);
+-    waveOutClose(priv->hout);
++    /* Reset only after all pending playback has completed (or on timeout).
++     * Resetting immediately discards the tail, while a fixed sleep blocks
++     * even when the queue is empty and may be too short for some buffers. */
++    if (drain_output(ft, priv) != SOX_SUCCESS) result = SOX_EOF;
++    if (waveOutReset(priv->hout) != MMSYSERR_NOERROR) {
++      lsx_fail_errno(ft, SOX_EOF, "waveOutReset failed");
++      result = SOX_EOF;
++    }
++    if (waveOutClose(priv->hout) != MMSYSERR_NOERROR) {
++      lsx_fail_errno(ft, SOX_EOF, "waveOutClose failed");
++      result = SOX_EOF;
++    }
+   }
+ 
+   if (priv->block_finished_event)
+@@ -121,7 +168,7 @@
+   if (priv->data)
+     free(priv->data);
+ 
+-  return SOX_SUCCESS;
++  return result;
+ }
+ 
+ static unsigned check_format(
+diff --git a/tests/dsd/run.py b/tests/dsd/run.py
+--- a/tests/dsd/run.py
++++ b/tests/dsd/run.py
+@@ -659,9 +659,13 @@
+     ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox')
+     ap.add_argument('--probe',type=pathlib.Path,default=ROOT/'test/dsd_test_io')
+     ap.add_argument('--writer-unit',type=pathlib.Path,default=ROOT/'test/dsd_test_dff_writer')
++    ap.add_argument('--p10-unit',type=pathlib.Path,
++                    help='P10 native unit executable; defaults beside --probe')
+     ap.add_argument('--mode',choices=('unit','integration','all'),default='all')
+     ap.add_argument('--only',default='*',help='glob-select named tests, no automatic skip')
+     args=ap.parse_args()
++    if args.p10_unit is None:
++        args.p10_unit=args.probe.with_name('dsd_test_p10'+args.probe.suffix)
+     runner=Runner(args);runner.register_units();runner.register_integrations()
+     # The P10 native unit binary is built by check-dsd from P10 onward but its
+     # --unit run was only ever registered under --phase P10, so the default
+@@ -670,7 +674,7 @@
+     # it wherever it is built.
+     if args.phase in ('P10','P11','P12','P13','P14','P15','P16','P17','P18'):
+         def p10_unit():
+-            command=[str(ROOT/'test/dsd_test_p10'),'--unit']
++            command=[str(args.p10_unit),'--unit']
+             result=runner.invoke(command,timeout=300)
+             require(result['exit']==0,
+                     f'P10 unit exit {result["exit"]}: {result["stderr"][-1500:]}')
+diff --git a/tests/sync/test_p10_path.py b/tests/sync/test_p10_path.py
+new file mode 100644
+--- /dev/null
++++ b/tests/sync/test_p10_path.py
+@@ -0,0 +1,54 @@
++#!/usr/bin/env python3
++"""Check P10 phase gate against a separate source/build path (stdlib only)."""
++import argparse
++import json
++from pathlib import Path
++import shutil
++import subprocess
++import sys
++import tempfile
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    ap.add_argument('--source', type=Path, required=True)
++    ap.add_argument('--build', type=Path, required=True)
++    args = ap.parse_args()
++    src = args.source.resolve()
++    build = args.build.resolve()
++    exe = '.exe' if sys.platform == 'win32' else ''
++    unit = build/'test'/('dsd_test_p10' + exe)
++    probe = build/'test'/('dsd_test_io' + exe)
++    sox = build/'src'/('sox' + exe)
++    control = subprocess.run([str(unit), '--unit'], capture_output=True,
++                             text=True, timeout=120)
++    if control.returncode:
++        raise AssertionError(f'P10 direct native suite failed: {control.stderr[-500:]}')
++    with tempfile.TemporaryDirectory(prefix='sox-dsd-src-build-') as scratch:
++        root = Path(scratch)
++        for name, is_dir in [('tests/dsd/run.py',False),
++                             ('tests/dsd/reference',True),
++                             ('tests/dsd/fixtures/manifest.json',False),
++                             ('src/dsdiff.c',False),
++                             ('docs/dsd/DSD_DESIGN.md',False)]:
++            dst = root/name
++            dst.parent.mkdir(parents=True, exist_ok=True)
++            if is_dir: shutil.copytree(src/name,dst)
++            else: shutil.copy2(src/name,dst)
++        for phase in ('P10', 'P11', 'P18'):
++            results = root/('results-'+phase)
++            argv = [sys.executable, str(root/'tests/dsd/run.py'),
++                    '--phase', phase, '--mode', 'unit',
++                    '--only', 'P10_native_unit_contract', '--results', str(results),
++                    '--sox', str(sox), '--probe', str(probe)]
++            got = subprocess.run(argv, cwd=root, capture_output=True,
++                                 text=True, timeout=150)
++            receipt = json.loads((results/'run.json').read_text())
++            if got.returncode != 0 or receipt['tests'][0]['status'] != 'pass':
++                raise AssertionError(f'{phase} out-tree P10 failed: {got.stderr[-750:]}')
++            print(json.dumps({'phase':phase, 'result':'PASS',
++                              'command':receipt['tests'][0]['name']},sort_keys=True))
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/tests/sync/test_url_process.py b/tests/sync/test_url_process.py
+new file mode 100644
+--- /dev/null
++++ b/tests/sync/test_url_process.py
+@@ -0,0 +1,110 @@
++#!/usr/bin/env python3
++"""Offline subprocess lifecycle regression for URL inputs (no network).
++
++Validates that a downloader's final status, not merely its audio bytes,
++governs SoX conversion completion. Uses only the stdlib.
++"""
++import argparse
++import json
++import os
++from pathlib import Path
++import subprocess
++import tempfile
++import wave
++
++
++def verify(sox: Path):
++    results = []
++    with tempfile.TemporaryDirectory(prefix='sox-dsd-url-child-') as scratch:
++        root = Path(scratch)
++        sample = root / 'input.wav'
++        with wave.open(str(sample), 'wb') as handle:
++            handle.setnchannels(1)
++            handle.setsampwidth(2)
++            handle.setframerate(44100)
++            handle.writeframes(b'\0\0' * 512)
++        child = root / 'wget'
++        child.write_text('''#!/bin/sh
++if [ "$1" = "--version" ]; then exit 0; fi
++last=''
++for arg in "$@"; do last="$arg"; done
++printf '%s' "$last" > "$SYNC_CAPTURE_URL"
++if [ "$SYNC_STATUS" != 'empty' ]; then cat "$SYNC_SAMPLE" || exit 71; fi
++if [ "$SYNC_STATUS" = 'empty' ]; then exit 8; fi
++exit "$SYNC_STATUS"
++''')
++        child.chmod(0o755)
++        env = os.environ.copy()
++        env.update(PATH=str(root) + os.pathsep + env.get('PATH', ''),
++                   SYNC_SAMPLE=str(sample), SYNC_CAPTURE_URL=str(root/'captured'))
++        url = "http://offline.invalid/o'hare $branch;&x.wav"
++        for status in ('0', '9', 'empty'):
++            env['SYNC_STATUS'] = status
++            out = root / f'out-{status}.wav'
++            command = [str(sox.resolve()), url, str(out)]
++            got = subprocess.run(command, env=env, cwd=root, text=True,
++                                 capture_output=True, timeout=20)
++            if (root/'captured').read_text() != url:
++                raise AssertionError(f'URL argv was changed by shell parsing: {status}')
++            if status == '0':
++                if got.returncode != 0 or not out.exists():
++                    raise AssertionError(f'valid downloader failed: {got.stderr[-600:]}')
++                with wave.open(str(out), 'rb') as wf:
++                    if wf.getnframes() != 512:
++                        raise AssertionError('valid downloader changed audio length')
++            else:
++                if got.returncode == 0 or out.exists():
++                    raise AssertionError(f'failed downloader published output: {status}')
++                if status == 'empty' and 'Server issued an error response' not in got.stderr:
++                    raise AssertionError(f'empty download misdiagnosed: {got.stderr[-600:]}')
++            results.append({'downloader_exit': status, 'sox_exit': got.returncode,
++                            'output_exists': out.exists(),
++                            'url_argv_preserved': True})
++
++        # A completed native DSD stream must not be marked successful in the
++        # structured report until the downloader's final exit status is known.
++        dsf = root/'source.dsf'
++        synth = subprocess.run([str(sox.resolve()), '-n', '-r', '2822400',
++                                '-c', '1', str(dsf), 'synth', '0.02', 'sine',
++                                '1000'], cwd=root, text=True,
++                               capture_output=True, timeout=20)
++        if synth.returncode or not dsf.is_file():
++            raise AssertionError(f'DSF test fixture generation failed: {synth.stderr[-600:]}')
++        env['SYNC_SAMPLE'] = str(dsf)
++        for status in ('0', '9'):
++            env['SYNC_STATUS'] = status
++            out = root/f'native-{status}.dsf'
++            report = root/f'native-{status}.json'
++            got = subprocess.run([str(sox.resolve()), '--dsd-mode', 'native',
++                                  '--dsd-report', str(report),
++                                  'http://offline.invalid/native.dsf', str(out)],
++                                 env=env, cwd=root, capture_output=True,
++                                 text=True, timeout=30)
++            if not report.is_file():
++                raise AssertionError('DSD report not published for ' + status)
++            receipt = json.loads(report.read_text())
++            wanted = 'complete' if status == '0' else 'failed'
++            if receipt['status'] != wanted:
++                raise AssertionError(f'downloader exit {status} produced DSD '
++                                     f'report status {receipt["status"]}, expected {wanted}')
++            if status == '0' and (got.returncode != 0 or not out.is_file()):
++                raise AssertionError('successful DSD downloader failed')
++            if status == '9' and (got.returncode == 0 or out.exists()):
++                raise AssertionError('failed DSD downloader published output')
++            results.append({'source': 'DSD/native',
++                            'downloader_exit': status,
++                            'sox_exit': got.returncode,
++                            'output_exists': out.exists(),
++                            'report_status': receipt['status']})
++    return results
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--sox', required=True, type=Path)
++    args = parser.parse_args()
++    print(json.dumps({'status':'PASS', 'cases':verify(args.sox)}, sort_keys=True))
++
++
++if __name__ == '__main__':
++    main()

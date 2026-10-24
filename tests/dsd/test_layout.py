@@ -140,7 +140,10 @@ class Runner:
     def suite(self):
         td=self.args.results
         td.mkdir(parents=True,exist_ok=True)
-        fixture_dir=ROOT/'tests/dsd/fixtures/p04'
+        # Independently generated P04 fixtures are test outputs, not source.
+        # Keep them in the caller-supplied writable results tree so VPATH
+        # and immutable/Nix-style source directories are supported.
+        fixture_dir=td/'fixtures/p04'
         fixture_dir.mkdir(parents=True,exist_ok=True)
         v=fixtures.bits(128,4)
         v5=fixtures.bits(128,5)
@@ -161,7 +164,7 @@ class Runner:
             f=fixture_dir/('p04_'+name+'.dff')
             f.write_bytes(payload)
             self.inputs[name]=f
-        manifest={k:dict(path=str(self.inputs[k].relative_to(ROOT)),
+        manifest={k:dict(path=str(self.inputs[k].relative_to(td)),
                          sha256=hashlib.sha256(data).hexdigest(),
                          truth='hand-constructed bytes with distinct channel sequences')
                   for k,data in cases.items()}
@@ -175,7 +178,7 @@ class Runner:
             path=fixture_dir/('p04_'+name+'.wav')
             path.write_bytes(payload)
             pcm_inputs[name]=path
-            manifest[name]=dict(path=str(path.relative_to(ROOT)),
+            manifest[name]=dict(path=str(path.relative_to(td)),
                 sha256=hashlib.sha256(payload).hexdigest(),
                 truth='independent RIFF/PCM16 fixture, explicit mask only when named')
 
@@ -228,7 +231,7 @@ class Runner:
             struct.pack_into('>I',original,48,0x11223344)
             path=fixture_dir/'p04_opaque_assignment.wsd'
             path.write_bytes(original)
-            manifest['opaque_assignment'] = dict(path=str(path.relative_to(ROOT)),
+            manifest['opaque_assignment'] = dict(path=str(path.relative_to(td)),
                 sha256=hashlib.sha256(original).hexdigest(),truth='hand-constructed WSD ch_asn')
             a=inspect(path)
             assert a['container']==3 and a['wsd_present']==1 and a['wsd_assignment']==0x11223344,a

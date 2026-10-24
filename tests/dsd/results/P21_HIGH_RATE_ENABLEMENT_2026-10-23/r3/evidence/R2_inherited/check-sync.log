@@ -1,0 +1,53 @@
+Making all in libdolbyb
+make[1]: Entering directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/libdolbyb'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/libdolbyb'
+Making all in libebur128
+make[1]: Entering directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/libebur128'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/libebur128'
+Making all in lpc10
+make[1]: Entering directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/lpc10'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/lpc10'
+Making all in libgsm
+make[1]: Entering directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/libgsm'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/libgsm'
+Making all in src
+make[1]: Entering directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/src'
+make  all-am
+make[2]: Entering directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/src'
+make[2]: Leaving directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/src'
+make[1]: Leaving directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/src'
+Making all in test
+make[1]: Entering directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/test'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/test'
+make[1]: Entering directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj'
+python3 ../source/tests/sync/test_url_process.py --sox /mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/src/sox
+{"cases": [{"downloader_exit": "0", "output_exists": true, "sox_exit": 0, "url_argv_preserved": true}, {"downloader_exit": "9", "output_exists": false, "sox_exit": 2, "url_argv_preserved": true}, {"downloader_exit": "empty", "output_exists": false, "sox_exit": 2, "url_argv_preserved": true}, {"decoded_output_matches_local": true, "downloader_exit": "0", "output_exists": true, "source": "RIFF/WAV 8MiB trailing JUNK", "sox_exit": 0}, {"decoded_output_matches_local": false, "downloader_exit": "9", "output_exists": false, "source": "RIFF/WAV 8MiB trailing JUNK", "sox_exit": 2}, {"downloader_exit": "0", "output_exists": true, "report_status": "complete", "source": "DSD/native", "sox_exit": 0}, {"downloader_exit": "9", "output_exists": false, "report_status": "failed", "source": "DSD/native", "sox_exit": 2}], "status": "PASS"}
+make -C test dsd_test_p10 dsd_test_io
+make[1]: Entering directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/test'
+make[1]: 'dsd_test_p10' is up to date.
+make[1]: 'dsd_test_io' is up to date.
+make[1]: Leaving directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/test'
+python3 ../source/tests/sync/test_p10_path.py --source /mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/../source --build /mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj
+{"command": "P10_native_unit_contract", "phase": "P10", "result": "PASS"}
+{"command": "P10_native_unit_contract", "phase": "P11", "result": "PASS"}
+{"command": "P10_native_unit_contract", "phase": "P18", "result": "PASS"}
+make -C test dsd_test_io dsd_test_p16 dsd_test_p17 dsd_test_p18
+make[1]: Entering directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/test'
+make[1]: 'dsd_test_io' is up to date.
+make[1]: 'dsd_test_p16' is up to date.
+make[1]: 'dsd_test_p17' is up to date.
+make[1]: 'dsd_test_p18' is up to date.
+make[1]: Leaving directory '/mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/test'
+python3 ../source/tests/sync/test_p16_p18_path.py --source /mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/../source --build /mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj
+{"absent_executable": "FAIL_CLOSED", "actual": "PASS", "phase": "P16", "test": "P16_native_packed_reader_contract"}
+{"absent_executable": "FAIL_CLOSED", "actual": "PASS", "phase": "P17", "test": "P17_highrate_registry_delay_and_capabilities"}
+{"absent_executable": "FAIL_CLOSED", "actual": "PASS", "phase": "P18", "test": "P18_registry_closed_gate"}
+python3 ../source/tests/sync/test_waveaudio_teardown.py --source /mnt/data/sox_dsd_14_8_1_corrective_R2_work/build/obj/../source
+{"cases": ["PASS scenario=0 error=0 freed=2 event_closed=1 driver_open=0", "PASS scenario=1 error=-1 freed=0 event_closed=0 driver_open=1", "PASS scenario=2 error=-1 freed=0 event_closed=0 driver_open=1", "PASS scenario=3 error=-1 freed=0 event_closed=0 driver_open=1", "PASS scenario=4 error=0 freed=2 event_closed=1 driver_open=0", "PASS scenario=6 error=-1 freed=2 event_closed=1 driver_open=0"], "native_windows": false, "source": "exact delivered drain/stop C functions", "status": "PASS"}

@@ -1,0 +1,190 @@
+diff --git a/test/Makefile.am b/test/Makefile.am
+index 62b3680..efbc06e 100644
+--- a/test/Makefile.am
++++ b/test/Makefile.am
+@@ -1,4 +1,4 @@
+-EXTRA_DIST = samples.c \
++EXTRA_DIST = samples.c run_check_staged.py \
+   BUG-libsndfile-float-level/README \
+   BUG-libsndfile-float-level/run \
+   BUG-libsndfile-float-level/sox-f32-minus20.caf \
+@@ -15,14 +15,18 @@ CLEANFILES = samples$(EXEEXT) samples.o
+ samples$(EXEEXT): $(srcdir)/samples.c
+ 	$(CC) -o samples$(EXEEXT) $(srcdir)/samples.c
+ 
+-# In VPATH builds the regression BUG-* cases live in $(srcdir), not in the
+-# build/test directory. Run the complete suite there, with an absolute path
+-# to the freshly built executable and the native test helper.
++# Legacy BUG/CVE tests write output into their working directories.  A
++# source-tree invocation fails with immutable/VPATH sources.  Stage fixture
++# copies under the build directory so all cases execute with writable scratch
++# space, while references such as ../../src/monkey.wav still resolve.
+ check-am: samples$(EXEEXT) wav_size_state_test$(EXEEXT)
+-	cd '$(abs_srcdir)' && \
+-	sox='$(abs_top_builddir)/src/sox$(EXEEXT)' \
+-	wav_size_state_test='$(abs_builddir)/wav_size_state_test$(EXEEXT)' \
+-	$(SHELL) ./check.sh -n
++	python3 '$(abs_srcdir)/run_check_staged.py' \
++	  --source-test '$(abs_srcdir)' \
++	  --source-monkey '$(abs_top_srcdir)/src/monkey.wav' \
++	  --build-test '$(abs_builddir)' \
++	  --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' \
++	  --samples '$(abs_builddir)/samples$(EXEEXT)' \
++	  --wav-size-state-test '$(abs_builddir)/wav_size_state_test$(EXEEXT)'
+ 
+ dist-hook:
+ 	rm -f $(distdir)/samples$(EXEEXT) $(distdir)/samples.o
+diff --git a/test/run_check_staged.py b/test/run_check_staged.py
+new file mode 100644
+index 0000000..007041f
+--- /dev/null
++++ b/test/run_check_staged.py
+@@ -0,0 +1,105 @@
++#!/usr/bin/env python3
++"""Run the inherited BUG/CVE scripts from private, writable build-side copies.
++
++The historical scripts use relative fixture paths and write their outputs to
++CWD.  Executing them directly in $(srcdir) is not valid for VPATH builds with
++read-only sources.  This runner stages only the regression cases and their
++one shared src/monkey.wav input, never altering the source fixture tree.
++"""
++import argparse
++import os
++from pathlib import Path
++import shutil
++import stat
++import subprocess
++import sys
++import tempfile
++
++
++def run_tests(source_test: Path, source_monkey: Path, build_test: Path,
++              sox: Path, samples: Path, wav_size_state_test: Path) -> int:
++    source_test = source_test.resolve(strict=True)
++    source_monkey = source_monkey.resolve(strict=True)
++    build_test = build_test.resolve(strict=True)
++    sox = sox.resolve(strict=True)
++    samples = samples.resolve(strict=True)
++    wav_size_state_test = wav_size_state_test.resolve(strict=True)
++    if not (source_test / 'check.sh').is_file():
++        raise ValueError('regression suite check.sh missing from source')
++    if not source_monkey.is_file():
++        raise ValueError('shared monkey.wav regression fixture missing')
++    if not build_test.is_dir():
++        raise ValueError('build test directory missing')
++    # Match check.sh exactly: every test/ subdirectory with a 'run' file,
++    # including PATCH-*, format, DSP, and security regressions.
++    cases = sorted(path for path in source_test.iterdir()
++                   if path.is_dir() and (path / 'run').is_file())
++    if not cases:
++        raise ValueError('no regression cases found; refusing an empty test pass')
++
++    # A new, unique build-side work directory per run avoids collisions from
++    # concurrent invocations, and cleanup works even when a test fails.
++    with tempfile.TemporaryDirectory(prefix='.regression-', dir=build_test) as tmp:
++        root = Path(tmp)
++        work_test = root / 'test'
++        work_test.mkdir()
++        work_src = root / 'src'
++        work_src.mkdir()
++        shutil.copy2(source_monkey, work_src / 'monkey.wav')
++        shutil.copy2(source_test / 'check.sh', work_test / 'check.sh')
++        # bit-depth/run resolves ../samples relative to its case directory.
++        shutil.copy2(samples, work_test / 'samples')
++        for case in cases:
++            destination = work_test / case.name
++            shutil.copytree(case, destination, symlinks=False)
++            # Fixtures may be extracted with read-only directory modes.
++            # All writes must occur within these disposable copies.
++            destination.chmod(stat.S_IMODE(destination.stat().st_mode) | 0o700)
++
++        env = dict(os.environ)
++        env['sox'] = str(sox)
++        env['wav_size_state_test'] = str(wav_size_state_test)
++        print('staged %d regression cases in a build-side scratch directory' % len(cases),
++              flush=True)
++        process = subprocess.run(['/bin/sh', './check.sh', '-n'], cwd=work_test,
++                                 env=env, capture_output=True, text=True)
++        sys.stdout.write(process.stdout)
++        sys.stdout.flush()
++        if process.stderr:
++            sys.stderr.write(process.stderr)
++        # check.sh normally returns 0 even if no cases were selected.  Check
++        # that it actually reported every staged test, rather than silently
++        # giving a green result after a harness path regression.
++        observed = set()
++        for line in process.stdout.splitlines():
++            name, sep, _result = line.partition(': ')
++            if sep:
++                observed.add(name)
++        missing = set(case.name for case in cases) - observed
++        if missing:
++            print('ERROR: regression cases not executed: ' +
++                  ', '.join(sorted(missing)[:8]), file=sys.stderr)
++            return 2
++        return process.returncode
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--source-test', required=True, type=Path)
++    parser.add_argument('--source-monkey', required=True, type=Path)
++    parser.add_argument('--build-test', required=True, type=Path)
++    parser.add_argument('--sox', required=True, type=Path)
++    parser.add_argument('--wav-size-state-test', required=True, type=Path)
++    parser.add_argument('--samples', required=True, type=Path)
++    args = parser.parse_args()
++    try:
++        return run_tests(args.source_test, args.source_monkey,
++                         args.build_test, args.sox, args.samples,
++                         args.wav_size_state_test)
++    except (OSError, ValueError, shutil.Error) as exc:
++        print('ERROR: regression setup failed: %s' % exc, file=sys.stderr)
++        return 2
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+diff --git a/tests/dsd/test_layout.py b/tests/dsd/test_layout.py
+index fc0e18a..0001073 100644
+--- a/tests/dsd/test_layout.py
++++ b/tests/dsd/test_layout.py
+@@ -140,7 +140,10 @@ class Runner:
+     def suite(self):
+         td=self.args.results
+         td.mkdir(parents=True,exist_ok=True)
+-        fixture_dir=ROOT/'tests/dsd/fixtures/p04'
++        # Independently generated P04 fixtures are test outputs, not source.
++        # Keep them in the caller-supplied writable results tree so VPATH
++        # and immutable/Nix-style source directories are supported.
++        fixture_dir=td/'fixtures/p04'
+         fixture_dir.mkdir(parents=True,exist_ok=True)
+         v=fixtures.bits(128,4)
+         v5=fixtures.bits(128,5)
+@@ -161,7 +164,7 @@ class Runner:
+             f=fixture_dir/('p04_'+name+'.dff')
+             f.write_bytes(payload)
+             self.inputs[name]=f
+-        manifest={k:dict(path=str(self.inputs[k].relative_to(ROOT)),
++        manifest={k:dict(path=str(self.inputs[k].relative_to(td)),
+                          sha256=hashlib.sha256(data).hexdigest(),
+                          truth='hand-constructed bytes with distinct channel sequences')
+                   for k,data in cases.items()}
+@@ -175,7 +178,7 @@ class Runner:
+             path=fixture_dir/('p04_'+name+'.wav')
+             path.write_bytes(payload)
+             pcm_inputs[name]=path
+-            manifest[name]=dict(path=str(path.relative_to(ROOT)),
++            manifest[name]=dict(path=str(path.relative_to(td)),
+                 sha256=hashlib.sha256(payload).hexdigest(),
+                 truth='independent RIFF/PCM16 fixture, explicit mask only when named')
+ 
+@@ -228,7 +231,7 @@ class Runner:
+             struct.pack_into('>I',original,48,0x11223344)
+             path=fixture_dir/'p04_opaque_assignment.wsd'
+             path.write_bytes(original)
+-            manifest['opaque_assignment'] = dict(path=str(path.relative_to(ROOT)),
++            manifest['opaque_assignment'] = dict(path=str(path.relative_to(td)),
+                 sha256=hashlib.sha256(original).hexdigest(),truth='hand-constructed WSD ch_asn')
+             a=inspect(path)
+             assert a['container']==3 and a['wsd_present']==1 and a['wsd_assignment']==0x11223344,a

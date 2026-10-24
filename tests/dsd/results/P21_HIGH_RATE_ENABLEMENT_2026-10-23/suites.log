@@ -1,9 +1,15 @@
+autoreconf rc=0
+configure rc=0
 build rc=0
+sox:      SoX DSD v1.0.0 (based on sox_ng 14.8.1)
 p10 --unit rc=0
 {"assertions":105499,"failures":0}
 check-dsd rc=0
 make check rc=0
 check-rename rc=0
---- restore committed evidence ---
-  dirty results: 0
-P21CHECK_DONE
+check-sync rc=0
+{"absent_executable": "FAIL_CLOSED", "actual": "PASS", "phase": "P18", "test": "P18_registry_closed_gate"}
+python3 ./tests/sync/test_waveaudio_teardown.py --source /home/daedalus/dev/sox_ng
+{"cases": ["PASS scenario=0 error=0 freed=2 event_closed=1 driver_open=0", "PASS scenario=1 error=-1 freed=0 event_closed=0 driver_open=1", "PASS scenario=2 error=-1 freed=0 event_closed=0 driver_open=1", "PASS scenario=3 error=-1 freed=0 event_closed=0 driver_open=1", "PASS scenario=4 error=0 freed=2 event_closed=1 driver_open=0", "PASS scenario=6 error=-1 freed=2 event_closed=1 driver_open=0"], "native_windows": false, "source": "exact delivered drain/stop C functions", "status": "PASS"}
+  dirty results: 1
+R3CHECK_DONE

@@ -838,6 +838,11 @@ ENDIF()
 
 TARGET_LINK_LIBRARIES(${targetName} PUBLIC ${platformLibraryList})
 
+IF(HAVE_PIPE AND HAVE_FORK)
+    FIND_PACKAGE(Threads REQUIRED)
+    TARGET_LINK_LIBRARIES(${targetName} PUBLIC Threads::Threads)
+ENDIF()
+
 # add external libraries
 SET(externalLibraryNameList
     FFTW Flac Id3tag Mad MP3Lame Ogg Opus Opusfile Png Sndfile Speex

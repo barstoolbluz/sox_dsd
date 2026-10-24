@@ -556,11 +556,21 @@ if test "$with_ffmpeg" != "no"; then
     if test "$using_ffmpeg" = yes
     then
       # ffmpeg.c can use these to improve autodetection when stdin is a pipe
+      dnl pipe/fork probes are shared with the URL process runner below.
       AC_CHECK_FUNCS(pipe fork)
     fi
 fi
 
 
+
+dnl Custom fork/exec pipes require a mutex-protected PID/FILE* registry.
+dnl Some systems need -lpthread; pthread symbols are in libc on others.
+AS_IF([test "x$ac_cv_func_pipe" = xyes && test "x$ac_cv_func_fork" = xyes], [
+  AC_CHECK_HEADERS([pthread.h], [],
+                   [AC_MSG_FAILURE([fork pipes require pthread.h])])
+  AC_SEARCH_LIBS([pthread_mutex_lock], [pthread], [],
+                 [AC_MSG_FAILURE([fork pipes require POSIX thread mutexes])])
+])
 
 dnl Check for MP3-reading libraries
 

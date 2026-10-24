@@ -1,0 +1,53 @@
+{
+  "cases": {
+    "check_after_lossy_extraction": {
+      "already_corrected": 0,
+      "source_paths_verified": 4126,
+      "verdict": "SAFE_FULL_TREE",
+      "would_restore_exec_bits": 1,
+      "would_update": 3
+    },
+    "corrupt_overlay_refused": {
+      "exit": 2,
+      "reason": "REFUSED: overlay payload not authentic: test/Makefile.am"
+    },
+    "corrupt_post_install_refused": {
+      "exit": 2,
+      "reason": "REFUSED: unexpected source content (hash/size mismatch): src/dsf.c"
+    },
+    "corrupt_unmanaged_refused": {
+      "exit": 2,
+      "reason": "REFUSED: unexpected source content (hash/size mismatch): src/dsf.c"
+    },
+    "idempotent": {
+      "already_corrected": 3,
+      "changed": 0,
+      "executable_modes_restored": 0,
+      "source_paths_verified": 4126,
+      "verdict": "PASS_FULL_TREE"
+    },
+    "install": {
+      "already_corrected": 0,
+      "changed": 3,
+      "executable_modes_restored": 1,
+      "source_paths_verified": 4126,
+      "verdict": "PASS_FULL_TREE"
+    },
+    "resume": {
+      "already_corrected": 2,
+      "changed": 1,
+      "executable_modes_restored": 0,
+      "source_paths_verified": 4126,
+      "verdict": "PASS_FULL_TREE"
+    },
+    "unexpected_file_refused": {
+      "exit": 2,
+      "reason": "REFUSED: unexpected files in source (full-tree identity refused): src/unexpected-file.c"
+    },
+    "unexpected_symlink_refused": {
+      "exit": 2,
+      "reason": "REFUSED: non-regular or multiply linked source member: /tmp/sox-dsd-R3-identity-jhn1gz98/sox_dsd/src/unexpected-link.c"
+    }
+  },
+  "result": "PASS"
+}

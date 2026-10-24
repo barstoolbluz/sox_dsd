@@ -659,9 +659,19 @@ def main():
     ap.add_argument('--sox',type=pathlib.Path,default=ROOT/'src/sox')
     ap.add_argument('--probe',type=pathlib.Path,default=ROOT/'test/dsd_test_io')
     ap.add_argument('--writer-unit',type=pathlib.Path,default=ROOT/'test/dsd_test_dff_writer')
+    ap.add_argument('--p10-unit',type=pathlib.Path,
+                    help='P10 native unit executable; defaults beside --probe')
+    for phase in ('p16','p17','p18'):
+        ap.add_argument('--'+phase+'-unit',type=pathlib.Path,
+                        help=phase.upper()+' native unit executable; defaults beside --probe')
     ap.add_argument('--mode',choices=('unit','integration','all'),default='all')
     ap.add_argument('--only',default='*',help='glob-select named tests, no automatic skip')
     args=ap.parse_args()
+    if args.p10_unit is None:
+        args.p10_unit=args.probe.with_name('dsd_test_p10'+args.probe.suffix)
+    for phase in ('p16','p17','p18'):
+        if getattr(args,phase+'_unit') is None:
+            setattr(args,phase+'_unit',args.probe.with_name('dsd_test_'+phase+args.probe.suffix))
     runner=Runner(args);runner.register_units();runner.register_integrations()
     # The P10 native unit binary is built by check-dsd from P10 onward but its
     # --unit run was only ever registered under --phase P10, so the default
@@ -670,7 +680,7 @@ def main():
     # it wherever it is built.
     if args.phase in ('P10','P11','P12','P13','P14','P15','P16','P17','P18'):
         def p10_unit():
-            command=[str(ROOT/'test/dsd_test_p10'),'--unit']
+            command=[str(args.p10_unit),'--unit']
             result=runner.invoke(command,timeout=300)
             require(result['exit']==0,
                     f'P10 unit exit {result["exit"]}: {result["stderr"][-1500:]}')
@@ -681,7 +691,7 @@ def main():
     if args.phase in ('P16', 'P17', 'P18'):
         def p16_executable(suffix, timeout):
             def gate():
-                command = [str(ROOT/'test/dsd_test_p16'), *suffix]
+                command = [str(args.p16_unit), *suffix]
                 result = runner.invoke(command, timeout=timeout)
                 require(result['exit'] == 0,
                         f'P16 executable exit {result["exit"]}: {result["stderr"][-1500:]}')
@@ -699,7 +709,7 @@ def main():
                                     ('highrate_packed_expanded_isa_matrix','matrix',900),
                                     ('unqualified_exact_rate_sdm_candidates','encode',180)]:
             def gate(name=mode, limit=timeout):
-                command=[str(ROOT/'test/dsd_test_p17'),name]
+                command=[str(args.p17_unit),name]
                 result=runner.invoke(command,timeout=limit)
                 require(result['exit']==0,f'P17 {name}: '+result['stderr'][-1500:])
                 require(result['stdout'].startswith('P17 '),'P17 missing executable summary')
@@ -708,7 +718,7 @@ def main():
     if args.phase == 'P18':
         for label in ('registry','transport','sizes'):
             def gate(part=label):
-                command=[str(ROOT/'test/dsd_test_p18'),part]
+                command=[str(args.p18_unit),part]
                 result=runner.invoke(command,timeout=120)
                 require(result['exit']==0, f'P18 {part}: '+result['stderr'][-1500:])
                 require(result['stdout'].startswith('P18 PASS '), 'P18 missing native gate summary')
