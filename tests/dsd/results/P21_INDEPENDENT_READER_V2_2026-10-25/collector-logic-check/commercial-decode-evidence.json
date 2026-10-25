@@ -1,0 +1,46 @@
+{
+  "case_count": 4,
+  "case_receipts": {
+    "full_file/11ba327933f930e89001-mastering-scalar.json": "PASS_FUNCTIONAL_ONLY",
+    "full_file/11ba327933f930e89001-wideband-scalar.json": "PASS_FUNCTIONAL_ONLY",
+    "full_file/f74629d238f4c78d5edb-mastering-scalar.json": "PASS_FUNCTIONAL_ONLY",
+    "full_file/f74629d238f4c78d5edb-wideband-scalar.json": "PASS_FUNCTIONAL_ONLY"
+  },
+  "decoder_profile_qualified": {
+    "decode.mastering.v1.dsd1024": false,
+    "decode.mastering.v1.dsd512": false,
+    "decode.mastering.v2.dsd1024": false,
+    "decode.mastering.v2.dsd512": false,
+    "decode.wideband.v1.dsd1024": false,
+    "decode.wideband.v1.dsd512": false,
+    "decode.wideband.v2.dsd1024": false,
+    "decode.wideband.v2.dsd512": false
+  },
+  "device_claims": [],
+  "distinct_dsd1024_tracks": 0,
+  "distinct_dsd512_tracks": 2,
+  "expected_dsd512_tracks": 2,
+  "full_file_functional_gate": "PASS",
+  "host": {
+    "machine": "x86_64",
+    "node": "ethos",
+    "os": "Linux-6.12.85+deb13-amd64-x86_64-with-glibc2.44"
+  },
+  "independent_reader_and_audio_reference_gate": "INVALID",
+  "independent_reader_evidence": {
+    "media_sha256_match": false,
+    "path": "tests/dsd/results/P21_INDEPENDENT_READER_V2_2026-10-25/independent-reader-evidence.json",
+    "validation_error": "commercial source hashes differ from P17 full-file receipts"
+  },
+  "media_sha256": [
+    "11ba327933f930e8900150037d010923400ffbcf175ed3bef47501607ac6a687",
+    "f74629d238f4c78d5edb04e50323b7afa1bff772969997c5d9baf6aa1b0cd7ee"
+  ],
+  "missing_media": "No independent DSD1024 licensed media provided",
+  "note": "P17 full-file functional checks do not establish an independent audio oracle. P21 compares audio-band output from independently written readers on the recorded intervals; it does not exhaustively certify parsing behavior, filter equivalence or device interoperability.",
+  "probe_sha256": "86d746f4437383d61c76131141765767d0aa9cc5ce7aa8dac20c096a52d9c1d7",
+  "public_capabilities_enabled": false,
+  "qualification": "UNQUALIFIED",
+  "runner_sha256": "ea6dd389b83e70608cf0e73000b939cef0c2c14770d614f6cbb202a97587eedd",
+  "schema": "P17/commercial-decoder-evidence/1"
+}

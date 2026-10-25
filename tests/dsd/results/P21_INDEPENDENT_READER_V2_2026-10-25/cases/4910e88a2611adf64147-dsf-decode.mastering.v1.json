@@ -1,0 +1,68 @@
+{
+  "capability_row": "dsf-read-22579200",
+  "cli_decode_flag": "mastering",
+  "container": "dsf",
+  "control_exit": 0,
+  "control_sha256": "7d9106d9edee23b5b7df8ff832af1bc42cf3c5a2f209fcfca957beb898c1b6ac",
+  "control_stderr_tail": "",
+  "elapsed_seconds": 13.336042611859739,
+  "failure_reasons": [],
+  "media_provenance": "commercial",
+  "metrics": {
+    "analysis_band_hz": [
+      0,
+      20000
+    ],
+    "channels": [
+      {
+        "channel": 0,
+        "cross_channel_pearson_r": 0.7421681759064078,
+        "level_delta_db": 2.0474344446122802e-05,
+        "max_window_rms_residual": 0.1113797934038194,
+        "pearson_r": 0.9998548753765317
+      },
+      {
+        "channel": 1,
+        "cross_channel_pearson_r": 0.7422087356210461,
+        "level_delta_db": 2.0155638144185975e-05,
+        "max_window_rms_residual": 0.11157087057645378,
+        "pearson_r": 0.999837231015658
+      }
+    ],
+    "control_pearson_r": [
+      -0.007305508522071618,
+      -0.004203776413412391
+    ],
+    "expected_frames": 1764000,
+    "frames_compared": 1764000
+  },
+  "native_hz": 22579200,
+  "output_hz": 176400,
+  "profile_id": "decode.mastering.v1",
+  "reference": [
+    "ffmpeg version 7.1.3-0+deb13u1 Copyright (c) 2000-2025 the FFmpeg developers"
+  ],
+  "reference_exit": 0,
+  "reference_sha256": "19f19724fc40c9815ebc7439165af8bc589908eead4f15e54e8c66e199cb6de9",
+  "reference_stderr_tail": "",
+  "runner_sha256": "21106b6b69fdb80c738ba61c970a11fd1e4c60e56c802f29cfdbf85a772a6f05",
+  "schema": "P21/independent-reader-case/2",
+  "seconds": 10.0,
+  "source_bytes": 1286357228,
+  "source_id": "4910e88a2611adf64147",
+  "source_sha256": "4910e88a2611adf64147eefc16ce55791bbc28cbfa6a673804725f40318d96ed",
+  "sox_exit": 0,
+  "sox_sha256": "03786db4125f5c00f47e806d8225a8cf717a068caafc3e3dbf92e6dd52d82989",
+  "sox_stderr_tail": "sox WARN sox_ng: discarding DSD channel layout for `f8' (--dsd-layout-loss warn)\nsox WARN sox_ng: P05: signed 24-bit unavailable; selecting 64-bit PCM encoding 3\nsox WARN sox_ng: discarding DSD channel layout for `f8' (--dsd-layout-loss warn)\n",
+  "start_seconds": 5.0,
+  "status": "PASS",
+  "stimulus_origin": "licensed-original",
+  "thresholds": {
+    "max_control_pearson": 0.5,
+    "max_level_delta_db": 0.1,
+    "max_window_rms_residual": 0.15,
+    "min_channel_margin": 0.01,
+    "min_pearson": 0.999,
+    "window_seconds": 0.1
+  }
+}

@@ -13,8 +13,10 @@ from pathlib import Path
 import platform
 import subprocess
 import time
+import math
 
 ROOT=Path(__file__).resolve().parents[2]
+CASE_SCHEMA='P17/commercial-full-file-case/1'
 
 def sha(path):
     h=hashlib.sha256()
@@ -25,11 +27,170 @@ def sha(path):
 def load(path):
     return json.loads(path.read_text(),parse_constant=lambda x: (_ for _ in ()).throw(ValueError(x)))
 
+def sanitized(stderr, source):
+    for value in sorted({str(source), str(source.resolve()), source.name},
+                        key=len, reverse=True):
+        if value:
+            stderr = stderr.replace(value, '<licensed-file>')
+    return stderr[-2000:]
+
+
 def atomic(path,row):
     path.parent.mkdir(parents=True,exist_ok=True)
     temp=path.with_name(path.name+'.tmp')
     temp.write_text(json.dumps(row,sort_keys=True,indent=2,allow_nan=False)+'\n')
     os.replace(temp,path)
+
+
+def functional_decode_pass(result, rc, profile, out, tier):
+    """Apply the same P17 decoder acceptance conditions to new and reused evidence."""
+    if rc != 0 or not isinstance(result, dict):
+        return False
+    rate = result.get('rate_hz')
+    frames = result.get('native_frames')
+    if (type(rate) is not int or rate not in (22579200, 45158400) or
+        type(frames) is not int or frames <= 0 or
+        type(result.get('pcm_frames')) is not int):
+        return False
+    return (result.get('status') == 'PASS_FUNCTIONAL_ONLY' and
+            result.get('packed_expanded_equal') is True and
+            result.get('channels') == 2 and
+            result.get('profile') == profile and
+            result.get('destination_hz') == out and
+            result.get('kernel') == tier and
+            result['pcm_frames'] == (frames * out + rate // 2) // rate)
+
+
+def validate_reader_evidence(report_path, commercial_hashes, sox_path, reference_path):
+    """Recompute P21 qualification from bound case receipts, never summary flags."""
+    from p21_independent_reader import (CASE_SCHEMA, REPORT_SCHEMA, EXPECTED_ROWS,
+        PROFILE_IDS, PROFILES, SELF_RATES, SELF_CONTAINERS, judge, summarize_cases,
+        thresholds)
+
+    report_path = report_path.resolve()
+    report = load(report_path)
+    if report.get('schema') != REPORT_SCHEMA:
+        raise ValueError('unsupported reader evidence schema; rerun the gate')
+    runner_path = Path(__file__).with_name('p21_independent_reader.py')
+    if not runner_path.is_file() or report.get('runner_sha256') != sha(runner_path):
+        raise ValueError('independent reader code changed since evidence was collected')
+    if not sox_path.is_file() or report.get('sox_sha256') != sha(sox_path):
+        raise ValueError('SoX binary changed since independent reader run')
+    if not reference_path.is_file() or report.get('reference_sha256') != sha(reference_path):
+        raise ValueError('reference binary changed since independent reader run')
+    if report.get('commercial_media_sha256') != sorted(commercial_hashes):
+        raise ValueError('commercial source hashes differ from P17 full-file receipts')
+    case_index = report.get('case_receipts')
+    if not isinstance(case_index, dict) or not case_index:
+        raise ValueError('missing reader case index')
+    if report.get('case_count') != len(case_index):
+        raise ValueError('reader case count does not match index')
+    if report.get('thresholds') != thresholds():
+        raise ValueError('reader thresholds differ from current implementation')
+    cases = []
+    for rel, status in case_index.items():
+        # Only exact P21 receipt basenames are permitted, not arbitrary paths.
+        if not isinstance(rel, str) or not rel.startswith('cases/') or '/' in rel[6:]:
+            raise ValueError('invalid receipt path')
+        receipt = report_path.parent / rel
+        if not receipt.is_file():
+            raise ValueError(f'missing reader receipt: {rel}')
+        c = load(receipt)
+        if c.get('schema') != CASE_SCHEMA:
+            raise ValueError(f'wrong reader case schema: {rel}')
+        if c.get('status') != status or status != 'PASS' or c.get('failure_reasons') != []:
+            raise ValueError(f'reader case is not PASS: {rel}')
+        if (c.get('runner_sha256') != report['runner_sha256'] or
+            c.get('sox_sha256') != report['sox_sha256'] or
+            c.get('reference_sha256') != report.get('reference_sha256') or
+            c.get('thresholds') != thresholds() or
+            c.get('sox_exit') != 0 or c.get('reference_exit') != 0 or
+            c.get('control_exit') != 0):
+            raise ValueError(f'reader case executable or threshold mismatch: {rel}')
+        source = c.get('source_sha256')
+        control = c.get('control_sha256')
+        if (not isinstance(source, str) or len(source) != 64 or
+            not all(ch in '0123456789abcdef' for ch in source) or
+            not isinstance(control, str) or len(control) != 64 or
+            control == source):
+            raise ValueError(f'invalid source/control identities: {rel}')
+        if c.get('source_id') != source[:20]:
+            raise ValueError(f'source ID mismatch: {rel}')
+        if (c.get('container') not in SELF_CONTAINERS or
+            c.get('native_hz') not in SELF_RATES or
+            c.get('media_provenance') not in ('commercial', 'self-encoded') or
+            c.get('capability_row') !=
+                f'{c["container"]}-read-{c["native_hz"]}'):
+            raise ValueError(f'invalid source row: {rel}')
+        if (c['media_provenance'] == 'commercial' and
+            (source not in commercial_hashes or c['container'] != 'dsf' or
+             c['native_hz'] != 22579200 or c.get('stimulus_origin') != 'licensed-original')):
+            raise ValueError(f'commercial provenance mismatched: {rel}')
+        if c['media_provenance'] == 'self-encoded' and (
+            source in commercial_hashes or
+            c.get('stimulus_origin') != 'derived-from-licensed-pcm'):
+            raise ValueError(f'self-encoded source provenance not qualified: {rel}')
+        definitions = {pid: (flag, outputs[c['native_hz']])
+                       for flag, pid, outputs in PROFILES}
+        pid = c.get('profile_id')
+        if pid not in PROFILE_IDS:
+            raise ValueError(f'unknown profile: {rel}')
+        flag, rate = definitions[pid]
+        if (c.get('output_hz') != rate or
+            c.get('cli_decode_flag') != (flag or '(default)') or
+            not isinstance(c.get('seconds'), (int, float)) or
+            not math.isfinite(c['seconds']) or c['seconds'] < 0.5):
+            raise ValueError(f'invalid output profile or interval: {rel}')
+        metrics = c.get('metrics')
+        passed, problems = judge(metrics)
+        if not passed:
+            raise ValueError(f'invalid stored reader metrics in {rel}: {problems}')
+        expected_frames = int(round(c['seconds'] * rate))
+        if (not isinstance(metrics.get('frames_compared'), int) or
+            not isinstance(metrics.get('expected_frames'), int) or
+            metrics['expected_frames'] != expected_frames or
+            abs(metrics['frames_compared'] - expected_frames) > 2):
+            raise ValueError(f'incomplete reader interval: {rel}')
+        expected_rel = f'cases/{source[:20]}-{c["container"]}-{pid}.json'
+        if rel != expected_rel:
+            raise ValueError(f'reader case path mismatch: {rel}')
+        cases.append(c)
+    if len(cases) != len({(c['source_sha256'], c['container'], c['profile_id']) for c in cases}):
+        raise ValueError('duplicate reader source/profile case')
+    # Every negative control must name another tested source in the same row.
+    by_source = {(c['media_provenance'], c['capability_row'], c['source_sha256'])
+                 for c in cases}
+    for c in cases:
+        if ((c['media_provenance'], c['capability_row'], c['control_sha256'])
+                not in by_source):
+            raise ValueError('negative control is not another tested source in the row')
+    commercial = sorted({c['source_sha256'] for c in cases
+                         if c['media_provenance'] == 'commercial'})
+    self_encoded = sorted({c['source_sha256'] for c in cases
+                           if c['media_provenance'] == 'self-encoded'})
+    if (report.get('commercial_media_sha256') != commercial or
+        report.get('self_encoded_media_sha256') != self_encoded or
+        report.get('media_sha256') != sorted(commercial + self_encoded) or
+        report.get('tracks') != len(commercial + self_encoded)):
+        raise ValueError('media inventory does not match case receipts')
+    rows, commercial_rows, profiles, provenance = summarize_cases(cases)
+    if (report.get('rows_qualified') != rows or
+        report.get('rows_qualified_commercial') != commercial_rows or
+        report.get('row_profiles_qualified') != profiles or
+        report.get('rows_by_provenance') != provenance):
+        raise ValueError('row qualification/provenance does not match cases')
+    complete = (EXPECTED_ROWS <= rows.keys() and
+                all(rows[r] for r in EXPECTED_ROWS) and
+                commercial_rows.get('dsf-read-22579200') is True)
+    declared_profiles = {pid: bool(complete) and all(
+        profiles[row].get(pid) is True for row in EXPECTED_ROWS)
+        for pid in PROFILE_IDS}
+    if report.get('profiles_qualified') != declared_profiles:
+        raise ValueError('profile summary does not match case coverage')
+    if report.get('independent_reader_and_audio_reference_gate') != ('PASS' if complete else 'INCOMPLETE'):
+        raise ValueError('global reader verdict does not match case coverage')
+    return report, rows, commercial_rows, profiles
+
 
 def main():
     a=argparse.ArgumentParser(description=__doc__)
@@ -41,6 +202,10 @@ def main():
     a.add_argument('--tiers',default='scalar')
     a.add_argument('--timeout-per-track',type=int,default=14400)
     a.add_argument('--require-media',action='store_true')
+    a.add_argument('--reader-sox', type=Path, default=ROOT/'src/sox',
+        help='SoX executable used by the independent reader')
+    a.add_argument('--reader-reference', type=Path, default=Path('/usr/bin/ffmpeg'),
+        help='reference executable used by the independent reader')
     a.add_argument('--independent-reader-evidence',type=Path,
         default=ROOT/'tests/dsd/results/P21_INDEPENDENT_READER_2026-10-24/independent-reader-evidence.json',
         help='verdict from tests/dsd/p21_independent_reader.py; absent means UNRUN')
@@ -60,17 +225,23 @@ def main():
     binary_sha=sha(args.probe);runner_sha=sha(Path(__file__))
     cases=[]
     for path in paths:
-        full_sha=sha(path);token=full_sha[:20]
+        full_sha=sha(path);token=full_sha[:20];source_bytes=path.stat().st_size
         for profile,out in (('mastering',176400),('wideband',705600)):
             for tier in tiers:
                 dest=args.results/'full_file'/f'{token}-{profile}-{tier}.json'
                 previous=load(dest) if dest.is_file() else None
                 reuse=(previous is not None and
+                    previous.get('schema')==CASE_SCHEMA and
                     previous.get('source_sha256')==full_sha and
+                    previous.get('source_id')==token and
+                    type(previous.get('source_bytes')) is int and
+                    previous['source_bytes']==source_bytes and
                     previous.get('probe_sha256')==binary_sha and
                     previous.get('runner_sha256')==runner_sha and
                     previous.get('profile')==profile and previous.get('tier')==tier and
-                    previous.get('status')=='PASS_FUNCTIONAL_ONLY')
+                    previous.get('status')=='PASS_FUNCTIONAL_ONLY' and
+                    functional_decode_pass(previous.get('decoder'), previous.get('exit_code'),
+                        profile, out, tier))
                 if reuse:
                     cases.append(previous);print('REUSE',token,profile,tier,flush=True)
                     continue
@@ -84,22 +255,15 @@ def main():
                     result=json.loads(proc.stdout,parse_constant=lambda x: (_ for _ in ()).throw(ValueError(x))) if rc==0 else None
                 except (subprocess.TimeoutExpired,ValueError,json.JSONDecodeError) as ex:
                     result=None;rc=124;stderr=str(ex)
-                passed=(rc==0 and result is not None and
-                    result.get('status')=='PASS_FUNCTIONAL_ONLY' and
-                    result.get('packed_expanded_equal') is True and
-                    result.get('rate_hz') in (22579200,45158400) and
-                    result.get('channels')==2 and result.get('profile')==profile and
-                    result.get('destination_hz')==out and result.get('kernel')==tier and
-                    result.get('native_frames',0)>0 and
-                    result.get('pcm_frames')==(result['native_frames']*out+
-                        result['rate_hz']//2)//result['rate_hz'])
+                passed=functional_decode_pass(result, rc, profile, out, tier)
                 decode_wall=result.get('decode_wall_seconds') if result else None
                 speed=(result['native_frames']/decode_wall
                     if decode_wall and decode_wall>0 else None)
                 realtime=(speed/result['rate_hz'] if speed else None)
-                row=dict(schema='P17/commercial-full-file-case/1',
+                stderr=sanitized(stderr,path)
+                row=dict(schema=CASE_SCHEMA,
                     status='PASS_FUNCTIONAL_ONLY' if passed else 'FAIL',
-                    source_sha256=full_sha,source_id=token,source_bytes=path.stat().st_size,
+                    source_sha256=full_sha,source_id=token,source_bytes=source_bytes,
                     profile=profile,tier=tier,probe_sha256=binary_sha,runner_sha256=runner_sha,
                     command=['test/dsd_test_p17_dsf','<licensed-file>',profile,str(out),tier,'full'],
                     exit_code=rc,elapsed_seconds=time.monotonic()-started,
@@ -121,36 +285,33 @@ def main():
         len(r512)==len(dsd512)*len(tiers)*2 and
         all(x['status']=='PASS_FUNCTIONAL_ONLY' for x in r512) and
         all(x['source_sha256'] in dsd512|dsd1024 for x in cases))
-    # The independent-reader gate used to be the literal string 'UNRUN' and an
-    # all-False profile map, which is indistinguishable from a gate that cannot
-    # pass. It is now derived from p21_independent_reader.py, and still reports
-    # UNRUN when that evidence is absent. DSD1024 stays unqualified regardless:
-    # no independent media exists for it, so nothing can be compared.
-    reader_gate, reader_ref, reader = 'UNRUN', None, None
-    if args.independent_reader_evidence is not None and args.independent_reader_evidence.is_file():
-        reader = load(args.independent_reader_evidence)
-        if reader.get('schema') != 'P21/independent-reader-evidence/1':
-            raise RuntimeError('unrecognised independent-reader evidence schema')
-        reader_gate = reader.get('independent_reader_and_audio_reference_gate', 'UNRUN')
-        reader_ref = dict(
-            path=str(args.independent_reader_evidence.relative_to(ROOT)),
-            runner_sha256=reader.get('runner_sha256'),
-            sox_sha256=reader.get('sox_sha256'),
-            tracks=reader.get('tracks'), case_count=reader.get('case_count'),
-            media_sha256_match=sorted(reader.get('media_sha256', []))==sorted(dsd512))
-    reader_profiles = (reader or {}).get('profiles_qualified', {})
+    reader_gate, reader_ref, row_profiles = 'UNRUN', None, {}
+    if (args.independent_reader_evidence is not None and
+            args.independent_reader_evidence.is_file()):
+        try:
+            reader, rows, commercial_rows, row_profiles = validate_reader_evidence(
+                args.independent_reader_evidence, dsd512, args.reader_sox, args.reader_reference)
+            reader_gate = reader['independent_reader_and_audio_reference_gate']
+            reader_ref = dict(
+                path=os.path.relpath(args.independent_reader_evidence.resolve(), ROOT),
+                runner_sha256=reader['runner_sha256'],
+                sox_sha256=reader['sox_sha256'],
+                tracks=reader['tracks'], case_count=reader['case_count'],
+                media_sha256_match=True)
+        except (ValueError, KeyError, TypeError, OSError, json.JSONDecodeError) as ex:
+            reader_gate = 'INVALID'
+            reader_ref = dict(path=os.path.relpath(
+                args.independent_reader_evidence.resolve(), ROOT),
+                media_sha256_match=False, validation_error=str(ex))
     profile_qualification = {}
     for rate in (512, 1024):
         for kind in ('mastering', 'wideband'):
             for version in ('v1', 'v2'):
                 pid = f'decode.{kind}.{version}.dsd{rate}'
-                # qualified only where a reader comparison actually passed, and
-                # only at the clock the compared media is
                 base = f'decode.{kind}.{version}'
                 profile_qualification[pid] = bool(
-                    rate == 512 and reader_gate == 'PASS'
-                    and reader_profiles.get(base) is True
-                    and reader_ref is not None and reader_ref['media_sha256_match'])
+                    rate == 512 and complete and reader_gate == 'PASS' and
+                    row_profiles.get('dsf-read-22579200', {}).get(base) is True)
     report=dict(schema='P17/commercial-decoder-evidence/1',
         probe_sha256=binary_sha,runner_sha256=runner_sha,
         host=dict(node=platform.node(),os=platform.platform(),machine=platform.machine()),
@@ -165,7 +326,7 @@ def main():
         independent_reader_evidence=reader_ref,
         missing_media='No independent DSD1024 licensed media provided',
         device_claims=[],public_capabilities_enabled=False,qualification='UNQUALIFIED',
-        note='Licensed full files were not part of uploaded code bundle; internal PCM parity does not establish an independent decoder oracle. The independent-reader gate is a second-implementation audio comparison: it establishes container parse, interleave, bit order, alignment and gross gain, not filter equivalence or device interoperability.')
+        note='P17 full-file functional checks do not establish an independent audio oracle. P21 compares audio-band output from independently written readers on the recorded intervals; it does not exhaustively certify parsing behavior, filter equivalence or device interoperability.')
     atomic(args.results/'commercial-decode-evidence.json',report)
     print('MEDIA',report['full_file_functional_gate'],len(dsd512),'DSD512 tracks')
     return 0 if (complete or not args.require_media) and not failed else 1
