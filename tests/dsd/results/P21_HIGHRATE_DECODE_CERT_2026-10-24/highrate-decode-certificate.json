@@ -1,0 +1,183 @@
+{
+  "control_already_certified": {
+    "decode.mastering.v2.dsd256": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 7.211530655270943e-10,
+          "grid_points": 2049,
+          "localized_extrema": 62,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 5.841643136619195e-09,
+          "grid_points": 4097,
+          "localized_extrema": 44,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.721623287746211e-10,
+          "grid_points": 4097,
+          "localized_extrema": 789,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -182.83901862874717,
+      "delay_native_frames": 6052,
+      "discard_frames": 94,
+      "factor": 64,
+      "high_precision_alias_db": -182.83902080834648,
+      "high_precision_ripple_db": 5.842133014971875e-09,
+      "high_precision_stop_db": -188.5853497630896,
+      "incoherent_flat_image_sum_db": -189.2608711490438,
+      "intermediate_hz": 176400,
+      "native_hz": 11289600,
+      "pass_hz": 66000,
+      "pass_ripple_db": 5.84213880093667e-09,
+      "passes": true,
+      "phase_native_frames": 36,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master256_v2"
+      ],
+      "stop_hz": 80000,
+      "stop_max_db": -188.5853517876355,
+      "synthetic_f4_noise_weighted_image_db": -177.9142833611386,
+      "worst_alias_base_hz": 65762.80749152054,
+      "worst_pass_hz": 57226.04110826165,
+      "worst_stop_hz": 80000.0
+    }
+  },
+  "delay_identity": {
+    "decode.mastering.v2.dsd1024": {
+      "agrees": true,
+      "cascade_identity": 24292,
+      "published": 24292
+    },
+    "decode.mastering.v2.dsd512": {
+      "agrees": true,
+      "cascade_identity": 12132,
+      "published": 12132
+    }
+  },
+  "does_not_establish": "Device behaviour, and the composite fractional SRC gate, which remains separate.",
+  "elapsed_seconds": 20.584826092701405,
+  "establishes": "The reused final bank behind 6 and 7 half-bands meets the same passband, stopband and image bounds the DSD256 v2 row meets.",
+  "final_bank_reused": "master256_v2",
+  "method": "independent P06-derivative composite certifier: localized adaptive extrema for passband ripple and stopband peak, full coherent image sum over k=1..D-1, separate incoherent power sum",
+  "profiles": {
+    "decode.mastering.v2.dsd1024": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 7.278683231484725e-10,
+          "grid_points": 2049,
+          "localized_extrema": 62,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 5.885838264381497e-09,
+          "grid_points": 4097,
+          "localized_extrema": 44,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.721623287783088e-10,
+          "grid_points": 4097,
+          "localized_extrema": 862,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -182.75854196220794,
+      "delay_native_frames": 24292,
+      "discard_frames": 94,
+      "factor": 256,
+      "high_precision_alias_db": -182.75854480657006,
+      "high_precision_ripple_db": 5.886341643318697e-09,
+      "high_precision_stop_db": -188.5853497630035,
+      "incoherent_flat_image_sum_db": -189.26833348883753,
+      "intermediate_hz": 176400,
+      "native_hz": 45158400,
+      "pass_hz": 66000,
+      "pass_ripple_db": 5.8863455006285595e-09,
+      "passes": true,
+      "phase_native_frames": 228,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master256_v2"
+      ],
+      "stop_hz": 80000,
+      "stop_max_db": -188.58535178754943,
+      "synthetic_f4_noise_weighted_image_db": -177.4909125831016,
+      "worst_alias_base_hz": 65763.49424561724,
+      "worst_pass_hz": 57226.26815565963,
+      "worst_stop_hz": 80000.0
+    },
+    "decode.mastering.v2.dsd512": {
+      "adaptive_extrema": {
+        "alias": {
+          "grid_max": 7.265205659063124e-10,
+          "grid_points": 2049,
+          "localized_extrema": 62,
+          "optimized_candidates": 16
+        },
+        "passband": {
+          "grid_max": 5.876976094969873e-09,
+          "grid_points": 4097,
+          "localized_extrema": 44,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.7216232877756723e-10,
+          "grid_points": 4097,
+          "localized_extrema": 1087,
+          "optimized_candidates": 20
+        }
+      },
+      "coherent_alias_sum_db": -182.77463635991379,
+      "delay_native_frames": 12132,
+      "discard_frames": 94,
+      "factor": 128,
+      "high_precision_alias_db": -182.7746379674888,
+      "high_precision_ripple_db": 5.877475616597209e-09,
+      "high_precision_stop_db": -188.58534976302084,
+      "incoherent_flat_image_sum_db": -189.26787113298667,
+      "intermediate_hz": 176400,
+      "native_hz": 22579200,
+      "pass_hz": 66000,
+      "pass_ripple_db": 5.877479473907073e-09,
+      "passes": true,
+      "phase_native_frames": 100,
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master256_v2"
+      ],
+      "stop_hz": 80000,
+      "stop_max_db": -188.5853517875667,
+      "synthetic_f4_noise_weighted_image_db": -177.63395444776586,
+      "worst_alias_base_hz": 65763.35116186013,
+      "worst_pass_hz": 57226.30119993107,
+      "worst_stop_hz": 80000.0
+    }
+  },
+  "rows_under_test": [
+    "decode.mastering.v2.dsd1024",
+    "decode.mastering.v2.dsd512"
+  ],
+  "schema": "sox-ng/p21-highrate-decode-certificate/1",
+  "source": "C99 production header bytes, not generator output",
+  "verdict": "PASS"
+}
