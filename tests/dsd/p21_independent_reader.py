@@ -34,12 +34,78 @@ MIN_CHANNEL_MARGIN = 0.01    # same-channel r must exceed cross-channel r
 MAX_CONTROL_PEARSON = 0.5    # a different track must NOT pass
 ANALYSIS_BAND_HZ   = (0, 20000)
 
+# (cli flag or None for the default path, profile id, output Hz by native clock)
 PROFILES = (
-    # (cli flag value or None for the default path, output Hz, profile id)
-    ('mastering', 176400, 'decode.mastering.v1'),
-    ('wideband',  705600, 'decode.wideband.v1'),
-    (None,        176400, 'decode.mastering.v2'),   # the CLI default path
+    ('mastering', 'decode.mastering.v1', {22579200: 176400,  45158400: 176400}),
+    ('wideband',  'decode.wideband.v1',  {22579200: 705600,  45158400: 1411200}),
+    (None,        'decode.mastering.v2', {22579200: 176400,  45158400: 176400}),
 )
+SELF_RATES = (22579200, 45158400)
+SELF_CONTAINERS = ('dsf', 'dff')
+
+def make_sources(sox, scratch, seconds, count=2, from_tracks=None,
+                 start=0.0, timeout=1800):
+    """Make media at every clock and container, then hand it back for reading.
+
+    Self-encoded media cannot validate our encoder; that would be circular. It
+    validates the READER: a second implementation parsing a file we wrote has
+    to recover the same audio, so a reader fault, a writer fault, or both would
+    have to be wrong in the same direction to pass. It cannot cover real-world
+    header variation, unusual chunk order, or DST-compressed DFF, because these
+    files only exercise the shapes our own writer emits.
+
+    The stimulus is real program material where licensed tracks are available.
+    Synthetic tone-plus-noise was tried first and measured the wrong thing:
+    agreement tracked content frequency and oversampling ratio -- 0.9974 at
+    DSD512 for an 11 kHz tone against 0.9998 at DSD1024 -- while channel
+    identity, level and the negative control stayed perfect. That is
+    reconstruction-filter divergence, which this gate explicitly does not test.
+    Commercially mastered content gives 0.99997, so deriving from it keeps one
+    threshold across provenance rather than a looser one here.
+
+    Derived PCM is scratch only. It never reaches evidence, and the licensed
+    source appears solely as a SHA-256.
+    """
+    import numpy as np
+    srcs, fs = [], 176400
+    for k in range(count):
+        raw = scratch / f'src{k}.f64'
+        origin = None
+        if from_tracks and k < len(from_tracks):
+            cmd = [str(sox), '--dsd-layout-loss', 'warn', '-D',
+                   str(from_tracks[k]), '-t', 'f64', '-r', str(fs), '-c', '2',
+                   str(raw), 'trim', str(start), str(seconds)]
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+            if r.returncode == 0 and raw.is_file() and raw.stat().st_size > 0:
+                origin = 'derived-from-licensed-pcm'
+        if origin is None:
+            # Fallback only. Distinct content per source so the negative
+            # control means something, and decorrelated channels so the
+            # channel-identity check can discriminate: duplicating one signal
+            # into both makes a swap undetectable in principle.
+            n = int(fs * seconds)
+            tt = np.arange(n, dtype=np.float64) / fs
+            rng = np.random.default_rng(0x50D0 + k)
+            chans = []
+            for c in (0, 1):
+                tone = sum(np.sin(2 * np.pi * f * tt + 0.7 * c)
+                           for f in (131 * (k + 1) + 37 * c, 997 + 11 * c,
+                                     5501 * (k + 1) + 97 * c))
+                chans.append(np.clip(0.10 * tone + 0.05 * rng.uniform(-1., 1., n),
+                                     -0.9, 0.9))
+            np.stack(chans, axis=1).astype('<f8').tofile(raw)
+            origin = 'synthetic'
+        for rate in SELF_RATES:
+            for container in SELF_CONTAINERS:
+                dest = scratch / f'self{k}-{rate}-{container}.{container}'
+                cmd = [str(sox), '-t', 'f64', '-r', str(fs), '-c', '2', str(raw),
+                       '-t', container, '-r', str(rate), str(dest)]
+                r = subprocess.run(cmd, capture_output=True, text=True)
+                if r.returncode != 0 or not dest.is_file():
+                    raise RuntimeError(f'could not encode self media {dest.name}: '
+                                       + r.stderr[-400:])
+                srcs.append((dest, rate, container, k, origin))
+    return srcs
 
 def sha(path):
     h = hashlib.sha256()
@@ -127,8 +193,13 @@ def judge(metrics):
 def main():
     a = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    a.add_argument('--media-root', type=Path, required=True,
+    a.add_argument('--media-root', type=Path, default=None,
         help='private licensed DSF directory; never copied into evidence')
+    a.add_argument('--self-encoded', action='store_true',
+        help='additionally generate media at every clock and container and '
+             'cross-read it; covers rows for which no licensed media exists')
+    a.add_argument('--self-sources', type=int, default=2,
+        help='distinct self-encoded sources; at least 2 for a negative control')
     a.add_argument('--sox', type=Path, default=ROOT / 'src/sox')
     a.add_argument('--reference', type=Path, default=Path('/usr/bin/ffmpeg'),
         help='independently written DSD reader used as the second opinion')
@@ -146,12 +217,19 @@ def main():
             a.error(f'{p} not found: {getattr(args, p)}')
     if args.seconds <= 0 or args.start_seconds < 0:
         a.error('start-seconds must be >= 0 and seconds > 0')
-    root = args.media_root.resolve()
-    if not root.is_dir():
-        a.error('media directory missing')
-    tracks = sorted(p for p in root.rglob('*') if p.is_file() and p.suffix.lower() == '.dsf')
-    if not tracks and args.require_media:
-        a.error('no .dsf media found')
+    if args.media_root is None and not args.self_encoded:
+        a.error('supply --media-root, --self-encoded, or both')
+    if args.self_encoded and args.self_sources < 2:
+        a.error('--self-sources must be at least 2 so a negative control exists')
+    tracks = []
+    if args.media_root is not None:
+        root = args.media_root.resolve()
+        if not root.is_dir():
+            a.error('media directory missing')
+        tracks = sorted(p for p in root.rglob('*')
+                        if p.is_file() and p.suffix.lower() == '.dsf')
+        if not tracks and args.require_media:
+            a.error('no .dsf media found')
 
     import tempfile
     scratch_ctx = (tempfile.TemporaryDirectory(prefix='p21-reader-')
@@ -163,22 +241,58 @@ def main():
         capture_output=True, text=True).stdout.splitlines()[:1]
     runner_sha, sox_sha = sha(Path(__file__)), sha(args.sox)
 
-    cases, qualified = [], {}
+    # Unified work list. Commercial media is DSD512 DSF only, so the
+    # self-encoded entries are what reach DFF at either clock and DSD1024 at
+    # all. Provenance travels with every case and is never averaged away.
+    work = []
     for i, track in enumerate(tracks):
+        control = tracks[(i + 1) % len(tracks)] if len(tracks) > 1 else None
+        work.append(dict(path=track, rate=None, container='dsf',
+                         provenance='commercial', control=control, group=f'c{i}'))
+    if args.self_encoded:
+        made = make_sources(args.sox, scratch, args.seconds, args.self_sources,
+                            from_tracks=tracks, start=args.start_seconds,
+                            timeout=args.timeout)
+        for path, rate, container, k, origin in made:
+            peer = next((q for q, r2, c2, k2, _o in made
+                         if r2 == rate and c2 == container and k2 != k), None)
+            work.append(dict(path=path, rate=rate, container=container,
+                             provenance='self-encoded', control=peer,
+                             stimulus_origin=origin,
+                             group=f's{k}-{rate}-{container}'))
+
+    cases, qualified = [], {}
+    for item in work:
+        track = item['path']
         tsha = sha(track); token = tsha[:20]
-        control_track = tracks[(i + 1) % len(tracks)] if len(tracks) > 1 else None
-        for flag, out_hz, pid in PROFILES:
-            ours = scratch / f'{token}-{pid}-ours.f64'
-            refp = scratch / f'{token}-{pid}-ref.f64'
-            ctlp = scratch / f'{token}-{pid}-ctl.f64' if control_track else None
+        control_track = item['control']
+        for flag, pid, out_map in PROFILES:
+            native = item['rate']
+            if native is None:  # commercial: ask the file what clock it is
+                probe = subprocess.run([str(args.sox), '--i', '-r', str(track)],
+                                       capture_output=True, text=True)
+                try:
+                    native = int(float(probe.stdout.strip()))
+                except ValueError:
+                    native = 22579200
+            out_hz = out_map.get(native)
+            if out_hz is None:
+                continue
+            tag = f'{token}-{item["container"]}-{pid}'
+            ours = scratch / f'{tag}-ours.f64'
+            refp = scratch / f'{tag}-ref.f64'
+            ctlp = scratch / f'{tag}-ctl.f64' if control_track else None
             started = time.monotonic()
+            # self-encoded clips are only `seconds` long, so start at zero
+            start = args.start_seconds if item['provenance'] == 'commercial' else 0.0
+            span = args.seconds if item['provenance'] == 'commercial' else args.seconds / 2
             rc_o, err_o = decode_ours(args.sox, track, flag, out_hz, ours,
-                                      args.start_seconds, args.seconds, args.timeout)
+                                      start, span, args.timeout)
             rc_r, err_r = decode_reference(args.reference, track, out_hz, refp,
-                                           args.start_seconds, args.seconds, args.timeout)
+                                           start, span, args.timeout)
             if ctlp is not None:
                 decode_reference(args.reference, control_track, out_hz, ctlp,
-                                 args.start_seconds, args.seconds, args.timeout)
+                                 start, span, args.timeout)
             metrics, why = (None, 'decode failed') if (rc_o or rc_r) else \
                 compare(ours, refp, ctlp, out_hz)
             passed, reasons = judge(metrics)
@@ -188,6 +302,9 @@ def main():
             row = dict(schema='P21/independent-reader-case/1',
                 status='PASS' if passed else 'FAIL',
                 source_sha256=tsha, source_id=token, source_bytes=track.stat().st_size,
+                media_provenance=item['provenance'], container=item['container'],
+                stimulus_origin=item.get('stimulus_origin', 'licensed-original'),
+                native_hz=native, capability_row=f'{item["container"]}-read-{native}',
                 profile_id=pid, cli_decode_flag=flag or '(default)',
                 output_hz=out_hz, start_seconds=args.start_seconds,
                 seconds=args.seconds,
@@ -202,22 +319,39 @@ def main():
                 elapsed_seconds=time.monotonic() - started,
                 establishes='container parse, interleave, bit order, alignment, gross gain',
                 does_not_establish='filter equivalence, device interoperability')
-            atomic(args.results / 'cases' / f'{token}-{pid}.json', row)
+            atomic(args.results / 'cases' / f'{tag}.json', row)
             cases.append(row)
-            qualified.setdefault(pid, []).append(passed)
-            print(row['status'], token, pid, flush=True)
+            qualified.setdefault((item['provenance'], native, item['container'], pid),
+                                 []).append(passed)
+            print(row['status'], item['provenance'][:4], native, item['container'],
+                  pid, flush=True)
             for p in (ours, refp, ctlp):
                 if p is not None and p.is_file():
                     p.unlink()
     if scratch_ctx:
         scratch_ctx.cleanup()
 
+    # Per capability row, and never blended across provenance. A row backed
+    # only by media we wrote ourselves is a weaker claim than one backed by
+    # commercially mastered files, and the evidence has to say which it is.
+    rows_qualified, rows_by_provenance = {}, {}
+    for (prov, native, container, pid), results in qualified.items():
+        row = f'{container}-read-{native}'
+        rows_qualified.setdefault(row, []).extend(results)
+        rows_by_provenance.setdefault(row, set()).add(prov)
+    rows_qualified = {r: all(v) and bool(v) for r, v in rows_qualified.items()}
+    rows_by_provenance = {r: sorted(s) for r, s in rows_by_provenance.items()}
+
     any_fail = any(c['status'] == 'FAIL' for c in cases)
     gate = 'PASS' if (cases and not any_fail) else ('FAIL' if any_fail else 'UNRUN')
     report = dict(schema='P21/independent-reader-evidence/1',
         independent_reader_and_audio_reference_gate=gate,
         tracks=len({c['source_sha256'] for c in cases}), case_count=len(cases),
-        profiles_qualified={pid: (bool(v) and all(v)) for pid, v in qualified.items()},
+        profiles_qualified={pid: (bool(v) and all(v)) for pid, v in
+            {k[3]: [x for kk, vv in qualified.items() if kk[3] == k[3] for x in vv]
+             for k in qualified}.items()},
+        rows_qualified=rows_qualified,
+        rows_by_provenance=rows_by_provenance,
         media_sha256=sorted({c['source_sha256'] for c in cases}),
         case_receipts={f'cases/{c["source_id"]}-{c["profile_id"]}.json': c['status']
                        for c in cases},
@@ -229,8 +363,20 @@ def main():
                     'from the same file: container parse, interleave, bit order, '
                     'alignment and gross gain.',
         does_not_establish='Filter equivalence; the reference reconstructs differently '
-                    'by design. Device interoperability. DSD1024 read, for which no '
-                    'independent media exists.',
+                    'by design. Device interoperability. For rows backed only by '
+                    'self-encoded media: real-world header variation, unusual chunk '
+                    'order, and DST-compressed DFF, since such files exercise only '
+                    'the shapes our own writer emits.',
+        provenance_note='A row listed under self-encoded alone rests on a '
+                    'weaker claim than one under commercial, in two ways. It '
+                    'shows our reader agrees with an independent one on '
+                    'well-formed files at that clock, not that it handles files '
+                    'in the wild. And it is an easier test: the stimulus was '
+                    'decoded through our own filter before being re-encoded, so '
+                    'it carries only content that filter passes. Measured '
+                    'agreement is accordingly better on self-encoded cases than '
+                    'on commercial ones, which is a property of the stimulus '
+                    'rather than evidence of a better-behaved reader.',
         device_claims=[])
     atomic(args.results / 'independent-reader-evidence.json', report)
     print('INDEPENDENT_READER', gate, report['tracks'], 'tracks', len(cases), 'cases')
