@@ -1,0 +1,61 @@
+{
+  "capability_row": "dff-read-45158400",
+  "cli_decode_flag": "mastering",
+  "container": "dff",
+  "does_not_establish": "filter equivalence, device interoperability",
+  "elapsed_seconds": 8.940637899097055,
+  "establishes": "container parse, interleave, bit order, alignment, gross gain",
+  "failure_reasons": [],
+  "media_provenance": "self-encoded",
+  "metrics": {
+    "analysis_band_hz": [
+      0,
+      20000
+    ],
+    "channels": [
+      {
+        "channel": 0,
+        "cross_channel_pearson_r": 0.9588603810685032,
+        "level_delta_db": 1.7596557448171867e-05,
+        "pearson_r": 0.999995836364959
+      },
+      {
+        "channel": 1,
+        "cross_channel_pearson_r": 0.9587944784658975,
+        "level_delta_db": 1.713986033518558e-05,
+        "pearson_r": 0.9999959451157865
+      }
+    ],
+    "control_pearson_r": [
+      0.010354607007070131,
+      0.012576362251538627
+    ],
+    "frames_compared": 882000
+  },
+  "native_hz": 45158400,
+  "output_hz": 176400,
+  "profile_id": "decode.mastering.v1",
+  "reference": [
+    "ffmpeg version 7.1.3-0+deb13u1 Copyright (c) 2000-2025 the FFmpeg developers"
+  ],
+  "reference_exit": 0,
+  "reference_stderr_tail": "",
+  "runner_sha256": "872f0241f72039cc63c78d4a3cd6b273d569165196ca3eec5471709fb27d4cdc",
+  "schema": "P21/independent-reader-case/1",
+  "seconds": 10.0,
+  "source_bytes": 112896130,
+  "source_id": "30b4351752c6e1bae7f0",
+  "source_sha256": "30b4351752c6e1bae7f0c0da3b83435e0dc2ae5c04f673610eb1fce08ee1f940",
+  "sox_exit": 0,
+  "sox_sha256": "03786db4125f5c00f47e806d8225a8cf717a068caafc3e3dbf92e6dd52d82989",
+  "sox_stderr_tail": "sox WARN sox_ng: discarding DSD channel layout for `f8' (--dsd-layout-loss warn)\nsox WARN sox_ng: P05: signed 24-bit unavailable; selecting 64-bit PCM encoding 3\nsox WARN sox_ng: discarding DSD channel layout for `f8' (--dsd-layout-loss warn)\n",
+  "start_seconds": 5.0,
+  "status": "PASS",
+  "stimulus_origin": "derived-from-licensed-pcm",
+  "thresholds": {
+    "max_control_pearson": 0.5,
+    "max_level_delta_db": 0.1,
+    "min_channel_margin": 0.01,
+    "min_pearson": 0.999
+  }
+}

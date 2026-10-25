@@ -1,27 +1,51 @@
 {
-  "case_count": 36,
+  "case_count": 60,
   "case_receipts": {
+    "cases/07003be856bd9a04089b-decode.mastering.v1.json": "PASS",
+    "cases/07003be856bd9a04089b-decode.mastering.v2.json": "PASS",
+    "cases/07003be856bd9a04089b-decode.wideband.v1.json": "PASS",
     "cases/11ba327933f930e89001-decode.mastering.v1.json": "PASS",
     "cases/11ba327933f930e89001-decode.mastering.v2.json": "PASS",
     "cases/11ba327933f930e89001-decode.wideband.v1.json": "PASS",
     "cases/17a480473673186c112a-decode.mastering.v1.json": "PASS",
     "cases/17a480473673186c112a-decode.mastering.v2.json": "PASS",
     "cases/17a480473673186c112a-decode.wideband.v1.json": "PASS",
+    "cases/17d63ef917b3cbab3ae1-decode.mastering.v1.json": "PASS",
+    "cases/17d63ef917b3cbab3ae1-decode.mastering.v2.json": "PASS",
+    "cases/17d63ef917b3cbab3ae1-decode.wideband.v1.json": "PASS",
+    "cases/1aa24984207465427af5-decode.mastering.v1.json": "PASS",
+    "cases/1aa24984207465427af5-decode.mastering.v2.json": "PASS",
+    "cases/1aa24984207465427af5-decode.wideband.v1.json": "PASS",
     "cases/2c5a0f16e7517351316f-decode.mastering.v1.json": "PASS",
     "cases/2c5a0f16e7517351316f-decode.mastering.v2.json": "PASS",
     "cases/2c5a0f16e7517351316f-decode.wideband.v1.json": "PASS",
+    "cases/30b4351752c6e1bae7f0-decode.mastering.v1.json": "PASS",
+    "cases/30b4351752c6e1bae7f0-decode.mastering.v2.json": "PASS",
+    "cases/30b4351752c6e1bae7f0-decode.wideband.v1.json": "PASS",
     "cases/48f40bd356e51ba9a8c2-decode.mastering.v1.json": "PASS",
     "cases/48f40bd356e51ba9a8c2-decode.mastering.v2.json": "PASS",
     "cases/48f40bd356e51ba9a8c2-decode.wideband.v1.json": "PASS",
     "cases/4910e88a2611adf64147-decode.mastering.v1.json": "PASS",
     "cases/4910e88a2611adf64147-decode.mastering.v2.json": "PASS",
     "cases/4910e88a2611adf64147-decode.wideband.v1.json": "PASS",
+    "cases/4a2b93c6e22cfdeefe79-decode.mastering.v1.json": "PASS",
+    "cases/4a2b93c6e22cfdeefe79-decode.mastering.v2.json": "PASS",
+    "cases/4a2b93c6e22cfdeefe79-decode.wideband.v1.json": "PASS",
     "cases/7354fb734394a72e9391-decode.mastering.v1.json": "PASS",
     "cases/7354fb734394a72e9391-decode.mastering.v2.json": "PASS",
     "cases/7354fb734394a72e9391-decode.wideband.v1.json": "PASS",
     "cases/7d9106d9edee23b5b7df-decode.mastering.v1.json": "PASS",
     "cases/7d9106d9edee23b5b7df-decode.mastering.v2.json": "PASS",
     "cases/7d9106d9edee23b5b7df-decode.wideband.v1.json": "PASS",
+    "cases/87eb4c61b1a6a67b7683-decode.mastering.v1.json": "PASS",
+    "cases/87eb4c61b1a6a67b7683-decode.mastering.v2.json": "PASS",
+    "cases/87eb4c61b1a6a67b7683-decode.wideband.v1.json": "PASS",
+    "cases/97aa00fd1e88a880facd-decode.mastering.v1.json": "PASS",
+    "cases/97aa00fd1e88a880facd-decode.mastering.v2.json": "PASS",
+    "cases/97aa00fd1e88a880facd-decode.wideband.v1.json": "PASS",
+    "cases/b8e810180f2da96daa01-decode.mastering.v1.json": "PASS",
+    "cases/b8e810180f2da96daa01-decode.mastering.v2.json": "PASS",
+    "cases/b8e810180f2da96daa01-decode.wideband.v1.json": "PASS",
     "cases/bd77575cfc9034e4a4d1-decode.mastering.v1.json": "PASS",
     "cases/bd77575cfc9034e4a4d1-decode.mastering.v2.json": "PASS",
     "cases/bd77575cfc9034e4a4d1-decode.wideband.v1.json": "PASS",
@@ -39,7 +63,7 @@
     "cases/fa5d910162a04e936285-decode.wideband.v1.json": "PASS"
   },
   "device_claims": [],
-  "does_not_establish": "Filter equivalence; the reference reconstructs differently by design. Device interoperability. DSD1024 read, for which no independent media exists.",
+  "does_not_establish": "Filter equivalence; the reference reconstructs differently by design. Device interoperability. For rows backed only by self-encoded media: real-world header variation, unusual chunk order, and DST-compressed DFF, since such files exercise only the shapes our own writer emits.",
   "establishes": "A second independently written reader recovers the same audio from the same file: container parse, interleave, bit order, alignment and gross gain.",
   "host": {
     "machine": "x86_64",
@@ -48,13 +72,21 @@
   },
   "independent_reader_and_audio_reference_gate": "PASS",
   "media_sha256": [
+    "07003be856bd9a04089ba7cbb807197edea889cbf2e38df14d3b7e33d53d4a86",
     "11ba327933f930e8900150037d010923400ffbcf175ed3bef47501607ac6a687",
     "17a480473673186c112abf8a98ab417eb659addf4356b7a953b01a3d6c44f134",
+    "17d63ef917b3cbab3ae177bc0cbb32300e1b461a8713800bb6bae419d11189ce",
+    "1aa24984207465427af5fb53a552e62bedf7eeef67dde99713b35cbc8c8b4b50",
     "2c5a0f16e7517351316f9263937b4db5b17c6b2c1edfbc4fa7fb2925cf5b94ee",
+    "30b4351752c6e1bae7f0c0da3b83435e0dc2ae5c04f673610eb1fce08ee1f940",
     "48f40bd356e51ba9a8c2e719169eb02cbadd7fe681229c2fdb525e9f53905b80",
     "4910e88a2611adf64147eefc16ce55791bbc28cbfa6a673804725f40318d96ed",
+    "4a2b93c6e22cfdeefe79e91310d6e428777cf4c779a01018450aede9bbb0ed86",
     "7354fb734394a72e9391cdc12b42f43cd7330541f9947729e1501bc6988f97b6",
     "7d9106d9edee23b5b7df8ff832af1bc42cf3c5a2f209fcfca957beb898c1b6ac",
+    "87eb4c61b1a6a67b7683716a3b2666c2c2fd13de423c9f960637a1a0e60adece",
+    "97aa00fd1e88a880facd24d84c1d8553b128801cd27d77dc1816ec15276e9b48",
+    "b8e810180f2da96daa01ef0f7e1557a98c4bc0c9a7babf8838bfab82b3cc2bb4",
     "bd77575cfc9034e4a4d1a8e40526826c7eee95a886da4b3b3715b4f3ef44fe9a",
     "d394b11ca29dfcc735eebeb9add26b3b7b41fd01152b3d7dc13b76b564aca502",
     "dd0a7a47018f029161e18dd1b303ec7ccec7bc17b974dae687c34161bfbfeb86",
@@ -66,10 +98,32 @@
     "decode.mastering.v2": true,
     "decode.wideband.v1": true
   },
+  "provenance_note": "A row listed under self-encoded alone rests on a weaker claim than one under commercial, in two ways. It shows our reader agrees with an independent one on well-formed files at that clock, not that it handles files in the wild. And it is an easier test: the stimulus was decoded through our own filter before being re-encoded, so it carries only content that filter passes. Measured agreement is accordingly better on self-encoded cases than on commercial ones, which is a property of the stimulus rather than evidence of a better-behaved reader.",
   "reference": [
     "ffmpeg version 7.1.3-0+deb13u1 Copyright (c) 2000-2025 the FFmpeg developers"
   ],
-  "runner_sha256": "4140a7f83a074cffb9d238c8909c0b31cdf97d36dcecc95098913e9395dd8552",
+  "rows_by_provenance": {
+    "dff-read-22579200": [
+      "self-encoded"
+    ],
+    "dff-read-45158400": [
+      "self-encoded"
+    ],
+    "dsf-read-22579200": [
+      "commercial",
+      "self-encoded"
+    ],
+    "dsf-read-45158400": [
+      "self-encoded"
+    ]
+  },
+  "rows_qualified": {
+    "dff-read-22579200": true,
+    "dff-read-45158400": true,
+    "dsf-read-22579200": true,
+    "dsf-read-45158400": true
+  },
+  "runner_sha256": "872f0241f72039cc63c78d4a3cd6b273d569165196ca3eec5471709fb27d4cdc",
   "schema": "P21/independent-reader-evidence/1",
   "sox_sha256": "03786db4125f5c00f47e806d8225a8cf717a068caafc3e3dbf92e6dd52d82989",
   "thresholds": {
@@ -78,5 +132,5 @@
     "min_channel_margin": 0.01,
     "min_pearson": 0.999
   },
-  "tracks": 12
+  "tracks": 20
 }
