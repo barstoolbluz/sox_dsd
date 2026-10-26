@@ -50,11 +50,38 @@ commercial evidence for `dsf-read-45158400` exists, stays false when that
 clock's media is self-encoded only, and stays false when the reader gate
 does not pass.
 
-The remaining DSD1024 blocker is real but narrower than recorded: the
-project needs independently produced DSD1024 media. Commercial DSD1024
-releases effectively do not exist, since the clock is an upsampling target
-rather than a distribution format, so the achievable standard is
-third-party-encoded rather than commercially released.
+The remaining DSD1024 blocker is simply that no DSD1024 media is held yet.
+
+An earlier draft of this amendment claimed commercial DSD1024 releases
+effectively do not exist and that the achievable standard was therefore
+third-party-encoded rather than commercially released. That was wrong, and
+the operator corrected it. Commercial DSD1024 titles are sold; NativeDSD,
+the source of the twelve DSD512 tracks this project already qualifies
+against, is among the vendors offering them. The claim was an unchecked
+generalisation from DSD1024's role as an upsampling target, and it mattered
+because it recast a purchase as an impossibility.
+
+Whether a given DSD1024 title was recorded natively or upconverted from a
+lower-rate master does not affect this gate. `provenance_note` already
+states that commercial denotes operator-supplied files under `--media-root`
+and that authenticity is not independently verified. What the row tests is
+our reader against an independent reader on files we did not produce.
+
+What binding the clock requires:
+
+    container   DSF. The verdict anchors on dsf-read-45158400, mirroring
+                the DSD512 anchor; DFF purchases land in dff-read-45158400,
+                which the verdict does not consult.
+    channels    stereo; the functional receipt asserts channels == 2.
+    count       at least two distinct commercial sources, since
+                summarize_cases requires len(commercial) >= 2 before a row
+                counts as commercially qualified.
+    collector   --expected-dsd1024-tracks N, N >= 1, or the clock stays
+                unevaluated by design.
+
+Nothing else changes. The reader gate's global verdict stays anchored on
+DSD512 commercial evidence, and the DSD1024 entries bind through
+`commercial_rows['dsf-read-45158400']` with no further code change.
 
 ## 2. Two profile rows that do not exist
 
