@@ -76,12 +76,20 @@ unsigned lsx_dsd_features_host(void);
  * read ONCE for this context: SOX_DSD_KERNEL_FIR / SOX_DSD_KERNEL_SDM.
  * The earlier LSX_DSD_FIR_KERNEL / LSX_DSD_SDM_KERNEL spellings are
  * compatibility aliases only, consulted if the matching SOX variable is unset.
- * Selection has no process-wide mutable cache. Unknown CPUs prefer SSE2 for
- * FIR, scalar for mastering SDM until a new kernel is qualified.
+ * Selection has no process-wide mutable cache. Unknown CPUs use scalar.
+ * SDM auto selects an available exact vector tier, with CPU feature and
+ * x87/excess-precision safeguards. A rate-aware entry point is used by the
+ * normal PCM-to-DSD encoder; the legacy entry point has no rate hint.
  * Returns 0, -1 for invalid name/family, -2 for unavailable tier. On error
  * *out is NULL and the caller must reject context creation. */
 int lsx_dsd_kernel_select(enum lsx_dsd_kernel_family family,
     const char *requested, const lsx_dsd_kernel **out);
+/* Rate-aware SDM selection; honours the same environment-variable precedence
+ * and the same explicit overrides as lsx_dsd_kernel_select. */
+int lsx_dsd_kernel_select_sdm_rate(const char *requested,
+    unsigned native_hz, const lsx_dsd_kernel **out);
+int lsx_dsd_kernel_select_sdm_rate_features(const char *requested,
+    unsigned features, unsigned native_hz, const lsx_dsd_kernel **out);
 /* Same algorithm with injected capabilities, for deterministic tests. */
 int lsx_dsd_kernel_select_features(enum lsx_dsd_kernel_family family,
     const char *requested, unsigned features, const lsx_dsd_kernel **out);

@@ -23,6 +23,16 @@ static inline int lsx_sdm_normal_reject_nonfinite(sdm_normal_t *s)
   return -1;
 }
 
+/* LSX_SDM_ACCEPT_FINITE_V may be defined only in an isolated SIMD TU
+ * whose one call site has already proved isfinite(v) on the complete,
+ * scalar-ordered sum containing every active next[i]. IEEE-754 addition
+ * cannot turn an intermediate NaN or infinity back into a finite value,
+ * including the 0*infinity case. Hence finite v implies finite next[i].
+ * Keep all scalar/default callers unmodified; the specialization only
+ * elides provably redundant classification, never the FP arithmetic. */
+#if defined(LSX_SDM_ACCEPT_FINITE_V) && defined(__FAST_MATH__)
+#error "finite-v specialization requires strict IEEE-754 arithmetic"
+#endif
 static inline int lsx_sdm_normal_accept(sdm_normal_t *s, double x, double v,
     unsigned order, int *bit, const double *bounds, unsigned *coordinate)
 {
@@ -30,19 +40,29 @@ static inline int lsx_sdm_normal_accept(sdm_normal_t *s, double x, double v,
   double *next = s->state[s->bank ^ 1];
   unsigned i;
   int y;
+#if !defined(LSX_SDM_ACCEPT_FINITE_V)
   if (!isfinite(v)) goto nonfinite;
+#endif
   for (i = 0; i < order; ++i) {
+#if !defined(LSX_SDM_ACCEPT_FINITE_V)
     if (!isfinite(next[i])) {
       if (coordinate) *coordinate=i;
       goto nonfinite;
     }
+#endif
     if (bounds && fabs(next[i])>bounds[i]) {
       if (coordinate) *coordinate=i;
       return -2; /* no decision or active-bank commit on finite runaway */
     }
   }
 
+#if defined(LSX_SDM_INLINE_DECISION)
+  /* The original helper is exactly this sign-bit expression. Keeping it
+   * local avoids a call and live-register spills in isolated SIMD TUs. */
+  y = signbit(v) ? -1 : 1;
+#else
   y = sdm_normal_decision(v);
+#endif
   *bit = y;
   s->bank ^= 1;
   s->previous_decision = (double)y;

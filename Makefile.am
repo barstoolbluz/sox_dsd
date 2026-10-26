@@ -609,9 +609,9 @@ EXTRA_DIST += docs/dsd/handoffs/P10_ADJUDICATION.md \
 # isolation and host-specific throughput characterization.
 EXTRA_DIST += \
   docs/dsd/handoffs/P11.md docs/dsd/handoffs/P11_CHECKPOINT.md \
-  tests/dsd/test_p11.c tests/dsd/test_p11_numeric.py \
+  tests/dsd/test_sdm_auto.c tests/dsd/test_p11.c tests/dsd/test_p11_numeric.py \
   tests/dsd/test_p11_integration.py tests/dsd/test_p11_p10_regression.py \
-  tests/dsd/check_p11_isa.py tests/dsd/bench_p11.py \
+  tests/dsd/check_p11_isa.py tests/dsd/test_check_p11_isa.py tests/dsd/bench_p11.py \
   tests/dsd/bench_p11_e2e.py
 EXTRA_DIST += tests/dsd/sanitize_p11_results.py
 EXTRA_DIST += tests/dsd/qualify_p11_avx1_emulator.py
@@ -737,3 +737,22 @@ check-sync-waveaudio:
 	python3 $(srcdir)/tests/sync/test_waveaudio_teardown.py --source $(abs_srcdir)
 
 check-sync: check-sync-url check-sync-p10 check-sync-p16-p18 check-sync-waveaudio
+
+# Register-resident SDM qualification and independent original scalar oracle.
+EXTRA_DIST += docs/dsd/SDM_REGISTER_PROOF.md \
+  tests/dsd/SDM_REGISTER_QUALIFICATION.md \
+  tests/dsd/test_sdm_register.c tests/dsd/run_sdm_register.py \
+  tests/dsd/run_sdm_existing.py \
+  tests/dsd/build_sdm_native.py tests/dsd/check_sdm_register_isa.py \
+  tests/dsd/prepare_sdm_canonical.py \
+  tests/dsd/bench_sdm_register.c tests/dsd/paired_sdm_bench.py \
+  tests/dsd/paired_sdm_e2e.py \
+  tests/dsd/reference/sdm_register_oracle/README.md \
+  tests/dsd/reference/sdm_register_oracle/provenance.json \
+  tests/dsd/reference/sdm_register_oracle/sdm.c \
+  tests/dsd/reference/sdm_register_oracle/dsd_kernels_scalar.c \
+  tests/dsd/reference/sdm_register_oracle/sdm_normal_commit_i.h \
+  tests/dsd/reference/sdm_register_oracle/sdm_x86.h \
+  tests/dsd/reference/sdm_register_oracle/sdm_p17_candidates.h \
+  tests/dsd/reference/sdm_register_oracle/sdm_p19_candidates.h \
+  tests/dsd/reference/sdm_register_oracle/sdm_p20_candidates.h
