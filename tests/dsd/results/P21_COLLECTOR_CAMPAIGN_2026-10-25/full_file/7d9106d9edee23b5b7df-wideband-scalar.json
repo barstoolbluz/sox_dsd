@@ -1,0 +1,61 @@
+{
+  "command": [
+    "test/dsd_test_p17_dsf",
+    "<licensed-file>",
+    "wideband",
+    "705600",
+    "scalar",
+    "full"
+  ],
+  "decoder": {
+    "bits_per_sample": 1,
+    "channels": 2,
+    "channels_numeric": [
+      {
+        "absolute_peak": 0.2796708211976143,
+        "channel": 0,
+        "dc": 7.636443614224441e-07,
+        "rms": 0.05845496853892926
+      },
+      {
+        "absolute_peak": 0.27619783302255096,
+        "channel": 1,
+        "dc": 9.109157131408499e-07,
+        "rms": 0.05773529658334973
+      }
+    ],
+    "decode_wall_seconds": 588.235785,
+    "destination_hz": 705600,
+    "input_fnv64": "f15435c54283ebd3",
+    "kernel": "scalar",
+    "max_rss_kb_platform_reported": 41552,
+    "native_frames": 7212112824,
+    "packed_expanded_equal": true,
+    "pcm_fnv64": "cf8d125971ee0b3e",
+    "pcm_frames": 225378526,
+    "process_system_cpu_seconds": 0.295971,
+    "process_user_cpu_seconds": 587.791923,
+    "profile": "wideband",
+    "rate_hz": 22579200,
+    "samples_over_0_9": 0,
+    "schema": "P17/dsf-private-full-file/1",
+    "status": "PASS_FUNCTIONAL_ONLY"
+  },
+  "device_interoperability": "NOT_CLAIMED",
+  "elapsed_seconds": 588.2481481330469,
+  "exit_code": 0,
+  "independent_reference_qualification": "UNRUN_NOT_COLLECTED",
+  "instrumented_native_frames_per_second": 12260581.56934468,
+  "instrumented_real_time_factor": 0.5430033645720256,
+  "probe_sha256": "86d746f4437383d61c76131141765767d0aa9cc5ce7aa8dac20c096a52d9c1d7",
+  "profile": "wideband",
+  "runner_sha256": "ea6dd389b83e70608cf0e73000b939cef0c2c14770d614f6cbb202a97587eedd",
+  "schema": "P17/commercial-full-file-case/1",
+  "source_bytes": 1803428070,
+  "source_id": "7d9106d9edee23b5b7df",
+  "source_sha256": "7d9106d9edee23b5b7df8ff832af1bc42cf3c5a2f209fcfca957beb898c1b6ac",
+  "status": "PASS_FUNCTIONAL_ONLY",
+  "stderr_tail": "",
+  "tier": "scalar",
+  "timing_scope": "two independent decode contexts (packed+expanded); NOT shipping single-path throughput"
+}
