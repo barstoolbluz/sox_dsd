@@ -57,7 +57,13 @@ def encode_fake_dsd(destination, raw, requested):
         header = struct.pack('<4sQQQ', b'DSD ', 28, 28 + len(fmt) + len(data), 0)
         destination.write_bytes(header + fmt + data)
     else:
-        prop = b'SND ' + dff_chunk(b'FS  ', struct.pack('>I', native))
+        # A DSDIFF form without CHNL is not a valid one, and the gate's WSD
+        # re-container needs the declared channel count. Pad the stub payload
+        # to a whole number of frames so it is structurally well formed too;
+        # nothing reads these bytes back as JSON.
+        payload += b' ' * (-len(payload) % 2)
+        prop = (b'SND ' + dff_chunk(b'FS  ', struct.pack('>I', native)) +
+                dff_chunk(b'CHNL', struct.pack('>H', 2) + b'SLFT' + b'SRGT'))
         form = (b'DSD ' + dff_chunk(b'FVER', b'\x01\x05\x00\x00') +
                 dff_chunk(b'PROP', prop) + dff_chunk(b'DSD ', payload))
         destination.write_bytes(b'FRM8' + struct.pack('>Q', len(form)) + form)

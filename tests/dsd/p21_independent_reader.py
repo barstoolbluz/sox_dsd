@@ -40,7 +40,17 @@ PROFILES = (
     (None, 'decode.mastering.v2', {22579200: 176400, 45158400: 176400}),
 )
 SELF_RATES = (22579200, 45158400)
-SELF_CONTAINERS = ('dsf', 'dff')
+# Containers this gate covers. WSD is read-only by construction: src/dsd.c
+# rejects endpoint WSD with operation WRITE, so sox cannot author one and the
+# gate derives it from the DFF it just wrote. For a frame count divisible by
+# eight the DSDIFF 'DSD ' payload and the WSD audio area are byte-identical,
+# both being one byte per channel per eight frames with the oldest frame in the
+# most significant bit, so only the container around the bits differs. That is
+# precisely what the WSD read path is under test for, and it means the WSD case
+# carries the same bitstream as its DFF sibling rather than a second encode.
+SELF_CONTAINERS = ('dsf', 'dff', 'wsd')
+SOX_WRITABLE_CONTAINERS = ('dsf', 'dff')
+WSD_DERIVED_FROM = 'dff'
 EXPECTED_ROWS = {f'{ext}-read-{rate}' for ext in SELF_CONTAINERS for rate in SELF_RATES}
 PROFILE_IDS = {pid for _, pid, _ in PROFILES}
 
@@ -100,6 +110,19 @@ def native_dsd_rate(path, container):
                 struct.unpack_from('<II', header, 40) != (1, 0)):
                 raise ValueError('invalid DSF format header')
             return struct.unpack_from('<I', header, 56)[0]
+        if container == 'wsd':
+            header = f.read(72)
+            if len(header) != 72 or header[:4] != b'1bit':
+                raise ValueError('invalid WSD header')
+            if struct.unpack_from('>I', header, 24)[0] != 0x800:
+                raise ValueError('unexpected WSD audio start')
+            end = (struct.unpack_from('>I', header, 12)[0] |
+                   struct.unpack_from('>I', header, 16)[0] << 32)
+            if end > size or end <= 0x800:
+                raise ValueError('invalid WSD data extent')
+            if not 1 <= header[44] <= 6:
+                raise ValueError('invalid WSD channel count')
+            return struct.unpack_from('>I', header, 36)[0]
         if container != 'dff':
             raise ValueError(f'unsupported DSD container: {container}')
         header = f.read(16)
@@ -180,7 +203,7 @@ def make_sources(sox, scratch, seconds, count=2, from_tracks=None,
             np.stack(chans, axis=1).astype('<f8').tofile(raw)
             origin = 'synthetic'
         for rate in SELF_RATES:
-            for container in SELF_CONTAINERS:
+            for container in SOX_WRITABLE_CONTAINERS:
                 dest = scratch / f'self{k}-{rate}-{container}.{container}'
                 cmd = [str(sox), '-t', 'f64', '-r', str(fs), '-c', '2', str(raw),
                        '-t', container, '-r', str(rate), str(dest)]
@@ -197,8 +220,89 @@ def make_sources(sox, scratch, seconds, count=2, from_tracks=None,
                     raise RuntimeError(f'wrong native DSD clock in {dest.name}: '
                                        f'{actual_rate}, requested {rate}')
                 srcs.append((dest, rate, container, k, origin))
+                if container != WSD_DERIVED_FROM:
+                    continue
+                # Re-container the same bitstream as WSD. sox cannot write it,
+                # so this is the only way to exercise the WSD read path, and
+                # keeping the payload identical to the DFF sibling is what makes
+                # a disagreement attributable to container parsing alone.
+                wsd = scratch / f'self{k}-{rate}-wsd.wsd'
+                wsd_rate, wsd_channels, wsd_bytes = wsd_from_dff(dest, wsd)
+                if wsd_rate != rate or wsd_channels != 2 or not wsd_bytes:
+                    raise RuntimeError(f'WSD re-container disagreed with its DFF '
+                                       f'source: {wsd_rate} Hz, {wsd_channels} ch')
+                if native_dsd_rate(wsd, 'wsd') != rate:
+                    raise RuntimeError(f'wrong native DSD clock in {wsd.name}')
+                srcs.append((wsd, rate, 'wsd', k, origin))
         raw.unlink(missing_ok=True)
     return srcs
+
+
+def wsd_from_dff(dff_path, dest):
+    """Re-container a DSDIFF 'DSD ' payload as WSD without touching the bits.
+
+    The audio area is copied byte for byte. Nothing here re-encodes, re-packs or
+    re-orders the bitstream, so a disagreement between our WSD reader and the
+    independent one is a container-parsing fault and cannot be a modulator or
+    filter difference. The header follows WSD v1.1: big-endian, '1bit' magic,
+    declared audio start 0x800, the 64-bit end offset split across two
+    big-endian words at 12 and 16, the clock at 36 and the channel count at 44.
+
+    Returns (rate, channels, payload_bytes).
+    """
+    dff_path = Path(dff_path)
+    blob = dff_path.read_bytes()
+    if len(blob) < 16 or blob[:4] != b'FRM8' or blob[12:16] != b'DSD ':
+        raise ValueError('not a DSDIFF form')
+    end = 12 + struct.unpack_from('>Q', blob, 4)[0]
+    if end > len(blob) or end < 16:
+        raise ValueError('invalid DSDIFF form length')
+
+    def walk(start, limit):
+        while start < limit:
+            if limit - start < 12:
+                raise ValueError('truncated DSDIFF chunk header')
+            name = blob[start:start + 4]
+            length = struct.unpack_from('>Q', blob, start + 4)[0]
+            body = start + 12
+            if length > limit - body:
+                raise ValueError('invalid DSDIFF chunk length')
+            yield name, body, length
+            start = body + length + (length & 1)
+
+    payload = rate = channels = None
+    for name, body, length in walk(16, end):
+        if name == b'DSD ':
+            if payload is not None:
+                raise ValueError('multiple DSDIFF audio chunks')
+            payload = blob[body:body + length]
+        elif name == b'PROP' and blob[body:body + 4] == b'SND ':
+            for sub, sbody, slen in walk(body + 4, body + length):
+                if sub == b'FS  ':
+                    if slen != 4:
+                        raise ValueError('invalid DSDIFF sample-rate field')
+                    rate = struct.unpack_from('>I', blob, sbody)[0]
+                elif sub == b'CHNL':
+                    if slen < 2:
+                        raise ValueError('invalid DSDIFF channel chunk')
+                    channels = struct.unpack_from('>H', blob, sbody)[0]
+    if payload is None or rate is None or channels is None:
+        raise ValueError('DSDIFF missing audio, clock or channel count')
+    if not 1 <= channels <= 6:
+        raise ValueError(f'unsupported channel count for WSD: {channels}')
+    if len(payload) % channels:
+        raise ValueError('DSDIFF audio payload is not a whole number of frames')
+
+    end_offset = 0x800 + len(payload)
+    header = (b'1bit' + struct.pack('>I', 0) + bytes([0x11, 0, 0, 0]) +
+              struct.pack('>IIIII', end_offset & 0xffffffff, end_offset >> 32,
+                          0x80, 0x800, 0) +
+              struct.pack('>III', 0, rate, 0) + bytes([channels, 0, 0, 0]) +
+              struct.pack('>IIIII', 0, 0, 0, 0, 0) + struct.pack('>I', 0))
+    if len(header) > 0x800:
+        raise ValueError('WSD header overflow')
+    Path(dest).write_bytes(header + bytes(0x800 - len(header)) + payload)
+    return rate, channels, len(payload)
 
 
 def decode_ours(sox, src, profile, out_hz, dest, start, seconds, timeout):

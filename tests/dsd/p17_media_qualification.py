@@ -61,6 +61,41 @@ def functional_decode_pass(result, rc, profile, out, tier):
             result['pcm_frames'] == (frames * out + rate // 2) // rate)
 
 
+ROW_FOR_NATIVE = {22579200: 'dsf-read-22579200', 45158400: 'dsf-read-45158400'}
+NATIVE_FOR_LABEL = {512: 22579200, 1024: 45158400}
+
+
+def decoder_profile_verdicts(profile_bases, rate_complete, reader_gate,
+                             commercial_rows, row_profiles):
+    """Bind each clock's decode profiles to that clock's own capability row.
+
+    The previous form was a cartesian product over {mastering, wideband} x
+    {v1, v2} x {512, 1024} whose verdict read `rate == 512 and ...`. That had
+    two consequences worth naming. The four DSD1024 entries were false by
+    literal, so they would have stayed false even if independent DSD1024 media
+    had been supplied; the adjacent `missing_media` string read like a measured
+    conclusion but merely restated the hardcode. And the product invented
+    decode.wideband.v2.dsd512 and .dsd1024, which exist at no rate: src/dsd.c
+    defines mastering v1, mastering v2 and wideband v1 only.
+
+    Enumerating the reader gate's own PROFILE_IDS against the rates yields
+    exactly the six decode ids that exist. Each verdict now requires that
+    clock's functional completeness, a passing reader gate, commercial
+    provenance on that clock's row, and that row qualifying the profile. A
+    clock with no evidence reports false because its evidence is absent, and
+    qualifies without a code change once that evidence exists.
+    """
+    verdicts = {}
+    for label, native in sorted(NATIVE_FOR_LABEL.items()):
+        row = ROW_FOR_NATIVE[native]
+        for base in sorted(profile_bases):
+            verdicts[f'{base}.dsd{label}'] = bool(
+                rate_complete.get(native) and reader_gate == 'PASS' and
+                commercial_rows.get(row) is True and
+                row_profiles.get(row, {}).get(base) is True)
+    return verdicts
+
+
 def validate_reader_evidence(report_path, commercial_hashes, sox_path, reference_path):
     """Recompute P21 qualification from bound case receipts, never summary flags."""
     from p21_independent_reader import (CASE_SCHEMA, REPORT_SCHEMA, EXPECTED_ROWS,
@@ -199,6 +234,8 @@ def main():
     a.add_argument('--probe',type=Path,default=ROOT/'test/dsd_test_p17_dsf')
     a.add_argument('--results',type=Path,default=ROOT/'tests/dsd/results/P17_qualification_2026-10-21/media')
     a.add_argument('--expected-dsd512-tracks',type=int,default=12)
+    a.add_argument('--expected-dsd1024-tracks',type=int,default=0,
+        help='independent DSD1024 tracks required to bind that clock; 0 leaves it unevaluated')
     a.add_argument('--tiers',default='scalar')
     a.add_argument('--timeout-per-track',type=int,default=14400)
     a.add_argument('--require-media',action='store_true')
@@ -210,7 +247,7 @@ def main():
         default=ROOT/'tests/dsd/results/P21_INDEPENDENT_READER_2026-10-24/independent-reader-evidence.json',
         help='verdict from tests/dsd/p21_independent_reader.py; absent means UNRUN')
     args=a.parse_args();args.probe=args.probe.resolve();args.results=args.results.resolve()
-    if args.expected_dsd512_tracks<1 or args.timeout_per_track<1:
+    if args.expected_dsd512_tracks<1 or args.expected_dsd1024_tracks<0 or args.timeout_per_track<1:
         a.error('track count and timeout must be positive')
     if not args.probe.is_file():a.error('DSF probe not built')
     tiers=args.tiers.split(',')
@@ -285,7 +322,7 @@ def main():
         len(r512)==len(dsd512)*len(tiers)*2 and
         all(x['status']=='PASS_FUNCTIONAL_ONLY' for x in r512) and
         all(x['source_sha256'] in dsd512|dsd1024 for x in cases))
-    reader_gate, reader_ref, row_profiles = 'UNRUN', None, {}
+    reader_gate, reader_ref, row_profiles, commercial_rows = 'UNRUN', None, {}, {}
     if (args.independent_reader_evidence is not None and
             args.independent_reader_evidence.is_file()):
         try:
@@ -303,19 +340,25 @@ def main():
             reader_ref = dict(path=os.path.relpath(
                 args.independent_reader_evidence.resolve(), ROOT),
                 media_sha256_match=False, validation_error=str(ex))
-    profile_qualification = {}
-    for rate in (512, 1024):
-        for kind in ('mastering', 'wideband'):
-            for version in ('v1', 'v2'):
-                pid = f'decode.{kind}.{version}.dsd{rate}'
-                base = f'decode.{kind}.{version}'
-                profile_qualification[pid] = bool(
-                    rate == 512 and complete and reader_gate == 'PASS' and
-                    row_profiles.get('dsf-read-22579200', {}).get(base) is True)
+    # Per-clock functional completeness, so each rate answers for itself
+    # instead of inheriting DSD512's verdict.
+    expected={22579200:args.expected_dsd512_tracks,45158400:args.expected_dsd1024_tracks}
+    rate_complete={}
+    for rate,sources in by_rate.items():
+        entries=[x for x in cases if x['source_sha256'] in sources]
+        want=expected[rate]
+        rate_complete[rate]=bool(not failed and want>0 and len(sources)>=want and
+            len(entries)==len(sources)*len(tiers)*2 and
+            all(x['status']=='PASS_FUNCTIONAL_ONLY' for x in entries))
+    from p21_independent_reader import PROFILE_IDS as READER_PROFILE_IDS
+    profile_qualification=decoder_profile_verdicts(READER_PROFILE_IDS,rate_complete,
+        reader_gate,commercial_rows,row_profiles)
     report=dict(schema='P17/commercial-decoder-evidence/1',
         probe_sha256=binary_sha,runner_sha256=runner_sha,
         host=dict(node=platform.node(),os=platform.platform(),machine=platform.machine()),
         expected_dsd512_tracks=args.expected_dsd512_tracks,
+        expected_dsd1024_tracks=args.expected_dsd1024_tracks,
+        rate_functional_complete={str(k):v for k,v in sorted(rate_complete.items())},
         distinct_dsd512_tracks=len(dsd512),distinct_dsd1024_tracks=len(dsd1024),
         case_count=len(cases),
         full_file_functional_gate='PASS' if complete else ('FAIL' if failed else 'UNRUN_OR_INCOMPLETE'),
@@ -324,7 +367,11 @@ def main():
         decoder_profile_qualified=profile_qualification,
         independent_reader_and_audio_reference_gate=reader_gate,
         independent_reader_evidence=reader_ref,
-        missing_media='No independent DSD1024 licensed media provided',
+        missing_media=(None if rate_complete.get(45158400) else
+            ('No independent DSD1024 licensed media provided'
+             if args.expected_dsd1024_tracks<1 else
+             f'DSD1024 evidence incomplete: {len(dsd1024)} of '
+             f'{args.expected_dsd1024_tracks} expected tracks')),
         device_claims=[],public_capabilities_enabled=False,qualification='UNQUALIFIED',
         note='P17 full-file functional checks do not establish an independent audio oracle. P21 compares audio-band output from independently written readers on the recorded intervals; it does not exhaustively certify parsing behavior, filter equivalence or device interoperability.')
     atomic(args.results/'commercial-decode-evidence.json',report)
