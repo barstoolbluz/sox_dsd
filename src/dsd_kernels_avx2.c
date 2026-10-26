@@ -4,7 +4,13 @@
  * Compile with -mavx2 -mno-fma -ffp-contract=off -fno-lto. No FMA path. */
 #include "sox_i.h"
 #include "dsd_kernels.h"
+#define LSX_SDM_ACCEPT_FINITE_V 1
+#define LSX_SDM_INLINE_DECISION 1
 #include "sdm_normal_commit_i.h"
+#undef LSX_SDM_INLINE_DECISION
+#undef LSX_SDM_ACCEPT_FINITE_V
+#include "sdm_exact_vector_i.h"
+#include "sdm_register_i.h"
 #include <immintrin.h>
 #include <math.h>
 
@@ -88,43 +94,9 @@ double lsx_dsd_fir_avx2_direct(const double *h,size_t taps,
   return acc;
 }
 
-/* Canonical eight-coordinate normal SDM state recurrence, with neighbor
- * vectors constructed by FULL-WIDTH AVX2 64-bit lane permutation.
- * prev0=[x-y,s0,s1,s2], next0=[s1,s2,s3,s4]
- * prev1=[s3,s4,s5,s6], next1=[s5,s6,s7,s6] (g[7] is inactive).
- * s3/s4 are the explicitly handled cross-vector boundary elements.
- * Preserve multiply, add, subtract ordering; no contraction permitted. */
-static double sdm_avx2_math(const double *src,double *dst,
-    const double *a,const double *g,double x,double y)
-{
-  __m256d old0=_mm256_loadu_pd(src),old1=_mm256_loadu_pd(src+4);
-  __m256d prev0,prev1,next0,next1,state0,state1,weighted,swap;
-  prev0=_mm256_blend_pd(
-      _mm256_permute4x64_pd(old0,_MM_SHUFFLE(2,1,0,0)),
-      _mm256_set1_pd(x-y),1);
-  next0=_mm256_blend_pd(
-      _mm256_permute4x64_pd(old0,_MM_SHUFFLE(3,3,2,1)),
-      _mm256_permute4x64_pd(old1,0),8);
-  prev1=_mm256_blend_pd(
-      _mm256_permute4x64_pd(old1,_MM_SHUFFLE(2,1,0,0)),
-      _mm256_permute4x64_pd(old0,0xff),1);
-  next1=_mm256_permute4x64_pd(old1,_MM_SHUFFLE(2,3,2,1));
-  state0=_mm256_sub_pd(_mm256_add_pd(old0,prev0),
-                       _mm256_mul_pd(next0,_mm256_loadu_pd(g)));
-  state1=_mm256_sub_pd(_mm256_add_pd(old1,prev1),
-                       _mm256_mul_pd(next1,_mm256_loadu_pd(g+4)));
-  _mm256_storeu_pd(dst,state0);
-  _mm256_storeu_pd(dst+4,state1);
-  weighted=_mm256_add_pd(_mm256_mul_pd(state0,_mm256_loadu_pd(a)),
-                         _mm256_mul_pd(state1,_mm256_loadu_pd(a+4)));
-  /* Identical reduction tree to the AVX1 2x128 horizontal sum, but the
-   * 256-bit cross-half shuffle is a single AVX2 full-width permutation. */
-  swap=_mm256_permute4x64_pd(weighted,0x4e);
-  weighted=_mm256_add_pd(weighted,swap);
-  swap=_mm256_permute4x64_pd(weighted,0xb1);
-  weighted=_mm256_add_pd(weighted,swap);
-  return x+_mm_cvtsd_f64(_mm256_castpd256_pd128(weighted));
-}
+/* Normal SDM keeps order-seven/eight state in registers, vectorizes only
+ * independent middle coordinates, and retains the first/terminal scalar
+ * expressions and serial decision sum. No contraction is permitted. */
 
 static int sdm_avx2_block(sdm_normal_t *s,const double *input,
     size_t frames,sox_sample_t *output,size_t *committed,
@@ -138,18 +110,49 @@ static int sdm_avx2_block(sdm_normal_t *s,const double *input,
   if (!s || !s->profile || !committed || (frames && (!input || !output)) ||
       sdm_profile_coefficients(s->profile,&a,&g,&order) || order<4 || order>8)
     return -1;
+#if defined(__i386__) || FLT_EVAL_METHOD != 0
+  /* i386/x87 and excess-precision builds cannot promise SSE/AVX bitwise
+   * equivalence to the scalar's extended intermediates. */
+  return lsx_dsd_kernel_scalar.sdm_block(s,input,frames,output,committed,
+                                          bounds,coordinate,envelope,peak);
+#endif
+  if (!frames) return 0;
+  /* Register/monitor caching is valid only with disjoint object spans.
+   * The scalar block also preserves legacy legal aliases and unusual FP
+   * environments, including the sample-before-peak-load ordering. */
+  if (!lsx_sdm_register_safe(s,input,frames,output,committed,bounds,
+                             coordinate,peak,order))
+    return lsx_dsd_kernel_scalar.sdm_block(s,input,frames,output,committed,
+                                          bounds,coordinate,envelope,peak);
+  if (order==7)
+    return lsx_sdm_register7(s,input,frames,output,committed,bounds,
+                              coordinate,envelope,peak,a,g);
+  if (order==8)
+    return lsx_sdm_register8(s,input,frames,output,committed,bounds,
+                              coordinate,envelope,peak,a,g);
   for (i=0;i<frames;++i) {
     double *next=s->state[s->bank^1];
     double v;
-    unsigned j;
     int bit,rc;
     if (!isfinite(input[i])) return lsx_sdm_normal_reject_nonfinite(s);
     if (peak && fabs(input[i])>*peak) *peak=fabs(input[i]);
     if (fabs(input[i])>envelope) return LSX_DSD_SDM_OVERLOAD;
     if (s->frames==UINT64_MAX) return LSX_DSD_SDM_FRAME_LIMIT;
-    v=sdm_avx2_math(s->state[s->bank],next,a,g,input[i],s->previous_decision);
-    for (j=order;j<8;++j) next[j]=0.0;
-    rc=lsx_sdm_normal_accept(s,input[i],v,order,&bit,bounds,coordinate);
+    v=lsx_sdm_exact_vector_math(s->state[s->bank],next,a,g,order,input[i],s->previous_decision);
+    /* A rare failed arithmetic step is recomputed with the original scalar
+     * instructions to preserve its rejected-bank NaN payload. The original
+     * acceptor only modifies three monitor fields before that rejection. */
+    if (!isfinite(v))
+      return sdm_normal_step_guarded(s,input[i],&bit,bounds,coordinate);
+    {
+      unsigned rejected_coordinate=0;
+      /* isfinite(v) was checked above; therefore no active next[i] can
+       * be nonfinite. Preserve first-failing-coordinate bounds order. */
+      rc=lsx_sdm_normal_accept(s,input[i],v,order,&bit,bounds,
+                                         &rejected_coordinate);
+      if (rc==LSX_DSD_SDM_BOUNDS && coordinate)
+        *coordinate=rejected_coordinate;
+    }
     if (rc) return rc;
     output[i]=bit>0?SOX_SAMPLE_MAX:-SOX_SAMPLE_MAX;
     *committed=i+1;

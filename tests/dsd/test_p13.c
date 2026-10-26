@@ -108,8 +108,22 @@ static int caps(void)
   CHECK(!lsx_dsd_kernel_select_features(LSX_DSD_FIR,"auto",~0u,&k) &&
         k==&lsx_dsd_kernel_sse2);
 #endif
-  CHECK(!lsx_dsd_kernel_select_features(LSX_DSD_SDM,"auto",~0u,&k) &&
-        k==&lsx_dsd_kernel_scalar);
+  CHECK(!lsx_dsd_kernel_select_features(LSX_DSD_SDM,"auto",~0u,&k));
+  /* The rate-unaware API uses the low-rate automatic SDM policy. The
+   * previous scalar-default assertion predates rate-aware SIMD dispatch. */
+#if defined(__i386__) || FLT_EVAL_METHOD != 0
+  CHECK(k==&lsx_dsd_kernel_scalar);
+#elif defined(HAVE_DSD_AVX2)
+  CHECK(k==&lsx_dsd_kernel_avx2);
+#elif defined(HAVE_DSD_AVX512)
+  CHECK(k==&lsx_dsd_kernel_avx512);
+#elif defined(HAVE_DSD_AVX1)
+  CHECK(k==&lsx_dsd_kernel_avx1);
+#elif defined(HAVE_DSD_SSE2)
+  CHECK(k==&lsx_dsd_kernel_sse2);
+#else
+  CHECK(k==&lsx_dsd_kernel_scalar);
+#endif
   puts("P13 PASS CPUID AVX-512F/AVX2 mask, XCR0, FMA failure, defaults");
   return 0;
 }

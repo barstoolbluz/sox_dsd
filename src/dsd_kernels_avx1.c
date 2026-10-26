@@ -2,7 +2,13 @@
  * CPU AVX; NEVER compile with AVX2/FMA flags or whole-program -march=native. */
 #include "sox_i.h"
 #include "dsd_kernels.h"
+#define LSX_SDM_ACCEPT_FINITE_V 1
+#define LSX_SDM_INLINE_DECISION 1
 #include "sdm_normal_commit_i.h"
+#undef LSX_SDM_INLINE_DECISION
+#undef LSX_SDM_ACCEPT_FINITE_V
+#include "sdm_exact_vector_i.h"
+#include "sdm_register_i.h"
 #include <immintrin.h>
 #include <math.h>
 
@@ -48,32 +54,9 @@ double lsx_dsd_fir_avx1_direct(const double *h,size_t taps,
   return acc;
 }
 
-/* Same AVX double state-coordinate shuffle/reduction as the pre-P11 legacy
- * sdm_x86.h AVX branch, adapted to guarded P09 normal-state ownership. */
-static double sdm_avx1_math(const double *src,double *dst,
-    const double *a,const double *g,double x,double y)
-{
-  __m256d s0=_mm256_loadu_pd(src),s1=_mm256_loadu_pd(src+4);
-  __m256d sx=_mm256_set1_pd(x-y);
-  __m256d p0=_mm256_permute_pd(s0,5),p1=_mm256_permute_pd(s1,5);
-  __m256d tx=_mm256_blend_pd(p0,_mm256_permute2f128_pd(sx,p0,0x21),0x5);
-  __m256d t0=_mm256_blend_pd(p1,_mm256_permute2f128_pd(p0,p1,0x21),0x5);
-  __m256d t1=_mm256_permute2f128_pd(tx,t0,0x21);
-  __m256d t2=_mm256_blend_pd(p1,_mm256_permute2f128_pd(p1,p1,0x21),0xa);
-  __m256d v0,v1;
-  __m128d v;
-  s0=_mm256_sub_pd(_mm256_add_pd(s0,tx),
-                   _mm256_mul_pd(t1,_mm256_loadu_pd(g)));
-  s1=_mm256_sub_pd(_mm256_add_pd(s1,t0),
-                   _mm256_mul_pd(t2,_mm256_loadu_pd(g+4)));
-  _mm256_storeu_pd(dst,s0);_mm256_storeu_pd(dst+4,s1);
-  v0=_mm256_mul_pd(s0,_mm256_loadu_pd(a));
-  v1=_mm256_mul_pd(s1,_mm256_loadu_pd(a+4));
-  v0=_mm256_add_pd(v0,v1);
-  v=_mm_add_pd(_mm256_castpd256_pd128(v0),_mm256_extractf128_pd(v0,1));
-  v=_mm_add_pd(v,_mm_permute_pd(v,1));
-  return x+_mm_cvtsd_f64(v);
-}
+/* Normal SDM uses order-specialized register state and a serial, scalar-
+ * ordered decision sum. Other orders retain the existing exact recurrence;
+ * overlapping arguments and unusual FP environments use the scalar block. */
 
 static int sdm_avx1_block(sdm_normal_t *s,const double *input,
     size_t frames,sox_sample_t *output,size_t *committed,
@@ -87,18 +70,49 @@ static int sdm_avx1_block(sdm_normal_t *s,const double *input,
   if (!s || !s->profile || !committed || (frames && (!input || !output)) ||
       sdm_profile_coefficients(s->profile,&a,&g,&order) || order<4 || order>8)
     return -1;
+#if defined(__i386__) || FLT_EVAL_METHOD != 0
+  /* i386/x87 and excess-precision builds cannot promise SSE/AVX bitwise
+   * equivalence to the scalar's extended intermediates. */
+  return lsx_dsd_kernel_scalar.sdm_block(s,input,frames,output,committed,
+                                          bounds,coordinate,envelope,peak);
+#endif
+  if (!frames) return 0;
+  /* Register/monitor caching is valid only with disjoint object spans.
+   * The scalar block also preserves legacy legal aliases and unusual FP
+   * environments, including the sample-before-peak-load ordering. */
+  if (!lsx_sdm_register_safe(s,input,frames,output,committed,bounds,
+                             coordinate,peak,order))
+    return lsx_dsd_kernel_scalar.sdm_block(s,input,frames,output,committed,
+                                          bounds,coordinate,envelope,peak);
+  if (order==7)
+    return lsx_sdm_register7(s,input,frames,output,committed,bounds,
+                              coordinate,envelope,peak,a,g);
+  if (order==8)
+    return lsx_sdm_register8(s,input,frames,output,committed,bounds,
+                              coordinate,envelope,peak,a,g);
   for (i=0;i<frames;++i) {
     double *next=s->state[s->bank^1];
     double v;
-    unsigned j;
     int bit,rc;
     if (!isfinite(input[i])) return lsx_sdm_normal_reject_nonfinite(s);
     if (peak && fabs(input[i])>*peak) *peak=fabs(input[i]);
     if (fabs(input[i])>envelope) return LSX_DSD_SDM_OVERLOAD;
     if (s->frames==UINT64_MAX) return LSX_DSD_SDM_FRAME_LIMIT;
-    v=sdm_avx1_math(s->state[s->bank],next,a,g,input[i],s->previous_decision);
-    for (j=order;j<8;++j) next[j]=0.0;
-    rc=lsx_sdm_normal_accept(s,input[i],v,order,&bit,bounds,coordinate);
+    v=lsx_sdm_exact_vector_math(s->state[s->bank],next,a,g,order,input[i],s->previous_decision);
+    /* A rare failed arithmetic step is recomputed with the original scalar
+     * instructions to preserve its rejected-bank NaN payload. The original
+     * acceptor only modifies three monitor fields before that rejection. */
+    if (!isfinite(v))
+      return sdm_normal_step_guarded(s,input[i],&bit,bounds,coordinate);
+    {
+      unsigned rejected_coordinate=0;
+      /* isfinite(v) was checked above; therefore no active next[i] can
+       * be nonfinite. Preserve first-failing-coordinate bounds order. */
+      rc=lsx_sdm_normal_accept(s,input[i],v,order,&bit,bounds,
+                                         &rejected_coordinate);
+      if (rc==LSX_DSD_SDM_BOUNDS && coordinate)
+        *coordinate=rejected_coordinate;
+    }
     if (rc) return rc;
     output[i]=bit>0?SOX_SAMPLE_MAX:-SOX_SAMPLE_MAX;
     *committed=i+1;

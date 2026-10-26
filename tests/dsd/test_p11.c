@@ -80,7 +80,8 @@ static void test_caps(void)
   CHECK(lsx_dsd_kernel_select_features(LSX_DSD_SDM,"sse2",0,&k)==-2 && !k,
         "unsupported SDM force fails closed");
   CHECK(lsx_dsd_kernel_select_features(LSX_DSD_SDM,"auto",3,&k)==0 &&
-        k==&lsx_dsd_kernel_scalar,"certified master remains scalar by default");
+        k && (k->required_features & ~3u)==0 && k->sdm_block,
+        "auto chooses supported non-FMA SDM implementation");
   CHECK(lsx_dsd_kernel_select_features(LSX_DSD_FIR,"auto",0,&k)==0 &&
         k==&lsx_dsd_kernel_scalar,"non-x86 scalar fallback");
 #if defined(HAVE_DSD_SSE2)

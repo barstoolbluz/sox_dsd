@@ -431,14 +431,17 @@ def main():
                 w.setnchannels(1);w.setsampwidth(4);w.setframerate(88200)
                 w.writeframes(b''.join(struct.pack('<i',int(.1*2147483647)) for _ in range(frames)))
             dst=d/'encoded.dsf';report=d/'encoded.json'
+            # Report provenance must describe the requested kernel. Automatic
+            # SDM dispatch is qualified separately by test_sdm_auto; it no
+            # longer has an unconditional scalar default.
             p=run(args.candidate.resolve(),'--dsd-mode','auto','--dsd-report',report,
-                  '-D',pcm,'-r','2822400',dst)
+                  '-D',pcm,'-r','2822400',dst,env={'SOX_DSD_KERNEL_SDM':'scalar'})
             require(p.returncode==0,p.stderr[-800:])
             doc=json.loads(report.read_text());valid_report(doc)
             enc=doc['processing']['encoder'];require(len(enc)==1,'missing actual encoder')
             facts=enc[0]
             require(facts['sdm_kernel_actual']=='scalar',
-                    f'expected inherited automatic scalar SDM, got {facts["sdm_kernel_actual"]}')
+                    f'forced scalar SDM misreported: {facts["sdm_kernel_actual"]}')
             require(facts['profile_id']=='encode.mastering.v1.dsd64','wrong encoder ID')
             require(len(facts['coefficient_certificate_sha256'])==64,'missing certificate')
             require(facts['committed_native_frames']==str(frames*32),'encoder output count')
@@ -459,7 +462,7 @@ def main():
                               else -2147483646) for i in range(frames)))
             dst=d/'encoder-overload.dsf';report=d/'encoder-overload.json'
             p=run(args.candidate.resolve(),'--dsd-mode','auto','--dsd-report',report,
-                  '-D',pcm,'-r','2822400',dst)
+                  '-D',pcm,'-r','2822400',dst,env={'SOX_DSD_KERNEL_SDM':'scalar'})
             require(p.returncode!=0,'interpolation overload silently accepted')
             require('overload' in p.stderr,'missing P10 overload diagnostic')
             require(not dst.exists(),'partial output remains after encoder overload')

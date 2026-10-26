@@ -133,7 +133,7 @@ endif
 # -fno-lto prevents cross-ISA inlining in builds enabling global LTO.
 if HAVE_DSD_SSE2
 noinst_LTLIBRARIES = libdsd_kernels_sse2.la
-libdsd_kernels_sse2_la_SOURCES = dsd_kernels_sse2.c dsd_kernels.h sdm_normal_commit_i.h
+libdsd_kernels_sse2_la_SOURCES = dsd_kernels_sse2.c dsd_kernels.h sdm_normal_commit_i.h sdm_exact_vector_i.h sdm_register_i.h sdm_register_kernel_i.h
 libdsd_kernels_sse2_la_CFLAGS = $(WARN_CFLAGS) @DSD_SSE2_CFLAGS@
 libsox_ng_la_LIBADD += libdsd_kernels_sse2.la
 else
@@ -141,21 +141,21 @@ noinst_LTLIBRARIES =
 endif
 if HAVE_DSD_AVX1
 noinst_LTLIBRARIES += libdsd_kernels_avx1.la
-libdsd_kernels_avx1_la_SOURCES = dsd_kernels_avx1.c dsd_kernels.h sdm_normal_commit_i.h
+libdsd_kernels_avx1_la_SOURCES = dsd_kernels_avx1.c dsd_kernels.h sdm_normal_commit_i.h sdm_exact_vector_i.h sdm_register_i.h sdm_register_kernel_i.h
 libdsd_kernels_avx1_la_CFLAGS = $(WARN_CFLAGS) @DSD_AVX1_CFLAGS@
 libsox_ng_la_LIBADD += libdsd_kernels_avx1.la
 endif
 # P12 isolated AVX2: genuine 256-bit lane permutations, no FMA dependency.
 if HAVE_DSD_AVX2
 noinst_LTLIBRARIES += libdsd_kernels_avx2.la
-libdsd_kernels_avx2_la_SOURCES = dsd_kernels_avx2.c dsd_kernels.h sdm_normal_commit_i.h
+libdsd_kernels_avx2_la_SOURCES = dsd_kernels_avx2.c dsd_kernels.h sdm_normal_commit_i.h sdm_exact_vector_i.h sdm_register_i.h sdm_register_kernel_i.h
 libdsd_kernels_avx2_la_CFLAGS = $(WARN_CFLAGS) @DSD_AVX2_CFLAGS@
 libsox_ng_la_LIBADD += libdsd_kernels_avx2.la
 endif
 # P13: isolated AVX-512F; do not include DQ, BW, VL, FMA or global flags.
 if HAVE_DSD_AVX512
 noinst_LTLIBRARIES += libdsd_kernels_avx512.la
-libdsd_kernels_avx512_la_SOURCES = dsd_kernels_avx512.c dsd_kernels.h sdm_normal_commit_i.h
+libdsd_kernels_avx512_la_SOURCES = dsd_kernels_avx512.c dsd_kernels.h sdm_normal_commit_i.h sdm_exact_vector_i.h sdm_register_i.h sdm_register_kernel_i.h
 libdsd_kernels_avx512_la_CFLAGS = $(WARN_CFLAGS) @DSD_AVX512_CFLAGS@
 libsox_ng_la_LIBADD += libdsd_kernels_avx512.la
 endif

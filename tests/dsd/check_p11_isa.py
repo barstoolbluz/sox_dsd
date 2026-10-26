@@ -38,6 +38,9 @@ def inspect_objdump(path):
     # AVX1 legally uses vperm2f128 and vpermilpd. VEX-encoded 128-bit
     # integer instructions may also be AVX1, so classify any suspicious
     # 256-bit integer operation by its YMM operand, not the "vp" prefix.
+    # VPTEST is also legal with YMM operands in AVX1. Its 256-bit intrinsic
+    # is declared in the AVX (not AVX2) header:
+    # https://clang.llvm.org/doxygen/avxintrin_8h.html
     avx2_only=('vpermq','vpermpd','vperm2i128','vgather',
                'vextracti128','vinserti128','vbroadcasti128','vpbroadcast',
                'vpsrlv','vpsrav','vpsllv','vpblendd')
@@ -46,7 +49,7 @@ def inspect_objdump(path):
         parts=line.split('\t')
         if len(parts)<3:continue
         asm=parts[2].strip()
-        if '%ymm' in asm and re.match(r'vp(?!erm(?:2f128|ilpd)\b)[A-Za-z0-9]+',asm):
+        if '%ymm' in asm and re.match(r'vp(?!erm(?:2f128|ilpd)\b|test\b)[A-Za-z0-9]+',asm):
             forbidden_avx2.append(asm.split()[0])
     forbidden_avx2=sorted(set(forbidden_avx2))
     forbidden_fma=[m for m in counts if m.startswith(('vfmadd','vfmsub','vfnmadd','vfnmsub'))]

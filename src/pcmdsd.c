@@ -186,7 +186,7 @@ sox_dsd_status_t lsx_pcmdsd_candidate_create(uint32_t source_hz,
   if (rc!=SOX_DSD_OK) {lsx_pcmdsd_destroy(p);return rc;}
   /* A forced unavailable ISA fails context creation, never execution. */
   {
-    int sel=lsx_dsd_kernel_select(LSX_DSD_SDM,NULL,&p->sdm_kernel);
+    int sel=lsx_dsd_kernel_select_sdm_rate(NULL,native_hz,&p->sdm_kernel);
     if (sel) {
       lsx_pcmdsd_destroy(p);
       return sel==-2 ? SOX_DSD_UNSUPPORTED : SOX_DSD_BAD_ARGUMENT;

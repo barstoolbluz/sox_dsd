@@ -118,6 +118,12 @@ dsd_test_p10_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p10_LDADD = $(top_builddir)/src/libsox_ng.la
 
 # P11 executable mocked CPUID and real per-ISA FIR/SDM contract tests.
+# Rate-aware auto dispatch and scalar-bitwise equivalence regression.
+EXTRA_PROGRAMS += dsd_test_sdm_auto
+dsd_test_sdm_auto_SOURCES = ../tests/dsd/test_sdm_auto.c ../src/sdm.c
+dsd_test_sdm_auto_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_sdm_auto_LDADD = $(top_builddir)/src/libsox_ng.la
+
 EXTRA_PROGRAMS += dsd_test_p11
 dsd_test_p11_SOURCES = ../tests/dsd/test_p11.c ../src/sdm.c
 dsd_test_p11_CPPFLAGS = -I$(top_srcdir)/src

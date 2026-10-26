@@ -2,6 +2,7 @@
  * -march=native, or compiler flags enabling cross-target inlining. */
 #include "sox_i.h"
 #include "dsd_kernels.h"
+#include <float.h>
 #include <stdlib.h>
 #include <string.h>
 #if defined(__i386__) || defined(__x86_64__)
@@ -74,21 +75,69 @@ unsigned lsx_dsd_features_host(void)
 #endif
 }
 
-int lsx_dsd_kernel_select_features(enum lsx_dsd_kernel_family family,
-    const char *requested, unsigned features, const lsx_dsd_kernel **out)
+/* Selection is deterministic and paid for once when an encoder context is
+ * created. The two tiers whose kernel cost is closest are chosen by rate;
+ * higher rates favor the 512F implementation, and lower rates AVX2. No FMA
+ * specialization is inferred from CPUID and no tier is selected unless its
+ * object was actually built and its OS-managed register state is available.
+ *
+ * Rate is a policy input, not an ISA capability. The static ranking is a
+ * measured default, not a claim that every CPU favors the same tier. */
+static const char *sdm_auto_name(unsigned features, unsigned native_hz)
+{
+#if defined(__i386__) || FLT_EVAL_METHOD != 0
+  /* x87 can retain extra precision; SIMD is not the scalar reference. */
+  (void)features; (void)native_hz;
+  return "scalar";
+#else
+#if defined(HAVE_DSD_AVX512)
+  if (native_hz >= 22579200u &&
+      (features & (LSX_DSD_CPU_SSE2 | LSX_DSD_CPU_AVX1 |
+                   LSX_DSD_CPU_AVX2 | LSX_DSD_CPU_AVX512F)) ==
+                  (LSX_DSD_CPU_SSE2 | LSX_DSD_CPU_AVX1 |
+                   LSX_DSD_CPU_AVX2 | LSX_DSD_CPU_AVX512F))
+    return "avx512";
+#endif
+#if defined(HAVE_DSD_AVX2)
+  if ((features & (LSX_DSD_CPU_SSE2 | LSX_DSD_CPU_AVX1 |
+                   LSX_DSD_CPU_AVX2)) ==
+                  (LSX_DSD_CPU_SSE2 | LSX_DSD_CPU_AVX1 | LSX_DSD_CPU_AVX2))
+    return "avx2";
+#endif
+#if defined(HAVE_DSD_AVX512)
+  if ((features & (LSX_DSD_CPU_SSE2 | LSX_DSD_CPU_AVX1 |
+                   LSX_DSD_CPU_AVX2 | LSX_DSD_CPU_AVX512F)) ==
+                  (LSX_DSD_CPU_SSE2 | LSX_DSD_CPU_AVX1 |
+                   LSX_DSD_CPU_AVX2 | LSX_DSD_CPU_AVX512F))
+    return "avx512";
+#endif
+#if defined(HAVE_DSD_AVX1)
+  if ((features & (LSX_DSD_CPU_SSE2 | LSX_DSD_CPU_AVX1)) ==
+                  (LSX_DSD_CPU_SSE2 | LSX_DSD_CPU_AVX1))
+    return "avx1";
+#endif
+#if defined(HAVE_DSD_SSE2)
+  if (features & LSX_DSD_CPU_SSE2) return "sse2";
+#endif
+  (void)features; (void)native_hz;
+  return "scalar";
+#endif
+}
+
+static int select_features_at_rate(enum lsx_dsd_kernel_family family,
+    const char *requested, unsigned features, unsigned native_hz,
+    const lsx_dsd_kernel **out)
 {
   const lsx_dsd_kernel *k = NULL;
   if (!out) return -1;
   *out = NULL;
   if (family != LSX_DSD_FIR && family != LSX_DSD_SDM) return -1;
   if (!requested || !*requested || !strcmp(requested, "auto")) {
-    /* P10's scalar SDM is the frozen mastering reference. A wider tier is
-     * not a silent new certification; explicit forcing allows qualification. */
-    if (family == LSX_DSD_SDM) requested = "scalar";
+    if (family == LSX_DSD_SDM) requested = sdm_auto_name(features,native_hz);
 #if defined(HAVE_DSD_SSE2)
     else requested = (features & LSX_DSD_CPU_SSE2) ? "sse2" : "scalar";
 #else
-    else requested = "scalar"; /* compiler has no isolated SSE2 TU */
+    else requested = "scalar";
 #endif
   }
   if (!strcmp(requested, "scalar")) k = &lsx_dsd_kernel_scalar;
@@ -125,8 +174,20 @@ int lsx_dsd_kernel_select_features(enum lsx_dsd_kernel_family family,
   return 0;
 }
 
-int lsx_dsd_kernel_select(enum lsx_dsd_kernel_family family,
-    const char *requested, const lsx_dsd_kernel **out)
+int lsx_dsd_kernel_select_features(enum lsx_dsd_kernel_family family,
+    const char *requested, unsigned features, const lsx_dsd_kernel **out)
+{
+  return select_features_at_rate(family,requested,features,0,out);
+}
+
+int lsx_dsd_kernel_select_sdm_rate_features(const char *requested,
+    unsigned features, unsigned native_hz, const lsx_dsd_kernel **out)
+{
+  return select_features_at_rate(LSX_DSD_SDM,requested,features,native_hz,out);
+}
+
+static int select_host_rate(enum lsx_dsd_kernel_family family,
+    const char *requested, unsigned native_hz, const lsx_dsd_kernel **out)
 {
   const char *name = requested;
   if (!name) {
@@ -141,6 +202,17 @@ int lsx_dsd_kernel_select(enum lsx_dsd_kernel_family family,
       if (!name) name = getenv("LSX_DSD_SDM_KERNEL");
     }
   }
-  return lsx_dsd_kernel_select_features(family, name,
-                                       lsx_dsd_features_host(), out);
+  return select_features_at_rate(family,name,lsx_dsd_features_host(),native_hz,out);
+}
+
+int lsx_dsd_kernel_select(enum lsx_dsd_kernel_family family,
+    const char *requested, const lsx_dsd_kernel **out)
+{
+  return select_host_rate(family,requested,0,out);
+}
+
+int lsx_dsd_kernel_select_sdm_rate(const char *requested,
+    unsigned native_hz, const lsx_dsd_kernel **out)
+{
+  return select_host_rate(LSX_DSD_SDM,requested,native_hz,out);
 }
