@@ -9,7 +9,7 @@ SoX DSD versions itself from `1.0.0`, not from sox_ng's number. The sox_ng
 release a tree is synchronised with is recorded separately, in
 `SOX_DSD_UPSTREAM_BASE` in `configure.ac`, and printed by `sox --version`:
 
-    sox:      SoX DSD v1.0.0 (based on sox_ng 14.8.1)
+    sox:      SoX DSD v1.0.1 (based on sox_ng 14.8.1)
 
 The alternative, versioning as `14.8.0.1+dsd.N`, was rejected deliberately.
 Under that scheme a sync to sox_ng 14.9 would move our version for reasons
