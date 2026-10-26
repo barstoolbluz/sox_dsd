@@ -178,13 +178,39 @@ def main():
             assert info['timeline'][0]==native['timeline'][0]
             return dict(logical_native_frames=n,container_bytes=dst.stat().st_size)
         record('DoP_final_word_completion',dop)
+        # These three case names are frozen. P10's certificate input snapshot,
+        # tests/dsd/results/P10/certificate-input.json, attests that cases with
+        # these names passed, and that snapshot is hashed into
+        # LSX_PCMDSD_CERTIFICATE_SHA256. The names are therefore kept verbatim so
+        # the live cases stay traceable to that attestation; what moved is the
+        # contract they assert, not their identity.
+        #
+        # They were written when the DSD64 mastering encoder was unqualified and
+        # the release gate refused it. 6c2f949fb promoted v2 to default and
+        # activated the encoder, so encode.mastering.v1.dsd64 carries qualified=1
+        # and the gate correctly accepts both automatic and explicit DSD64
+        # encoding. Asserting refusal here would assert behaviour the project
+        # deliberately changed at P15. Refusal remains covered by the
+        # experimental arm, which still resolves no qualified composite, and by
+        # unqualified_profile_unselectable below.
         for mode in ('auto','explicit','experimental'):
             def gate(mode=mode):
                 dst=tmp/f'public-{mode}.dsf'
+                refused=mode=='experimental'
                 extra=() if mode=='auto' else ('pcmdsd',*(['-p','experimental'] if mode=='experimental' else []),'2822400')
-                cp=encode(pcm,dst,extra=extra,exe=a.sox,ok=False)
-                assert 'unqualified' in cp.stderr or 'unavailable' in cp.stderr or 'no qualified composite' in cp.stderr,cp.stderr
-                return dict(exit_code=cp.returncode,output_created=False,diagnostic=clean(cp.stderr))
+                cp=encode(pcm,dst,extra=extra,exe=a.sox,ok=not refused)
+                if refused:
+                    assert ('unqualified' in cp.stderr or 'unavailable' in cp.stderr
+                        or 'no qualified composite' in cp.stderr),cp.stderr
+                    return dict(exit_code=cp.returncode,output_created=False,
+                        refused=True,diagnostic=clean(cp.stderr))
+                assert 'unqualified' not in cp.stderr,cp.stderr
+                info=read_dsf(dst)
+                assert info['frames']==(2003*2822400+88200//2)//88200,info['frames']
+                assert info['rate']==2822400 and info['channels']==1,info
+                assert len(re.findall(r'effects chain: pcmdsd',cp.stderr))==1,cp.stderr
+                return dict(exit_code=cp.returncode,output_created=True,refused=False,
+                    native_frames=info['frames'],diagnostic=clean(cp.stderr))
             record(f'release_gate_{mode}',gate)
         def plan():
             cp=invoke(['--dsd-plan','-D',pcm,'-r','2822400',tmp/'plan.dsf'],exe=a.sox)
@@ -192,9 +218,40 @@ def main():
             data=json.loads(cp.stdout)
             encoded=[s for s in data['steps'] if s['name']=='implicit_pcmdsd']
             assert len(encoded)==1
-            assert data['encoder']['qualified'] is False and data['encoder']['prefilter_design_hz']==88200,data
+            # The invariant this case defends is truthful disclosure, not a fixed
+            # verdict: the plan must state the resolved encoder's qualification
+            # rather than leave it implicit. DSD64 mastering is qualified since
+            # P15, so the plan must say so, must name the profile it resolved,
+            # must still report the 88.2 kHz prefilter design rate, and must
+            # carry the coefficient certificate that qualification rests on.
+            encoder=data['encoder']
+            assert encoder['qualified'] is True,data
+            assert encoder['id']=='encode.mastering.v1.dsd64',data
+            assert encoder['prefilter_design_hz']==88200,data
+            assert isinstance(encoder.get('certificate_sha256'),str) and encoder['certificate_sha256'],data
             return dict(plan=json.loads(clean(json.dumps(data))))
         record('release_plan_discloses_unqualified_profile',plan)
+        def unselectable():
+            """Unqualified encoders are unreachable, not merely refused.
+
+            src/pcmdsd.c keeps encode.mastering.v1.dsd512 and .v1.dsd1024 at
+            qualified=0, and dsd_rates carries only the qualified id at each
+            clock, so lsx_dsd_profile_parse cannot resolve them at all. This is
+            the structural half of the release gate: a profile that never
+            qualified has no CLI spelling, so no run can select it by accident.
+            """
+            rows=[]
+            for ident,rate in (('encode.mastering.v1.dsd512','22579200'),
+                               ('encode.mastering.v1.dsd1024','45158400')):
+                dst=tmp/f'unselectable-{ident}.dsf'
+                cp=invoke(['--dsd-encode',ident,'-D',pcm,'-r',rate,dst],exe=a.sox)
+                assert cp.returncode!=0,(ident,cp.returncode,cp.stdout[-400:])
+                assert not dst.exists(),('unselectable profile produced output',ident)
+                assert '--dsd-encode requires' in cp.stderr,(ident,cp.stderr[-400:])
+                rows.append(dict(id=ident,native_hz=int(rate),exit_code=cp.returncode,
+                    output_created=False,diagnostic=clean(cp.stderr.strip().splitlines()[-1])))
+            return dict(unselectable=rows)
+        record('unqualified_profile_unselectable',unselectable)
         # Reconstruct a candidate tone, then independently re-encode those graph
         # samples with the resolved inverse decoder reference. This checks the
         # DSD provenance scale, not just two spellings of automatic routing.

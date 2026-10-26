@@ -337,7 +337,12 @@ def test_end_to_end_and_collector_validation(full_run):
     report_path = results / 'independent-reader-evidence.json'
     report = json.loads(report_path.read_text())
     assert report['independent_reader_and_audio_reference_gate'] == 'PASS'
-    assert report['case_count'] == 30
+    # 2 self-encoded sources x 2 clocks x 3 containers x 3 profiles, plus the
+    # commercial source's 3 profiles x 2 rows. WSD added the third container.
+    assert report['case_count'] == 42
+    assert {c['container'] for c in
+            (json.loads((results / rel).read_text())
+             for rel in report['case_receipts'])} == set(gate.SELF_CONTAINERS)
     assert not list((results.parent / 'scratch').iterdir())  # no retained PCM
     assert all((results / rel).is_file() for rel in report['case_receipts'])
     assert report['rows_qualified'] == {r: True for r in gate.EXPECTED_ROWS}
@@ -455,7 +460,13 @@ def test_p17_collector_fail_closed_and_profile_scope(tmp_path, full_run):
     assert q['decode.mastering.v1.dsd512']
     assert q['decode.mastering.v2.dsd512']
     assert q['decode.wideband.v1.dsd512']
-    assert not q['decode.wideband.v2.dsd512']
+    # There is no wideband v2 decode profile at any rate, so the report must not
+    # enumerate one. The old cartesian product emitted it as false, which read
+    # as a real capability that had failed to qualify.
+    assert 'decode.wideband.v2.dsd512' not in q
+    assert 'decode.wideband.v2.dsd1024' not in q
+    assert set(q) == {f'{base}.dsd{rate}' for base in gate.PROFILE_IDS
+                      for rate in (512, 1024)}
     assert not any(v for k, v in q.items() if k.endswith('.dsd1024'))
     missing = collect('missing', tmp_path / 'reader-missing.json')
     assert missing['independent_reader_and_audio_reference_gate'] == 'UNRUN'

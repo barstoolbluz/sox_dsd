@@ -1,0 +1,68 @@
+{
+  "capability_row": "dsf-read-22579200",
+  "cli_decode_flag": "(default)",
+  "container": "dsf",
+  "control_exit": 0,
+  "control_sha256": "dd0a7a47018f029161e18dd1b303ec7ccec7bc17b974dae687c34161bfbfeb86",
+  "control_stderr_tail": "",
+  "elapsed_seconds": 16.531287009827793,
+  "failure_reasons": [],
+  "media_provenance": "commercial",
+  "metrics": {
+    "analysis_band_hz": [
+      0,
+      20000
+    ],
+    "channels": [
+      {
+        "channel": 0,
+        "cross_channel_pearson_r": 0.7123371885161407,
+        "level_delta_db": 2.2122782273074503e-05,
+        "max_window_rms_residual": 0.017759922107361516,
+        "pearson_r": 0.9999701418211661
+      },
+      {
+        "channel": 1,
+        "cross_channel_pearson_r": 0.7135328859664147,
+        "level_delta_db": 2.35457039315156e-05,
+        "max_window_rms_residual": 0.020388467956471486,
+        "pearson_r": 0.9999653958690649
+      }
+    ],
+    "control_pearson_r": [
+      0.01583251500870421,
+      0.017469708980377432
+    ],
+    "expected_frames": 1764000,
+    "frames_compared": 1764000
+  },
+  "native_hz": 22579200,
+  "output_hz": 176400,
+  "profile_id": "decode.mastering.v2",
+  "reference": [
+    "ffmpeg version 7.1.3-0+deb13u1 Copyright (c) 2000-2025 the FFmpeg developers"
+  ],
+  "reference_exit": 0,
+  "reference_sha256": "19f19724fc40c9815ebc7439165af8bc589908eead4f15e54e8c66e199cb6de9",
+  "reference_stderr_tail": "",
+  "runner_sha256": "e4da7553e34d21291992f1eb78422c9472f023164998ed48acca4ad3f2d4d3ac",
+  "schema": "P21/independent-reader-case/2",
+  "seconds": 10.0,
+  "source_bytes": 2177114352,
+  "source_id": "11ba327933f930e89001",
+  "source_sha256": "11ba327933f930e8900150037d010923400ffbcf175ed3bef47501607ac6a687",
+  "sox_exit": 0,
+  "sox_sha256": "03786db4125f5c00f47e806d8225a8cf717a068caafc3e3dbf92e6dd52d82989",
+  "sox_stderr_tail": "sox WARN sox_ng: discarding DSD channel layout for `f8' (--dsd-layout-loss warn)\n",
+  "start_seconds": 5.0,
+  "status": "PASS",
+  "stimulus_origin": "licensed-original",
+  "thresholds": {
+    "max_control_pearson": 0.5,
+    "max_level_delta_db": 0.1,
+    "max_window_rms_residual": 0.15,
+    "min_channel_margin": 0.01,
+    "min_pearson": 0.999,
+    "window_seconds": 0.1
+  }
+}
