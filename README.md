@@ -68,6 +68,37 @@ The [SoX-NG repository](https://codeberg.org/sox_ng/sox_ng) and its
 [releases](https://codeberg.org/sox_ng/sox_ng/releases) are **upstream
 SoX-NG**, not SoX DSD.
 
+### Nix (recommended)
+
+The easiest way to build SoX DSD is with Nix. The source tree is a flake,
+and `flake.lock` pins every dependency, so there is nothing else to
+install. With flakes enabled, run it without installing:
+
+    nix run github:barstoolbluz/sox_dsd -- --version
+
+or build it from a checkout:
+
+    nix build            # same as .#full
+    ./result/bin/sox --version
+
+There are three builds:
+
+- `full` (the default): every optional format library, with FFmpeg
+  support. `ffmpeg`, `curl` and `wget` are put on the `PATH` of the
+  installed `sox`, so FFmpeg input and URL input work.
+- `bare`: no optional codecs and no FFmpeg; a static library. Small and
+  quick to build.
+- `checked`: `bare`, plus `make check-dsd` run during the build.
+
+Pick one with `nix build .#bare` or `nix build .#checked`.
+
+If flakes are not enabled, add `--extra-experimental-features 'nix-command flakes'`
+to each `nix` command.
+
+`nix develop` opens a shell with the autotools, every optional library
+and the Python packages the DSD regression suite needs. Inside it, build
+as for a git checkout below.
+
 ### Releases
 
 For a SoX DSD source release on Unix-compatible systems, extract the
