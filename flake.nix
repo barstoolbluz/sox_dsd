@@ -11,6 +11,14 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
+        # The SoX DSD version, read from AC_INIT in configure.ac so it cannot
+        # drift from what `sox --version` reports.
+        version = let
+          lines = pkgs.lib.splitString "\n" (builtins.readFile ./configure.ac);
+          hits = builtins.filter (m: m != null)
+            (map (builtins.match "AC_INIT\\([[]sox_dsd[]], [[]([0-9A-Za-z.+~-]+)[]].*") lines);
+        in builtins.head (builtins.head hits);
+
         # Shared by every variant. autoreconf is needed because the tree
         # ships no configure script.
         nativeDeps = with pkgs; [ autoconf automake libtool pkg-config file ];
@@ -64,7 +72,7 @@
                   wrapWith ? [] }:
           pkgs.stdenv.mkDerivation {
             pname = "sox-dsd-${variant}";
-            version = "14.8.0+git";
+            inherit version;
             src = self;
 
             nativeBuildInputs = nativeDeps
