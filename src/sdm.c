@@ -61,6 +61,7 @@ typedef struct LSX_ALIGN(32) sdm_state {
   uint8_t       next;
   uint8_t       hist;
   uint8_t       hist_used;
+  uint8_t       valid; /* speculative branch admitted by recurrence guard */
   struct sdm_state *parent;
   struct sdm_state *path_list;
 } sdm_state_t;
@@ -86,6 +87,7 @@ struct sdm {
   const sdm_filter_t *filter;
   double        prev_y;
   uint64_t      conv_fail;
+  unsigned      failed; /* fail-closed latch for legacy sdm effect */
   uint8_t       hist[2 * SDM_TRELLIS_MAX_NUM][SDM_TRELLIS_MAX_LAT / 8];
 };
 
@@ -925,14 +927,16 @@ static unsigned sdm_sort_cands(sdm_t *p, sdm_trellis_t *st)
   for (i = 0; i < 2 * p->num_cands; i++) {
     s = &st->sdm[i];
     p->path_hash[s->path & PATH_HASH_MASK] = NULL;
-    if (!i || sdm_cmplt(s, min))
+    if (s->valid && (!min || sdm_cmplt(s, min)))
       min = s;
   }
+
+  if (!min) return 0; /* all speculative paths escaped */
 
   for (i = 0, n = 0; i < 2 * p->num_cands; i++) {
     s = &st->sdm[i];
 
-    if (s->next != min->next)
+    if (!s->valid || s->next != min->next)
       continue;
 
     if (n == p->trellis_num && sdm_cmple(st->act[n - 1], s))
@@ -977,6 +981,36 @@ static unsigned sdm_sort_cands(sdm_t *p, sdm_trellis_t *st)
   return n;
 }
 
+/* Guard the legacy effect at the recurrence boundary, before a decision is
+ * published. These generous power-of-two limits are NOT a stability proof or
+ * a substitute for a qualified coefficient bank. They catch runaway and all
+ * non-finite state, including NaN (for which an ordinary > comparison fails).
+ * The whole effect flow must abort, not fill its remaining output with bits.
+ * The normal and trellis paths share this check but retain their old
+ * coefficient selection, quantizer decisions and state evolution. */
+static int sdm_state_bounded(const double *state, int order)
+{
+  static const double limit[MAX_FILTER_ORDER] = {
+    0x1p+10, 0x1p+12, 0x1p+15, 0x1p+18,
+    0x1p+21, 0x1p+24, 0x1p+27, 0x1p+30
+  };
+  int i;
+  for (i = 0; i < order; ++i)
+    if (!(fabs(state[i]) <= limit[i])) return 0;
+  return 1;
+}
+
+static int sdm_abort(sdm_t *p, size_t *ilen, size_t *olen)
+{
+  if (!p->failed) {
+    p->failed = 1;
+    lsx_fail("modulator state escaped; refusing to write further 1-bit audio");
+  }
+  if (ilen) *ilen = 0;
+  *olen = 0; /* discard all output from this call, including earlier samples */
+  return LSX_EFF_FATAL;
+}
+
 static inline void sdm_step(sdm_t *p, sdm_state_t *cur, sdm_state_t *next,
                             double x)
 {
@@ -993,7 +1027,7 @@ static inline void sdm_step(sdm_t *p, sdm_state_t *cur, sdm_state_t *next,
   }
 }
 
-static sox_sample_t sdm_sample_trellis(sdm_t *p, double x)
+static int sdm_sample_trellis(sdm_t *p, double x, sox_sample_t *sample)
 {
   sdm_trellis_t *st_cur = &p->trellis[p->idx];
   sdm_trellis_t *st_next = &p->trellis[p->idx ^ 1];
@@ -1011,11 +1045,19 @@ static sox_sample_t sdm_sample_trellis(sdm_t *p, double x)
     sdm_state_t *cur = st_cur->act[i];
     sdm_state_t *next = &st_next->sdm[2 * i];
     sdm_step(p, cur, next, x);
+    /* A speculative high-cost trellis branch may escape while its winning
+     * branch remains healthy. Discard only the escaped choices. Aborting for
+     * any losing branch would break otherwise valid trellis encodes. */
+    next[0].valid = sdm_state_bounded(next[0].state, p->filter->order) &&
+                    isfinite(next[0].cost);
+    next[1].valid = sdm_state_bounded(next[1].state, p->filter->order) &&
+                    isfinite(next[1].cost);
     cur->next = sdm_hist_get(p, cur->hist, next_pos);
     cur->hist_used = 0;
   }
 
   new_cands = sdm_sort_cands(p, st_next);
+  if (!new_cands) return -1;
   min_cost = st_next->act[0]->cost;
   output = st_next->act[0]->next;
 
@@ -1047,10 +1089,11 @@ static sox_sample_t sdm_sample_trellis(sdm_t *p, double x)
   p->pos = next_pos;
   p->idx ^= 1;
 
-  return output ? SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
+  *sample = output ? SOX_SAMPLE_MAX : -SOX_SAMPLE_MAX;
+  return 0;
 }
 
-static sox_sample_t sdm_sample(sdm_t *p, double x)
+static int sdm_sample(sdm_t *p, double x, sox_sample_t *sample)
 {
   const sdm_filter_t *f = p->filter;
   double *s0 = p->trellis[0].sdm[p->idx].state;
@@ -1058,20 +1101,25 @@ static sox_sample_t sdm_sample(sdm_t *p, double x)
   double y, v;
 
   v = sdm_filter_calc(s0, s1, f, x, p->prev_y);
+  if (!isfinite(v) || !sdm_state_bounded(s1, f->order)) return -1;
   y = signbit(v) ? -1.0 : 1.0;
 
   p->idx ^= 1;
   p->prev_y = y;
 
-  return y * SOX_SAMPLE_MAX;
+  *sample = y * SOX_SAMPLE_MAX;
+  return 0;
 }
 
 int sdm_process(sdm_t *p, const sox_sample_t *ibuf, sox_sample_t *obuf,
                 size_t *ilen, size_t *olen)
 {
   sox_sample_t *out = obuf;
-  size_t len = *ilen = min(*ilen, *olen);
+  size_t len;
   double x;
+
+  if (p->failed) return sdm_abort(p, ilen, olen);
+  len = *ilen = min(*ilen, *olen);
 
   if (p->trellis_mask) {
     if (p->pending < p->trellis_lat) {
@@ -1080,17 +1128,23 @@ int sdm_process(sdm_t *p, const sox_sample_t *ibuf, sox_sample_t *obuf,
       len -= pre;
       while (pre--) {
         x = *ibuf++ * (0.5 / SOX_SAMPLE_MAX);
-        sdm_sample_trellis(p, x);
+        sox_sample_t ignored;
+        if (sdm_sample_trellis(p, x, &ignored))
+          return sdm_abort(p, ilen, olen);
       }
     }
     while (len--) {
       x = *ibuf++ * (0.5 / SOX_SAMPLE_MAX);
-      *out++ = sdm_sample_trellis(p, x);
+      if (sdm_sample_trellis(p, x, out))
+        return sdm_abort(p, ilen, olen);
+      ++out;
     }
   } else {
     while (len--) {
       x = *ibuf++ * (0.5 / SOX_SAMPLE_MAX);
-      *out++ = sdm_sample(p, x);
+      if (sdm_sample(p, x, out))
+        return sdm_abort(p, ilen, olen);
+      ++out;
     }
   }
 
@@ -1101,20 +1155,27 @@ int sdm_process(sdm_t *p, const sox_sample_t *ibuf, sox_sample_t *obuf,
 
 int sdm_drain(sdm_t *p, sox_sample_t *obuf, size_t *olen)
 {
+  if (p->failed) return sdm_abort(p, NULL, olen);
   if (p->trellis_mask) {
     size_t len = *olen = min(p->pending, *olen);
 
     if (!p->draining && p->pending < p->trellis_lat) {
       unsigned flush = p->trellis_lat - p->pending;
-      while (flush--)
-        sdm_sample_trellis(p, 0.0);
+      while (flush--) {
+        sox_sample_t ignored;
+        if (sdm_sample_trellis(p, 0.0, &ignored))
+          return sdm_abort(p, NULL, olen);
+      }
     }
 
     p->draining = 1;
     p->pending -= len;
 
-    while (len--)
-      *obuf++ = sdm_sample_trellis(p, 0.0);
+    while (len--) {
+      if (sdm_sample_trellis(p, 0.0, obuf))
+        return sdm_abort(p, NULL, olen);
+      ++obuf;
+    }
   } else {
     *olen = 0;
   }
@@ -1157,6 +1218,7 @@ sdm_t *sdm_init(const char *filter_name,
   p->filter = sdm_find_filter(filter_name, freq);
   if (!p->filter) {
     lsx_fail("invalid filter name `%s'", filter_name);
+    aligned_free(p);
     return NULL;
   }
 
