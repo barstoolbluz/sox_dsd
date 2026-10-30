@@ -2050,6 +2050,15 @@ Output latency, max 2048.
 The result of using these parameters is hard to predict and can include
 high noise levels or instability.  Caution is advised.
 .TP
+\ 
+If the modulator's internal state becomes non-finite or exceeds fixed
+safety limits, \fBsdm\fR stops with the error `modulator state escaped'
+and \fBsox\fR exits with status 2, removing a failed output file.
+Output already written to a pipe cannot be withdrawn, so discard it
+unless \fBsox\fR exits successfully.  Abrupt full-scale steps fed at the
+DSD rate and long periods of near-full-scale DC can trigger this; the
+check can also stop an input that would otherwise have finished.
+.TP
 \fBsilence \fR[\fB\-l\fR] \fIabove-periods\fR [\fIduration threshold\fR[\fBd\fR\^|\^\fB%\fR]]
 [\fIbelow-periods duration threshold\fR[\fBd\fR\^|\^\fB%\fR]]
 .SP
