@@ -10,6 +10,17 @@
 #include "sox_i.h"
 #include "g711.h"
 
+/* AVX1 can convert four ordinary float PCM samples in parallel. Keep all
+ * clipped and unordered inputs on the original scalar path so clip counts,
+ * saturation and the unusual IEEE inputs retain their existing semantics.
+ * The fast path uses exact float->double conversion and multiplication by
+ * 2^31, then the same truncation toward zero as the C integer cast. */
+#if defined(__GNUC__) && !defined(__clang__) && defined(__AVX__) && \
+    !defined(__AVX2__) && !defined(__FMA__)
+# include <immintrin.h>
+# define LSX_RAW_F32_AVX1 1
+#endif
+
 typedef sox_uint16_t sox_uint14_t;
 typedef sox_uint16_t sox_uint13_t;
 typedef sox_int16_t sox_int14_t;
@@ -91,7 +102,46 @@ READ_SAMPLES_FUNC(3, 3, u, sox_uint24_t, sox_uint24_t, SOX_UNSIGNED_24BIT_TO_SAM
 READ_SAMPLES_FUNC(3, 3, s, sox_int24_t, sox_uint24_t, SOX_SIGNED_24BIT_TO_SAMPLE)
 READ_SAMPLES_FUNC(dw, 4, u, uint32_t, uint32_t, SOX_UNSIGNED_32BIT_TO_SAMPLE)
 READ_SAMPLES_FUNC(dw, 4, s, int32_t, uint32_t, SOX_SIGNED_32BIT_TO_SAMPLE)
+#if defined(LSX_RAW_F32_AVX1)
+static size_t sox_read_suf_samples(sox_format_t *ft, sox_sample_t *buf,
+                                   size_t len)
+{
+  size_t n, nread;
+  SOX_SAMPLE_LOCALS;
+  float *data;
+  lsx_valloc(data, len);
+  nread = lsx_read_f_buf(ft, data, len);
+  {
+    const __m128 lower = _mm_set1_ps(-1.f);
+    const __m128 upper = _mm_set1_ps(1.f);
+    const __m256d scale = _mm256_set1_pd(SOX_SAMPLE_MAX + 1.);
+    for (n = 0; nread - n >= 4; n += 4) {
+      __m128 x = _mm_loadu_ps(data + n);
+      /* x == +1 saturates to INT_MAX without a clip. Other out-of-range
+       * values and NaNs use the original scalar converter below. */
+      __m128 outside = _mm_or_ps(_mm_cmplt_ps(x, lower),
+                           _mm_or_ps(_mm_cmpge_ps(x, upper),
+                                     _mm_cmpunord_ps(x, x)));
+      if (_mm_movemask_ps(outside)) {
+        buf[n]     = SOX_FLOAT_32BIT_TO_SAMPLE(data[n], ft->clips);
+        buf[n + 1] = SOX_FLOAT_32BIT_TO_SAMPLE(data[n + 1], ft->clips);
+        buf[n + 2] = SOX_FLOAT_32BIT_TO_SAMPLE(data[n + 2], ft->clips);
+        buf[n + 3] = SOX_FLOAT_32BIT_TO_SAMPLE(data[n + 3], ft->clips);
+      } else {
+        __m128i samples = _mm256_cvttpd_epi32(
+            _mm256_mul_pd(_mm256_cvtps_pd(x), scale));
+        _mm_storeu_si128((__m128i *)(void *)(buf + n), samples);
+      }
+    }
+  }
+  for (; n < nread; ++n)
+    buf[n] = SOX_FLOAT_32BIT_TO_SAMPLE(data[n], ft->clips);
+  free(data);
+  return nread;
+}
+#else
 READ_SAMPLES_FUNC(f, sizeof(float), su, float, float, SOX_FLOAT_32BIT_TO_SAMPLE)
+#endif
 READ_SAMPLES_FUNC(df, sizeof(double), su, double, double, SOX_FLOAT_64BIT_TO_SAMPLE)
 
 #define WRITE_SAMPLES_FUNC(type, size, sign, ctype, uctype, cast) \
