@@ -60,10 +60,10 @@ def main() -> int:
         def native_config(mode: str | None) -> list[str]:
             return [] if mode is None else ["--sdm-guard=" + mode]
 
-        for mode in (None, "auto", "on", "off"):
+        for mode in (None, "on", "off"):
             name = "trellis-" + (mode or "default")
             code, value = run(name, native_config(mode), trellis)
-            if mode == "off":
+            if mode != "on":
                 check(code == 0 and value == TRELLIS_REFERENCE_SHA256, name,
                       f"unchecked output differs: exit={code}, sha={value}")
             else:
@@ -108,7 +108,7 @@ def main() -> int:
                    "sine", "997", "sdm", "-f", "clans-4", "-t",
                    "3", "-n", "4", "-l", "100"]
         hashes = []
-        for mode in (None, "auto", "on", "off"):
+        for mode in (None, "on", "off"):
             name = "trellis-stable-" + (mode or "default")
             code, value = run(name, native_config(mode), healthy)
             check(code == 0 and value is not None, name, str(results[-1]))
@@ -122,7 +122,7 @@ def main() -> int:
                     "-r", "5644800", "-c", "1", "{output}", "synth", "0.04",
                     "sine", "997", "sdm", "-f", filter_name]
             hashes = []
-            for mode in (None, "auto", "on", "off"):
+            for mode in (None, "on", "off"):
                 label = name + "-" + (mode or "default")
                 code, value = run(label, native_config(mode), test)
                 check(code == 0 and value is not None, label, str(results[-1]))
@@ -135,18 +135,18 @@ def main() -> int:
                     "-r", "2822400", "-c", "1", "{output}", "synth", "0.03",
                     "sine", "997"]
         hashes = []
-        for mode in (None, "auto", "on", "off"):
+        for mode in (None, "on", "off"):
             label = "implicit-dither-" + (mode or "default")
             code, value = run(label, native_config(mode), implicit)
             check(code == 0 and value is not None, label, str(results[-1]))
             hashes.append(value)
         check(len(set(hashes)) == 1, "implicit dither identity", str(hashes))
 
-        for invalid in ("bogus", "fast", "", "ON"):
+        for invalid in ("auto", "bogus", "fast", "", "ON"):
             label = "reject-" + (invalid or "empty")
             code, value = run(label, ["--sdm-guard=" + invalid], implicit)
             check(code != 0 and value is None, label, str(results[-1]))
-            check("--sdm-guard must be auto, on or off" in results[-1]["stderr"],
+            check("--sdm-guard must be on or off" in results[-1]["stderr"],
                   label, "missing diagnosis")
 
     evidence = {"schema": "sox-dsd-legacy-sdm-guard-policy/1",

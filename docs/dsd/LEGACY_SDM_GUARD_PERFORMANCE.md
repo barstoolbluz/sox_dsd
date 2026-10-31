@@ -6,6 +6,10 @@ policy, coefficients, quantizer, trellis sorting, error handling or user-facing
 options. It does not remove guard checks on the ordinary PCM-to-DSD `clans-4`
 route.
 
+This record predates the 2026-10-31 change that made the guard opt-in
+(`--sdm-guard on|off`, default `off`; see `LEGACY_SDM_GUARD_POLICY.md`). Its
+`auto` measurements are of the then-default mode, which checked trellis fully.
+
 ## Why the shared-tail check is equivalent
 
 `sdm_filter_calc2()` constructs two successors for each trellis candidate. The

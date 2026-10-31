@@ -46,19 +46,17 @@ graph and a source-aware mastering graph are not interchangeable.
   The mastering encoders refuse input whose interpolated peak overloads
   ("interpolation overload") rather than clipping it; lower the level and
   run the conversion again.
-- `--sdm-guard auto|on|off` controls only the legacy `sdm` effect and
+- `--sdm-guard on|off` controls only the legacy `sdm` effect and
   implicit one-bit dithering (including plain `sox in -r 5644800 out.dsf`).
-  Default `auto` enforces the full recurrence guard on trellis modes,
-  sixth- through eighth-order filters, and `clans-4`. Other non-trellis
-  fourth- and fifth-order filters retain non-finite quantizer checking
-  but not the state bounds. `on` applies full checks to all legacy filters;
-  `off` reverts to unchecked legacy behavior and permits silently broken
-  output. This does **not** disable independent mastering `pcmdsd` checks.
-  An enabled guard reports `sdm: modulator state escaped; refusing to write
-  further 1-bit audio`, exits 2, and removes failed output files. Discard
-  piped output unless `sox` exits 0. Guarded healthy encodes are bit-identical
-  to the unchecked recurrence; the check is not a stability proof. See
-  [the legacy guard enablement decision](LEGACY_SDM_GUARD_POLICY.md).
+  The default, `off`, runs the modulator unchecked at full speed, as
+  SoX DSD 1.0.2 did; an input that drives it unstable can then produce
+  corrupt output without any error. `on` checks every legacy filter and
+  mode, at a CPU cost. It does not change the independent mastering
+  `pcmdsd` checks. The check reports `sdm: modulator state escaped; refusing
+  to write further 1-bit audio`, exits 2, and removes failed output files.
+  Discard piped output unless `sox` exits 0. Checked healthy encodes are
+  bit-identical to unchecked ones; the check is not a stability proof. See
+  [the legacy guard decision](LEGACY_SDM_GUARD_POLICY.md).
 - `--dsd-level preserve` uses unity reference for reconstructed native DSD;
   `sacd` intentionally applies gain 2 (+6.0206 dB). Neither normalizes or
   limits. PCM-origin mastering encoding uses its documented 0.5 reference

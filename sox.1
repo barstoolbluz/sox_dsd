@@ -1395,28 +1395,23 @@ Select planned domain conversion, strict native-only operation, or legacy
 routing.  Native-only refuses any effect, input gain, or combination needing
 PCM.  Legacy can process raw DSD pulses as if they were PCM.
 .TP
-.B \-\-sdm-guard auto|on|off
-Set the legacy 1-bit modulator check for both the explicit
+.B \-\-sdm-guard on|off
+Check the legacy 1-bit modulator used by the explicit
 .B sdm
- effect and implicit 1-bit dithering (including plain PCM-to-DSD conversion).
-This does not change the separate mastering
+ effect and by implicit 1-bit dithering (including plain PCM-to-DSD conversion).
+The default,
+.B off,
+ runs the modulator unchecked, at full speed; an input that drives it
+unstable can then produce corrupt 1-bit output without any error.
+.B on
+ checks every filter and mode for non-finite or out-of-bounds modulator
+state, at a CPU cost (about 9% on a plain PCM-to-DSD128 conversion on
+one test machine).  On failure SoX exits nonzero and removes a failed
+output file; discard piped data unless SoX exits zero.  The check is a
+safety stop, not a proof of stability.  This option does not change the
+separate mastering
 .B pcmdsd
- encoder safeguards.  The default,
-.B auto,
- applies the full finite-state and fixed-bound checks to all trellis modes,
-all sixth- to eighth-order filters, and
-.B clans-4.
-Other non-trellis fourth- and fifth-order filters check for non-finite
-quantizer values but not finite state-bound crossings.
-.B on
- applies the full checks to all filters;
-.B off
- returns the legacy unchecked recurrence and can silently produce
-corrupt 1-bit output.  Use
-.B on
- for safety-sensitive work, including unfamiliar inputs; neither setting
-establishes mathematical stability.  On failure SoX exits nonzero and
-removes a failed output file; discard piped data unless SoX exits zero.
+ encoder safeguards.
 The unrelated
 .BR \-G / \-\-guard
  option protects against clipping using temporary files.
