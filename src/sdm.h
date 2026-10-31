@@ -27,6 +27,13 @@
 
 typedef struct sdm sdm_t;
 
+/* CLI policy for the legacy sdm effect and implicit 1-bit dither only.
+ * Set before creating effects. This does not govern pcmdsd mastering guards. */
+typedef enum {
+  SDM_GUARD_AUTO, SDM_GUARD_ON, SDM_GUARD_OFF
+} sdm_guard_policy_t;
+void lsx_sdm_set_guard_policy(sdm_guard_policy_t policy);
+
 sdm_t *sdm_init(const char *filter_name,
                 unsigned freq,
                 unsigned trellis_order,

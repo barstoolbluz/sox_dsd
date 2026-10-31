@@ -1395,6 +1395,32 @@ Select planned domain conversion, strict native-only operation, or legacy
 routing.  Native-only refuses any effect, input gain, or combination needing
 PCM.  Legacy can process raw DSD pulses as if they were PCM.
 .TP
+.B \-\-sdm-guard auto|on|off
+Set the legacy 1-bit modulator check for both the explicit
+.B sdm
+ effect and implicit 1-bit dithering (including plain PCM-to-DSD conversion).
+This does not change the separate mastering
+.B pcmdsd
+ encoder safeguards.  The default,
+.B auto,
+ applies the full finite-state and fixed-bound checks to all trellis modes,
+all sixth- to eighth-order filters, and
+.B clans-4.
+Other non-trellis fourth- and fifth-order filters check for non-finite
+quantizer values but not finite state-bound crossings.
+.B on
+ applies the full checks to all filters;
+.B off
+ returns the legacy unchecked recurrence and can silently produce
+corrupt 1-bit output.  Use
+.B on
+ for safety-sensitive work, including unfamiliar inputs; neither setting
+establishes mathematical stability.  On failure SoX exits nonzero and
+removes a failed output file; discard piped data unless SoX exits zero.
+The unrelated
+.BR \-G / \-\-guard
+ option protects against clipping using temporary files.
+.TP
 .B \-\-dsd-decode mastering|wideband|legacy|decode.PROFILE.v1.dsdRATE
 Select the reconstruction profile.  A pinned ID such as
 .B decode.mastering.v1.dsd64
