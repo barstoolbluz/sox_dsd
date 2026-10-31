@@ -1,6 +1,16 @@
 /* P13 isolated AVX-512F baseline. AVX2 enabled by GCC -mavx512f; no AVX-512DQ/BW/VL or FMA required.
  * The eight FIR output times are independent; SDM vectorizes its eight
  * coordinates, NOT time. Built with -ffp-contract=off and -fno-lto. */
+/* Automake appends user CFLAGS after the per-kernel flags. A global
+ * -mavx or -march setting can otherwise disable this kernel's intrinsic
+ * target, or turn an AVX1/SSE2 object into a wider-ISA/FMA object. The
+ * function target is therefore set in the translation unit as well. */
+#if defined(__GNUC__) && !defined(__clang__)
+# pragma GCC push_options
+# pragma GCC target ("avx512f,no-avx512dq,no-avx512bw,no-avx512vl,no-fma")
+# pragma GCC optimize ("fp-contract=off")
+#endif
+
 #include "sox_i.h"
 #include "dsd_kernels.h"
 #define LSX_SDM_INLINE_DECISION 1
@@ -158,3 +168,7 @@ const lsx_dsd_kernel lsx_dsd_kernel_avx512 = {
   "avx512", LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1|LSX_DSD_CPU_AVX2|LSX_DSD_CPU_AVX512F,
   fir_avx512_block,lsx_dsd_fir_avx512_direct,sdm_avx512_block
 };
+
+#if defined(__GNUC__) && !defined(__clang__)
+# pragma GCC pop_options
+#endif

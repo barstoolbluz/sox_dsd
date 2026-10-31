@@ -1,5 +1,14 @@
 /* Baseline-ISA dispatcher. NEVER compile this TU with -mavx/-mavx2, LTO,
  * -march=native, or compiler flags enabling cross-target inlining. */
+/* The dispatcher and scalar fallback run before or without SIMD feature
+ * selection. Never let global ISA tuning turn them into AVX/FMA code. */
+#if defined(__GNUC__) && !defined(__clang__) && \
+   (defined(__x86_64__) || defined(__i386__))
+# pragma GCC push_options
+# pragma GCC target ("no-avx,no-fma")
+# pragma GCC optimize ("fp-contract=off")
+#endif
+
 #include "sox_i.h"
 #include "dsd_kernels.h"
 #include <float.h>
@@ -216,3 +225,8 @@ int lsx_dsd_kernel_select_sdm_rate(const char *requested,
 {
   return select_host_rate(LSX_DSD_SDM,requested,native_hz,out);
 }
+
+#if defined(__GNUC__) && !defined(__clang__) && \
+   (defined(__x86_64__) || defined(__i386__))
+# pragma GCC pop_options
+#endif
