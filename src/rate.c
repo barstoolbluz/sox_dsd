@@ -24,6 +24,17 @@
 #endif
 
 #define _GNU_SOURCE
+
+/* The automatic PCM -> DSF route resamples before invoking the legacy SDM
+ * through dither. FMA contraction in the resampler changes some integer PCM
+ * samples by an LSB even when the same WAV is supplied, and therefore changes
+ * the subsequent 1-bit stream. Preserve the default build's rounding here. */
+#if defined(__clang__)
+# pragma clang fp contract(off)
+#elif defined(__GNUC__)
+# pragma GCC optimize ("fp-contract=off")
+#endif
+
 #include "sox_i.h"
 #include "fft4g.h"
 #include "dft_filter.h"

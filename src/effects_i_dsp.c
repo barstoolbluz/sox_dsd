@@ -22,6 +22,15 @@
 #undef NDEBUG /* Must undef above assert.h or other that might include it. */
 #endif
 
+/* The shared DSP helpers generate the resampler's coefficients. FMA
+ * contraction changes PCM rounding on some DSD rates before legacy SDM,
+ * so use the same operation-by-operation rounding as the default build. */
+#if defined(__clang__)
+# pragma clang fp contract(off)
+#elif defined(__GNUC__)
+# pragma GCC optimize ("fp-contract=off")
+#endif
+
 #include "sox_i.h"
 
 /* Concurrent Control with "Readers" and "Writers", P.J. Courtois et al, 1971:*/

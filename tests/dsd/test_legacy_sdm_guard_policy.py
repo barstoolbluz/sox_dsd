@@ -129,6 +129,26 @@ def main() -> int:
                 hashes.append(value)
             check(len(set(hashes)) == 1, name + " identity", str(hashes))
 
+        # These full-path hashes were independently recorded from the 1.0.2
+        # default (SSE2) build, not learned from a locally rebuilt target.
+        # This catches FMA contraction in the generator as well as changes to
+        # the legacy modulator's arithmetic and reduction order.
+        reference = {
+            "clans-4": "0b54f8fa3670cb9d1bdfd81018990ef491272c8ca210888b84b71507148804ce",
+            "clans-6": "d9f1512e2548e14d0d9afabf84493e989aa2acb6949fdb952473fab45db9b4b2",
+            "sdm-8": "c0b8012f33741b4c3faaf502e24815ad9f4a3ca62a28ed690b8b0440d032df06",
+        }
+        for filter_name, expected in reference.items():
+            native = ["-R", "-r", "5644800", "-c", "2", "-n",
+                      "-r", "5644800", "-c", "2", "{output}",
+                      "synth", "2", "pinknoise", "gain", "-6",
+                      "sdm", "-f", filter_name]
+            for mode in (None, "on", "off"):
+                label = "default-102-reference-" + filter_name + "-" + (mode or "default")
+                code, value = run(label, native_config(mode), native)
+                check(code == 0 and value == expected, label,
+                      f"1.0.2 default reference mismatch: {results[-1]}")
+
         # Without an explicit sdm effect the legacy graph applies 1-bit dither
         # via dither.c -> sdm_init().  The global option must be accepted here.
         implicit = ["-R", "-r", "44100", "-c", "1", "-n",
@@ -141,6 +161,28 @@ def main() -> int:
             check(code == 0 and value is not None, label, str(results[-1]))
             hashes.append(value)
         check(len(set(hashes)) == 1, "implicit dither identity", str(hashes))
+
+        # The ordinary WAV -> DSF route uses rate -> dither -> sdm_init,
+        # without an explicit sdm effect. Lock the 1.0.2 default reference:
+        # the resampler must not change the modulator's PCM input under FMA.
+        pcm = tmp / "reference-pink-44100.wav"
+        pcm_command = [sox, "-R", "-n", "-r", "44100", "-c", "2", "-b", "24",
+                       str(pcm), "synth", "2", "pinknoise", "gain", "-6"]
+        pcm_result = subprocess.run(pcm_command, capture_output=True, timeout=90)
+        check(pcm_result.returncode == 0 and pcm.is_file(),
+              "1.0.2 input preparation", pcm_result.stderr.decode(errors="replace")[-500:])
+        implicit_refs = {
+            2822400: "1655f038e3476ce11508f8c8db5ec74c889a24141a9b168cf2350c62afdf5e54",
+            5644800: "dcddf504d2c6fcc0bc8ec3894bf8d9cb63896b6c551676d94fa8a9f798d94429",
+            11289600: "1ab239fd375e6a6c85e01286b8defdd37efa9c2d0019c5df9e218b762a0c88ed",
+        }
+        for rate, expected in implicit_refs.items():
+            for mode in (None, "on", "off"):
+                label = f"implicit-102-reference-{rate}-{mode or 'default'}"
+                code, value = run(label, native_config(mode),
+                                  ["-R", str(pcm), "-r", str(rate), "{output}"])
+                check(code == 0 and value == expected, label,
+                      f"1.0.2 default reference mismatch: {results[-1]}")
 
         for invalid in ("auto", "bogus", "fast", "", "ON"):
             label = "reject-" + (invalid or "empty")

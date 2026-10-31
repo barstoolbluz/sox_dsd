@@ -27,6 +27,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/* Keep synthetic PCM generation independent of global FMA flags. An
+ * otherwise identical PCM test stimulus can differ by one input LSB after
+ * contraction, which propagates into a different 1-bit SDM trajectory. */
+#if defined(__clang__)
+# pragma clang fp contract(off)
+#elif defined(__GNUC__)
+# pragma GCC optimize ("fp-contract=off")
+#endif
+
 #include "sox_i.h"
 
 #include <ctype.h>
