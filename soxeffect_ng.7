@@ -2051,20 +2051,17 @@ The result of using these parameters is hard to predict and can include
 high noise levels or instability.  Caution is advised.
 .TP
 \ 
-The global \fB--sdm-guard auto|on|off\fR option also controls this effect.
-The default \fBauto\fR applies the full state-bound check to all
-sixth- through eighth-order filters, trellis modes and \fBclans-4\fR.
-Other normal fourth- and fifth-order filters reject non-finite
-quantizer values only; this does not detect all finite state escapes.
-Use \fBon\fR to check all filters, or \fBoff\fR to recover the unchecked
-legacy behavior at the risk of silently corrupt 1-bit output.
-When the enabled check detects a non-finite value or excessive state,
+By default this effect runs unchecked: an input that drives the
+modulator unstable can produce corrupt 1-bit output without any error.
+The global \fB--sdm-guard on\fR option checks every filter and mode,
+at a CPU cost.
+When the check detects a non-finite value or excessive state,
 \fBsdm\fR stops with `modulator state escaped' and \fBsox\fR exits
 with status 2, removing a failed output file.  Output already written
 to a pipe cannot be withdrawn, so discard it unless \fBsox\fR exits
 successfully.  Abrupt full-scale steps fed at the DSD rate and long
-periods of near-full-scale DC can trigger this; no guard mode proves
-stability or guarantees that an input can be encoded.
+periods of near-full-scale DC can trigger this; the check does not
+prove stability or guarantee that an input can be encoded.
 .TP
 \fBsilence \fR[\fB\-l\fR] \fIabove-periods\fR [\fIduration threshold\fR[\fBd\fR\^|\^\fB%\fR]]
 [\fIbelow-periods duration threshold\fR[\fBd\fR\^|\^\fB%\fR]]

@@ -3345,7 +3345,7 @@ static void usage(void)
 "--dsd-layout ROLES       Comma-separated output role assignment: FL,FR,FC,LFE,BL,BR,SL,SR,MONO",
 "--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
 "--dsd-mode auto|native|legacy  Opt in to P08 domain routing; default remains legacy",
-"--sdm-guard auto|on|off  Legacy 1-bit modulator safety check (default auto)",
+"--sdm-guard on|off       Fail-closed legacy 1-bit modulator check; costs CPU (default off)",
 "--dsd-decode conservative|mastering|wideband|legacy|decode.mastering.v2.dsd<rate>",
 "                         Unpinned auto reconstruction defaults to mastering v2; explicit mastering/conservative select v1",
 "--dsd-encode mastering|legacy|experimental|encode.mastering.v{1,2}.dsd<rate>",
@@ -3953,13 +3953,11 @@ static char parse_gopts_and_fopts(file_t * f)
         dsd_new_policy_explicit=sox_true;break;
       case 35:dsd_plan_only=sox_true;break;
       case 36:
-        if (!strcmp(optstate.arg,"auto"))
-          lsx_sdm_set_guard_policy(SDM_GUARD_AUTO);
-        else if (!strcmp(optstate.arg,"on"))
+        if (!strcmp(optstate.arg,"on"))
           lsx_sdm_set_guard_policy(SDM_GUARD_ON);
         else if (!strcmp(optstate.arg,"off"))
           lsx_sdm_set_guard_policy(SDM_GUARD_OFF);
-        else {lsx_fail("--sdm-guard must be auto, on or off");exit(1);}
+        else {lsx_fail("--sdm-guard must be on or off");exit(1);}
         break;
       default:
         lsx_fail("internal error processing long option");

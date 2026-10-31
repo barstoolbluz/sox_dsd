@@ -88,21 +88,21 @@ struct sdm {
   double        prev_y;
   uint64_t      conv_fail;
   unsigned      failed; /* fail-closed latch for legacy sdm effect */
-  unsigned      guard_check; /* 0: unchecked, 1: finite, 2: finite + bounds */
+  unsigned      guard_check; /* SDM_CHECK_ON: finite and bounded state */
   uint8_t       hist[2 * SDM_TRELLIS_MAX_NUM][SDM_TRELLIS_MAX_LAT / 8];
 };
 
 /* Command-line policy is set during option parsing, before effect startup.
- * Library callers not using the CLI retain the conservative AUTO default. */
-static sdm_guard_policy_t sdm_guard_policy = SDM_GUARD_AUTO;
+ * The check costs CPU, so it runs only on request (--sdm-guard on); library
+ * callers not using the CLI get the same unchecked default. */
+static sdm_guard_policy_t sdm_guard_policy = SDM_GUARD_OFF;
 
-enum {SDM_CHECK_OFF, SDM_CHECK_FINITE, SDM_CHECK_BOUNDS};
+enum {SDM_CHECK_OFF, SDM_CHECK_ON};
 
 void lsx_sdm_set_guard_policy(sdm_guard_policy_t policy)
 {
-  /* Unknown values must never silently disable the guard. */
-  sdm_guard_policy = policy == SDM_GUARD_OFF || policy == SDM_GUARD_AUTO ?
-    policy : SDM_GUARD_ON;
+  /* Unknown values must never silently disable a requested guard. */
+  sdm_guard_policy = policy == SDM_GUARD_OFF ? SDM_GUARD_OFF : SDM_GUARD_ON;
 }
 
 static const sdm_filter_t sdm_filters[] = {
@@ -1235,7 +1235,6 @@ int sdm_process(sdm_t *p, const sox_sample_t *ibuf, sox_sample_t *obuf,
     sdm_state_t *cur = &p->trellis[0].sdm[p->idx];
     sdm_state_t *next = &p->trellis[0].sdm[p->idx ^ 1];
     const sdm_filter_t *f = p->filter;
-    const unsigned check = p->guard_check;
     double y = p->prev_y;
     size_t accepted = 0;
     while (len--) {
@@ -1243,9 +1242,7 @@ int sdm_process(sdm_t *p, const sox_sample_t *ibuf, sox_sample_t *obuf,
       sdm_state_t *tmp;
       x = *ibuf++ * (0.5 / SOX_SAMPLE_MAX);
       v = sdm_filter_calc(cur->state, next->state, f, x, y);
-      if ((check != SDM_CHECK_OFF && !isfinite(v)) ||
-          (check == SDM_CHECK_BOUNDS &&
-           !sdm_state_bounded(next->state, f->order))) {
+      if (!isfinite(v) || !sdm_state_bounded(next->state, f->order)) {
         p->idx ^= accepted & 1;
         p->prev_y = y;
         return sdm_abort(p, ilen, olen);
@@ -1336,18 +1333,8 @@ sdm_t *sdm_init(const char *filter_name,
   }
 
   f = p->filter;
-  /* The sweep found failed high-order and trellis cases. A separate
-   * native-direct clans-4 run also went non-finite, so do not exempt the
-   * ordinary implicit-dither route simply to recover its CPU overhead.
-   * Other low-order normal filters retain a cheap non-finite check; that
-   * check alone cannot detect a finite state beyond the safety bounds. */
-  if (sdm_guard_policy == SDM_GUARD_OFF)
-    p->guard_check = SDM_CHECK_OFF;
-  else if (sdm_guard_policy == SDM_GUARD_ON || trellis_order ||
-           f->trellis_order || f->order >= 6 || !strcmp(f->name, "clans-4"))
-    p->guard_check = SDM_CHECK_BOUNDS;
-  else
-    p->guard_check = SDM_CHECK_FINITE;
+  /* When requested, every filter and mode gets the full check. */
+  p->guard_check = sdm_guard_policy == SDM_GUARD_ON ? SDM_CHECK_ON : SDM_CHECK_OFF;
   st = &p->trellis[0];
 
   if (trellis_order || f->trellis_order) {
