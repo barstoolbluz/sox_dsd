@@ -812,6 +812,52 @@ static const sdm_filter_t *sdm_find_filter(const char *name, unsigned freq)
 
 #include "sdm_x86.h"
 
+/* The unchecked normal path keeps the live state in SIMD registers for the
+ * entire buffer. The same recurrence and sum reduction are used by the
+ * legacy single-sample SSE2 implementation. Only the active bank is relevant
+ * between process calls; the other bank is overwritten before it is read. */
+#ifdef SDM_RECURRENCE_SSE2
+static void sdm_normal_unchecked_block_sse2(sdm_t *p,
+    const sox_sample_t *ibuf, sox_sample_t *obuf, size_t count)
+{
+  const sdm_filter_t *f = p->filter;
+  const double *a = f->a, *g = f->g;
+  double *state;
+  double y = p->prev_y;
+  size_t n = count;
+  unsigned idx = p->idx;
+  __m128d s0, s1, s2, s3, v0, v1;
+  if (!n) return;
+  state = p->trellis[0].sdm[idx].state;
+  s0 = _mm_load_pd(state);
+  s1 = _mm_load_pd(state + 2);
+  s2 = _mm_load_pd(state + 4);
+  s3 = _mm_load_pd(state + 6);
+  while (n--) {
+    double x = *ibuf++ * (0.5 / SOX_SAMPLE_MAX);
+    double v;
+    SDM_RECURRENCE_SSE2(s0, s1, s2, s3, g, x - y);
+    v0 = _mm_mul_pd(s0, _mm_load_pd(a));
+    v1 = _mm_mul_pd(s1, _mm_load_pd(a + 2));
+    v0 = _mm_add_pd(v0, _mm_mul_pd(s2, _mm_load_pd(a + 4)));
+    v1 = _mm_add_pd(v1, _mm_mul_pd(s3, _mm_load_pd(a + 6)));
+    v0 = _mm_add_pd(v0, v1);
+    v0 = _mm_add_pd(v0, SWAPHL(v0));
+    v = x + _mm_cvtsd_f64(v0);
+    y = signbit(v) ? -1.0 : 1.0;
+    *obuf++ = y * SOX_SAMPLE_MAX;
+  }
+  idx ^= count & 1;
+  state = p->trellis[0].sdm[idx].state;
+  _mm_store_pd(state, s0);
+  _mm_store_pd(state + 2, s1);
+  _mm_store_pd(state + 4, s2);
+  _mm_store_pd(state + 6, s3);
+  p->idx = idx;
+  p->prev_y = y;
+}
+#endif
+
 #ifndef sdm_filter_calc
 static double sdm_filter_calc(const double *s, double *d,
                               const sdm_filter_t *f,
@@ -1195,11 +1241,16 @@ int sdm_process(sdm_t *p, const sox_sample_t *ibuf, sox_sample_t *obuf,
       ++out;
     }
   } else if (p->guard_check == SDM_CHECK_OFF) {
+#ifdef SDM_RECURRENCE_SSE2
+    sdm_normal_unchecked_block_sse2(p, ibuf, out, len);
+    out += len;
+#else
     /* One dispatch per buffer; no guard/error branch in the hot loop. */
     while (len--) {
       x = *ibuf++ * (0.5 / SOX_SAMPLE_MAX);
       *out++ = sdm_sample_unchecked(p, x);
     }
+#endif
   } else {
     while (len--) {
       x = *ibuf++ * (0.5 / SOX_SAMPLE_MAX);
