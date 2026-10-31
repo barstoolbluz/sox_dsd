@@ -282,6 +282,15 @@ Appendix :
 */
 
 
+/* The FFT supplies resampler coefficients and blocks upstream of 1-bit
+ * legacy SDM. FMA contraction changes occasional low bits of the PCM input,
+ * which can change the entire output bitstream. Retain default-build rounding. */
+#if defined(__clang__)
+# pragma clang fp contract(off)
+#elif defined(__GNUC__)
+# pragma GCC optimize ("fp-contract=off")
+#endif
+
 #include "sox_i.h"	/* for lsx_fail() */
 #include <math.h>
 #include "fft4g.h"

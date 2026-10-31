@@ -35,6 +35,21 @@
 
 #define _ISOC11_SOURCE
 
+/* This encoder promises the default-build bitstream even with -march=native
+ * or FMA enabled globally. A fused multiply-add can change the 1-bit output
+ * and the safety guard's observation of the state. Keep binary64 rounding at
+ * each source operation, without changing other DSD encoders' FP policy. */
+#if defined(__clang__)
+# pragma clang fp contract(off)
+#elif defined(__GNUC__)
+# pragma GCC optimize ("fp-contract=off")
+# if defined(__x86_64__)
+#  pragma GCC target ("arch=x86-64")
+# elif defined(__i386__)
+#  pragma GCC target ("sse2,no-avx,no-fma")
+# endif
+#endif
+
 #include "sox_i.h"
 #include "sdm.h"
 #include "sdm_normal_commit_i.h"
