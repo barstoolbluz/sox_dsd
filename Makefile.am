@@ -642,7 +642,9 @@ EXTRA_DIST += docs/dsd/handoffs/P14.md docs/dsd/handoffs/P14_CHECKPOINT.md \
 .PHONY: check-sdm-guard-policy
 check-sdm-guard-policy: all
 	python3 $(srcdir)/tests/dsd/test_legacy_sdm_guard_policy.py --sox $(abs_builddir)/src/sox$(EXEEXT)
+	python3 $(srcdir)/tests/dsd/test_legacy_sdm_f32_input.py --sox $(abs_builddir)/src/sox$(EXEEXT)
 EXTRA_DIST += tests/dsd/test_legacy_sdm_guard_policy.py \
+  tests/dsd/test_legacy_sdm_f32_input.py \
   tests/dsd/bench_legacy_sdm_avx.py \
   docs/dsd/LEGACY_SDM_GUARD_POLICY.md
 
