@@ -7,7 +7,11 @@
  * function target is therefore set in the translation unit as well. */
 #if defined(__GNUC__) && !defined(__clang__)
 # pragma GCC push_options
-# pragma GCC target ("avx512f,no-avx512dq,no-avx512bw,no-avx512vl,no-fma")
+# if defined(__x86_64__)
+#  pragma GCC target ("arch=x86-64,avx512f,no-avx512dq,no-avx512bw,no-avx512vl,no-fma")
+# else
+#  pragma GCC target ("avx512f,no-avx512dq,no-avx512bw,no-avx512vl,no-fma")
+# endif
 # pragma GCC optimize ("fp-contract=off")
 #endif
 

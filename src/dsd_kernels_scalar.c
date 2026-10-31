@@ -4,7 +4,11 @@
 #if defined(__GNUC__) && !defined(__clang__) && \
    (defined(__x86_64__) || defined(__i386__))
 # pragma GCC push_options
-# pragma GCC target ("no-avx,no-fma")
+# if defined(__x86_64__)
+#  pragma GCC target ("arch=x86-64")
+# else
+#  pragma GCC target ("no-avx,no-fma")
+# endif
 # pragma GCC optimize ("fp-contract=off")
 #endif
 

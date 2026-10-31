@@ -39,6 +39,7 @@ def main():
             check[name+'_no_avx']=not v[name]['avx_mnemonics']
         check['avx1_ymm']=v['avx1']['ymm_instructions']>0
         check['avx1_no_avx2']=not v['avx1']['possible_avx2_mnemonics']
+        check['avx2_no_unrequested_x86_extensions']=not bool(v['avx2']['untargeted_extension_mnemonics'])
         check['avx2_ymm']=v['avx2']['ymm_instructions']>0
         check['avx2_full_width_permute']=v['avx2']['avx_mnemonics'].get('vpermpd',0)>=2
         for name in objects:
