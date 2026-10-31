@@ -1192,26 +1192,6 @@ static inline sox_sample_t sdm_sample_unchecked(sdm_t *p, double x)
   return y * SOX_SAMPLE_MAX;
 }
 
-static int sdm_sample(sdm_t *p, double x, sox_sample_t *sample)
-{
-  const sdm_filter_t *f = p->filter;
-  double *s0 = p->trellis[0].sdm[p->idx].state;
-  double *s1 = p->trellis[0].sdm[p->idx ^ 1].state;
-  double y, v;
-
-  v = sdm_filter_calc(s0, s1, f, x, p->prev_y);
-  if (p->guard_check != SDM_CHECK_OFF && !isfinite(v)) return -1;
-  if (p->guard_check == SDM_CHECK_BOUNDS &&
-      !sdm_state_bounded(s1, f->order)) return -1;
-  y = signbit(v) ? -1.0 : 1.0;
-
-  p->idx ^= 1;
-  p->prev_y = y;
-
-  *sample = y * SOX_SAMPLE_MAX;
-  return 0;
-}
-
 int sdm_process(sdm_t *p, const sox_sample_t *ibuf, sox_sample_t *obuf,
                 size_t *ilen, size_t *olen)
 {
@@ -1252,12 +1232,33 @@ int sdm_process(sdm_t *p, const sox_sample_t *ibuf, sox_sample_t *obuf,
     }
 #endif
   } else {
+    sdm_state_t *cur = &p->trellis[0].sdm[p->idx];
+    sdm_state_t *next = &p->trellis[0].sdm[p->idx ^ 1];
+    const sdm_filter_t *f = p->filter;
+    const unsigned check = p->guard_check;
+    double y = p->prev_y;
+    size_t accepted = 0;
     while (len--) {
+      double v;
+      sdm_state_t *tmp;
       x = *ibuf++ * (0.5 / SOX_SAMPLE_MAX);
-      if (sdm_sample(p, x, out))
+      v = sdm_filter_calc(cur->state, next->state, f, x, y);
+      if ((check != SDM_CHECK_OFF && !isfinite(v)) ||
+          (check == SDM_CHECK_BOUNDS &&
+           !sdm_state_bounded(next->state, f->order))) {
+        p->idx ^= accepted & 1;
+        p->prev_y = y;
         return sdm_abort(p, ilen, olen);
-      ++out;
+      }
+      y = signbit(v) ? -1.0 : 1.0;
+      *out++ = y * SOX_SAMPLE_MAX;
+      tmp = cur;
+      cur = next;
+      next = tmp;
+      ++accepted;
     }
+    p->idx ^= accepted & 1;
+    p->prev_y = y;
   }
 
   *olen = out - obuf;
