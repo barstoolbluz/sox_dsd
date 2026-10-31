@@ -11,6 +11,7 @@ From the repository root after the configured static build:
 ```sh
 make check
 make check-dsd
+make check-sdm-guard-policy # also included in check-dsd
 python3 tests/dsd/run.py --phase P01 --results tests/dsd/results/P01
 python3 tests/dsd/measure.py --phase P01 --results tests/dsd/results/P01/numeric
 python3 tests/dsd/bench.py --phase P01 --results tests/dsd/results/P01/bench
