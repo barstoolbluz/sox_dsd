@@ -229,6 +229,7 @@ DSD_PHASE ?= P18
 DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
 check-dsd: all
 	$(MAKE) check-dsd-optimization
+	$(MAKE) check-sdm-guard-policy
 	@if ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ); then \
 	  $(MAKE) -C test dsd_test_p14$(EXEEXT); \
 	fi
@@ -636,6 +637,13 @@ EXTRA_DIST += docs/dsd/handoffs/P14.md docs/dsd/handoffs/P14_CHECKPOINT.md \
   tests/dsd/bench_p14.py tests/dsd/reference/p14_report_schema_v1.json \
   tests/dsd/reference/p14_report_golden.json
 
+
+# Legacy SDM policy: no external research fixtures or nonstandard Python modules.
+.PHONY: check-sdm-guard-policy
+check-sdm-guard-policy: all
+	python3 $(srcdir)/tests/dsd/test_legacy_sdm_guard_policy.py --sox $(abs_builddir)/src/sox$(EXEEXT)
+EXTRA_DIST += tests/dsd/test_legacy_sdm_guard_policy.py \
+  docs/dsd/LEGACY_SDM_GUARD_POLICY.md
 
 # Non-phase performance investigation; no production policy or DSP changes.
 EXTRA_DIST += tests/dsd/profile_decode.py tests/dsd/test_perf_measurements.py \
