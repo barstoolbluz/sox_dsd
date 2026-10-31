@@ -1,5 +1,15 @@
 /* P11 AVX1: genuine independent AVX-only TU. Requires OSXSAVE, XCR0[2:1],
  * CPU AVX; NEVER compile with AVX2/FMA flags or whole-program -march=native. */
+/* Automake appends user CFLAGS after the per-kernel flags. A global
+ * -mavx or -march setting can otherwise disable this kernel's intrinsic
+ * target, or turn an AVX1/SSE2 object into a wider-ISA/FMA object. The
+ * function target is therefore set in the translation unit as well. */
+#if defined(__GNUC__) && !defined(__clang__)
+# pragma GCC push_options
+# pragma GCC target ("avx,no-avx2,no-avx512f,no-fma")
+# pragma GCC optimize ("fp-contract=off")
+#endif
+
 #include "sox_i.h"
 #include "dsd_kernels.h"
 #define LSX_SDM_ACCEPT_FINITE_V 1
@@ -124,3 +134,7 @@ const lsx_dsd_kernel lsx_dsd_kernel_avx1 = {
   "avx1", LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1,
   fir_avx1_block, lsx_dsd_fir_avx1_direct, sdm_avx1_block
 };
+
+#if defined(__GNUC__) && !defined(__clang__)
+# pragma GCC pop_options
+#endif

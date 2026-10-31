@@ -1,5 +1,15 @@
 /* P11 SSE2: independent FIR output-time lanes and the state-coordinate SDM
  * formulation inherited from sdm_x86.h. No AVX instructions in this unit. */
+/* Automake appends user CFLAGS after the per-kernel flags. A global
+ * -mavx or -march setting can otherwise disable this kernel's intrinsic
+ * target, or turn an AVX1/SSE2 object into a wider-ISA/FMA object. The
+ * function target is therefore set in the translation unit as well. */
+#if defined(__GNUC__) && !defined(__clang__)
+# pragma GCC push_options
+# pragma GCC target ("sse2,no-avx,no-fma")
+# pragma GCC optimize ("fp-contract=off")
+#endif
+
 #include "sox_i.h"
 #include "dsd_kernels.h"
 #define LSX_SDM_INLINE_DECISION 1
@@ -129,3 +139,7 @@ static int sdm_sse2_block(sdm_normal_t *s, const double *input,
 const lsx_dsd_kernel lsx_dsd_kernel_sse2 = {
   "sse2", LSX_DSD_CPU_SSE2, fir_sse2_block, lsx_dsd_fir_sse2_direct, sdm_sse2_block
 };
+
+#if defined(__GNUC__) && !defined(__clang__)
+# pragma GCC pop_options
+#endif

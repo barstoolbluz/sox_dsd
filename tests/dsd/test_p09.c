@@ -2,6 +2,15 @@
  * Link the actual SoX library. Do not include or duplicate src/sdm.c.
  */
 #define _POSIX_C_SOURCE 200809L
+/* The independent recurrence is a binary64 reference. The library fixes
+ * contraction independently; do not let global -march=... fuse the test
+ * oracle's multiply/add into a different numerical algorithm. */
+#if defined(__clang__)
+# pragma clang fp contract(off)
+#elif defined(__GNUC__)
+# pragma GCC optimize ("fp-contract=off")
+#endif
+
 #include "sdm.h"
 #include <math.h>
 #include <inttypes.h>

@@ -1,4 +1,13 @@
 /* P06 binary64 reference kernel, no input gain, clipping or dithering. */
+/* The dispatcher and scalar fallback run before or without SIMD feature
+ * selection. Never let global ISA tuning turn them into AVX/FMA code. */
+#if defined(__GNUC__) && !defined(__clang__) && \
+   (defined(__x86_64__) || defined(__i386__))
+# pragma GCC push_options
+# pragma GCC target ("no-avx,no-fma")
+# pragma GCC optimize ("fp-contract=off")
+#endif
+
 #include "sox_i.h"
 #include "dsd_kernels.h"
 
@@ -76,3 +85,8 @@ static int sdm_scalar_block(sdm_normal_t *s, const double *input,
 const lsx_dsd_kernel lsx_dsd_kernel_scalar = {
   "scalar", 0, fir_scalar_block, lsx_dsd_fir_scalar, sdm_scalar_block
 };
+
+#if defined(__GNUC__) && !defined(__clang__) && \
+   (defined(__x86_64__) || defined(__i386__))
+# pragma GCC pop_options
+#endif
