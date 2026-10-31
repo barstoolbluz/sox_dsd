@@ -88,8 +88,22 @@ struct sdm {
   double        prev_y;
   uint64_t      conv_fail;
   unsigned      failed; /* fail-closed latch for legacy sdm effect */
+  unsigned      guard_check; /* 0: unchecked, 1: finite, 2: finite + bounds */
   uint8_t       hist[2 * SDM_TRELLIS_MAX_NUM][SDM_TRELLIS_MAX_LAT / 8];
 };
+
+/* Command-line policy is set during option parsing, before effect startup.
+ * Library callers not using the CLI retain the conservative AUTO default. */
+static sdm_guard_policy_t sdm_guard_policy = SDM_GUARD_AUTO;
+
+enum {SDM_CHECK_OFF, SDM_CHECK_FINITE, SDM_CHECK_BOUNDS};
+
+void lsx_sdm_set_guard_policy(sdm_guard_policy_t policy)
+{
+  /* Unknown values must never silently disable the guard. */
+  sdm_guard_policy = policy == SDM_GUARD_OFF || policy == SDM_GUARD_AUTO ?
+    policy : SDM_GUARD_ON;
+}
 
 static const sdm_filter_t sdm_filters[] = {
   {
@@ -1048,10 +1062,14 @@ static int sdm_sample_trellis(sdm_t *p, double x, sox_sample_t *sample)
     /* A speculative high-cost trellis branch may escape while its winning
      * branch remains healthy. Discard only the escaped choices. Aborting for
      * any losing branch would break otherwise valid trellis encodes. */
-    next[0].valid = sdm_state_bounded(next[0].state, p->filter->order) &&
-                    isfinite(next[0].cost);
-    next[1].valid = sdm_state_bounded(next[1].state, p->filter->order) &&
-                    isfinite(next[1].cost);
+    if (p->guard_check == SDM_CHECK_OFF) {
+      next[0].valid = next[1].valid = 1;
+    } else {
+      next[0].valid = sdm_state_bounded(next[0].state, p->filter->order) &&
+                      isfinite(next[0].cost);
+      next[1].valid = sdm_state_bounded(next[1].state, p->filter->order) &&
+                      isfinite(next[1].cost);
+    }
     cur->next = sdm_hist_get(p, cur->hist, next_pos);
     cur->hist_used = 0;
   }
@@ -1101,7 +1119,9 @@ static int sdm_sample(sdm_t *p, double x, sox_sample_t *sample)
   double y, v;
 
   v = sdm_filter_calc(s0, s1, f, x, p->prev_y);
-  if (!isfinite(v) || !sdm_state_bounded(s1, f->order)) return -1;
+  if (p->guard_check != SDM_CHECK_OFF && !isfinite(v)) return -1;
+  if (p->guard_check == SDM_CHECK_BOUNDS &&
+      !sdm_state_bounded(s1, f->order)) return -1;
   y = signbit(v) ? -1.0 : 1.0;
 
   p->idx ^= 1;
@@ -1223,6 +1243,18 @@ sdm_t *sdm_init(const char *filter_name,
   }
 
   f = p->filter;
+  /* The sweep found failed high-order and trellis cases. A separate
+   * native-direct clans-4 run also went non-finite, so do not exempt the
+   * ordinary implicit-dither route simply to recover its CPU overhead.
+   * Other low-order normal filters retain a cheap non-finite check; that
+   * check alone cannot detect a finite state beyond the safety bounds. */
+  if (sdm_guard_policy == SDM_GUARD_OFF)
+    p->guard_check = SDM_CHECK_OFF;
+  else if (sdm_guard_policy == SDM_GUARD_ON || trellis_order ||
+           f->trellis_order || f->order >= 6 || !strcmp(f->name, "clans-4"))
+    p->guard_check = SDM_CHECK_BOUNDS;
+  else
+    p->guard_check = SDM_CHECK_FINITE;
   st = &p->trellis[0];
 
   if (trellis_order || f->trellis_order) {

@@ -46,17 +46,19 @@ graph and a source-aware mastering graph are not interchangeable.
   The mastering encoders refuse input whose interpolated peak overloads
   ("interpolation overload") rather than clipping it; lower the level and
   run the conversion again.
-- The legacy `sdm` effect, which a plain `sox in -r 5644800 out.dsf` also
-  uses, fails closed. If its modulator state becomes non-finite or exceeds
-  fixed safety limits, `sox` reports `sdm: modulator state escaped;
-  refusing to write further 1-bit audio`, exits 2 and removes a failed
-  output file. Output already written to a pipe cannot be withdrawn:
-  discard it unless `sox` exits 0. Abrupt full-scale steps fed at the DSD
-  rate and long periods of near-full-scale DC can trigger this, and the
-  check can stop an input that the unchecked modulator would have
-  finished. Encodes that stay within the limits are bit-identical to SoX
-  DSD 1.0.2. The check is a safety stop, not a guarantee that every input
-  encodes.
+- `--sdm-guard auto|on|off` controls only the legacy `sdm` effect and
+  implicit one-bit dithering (including plain `sox in -r 5644800 out.dsf`).
+  Default `auto` enforces the full recurrence guard on trellis modes,
+  sixth- through eighth-order filters, and `clans-4`. Other non-trellis
+  fourth- and fifth-order filters retain non-finite quantizer checking
+  but not the state bounds. `on` applies full checks to all legacy filters;
+  `off` reverts to unchecked legacy behavior and permits silently broken
+  output. This does **not** disable independent mastering `pcmdsd` checks.
+  An enabled guard reports `sdm: modulator state escaped; refusing to write
+  further 1-bit audio`, exits 2, and removes failed output files. Discard
+  piped output unless `sox` exits 0. Guarded healthy encodes are bit-identical
+  to the unchecked recurrence; the check is not a stability proof. See
+  [the legacy guard enablement decision](LEGACY_SDM_GUARD_POLICY.md).
 - `--dsd-level preserve` uses unity reference for reconstructed native DSD;
   `sacd` intentionally applies gain 2 (+6.0206 dB). Neither normalizes or
   limits. PCM-origin mastering encoding uses its documented 0.5 reference
