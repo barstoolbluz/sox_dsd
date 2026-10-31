@@ -1126,6 +1126,26 @@ static int sdm_sample_trellis(sdm_t *p, double x, sox_sample_t *sample)
   return 0;
 }
 
+/* With the guard disabled, keep the original modulator's sample path.
+ * Selecting this loop per buffer avoids a guard-policy test and an error
+ * return in every sample, even when numerical checking is switched off.
+ * Both variants call the same recurrence and make identical decisions. */
+static inline sox_sample_t sdm_sample_unchecked(sdm_t *p, double x)
+{
+  const sdm_filter_t *f = p->filter;
+  double *s0 = p->trellis[0].sdm[p->idx].state;
+  double *s1 = p->trellis[0].sdm[p->idx ^ 1].state;
+  double y, v;
+
+  v = sdm_filter_calc(s0, s1, f, x, p->prev_y);
+  y = signbit(v) ? -1.0 : 1.0;
+
+  p->idx ^= 1;
+  p->prev_y = y;
+
+  return y * SOX_SAMPLE_MAX;
+}
+
 static int sdm_sample(sdm_t *p, double x, sox_sample_t *sample)
 {
   const sdm_filter_t *f = p->filter;
@@ -1173,6 +1193,12 @@ int sdm_process(sdm_t *p, const sox_sample_t *ibuf, sox_sample_t *obuf,
       if (sdm_sample_trellis(p, x, out))
         return sdm_abort(p, ilen, olen);
       ++out;
+    }
+  } else if (p->guard_check == SDM_CHECK_OFF) {
+    /* One dispatch per buffer; no guard/error branch in the hot loop. */
+    while (len--) {
+      x = *ibuf++ * (0.5 / SOX_SAMPLE_MAX);
+      *out++ = sdm_sample_unchecked(p, x);
     }
   } else {
     while (len--) {

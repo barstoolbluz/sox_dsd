@@ -19,6 +19,14 @@
 #ifndef SOX_SDM_X86_H
 #define SOX_SDM_X86_H
 
+/* Keep the SSE2 recurrence in both normal per-sample loops: adding the
+ * checked variant must not turn the unchecked path into a function call. */
+#if defined(__GNUC__) || defined(__clang__)
+#define SDM_FORCE_INLINE inline __attribute__((always_inline))
+#else
+#define SDM_FORCE_INLINE inline
+#endif
+
 #ifdef __AVX__
 
 #include <immintrin.h>
@@ -154,7 +162,7 @@ static void sdm_filter_calc2_avx(sdm_state_t *src, sdm_state_t *dst,
   } while (0)
 
 #define sdm_filter_calc sdm_filter_calc_sse2
-static double sdm_filter_calc_sse2(const double *src, double *dst,
+static SDM_FORCE_INLINE double sdm_filter_calc_sse2(const double *src, double *dst,
                                    const sdm_filter_t *f,
                                    double x, double y)
 {
@@ -232,4 +240,5 @@ static void sdm_filter_calc2_sse2(sdm_state_t *src, sdm_state_t *dst,
 
 #endif
 
+#undef SDM_FORCE_INLINE
 #endif
