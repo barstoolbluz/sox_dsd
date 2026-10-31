@@ -53,9 +53,21 @@ def inspect_objdump(path):
             forbidden_avx2.append(asm.split()[0])
     forbidden_avx2=sorted(set(forbidden_avx2))
     forbidden_fma=[m for m in counts if m.startswith(('vfmadd','vfmsub','vfnmadd','vfnmsub'))]
+    # Global -march=x86-64-v3/v4 can introduce non-AVX extensions in
+    # dispatch and lower-tier kernels, even after -mno-avx/-mno-fma.
+    # BMI1 ANDN actually appeared in the dispatch path on the owner's
+    # original globally tuned builds. The runtime capability gates do not
+    # authorize BMI/LZCNT/POPCNT for the SSE2 and AVX-only tiers.
+    extra_x86_isa={
+        'andn','bextr','blsi','blsmsk','blsr','bzhi',
+        'mulx','pdep','pext','rorx','sarx','shlx','shrx',
+        'tzcnt','lzcnt','popcnt','crc32',
+    }
+    untargeted_extensions={m:counts[m] for m in sorted(extra_x86_isa) if counts[m]}
     return dict(total_instructions=len(names),ymm_instructions=ymm,
        avx_mnemonics={k:v for k,v in sorted(counts.items()) if k.startswith('v')},
-       possible_avx2_mnemonics=forbidden_avx2,fma_mnemonics=forbidden_fma)
+       possible_avx2_mnemonics=forbidden_avx2,fma_mnemonics=forbidden_fma,
+       untargeted_extension_mnemonics=untargeted_extensions)
 
 
 def main():
@@ -81,6 +93,9 @@ def main():
             report['checks'][name+'_no_avx']=not bool(d[name]['avx_mnemonics'])
         report['checks']['avx1_ymm_executable']=d['avx1']['ymm_instructions']>0
         report['checks']['avx1_no_avx2']=not bool(d['avx1']['possible_avx2_mnemonics'])
+        for name in OBJECTS:
+            report['checks'][name+'_no_unrequested_x86_extensions']=not bool(
+                d[name]['untargeted_extension_mnemonics'])
         report['checks']['avx1_no_fma']=not bool(d['avx1']['fma_mnemonics'])
         report['checks']['sse2_no_fma']=not bool(d['sse2']['fma_mnemonics'])
         m=build/'src/Makefile'

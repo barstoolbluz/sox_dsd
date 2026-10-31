@@ -49,6 +49,7 @@ def main():
             checks[name+'_no_fma']=not report['objects'][name]['fma_mnemonics']
         cp=subprocess.run(['objdump','-d',str(build/objs['avx512'])],capture_output=True,text=True)
         asm=cp.stdout
+        checks['avx512_no_unrequested_x86_extensions']=not bool(report['objects']['avx512']['untargeted_extension_mnemonics'])
         checks['avx512_zmm_execution']=bool(re.search(r'%zmm\d+',asm))
         checks['avx512_full_width_permutations']=len(re.findall(r'\bvperm(?:t2|i2)?pd\b',asm))>=2
         checks['avx512_masked_tail_load']=bool(re.search(r'\bvmovupd\b.*%k[1-7]',asm))

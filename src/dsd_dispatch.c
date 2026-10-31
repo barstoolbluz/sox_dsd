@@ -1,11 +1,15 @@
-/* Baseline-ISA dispatcher. NEVER compile this TU with -mavx/-mavx2, LTO,
- * -march=native, or compiler flags enabling cross-target inlining. */
+/* Baseline-ISA dispatcher: global ISA tuning must not change
+ * the dispatch path before the selected kernel has been validated. */
 /* The dispatcher and scalar fallback run before or without SIMD feature
  * selection. Never let global ISA tuning turn them into AVX/FMA code. */
 #if defined(__GNUC__) && !defined(__clang__) && \
    (defined(__x86_64__) || defined(__i386__))
 # pragma GCC push_options
-# pragma GCC target ("no-avx,no-fma")
+# if defined(__x86_64__)
+#  pragma GCC target ("arch=x86-64")
+# else
+#  pragma GCC target ("no-avx,no-fma")
+# endif
 # pragma GCC optimize ("fp-contract=off")
 #endif
 

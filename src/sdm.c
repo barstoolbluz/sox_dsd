@@ -46,7 +46,7 @@
 # if defined(__x86_64__)
 #  pragma GCC target ("arch=x86-64")
 # elif defined(__i386__)
-#  pragma GCC target ("sse2,no-avx,no-fma")
+#  pragma GCC target ("no-avx,no-fma")
 # endif
 #endif
 
