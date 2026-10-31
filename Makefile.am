@@ -643,6 +643,7 @@ EXTRA_DIST += docs/dsd/handoffs/P14.md docs/dsd/handoffs/P14_CHECKPOINT.md \
 check-sdm-guard-policy: all
 	python3 $(srcdir)/tests/dsd/test_legacy_sdm_guard_policy.py --sox $(abs_builddir)/src/sox$(EXEEXT)
 EXTRA_DIST += tests/dsd/test_legacy_sdm_guard_policy.py \
+  tests/dsd/bench_legacy_sdm_avx.py \
   docs/dsd/LEGACY_SDM_GUARD_POLICY.md
 
 # Non-phase performance investigation; no production policy or DSP changes.
