@@ -1002,15 +1002,26 @@ static unsigned sdm_sort_cands(sdm_t *p, sdm_trellis_t *st)
  * The whole effect flow must abort, not fill its remaining output with bits.
  * The normal and trellis paths share this check but retain their old
  * coefficient selection, quantizer decisions and state evolution. */
+static const double sdm_state_limit[MAX_FILTER_ORDER] = {
+  0x1p+10, 0x1p+12, 0x1p+15, 0x1p+18,
+  0x1p+21, 0x1p+24, 0x1p+27, 0x1p+30
+};
+
 static int sdm_state_bounded(const double *state, int order)
 {
-  static const double limit[MAX_FILTER_ORDER] = {
-    0x1p+10, 0x1p+12, 0x1p+15, 0x1p+18,
-    0x1p+21, 0x1p+24, 0x1p+27, 0x1p+30
-  };
   int i;
   for (i = 0; i < order; ++i)
-    if (!(fabs(state[i]) <= limit[i])) return 0;
+    if (!(fabs(state[i]) <= sdm_state_limit[i])) return 0;
+  return 1;
+}
+
+/* The two trellis successors differ only in state[0]. Checking their
+ * shared tail once preserves both acceptance decisions exactly. */
+static int sdm_state_tail_bounded(const double *state, int order)
+{
+  int i;
+  for (i = 1; i < order; ++i)
+    if (!(fabs(state[i]) <= sdm_state_limit[i])) return 0;
   return 1;
 }
 
@@ -1065,9 +1076,13 @@ static int sdm_sample_trellis(sdm_t *p, double x, sox_sample_t *sample)
     if (p->guard_check == SDM_CHECK_OFF) {
       next[0].valid = next[1].valid = 1;
     } else {
-      next[0].valid = sdm_state_bounded(next[0].state, p->filter->order) &&
+      const int tail_ok = sdm_state_tail_bounded(
+        next[0].state, p->filter->order);
+      next[0].valid = tail_ok &&
+                      (fabs(next[0].state[0]) <= sdm_state_limit[0]) &&
                       isfinite(next[0].cost);
-      next[1].valid = sdm_state_bounded(next[1].state, p->filter->order) &&
+      next[1].valid = tail_ok &&
+                      (fabs(next[1].state[0]) <= sdm_state_limit[0]) &&
                       isfinite(next[1].cost);
     }
     cur->next = sdm_hist_get(p, cur->hist, next_pos);
