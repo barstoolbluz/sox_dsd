@@ -134,16 +134,13 @@ static void sdm_filter_calc2_avx(sdm_state_t *src, sdm_state_t *dst,
 #define SWAPHL(x) \
   _mm_castsi128_pd(_mm_shuffle_epi32(_mm_castpd_si128(x), 0x4e))
 
-#define SDM_FILTER_SSE2(s0, s1, s2, s3, src, x) do {            \
+/* Share the exact SSE2 recurrence between the single-sample entrypoints
+ * and the normal, register-resident buffer loop. Arithmetic order unchanged. */
+#define SDM_RECURRENCE_SSE2(s0, s1, s2, s3, g, x) do {         \
     __m128d tx, t0, t1, t2, t3;                                 \
     __m128d sx;                                                 \
                                                                 \
     sx = _mm_set1_pd(x);                                        \
-    s0 = _mm_load_pd(src);                                      \
-    s1 = _mm_load_pd(src + 2);                                  \
-    s2 = _mm_load_pd(src + 4);                                  \
-    s3 = _mm_load_pd(src + 6);                                  \
-                                                                \
     tx = _mm_shuffle_pd(sx, s0, 1);                             \
     t0 = _mm_shuffle_pd(s0, s1, 1);                             \
     t1 = _mm_shuffle_pd(s1, s2, 1);                             \
@@ -159,6 +156,14 @@ static void sdm_filter_calc2_avx(sdm_state_t *src, sdm_state_t *dst,
     s1 = _mm_sub_pd(s1, _mm_mul_pd(t1, _mm_load_pd(g + 2)));    \
     s2 = _mm_sub_pd(s2, _mm_mul_pd(t2, _mm_load_pd(g + 4)));    \
     s3 = _mm_sub_pd(s3, _mm_mul_pd(t3, _mm_load_pd(g + 6)));    \
+  } while (0)
+
+#define SDM_FILTER_SSE2(s0, s1, s2, s3, src, x) do {            \
+    s0 = _mm_load_pd(src);                                      \
+    s1 = _mm_load_pd(src + 2);                                  \
+    s2 = _mm_load_pd(src + 4);                                  \
+    s3 = _mm_load_pd(src + 6);                                  \
+    SDM_RECURRENCE_SSE2(s0, s1, s2, s3, g, x);                 \
   } while (0)
 
 #define sdm_filter_calc sdm_filter_calc_sse2
