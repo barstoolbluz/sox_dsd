@@ -31,7 +31,7 @@
 .SP
 .fi
 ..
-.TH SOXI 1 "September 12, 2024" SoX "Sound eXchange"
+.TH SOXI 1 "October 31, 2026" "SoX DSD 1.0.4" "Sound eXchange"
 .SH NAME
 soxi \- Sound eXchange Information, display sound file metadata
 .SH SYNOPSIS
@@ -47,6 +47,12 @@ is intended for use only with audio files with a self-describing header.
 By default, as much information as is available is shown.
 An option may be given to select just a single piece of information
 (perhaps for use in a script or batch file).
+.SP
+For native DSF, DSDIFF, and WSD inputs, the reported sample rate is the
+one-bit native DSD clock (for example 2822400 Hz for DSD64), the
+precision is 1 bit, and the encoding is Direct Stream Digital.
+.B soxi
+reads header information; it does not reconstruct DSD to PCM.
 .SH OPTIONS
 .TP
 \fB\-V\fR
@@ -101,14 +107,15 @@ Show the name of the audio encoding.
 \fB\-a\fR
 Show file comments (annotations) if available.
 .SH BUGS
-Please report any bugs found in this version of SoX to the mailing list
-(sox-ng@groups.io)
+Report SoX DSD bugs at
+\f(CWhttps://github.com/barstoolbluz/sox_dsd/issues\fR.
+The upstream SoX-NG mailing list is not the SoX DSD issue tracker.
 .SH SEE ALSO
 .BR sox (1),
 .BR soxformat_ng (7),
 .BR libsox_ng (3)
 .SP
-The SoX web site at https://codeberg.org/sox_ng
+SoX DSD source and releases: \f(CWhttps://github.com/barstoolbluz/sox_dsd\fR
 .br
 .SH LICENSE
 Copyright 2008\-2013 by Chris Bagwell and SoX and SoX Contributors.
