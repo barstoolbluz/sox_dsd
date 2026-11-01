@@ -172,7 +172,7 @@ At exit from \fBstartwrite\fP, \fBsox_format_t.signal\fP should be
 completely filled in, using either the data that was specified, or
 values chosen by the format based on the format's defaults or capabilities.
 .TP
-.B size_t (*write)(sox_format_t *\fIft\fP, sox_sample_t *\fIbuf\fP, size_t \fIlen\fP)
+.B size_t (*write)(sox_format_t *\fIft\fP, sox_sample_t const *\fIbuf\fP, size_t \fIlen\fP)
 Given a buffer and a length, copy that many samples out of the buffer,
 convert them from signed longs to the appropriate data types
 and write them to the file.
