@@ -55,20 +55,31 @@ Declarations for all of the below (and a lot more!).
 However, you should only use items whose names begin with
 \fBsox_\fR or \fBSOX_\fR; the \fBlsx_\fR and \fBLSX_\fR items
 are intended for internal use by SoX's format and effect handlers.
-They are exported by \fBlibsox\fR so that dynamically-loaded
+They are exported by \fBlibsox_ng\fR so that dynamically-loaded
 format handlers and custom format and effect handlers can use them
 but should not be used by libSoX-based applications.
 .SP
-Programs should normally include \fB<sox.h>\fR to be portable to systems
-that have not upgraded to \fBsox_ng\fR yet; those that have upgraded should
-provide \fB<sox.h>\fR as an alias for \fB<sox_ng.h>\fR and the interface is
-unlikely to change.
+SoX DSD 1.0.4 installs
+.B <sox_ng.h>
+and
+.B <sox_dsd.h>
+by default.  Include the former for the established libsox_ng API and
+the latter for its additive DSD extensions.
+.B <sox.h>
+is an optional compatibility alias, installed only when configured with
+.BR \--enable-replace .
+Do not assume that alias is available on a default SoX DSD installation.
 .TP
 .B cc \-o \fIfile file.c\fB \-lsox_ng
-Ensure that if a program includes \fB<sox.h>\fR, it is linked
-with \fB-lsox\fR, and \fB<sox_ng.h>\fR with \fB-lsox_ng\fR as
-some software distributions (or you) may choose to install them both
-side by side and the contents of their internal data structures differ.
+Link against
+.B \-lsox_ng
+when including the SoX DSD headers.  The optional
+.B \-lsox
+alias is also controlled by
+.BR \--enable-replace .
+When installed, the
+.B sox_ng.pc
+pkg-config file provides the appropriate include and library search paths.
 .SH BASIC TYPES
 .sp .5
 .TS
@@ -1616,9 +1627,11 @@ when finished.  Initialize options with
 .B sox_dsd_decode_options_init()
 or
 .B sox_dsd_decode_options_init_extended()
-for the optional FIR kernel override.  The caller specifies native and
-PCM sample rates, channels, decoding profile, level reference and
-bandwidth policy.  Results are binary64 PCM samples; the public API can
+for the optional FIR kernel override.  Both initializers default to
+mastering v2 reconstruction, preserve level and adaptive bandwidth.
+The caller supplies native and PCM sample rates and channels, and may
+override the profile, level reference and bandwidth policy.  Results
+are binary64 PCM samples; the public API can
 return amplitudes outside the +/-1 range.  The separate SoX signed-32
 effect-graph adapter may clip such samples according to the CLI policy.
 Use
@@ -1640,13 +1653,20 @@ A borrowed block remains valid only until the next packed read or a
 successful seek or close.  Do not alternate packed and expanded reads
 on one handle without a successful seek.
 .SH LINKING
-How you link against libsox_ng depends on how SoX was
-built on your system. For a static build, just link against the
-library. For a dynamic build, use \fBlibtool\fR to
-link with the correct linker flags. See the \fBlibtool\fR manual for
-details; basically, you use it like this:
+For an installed library, link with
+.BR \-lsox_ng .
+If the
+.B sox_ng.pc
+file was installed, obtain compiler and linker flags with
+.BR pkg-config :
 .XE
-   libtool \-\-mode=link gcc \-o prog /path/to/libsox_ng.la
+   cc prog.c $(pkg-config --cflags --libs sox_ng) -o prog
+.XX
+Static linking also requires the dependencies used in the selected build;
+consult its pkg-config metadata or build configuration.  When linking
+against a libtool archive in an uninstalled build tree, use libtool:
+.XE
+   libtool \-\-mode=link gcc \-o prog prog.c /path/to/libsox_ng.la
 .XX
 .SH COPYRIGHT
 Copyright 1991\-2015 Lance Norskog, Chris Bagwell and sundry contributors.

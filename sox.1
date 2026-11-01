@@ -1443,6 +1443,10 @@ and
 .BR decode.mastering.v2.dsd1024 .
 Their respective passbands are 25, 48, 66, 66 and 66 kHz; the intermediate
 PCM clocks are 88200 Hz for DSD64 and 176400 Hz for the other four rates.
+Planned DSD reconstruction accepts PCM output clocks of 44100, 48000,
+88200, 96000, 176400, 192000, 352800, 384000, 705600 or 1411200 Hz.
+Other clocks are not supported for this decoder route; DoP transport
+has separate clock rules below.
 .SP
 The explicit aliases
 .B mastering
