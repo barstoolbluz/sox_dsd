@@ -336,7 +336,12 @@ check-dsd: all
 	  $(abs_builddir)/test/dsd_test_host_isa$(EXEEXT) --tiers >/dev/null && \
 	  $(abs_builddir)/test/dsd_test_p11$(EXEEXT) && \
 	  if test "$(DSD_PHASE)" = "P11"; then \
+	    tiers=$$($(abs_builddir)/test/dsd_test_host_isa$(EXEEXT) --tiers) || exit $$?; \
+	    p11_tiers=scalar; \
+	    case " $$tiers " in *" sse2 "*) p11_tiers="$$p11_tiers sse2";; esac; \
+	    case " $$tiers " in *" avx1 "*) p11_tiers="$$p11_tiers avx1";; esac; \
 	    python3 $(srcdir)/tests/dsd/test_p11_numeric.py \
+	      --phase P11 --tiers $$p11_tiers \
 	      --unit $(abs_builddir)/test/dsd_test_p11$(EXEEXT) \
 	      --results $(DSD_RESULTS)/numeric; \
 	  fi; \
