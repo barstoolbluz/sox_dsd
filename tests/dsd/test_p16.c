@@ -3,6 +3,7 @@
  * own fixture chronology and bit-addressing oracle, not production helpers. */
 #include "sox_dsd.h"
 #include "dsd.h"
+#include "dsd_kernels.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -249,6 +250,11 @@ static void matrix_check(void)
   const sox_dsd_decode_profile_t profiles[]={
     SOX_DSD_DECODE_MASTERING,SOX_DSD_DECODE_WIDEBAND,SOX_DSD_DECODE_MASTERING_V2};
   const char *tiers[]={"scalar","sse2","avx1","avx2","avx512"};
+  const unsigned required[]={0,LSX_DSD_CPU_SSE2,
+      LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1,
+      LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1|LSX_DSD_CPU_AVX2,
+      LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1|LSX_DSD_CPU_AVX2|LSX_DSD_CPU_AVX512F};
+  const unsigned host=lsx_dsd_features_host();
   for(unsigned r=0;r<3;r++)for(unsigned pr=0;pr<3;pr++)
    for(size_t out=0;out<sizeof(pcm)/sizeof(pcm[0]);out++)for(unsigned k=0;k<5;k++)
     for(unsigned planar=0;planar<2;planar++)for(unsigned offset=0;offset<8;offset++) {
@@ -264,7 +270,11 @@ static void matrix_check(void)
         CHECK(first.count==second.count);
         CHECK(!memcmp(first.pcm,second.pcm,first.count*ch*sizeof(double)));
         passed++;
-      } else skipped++;
+      } else {
+        /* Unavailable may be skipped only when the CPU/OS lacks the ISA. */
+        CHECK((host & required[k]) != required[k]);
+        skipped++;
+      }
       free(first.pcm);free(second.pcm);free(raw);
     }
   fprintf(stdout,"P16 DSP matrix: %lu passed %lu unsupported; %lu assertions\n",

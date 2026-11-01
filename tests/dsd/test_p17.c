@@ -12,6 +12,7 @@
 #include "pcmdsd_p20_guards.h"
 #include "pcmdsd_v2_guards.h"
 #include "sdm.h"
+#include "dsd_kernels.h"
 #include <stdint.h>
 #include <inttypes.h>
 #include <limits.h>
@@ -224,6 +225,11 @@ static void unit(void)
 }
 static void matrix(void)
 {
+  static const unsigned required[]={0,LSX_DSD_CPU_SSE2,
+    LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1,
+    LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1|LSX_DSD_CPU_AVX2,
+    LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1|LSX_DSD_CPU_AVX2|LSX_DSD_CPU_AVX512F};
+  const unsigned host=lsx_dsd_features_host();
   for(size_t i=0;i<2;i++)for(unsigned pr=0;pr<2;pr++)
   for(size_t o=0;o<9;o++)for(unsigned channel_set=0;channel_set<3;channel_set++)
   for(unsigned tier=0;tier<5;tier++)for(unsigned layout=0;layout<2;layout++)
@@ -237,7 +243,10 @@ static void matrix(void)
       CHECK(a.n==b.n);
       CHECK(memcmp(a.samples,b.samples,a.n*channels*sizeof(double))==0);
       passed++;
-    }else skipped++;
+    }else{
+      CHECK((host & required[tier]) != required[tier]);
+      skipped++;
+    }
     free(a.samples);free(b.samples);free(f.owned);
   }
   printf("P17 matrix PASS pairs=%" PRIu64 " unavailable=%" PRIu64 " checks=%" PRIu64 "\n",

@@ -55,7 +55,12 @@ def main():
     ap.add_argument('--unit', type=Path, default=ROOT/'test/dsd_test_p16')
     ap.add_argument('--results', type=Path, default=ROOT/'tests/dsd/results/P16/integration')
     ap.add_argument('--quick', action='store_true', help='development subset; not full CLI qualification')
+    ap.add_argument('--tiers', nargs='+', choices=('scalar','avx2'),
+                    default=['scalar','avx2'],
+                    help='host-runnable CLI tiers; the make gate probes CPU/XCR0 first')
     args = ap.parse_args()
+    if 'scalar' not in args.tiers or len(set(args.tiers)) != len(args.tiers):
+        ap.error('tier list must include scalar exactly once and no duplicates')
     args.sox = args.sox.resolve()
     args.unit = args.unit.resolve()
     args.results.mkdir(parents=True, exist_ok=True)
@@ -63,7 +68,8 @@ def main():
         if not f.is_file(): ap.error(f'missing built binary: {f}')
     token = digest(json.dumps(dict(sox=digest(args.sox.read_bytes()),
         unit=digest(args.unit.read_bytes()),
-        harness=digest(Path(__file__).read_bytes()),quick=args.quick),sort_keys=True).encode())
+        harness=digest(Path(__file__).read_bytes()),quick=args.quick,
+        tiers=args.tiers),sort_keys=True).encode())
     outfile = args.results/'packed-cli.json'
     records = []
     if outfile.exists():
@@ -74,8 +80,8 @@ def main():
     result = dict(schema='P16/packed-cli/1',configuration_sha256=token,
         executed_command=['python3', *map(str,os.sys.argv)],
         host=dict(node=platform.node(),system=platform.platform(),machine=platform.machine()),
-        coverage='development subset' if args.quick else 'full integration matrix',
-        cases=records)
+        coverage='development subset' if args.quick else 'host-runnable full integration matrix',
+        tiers=['scalar'] if args.quick else args.tiers, cases=records)
     def save():
         result['verdict'] = 'FAIL' if any(x['status']!='PASS' for x in records) else 'PASS'
         result['counts'] = dict(pass_count=sum(x['status']=='PASS' for x in records),
@@ -91,7 +97,7 @@ def main():
         chans = (1,2) if args.quick else (1,2,6)
         profiles = ('conservative','wideband') if args.quick else ('conservative','wideband','v2')
         outputs = (88200,) if args.quick else (44100,192000)
-        kernels = ('scalar',) if args.quick else ('scalar','avx2')
+        kernels = ('scalar',) if args.quick else tuple(args.tiers)
         for rate in rates:
             for ext in ('dsf','dff'):
                 for ch in chans:

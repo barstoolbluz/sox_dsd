@@ -145,8 +145,16 @@ def main():
           report['comparisons'].append(row)
           print(a.phase,'cross-ISA',rate,tier,row['status'],flush=True)
       atomic(a.results/'cross-isa.json',report)
-    report['status']='PASS' if not report['errors'] and report['comparisons'] and all(
-        r['status']=='PASS' for r in report['comparisons']) else 'INCOMPLETE' if report['unrun'] else 'FAIL'
+    # Scalar-only hosts still qualify the reference renders. Cross-ISA
+    # comparisons are inapplicable, not silently treated as having run.
+    scalar_only = tiers == ['scalar']
+    if scalar_only:
+      report['skipped_comparisons'] = 'No SIMD comparison tiers requested'
+    complete = (not report['errors'] and not report['unrun'] and
+      ((len(report['comparisons']) > 0 and all(
+          r['status']=='PASS' for r in report['comparisons'])) or
+       (scalar_only and len(report['records']) == len(a.rates))))
+    report['status'] = 'PASS' if complete else 'INCOMPLETE' if report['unrun'] else 'FAIL'
     atomic(a.results/'cross-isa.json',report)
     return 0 if report['status']=='PASS' else 2
 
