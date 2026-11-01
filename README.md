@@ -92,6 +92,15 @@ There are three builds:
 
 Pick one with `nix build .#bare` or `nix build .#checked`.
 
+The `checked` variant runs the DSD suite on the current builder. It tests
+scalar and all SIMD tiers that the **CPU and OS can execute** (including the
+required saved register state), reporting missing tiers as `SKIP`. It still
+compiles and audits available SIMD kernel objects, even when the builder
+cannot run them. A supported tier that fails, or is missing from the build,
+remains a test failure. Thus `checked` passing on an AVX2-only machine does
+not establish AVX-512 executable qualification; use a host with AVX-512F for
+that additional coverage.
+
 If flakes are not enabled, add `--extra-experimental-features 'nix-command flakes'`
 to each `nix` command.
 
