@@ -885,13 +885,28 @@ DSD1024	2822400 Hz
 .SP
 The output contains DoP marker bytes, not ordinary PCM audio.  A player
 or DAC must support DoP at the selected transport rate; file support is
-not a device-compatibility guarantee.  If the output rate is given
-explicitly with
-.BR \-r ,
-it must match the required transport rate.  The planner rejects lossy
-or incompatible output formats, multiple or non-terminal
+not a device-compatibility guarantee.
 .B dop
-effects, and any signal that is not native DSD at the transport boundary.  Example:
+always rejects input that is not one-bit DSD, and an output rate that
+differs from the required transport rate.
+.SP
+With
+.B \-\-dsd\-mode auto
+or
+.BR native ,
+the planner selects the transport rate when
+.B \-r
+is omitted, and rejects lossy or incompatible output formats, output
+precision other than 24 bits, and multiple or non-terminal
+.B dop
+effects.  In the default
+.B legacy
+mode the planner does not run:
+.B \-r
+must be given, and those mistakes are not caught.  For example, a
+16-bit output or a later effect such as
+.B vol
+is accepted and corrupts the DoP stream.  Example:
 .XE
    sox --dsd-mode auto input.dsf -r 176400 -b 24 transport.wav dop
 .XX
