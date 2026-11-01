@@ -33,7 +33,7 @@
 .SP
 .fi
 ..
-.TH LIBSOX_NG 3 "August 11, 2024" "SoX" "Sound eXchange_ng"
+.TH LIBSOX_NG 3 "October 31, 2026" "SoX DSD 1.0.4" "Sound eXchange"
 .SH NAME
 libsox_ng \- another audio file format and effect library
 .SH SYNOPSIS
@@ -1560,6 +1560,85 @@ The default precision is 16 bits per sample.
 .TP
 .B SOX_DEFAULT_ENCODING
 The default encoding is \fBSOX_ENCODING_SIGN2\fR (linear 2's complement PCM).
+.SH SOX DSD EXTENSIONS
+SoX DSD 1.0.4 retains the existing
+.B sox_ng.h
+library ABI and also installs the additive
+.B sox_dsd.h
+header.  Use the main SoX format and effect APIs for ordinary PCM and
+legacy operations.  The DSD header exposes optional native channel-layout
+metadata, source-rate reconstruction and borrowed packed-input access.
+It does not change the layouts of public structures in
+.BR sox_ng.h .
+.TP
+.B #include <sox_dsd.h>
+Provides DSD declarations including
+.BR sox_dsd_status_t ,
+.B sox_dsd_role_t
+and
+.BR sox_dsd_container_t .
+Status results distinguish success, needs-input, needs-output, completion,
+invalid arguments, unsupported operations, I/O errors and numerical errors.
+The header contains the complete function signatures and versioned records.
+.TP
+.B sox_dsd_get_layout(), sox_dsd_get_stream_info()
+Read the source's ordered speaker identities and native stream metadata.
+The former returns an owned layout copy, released with
+.BR sox_dsd_layout_free() .
+The latter copies information such as native DSD bit clock, channel count,
+frame count, bit order and container type into a caller-provided
+.B sox_dsd_stream_info_t
+record.  The public metadata records use size/version fields.
+.TP
+.B sox_dsd_layout_new(), sox_dsd_layout_copy(), sox_dsd_layout_map()
+Create, duplicate, or subset/reorder channel metadata without mixing
+samples.  Use the
+.B sox_dsd_layout_set_role()
+and related setters for explicit roles and format-specific IDs.
+.B sox_dsd_layout_wav_mask()
+can derive a representable WAV channel mask and ordering, or report that
+the layout cannot be represented exactly.
+.TP
+.B sox_open_write_dsd()
+Open a DSD output using an optional caller-owned layout.  The function
+clones the layout before writing; the caller retains ownership.  The
+layout is validated for the destination format; a format cannot
+silently invent unsupported speaker assignments.
+DSF and DSDIFF are writable at the five canonical native clocks from
+DSD64 to DSD1024; WSD remains read-only.  See
+.BR soxformat_ng (7).
+.TP
+.B sox_dsd_decoder_create(), sox_dsd_decoder_process(), sox_dsd_decoder_finish()
+Create, feed, drain, and destroy an explicit source-rate DSD decoder
+using
+.B sox_dsd_decoder_destroy()
+when finished.  Initialize options with
+.B sox_dsd_decode_options_init()
+or
+.B sox_dsd_decode_options_init_extended()
+for the optional FIR kernel override.  The caller specifies native and
+PCM sample rates, channels, decoding profile, level reference and
+bandwidth policy.  Results are binary64 PCM samples; the public API can
+return amplitudes outside the +/-1 range.  The separate SoX signed-32
+effect-graph adapter may clip such samples according to the CLI policy.
+Use
+.B sox_dsd_decoder_report()
+for the decoder's frame/rate/level report.
+.TP
+.B sox_dsd_read_packed(), sox_dsd_decoder_process_packed()
+For formats that support packed reads, get a borrowed
+.B sox_dsd_packed_block_t
+and feed a bounded slice directly to the same decoder without expanding
+all one-bit frames into an interleaved int32 buffer.  Initialize the
+block with
+.BR sox_dsd_packed_block_init() ;
+check applicability with
+.BR sox_dsd_packed_supported() .
+The block describes valid frames, bit order, offsets and byte strides;
+its storage remains owned by the format reader and must not be modified.
+A borrowed block remains valid only until the next packed read or a
+successful seek or close.  Do not alternate packed and expanded reads
+on one handle without a successful seek.
 .SH LINKING
 How you link against libsox_ng depends on how SoX was
 built on your system. For a static build, just link against the
