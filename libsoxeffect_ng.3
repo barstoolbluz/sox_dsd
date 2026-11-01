@@ -42,29 +42,28 @@ typedef struct {
     ...
 } priv_t;
 
-static int getopts(sox_effect_r * effp, int argc, char **argv);
-static int start(sox_effect_r * effp);
-static int flow(sox_effect_t * effp, sox_sample_t * ibuf,
+static int getopts(sox_effect_t * effp, int argc, char **argv);
+static int start(sox_effect_t * effp);
+static int flow(sox_effect_t * effp, sox_sample_t const * ibuf,
                 sox_sample_t * obuf, size_t * isamp, size_t * osamp);
 static int drain(sox_effect_t * effp, sox_sample_t *obuf, size_t *osamp);
 static int stop(sox_effect_t * effp);
-static int kill(sox_effect_t * effp);
+static int lsx_kill(sox_effect_t * effp);
 static char *get(sox_effect_t * effp, char *name);
 static char *set(sox_effect_t * effp, char *name, char *value);
 
-sox_effect_handler_t * effect(void)
+sox_effect_handler_t const * effect(void)
 {
   static char const usage[] = "[options]";
-  static char const * const extra_usage = {
+  static char const * const extra_usage[] = {
     "...",
     NULL
   };
-  int const flags = 0;
   static sox_effect_handler_t handler = {
-    "effect", usage, extra_usage, flags,
-    getopt, start, flow, drain, stop, kill,
-    sizeof(priv_t), get, set
-  }
+    "effect", usage, 0,
+    getopts, start, flow, drain, stop, lsx_kill,
+    sizeof(priv_t), extra_usage, get, set
+  };
   return &handler;
 }
 .XX
