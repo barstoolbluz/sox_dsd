@@ -186,7 +186,7 @@ def finite_cases(banks,manifest,unit=FIR):
       method='expanded coefficient polynomial + zero-extension + longdouble scalar inner product at beginnings/middle/EOF; P15 section 8.6 bound',
       cases=cases)
 
-def sdm_cases(duration=4096,unit=FIR):
+def sdm_cases(duration=4096,unit=FIR,host_tiers=None):
     cases=[]
     # Exactly coherent in the source signal generator. Tone is well below the
     # required .5 envelope; a deliberate overload is tested separately in C.
@@ -196,12 +196,15 @@ def sdm_cases(duration=4096,unit=FIR):
     for hz in (22579200,45158400):
         trials=[]
         for tier in ('scalar','sse2','avx1','avx2','avx512'):
+            if host_tiers is not None and tier not in host_tiers:
+                trials.append(dict(tier=tier,status='SKIP_HOST_ISA'))
+                continue
             command=[str(unit),'encode-export',str(hz),str(duration)]
             cp=subprocess.run(command,input=waveform.tobytes(),capture_output=True,
                  cwd=ROOT,timeout=150,env={**os.environ,'SOX_DSD_KERNEL_SDM':tier})
             if cp.returncode:
                 # Impossible ISA tier is a named unrun, never a pass.
-                if b'P17 FAIL' in cp.stderr and b'candidate_create' in cp.stderr:
+                if host_tiers is None and b'P17 FAIL' in cp.stderr and b'candidate_create' in cp.stderr:
                     trials.append(dict(tier=tier,status='UNRUN_UNSUPPORTED_ISA',
                        stderr=cp.stderr.decode(errors='replace')[-250:]))
                     continue
@@ -224,7 +227,9 @@ def sdm_cases(duration=4096,unit=FIR):
         cases.append(dict(native_hz=hz,source_hz=source_hz,
            source_frames=duration,source_duration_seconds=duration/source_hz,
            input_peak=float(np.max(np.abs(waveform))),trials=trials,
-           status='PASS' if all(x['status']=='PASS_DIAGNOSTIC' for x in trials if not x['status'].startswith('UNRUN')) else 'FAIL'))
+           status='PASS' if all(x['status']=='PASS_DIAGNOSTIC' for x in trials
+               if x['status'] not in ('SKIP_HOST_ISA','UNRUN_UNSUPPORTED_ISA')) and
+               any(x['status']=='PASS_DIAGNOSTIC' for x in trials) else 'FAIL'))
     return dict(schema='P17/sdm-synthetic-diagnostic/1',status='PASS' if all(x['status']=='PASS' for x in cases) else 'FAIL',
        qualified=False,limits='28-bit population is diagnostic, not SACD normative, and cannot establish stability or professional quality',
        cases=cases)
@@ -236,7 +241,13 @@ def main():
     ap.add_argument('--source-frames',type=int,default=4096)
     ap.add_argument('--unit',type=Path,default=FIR,
                     help='built P17 native exporter (out-of-tree builds supported)')
+    ap.add_argument('--host-tiers',nargs='+',
+                    choices=['scalar','sse2','avx1','avx2','avx512'],
+                    help='CPU/XCR0-supported tiers, supplied by check-dsd host probe')
     args=ap.parse_args()
+    if args.host_tiers is not None and ('scalar' not in args.host_tiers or
+            len(set(args.host_tiers)) != len(args.host_tiers)):
+        ap.error('host tiers must include scalar and contain no duplicates')
     unit=args.unit.resolve()
     if not unit.is_file():ap.error('P17 native exporter missing: '+str(unit))
     if args.fft<1<<17 or args.fft>1<<21 or args.fft&(args.fft-1):ap.error('fft size must be a power of two between 2^17 and 2^21')
@@ -247,7 +258,7 @@ def main():
     records=[]
     for name,producer,file in [('spectral_grid',lambda:spectral_cases(bank_words(),manifest,args.fft),'filter-development-evidence.json'),
                                ('finite_oracle',lambda:finite_cases(bank_words(),manifest,unit),'finite-reference-evidence.json'),
-                               ('candidate_sdm',lambda:sdm_cases(args.source_frames,unit),'sdm-candidate-diagnostics.json')]:
+                               ('candidate_sdm',lambda:sdm_cases(args.source_frames,unit,args.host_tiers),'sdm-candidate-diagnostics.json')]:
         try:out=producer()
         except Exception as error:out=dict(schema='P17/error/1',status='FAIL',error=repr(error))
         atomic(args.results/file,out)
@@ -258,7 +269,7 @@ def main():
         rate_specific_profile_certificates_qualified=False,writer_enabled=False,
         elapsed_seconds=time.monotonic()-t0,host=dict(node=platform.node(),
         python=platform.python_version(),numpy=np.__version__,machine=platform.machine()),
-        records=records,
+        records=records,host_tiers=args.host_tiers,
         outstanding=['continuous-frequency composite extremum/alias interval proof (sampled evidence recorded, inherited bank certificates unchanged)',
           'independent commercial/reference DSD512/1024 program corpus and external decoder interoperability',
           '30-minute-per-rate mastering/ultrasonic/gain/stability holdouts and 1-hour sustained native/ISA soak',

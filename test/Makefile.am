@@ -117,6 +117,13 @@ dsd_test_p10_SOURCES = ../tests/dsd/test_p10.c ../src/sdm.c
 dsd_test_p10_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p10_LDADD = $(top_builddir)/src/libsox_ng.la
 
+# Test-only host ISA inventory. Uses production CPUID/XCR0 selection; does not
+# execute any SIMD instruction while discovering runnable tiers.
+EXTRA_PROGRAMS += dsd_test_host_isa
+dsd_test_host_isa_SOURCES = ../tests/dsd/test_host_isa.c
+dsd_test_host_isa_CPPFLAGS = -I$(top_srcdir)/src
+dsd_test_host_isa_LDADD = $(top_builddir)/src/libsox_ng.la
+
 # P11 executable mocked CPUID and real per-ISA FIR/SDM contract tests.
 # Rate-aware auto dispatch and scalar-bitwise equivalence regression.
 EXTRA_PROGRAMS += dsd_test_sdm_auto

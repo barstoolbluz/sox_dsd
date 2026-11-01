@@ -331,7 +331,9 @@ check-dsd: all
 	fi
 
 	@if ( test "$(DSD_PHASE)" = "P11" || test "$(DSD_PHASE)" = "P12" || ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ) ); then \
-	  $(MAKE) -C test dsd_test_p11$(EXEEXT) && \
+	  $(MAKE) -C test dsd_test_host_isa$(EXEEXT) dsd_test_p11$(EXEEXT) && \
+	  $(abs_builddir)/test/dsd_test_host_isa$(EXEEXT) --self-test && \
+	  $(abs_builddir)/test/dsd_test_host_isa$(EXEEXT) --tiers >/dev/null && \
 	  $(abs_builddir)/test/dsd_test_p11$(EXEEXT) && \
 	  if test "$(DSD_PHASE)" = "P11"; then \
 	    python3 $(srcdir)/tests/dsd/test_p11_numeric.py \
@@ -340,51 +342,80 @@ check-dsd: all
 	  fi; \
 	fi
 
-# P12: verify actual AVX2 execution and all four tiers on the actual CLI.
+# P12: execute only host-supported tiers. Always build and audit ISA objects;
+# the host probe fails when the CPU can run a tier but the build cannot.
 	@if test "$(DSD_PHASE)" = "P12"; then \
+	  tiers=$$($(abs_builddir)/test/dsd_test_host_isa$(EXEEXT) --tiers) || exit $$?; \
+	  p12_tiers=$${tiers% avx512}; \
+	  channels="scalar"; \
+	  case " $$tiers " in *" avx2 "*) channels="scalar avx2";; esac; \
 	  $(MAKE) -C test dsd_test_p12_bounds$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_p12_bounds$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p11_integration.py \
-	    --phase P12 --tiers scalar sse2 avx1 avx2 \
+	    --phase P12 --tiers $$p12_tiers \
 	    --sox $(abs_builddir)/src/sox \
 	    --candidate $(abs_builddir)/test/sox_p10_candidate \
 	    --results $(DSD_RESULTS)/forced-cli && \
 	  python3 $(srcdir)/tests/dsd/test_p12_channels.py \
+	    --tiers $$channels \
 	    --sox $(abs_builddir)/src/sox \
 	    --candidate $(abs_builddir)/test/sox_p10_candidate \
 	    --results $(DSD_RESULTS)/channels && \
 	  python3 $(srcdir)/tests/dsd/test_p11_numeric.py \
-	    --phase P12 --tiers scalar sse2 avx1 avx2 \
+	    --phase P12 --tiers $$p12_tiers \
 	    --unit $(abs_builddir)/test/dsd_test_p11$(EXEEXT) \
 	    --results $(DSD_RESULTS)/cross-isa && \
-	  python3 $(srcdir)/tests/dsd/check_p12_isa.py \
-	    --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
+	  if grep -q '^#define HAVE_DSD_AVX2 1' $(abs_builddir)/src/soxconfig.h; then \
+	    python3 $(srcdir)/tests/dsd/check_p12_isa.py \
+	      --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
+	  elif grep -q '^#define HAVE_DSD_AVX1 1' $(abs_builddir)/src/soxconfig.h; then \
+	    echo 'SKIP P12 AVX2 object ISA audit: compiler did not build tier'; \
+	    python3 $(srcdir)/tests/dsd/check_p11_isa.py \
+	      --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
+	  else \
+	    echo 'SKIP P12 x86 SIMD object ISA audit: compiler did not build tiers'; \
+	  fi; \
 	fi
 
-
-# P13: independent AVX-512F execution plus the retained four-tier coverage.
-# The static ISA audit is additional evidence, never a substitute for the
-# executable CPUID/XCR0, guard-page and production CLI tests.
+# P13: retain mocked CPUID and static ISA audits even without AVX-512F.
+# The P12/P13 test binaries report SKIP only for unavailable executable tiers.
+# A test failure on an executable tier is never treated as a skip.
 	@if ( test "$(DSD_PHASE)" = "P13" || ( test "$(DSD_PHASE)" = "P14" || ( test "$(DSD_PHASE)" = "P15" || ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ) ) ) ); then \
+	  tiers=$$($(abs_builddir)/test/dsd_test_host_isa$(EXEEXT) --tiers) || exit $$?; \
+	  channels="scalar"; \
+	  case " $$tiers " in *" avx2 "*) channels="$$channels avx2";; esac; \
+	  case " $$tiers " in *" avx512 "*) channels="$$channels avx512";; esac; \
 	  $(MAKE) -C test dsd_test_p12_bounds$(EXEEXT) dsd_test_p13$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_p12_bounds$(EXEEXT) && \
 	  $(abs_builddir)/test/dsd_test_p13$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p11_integration.py \
-	    --phase P13 --tiers scalar sse2 avx1 avx2 avx512 \
+	    --phase P13 --tiers $$tiers \
 	    --sox $(abs_builddir)/src/sox \
 	    --candidate $(abs_builddir)/test/sox_p10_candidate \
 	    --results $(DSD_RESULTS)/forced-cli && \
 	  python3 $(srcdir)/tests/dsd/test_p12_channels.py \
-	    --phase P13 --tiers scalar avx2 avx512 \
+	    --phase P13 --tiers $$channels \
 	    --sox $(abs_builddir)/src/sox \
 	    --candidate $(abs_builddir)/test/sox_p10_candidate \
 	    --results $(DSD_RESULTS)/channels && \
 	  python3 $(srcdir)/tests/dsd/test_p11_numeric.py \
-	    --phase P13 --tiers scalar sse2 avx1 avx2 avx512 \
+	    --phase P13 --tiers $$tiers \
 	    --unit $(abs_builddir)/test/dsd_test_p11$(EXEEXT) \
 	    --results $(DSD_RESULTS)/cross-isa && \
-	  python3 $(srcdir)/tests/dsd/check_p13_isa.py \
-	    --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
+	  if grep -q '^#define HAVE_DSD_AVX512 1' $(abs_builddir)/src/soxconfig.h; then \
+	    python3 $(srcdir)/tests/dsd/check_p13_isa.py \
+	      --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
+	  elif grep -q '^#define HAVE_DSD_AVX2 1' $(abs_builddir)/src/soxconfig.h; then \
+	    echo 'SKIP P13 AVX-512F object ISA audit: compiler did not build tier'; \
+	    python3 $(srcdir)/tests/dsd/check_p12_isa.py \
+	      --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
+	  elif grep -q '^#define HAVE_DSD_AVX1 1' $(abs_builddir)/src/soxconfig.h; then \
+	    echo 'SKIP P13 AVX2/AVX-512F object ISA audits: compiler did not build tiers'; \
+	    python3 $(srcdir)/tests/dsd/check_p11_isa.py \
+	      --build-root $(abs_builddir) --results $(DSD_RESULTS)/isa; \
+	  else \
+	    echo 'SKIP P13 x86 SIMD object ISA audit: compiler did not build tiers'; \
+	  fi; \
 	fi
 
 # P14's independent native-bit, final-report, and digital-filter tests.
@@ -412,8 +443,12 @@ check-dsd: all
 # P16: real native packed input gate. P15 is operator-authorized and stays
 # source-bound; P16 may inherit P00-P14 tests but cannot rewrite its receipts.
 	@if ( test "$(DSD_PHASE)" = "P16" || test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18" ); then \
+	  tiers=$$($(abs_builddir)/test/dsd_test_host_isa$(EXEEXT) --tiers) || exit $$?; \
+	  p16_tiers=scalar; \
+	  case " $$tiers " in *" avx2 "*) p16_tiers="scalar avx2";; esac; \
 	  $(MAKE) -C test dsd_test_p16$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/test_p16.py \
+	    --tiers $$p16_tiers \
 	    --sox $(abs_builddir)/src/sox \
 	    --unit $(abs_builddir)/test/dsd_test_p16$(EXEEXT) \
 	    --results $(DSD_RESULTS)/integration; \
@@ -423,9 +458,13 @@ check-dsd: all
 # P17: experimental high-rate DSP only. The P16 gate above remains inherited;
 # this tests strict descriptor/SDM qualification and finite packed parity.
 	@if test "$(DSD_PHASE)" = "P17" || test "$(DSD_PHASE)" = "P18"; then \
+	  tiers=$$($(abs_builddir)/test/dsd_test_host_isa$(EXEEXT) --tiers) || exit $$?; \
 	  $(MAKE) -C test dsd_test_p17$(EXEEXT) && \
 	  python3 $(srcdir)/tests/dsd/generate_p17_profiles.py --check && \
-	  python3 $(srcdir)/tests/dsd/test_p17_numeric.py --unit $(abs_builddir)/test/dsd_test_p17$(EXEEXT) --results $(DSD_RESULTS)/numeric-p17; \
+	  python3 $(srcdir)/tests/dsd/test_p17_numeric.py \
+	    --host-tiers $$tiers \
+	    --unit $(abs_builddir)/test/dsd_test_p17$(EXEEXT) \
+	    --results $(DSD_RESULTS)/numeric-p17; \
 	fi
 
 

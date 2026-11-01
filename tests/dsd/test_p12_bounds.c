@@ -30,7 +30,10 @@ int main(void)
   unsigned char *base,*end;
   long page=sysconf(_SC_PAGESIZE);
   int rc=lsx_dsd_kernel_select(LSX_DSD_FIR,"avx2",&k);
-  if (rc==-2) {puts("UNRUN: AVX2 CPU/compiler not available");return 2;}
+  if (rc == -2 && !(lsx_dsd_features_host() & LSX_DSD_CPU_AVX2)) {
+    puts("P12 SKIP: AVX2 executable tier unavailable on this host");
+    return 0;
+  }
   CHECK(rc==0 && k && k->fir_block && k->fir_single && page>512);
   pg=(size_t)page;
   base=mmap(NULL,2*pg,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0);
