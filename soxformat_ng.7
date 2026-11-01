@@ -31,7 +31,7 @@
 .SP
 .fi
 ..
-.TH SOXFORMAT_NG 7 "November 28, 2024" "SoX" "Sound eXchange"
+.TH SOXFORMAT_NG 7 "October 31, 2026" "SoX DSD 1.0.4" "Sound eXchange"
 .SH NAME
 soxformat_ng \- Audio file formats supported by sox and libsox_ng
 .SH DESCRIPTION
@@ -369,20 +369,43 @@ if it is read from `standard input' (stdin) or from a file whose name
 does not end in `.dts', you will need to prefix it with `\fB-t\ ffmpeg\fR'.
 .TP
 .B .dff
-Direct Stream Digital Interchange File Format (DSDIFF) is a format
-defined by Philips for storing 1-bit DSD data, used in SACD mastering
-and occasionally for online distribution.
-SoX can write single-, double- and quad-sample rates of
-64, 128 and 256 times 44100Hz (2822400, 5644800 and 11289600Hz),
-known as DSD64, DSD128 and DSD256,
-but not the octuple- and sexdecuple- variants (DSD512 and DSD1024).
+DSDIFF (Direct Stream Digital Interchange File Format), used for native
+one-bit DSD audio, including SACD mastering material.  SoX DSD reads
+and writes uncompressed DSDIFF at the five canonical 44.1 kHz-family
+native DSD rates shown below.  DST-compressed DSDIFF is not decoded.
+Known DSDIFF channel identities are preserved where the destination
+format permits; see
+.B \-\-dsd\-layout
+and
+.B \-\-dsd\-layout\-loss
+in
+.BR sox (1).
 .TP
-\fB.dsf\fR, \fB.wsd\fR
-DSD Stream File and Wideband Single-bit Data are formats defined by Sony
-and by Sharp and Pioneer for storing 1-bit DSD data,
-commonly used for online distribution of audiophile recordings,
-supporting the same sample rates as \fBdff\fP.
-The \fBwsd\fR variant can be read but not written.
+.B .dsf
+DSF (DSD Stream File) is a native one-bit DSD container commonly used
+for distribution.  SoX DSD reads and writes DSF at DSD64, DSD128,
+DSD256, DSD512 and DSD1024, with these nominal bit clocks:
+.TS
+center;
+l r.
+DSD64	2822400 Hz
+DSD128	5644800 Hz
+DSD256	11289600 Hz
+DSD512	22579200 Hz
+DSD1024	45158400 Hz
+.TE
+.SP
+The file's sample rate describes native one-bit frames per second, not
+the lower PCM sampling rate obtained after reconstruction.  Conversions
+that perform PCM audio effects on DSD sources should use
+.B \-\-dsd\-mode auto
+rather than legacy pulse processing.  Both
+.B .dsf
+and
+.B .dff
+support native repacking without a reconstruction step, subject to
+channel-layout and rate compatibility.  DSD512/1024 file support does
+not imply support on a particular player or DAC.
 .TP
 \fB.dvms\fR, \fB.vms\fR
 The Digital Voice Messaging System format is used in Germany
@@ -1114,7 +1137,12 @@ Windows Media Audio format.
 Westwood Studios audio format.
 .TP
 \fB.wsd\fR
-Wideband Single-bit Data is the same as \fB.dsf\fP but with a different header.
+WSD (Wideband Single-bit Data) stores native one-bit DSD audio and is
+read-only in SoX DSD 1.0.4.  Its data layout resembles DSDIFF rather
+than DSF; it has a different file header.  Reads at the canonical DSD64
+through DSD1024 clocks are enabled, but writing WSD is unsupported.
+See the native bit-clock table under
+.BR .dsf .
 .TP
 \fB.wtv\fR (with ffmpeg)
 Windows Television format.
@@ -1150,7 +1178,7 @@ http://en.wikipedia.org/wiki/PLS_(file_format)
 .ne 2
 .SH SEE ALSO
 .BR sox (1),
-\f(CWhttps://codeberg.org/sox_ng\fR
+\f(CWhttps://github.com/barstoolbluz/sox_dsd\fR
 .SH AUTHORS
 Lance Norskog, Chris Bagwell and many other authors and contributors
 listed in the README file that is distributed with the source code.
