@@ -31,7 +31,7 @@
 .SP
 .fi
 ..
-.TH SOXEFFECT_NG 7 "December 05, 2024" "SoX" "Sound eXchange"
+.TH SOXEFFECT_NG 7 "October 31, 2026" "SoX DSD 1.0.4" "Sound eXchange"
 .SH NAME
 soxeffect_ng \- Effects supported by sox and libsox_ng
 .SH SYNOPSIS
@@ -867,8 +867,34 @@ the wiki pages at https://codeberg.org/sox_ng/libdolbyb
 .RE
 .TP
 \fBdop\fR
-DSD over PCM. 1-bit DSD data is packed into 24-bit samples for
-transport over non-DSD-aware links.
+Package native one-bit DSD in 24-bit signed PCM words (DoP transport),
+without reconstructing the DSD as audio-rate PCM.  Place
+.B dop
+once, as the last effect, and write to a lossless, 24-bit PCM-capable
+format or device.  The PCM transport sample rate must be the native DSD
+clock divided by 16:
+.TS
+center;
+l r.
+DSD64	176400 Hz
+DSD128	352800 Hz
+DSD256	705600 Hz
+DSD512	1411200 Hz
+DSD1024	2822400 Hz
+.TE
+.SP
+The output contains DoP marker bytes, not ordinary PCM audio.  A player
+or DAC must support DoP at the selected transport rate; file support is
+not a device-compatibility guarantee.  If the output rate is given
+explicitly with
+.BR \-r ,
+it must match the required transport rate.  The planner rejects lossy
+or incompatible output formats, multiple or non-terminal
+.B dop
+effects, and any signal that is not native DSD at the transport boundary.  Example:
+.XE
+   sox --dsd-mode auto input.dsf -r 176400 -b 24 transport.wav dop
+.XX
 .TP
 \fBdownsample\fR [\fIfactor\fR(2)]
 Downsample the signal by an integer factor: Only the first of
@@ -3646,42 +3672,91 @@ See
 for a volume-changing effect with different capabilities and
 .B compand
 for a dynamic range compression/expansion/limiting effect.
-.SS P05 DSD conversion-planning effects
+.SS DSD reconstruction, modulation, and native-bit analysis
+These composite effects participate in the source-aware DSD graph.  Their
+options are not equivalent to the legacy one-bit
+.B sdm
+effect or to legacy routing.  See the DSD section of
+.BR sox (1).
 .TP
-.B dsdpcm [-p mastering|wideband|legacy] [-l preserve|sacd] [rate]
-Declares native DSD to reconstructed PCM conversion.  With no rate, selects
-the profile intermediate PCM clock.  Versioned profile IDs such as
-.B decode.mastering.v1.dsd128
-may be selected with -p.  This is an executable composite reconstruction
-DSP with runtime kernel selection and a fixed certified coefficient bank.
+.B dsdpcm [\-p PROFILE] [\-l preserve|sacd] [rate]
+Reconstruct native DSD to PCM with the profile's source-rate filter and
+binary64 DSP.  Without
+.BR \-p ,
+mastering v2 is selected according to the input DSD clock.  For DSD64,
+128, 256, 512, and 1024, v2 passbands are respectively 25, 48, 66, 66,
+and 66 kHz.  With no requested
+.IR rate ,
+use the profile's intermediate PCM clock (88200 Hz for DSD64 v2,
+176400 Hz for the other v2 rates).  The effective bandwidth depends
+on both the selected profile and the output PCM rate.
+.SP
+Explicit
+.B \-p mastering
+or
+.B \-p conservative
+selects mastering v1; explicit
+.B \-p wideband
+selects wideband v1.  Pinned IDs such as
+.B decode.mastering.v2.dsd128
+and
+.B decode.wideband.v1.dsd256
+select the version and native input clock.  A clock mismatch fails.
+.B \-p legacy
+is parsed but no executable composite legacy decoder is supplied.
+.B \-l sacd
+applies +6.0206 dB; the default
+.B preserve
+uses unity reference.  The global
+.B \-\-dsd\-bandwidth
+and
+.B \-\-dsd\-clip
+options govern bandwidth and graph-boundary clipping.
 .TP
-.B pcmdsd [-p mastering|legacy|experimental] [--reference auto|pcm|dsd] rate
-Declares one composite PCM-to-native-DSD modulator at the supplied exact DSD
-clock.  The reference specifies PCM full scale or the in-process reconstructed
-DSD calibration.  Mastering versioned IDs such as
+.B pcmdsd [\-p PROFILE] [\-\-reference auto|pcm|dsd] rate
+Reconstruct a composite PCM-to-native-DSD modulation route at the exact
+native DSD bit clock.  The default,
+.BR mastering ,
+uses the qualified mastering v1 encoder at DSD64, DSD128 and DSD256,
+and the qualified mastering v2 CLANS-7 encoder at DSD512 and DSD1024.
+Versioned selectors such as
 .B encode.mastering.v1.dsd128
-are accepted.  The composite DSP executes only for configurations that
-pass its existing qualification gate; the installed release binary refuses
-unqualified mastering profiles, without a user-exposed bypass.
+and
+.B encode.mastering.v2.dsd512
+pin their output rate.  The high-rate v1 encoders are unqualified and
+cannot be requested as CLI production profiles.  Explicit legacy and
+experimental selections are distinct from qualified mastering; they do
+not enable an unqualified composite modulator.
+.SP
+The
+.B \-\-reference
+option chooses the default reference, PCM full-scale reference, or the
+in-process reconstructed DSD reference.  PCM-origin mastering uses a
+0.5 reference scale.  Mastering checks interpolation overloads and
+modulator state and refuses unsafe output instead of silently clipping
+or writing a failed encode.  These checks do not depend on
+.BR \-\-sdm\-guard ,
+which only controls the older low-level
+.B sdm
+effect and implicit one-bit dithering.
 .TP
 .B dsdstat [\-a]
-A native-DSD bit-preserving statistics pass-through.  The default displays
-exact per-channel bit counts, overlapping complete 28-bit-window extrema and
-excursions, longest identical-bit run, and first excursion frame on stderr.
-Option
+Report native-DSD bit statistics on stderr without changing the samples.
+The basic pass-through counts exact per-channel bits, overlapping
+complete 28-bit-window extrema and excursions, longest identical-bit
+runs, and first excursion frames.  Option
 .B \-a
-adds original-native-rate fifth-order Butterworth digital SOS measurements:
-50 kHz low-pass peak, 40\-100 kHz high-pass/low-pass exponential power
-with 2 to the power of negative 19 as its averaging coefficient, and
-conventional integrated power in the 20\-40, 40\-100, 100\-200 kHz
-and 200 kHz\-Nyquist bands.  Power and peaks distinguish dBFS sine reference
-from dB SACD; short inputs can have unknown integrated measurements after
-the 20 ms warm-up exclusion.  These are software diagnostics, not formal
-SACD analog certification.  Neither basic counters nor optional analysis
-change any downstream sample.  The effect rejects PCM input.  With
-.B \-\-dsd-report PATH
-its exact counters and optionally analyzed measurements are additionally
-captured in the final conversion JSON.
+adds original-native-rate fifth-order Butterworth digital SOS analysis:
+50 kHz low-pass peak, 40\-100 kHz high-pass/low-pass exponentially
+averaged power (weight 2 to the power of negative 19), and integrated
+power in the 20\-40, 40\-100, 100\-200 kHz and 200 kHz\-Nyquist bands.
+The output distinguishes dBFS sine reference from dB SACD; short inputs
+may lack integrated values after the 20 ms warm-up exclusion.  These are
+software measurements, not SACD analog certification.  The effect
+rejects PCM input.  With
+.B \-\-dsd\-report PATH
+its counters and optional measurements are also included in the final
+conversion-result JSON.
 .SH REFERENCES
 .TP
 [1]
