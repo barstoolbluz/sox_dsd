@@ -122,6 +122,47 @@ def main():
             return {'pcm_copy_sha256':sha(normal)}
         case('PCM-only SoX copy, rate, gain legacy semantics', pcm_legacy)
 
+        def abbreviated_encoding_compatibility():
+            # SoX's getopt accepts long-option prefixes. Adding --encode must
+            # not steal the historically unambiguous --encoding spellings.
+            baseline = d / 'input.wav'
+            for spelling in ('--enc', '--enco', '--encod', '--encoding', '-e'):
+                out = d / ('pcm-' + spelling.lstrip('-') + '.wav')
+                run(exe, baseline, spelling, 'signed-integer', out)
+                check(info(out)[1] == info(baseline)[1],
+                      f'{spelling} no longer configures ordinary PCM encoding')
+                check(info(out)[0].sampwidth == 2,
+                      f'{spelling} unexpectedly changed sample precision')
+            out = d / 'pcm-encod-equals.wav'
+            run(exe, baseline, '--encod=signed-integer', out)
+            check(info(out)[1] == info(baseline)[1],
+                  '--encod=NAME no longer sets SoX encoding')
+        case('legacy --encoding abbreviated spellings coexist with --encode',
+             abbreviated_encoding_compatibility)
+
+        def other_legacy_abbreviations():
+            # Prefixes previously unique for traditional long options.
+            baseline = d / 'input.wav'
+            for old, full, argument in (
+                ('--rep', '--replay-gain', 'off'),
+                ('--pla', '--play-rate-arg', '-a')):
+                results = []
+                for spelling in (old, full):
+                    out = d / ('pcm-' + spelling.lstrip('-') + '.wav')
+                    run(exe, spelling, argument, baseline, out)
+                    results.append(sha(out))
+                check(results[0] == results[1],
+                      f'{old} and {full} no longer have the same effect')
+            # Headless build has no default audio device: both forms must
+            # fail at device selection, not at option parsing.
+            old = run(exe, '--de', '--version', ok=False)
+            full = run(exe, '--default-device', '--version', ok=False)
+            check(old.stdout == full.stdout and old.stderr == full.stderr and
+                  'no default audio device configured' in old.stderr,
+                  '--de no longer selects the traditional default device')
+        case('other legacy unique long-option prefixes remain valid',
+             other_legacy_abbreviations)
+
         for mult in RATES:
             def dec(mult=mult):
                 src=d/f'dsd{mult}.dsf'; out=d/f'decoded{mult}.wav'
