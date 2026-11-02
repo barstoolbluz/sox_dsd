@@ -380,14 +380,147 @@ def main():
         case('DoP rejects 16-bit, wrong carrier, native target, PCM and duplicate',dop_errors)
 
         def safety():
-            out=d/'unsafe.wav'
-            run(exe,'--dsd-mode','legacy',d/'dsd64.dsf',out,ok=False)
-            check(not out.exists(),'legacy path wrote DSD bits as PCM')
+            # Legacy DSD endpoints now take the qualified graph; those
+            # positive route checks are above. PCM-only report stays invalid.
             run(exe,'--report',d/'pcm-report.json',d/'input.wav',d/'pcm-report.wav',ok=False)
             check(not (d/'pcm-report.wav').exists(),'report changed PCM-only route')
             run(exe,'--plan',d/'dsd64.dsf',d/'never.wav')
             check(not (d/'never.wav').exists(),'plan created output')
-        case('legacy pulse-to-PCM forbidden; PCM-only report rejected',safety)
+        case('PCM-only report rejected and plan does not create audio',safety)
+
+        def legacy_clock_routing():
+            # The old bypass resampled DSD64 pulse values as if they were
+            # PCM when the destination requested a different DSD clock.
+            src=d/'dsd64.dsf'
+            hashes={}
+            for label in ('dsd128','5644800'):
+                root='legacy-clock-'+label
+                plain=d/(root+'-auto.dsf')
+                legacy=d/(root+'-legacy.dsf')
+                reported=d/(root+'-reported.dsf')
+                report=d/(root+'.json')
+                doc=plan(exe,'--dsd-mode','legacy',src,'-r',label,
+                         d/(root+'-planned.dsf'))
+                check(doc['mode']=='legacy' and doc['graph_decoder_count']==1 and
+                      doc['encoder_count']==1 and
+                      doc['decoder']['id']=='decode.mastering.v2.dsd64',
+                      'legacy clock plan omitted qualified reconstruction/modulation')
+                check(not (d/(root+'-planned.dsf')).exists(),
+                      'planning created native DSD audio')
+                run(exe,src,'-r',label,plain)
+                run(exe,'--dsd-mode','legacy',src,'-r',label,legacy)
+                run(exe,'--dsd-mode','legacy','--report',report,src,
+                    '-r',label,reported)
+                check(plain.read_bytes()==legacy.read_bytes()==reported.read_bytes(),
+                      'legacy DSD clock change or reporting changed qualified audio')
+                j=json.loads(report.read_text())
+                check(j['status']=='complete' and j['processing']['decoder'] and
+                      j['processing']['encoder'],
+                      'legacy clock report lacks executed decoder or encoder')
+                hashes[label]=sha(plain)
+            check(hashes['dsd128']==hashes['5644800'],
+                  'named and numeric DSD128 clocks do not agree')
+            return {'sha256':hashes}
+        case('legacy DSD clock changes use planned reconstruction and encoding',
+             legacy_clock_routing)
+
+        def legacy_pcm_report_invariance():
+            src=d/'dsd64.dsf'
+            for label,effects in (('plain',()),('gain',('gain','-6'))):
+                root='legacy-pcm-'+label
+                default=d/(root+'-auto.wav')
+                old=d/(root+'-legacy.wav')
+                logged=d/(root+'-reported.wav')
+                report=d/(root+'.json')
+                doc=plan(exe,'--dsd-mode','legacy',src,
+                         d/(root+'-planned.wav'),*effects)
+                check(doc['graph_decoder_count']==1 and
+                      doc['encoder_count']==0 and
+                      doc['output']['domain']=='PCM_AUDIO',
+                      'legacy reconstruction plan inconsistent with target')
+                run(exe,src,default,*effects)
+                run(exe,'--dsd-mode','legacy',src,old,*effects)
+                run(exe,'--dsd-mode','legacy','--report',report,
+                    src,logged,*effects)
+                check(default.read_bytes()==old.read_bytes()==logged.read_bytes(),
+                      f'{label}: --report or legacy changed reconstructed PCM')
+                j=json.loads(report.read_text())
+                check(j['status']=='complete' and j['processing']['decoder'],
+                      'legacy PCM report did not observe the active decoder')
+        case('legacy reconstruction, PCM effects, and reports use the same graph',
+             legacy_pcm_report_invariance)
+
+        def legacy_encoder_profiles():
+            src=d/'input.wav'
+            baseline=d/'legacy-encode-auto.dsf'
+            unpinned=d/'legacy-encode-selected.dsf'
+            explicit=d/'legacy-encode-pinned.dsf'
+            logged=d/'legacy-encode-report.dsf'
+            report=d/'legacy-encode.json'
+            doc=plan(exe,'--dsd-mode','legacy','--encode','mastering',src,
+                     d/'legacy-encode-planned.dsf')
+            check(doc['encoder_count']==1 and
+                  doc['encoder']['id']=='encode.mastering.v1.dsd64',
+                  'legacy encoder plan did not honor explicit qualified profile')
+            run(exe,src,baseline)
+            run(exe,'--dsd-mode','legacy','--encode','mastering',src,unpinned)
+            run(exe,'--dsd-mode','legacy','--encode',
+                'encode.mastering.v1.dsd64',src,explicit)
+            run(exe,'--dsd-mode','legacy','--report',report,src,logged)
+            check(baseline.read_bytes()==unpinned.read_bytes()==
+                  explicit.read_bytes()==logged.read_bytes(),
+                  'legacy mode emitted unqualified PCM-to-DSD samples')
+            j=json.loads(report.read_text())
+            check(j['status']=='complete' and j['processing']['encoder'] and
+                  j['processing']['encoder'][0]['profile_id']==
+                    'encode.mastering.v1.dsd64',
+                  'legacy report did not observe mastering encoder')
+        case('legacy PCM to DSD selects qualified profile and stable reporting',
+             legacy_encoder_profiles)
+
+        def legacy_unused_selectors():
+            src=d/'dsd64.dsf'; pcm=d/'input.wav'
+            attempts=(
+                ('--decode','mastering',src,d/'legacy-unused-dec.dff'),
+                ('--encode','mastering',src,d/'legacy-unused-enc.dff'),
+                ('--decode','mastering',pcm,d/'legacy-unused-dec-encode.dsf'),
+                ('--encode','mastering',src,d/'legacy-unused-enc-decode.wav'),
+                ('--encode','mastering',pcm,d/'legacy-unused-lowlevel.dsf',
+                 'rate','-v','sdm'),
+            )
+            for i,args in enumerate(attempts):
+                for reporting in (False, True):
+                    report=d/f'legacy-rejected-{i}.json'
+                    command=(('--report',report) if reporting else ())
+                    run(exe,'--dsd-mode','legacy',*command,*args,ok=False)
+                    output=next(Path(x) for x in args if str(x).endswith(
+                        ('.dsf','.dff','.wav')) and str(x).startswith(str(d/'legacy-unused')))
+                    check(not output.exists(),
+                          f'ignored profile created {output}')
+                    check(not report.exists(),
+                          'rejected profile created a report before preflight')
+        case('legacy profile selectors are honored or rejected before output',
+             legacy_unused_selectors)
+
+        def legacy_native_repack_report():
+            src=d/'dsd64.dsf'; plain=d/'legacy-native-plain.dff'
+            legacy=d/'legacy-native-old.dff'; logged=d/'legacy-native-logged.dff'
+            report=d/'legacy-native.json'
+            doc=plan(exe,'--dsd-mode','legacy',src,d/'legacy-native-planned.dff')
+            check(doc['output']['domain']=='DSD_NATIVE' and
+                  doc['graph_decoder_count']==doc['encoder_count']==0,
+                  'legacy repack plan introduced unnecessary DSP')
+            run(exe,src,plain)
+            run(exe,'--dsd-mode','legacy',src,legacy)
+            run(exe,'--dsd-mode','legacy','--report',report,src,logged)
+            check(plain.read_bytes()==legacy.read_bytes()==logged.read_bytes(),
+                  'legacy repack lost native payload identity')
+            j=json.loads(report.read_text())
+            check(j['status']=='complete' and not j['processing']['decoder'] and
+                  not j['processing']['encoder'],
+                  'native repack report invented a DSP stage')
+        case('legacy native repacking and reporting preserve payload',
+             legacy_native_repack_report)
 
         def advanced():
             src=d/'dsd64.dsf'
