@@ -514,6 +514,8 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         return fail(error,n,"conflicting --encode and pcmdsd -p selections");
       if (lowlevel) {
         uint32_t current;
+        if (spec->policy.encode_specified)
+          return fail(error,n,"--encode selects a composite encoder; low-level %s uses its own unqualified modulator. Remove --encode or use pcmdsd",e->name);
         if (!lsx_dsd_integer_rate(rate,&current) || current!=target)
           return fail(error,n,"%s is a rate-preserving one-bit modulator: input %.9g Hz differs from native %u Hz; use an explicit rate effect",
               e->name,rate,target);
