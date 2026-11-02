@@ -60,7 +60,7 @@ def main():
     def expected(cond,msg):
         if not cond:raise AssertionError(msg)
     def plan(*parts):
-        cp=run('--dsd-plan',*parts)
+        cp=run('--plan',*parts)
         expected(cp.returncode==0,f'plan exit {cp.returncode}: {cp.stderr[:400]}')
         return json.loads(cp.stdout)
     with tempfile.TemporaryDirectory(prefix='p15-cli-') as scratch:
@@ -83,9 +83,9 @@ def main():
                 ident=f'decode.{profile}.v1.dsd{rate//44100}'
                 for hz in PCM:
                     def decode_plan(rate=rate,source=source,profile=profile,ident=ident,hz=hz):
-                        p=plan('--dsd-decode',ident,source,'-r',hz,t/'plan.wav')
+                        p=plan('--decode',ident,source,'-r',hz,t/'plan.wav')
                         expected(p['decoder']['id']==ident,'wrong pinned decoder')
-                        expected(p['policy']['decode']==profile,'policy profile mismatch')
+                        expected(p['policy']['decode']==('conservative' if profile=='mastering' else profile),'policy profile mismatch')
                         expected(p['decoder']['gain']==1,'preserve decoder silently gained')
                         expected(p['output']['rate_hz']==hz,'PCM destination clock mismatch')
                         expected(p['executable'] is True,'qualified decoder unavailable')
@@ -100,8 +100,8 @@ def main():
                         pinned=t/'pinned.wav';human=t/'human.wav'
                         common=('--dsd-mode','auto','-D',source,'-r',hz,
                                 '-e','signed-integer','-b',32)
-                        p=run('--dsd-decode',ident,*common,pinned)
-                        q=run('--dsd-decode',profile,*common,human)
+                        p=run('--decode',ident,*common,pinned)
+                        q=run('--decode','conservative' if profile=='mastering' else profile,*common,human)
                         expected(p.returncode==0 and q.returncode==0,
                             f'actual decode failed: {p.stderr[-350:]} {q.stderr[-350:]}')
                         with wave.open(str(pinned),'rb') as f:
@@ -115,15 +115,15 @@ def main():
                                     pcm_sha256=sha(pinned),decode_profile=ident)
                     case(f'versioned_decode_audio_{rate//44100}_{profile}_{hz}',decode_wav)
                 def equivalent(rate=rate,source=source,profile=profile,ident=ident):
-                    q=plan('--dsd-decode',profile,source,'-r',88200,t/'plan.wav')
-                    r=plan('--dsd-decode',ident,source,'-r',88200,t/'plan.wav')
+                    q=plan('--decode','conservative' if profile=='mastering' else profile,source,'-r',88200,t/'plan.wav')
+                    r=plan('--decode',ident,source,'-r',88200,t/'plan.wav')
                     expected(q['decoder']==r['decoder'],'versioned ID differs from human alias')
                     return dict(id=ident)
                 case(f'human_versioned_parity_{rate//44100}_{profile}',equivalent)
                 def wrong_clock(rate=rate,source=source,profile=profile):
                     other=next(x for x in RATES if x!=rate)
                     ident=f'decode.{profile}.v1.dsd{other//44100}'
-                    cp=run('--dsd-plan','--dsd-decode',ident,source,t/'bad.wav')
+                    cp=run('--plan','--decode',ident,source,t/'bad.wav')
                     expected(cp.returncode!=0,'wrong native clock accepted')
                     expected('different native DSD clock' in cp.stderr,cp.stderr[:350])
                     expected(not (t/'bad.wav').exists(),'rejected request created output')
@@ -133,7 +133,7 @@ def main():
         for rate in RATES:
             ident=f'encode.mastering.v1.dsd{rate//44100}'
             def encode_plan(rate=rate,ident=ident):
-                p=plan('--dsd-encode',ident,wav,'-r',rate,t/'planned.dsf')
+                p=plan('--encode',ident,wav,'-r',rate,t/'planned.dsf')
                 expected(p['encoder']['id']==ident,'wrong versioned encoder identity')
                 expected(p['encoder']['modulator_input_scale']==.5,'PCM reference scale mutated')
                 # The 2026-10-20 operator release activated qualified P10
@@ -146,7 +146,7 @@ def main():
             case(f'versioned_encode_plan_{rate//44100}',encode_plan)
             def encode_audio(rate=rate,ident=ident):
                 out=t/f'{ident}.dsf'
-                cp=run('--dsd-mode','auto','--dsd-encode',ident,wav,'-r',rate,out)
+                cp=run('--dsd-mode','auto','--encode',ident,wav,'-r',rate,out)
                 expected(cp.returncode==0 and out.is_file(),
                          f'released versioned encoder failed: {cp.stderr[-400:]}')
                 from reference import verify
@@ -160,7 +160,7 @@ def main():
             def wrong_encode(rate=rate):
                 other=next(x for x in RATES if x!=rate)
                 ident=f'encode.mastering.v1.dsd{other//44100}'
-                cp=run('--dsd-plan','--dsd-encode',ident,wav,'-r',rate,t/'bad.dsf')
+                cp=run('--plan','--encode',ident,wav,'-r',rate,t/'bad.dsf')
                 expected(cp.returncode!=0,'wrong encoder rate accepted')
                 expected('different native DSD clock' in cp.stderr,cp.stderr[:400])
                 expected(not (t/'bad.dsf').exists(),'rejected request wrote audio')
@@ -169,20 +169,20 @@ def main():
 
         for decode_id in ('decode.mastering.v0.dsd64','decode.mastering.v1.dsd512','decode.wideband.v1.dsd999'):
             def bad_id(decode_id=decode_id):
-                cp=run('--dsd-plan','--dsd-decode',decode_id,dsd[RATES[0]],t/'bad.wav')
+                cp=run('--plan','--decode',decode_id,dsd[RATES[0]],t/'bad.wav')
                 expected(cp.returncode!=0,'unknown decoder version accepted')
-                expected('--dsd-decode requires' in cp.stderr,'unknown decoder diagnostic')
+                expected('decode' in cp.stderr and ('different native DSD clock' in cp.stderr or 'choose mastering' in cp.stderr),cp.stderr[:350])
                 return dict(id=decode_id,exit=cp.returncode)
             case('unknown_decode_'+decode_id,bad_id)
         def conflict():
-            cp=run('--dsd-plan','--dsd-decode','decode.mastering.v1.dsd64',dsd[RATES[0]],t/'bad.wav',
+            cp=run('--plan','--decode','decode.mastering.v1.dsd64',dsd[RATES[0]],t/'bad.wav',
                    'dsdpcm','-p','decode.wideband.v1.dsd64')
             expected(cp.returncode!=0,'opposed explicit profiles accepted')
             expected('conflicting' in cp.stderr,cp.stderr[:350])
             return dict(exit=cp.returncode)
         case('conflicting_versioned_decoder_options',conflict)
         def different_pins():
-            cp=run('--dsd-plan','--dsd-decode','decode.mastering.v1.dsd64',dsd[RATES[0]],t/'bad.wav',
+            cp=run('--plan','--decode','decode.mastering.v1.dsd64',dsd[RATES[0]],t/'bad.wav',
                    'dsdpcm','-p','decode.mastering.v1.dsd128')
             expected(cp.returncode!=0,'conflicting clock pins accepted')
             expected('conflicting versioned' in cp.stderr,cp.stderr[:350])
@@ -198,15 +198,20 @@ def main():
             return dict(dsf_sha256=sha(out),both_modes='same native bits')
         case('default_native_repack_equals_explicit_legacy',legacy_repack)
 
-        def default_legacy_pcm():
-            source=dsd[RATES[0]];dest=t/'default.wav';old=t/'legacy.wav'
-            a=run('-D',source,'-r',88200,'-e','signed-integer','-b',32,dest,'rate','-v')
-            b=run('--dsd-mode','legacy','-D',source,'-r',88200,'-e','signed-integer','-b',32,old,'rate','-v')
+        def default_qualified_pcm():
+            source=dsd[RATES[0]];dest=t/'default.wav';pinned=t/'mastering.wav'
+            common=('-D',source,'-r',88200,'-e','signed-integer','-b',32)
+            a=run(*common,dest,'rate','-v')
+            b=run('--decode','mastering',*common,pinned,'rate','-v')
             expected(a.returncode==0 and b.returncode==0,
-                f'explicit legacy decode failed: {a.stderr[-200:]} {b.stderr[-200:]}')
-            expected(sha(dest)==sha(old),'default legacy PCM changed')
-            return dict(wav_sha256=sha(dest))
-        case('default_pcm_matches_explicit_legacy',default_legacy_pcm)
+                f'default/explicit mastering decode failed: {a.stderr[-200:]} {b.stderr[-200:]}')
+            expected(sha(dest)==sha(pinned),'default qualified PCM differs from mastering profile')
+            legacy=t/'legacy.wav'
+            c=run('--dsd-mode','legacy',*common,legacy,'rate','-v')
+            expected(c.returncode!=0 and not legacy.exists(),
+                'raw DSD pulses must not be interpreted as PCM')
+            return dict(wav_sha256=sha(dest), legacy_raw_pcm_rejected=True)
+        case('default_pcm_matches_qualified_mastering',default_qualified_pcm)
 
         def level_measure():
             source=dsd[RATES[0]]

@@ -72,7 +72,7 @@ def main() -> int:
             return out,p
 
         def plan(name, args):
-            p=subprocess.run([exe,'--dsd-plan','--dsd-mode','auto',
+            p=subprocess.run([exe,'--plan','--dsd-mode','auto',
                 '--dsd-layout-loss','warn',*args],capture_output=True,text=True,timeout=20)
             assert p.returncode==0,(name,p.stderr)
             resolved=json.loads(p.stdout)
@@ -148,7 +148,7 @@ def main() -> int:
             assert max(abs(v-round(w*.5)) for v,w in zip(samples,direct['a']))<=1
             leading,_=execute('adapter_leading',['-v','0.5',str(files['a'])],extra=('dsdpcm',))
             assert leading.read_bytes()==gain.read_bytes(), 'duplicate reconstruction or gain'
-            plan_response=subprocess.run([exe,'--dsd-plan','--dsd-layout-loss','warn','-v','0.5',str(files['a']),
+            plan_response=subprocess.run([exe,'--plan','--dsd-layout-loss','warn','-v','0.5',str(files['a']),
                 '-t','raw','-e','signed-integer','-b','32',str(tmp/'not_created.raw'),'dsdpcm'],
                 capture_output=True,text=True,timeout=20)
             assert plan_response.returncode==0,plan_response.stderr

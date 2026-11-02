@@ -71,19 +71,15 @@ def wav_fields(blob: bytes):
                 bits=bps,mask=mask,data=data)
 
 
-def wave_signs(wav: dict, limit: int) -> list[bytes]:
-    fmt = ('f' if wav['native_tag']==3 and wav['bits']==32 else
-           'h' if wav['native_tag']==1 and wav['bits']==16 else None)
-    assert fmt is not None, f'unsupported test output encoding {wav}'
-    size = 4 if fmt=='f' else 2
-    count = min(len(wav['data'])//(size*wav['channels']),limit)
-    out=[bytearray() for _ in range(wav['channels'])]
-    for row in range(count):
-        for ch in range(wav['channels']):
-            pos=(row*wav['channels']+ch)*size
-            val=struct.unpack_from('<'+fmt,wav['data'],pos)[0]
-            out[ch].append(int(val>0))
-    return [bytes(x) for x in out]
+def wave_channel_samples(wav: dict) -> list[bytes]:
+    """Extract PCM sample bytes per channel, without mistaking them for DSD bits."""
+    assert wav['native_tag'] in (1, 3) and wav['bits'] in (16, 32)
+    size = wav['bits'] // 8
+    width = size * wav['channels']
+    assert len(wav['data']) % width == 0
+    return [b''.join(wav['data'][row*width+ch*size:row*width+(ch+1)*size]
+                     for row in range(len(wav['data'])//width))
+            for ch in range(wav['channels'])]
 
 
 def pcm_wav(channels: int, mask: int | None = None, frames: int = 96) -> bytes:
@@ -286,7 +282,14 @@ class Runner:
 
         def wav(name,warn=False,explicit=False,reverse=False,float_output=True):
             with tempfile.TemporaryDirectory() as tmp:
-                source=self.inputs[name]
+                original_source=self.inputs[name]
+                original, channel_ids, lsco = dff_fields(original_source.read_bytes())
+                # Use enough DSD frames to expose filtered PCM channel content.
+                # The old 128-frame test compared raw DSD bit signs to PCM,
+                # which is invalid when reconstruction is automatically selected.
+                extended = tuple(bits * 512 for bits in original['timeline'])
+                source=pathlib.Path(tmp)/'input.dff'
+                source.write_bytes(dff(channel_ids,extended,lsco=lsco))
                 dest=pathlib.Path(tmp)/'out.wav'
                 args=[self.args.sox,'-D',source]
                 if warn:args+=['--dsd-layout-loss','warn']
@@ -303,16 +306,30 @@ class Runner:
                 expected_mask = 0 if warn and name=='ambiguous' and not explicit else (
                     0x603 if explicit else 0xf)
                 assert (w['channels'],w['tag'],w['mask'])==(4,0xfffe,expected_mask),w
-                original=dff_fields(source.read_bytes())[0]['timeline']
                 indices=(1,0,2,3) if name=='swap_lsco' or reverse else (0,1,2,3)
                 # For explicit order, original channels are already FL FR SL SR.
                 if explicit:indices=(0,1,2,3)
                 if warn and name=='ambiguous':indices=(0,1,2,3)
                 if reverse: indices=(0,1,2,3) if name=='type5_standard' else (1,0,2,3)
-                actual=wave_signs(w,128)
-                assert actual == [original[i] for i in indices],dict(actual=actual,expected=indices)
+                # Independently reconstruct each source channel to mono PCM,
+                # then compare complete PCM sample bytes after layout/remix.
+                mono=[]
+                for i,chronology in enumerate(extended):
+                    one_dsf=pathlib.Path(tmp)/f'channel-{i}.dsf'
+                    one_wav=pathlib.Path(tmp)/f'channel-{i}.wav'
+                    one_dsf.write_bytes(fixtures.make_dsf((chronology,)))
+                    self.must([self.args.sox,'-D',one_dsf,'-e',
+                               'floating-point' if float_output else 'signed-integer',
+                               '-b','32' if float_output else '16',one_wav])
+                    samples=wave_channel_samples(wav_fields(one_wav.read_bytes()))
+                    assert len(samples)==1
+                    mono.append(samples[0])
+                actual=wave_channel_samples(w)
+                assert actual==[mono[i] for i in indices],dict(
+                    hashes=[hashlib.sha256(x).hexdigest() for x in actual],expected=indices)
+                assert len(set(mono))==len(mono),'oracle test fixture channels are not distinct'
                 assert (w['native_tag'],w['bits'])==(3,32) if float_output else (w['native_tag'],w['bits'])==(1,16)
-                return dict(mask=w['mask'],order=indices,bit_sequences_match=True,
+                return dict(mask=w['mask'],order=indices,pcm_samples_match=True,
                             bytes=hashlib.sha256(w['data']).hexdigest())
         self.check('wav_float_mask_order_with_explicit_input_swap',lambda:wav('swap_lsco'))
         self.check('wav_pcm16_mask_order_with_explicit_input_swap',lambda:wav('swap_lsco',float_output=False))
