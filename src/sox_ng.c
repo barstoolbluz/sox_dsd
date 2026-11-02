@@ -2808,18 +2808,10 @@ static void preflight_dsd(void)
       free(map);
     }
   }
-  /* Explicit legacy mode is reserved for limited old paths, but must never
-   * expose native DSD pulses as ordinary PCM audio. */
-  if (spec.policy.mode==LSX_DSD_MODE_LEGACY && !dsd_plan_only && !has_new_effect &&
-      !dsd_report_path) {
-    if (has_dsd_input && (!spec.output_native_capable ||
-        spec.effect_count || is_parallel(combine_method))) {
-      lsx_fail("legacy DSD pulse processing is unsafe here; omit --dsd-mode legacy to use automatic reconstruction");
-      free(input);free(effect);exit(2);
-    }
-    free(input);free(effect);
-    return;
-  }
+  /* DSD endpoints always follow the executable plan, including in explicit
+   * legacy mode.  Only PCM-only commands take the ordinary SoX path above.
+   * In particular, reporting must never switch native pulses from the
+   * historical sample-rate path to planned reconstruction/modulation. */
   if (spec.combine==LSX_DSD_COMBINE_SEQUENCE && input_count>1 &&
       (current_input==0 || dsd_plan_only)) {
     lsx_dsd_plan_spec part=spec;
@@ -2965,7 +2957,7 @@ static void preflight_dsd(void)
   }
   /* Transfer the executable plan, not a second independently guessed graph.
    * Keep the source format's native signal/encoding untouched. */
-  if (dsd_policy.mode==LSX_DSD_MODE_AUTO) {
+  if (dsd_policy.mode!=LSX_DSD_MODE_NATIVE) {
     size_t k=0,j;
     dsd_runtime_plan=*active;
     memset(active,0,sizeof(*active));
@@ -3021,7 +3013,7 @@ static void preflight_dsd(void)
   /* Retain authoritative preflight facts without enabling graph routing
    * for the explicit NATIVE mode. */
   if (dsd_report_path && !dsd_plan_only &&
-      dsd_policy.mode!=LSX_DSD_MODE_AUTO) {
+      dsd_policy.mode==LSX_DSD_MODE_NATIVE) {
     dsd_report_plan=*active;
     memset(active,0,sizeof(*active));
   }
@@ -3432,7 +3424,7 @@ static void usage(void)
 "--dft-min NUM            Minimum size (log2) for DFT processing (default 10)",
 "--dsd-layout ROLES       Comma-separated output role assignment: FL,FR,FC,LFE,BL,BR,SL,SR,MONO",
 "--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
-"--dsd-mode auto|native|legacy  Advanced domain policy (default: automatic for DSD)",
+"--dsd-mode auto|native|legacy  DSD planning is mandatory in all modes; native forbids PCM",
 "--sdm-guard on|off       Fail-closed legacy 1-bit modulator check; costs CPU (default off)",
 "--decode mastering|conservative|wideband|decode.mastering.vN.dsdNNN",
 "                         DSD reconstruction profile (default mastering v2; conservative is v1)",
