@@ -396,10 +396,9 @@ DSD1024	45158400 Hz
 .TE
 .SP
 The file's sample rate describes native one-bit frames per second, not
-the lower PCM sampling rate obtained after reconstruction.  Conversions
-that perform PCM audio effects on DSD sources should use
-.B \-\-dsd\-mode auto
-rather than legacy pulse processing.  Both
+the lower PCM sampling rate obtained after reconstruction.  Conversion to PCM automatically reconstructs one-bit DSD;
+PCM audio effects operate on the reconstructed stream rather than
+on raw DSD pulse values.  Both
 .B .dsf
 and
 .B .dff

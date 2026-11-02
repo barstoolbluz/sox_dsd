@@ -1,0 +1,67 @@
+# SoX DSD CLI redesign: design and verification
+
+Implementation date: November 2, 2026. Authoritative starting revision:
+`c5f468e` (SoX DSD 1.0.4 snapshot). This file documents the actual
+implementation, not a proposed interface.
+
+## Design decisions
+
+1. **Keep SoX grammar.** File and effect parsing still uses the established
+   `sox [options] input [output-options] output [effects]` parser. Numeric
+   `-r`, `-b`, `-c`, `-t` and PCM-only processing are unchanged.
+2. **Route from endpoints.** The existing DSD planner activates only when
+   the input/output requires DSD, a DSD effect is present, or DSD planning
+   or reporting is selected. DSF/DSDIFF input to PCM selects qualified
+   reconstruction. PCM input to a native DSF/DSDIFF destination selects
+   the qualified encoder. Compatible DSF/DSDIFF changes repack pulses
+   with no PCM reconstruction or modulation. PCM-only operations bypass
+   the DSD planner.
+3. **Remove the opt-in tax.** The previous `--dsd-mode auto` is implicit
+   for ordinary DSD conversions. `--dsd-mode native` remains useful to
+   reject any conversion that would require PCM. Explicit legacy mode
+   is retained for deliberate low-level numerical tests; it refuses
+   unsafe DSD pulse-to-PCM conversions and effects.
+4. **Named output clocks.** `-r dsd64` through `-r dsd1024`, independent of
+   case, map to existing qualified DSD clocks. They are allowed only as
+   output rates for DSF/DSDIFF. Existing integer and `k`-suffix clocks
+   retain their original semantics.
+5. **Unify mastering defaults.** Omitting `--decode` and selecting
+   `--decode mastering` both select the qualified mastering-v2 bank for
+   the actual native input clock. `--decode conservative` selects the
+   older v1 bank. Explicit versioned IDs preserve reproducibility.
+   The encoder selects the existing qualified mastering-v1 low-rate
+   or mastering-v2 high-rate modulator.
+6. **Reuse DoP.** `--dop` appends the existing terminal `dop` effect.
+   The planner validates input type, exact carrier clock, signed 24-bit
+   lossless output, and effect ordering. DoP is not PCM reconstruction.
+7. **Observe, do not alter.** `--plan` invokes the existing preflight
+   and writes JSON without audio output. `--report` activates the
+   existing runtime report observer, which cannot select a processing
+   profile, output rate, or effect. Unused explicit decoder/encoder
+   selectors fail before output creation.
+8. **No DSP coefficient changes.** The FIR banks, modulators, qualified
+   profiles, sample conversion code, SIMD dispatch, and format handler
+   implementations are unchanged.
+
+## Migration and placement
+
+See [MIGRATION_P15.md](MIGRATION_P15.md) for the old and new spellings.
+The removed DSD-only aliases are not silently accepted. SoX and SoX-NG
+options remain in their ordinary positions. A DSD clock name before the
+input or with a PCM output produces an error. The user-facing quick guide
+is [USING_SOX_DSD.md](USING_SOX_DSD.md).
+
+## Verification
+
+Build with Autotools and run `make check-dsd-cli`; the test suite creates
+synthetic input independently of the SoX encoder and checks outputs at the
+file/payload level. It covers every DSD rate, output clocks/bit depths,
+profile aliases and pinned IDs, native DSF/DSDIFF repacking, DoP marker
+chronology, report byte invariance on all major routes, rejected
+combinations, and ordinary SoX PCM commands. The independent C gates
+and original `make check` remain useful for lower-level regression checks.
+
+The included delivery validation report records exactly what ran and any
+historical phase gates that remain incompatible with the new DSD-only
+option spellings. Historical qualification receipts are not revised or
+reinterpreted as new numerical qualification.

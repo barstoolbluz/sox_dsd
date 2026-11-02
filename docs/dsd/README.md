@@ -1,5 +1,9 @@
 # DSD engine design documentation
 
+For the implemented end-user command-line interface, start with
+[Using SoX DSD](USING_SOX_DSD.md) or [the CLI migration table](MIGRATION_P15.md).
+The historical phase records below are not release user instructions.
+
 The approved design for a planned sox_ng DSD engine refactoring, revision 1.0
 (2026-10-07), written against source baseline
 `16aa7e17531dd3612f29247da98c8ea570cd905a`. This is documentation and
@@ -74,3 +78,5 @@ deliberately left as recorded evidence.
 | `docs/dsd/QUALIFICATION.md` | P15 |
 | `docs/dsd/handoffs/Pxx.md` | each phase |
 | `tests/dsd/{fixtures,reference,results}`, `tests/dsd/run.py`, `measure.py`, `bench.py`, `test_io.c` | P00 |
+
+For the implemented CLI design and verification approach, see [CLI usability design](CLI_USABILITY_DESIGN.md).
