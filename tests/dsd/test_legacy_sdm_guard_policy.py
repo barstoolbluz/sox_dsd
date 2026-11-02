@@ -149,47 +149,53 @@ def main() -> int:
                 check(code == 0 and value == expected, label,
                       f"1.0.2 default reference mismatch: {results[-1]}")
 
-        # Explicit legacy mode exercises the historic 1-bit dither path via
-        # dither.c -> sdm_init(). The ordinary default now uses the qualified
-        # PCM-to-DSD encoder instead, which is covered by test_cli_usability.
-        # This gate must continue testing its intended low-level implementation.
-        implicit = ["-R", "-r", "44100", "-c", "1", "-n",
+        # The implicit PCM->DSF encoder is now always qualified, even with
+        # --dsd-mode legacy. Exercise the unchanged historic dither.c ->
+        # sdm_init() engine through its *explicit* one-bit dither effect.
+        # The preceding rate effect is required by that low-level modulator.
+        explicit = ["-R", "-r", "44100", "-c", "1", "-n",
                     "-r", "2822400", "-c", "1", "{output}", "synth", "0.03",
-                    "sine", "997"]
+                    "sine", "997", "rate", "-v", "dither", "-p", "1"]
         hashes = []
         for mode in (None, "on", "off"):
-            label = "implicit-dither-" + (mode or "default")
-            code, value = run(label, native_config(mode) + ["--dsd-mode", "legacy"], implicit)
+            label = "explicit-dither-" + (mode or "default")
+            code, value = run(label, native_config(mode), explicit)
             check(code == 0 and value is not None, label, str(results[-1]))
             hashes.append(value)
-        check(len(set(hashes)) == 1, "implicit dither identity", str(hashes))
+        check(len(set(hashes)) == 1, "explicit dither identity", str(hashes))
+        check(hashes[0] == "358803199bdbaa0a90140b2811a0a195a948df1e373ca2153e53615781efbd35",
+              "explicit dither reference", str(hashes))
 
-        # The historic WAV -> DSF route uses rate -> dither -> sdm_init,
-        # without an explicit sdm effect. Pin that path explicitly so the
-        # 1.0.2 numerical reference still tests its intended implementation.
+        # The original 1.0.2 WAV -> DSF reference used *implicit* rate and
+        # one-bit dither; that implicit path is no longer a supported native
+        # output shortcut. Exercise its numerical engine by spelling out the
+        # rate and dither -p 1 effects, without changing either DSP algorithm.
+        # The three explicit sdm -f hash tests above retain their independent
+        # 1.0.2 references. These hashes pin the explicit dither CLI path.
         pcm = tmp / "reference-pink-44100.wav"
         pcm_command = [sox, "-R", "-n", "-r", "44100", "-c", "2", "-b", "24",
                        str(pcm), "synth", "2", "pinknoise", "gain", "-6"]
         pcm_result = subprocess.run(pcm_command, capture_output=True, timeout=90)
         check(pcm_result.returncode == 0 and pcm.is_file(),
               "1.0.2 input preparation", pcm_result.stderr.decode(errors="replace")[-500:])
-        implicit_refs = {
-            2822400: "1655f038e3476ce11508f8c8db5ec74c889a24141a9b168cf2350c62afdf5e54",
-            5644800: "dcddf504d2c6fcc0bc8ec3894bf8d9cb63896b6c551676d94fa8a9f798d94429",
-            11289600: "1ab239fd375e6a6c85e01286b8defdd37efa9c2d0019c5df9e218b762a0c88ed",
+        explicit_refs = {
+            2822400: "a4a9637ddc81206fc1e6bc3e1ab57419e28b7fa2f0f5efef3d8f767c225e2066",
+            5644800: "bd2391114e8211a1c079f45a6178a01a542354aa7777eb98f211df80abfa6dba",
+            11289600: "de4492307e47ee43bd65630dbf05519c39ee7666e3c3fb59ae750e74e94e5ffa",
         }
-        for rate, expected in implicit_refs.items():
+        for rate, expected in explicit_refs.items():
             for mode in (None, "on", "off"):
-                label = f"implicit-102-reference-{rate}-{mode or 'default'}"
+                label = f"explicit-lowlevel-reference-{rate}-{mode or 'default'}"
                 code, value = run(label,
-                                  native_config(mode) + ["--dsd-mode", "legacy"],
-                                  ["-R", str(pcm), "-r", str(rate), "{output}"])
+                                  native_config(mode),
+                                  ["-R", str(pcm), "-r", str(rate), "{output}",
+                                   "rate", "-v", "dither", "-p", "1"])
                 check(code == 0 and value == expected, label,
-                      f"1.0.2 default reference mismatch: {results[-1]}")
+                      f"explicit low-level dither reference mismatch: {results[-1]}")
 
         for invalid in ("auto", "bogus", "fast", "", "ON"):
             label = "reject-" + (invalid or "empty")
-            code, value = run(label, ["--sdm-guard=" + invalid], implicit)
+            code, value = run(label, ["--sdm-guard=" + invalid], explicit)
             check(code != 0 and value is None, label, str(results[-1]))
             check("--sdm-guard must be on or off" in results[-1]["stderr"],
                   label, "missing diagnosis")
