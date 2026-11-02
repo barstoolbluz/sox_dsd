@@ -31,11 +31,12 @@ The source-aware v2 mastering reconstruction is the default for DSD64,
 DSD128, DSD256, DSD512 and DSD1024. The earlier v1 filters are preserved and remain
 selectable. To ask for v1 explicitly:
 
-    sox --dsd-mode auto --dsd-decode decode.mastering.v1.dsd64 \
+    sox --decode decode.mastering.v1.dsd64 \
       input.dsf -r 176400 -b 24 output.wav
 
-For profile selection, supported conversions and current qualification
-status, see [the DSD CLI guide](docs/dsd/MIGRATION_P15.md) and
+For basic conversion, profile selection, supported operations and limitations,
+see [Using SoX DSD](docs/dsd/USING_SOX_DSD.md),
+[the CLI migration table](docs/dsd/MIGRATION_P15.md) and
 [the DSD documentation](docs/dsd/README.md).
 
 ### Numerical accuracy

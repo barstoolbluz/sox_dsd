@@ -890,25 +890,15 @@ not a device-compatibility guarantee.
 always rejects input that is not one-bit DSD, and an output rate that
 differs from the required transport rate.
 .SP
-With
-.B \-\-dsd\-mode auto
-or
-.BR native ,
-the planner selects the transport rate when
+The automatic DSD planner selects the transport rate when
 .B \-r
-is omitted, and rejects lossy or incompatible output formats, output
-precision other than 24 bits, and multiple or non-terminal
-.B dop
-effects.  In the default
-.B legacy
-mode the planner does not run:
-.B \-r
-must be given, and those mistakes are not caught.  For example, a
-16-bit output or a later effect such as
-.B vol
-is accepted and corrupts the DoP stream.  Example:
+is omitted, and refuses incompatible sample widths, lossy output,
+or non-terminal packaging.  The global
+.B \-\-dop
+option is a simpler spelling for requesting this terminal effect.
 .XE
-   sox --dsd-mode auto input.dsf -r 176400 -b 24 transport.wav dop
+   sox --dop input.dsf output.wav
+   sox input.dsf output.wav dop
 .XX
 .TP
 \fBdownsample\fR [\fIfactor\fR(2)]
@@ -3769,7 +3759,7 @@ The output distinguishes dBFS sine reference from dB SACD; short inputs
 may lack integrated values after the 20 ms warm-up exclusion.  These are
 software measurements, not SACD analog certification.  The effect
 rejects PCM input.  With
-.B \-\-dsd\-report PATH
+.B \-\-report PATH
 its counters and optional measurements are also included in the final
 conversion-result JSON.
 .SH REFERENCES

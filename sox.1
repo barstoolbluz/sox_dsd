@@ -31,7 +31,7 @@
 .SP
 .fi
 ..
-.TH SOX 1 "October 31, 2026" "SoX DSD 1.0.4" "Sound eXchange"
+.TH SOX 1 "November 2, 2026" "SoX DSD 1.0.4 CLI redesign" "Sound eXchange"
 .SH NAME
 sox \- Sound eXchange, another Swiss Army knife of audio manipulation
 .SH SYNOPSIS
@@ -1384,232 +1384,181 @@ The compression factor is interpreted differently for different
 compressed file formats; for details, see the description
 of the file formats that use this option in
 .BR soxformat_ng (7)
-.SS DSD routing, reconstruction, encoding, and transport
-SoX DSD 1.0.4 supports native one-bit DSD, reconstructed PCM audio, and
-DSD over PCM (DoP) transport.  Native DSD clocks are DSD64 (2822400 Hz),
-DSD128 (5644800 Hz), DSD256 (11289600 Hz), DSD512 (22579200 Hz),
-and DSD1024 (45158400 Hz).  DSF and uncompressed DSDIFF can be read
-and written at these clocks; WSD can be read but not written.  See
-.BR soxformat_ng (7).
+.SS Native DSD conversion, DoP, and profiles
+DSD input and output formats work with ordinary SoX syntax.  When the
+source is DSF, uncompressed DSDIFF, or WSD, SoX selects reconstruction
+for PCM output and preserves native bits when a compatible native
+DSF or DSDIFF output is requested.  When the source is PCM and the
+output is a native DSD file, SoX selects the qualified mastering encoder.
+Ordinary PCM-only commands, options, and effects retain their SoX behavior.
 .SP
-The default DSD routing mode is
-.BR legacy .
-Native file-to-file repacking stays native, but legacy routing can apply
-ordinary audio effects directly to one-bit pulse values.  This is not
-DSD-to-PCM mastering.  Select
-.B \-\-dsd\-mode auto
-for source-aware planning, where PCM effects, input gain, and mixing run
-after reconstruction.  The decoder, encoder, level, clipping, and bandwidth
-policy options, an explicit DSD composite effect,
-.B \-\-dsd\-plan
+Supported native rates are DSD64, DSD128, DSD256, DSD512 and DSD1024,
+corresponding to 2822400, 5644800, 11289600, 22579200 and 45158400 Hz.
+The usual numeric
+.B \-r
+syntax remains valid.  For DSD output only,
+.B \-r dsd64
+through
+.B \-r dsd1024
+are readable alternatives.  Place output rate and precision options
+before the output filename, as in traditional SoX.  Native DSD is one-bit;
+.B \-b 24
+selects PCM output precision, not a native DSD precision.
+.SP
+Without an explicit PCM output rate, decoding uses the qualified
+mastering-v2 intermediate clock: 88200 Hz for DSD64; 176400 Hz for
+DSD128, DSD256, DSD512 and DSD1024.  Where the format supports it,
+the default is signed 24-bit PCM.  For a different PCM clock, specify
+.B \-r
+before the output filename.  Supported reconstruction output clocks
+are 44100, 48000, 88200, 96000, 176400, 192000, 352800, 384000,
+705600 and 1411200 Hz; additional restrictions are checked by the
+planner.  The output PCM clock does not determine the decoder bank.
+.SP
+Native DSF-to-DSDIFF or DSDIFF-to-DSF conversion with no audio effects
+uses bitstream repacking: neither reconstruction nor modulation is
+introduced.  Native DSD sample rate changes and PCM audio effects
+require reconstruction and, for DSD output, a separate re-encode.
+Channel identities must be representable at the selected destination;
+unknown or unrepresentable layouts can require the advanced layout
+options below.
+.TP
+.B \-\-dop
+Package native DSD data in a lossless signed 24-bit PCM destination,
+usually WAV, without reconstructing audio PCM.  The carrier clock is
+DSD clock divided by 16: 176400, 352800, 705600, 1411200, or
+2822400 Hz, respectively.  The receiver must understand DoP; ordinary
+PCM playback sounds like noise.  This option invokes the existing
+terminal
+.B dop
+effect, and cannot be combined with a second explicit
+.B dop
+effect.  Wrong destination formats, rates, sample widths and
+incompatible processing chains are rejected.  Do not add resampling
+or PCM effects to a stream that is intended for direct DoP packaging.
+.TP
+.B \-\-plan
+Validate and print the selected processing route as JSON, without
+opening an audio output or performing conversion.  The plan includes
+the selected profiles, bit clocks, and execution availability; it
+cannot predict all runtime errors.
+.TP
+.B \-\-report PATH
+Write a versioned JSON conversion report for DSD operations.  This
+is an observer, not a processing policy.  It collects profile and
+kernel identity, native bit counts where available, clipping and
+modulation failure information, and completion status.  Report output
+follows audio closure.  A report file cannot alias the audio input or
+output and obeys normal overwrite rules.  The path
+.B \-
+writes JSON to stdout only if audio does not share stdout.  With
+.B \-\-plan
+only a plan is written.  Reporting is not supported for PCM-only
+conversions.
+.TP
+.B \-\-help\-dsd
+Display a short set of DSD examples and commonly used advanced controls.
+.TP
+.B \-\-decode mastering|conservative|wideband|legacy|ID
+Select a reconstruction profile when processing DSD as PCM.  The
+.B mastering
+alias and automatic default both select qualified mastering v2,
+matched to the native DSD input rate.
+.B conservative
+selects the original mastering v1; the
+.B wideband
+alias selects wideband v1.  Explicit immutable IDs such as
+.B decode.mastering.v1.dsd64
 or
-.B \-\-dsd\-report
-also activate planned routing if no explicit
-.B \-\-dsd\-mode
-was supplied.  Ordinary PCM-only operations are unchanged.
+.B decode.mastering.v2.dsd128
+pin both the bank and the native input clock, so a clock mismatch
+is an error.  The
+.B legacy
+selector is a historical unqualified decoder and may be unavailable
+in a planned composite route.
+.TP
+.B \-\-encode mastering|ID
+Select a qualified PCM-to-DSD modulator.  The default
+.B mastering
+selects encode.mastering.v1.dsd64/128/256 or
+encode.mastering.v2.dsd512/1024, depending on output clock.
+An explicit ID such as
+.B encode.mastering.v1.dsd128
+pins the DSD output clock.  Out-of-range modulation fails rather than
+silently clipping; lower the PCM input level and retry.  The legacy and
+experimental selectors do not authorize unqualified composite encoding.
 .TP
 .B \-\-dsd\-mode auto|native|legacy
-Choose source-aware routing, strict native-only routing, or the historical
-legacy path.  Native-only mode rejects gains, combinations, and effects
-that require PCM.  It can repack compatible native DSD without decoding.
-.TP
-.B \-\-sdm\-guard on|off
-Check the legacy 1-bit modulator used by the explicit
-.B sdm
-effect and by implicit 1-bit dithering (including plain PCM-to-DSD
-conversion).  The default,
-.BR off ,
-runs the modulator unchecked, at full speed; an unstable input may then
-produce corrupt 1-bit output without an error.
-.B on
-checks for non-finite or out-of-bounds modulator state at a CPU cost.
-On failure SoX exits nonzero and removes a failed output file; discard
-piped output unless SoX exits zero.  This is a safety stop, not a
-stability proof.  The qualified composite
-.B pcmdsd
-encoders always use their separate safeguards.  The unrelated
-.BR \-G / \-\-guard
-option protects against clipping using temporary files.
-.TP
-.B \-\-dsd\-decode SELECTOR
-Select the DSD-to-PCM reconstruction filter in a planned graph.  Without
-an explicit selection, reconstruction uses the source-aware mastering v2
-bank matched to the input DSD clock:
-.BR decode.mastering.v2.dsd64 ,
-.BR decode.mastering.v2.dsd128 ,
-.BR decode.mastering.v2.dsd256 ,
-.BR decode.mastering.v2.dsd512 ,
-and
-.BR decode.mastering.v2.dsd1024 .
-Their respective passbands are 25, 48, 66, 66 and 66 kHz; the intermediate
-PCM clocks are 88200 Hz for DSD64 and 176400 Hz for the other four rates.
-Planned DSD reconstruction accepts PCM output clocks of 44100, 48000,
-88200, 96000, 176400, 192000, 352800, 384000, 705600 or 1411200 Hz.
-Other clocks are not supported for this decoder route; DoP transport
-has separate clock rules below.
-.SP
-The explicit aliases
-.B mastering
-and
-.B conservative
-select the original mastering v1 banks, not v2;
-.B wideband
-selects wideband v1, and
-.B legacy
-selects generic legacy reconstruction within planned routing, which
-has no qualified executable composite decoder.
-Versioned selectors pin both filter and source clock, for example
-.BR decode.mastering.v1.dsd64 ,
-.B decode.mastering.v2.dsd128
-or
-.BR decode.wideband.v1.dsd256 .
-All three families have supported IDs for DSD64 through DSD1024.
-An executed decoder rejects a pinned ID for a different native clock;
-a native-only conversion that never reconstructs does not invoke it.
-.TP
-.B \-\-dsd\-encode SELECTOR
-Select the composite PCM-to-DSD modulator for a planned native output.
-.B mastering
-is the default.  The qualified profiles are
-.B encode.mastering.v1.dsd64
-through
-.B encode.mastering.v1.dsd256
-for DSD64/128/256, and
-.B encode.mastering.v2.dsd512
-and
-.B encode.mastering.v2.dsd1024
-for the high rates (v2 CLANS-7).  An exact ID pins the native output clock.
-The high-rate mastering v1 profiles are not qualified or selectable for
-production use.  The
-.B legacy
-and
-.B experimental
-selectors do not grant access to unqualified composite encoders; the
-low-level
-.B sdm
-effect has a separate interface.  Qualified mastering encoding fails
-rather than clipping an interpolated overload; lower the source level
-and retry.
-.TP
-.B \-\-dsd\-level preserve|sacd
-Choose the reconstructed DSD amplitude reference.  The default,
-.BR preserve ,
-uses unity gain;
-.B sacd
-applies a factor of two (+6.0206 dB).  Neither option normalizes or
-limits the signal.  Input gain is applied after binary64 reconstruction
-and before the PCM combiner.  PCM-origin mastering encoding uses a 0.5
-input reference scale; native DSD-origin remodulation preserves the
-planner's level reference.
-.TP
-.B \-\-dsd\-clip warn|error
-Choose the graph-boundary clipping policy for reconstructed PCM.  The
-default warns on signed-32 clipping;
-.B error
-stops processing instead.  This does not disable the mastering encoder's
-numerical overload checks.
+Advanced domain policy.  Automatic routing is the default for DSD
+inputs and outputs.  Native mode prohibits changes requiring PCM.
+Legacy routing is for limited historical native-only operations;
+unsafe reinterpretation of one-bit DSD as PCM is refused.
 .TP
 .B \-\-dsd\-bandwidth adapt|strict
-Allow a reduced effective passband at a lower PCM output rate (default:
-.BR adapt ),
-or refuse a PCM rate that cannot retain the chosen decoder profile's
-passband (
-.BR strict ).
-Raising the output PCM rate cannot restore content filtered by the
-reconstruction bank.
+With the default
+.B adapt
+setting, reducing the PCM output rate may reduce the effective
+reconstruction passband.
+.B strict
+rejects a requested PCM rate that cannot preserve the selected
+reconstruction passband.  A higher output clock cannot restore filtered
+ultrasonic content.
+.TP
+.B \-\-dsd\-level preserve|sacd
+Select the reconstruction amplitude convention.  The default
+.B preserve
+uses unity gain.  The
+.B sacd
+mode applies a factor of two (+6.0206 dB).  Neither normalizes audio.
+.TP
+.B \-\-dsd\-clip warn|error
+Choose warning (default) or fatal rejection for clipping at the
+reconstructed PCM graph boundary.  The mastering modulator retains
+its own numerical overload checks regardless of this setting.
 .TP
 .B \-\-dsd\-layout role,role,...
-Provide ordered output speaker roles when source metadata is insufficient.
-The assignment labels channels without permuting samples.  Supported
-roles and the policy for unrepresentable identities are described under
-.B \-\-dsd\-layout
-and
-.B \-\-dsd\-layout\-loss
-in Global Options, above.
+Provide an ordered speaker role assignment when native source
+metadata is insufficient.  Assignment does not reorder audio.
 .TP
 .B \-\-dsd\-layout\-loss error|warn
-Reject loss of known DSD channel identities (the default), or permit
-metadata loss with a warning where the destination can represent an
-unspecified layout.  It does not override invalid DSF speaker assignments.
+Refuse loss of known channel identity by default, or permit a warning
+for representable unspecified layouts.  This does not override invalid
+DSF speaker assignments.
 .TP
-.B \-\-dsd\-plan
-Validate the route and print one JSON preflight plan without creating
-an audio output.  This includes resolved decoder and encoder IDs,
-reference levels, rates, and whether the requested route is executable.
-Sequence mode prints a list of plans for its segments.  A successful
-preflight cannot predict later numerical failures.
-.TP
-.B \-\-dsd\-report PATH
-Write a versioned conversion-result JSON document after audio output
-closes, or a failed/cancelled result on supported cleanup paths.  It
-reports the executed decoder/encoder profiles and kernels, native-bit
-counters, clipping and stability events rather than only the requested
-preflight plan.  Large counts are decimal strings; unavailable values
-are JSON null.  A named path obeys the normal overwrite policy and
-cannot refer to an input or output audio carrier.  A single hyphen
-writes JSON to stdout only when audio does not also use stdout.  With
-.B \-\-dsd\-plan
-no conversion occurs; only the preflight report is emitted, subject to
-these same destination checks.
-.SP
-For PCM input, report metadata describes the actual source container,
-sample rate, encoding, and sample width; the DSD native clock is null.
-Known native-front-end lookahead is reported separately from SRC
-lookahead and buffering.  Latencies not derivable from the processing
-schedule are null with explanatory notes; FIFO capacity is not reported
-as observed delay.
-.PP
-The
-.B dsdpcm
-effect performs source-aware reconstruction, whether explicitly requested
-or inserted by
-.BR auto .
-The
-.B pcmdsd
-effect performs qualified mastering modulation, and
-.B dsdstat
-passes native DSD unchanged while reporting bit statistics;
-.B dsdstat \-a
-also measures original-native-rate filtered levels.  See
-.BR soxeffect_ng (7).
-.PP
-The final
-.B dop
-effect packages native DSD bits into signed 24-bit PCM words for DoP
-transport.  The required PCM clock is the native DSD clock divided by 16:
-176400, 352800, 705600, 1411200, or 2822400 Hz for DSD64 through
-DSD1024, respectively.  This is transport packaging, not PCM
-reconstruction.  Use a lossless 24-bit PCM-capable destination; playback
-requires a receiver that understands DoP.  The code's ability to write a
-high-rate transport does not establish any player's or DAC's support.
-.PP
-To choose a FIR decoder or composite SDM kernel tier for reproducibility,
-set
-.B SOX_DSD_KERNEL_FIR
-or
-.BR SOX_DSD_KERNEL_SDM .
-Available names are
-.BR scalar ,
-.BR sse2 ,
-.BR avx1 ,
-.B avx2
-and
-.BR avx512 .
-The default FIR selection uses SSE2 where built and supported, otherwise
-scalar; automatic composite SDM selection depends on available CPU/OS
-features and the output DSD rate.  Forcing an unknown or unavailable
-tier fails rather than silently selecting another.  These variables do
-not select kernels for the separate low-level legacy
+.B \-\-sdm\-guard on|off
+Optional guards for the low-level legacy
 .B sdm
-effect.
+and one-bit dithering path.  The default is off; qualified
+.B pcmdsd
+mastering encoders always apply their separate numerical safeguards.
+.SP
+Reproducible FIR/SDM kernel tier selection is available through
+.B SOX_DSD_KERNEL_FIR
+and
+.B SOX_DSD_KERNEL_SDM
+(scalar, sse2, avx1, avx2, avx512, subject to CPU/build support).
 .PP
-Examples (file extensions, clocks, and speaker layouts must be compatible):
+For explicit graph effects
+.BR dsdpcm ,
+.BR pcmdsd ,
+.B dsdstat
+and
+.BR dop ,
+see
+.BR soxeffect_ng (7).
+For native formats and channel-layout behavior see
+.BR soxformat_ng (7).
+.PP
+Examples:
 .XE
-   sox --dsd-mode auto in.dsf -r 176400 -b 24 decoded.wav
-   sox --dsd-mode auto --dsd-decode mastering in.dsf -r 176400 old-v1.wav
-   sox --dsd-mode auto in.wav -r 22579200 mastered-dsd512.dsf
-   sox --dsd-mode native in.dsf repacked.dff
-   sox --dsd-mode auto in.dsf -r 176400 -b 24 transport.wav dop
+   sox input.dsf output.wav
+   sox input.dsf -r 96k -b 24 output.wav
+   sox input.wav -r dsd128 output.dsf
+   sox input.dsf output.dff
+   sox --dop input.dsf output.wav
+   sox --plan input.dsf output.wav
+   sox --report report.json input.dsf output.wav
+   sox --decode decode.mastering.v1.dsd64 input.dsf old-v1.wav
 .XX
 .SH EFFECTS
 In addition to converting, playing and recording audio files, SoX can
