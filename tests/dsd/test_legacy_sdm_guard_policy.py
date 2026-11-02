@@ -149,22 +149,24 @@ def main() -> int:
                 check(code == 0 and value == expected, label,
                       f"1.0.2 default reference mismatch: {results[-1]}")
 
-        # Without an explicit sdm effect the legacy graph applies 1-bit dither
-        # via dither.c -> sdm_init().  The global option must be accepted here.
+        # Explicit legacy mode exercises the historic 1-bit dither path via
+        # dither.c -> sdm_init(). The ordinary default now uses the qualified
+        # PCM-to-DSD encoder instead, which is covered by test_cli_usability.
+        # This gate must continue testing its intended low-level implementation.
         implicit = ["-R", "-r", "44100", "-c", "1", "-n",
                     "-r", "2822400", "-c", "1", "{output}", "synth", "0.03",
                     "sine", "997"]
         hashes = []
         for mode in (None, "on", "off"):
             label = "implicit-dither-" + (mode or "default")
-            code, value = run(label, native_config(mode), implicit)
+            code, value = run(label, native_config(mode) + ["--dsd-mode", "legacy"], implicit)
             check(code == 0 and value is not None, label, str(results[-1]))
             hashes.append(value)
         check(len(set(hashes)) == 1, "implicit dither identity", str(hashes))
 
-        # The ordinary WAV -> DSF route uses rate -> dither -> sdm_init,
-        # without an explicit sdm effect. Lock the 1.0.2 default reference:
-        # the resampler must not change the modulator's PCM input under FMA.
+        # The historic WAV -> DSF route uses rate -> dither -> sdm_init,
+        # without an explicit sdm effect. Pin that path explicitly so the
+        # 1.0.2 numerical reference still tests its intended implementation.
         pcm = tmp / "reference-pink-44100.wav"
         pcm_command = [sox, "-R", "-n", "-r", "44100", "-c", "2", "-b", "24",
                        str(pcm), "synth", "2", "pinknoise", "gain", "-6"]
@@ -179,7 +181,8 @@ def main() -> int:
         for rate, expected in implicit_refs.items():
             for mode in (None, "on", "off"):
                 label = f"implicit-102-reference-{rate}-{mode or 'default'}"
-                code, value = run(label, native_config(mode),
+                code, value = run(label,
+                                  native_config(mode) + ["--dsd-mode", "legacy"],
                                   ["-R", str(pcm), "-r", str(rate), "{output}"])
                 check(code == 0 and value == expected, label,
                       f"1.0.2 default reference mismatch: {results[-1]}")

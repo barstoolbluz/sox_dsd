@@ -1,0 +1,372 @@
+#!/usr/bin/env python3
+"""Independent file-level CLI acceptance for the SoX DSD usability interface.
+
+Fixtures are authored from known bit chronology, not by invoking the encoder.
+Audio comparisons are byte/bit comparisons; no subjective quality claim.
+Run from any directory with --sox <built binary>.
+"""
+from __future__ import annotations
+import argparse
+import hashlib
+import json
+import math
+import os
+from pathlib import Path
+import struct
+import subprocess
+import tempfile
+import wave
+
+from reference import fixtures
+
+RATES = (64, 128, 256, 512, 1024)
+
+
+def check(c, why):
+    if not c:
+        raise AssertionError(why)
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def run(exe, *args, ok=True, timeout=90):
+    proc = subprocess.run([str(exe), *map(str, args)], capture_output=True,
+                          text=True, timeout=timeout,
+                          env={**os.environ, 'OMP_NUM_THREADS':'1'})
+    check((proc.returncode == 0) == ok,
+          f'{args}: unexpected exit {proc.returncode}: {proc.stderr[-1200:]}')
+    return proc
+
+
+def plan(exe, *args):
+    return json.loads(run(exe, '--plan', *args).stdout)
+
+
+def info(path):
+    with wave.open(str(path), 'rb') as f:
+        return f.getparams(), f.readframes(f.getnframes())
+
+
+def payload_dsf(path, nch, frames):
+    b = path.read_bytes()
+    check(b[:4] == b'DSD ' and b[80:84] == b'data', 'invalid DSF container')
+    blocks = (frames + 32767) // 32768
+    buf = b[92:]
+    check(len(buf) >= 4096 * nch * blocks, 'truncated DSF payload')
+    per = (frames + 7) // 8
+    return tuple(b''.join(buf[(i*nch+ch)*4096:(i*nch+ch)*4096+4096]
+                          for i in range(blocks))[:per] for ch in range(nch))
+
+
+def oracle_dsf(timeline):
+    return tuple(bytes(fixtures.pack_byte(ch, i, oldest_msb=False)
+                       for i in range(0, len(ch), 8)) for ch in timeline)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--sox', type=Path, required=True)
+    ap.add_argument('--results', type=Path)
+    a = ap.parse_args()
+    exe = a.sox.resolve()
+    check(exe.exists(), f'missing executable: {exe}')
+    records = []
+    with tempfile.TemporaryDirectory(prefix='sox-dsd-cli-') as td:
+        d = Path(td)
+        source = fixtures.bits(16384, 2, 'distinct')
+        for mult in RATES:
+            (d / f'dsd{mult}.dsf').write_bytes(
+                fixtures.make_dsf(source, rate=44100*mult))
+        (d / 'input.dff').write_bytes(fixtures.make_dff(source))
+        with wave.open(str(d/'input.wav'), 'wb') as wav:
+            wav.setnchannels(2)
+            wav.setsampwidth(2)
+            wav.setframerate(44100)
+            wav.writeframes(b''.join(struct.pack('<hh',
+                round(4000*math.sin(i*2*math.pi*997/44100)),
+                round(3000*math.sin(i*2*math.pi*1531/44100))) for i in range(512)))
+
+        def case(name, fn):
+            row={'name':name, 'status':'PASS'}
+            try:
+                detail = fn()
+                if detail is not None:
+                    row['detail'] = detail
+            except Exception as e:
+                row['status'] = 'FAIL'
+                row['error'] = f'{type(e).__name__}: {e}'
+            records.append(row)
+            print(row['status'], name, row.get('error',''), flush=True)
+
+        def help_checks():
+            for opt, required in (('--help', 'GLOBAL OPTIONS'),
+                                  ('--help-dsd', 'input.dsf'),
+                                  ('--help-effect', 'dsdpcm')):
+                args = (opt,'dsdpcm') if opt=='--help-effect' else (opt,)
+                check(required in run(exe,*args).stdout, f'{opt} content')
+        case('help, DSD help, effect help', help_checks)
+
+        def pcm_legacy():
+            normal=d/'pcm-default.wav'; altered=d/'pcm-altered.wav'
+            run(exe,d/'input.wav',normal)
+            run(exe,d/'input.wav',altered,'gain','-6')
+            before, data=info(d/'input.wav')
+            same, copied=info(normal)
+            check(before[:4] == same[:4] and copied == data, 'PCM copy changed')
+            check(info(altered)[1]!=data, 'legacy gain did not act')
+            resampled=d/'pcm-48.wav'
+            run(exe,d/'input.wav','-r','48k',resampled)
+            check(info(resampled)[0].framerate==48000, '-r 48k changed meaning')
+            return {'pcm_copy_sha256':sha(normal)}
+        case('PCM-only SoX copy, rate, gain legacy semantics', pcm_legacy)
+
+        for mult in RATES:
+            def dec(mult=mult):
+                src=d/f'dsd{mult}.dsf'; out=d/f'decoded{mult}.wav'
+                expected_hz=88200 if mult==64 else 176400
+                doc=plan(exe, src, out)
+                check(doc['output']['domain']=='PCM_AUDIO', 'decoder route')
+                check(doc['output']['rate_hz']==expected_hz, 'default PCM clock')
+                check(doc['decoder']['id']==f'decode.mastering.v2.dsd{mult}', 'default decoder identity')
+                check(doc['output']['bits_per_sample']==24, 'default PCM precision')
+                check(not out.exists(), '--plan created audio')
+                run(exe,src,out)
+                wav,_=info(out)
+                check(wav.framerate==expected_hz and wav.sampwidth==3,
+                      'decoded PCM stream is not expected 24-bit clock')
+                return {'pcm_hz':wav.framerate, 'frames':wav.nframes}
+            case(f'DSD{mult} automatic PCM decode and plan', dec)
+
+        for mult in RATES:
+            def enc(mult=mult):
+                dest=d/f'encoded{mult}.dsf'
+                doc=plan(exe,d/'input.wav','-r',f'dsd{mult}',dest)
+                ident=f'encode.mastering.v{"1" if mult<=256 else "2"}.dsd{mult}'
+                check(doc['output']['domain']=='DSD_NATIVE', 'encoder route')
+                check(doc['output']['rate_hz']==44100*mult, 'named native rate')
+                check(doc['encoder']['id']==ident, 'qualified encoder mismatch')
+                check(doc['executable'], 'qualified encoder not executable')
+                run(exe,d/'input.wav','-r',f'dsd{mult}',dest)
+                check(dest.stat().st_size>92, 'empty encoded DSD')
+                return {'encoder_id':ident, 'bytes':dest.stat().st_size}
+            case(f'PCM to DSD{mult} named rate and qualified encoder', enc)
+
+        def direct_default():
+            out=d/'default-native.dsf'
+            doc=plan(exe,d/'input.wav',out)
+            check(doc['output']['rate_hz']==2822400, 'PCM to DSD default is not DSD64')
+            run(exe,d/'input.wav',out)
+        case('PCM to DSD without explicit rate defaults to DSD64', direct_default)
+
+        def rate_aliases():
+            for label in ('DSD64','DSD128','DSD256','DSD512','DSD1024'):
+                native=44100*int(label[3:])
+                named=plan(exe,d/'input.wav','-r',label,d/'case-rate.dsf')
+                numeric=plan(exe,d/'input.wav','-r',str(native),d/'numeric-rate.dsf')
+                check(named['output']['rate_hz']==numeric['output']['rate_hz']==native,
+                      f'case-insensitive named rate {label} differs from numeric rate')
+        case('case-insensitive DSD clock names retain numeric rate meanings',rate_aliases)
+
+        def default_profile():
+            src=d/'dsd64.dsf'
+            names=['automatic','mastering','conservative','v1']
+            for n in names:
+                f=d/f'{n}.wav'
+                flag=() if n=='automatic' else ('--decode',
+                       'decode.mastering.v1.dsd64' if n=='v1' else n)
+                run(exe,*flag,src,f)
+            check(sha(d/'automatic.wav')==sha(d/'mastering.wav'),
+                  'named mastering differs from automatic')
+            check(sha(d/'conservative.wav')==sha(d/'v1.wav'),
+                  'conservative differs from explicit frozen v1')
+            check(plan(exe,src,d/'check-v2.wav')['decoder']['id'] ==
+                  'decode.mastering.v2.dsd64', 'automatic must select qualified v2')
+            check(plan(exe,'--decode','conservative',src,d/'check-v1.wav')['decoder']['id'] ==
+                  'decode.mastering.v1.dsd64', 'conservative must select qualified v1')
+        case('mastering alias equals default, conservative equals versioned v1',default_profile)
+
+        def encode_override():
+            automatic=d/'encauto.dsf'; named=d/'encmaster.dsf'; version=d/'encv1.dsf'
+            for flags,out in (((),automatic), (('--encode','mastering'),named),
+                              (('--encode','encode.mastering.v1.dsd128'),version)):
+                run(exe,*flags,d/'input.wav','-r','dsd128',out)
+            check(sha(automatic)==sha(named)==sha(version),
+                  'explicit and unpinned qualified encoding disagree')
+        case('explicit qualified encoder equals default bitstream',encode_override)
+
+        def native_repack():
+            src=d/'dsd64.dsf'; dff=d/'native-repack.dff'; rt=d/'native-roundtrip.dsf'
+            doc=plan(exe,src,dff)
+            check(doc['output']['domain']=='DSD_NATIVE', 'native output route')
+            check(doc['graph_decoder_count']==doc['encoder_count']==0, 'native repack did DSP')
+            run(exe,src,dff)
+            run(exe,dff,rt)
+            exp=oracle_dsf(source)
+            check(payload_dsf(src,2,16384)==exp,'oracle fixture mismatch')
+            check(payload_dsf(rt,2,16384)==exp,'native DSD bitstream changed')
+            return {'native_dsf_payload_sha256': hashlib.sha256(b''.join(exp)).hexdigest()}
+        case('DSF to DFF to DSF native pulse preservation',native_repack)
+
+        def dop():
+            src=d/'dsd64.dsf'; dest=d/'dop-auto.wav'; other=d/'dop-explicit.wav'
+            doc=plan(exe,'--dop',src,dest)
+            check(doc['output']['domain']=='DOP_TRANSPORT' and doc['output']['rate_hz']==176400,
+                  'DoP rate or domain')
+            check(doc['dop_count']==1 and not doc['encoder_count'] and not doc['graph_decoder_count'],
+                  'DoP applied DSP')
+            run(exe,'--dop',src,dest)
+            run(exe,src,other,'dop')
+            check(sha(dest)==sha(other),'--dop and terminal dop effect differ')
+            wav,body=info(dest)
+            check((wav.sampwidth,wav.framerate,wav.nchannels)==(3,176400,2),
+                  'DoP header rate, encoding or channels')
+            expected=bytes(v for frame in fixtures.dop_words(source)
+                           for word in frame for v in word.to_bytes(3,'little'))
+            check(body==expected,'DoP chronological bits or 05/FA markers differ')
+        case('DoP correct carriers, native payload and existing effect',dop)
+
+        for mult in (128,256,512,1024):
+            def transport(mult=mult):
+                src=d/f'dsd{mult}.dsf'; out=d/f'dop{mult}.wav'
+                doc=plan(exe,'--dop',src,out)
+                check(doc['output']['rate_hz']==(44100*mult)//16,'DoP high rate')
+                run(exe,'--dop',src,out)
+                check(info(out)[0].framerate==44100*mult//16, 'DoP carrier WAV')
+            case(f'DSD{mult} DoP transport', transport)
+
+        def report_invariance():
+            src=d/'dsd64.dsf'; plain=d/'report-off.wav'; logged=d/'report-on.wav'; report=d/'result.json'
+            run(exe,src,plain)
+            run(exe,'--report',report,src,logged)
+            check(plain.read_bytes()==logged.read_bytes(), 'report changed audio bytes')
+            j=json.loads(report.read_text())
+            check(j.get('status')=='complete','report completion status')
+            check(j['processing'], 'missing processing report')
+            planpath=d/'plan-report.json'; noaudio=d/'never-created.wav'
+            p=run(exe,'--plan','--report',planpath,src,noaudio)
+            check(p.stdout=='', 'plan unexpectedly duplicated report on stdout')
+            check(not noaudio.exists(), 'plan with report converted audio')
+            check(json.loads(planpath.read_text())['schema']=='sox.dsd.plan.v1', 'plan report schema')
+            return {'pcm_sha256':sha(plain)}
+        case('report output invariance and plan non-execution',report_invariance)
+
+        def report_all_routes():
+            # Reports are observers, never additional DSP stages.
+            checks=(
+                ('encode', (d/'input.wav','-r','dsd64'),'.dsf'),
+                ('native', (d/'dsd64.dsf',),'.dff'),
+                ('dop', ('--dop',d/'dsd64.dsf'),'.wav'),
+            )
+            records={}
+            for name,prefix,extension in checks:
+                plain=d/f'plain-{name}{extension}'
+                reported=d/f'reported-{name}{extension}'
+                report=d/f'report-{name}.json'
+                run(exe,*prefix,plain)
+                run(exe,'--report',report,*prefix,reported)
+                check(plain.read_bytes()==reported.read_bytes(),
+                      f'{name}: report modified output bytes')
+                data=json.loads(report.read_text())
+                check(data.get('status')=='complete',f'{name}: report not completed')
+                records[name]=sha(reported)
+            return {'sha256':records}
+        case('report cannot change encode, native repack, or DoP payloads',report_all_routes)
+
+        def mixed_dsd_pcm_effects():
+            src=d/'dsd64.dsf'; out=d/'effects-output.wav'
+            doc=plan(exe,src,out,'gain','-6')
+            check(doc['graph_decoder_count']==1, 'effects path must reconstruct DSD')
+            run(exe,src,out,'gain','-6')
+            check(out.stat().st_size>44, 'effects path failed to output audio')
+            # Post-DSP conversion to native DSD must not pass native pulses
+            # through the ordinary PCM effects graph as pseudo-audio.
+            native=d/'effects-native.dsf'
+            run(exe,src,native,'gain','-6')
+            check(native.stat().st_size>92,'re-encoding after gain failed')
+        case('DSD reconstruction, PCM effect, and re-encoding pipeline',mixed_dsd_pcm_effects)
+
+        def rate_errors():
+            for flags in ((d/'input.wav','-r','dsd128',d/'invalid.wav'),
+                          ('-r','dsd128',d/'input.wav',d/'invalid2.dsf')):
+                run(exe,*flags,ok=False)
+            run(exe,'--decode','decode.mastering.v1.dsd128',d/'dsd64.dsf',d/'wrong-dec.wav',ok=False)
+            run(exe,'--encode','encode.mastering.v1.dsd64',d/'input.wav','-r','dsd128',d/'wrong-enc.dsf',ok=False)
+            run(exe,'--decode','nonexistent',d/'dsd64.dsf',d/'bad-dec.wav',ok=False)
+            for f in ('invalid.wav','invalid2.dsf','wrong-dec.wav','wrong-enc.dsf','bad-dec.wav'):
+                check(not (d/f).exists(), f'failed preflight created {f}')
+        case('misplaced or incompatible rate and profile options fail',rate_errors)
+
+        def unconsumed_profile_errors():
+            # A requested qualified profile is not a no-op setting: every
+            # valid request must result in a matching processing stage.
+            bad=(
+                ('--decode','mastering',d/'input.wav',d/'unused-dec-pcm.wav'),
+                ('--encode','mastering',d/'input.wav',d/'unused-enc-pcm.wav'),
+                ('--encode','mastering',d/'dsd64.dsf',d/'unused-enc-dec.wav'),
+                ('--decode','mastering',d/'input.wav',d/'unused-dec-enc.dsf'),
+                ('--decode','mastering',d/'dsd64.dsf',d/'unused-dec-native.dff'),
+                ('--encode','mastering',d/'dsd64.dsf',d/'unused-enc-native.dff'),
+                ('--decode','mastering','--dop',d/'dsd64.dsf',d/'unused-dec-dop.wav'),
+            )
+            for args in bad:
+                run(exe,*args,ok=False)
+                check(not Path(args[-1]).exists(),
+                      f'unused profile created output {args[-1]}')
+        case('unused explicit profiles fail rather than silently disappearing',unconsumed_profile_errors)
+
+        def report_alias_errors():
+            src=d/'dsd64.dsf'; before=sha(src)
+            run(exe,'--report',src,src,d/'bad-report-input.wav',ok=False)
+            check(sha(src)==before,'report path corrupted audio input')
+            output=d/'same-report-output.wav'
+            run(exe,'--report',output,src,output,ok=False)
+            check(not output.exists(),'report path alias created audio output')
+        case('report destination cannot overwrite its input or audio output',report_alias_errors)
+
+        def dop_errors():
+            src=d/'dsd64.dsf'
+            for args in (('--dop',src,'-b','16',d/'bad-dop-16.wav'),
+                         ('--dop',src,'-r','96k',d/'bad-dop-rate.wav'),
+                         ('--dop',src,d/'bad-dop.dsf'),
+                         ('--dop',d/'input.wav',d/'bad-dop-pcm.wav'),
+                         ('--dop',src,d/'bad-dop-twice.wav','dop')):
+                run(exe,*args,ok=False)
+            for name in ('bad-dop-16.wav','bad-dop-rate.wav','bad-dop.dsf',
+                         'bad-dop-pcm.wav','bad-dop-twice.wav'):
+                check(not (d/name).exists(),f'failed DoP command created {name}')
+        case('DoP rejects 16-bit, wrong carrier, native target, PCM and duplicate',dop_errors)
+
+        def safety():
+            out=d/'unsafe.wav'
+            run(exe,'--dsd-mode','legacy',d/'dsd64.dsf',out,ok=False)
+            check(not out.exists(),'legacy path wrote DSD bits as PCM')
+            run(exe,'--report',d/'pcm-report.json',d/'input.wav',d/'pcm-report.wav',ok=False)
+            check(not (d/'pcm-report.wav').exists(),'report changed PCM-only route')
+            run(exe,'--plan',d/'dsd64.dsf',d/'never.wav')
+            check(not (d/'never.wav').exists(),'plan created output')
+        case('legacy pulse-to-PCM forbidden; PCM-only report rejected',safety)
+
+        def advanced():
+            src=d/'dsd64.dsf'
+            strict=d/'strict.wav'
+            run(exe,'--dsd-bandwidth','strict',src,'-r','44.1k',strict,ok=False)
+            run(exe,'--dsd-bandwidth','adapt',src,'-r','44.1k',d/'adapt.wav')
+            check(info(d/'adapt.wav')[0].framerate==44100,'adapt missing')
+            run(exe,'--dsd-mode','native',src,d/'native.dff')
+            run(exe,'--dsd-mode','native',src,d/'native-pcm.wav',ok=False)
+        case('strict versus adapt bandwidth and native-only mode',advanced)
+
+    result={'schema':'sox.dsd.cli.acceptance.v1', 'cases':records,
+            'passed':sum(x['status']=='PASS' for x in records),
+            'failed':sum(x['status']=='FAIL' for x in records)}
+    print(json.dumps({'passed':result['passed'],'failed':result['failed']}))
+    if a.results:
+        a.results.mkdir(parents=True,exist_ok=True)
+        (a.results/'cli-acceptance.json').write_text(json.dumps(result,indent=2)+'\n')
+    return 1 if result['failed'] else 0
+
+
+if __name__=='__main__':
+    raise SystemExit(main())
