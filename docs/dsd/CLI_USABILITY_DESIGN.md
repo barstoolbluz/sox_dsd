@@ -9,6 +9,9 @@ implementation, not a proposed interface.
 1. **Keep SoX grammar.** File and effect parsing still uses the established
    `sox [options] input [output-options] output [effects]` parser. Numeric
    `-r`, `-b`, `-c`, `-t` and PCM-only processing are unchanged.
+   Existing SoX option prefixes `--enc`, `--enco`, `--encod` (encoding),
+   `--rep` (replay gain), `--pla` (play-rate arg), and `--de` (default
+   device) retain their established meaning alongside the new DSD options.
 2. **Route from endpoints.** The existing DSD planner activates only when
    the input/output requires DSD, a DSD effect is present, or DSD planning
    or reporting is selected. DSF/DSDIFF input to PCM selects qualified

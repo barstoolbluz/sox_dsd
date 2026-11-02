@@ -3757,6 +3757,10 @@ static lsx_option_t const long_options[] = {
   {"sdm-guard"       , lsx_option_arg_required, NULL, 0}, /* 36 */
   {"dop"             , lsx_option_arg_none    , NULL, 0}, /* 37 */
   {"help-dsd"        , lsx_option_arg_none    , NULL, 0}, /* 38 */
+  /* Preserve once-unambiguous traditional SoX abbreviations. These aliases
+   * occupy new indices so all existing indexed switch cases stay stable. */
+  {"rep"             , lsx_option_arg_required, NULL, 0}, /* 39: replay-gain */
+  {"pla"             , lsx_option_arg_required, NULL, 0}, /* 40: play-rate-arg */
 
   /*
    * These instead are indexed by their letters, which limits the
@@ -3766,8 +3770,15 @@ static lsx_option_t const long_options[] = {
   {"channels"        , lsx_option_arg_required, NULL, 'c'},
   {"compression"     , lsx_option_arg_required, NULL, 'C'},
   {"default-device"  , lsx_option_arg_none    , NULL, 'd'},
+  {"de"              , lsx_option_arg_none    , NULL, 'd'},
   {"no-dither"       , lsx_option_arg_none    , NULL, 'D'},
   {"encoding"        , lsx_option_arg_required, NULL, 'e'},
+  /* getopts historically accepted these unambiguous prefixes for --encoding.
+   * --encode would otherwise make them ambiguous; retain their old meaning
+   * without weakening the exact --encode spelling for DSD profiles. */
+  {"enc"             , lsx_option_arg_required, NULL, 'e'},
+  {"enco"            , lsx_option_arg_required, NULL, 'e'},
+  {"encod"           , lsx_option_arg_required, NULL, 'e'},
   {"help"            , lsx_option_arg_none    , NULL, 'h'},
   {"keymap"          , lsx_option_arg_required, NULL, 'k'},
   {"null"            , lsx_option_arg_none    , NULL, 'n'},
@@ -3950,7 +3961,8 @@ static char parse_gopts_and_fopts(file_t * f)
       case 11:
         sox_effects_globals.plot = enum_option(optstate.arg, optstate.lngind, plot_methods);
         break;
-      case 12: replay_gain_mode = enum_option(optstate.arg, optstate.lngind, rg_modes); break;
+      case 12: case 39:
+        replay_gain_mode = enum_option(optstate.arg, optstate.lngind, rg_modes); break;
       case 13: display_SoX_version(stdout); exit(0); break;
       case 14: break;
       case 15: effects_filename = lsx_strdup(optstate.arg); break;
@@ -3966,7 +3978,7 @@ static char parse_gopts_and_fopts(file_t * f)
         else
           lsx_warn("this build of SoX does not include `magic'");
         break;
-      case 21: play_rate_arg = lsx_strdup(optstate.arg);
+      case 21: case 40: play_rate_arg = lsx_strdup(optstate.arg);
                if (play_rate_arg[0] != '-') {
                    lsx_fail("--play-rate-arg must begin with `-')");
                    exit(1);
