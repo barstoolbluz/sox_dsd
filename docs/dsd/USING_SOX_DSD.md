@@ -175,9 +175,16 @@ allows a reduced passband when decoding to a lower PCM rate),
 `--dsd-level preserve|sacd` (default `preserve`, with `sacd` multiplying the
 reconstructed amplitude by two), `--dsd-clip warn|error` (default `warn`),
 `--dsd-layout`, `--dsd-layout-loss`, and `--dsd-mode native` (rejects any
-route that would require PCM processing). The `SOX_DSD_KERNEL_FIR` and
-`SOX_DSD_KERNEL_SDM` environment variables select supported execution
-tiers for reproducible numerical checks. The traditional `sdm`, `dsdpcm`,
+route that would require PCM processing). For compatibility,
+`--dsd-mode legacy` still accepts PCM-only SoX operations, but **never**
+bypasses qualified routing for a DSD input or output. DSD rate changes,
+DSD-to-PCM decoding and PCM-to-DSD encoding use the same planned graph
+as automatic mode, whether or not `--plan` or `--report` is present.
+To select unqualified low-level modulation explicitly, use the `sdm`
+effect; do not rely on implicit legacy container conversion.
+
+The `SOX_DSD_KERNEL_FIR` and `SOX_DSD_KERNEL_SDM` environment variables
+select supported execution tiers for reproducible numerical checks. The traditional `sdm`, `dsdpcm`,
 `pcmdsd`, and `dop` effects remain accessible in the normal SoX grammar.
 
 ## Common mistakes and how to fix them

@@ -10,6 +10,7 @@ see [Using SoX DSD](USING_SOX_DSD.md) and `man sox`.
 | --- | --- | --- |
 | `--dsd-mode auto input.dsf output.wav` | `input.dsf output.wav` | Auto DSD reconstruction selected by input/output formats. |
 | `--dsd-mode auto input.wav -r 5644800 output.dsf` | `input.wav -r dsd128 output.dsf` | Qualified encoding for DSD128. Numeric rates remain valid. |
+| `--dsd-mode legacy input.wav output.dsf` | `input.wav output.dsf` | Both now use qualified modulation. The legacy flag cannot bypass the planned encoder. Use the explicit `sdm` effect for low-level testing. |
 | `--dsd-mode native input.dsf output.dff` | `input.dsf output.dff` | Native bitstream repacking (advanced `--dsd-mode native` is still available). |
 | `--dsd-decode mastering` (formerly v1) | `--decode conservative` | Preserve exact older mastering-v1 selection. |
 | Unpinned decoding (formerly mastering v2) | Default, or `--decode mastering` | Both use qualified mastering-v2. |

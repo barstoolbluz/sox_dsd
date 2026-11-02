@@ -1491,8 +1491,14 @@ experimental selectors do not authorize unqualified composite encoding.
 .B \-\-dsd\-mode auto|native|legacy
 Advanced domain policy.  Automatic routing is the default for DSD
 inputs and outputs.  Native mode prohibits changes requiring PCM.
-Legacy routing is for limited historical native-only operations;
-unsafe reinterpretation of one-bit DSD as PCM is refused.
+Legacy mode preserves old PCM-only processing, but cannot bypass the
+qualified graph for a native DSD input or output.  Native bitstreams
+are repacked unchanged when possible; clock changes, effects, and
+PCM conversion use the same planner as automatic mode.  Explicit
+legacy low-level modulation remains available through the
+.B sdm
+effect, not by bypassing native DSD routing.  Planning and reporting
+use the same route as audio execution.
 .TP
 .B \-\-dsd\-bandwidth adapt|strict
 With the default

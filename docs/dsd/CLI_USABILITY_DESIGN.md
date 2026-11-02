@@ -22,8 +22,11 @@ implementation, not a proposed interface.
 3. **Remove the opt-in tax.** The previous `--dsd-mode auto` is implicit
    for ordinary DSD conversions. `--dsd-mode native` remains useful to
    reject any conversion that would require PCM. Explicit legacy mode
-   is retained for deliberate low-level numerical tests; it refuses
-   unsafe DSD pulse-to-PCM conversions and effects.
+   is retained as a compatibility selector: DSD endpoints still execute
+   the qualified preflight graph, including rate changes, PCM reconstruction,
+   and modulation. Only PCM-only commands retain the traditional unplanned
+   SoX path. To exercise the historic unqualified modulator deliberately,
+   use the low-level `sdm` effect, not an implicit container conversion.
 4. **Named output clocks.** `-r dsd64` through `-r dsd1024`, independent of
    case, map to existing qualified DSD clocks. They are allowed only as
    output rates for DSF/DSDIFF. Existing integer and `k`-suffix clocks
