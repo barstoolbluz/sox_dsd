@@ -39,7 +39,9 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
 	     tests/sync/test_url_process.py tests/sync/test_p10_path.py \
              tests/sync/test_p16_p18_path.py tests/sync/test_waveaudio_teardown.py \
 	     README.sh FEATURES.in test/* issues wiki/* \
-             tests/rename_smoke.sh
+             tests/rename_smoke.sh \
+             tests/dsd/test_cli_usability.py \
+             docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md
 
 if HAVE_PKGCONFIG
 pkgconfig_DATA = sox_ng.pc
@@ -221,6 +223,14 @@ win64.exe: winexe-prepare
 check-rename: all
 	$(LIBTOOL) --mode=execute -dlopen $(abs_builddir)/src/libsox_ng.la \
 	  $(SHELL) $(srcdir)/tests/rename_smoke.sh $(abs_builddir)/src "$(SYMLINKS)" "$(PLAYRECLINKS)"
+
+# Release-facing command/format acceptance independent of historic phase gates.
+# Uses independently generated PCM and DSD test material; no music files needed.
+.PHONY: check-dsd-cli
+check-dsd-cli: all
+	PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$(abs_srcdir)/tests/dsd" \
+	  python3 "$(abs_srcdir)/tests/dsd/test_cli_usability.py" \
+	  --sox "$(abs_builddir)/src/sox"
 
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.
