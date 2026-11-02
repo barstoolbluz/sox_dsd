@@ -112,7 +112,7 @@ def main():
                                     continue
                                 command=[str(args.sox),'-V4','--dsd-mode','auto',
                                     '--combine=merge','--dsd-layout-loss','warn',
-                                    '--dsd-decode',p,'-D',str(inp),'-r',str(output),
+                                    '--decode',p,'-D',str(inp),'-r',str(output),
                                     '-t','raw','-e','signed-integer','-b','32','-']
                                 old_fir=os.environ.get('SOX_DSD_KERNEL_FIR')
                                 os.environ['SOX_DSD_KERNEL_FIR']=kernel
@@ -169,7 +169,7 @@ def main():
             records.append(record);by_name[name]=record;save()
 
         # P14's report observer is source-bound to the original expanded
-        # samples. With --dsd-report active the P16 opt-in must fall back,
+        # samples. With --report active the P16 opt-in must fall back,
         # preserving statistics instead of silently disabling observation.
         name='p14-report-opt-in-fallback'
         if name not in by_name or by_name[name]['status']!='PASS':
@@ -177,7 +177,7 @@ def main():
             reports=[d/'expanded-report.json',d/'flagged-report.json']
             runs=[]
             for i in range(2):
-                command=[str(args.sox),'-V4','--dsd-report',str(reports[i]),
+                command=[str(args.sox),'-V4','--report',str(reports[i]),
                     '--dsd-mode','auto','--combine=merge','--dsd-layout-loss','warn',
                     '-D',str(src),'-r','88200','-t','raw',
                     '-e','signed-integer','-b','32','-']

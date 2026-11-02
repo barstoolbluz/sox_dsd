@@ -125,7 +125,7 @@ def main():
                       (analysis,ra,['dsdstat','-a'])]
             docs=[];digests=[]
             for dst,rep,effects in variants:
-                p=run(sox,'--dsd-mode','native','--dsd-report',rep,'-D',src,dst,*effects)
+                p=run(sox,'--dsd-mode','native','--report',rep,'-D',src,dst,*effects)
                 require(p.returncode==0,p.stderr[-900:])
                 digests.append(hashlib.sha256(dst.read_bytes()).hexdigest())
                 doc=json.loads(rep.read_text());valid_report(doc)
@@ -160,7 +160,7 @@ def main():
 
         def schema_stability():
             duplicate=d/'repeat.dsf';report=d/'repeat.json'
-            p=run(sox,'--dsd-mode','native','--dsd-report',report,'-D',src,duplicate,'dsdstat')
+            p=run(sox,'--dsd-mode','native','--report',report,'-D',src,duplicate,'dsdstat')
             require(p.returncode==0,p.stderr)
             require(report.read_bytes()==r1.read_bytes(),'report depends on output/report path or wall time')
             valid_report(json.loads(report.read_text()))
@@ -168,16 +168,16 @@ def main():
         case('schema_order_and_repeatability',schema_stability)
 
         def stdout_policies():
-            p=run(sox,'--dsd-mode','native','--dsd-report','-','-q','-D',src,d/'stdout-audio.dsf','dsdstat')
+            p=run(sox,'--dsd-mode','native','--report','-','-q','-D',src,d/'stdout-audio.dsf','dsdstat')
             require(p.returncode==0,p.stderr)
             valid_report(json.loads(p.stdout));require(p.stdout.startswith('{'),'other text on stdout')
-            p2=run(sox,'--dsd-mode','native','--dsd-report','-','-D',src,
+            p2=run(sox,'--dsd-mode','native','--report','-','-D',src,
                    '-t','dsf','-','dsdstat')
             require(p2.returncode!=0,'audio and report both writing to stdout')
             require('conflict' in p2.stderr.lower(),f'missing stdout conflict diagnostic: {p2.stderr}')
             require(not p2.stdout,'audio escaped before conflict check')
             for report_path,out_path in (('-', '/dev/stdout'),('/dev/stdout','-')):
-                aliased=run(sox,'--dsd-mode','native','--dsd-report',report_path,
+                aliased=run(sox,'--dsd-mode','native','--report',report_path,
                             '-D',src,'-t','dsf',out_path)
                 require(aliased.returncode!=0 and 'stdout' in aliased.stderr.lower(),
                         'stream-alias conflict not rejected')
@@ -189,20 +189,20 @@ def main():
         def file_policy():
             target=d/'overwrite-input.json'
             source_before=src.read_bytes()
-            p=run(sox,'--dsd-mode','native','--dsd-report',src,'-D',src,d/'danger-a.dsf')
+            p=run(sox,'--dsd-mode','native','--report',src,'-D',src,d/'danger-a.dsf')
             require(p.returncode!=0,'report could overwrite input carrier')
             require(src.read_bytes()==source_before,'input source corrupted')
             existing=d/'existing.json';existing.write_bytes(b'PREEXISTING\n')
-            p=run(sox,'--no-clobber','--dsd-mode','native','--dsd-report',existing,
+            p=run(sox,'--no-clobber','--dsd-mode','native','--report',existing,
                   '-D',src,d/'safe-a.dsf')
             require(p.returncode!=0,'report silently overwrote --no-clobber target')
             require(existing.read_bytes()==b'PREEXISTING\n','--no-clobber file mutated')
             dest=d/'collision.dsf'
-            p=run(sox,'--dsd-mode','native','--dsd-report',dest,'-D',src,dest)
+            p=run(sox,'--dsd-mode','native','--report',dest,'-D',src,dest)
             require(p.returncode!=0,'report accepted same audio destination')
             hardlink=d/'original-hardlink.json'
             os.link(src,hardlink)
-            p=run(sox,'--dsd-mode','native','--dsd-report',hardlink,'-D',src,d/'hardlink-a.dsf')
+            p=run(sox,'--dsd-mode','native','--report',hardlink,'-D',src,d/'hardlink-a.dsf')
             require(p.returncode!=0,'report accepted input hardlink')
             require(hashlib.sha256(src.read_bytes()).hexdigest()==original,'hardlink modified input')
             return dict(input_protection=True,no_clobber=True,output_collision=True,hardlink_guard=True)
@@ -212,9 +212,9 @@ def main():
             source=d/'plan-input.dsf';source.write_bytes(src.read_bytes())
             source_digest=hashlib.sha256(source.read_bytes()).hexdigest()
             output=d/'plan-output.dsf'
-            args0=('--dsd-plan','--dsd-mode','native','-D',source,output)
-            invalid=run(sox,'--dsd-plan','--dsd-mode','native',
-                        '--dsd-report',source,'-D',source,output)
+            args0=('--plan','--dsd-mode','native','-D',source,output)
+            invalid=run(sox,'--plan','--dsd-mode','native',
+                        '--report',source,'-D',source,output)
             require(invalid.returncode!=0,'plan report overwrote the input carrier')
             require('input carrier' in invalid.stderr.lower(),
                     f'plan missing input-alias diagnostic: {invalid.stderr[-500:]}')
@@ -222,22 +222,22 @@ def main():
                     'plan-only report changed source bytes')
             require(not output.exists(),'plan-only command opened an audio output')
             existing=d/'plan-existing.json';existing.write_bytes(b'UNCHANGED\n')
-            denied=run(sox,'--no-clobber','--dsd-plan','--dsd-mode','native',
-                       '--dsd-report',existing,'-D',source,output)
+            denied=run(sox,'--no-clobber','--plan','--dsd-mode','native',
+                       '--report',existing,'-D',source,output)
             require(denied.returncode!=0,'plan ignored --no-clobber')
             require(existing.read_bytes()==b'UNCHANGED\n','plan changed existing report')
             baseline=run(sox,*args0)
             require(baseline.returncode==0,baseline.stderr)
             distinct=d/'plan-report.json'
-            named=run(sox,'--dsd-plan','--dsd-mode','native',
-                      '--dsd-report',distinct,'-D',source,output)
+            named=run(sox,'--plan','--dsd-mode','native',
+                      '--report',distinct,'-D',source,output)
             require(named.returncode==0 and distinct.is_file(),
                     f'valid plan-only named report failed: {named.stderr[-500:]}')
             plan=json.loads(baseline.stdout)
             require(json.loads(distinct.read_text())==plan,
                     'plan report changed the existing P05 planning schema or fields')
-            dash=run(sox,'--dsd-plan','--dsd-mode','native',
-                     '--dsd-report','-','-D',source,output,cwd=d)
+            dash=run(sox,'--plan','--dsd-mode','native',
+                     '--report','-','-D',source,output,cwd=d)
             require(dash.returncode==0 and json.loads(dash.stdout)==plan,
                     f'plan stdout does not match P05 schema: {dash.stderr[-500:]}')
             require(not (d/'-').exists(),'plan-only stdout request created file named dash')
@@ -251,7 +251,7 @@ def main():
             output=d/'alias-uncreated.dsf'
             alias=str(d)+'/./alias-uncreated.dsf'
             require(not output.exists(),'alias precondition violated')
-            rejected=run(sox,'--dsd-mode','native','--dsd-report',alias,
+            rejected=run(sox,'--dsd-mode','native','--report',alias,
                          '-D',src,output)
             require(rejected.returncode!=0,'./ alias replaced completed audio with JSON')
             require('audio output' in rejected.stderr.lower(),
@@ -259,12 +259,12 @@ def main():
             require(not output.exists(),'failed alias conversion retained partial audio')
             relative='relative-output.dsf'
             require(not (d/relative).exists(),'relative alias precondition violated')
-            rejected=run(sox,'--dsd-mode','native','--dsd-report',
+            rejected=run(sox,'--dsd-mode','native','--report',
                          str(d/relative),'-D',src,relative,cwd=d)
             require(rejected.returncode!=0,'absolute/relative alias accepted')
             require(not (d/relative).exists(),'absolute/relative alias retained audio')
             distinct=d/'safe-destination.dsf';report=d/'safe-report.json'
-            accepted=run(sox,'--dsd-mode','native','--dsd-report',report,
+            accepted=run(sox,'--dsd-mode','native','--report',report,
                          '-D',src,distinct)
             require(accepted.returncode==0,accepted.stderr[-500:])
             require(distinct.read_bytes()==plain.read_bytes(),
@@ -282,7 +282,7 @@ def main():
             with wave.open(str(wav),'wb') as w:
                 w.setnchannels(1);w.setsampwidth(2);w.setframerate(88200)
                 w.writeframes(struct.pack('<512h',*([0]*512)))
-            p=run(sox,'--dsd-report',d/'pcm-fail.json','-D',wav,d/'not-native.wav','dsdstat')
+            p=run(sox,'--report',d/'pcm-fail.json','-D',wav,d/'not-native.wav','dsdstat')
             require(p.returncode!=0,'PCM input accepted by native-only effect')
             require('native' in p.stderr.lower() or 'dsd' in p.stderr.lower(),
                     'domain-specific error absent')
@@ -292,7 +292,7 @@ def main():
         def decoder_actual_kernel():
             mono=d/'decoder.dsf';mono.write_bytes(fixtures.make_dsf((fixtures.bits(32768,1,'69')[0],)))
             output=d/'decoded.wav';report=d/'decoded.json'
-            p=run(sox,'--dsd-mode','auto','--dsd-report',report,'-D',mono,
+            p=run(sox,'--dsd-mode','auto','--report',report,'-D',mono,
                   '-r','88200',output,'dsdpcm','-p','mastering','88200',
                   env={'SOX_DSD_KERNEL_FIR':'scalar'})
             require(p.returncode==0,p.stderr[-900:])
@@ -324,7 +324,7 @@ def main():
                 report=d/f'pcm-{bits_per_sample}.json'
                 output=d/f'pcm-{bits_per_sample}.dsf'
                 cp=run(args.candidate.resolve(),'--dsd-mode','auto',
-                       '--dsd-report',report,'-D',path,'-r','2822400',output)
+                       '--report',report,'-D',path,'-r','2822400',output)
                 require(cp.returncode==0,cp.stderr[-600:])
                 doc=json.loads(report.read_text());valid_report(doc)
                 facts=doc['source'][0]
@@ -350,9 +350,9 @@ def main():
         case('pcm_source_encoding_clock_and_container',pcm_source_representation)
 
         def decoder_latency_breakdown():
-            for native_rate,output_rate,delay in ((fixtures.DSD64,88200,1348),
-                                                 (fixtures.DSD64,44100,1348),
-                                                 (fixtures.DSD64*2,176400,1636)):
+            for native_rate,output_rate,delay in ((fixtures.DSD64,88200,1636),
+                                                 (fixtures.DSD64,44100,1636),
+                                                 (fixtures.DSD64*2,176400,3428)):
                 name=f'lat-{native_rate}-{output_rate}'
                 inp=d/(name+'.dsf')
                 inp.write_bytes(fixtures.make_dsf(
@@ -360,7 +360,7 @@ def main():
                 dest=d/(name+'.wav');report=d/(name+'.json')
                 cmd=('--dsd-mode','auto','-D',inp,'-r',str(output_rate),dest,
                      'dsdpcm','-p','mastering',str(output_rate))
-                cp=run(sox,'--dsd-report',report,*cmd)
+                cp=run(sox,'--report',report,*cmd)
                 require(cp.returncode==0,cp.stderr[-700:])
                 facts=json.loads(report.read_text())['processing']['decoder'][0]
                 latency=facts['latency']
@@ -392,7 +392,7 @@ def main():
                 require(cp2.returncode==0,cp2.stderr[-700:])
                 require(dest.read_bytes()==unreported.read_bytes(),
                         f'report changed decoder payload {name}')
-            return dict(master64_delay=1348,master128_delay=1636,
+            return dict(master64_delay=1636,master128_delay=3428,
                         bypass_src_zero=True,active_src_unknown_explained=True,
                         audio_bit_identical=True)
         case('decoder_latency_components_and_byte_identity',decoder_latency_breakdown)
@@ -400,7 +400,7 @@ def main():
         def failure_status():
             high=d/'high.dsf';high.write_bytes(fixtures.make_dsf(fixtures.bits(32768,1,'ones')))
             output=d/'clipping-output.wav';report=d/'clipping.json'
-            p=run(sox,'--dsd-clip','error','--dsd-report',report,'-D',high,output,
+            p=run(sox,'--dsd-clip','error','--report',report,'-D',high,output,
                   'dsdpcm','-l','sacd','88200','gain','-3')
             require(p.returncode!=0,'clipping policy erroneously succeeded')
             require(report.is_file(),'no final failure report')
@@ -414,7 +414,7 @@ def main():
 
         def dop_report():
             dest=d/'dop.wav';report=d/'dop.json'
-            p=run(sox,'--dsd-report',report,'-D',src,'-e','signed-integer','-b','24',dest,'dop')
+            p=run(sox,'--report',report,'-D',src,'-e','signed-integer','-b','24',dest,'dop')
             require(p.returncode==0,p.stderr[-800:])
             doc=json.loads(report.read_text());valid_report(doc)
             require(doc['output']['domain']=='DOP_TRANSPORT',f'wrong DoP domain: {doc["output"]}')
@@ -434,7 +434,7 @@ def main():
             # Report provenance must describe the requested kernel. Automatic
             # SDM dispatch is qualified separately by test_sdm_auto; it no
             # longer has an unconditional scalar default.
-            p=run(args.candidate.resolve(),'--dsd-mode','auto','--dsd-report',report,
+            p=run(args.candidate.resolve(),'--dsd-mode','auto','--report',report,
                   '-D',pcm,'-r','2822400',dst,env={'SOX_DSD_KERNEL_SDM':'scalar'})
             require(p.returncode==0,p.stderr[-800:])
             doc=json.loads(report.read_text());valid_report(doc)
@@ -461,7 +461,7 @@ def main():
                 w.writeframes(b''.join(struct.pack('<i',2147483646 if i>=frames//2
                               else -2147483646) for i in range(frames)))
             dst=d/'encoder-overload.dsf';report=d/'encoder-overload.json'
-            p=run(args.candidate.resolve(),'--dsd-mode','auto','--dsd-report',report,
+            p=run(args.candidate.resolve(),'--dsd-mode','auto','--report',report,
                   '-D',pcm,'-r','2822400',dst,env={'SOX_DSD_KERNEL_SDM':'scalar'})
             require(p.returncode!=0,'interpolation overload silently accepted')
             require('overload' in p.stderr,'missing P10 overload diagnostic')
@@ -491,7 +491,7 @@ def main():
             sequence=bytes((0,1,1,0,1,0,0,1))*(count//8)
             inp=d/'cancel-in.dsf';inp.write_bytes(fixtures.make_dsf((sequence,)))
             out=d/'cancel-out.dsf';report=d/'cancel.json'
-            cmd=[str(sox),'--dsd-mode','native','--dsd-report',str(report),
+            cmd=[str(sox),'--dsd-mode','native','--report',str(report),
                  '-D',str(inp),str(out),'dsdstat','-a']
             p=subprocess.Popen(cmd,stdin=subprocess.DEVNULL,
                                stdout=subprocess.PIPE,stderr=subprocess.PIPE)

@@ -213,7 +213,7 @@ def main():
                     native_frames=info['frames'],diagnostic=clean(cp.stderr))
             record(f'release_gate_{mode}',gate)
         def plan():
-            cp=invoke(['--dsd-plan','-D',pcm,'-r','2822400',tmp/'plan.dsf'],exe=a.sox)
+            cp=invoke(['--plan','-D',pcm,'-r','2822400',tmp/'plan.dsf'],exe=a.sox)
             assert cp.returncode==0,cp.stderr
             data=json.loads(cp.stdout)
             encoded=[s for s in data['steps'] if s['name']=='implicit_pcmdsd']
@@ -244,10 +244,10 @@ def main():
             for ident,rate in (('encode.mastering.v1.dsd512','22579200'),
                                ('encode.mastering.v1.dsd1024','45158400')):
                 dst=tmp/f'unselectable-{ident}.dsf'
-                cp=invoke(['--dsd-encode',ident,'-D',pcm,'-r',rate,dst],exe=a.sox)
+                cp=invoke(['--encode',ident,'-D',pcm,'-r',rate,dst],exe=a.sox)
                 assert cp.returncode!=0,(ident,cp.returncode,cp.stdout[-400:])
                 assert not dst.exists(),('unselectable profile produced output',ident)
-                assert '--dsd-encode requires' in cp.stderr,(ident,cp.stderr[-400:])
+                assert '--encode:' in cp.stderr,(ident,cp.stderr[-400:])
                 rows.append(dict(id=ident,native_hz=int(rate),exit_code=cp.returncode,
                     output_created=False,diagnostic=clean(cp.stderr.strip().splitlines()[-1])))
             return dict(unselectable=rows)

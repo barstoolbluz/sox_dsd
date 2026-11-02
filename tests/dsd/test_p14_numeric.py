@@ -109,7 +109,7 @@ def native_band_test(sox,results):
         d=pathlib.Path(td)
         inp=d/'input.dsf';out=d/'output.dsf';report=d/'report.json'
         inp.write_bytes(fixtures.make_dsf((wave,),rate))
-        cmd=[str(sox),'--dsd-mode','native','--dsd-report',str(report),
+        cmd=[str(sox),'--dsd-mode','native','--report',str(report),
              '-D',str(inp),str(out),'dsdstat','-a']
         cp=subprocess.run(cmd,capture_output=True,text=True,timeout=180)
         check(cp.returncode==0,f'P14 native ultrasonic analysis failed: {cp.stderr}')

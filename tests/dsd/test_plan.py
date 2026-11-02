@@ -67,7 +67,7 @@ def main() -> int:
                 env: dict|None=None, suffix='.wav'):
             dst=tmp/(name+suffix)
             prepared=[a.replace('@OUT@',str(dst)) for a in arguments]
-            cmd=[str(sox)]+(['--dsd-plan'] if plan else [])+prepared
+            cmd=[str(sox)]+(['--plan'] if plan else [])+prepared
             overrides=os.environ.copy()
             overrides.update(LC_ALL='C',SOX_OPTS='')
             if env:overrides.update(env)
@@ -158,8 +158,8 @@ def main() -> int:
             inspect=expect(executable=True,layout_identity_preserved=True),suffix='.dsf')
         run('native_trim',[ds,'@OUT@','trim','0','0.00001'],
             inspect=expect(executable=True,native_trim_seek=True),suffix='.dff')
-        run('native_legacy_profile',['--dsd-decode','legacy',ds,'@OUT@'],
-            inspect=expect(executable=True,output__domain='DSD_NATIVE'),suffix='.dsf')
+        run('native_unused_decoder_rejected',['--decode','legacy',ds,'@OUT@'],
+            ok=False,error='requires reconstruction',suffix='.dsf')
         run('native_only_mode',['--dsd-mode','native',ds,'@OUT@'],
             inspect=expect(executable=True),suffix='.dsf')
         run('native_actual_dff',['--dsd-mode','native',ds,'@OUT@'],plan=False,suffix='.dff')
@@ -178,13 +178,13 @@ def main() -> int:
                 decoder__id=f'decode.mastering.v2.dsd{clock}',
                 output__bits_per_sample=24,
                 graph_decoder_count=1))
-        run('wideband256',['--dsd-decode','wideband',ds256,'@OUT@'],
+        run('wideband256',['--decode','wideband',ds256,'@OUT@'],
             inspect=expect(decoder__id='decode.wideband.v1.dsd256',decoder__pass_hz=141120,
                 decoder__stop_hz=176400,decoder__intermediate_hz=352800,output__rate_hz=352800))
-        run('legacy_decoder',['--dsd-decode','legacy',ds,'@OUT@'],
+        run('legacy_decoder',['--decode','legacy',ds,'@OUT@'],
             inspect=expect(decoder__id='decode.legacy.generic',decoder__pass_hz=0,
                 policy__decode='legacy',decoder__intermediate_hz=88200))
-        run('legacy_strict',['--dsd-decode','legacy','--dsd-bandwidth','strict',
+        run('legacy_strict',['--decode','legacy','--dsd-bandwidth','strict',
             ds,'@OUT@'],ok=False,error='cannot certify')
         run('float_fallback',['--dsd-layout-loss','warn',ds,'@OUT@'],
             inspect=expect(output__bits_per_sample=32,output__encoding=3),suffix='.f32')
@@ -192,9 +192,9 @@ def main() -> int:
             inspect=expect(decoder__gain=2.,level_reference=.5))
         run('clip_error_policy',['--dsd-clip','error',ds,'@OUT@'],
             inspect=expect(policy__clip='error'))
-        run('wideband_downsample',['--dsd-decode','wideband',ds,'-r','44100','@OUT@'],
+        run('wideband_downsample',['--decode','wideband',ds,'-r','44100','@OUT@'],
             inspect=expect(decoder__effective_bandwidth_hz=20947.5,output__rate_hz=44100))
-        run('strict_bandwidth',['--dsd-decode','wideband','--dsd-bandwidth','strict',ds,
+        run('strict_bandwidth',['--decode','wideband','--dsd-bandwidth','strict',ds,
             '-r','44100','@OUT@'],ok=False,error='strict bandwidth')
         run('explicit_dsdpcm',[ds,'@OUT@','dsdpcm','-p','wideband','176400'],
             inspect=expect(graph_decoder_count=1,decoder__id='decode.wideband.v1.dsd64',
@@ -203,9 +203,9 @@ def main() -> int:
             inspect=expect(decoder__id='decode.mastering.v1.dsd64'))
         run('mismatched_profile',[ds,'@OUT@','dsdpcm','-p','decode.mastering.v1.dsd128'],
             ok=False,error='different native DSD clock')
-        run('profile_precedence',['--dsd-decode','wideband',ds,'@OUT@','dsdpcm','-p','mastering'],
+        run('profile_precedence',['--decode','wideband',ds,'@OUT@','dsdpcm','-p','mastering'],
             ok=False,error='conflicting')
-        run('profile_inherit',['--dsd-decode','wideband',ds,'@OUT@','dsdpcm'],
+        run('profile_inherit',['--decode','wideband',ds,'@OUT@','dsdpcm'],
             inspect=expect(decoder__id='decode.wideband.v1.dsd64'))
         run('sacd_precedence',['--dsd-level','sacd',ds,'@OUT@','dsdpcm','-l','preserve'],
             ok=False,error='conflicting')
@@ -272,7 +272,7 @@ def main() -> int:
             inspect=lambda x: (x['schema']=='sox.dsd.sequence.v1') or (_ for _ in ()).throw(AssertionError(x)))
         run('sequence_rates',['--combine','sequence',ds,ds128,'-r','88200','@OUT@'],inspect=sequence)
         run('sequence_incompatible',['--combine','sequence',ds,ds128,'@OUT@'],
-            ok=False,error='single output header')
+            ok=False,error='matching output rates')
         run('sequence_failure_early',['--dsd-mode','auto','--combine','sequence',w88,ds,'@OUT@'],
             ok=False,error='segment',plan=False)
 
@@ -336,7 +336,7 @@ def main() -> int:
                 inputs__0__decoder_id='decode.mastering.v1.dsd64'))
         run('leading_preinput_bad_pin',['-v','0.5',ds,'@OUT@','dsdpcm',
             '-p','decode.mastering.v1.dsd128'],ok=False,error='different native DSD clock')
-        run('leading_preinput_conflict',['--dsd-decode','mastering','-v','0.5',
+        run('leading_preinput_conflict',['--decode','mastering','-v','0.5',
             ds,'@OUT@','dsdpcm','-p','wideband'],ok=False,error='conflicting')
         run('leading_mix_native',['--combine','mix',ds,ds,'@OUT@','dsdpcm','96000'],
             inspect=check_steps('input_dsdpcm','input_dsdpcm',input_decoder_count=2,
@@ -547,7 +547,7 @@ def main() -> int:
 
         # A failing report or unsupported request must not create the audio file.
         report_file=tmp/'report.json'
-        run('report_native',['--dsd-mode','native','--dsd-report',str(report_file),ds,'@OUT@'],
+        run('report_native',['--dsd-mode','native','--report',str(report_file),ds,'@OUT@'],
             inspect=expect(executable=True),env={'REPORT_OVERRIDE':str(report_file)},suffix='.dsf')
         try:
             assert report_file.is_file() and json.loads(report_file.read_text())['executable']

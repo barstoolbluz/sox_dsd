@@ -274,7 +274,7 @@ def main():
                 if got['exit']==0 and dst.is_file():
                     raw=dst.read_bytes()
                     desc=verify.decode_dsf(raw) if ext=='dsf' else verify.decode_dff(raw)
-                    plan_cmd=[args.sox,'--dsd-plan','-D',source_pcm,
+                    plan_cmd=[args.sox,'--plan','-D',source_pcm,
                               '-r',str(native),dst]
                     plan=subprocess.run(list(map(str,plan_cmd)),cwd=ROOT,
                         env=environment,stdin=subprocess.DEVNULL,
@@ -309,8 +309,8 @@ def main():
                     expected='reject noncanonical high native read rate',
                     header_rate=invalid,format=ext,
                     source_sha256=sha(source.read_bytes())))
-        # Default and explicit legacy bypass DSD planner checks; preflight
-        # must reject noncanonical requests without replacing existing data.
+        # Both automatic and explicit legacy modes must reject unsupported clocks;
+        # preflight must reject noncanonical requests before opening files.
         for invalid in (11_289_601,22_579_201,30_000_000,45_158_401):
             for ext in ('dsf','dff'):
                 for mode in ('default','legacy'):
@@ -335,7 +335,7 @@ def main():
             got=command_result([args.sox,'--help'],environment)
             proc=subprocess.run([str(args.sox),'--help'],cwd=ROOT,env=environment,
                 stdin=subprocess.DEVNULL,capture_output=True,timeout=45)
-            matches=b'encode.mastering.v{1,2}.dsd<rate>' in proc.stdout
+            matches=b'encode.mastering.vN.dsdNNN' in proc.stdout
             store(key,'PASS' if got['exit']==0 and matches else 'FAIL',
                 dict(output=got,expected='v1 and v2 explicit encoder IDs in CLI help',
                     contains_versioned_id=matches))
@@ -356,7 +356,7 @@ def main():
                 store(key,'PASS' if okay else 'FAIL',dict(output=got,expected=expected,
                     destination_absent=not dst.exists()))
         # Positive high-rate writes must use the requested clock, including
-        # the default/legacy mode that skips the new domain planner. Reparse
+        # explicit legacy mode and the new automatic default. Reparse
         # the file rather than trusting the command exit status.
         for native in RATES:
             for ext in ('dsf','dff'):
