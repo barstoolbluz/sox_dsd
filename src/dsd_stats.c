@@ -296,7 +296,7 @@ void lsx_dsd_stats_json(FILE *f,const lsx_dsd_stats *s)
 }
 
 
-/* Standalone dsdstat is useful even without --dsd-report. Match SoX stat's
+/* Standalone dsdstat is useful even without --report. Match SoX stat's
  * stderr sink; never mix observational text into an audio or JSON stdout.
  * The structured JSON keeps complete, lossless values for automation. */
 void lsx_dsd_stats_text(FILE *f,const lsx_dsd_stats *s)

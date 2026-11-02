@@ -182,6 +182,7 @@ int lsx_dsd_dff_extent(uint64_t frames, unsigned channels,
     uint64_t *payload_bytes, uint64_t *chunk_span);
 
 lsx_dsd_rate const *lsx_dsd_rate_find(uint64_t hz);
+int lsx_dsd_rate_name_parse(char const *name, uint32_t *hz);
 int lsx_dsd_integer_rate(double value, uint32_t *out);
 int lsx_dsd_checked_interleaved(uint64_t frames, unsigned channels, uint64_t *out);
 int lsx_dsd_count_convert(uint64_t frames, uint32_t input_hz, uint32_t output_hz, uint64_t *out);

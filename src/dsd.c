@@ -117,6 +117,18 @@ lsx_dsd_rate const *lsx_dsd_rate_find(uint64_t hz)
   return NULL;
 }
 
+int lsx_dsd_rate_name_parse(char const *name, uint32_t *hz)
+{
+  size_t i;
+  if (!name || !hz) return 0;
+  for (i=0;i<sizeof(dsd_rates)/sizeof(dsd_rates[0]);i++)
+    if (!lsx_strcasecmp(name,dsd_rates[i].name)) {
+      *hz=dsd_rates[i].hz;
+      return 1;
+    }
+  return 0;
+}
+
 int lsx_dsd_integer_rate(double value, uint32_t *out)
 {
   if (!out || !isfinite(value) || value <= 0 || value > UINT32_MAX || floor(value) != value)
@@ -263,8 +275,12 @@ int lsx_dsd_profile_parse(char const *text, int encode, int *out, uint32_t *nati
       }
     if (!strcmp(text,"conservative")) { *out=LSX_DSD_PROFILE_MASTERING; return 1; }
   }
-  /* P15-R3 intentionally does not promote the mastering alias until release. */
-  if (!strcmp(text,"mastering")) { *out=0; return 1; }
+  /* A named mastering decoder must match the qualified automatic default.
+   * Versioned v1 identities and the conservative v1 alias remain explicit. */
+  if (!strcmp(text,"mastering")) {
+    *out=encode?LSX_DSD_ENCODE_MASTERING:LSX_DSD_PROFILE_MASTERING_V2;
+    return 1;
+  }
   if (!encode && !strcmp(text,"wideband")) { *out=1; return 1; }
   if (!strcmp(text,"legacy")) { *out=encode?1:2; return 1; }
   if (encode && !strcmp(text,"experimental")) { *out=2; return 1; }
@@ -275,6 +291,7 @@ static int parse_rate(char const *text, uint32_t *rate)
   char *end;
   double v;
   errno=0;
+  if (lsx_dsd_rate_name_parse(text,rate)) return 1;
   v=strtod(text,&end);
   return end != text && !*end && !errno && lsx_dsd_integer_rate(v,rate);
 }
