@@ -69,7 +69,7 @@ static int resolve_decode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
   double pass, stop, intermediate, effective;
   lsx_dsd_rate const *rate=lsx_dsd_rate_find(native_rate);
   if (policy->decode_pinned_native_hz && policy->decode_pinned_native_hz != native_rate)
-    return fail(error,n,"versioned --dsd-decode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
+    return fail(error,n,"versioned --decode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
         native_rate,policy->decode_pinned_native_hz);
   if (!rate || !(rate->capabilities & LSX_DSD_RECONSTRUCT))
     return fail(error,n,"no qualified decoder rate for native DSD %u Hz",native_rate);
@@ -113,7 +113,7 @@ static int resolve_encode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
 {
   lsx_dsd_rate const *r=lsx_dsd_rate_find(hz);
   if (policy->encode_pinned_native_hz && policy->encode_pinned_native_hz != hz)
-    return fail(error,n,"versioned --dsd-encode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
+    return fail(error,n,"versioned --encode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
         hz,policy->encode_pinned_native_hz);
   if (!r || !(r->capabilities & LSX_DSD_MODULATE))
     return fail(error,n,"no supported composite DSD encoder at %u Hz",hz);
@@ -152,10 +152,10 @@ static int decoder_selection(lsx_dsd_plan_spec const *spec,
 {
   if (e->dsd.profile_specified && spec->policy.decode_specified &&
       e->dsd.profile!=spec->policy.decode)
-    return fail(error,n,"conflicting --dsd-decode and dsdpcm -p selections");
+    return fail(error,n,"conflicting --decode and dsdpcm -p selections");
   if (e->dsd.pinned_native_hz && spec->policy.decode_pinned_native_hz &&
       e->dsd.pinned_native_hz != spec->policy.decode_pinned_native_hz)
-    return fail(error,n,"conflicting versioned --dsd-decode and dsdpcm -p native clocks");
+    return fail(error,n,"conflicting versioned --decode and dsdpcm -p native clocks");
   if (e->dsd.level_specified && spec->policy.level_specified &&
       e->dsd.level!=spec->policy.level)
     return fail(error,n,"conflicting --dsd-level and dsdpcm -l selections");
@@ -508,10 +508,10 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
       if (is(e->name,"pcmdsd") && e->dsd.pinned_native_hz &&
           spec->policy.encode_pinned_native_hz &&
           e->dsd.pinned_native_hz != spec->policy.encode_pinned_native_hz)
-        return fail(error,n,"conflicting versioned --dsd-encode and pcmdsd -p native clocks");
+        return fail(error,n,"conflicting versioned --encode and pcmdsd -p native clocks");
       if (is(e->name,"pcmdsd") && e->dsd.profile_specified &&
           spec->policy.encode_specified && (lsx_dsd_encode)e->dsd.profile!=spec->policy.encode)
-        return fail(error,n,"conflicting --dsd-encode and pcmdsd -p selections");
+        return fail(error,n,"conflicting --encode and pcmdsd -p selections");
       if (lowlevel) {
         uint32_t current;
         if (!lsx_dsd_integer_rate(rate,&current) || current!=target)
@@ -840,7 +840,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   fprintf(fp,",\n  \"policy\": {\"decode\": ");
   json_string(fp,spec->policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":
       spec->policy.decode==LSX_DSD_PROFILE_LEGACY?"legacy":
-      spec->policy.decode==LSX_DSD_PROFILE_MASTERING_V2?"mastering-v2-candidate":"mastering");
+      spec->policy.decode==LSX_DSD_PROFILE_MASTERING_V2?"mastering":"conservative");
   fprintf(fp,", \"encode\": ");
   json_string(fp,spec->policy.encode==LSX_DSD_ENCODE_LEGACY?"legacy":
       spec->policy.encode==LSX_DSD_ENCODE_EXPERIMENTAL?"experimental":"mastering");
