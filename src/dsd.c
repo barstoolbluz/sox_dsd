@@ -363,6 +363,15 @@ void lsx_dsd_effect_apply_policy(sox_effect_t *effect, const lsx_dsd_policy *pol
   lsx_dsd_effect_options *opt;
   if (!effect || !policy || strcmp(effect->handler.name,"dsdpcm")) return;
   opt=effect->priv;
+  /* The planner already resolves global selectors versus effect-local options.
+   * Apply the same inherited choices to the executing effect, but leave the
+   * *_specified flags untouched so conflict and precedence checks still
+   * recognize only options supplied directly to dsdpcm. */
+  if (!opt->profile_specified) {
+    opt->profile=policy->decode;
+    opt->pinned_native_hz=policy->decode_pinned_native_hz;
+  }
+  if (!opt->level_specified) opt->level=policy->level;
   opt->clip=policy->clip;
   opt->bandwidth=policy->bandwidth;
 }

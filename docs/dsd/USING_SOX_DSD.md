@@ -194,6 +194,11 @@ as automatic mode, whether or not `--plan` or `--report` is present.
 To select unqualified low-level modulation explicitly, use the `sdm`
 effect; do not rely on implicit legacy container conversion.
 
+With an explicit `dsdpcm` effect, the global `--decode` and `--dsd-level`
+settings also control the decoder and reconstruction gain. Effect-local `-p`
+and `-l` settings remain available; incompatible global and local selections
+are rejected before conversion.
+
 The `SOX_DSD_KERNEL_FIR` and `SOX_DSD_KERNEL_SDM` environment variables
 select supported execution tiers for reproducible numerical checks. The traditional `sdm`, `dsdpcm`,
 `pcmdsd`, and `dop` effects remain accessible in the normal SoX grammar.
