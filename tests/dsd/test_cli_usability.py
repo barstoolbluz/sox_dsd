@@ -240,6 +240,98 @@ def main():
                   'report observed a different decoder than the selected v1')
         case('mastering alias equals default, conservative equals versioned v1',default_profile)
 
+        def explicit_decoder_inherits_global():
+            # A named global policy and effect-local -p must reach the same FIR.
+            # -R/-D suppress unrelated output-dither differences.
+            for mult in (64, 128):
+                src=d/f'dsd{mult}.dsf'
+                opts=('-R','-D')
+                global_pcm=d/f'explicit-global-v1-{mult}.wav'
+                local_pcm=d/f'explicit-local-v1-{mult}.wav'
+                default_pcm=d/f'explicit-default-v2-{mult}.wav'
+                pinned_pcm=d/f'explicit-pinned-v1-{mult}.wav'
+                logged_pcm=d/f'explicit-reported-v1-{mult}.wav'
+                report=d/f'explicit-v1-{mult}.json'
+                doc=plan(exe,'--decode','conservative',src,
+                         d/f'explicit-plan-v1-{mult}.wav','dsdpcm')
+                ident=f'decode.mastering.v1.dsd{mult}'
+                check(doc['decoder']['id']==ident and
+                      doc['graph_decoder_count']==1 and doc['executable'],
+                      'explicit dsdpcm plan did not select conservative v1')
+                run(exe,*opts,'--decode','conservative',src,global_pcm,'dsdpcm')
+                run(exe,*opts,src,local_pcm,'dsdpcm','-p','conservative')
+                run(exe,*opts,src,default_pcm,'dsdpcm')
+                run(exe,*opts,'--decode',ident,src,pinned_pcm,'dsdpcm')
+                check(global_pcm.read_bytes()==local_pcm.read_bytes()==
+                      pinned_pcm.read_bytes(),
+                      f'DSD{mult}: global conservative did not execute v1')
+                check(sha(global_pcm)!=sha(default_pcm),
+                      f'DSD{mult}: selected v1 silently executed default v2')
+                run(exe,*opts,'--decode','conservative','--report',report,
+                    src,logged_pcm,'dsdpcm')
+                check(logged_pcm.read_bytes()==global_pcm.read_bytes(),
+                      f'DSD{mult}: report changed explicit decoder audio')
+                rows=json.loads(report.read_text())['processing']['decoder']
+                check(rows and all(row['profile_id']==ident for row in rows),
+                      f'DSD{mult}: report did not observe executed conservative v1')
+                conflict=d/f'explicit-conflict-profile-{mult}.wav'
+                run(exe,'--decode','conservative',src,conflict,
+                    'dsdpcm','-p','mastering',ok=False)
+                check(not conflict.exists(), 'conflicting decoder created output')
+                wrong=d/f'explicit-wrong-pin-{mult}.wav'
+                other=128 if mult==64 else 64
+                run(exe,'--decode',f'decode.mastering.v1.dsd{other}',
+                    src,wrong,'dsdpcm',ok=False)
+                check(not wrong.exists(), 'wrong pinned decoder clock created output')
+        case('global decoder reaches explicit dsdpcm at DSD64/128',
+             explicit_decoder_inherits_global)
+
+        def explicit_level_inherits_global():
+            for mult in (64, 128):
+                src=d/f'dsd{mult}.dsf'
+                opts=('-R','-D')
+                global_pcm=d/f'explicit-global-sacd-{mult}.wav'
+                local_pcm=d/f'explicit-local-sacd-{mult}.wav'
+                default_pcm=d/f'explicit-default-preserve-{mult}.wav'
+                combined_pcm=d/f'explicit-combined-sacd-{mult}.wav'
+                combined_local=d/f'explicit-combined-local-{mult}.wav'
+                logged_pcm=d/f'explicit-reported-sacd-{mult}.wav'
+                report=d/f'explicit-sacd-{mult}.json'
+                doc=plan(exe,'--dsd-level','sacd',src,
+                         d/f'explicit-plan-sacd-{mult}.wav','dsdpcm')
+                check(doc['decoder']['gain']==2 and
+                      doc['graph_decoder_count']==1 and doc['executable'],
+                      'explicit dsdpcm plan did not select SACD gain')
+                run(exe,*opts,'--dsd-level','sacd',src,global_pcm,'dsdpcm')
+                run(exe,*opts,src,local_pcm,'dsdpcm','-l','sacd')
+                run(exe,*opts,src,default_pcm,'dsdpcm')
+                check(global_pcm.read_bytes()==local_pcm.read_bytes(),
+                      f'DSD{mult}: global SACD level did not reach dsdpcm')
+                check(sha(global_pcm)!=sha(default_pcm),
+                      f'DSD{mult}: global SACD level silently preserved gain')
+                run(exe,*opts,'--dsd-level','sacd','--report',report,
+                    src,logged_pcm,'dsdpcm')
+                check(logged_pcm.read_bytes()==global_pcm.read_bytes(),
+                      f'DSD{mult}: report changed explicit SACD reconstruction')
+                rows=json.loads(report.read_text())['processing']['decoder']
+                check(rows and all(row['gain_mapping']['applied_linear_gain']==2
+                                   for row in rows),
+                      f'DSD{mult}: report did not observe executed SACD gain')
+                # A locally pinned decoder must not suppress inheritance of
+                # an independently selected global level.
+                run(exe,*opts,'--dsd-level','sacd',src,combined_pcm,
+                    'dsdpcm','-p','conservative')
+                run(exe,*opts,src,combined_local,
+                    'dsdpcm','-p','conservative','-l','sacd')
+                check(combined_pcm.read_bytes()==combined_local.read_bytes(),
+                      f'DSD{mult}: local profile suppressed global level')
+                conflict=d/f'explicit-conflict-level-{mult}.wav'
+                run(exe,'--dsd-level','sacd',src,conflict,
+                    'dsdpcm','-l','preserve',ok=False)
+                check(not conflict.exists(), 'conflicting level created output')
+        case('global SACD level reaches explicit dsdpcm at DSD64/128',
+             explicit_level_inherits_global)
+
         def conservative_strict():
             src=d/'dsd64.dsf';dest=d/'conservative-strict.wav'
             opts=('--decode','conservative','--dsd-bandwidth','strict',
