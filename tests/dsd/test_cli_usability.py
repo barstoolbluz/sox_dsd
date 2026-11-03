@@ -226,7 +226,46 @@ def main():
                   'decode.mastering.v2.dsd64', 'automatic must select qualified v2')
             check(plan(exe,'--decode','conservative',src,d/'check-v1.wav')['decoder']['id'] ==
                   'decode.mastering.v1.dsd64', 'conservative must select qualified v1')
+            check(sha(d/'conservative.wav') != sha(d/'mastering.wav'),
+                  'v1 decoder request silently executed the v2 default')
+            # A report records the decoder actually executed, not merely the
+            # preflight choice. Compare audio with and without the report.
+            logged=d/'v1-reported.wav'; report=d/'v1-decoder-report.json'
+            run(exe,'--report',report,'--decode','conservative',src,logged)
+            check(logged.read_bytes()==(d/'conservative.wav').read_bytes(),
+                  'report changed v1 decoder output')
+            rows=json.loads(report.read_text())['processing']['decoder']
+            check(rows and all(row['profile_id']=='decode.mastering.v1.dsd64'
+                               for row in rows),
+                  'report observed a different decoder than the selected v1')
         case('mastering alias equals default, conservative equals versioned v1',default_profile)
+
+        def conservative_strict():
+            src=d/'dsd64.dsf';dest=d/'conservative-strict.wav'
+            opts=('--decode','conservative','--dsd-bandwidth','strict',
+                  src,'-r','44100')
+            doc=plan(exe,*opts,d/'not-created.wav')
+            check(doc['executable'] and doc['decoder']['id']==
+                  'decode.mastering.v1.dsd64', 'v1 strict plan mismatch')
+            run(exe,*opts,dest)
+            check(info(dest)[0].framerate==44100,
+                  'executable v1 strict plan failed to produce PCM')
+        case('v1 strict plan executes with the selected v1 filter',conservative_strict)
+
+        def legacy_mixed_clocks():
+            srcs=(d/'dsd64.dsf',d/'dsd128.dsf')
+            a=d/'mixed-auto.wav';l=d/'mixed-legacy.wav';n=d/'mixed-native.wav'
+            args=('-m',*srcs,'-r','176400','-b','24')
+            doc=plan(exe,'--dsd-mode','legacy',*args,d/'mixed-planned.wav')
+            check(doc['input_decoder_count']==2 and doc['executable'],
+                  'legacy mix was not authorized for per-input reconstruction')
+            run(exe,*args,a)
+            run(exe,'--dsd-mode','legacy',*args,l)
+            check(a.read_bytes()==l.read_bytes(),
+                  'legacy mixed clocks did not use the qualified common PCM route')
+            run(exe,'--dsd-mode','native',*args,n,ok=False)
+            check(not n.exists(), 'native-only mode accepted incompatible clocks')
+        case('legacy-mode mixed native clocks follow common PCM plan',legacy_mixed_clocks)
 
         def encode_override():
             automatic=d/'encauto.dsf'; named=d/'encmaster.dsf'; version=d/'encv1.dsf'
