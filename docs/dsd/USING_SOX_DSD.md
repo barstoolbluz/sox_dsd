@@ -169,6 +169,17 @@ DSD512/1024. A mismatched version-pinned native bit clock causes an error.
 Unsupported or unqualified legacy composite profiles do not acquire
 qualification through these selectors. Mastering overload checks remain
 active: reduce the input level if encoding fails with an overload.
+For example, a full-scale synthetic tone can overshoot during interpolation;
+leave headroom with an ordinary SoX volume effect rather than disabling the
+numerical protection:
+
+```sh
+sox -n -r dsd64 tone.dsf synth 0.02 sine 1000 vol 0.5
+```
+
+The low-level `rate -v` effect changes the resampling response and can
+therefore change one-bit output relative to an unqualified legacy `rate`
+followed by `dither -p 1`. It is not the default qualified encoder path.
 
 Additional controls: `--dsd-bandwidth adapt|strict` (default `adapt`, which
 allows a reduced passband when decoding to a lower PCM rate),
