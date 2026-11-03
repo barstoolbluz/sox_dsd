@@ -58,7 +58,7 @@ def main():
             capture_output=True,text=True,timeout=100,env={**os.environ,
             'SOX_OPTS':'','OMP_NUM_THREADS':'1','LC_ALL':'C'})
     def plan(*args):
-        result=run('--dsd-plan',*args)
+        result=run('--plan',*args)
         expect(result.returncode==0,f'plan error: {result.stderr[-300:]}')
         return json.loads(result.stdout)
     def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -76,7 +76,7 @@ def main():
             for out_hz in OUTPUTS:
                 def execute(rate=rate,P=P,S=S,R=R,bank=bank,ident=ident,out_hz=out_hz):
                     dest=t/'out.wav';report=t/'report.json'
-                    decision=plan('--dsd-decode',ident,src[rate],'-r',out_hz,dest)
+                    decision=plan('--decode',ident,src[rate],'-r',out_hz,dest)
                     dec=decision['decoder']
                     expect(dec['id']==ident,'profile ID collapsed to v1 in planner')
                     expect((dec['pass_hz'],dec['stop_hz'],dec['intermediate_hz'])==(P,S,R),
@@ -85,7 +85,7 @@ def main():
                     expect(abs(dec['effective_bandwidth_hz']-eff)<1e-8,'wrong effective passband')
                     expect(decision['output']['rate_hz']==out_hz,'wrong planned output clock')
                     expect(decision['executable'],'candidate cannot execute explicitly')
-                    result=run('--dsd-mode','auto','--dsd-decode',ident,'--dsd-report',report,
+                    result=run('--dsd-mode','auto','--decode',ident,'--report',report,
                         '-D',src[rate],'-r',out_hz,'-e','signed-integer','-b',32,dest)
                     expect(result.returncode==0, f'actual v2 decode failed: {result.stderr[-350:]}')
                     with wave.open(str(dest),'rb') as f:
@@ -112,7 +112,7 @@ def main():
                         pcm_sha256=sha(dest),bank_sha256=d['coefficients']['bank_last_sha256'])
                 case(f'v2_actual_{rate//44100}_{out_hz}',execute)
             def default_rate(rate=rate,R=R,ident=ident):
-                p=plan('--dsd-decode',ident,src[rate],t/'implicit.wav')
+                p=plan('--decode',ident,src[rate],t/'implicit.wav')
                 expect(p['output']['rate_hz']==R,'implicit final PCM clock differs from policy')
                 expect(p['output']['requested_rate_hz'] is None,'missing rate not recorded as implicit')
                 return {'implicit_output_hz':R}
@@ -120,7 +120,7 @@ def main():
             def wrong_pin(rate=rate):
                 other=next(v for v in RATES if v!=rate)
                 pin=f'decode.mastering.v2.dsd{other//44100}'
-                x=run('--dsd-plan','--dsd-decode',pin,src[rate],t/'wrong.wav')
+                x=run('--plan','--decode',pin,src[rate],t/'wrong.wav')
                 expect(x.returncode!=0 and 'different native DSD clock' in x.stderr,
                        'wrong-clock v2 pin was not rejected')
                 y=run('--dsd-mode','auto',src[rate],t/'wrong.wav','dsdpcm','-p',pin)
@@ -129,10 +129,10 @@ def main():
                 return {'wrong_pinned_id':pin,'cli_exit':x.returncode,'effect_exit':y.returncode}
             case(f'v2_wrong_native_rejected_{rate//44100}',wrong_pin)
             def strict(rate=rate,ident=ident):
-                p=plan('--dsd-decode',ident,'--dsd-bandwidth','adapt',src[rate],'-r',44100,t/'low.wav')
+                p=plan('--decode',ident,'--dsd-bandwidth','adapt',src[rate],'-r',44100,t/'low.wav')
                 expect(p['decoder']['effective_bandwidth_hz']<POLICY[rate][0],
                        'adapt must narrow low-rate effective bandwidth')
-                x=run('--dsd-plan','--dsd-decode',ident,'--dsd-bandwidth','strict',
+                x=run('--plan','--decode',ident,'--dsd-bandwidth','strict',
                       src[rate],'-r',44100,t/'low.wav')
                 expect(x.returncode!=0 and 'strict bandwidth rejects' in x.stderr,
                        'strict did not reject incompatible low rate')
@@ -141,18 +141,21 @@ def main():
             def old_profiles(rate=rate):
                 base='decode.mastering.v1.dsd'+str(rate//44100)
                 wide='decode.wideband.v1.dsd'+str(rate//44100)
-                expected={'mastering':base,'conservative':base,base:base,
+                v2='decode.mastering.v2.dsd'+str(rate//44100)
+                expected={'mastering':v2,'conservative':base,base:base,
                           'wideband':wide,wide:wide}
                 hashes={}
                 for alias,id in expected.items():
-                    p=plan('--dsd-decode',alias,src[rate],t/'old.wav')
-                    expect(p['decoder']['id']==id,'v1 alias was remapped')
+                    p=plan('--decode',alias,src[rate],t/'old.wav')
+                    expect(p['decoder']['id']==id,'decoder alias resolved to the wrong profile')
                     dest=t/('old_'+alias.replace('.','_')+'.wav')
-                    x=run('--dsd-mode','auto','--dsd-decode',alias,'-D',src[rate],
+                    x=run('--dsd-mode','auto','--decode',alias,'-D',src[rate],
                           '-r',POLICY[rate][2],'-e','signed-integer','-b',32,dest)
                     expect(x.returncode==0,x.stderr[-300:]);hashes[alias]=sha(dest)
-                expect(hashes[base]==hashes['mastering']==hashes['conservative'],
-                       'v1 conservative aliases not byte-identical')
+                expect(hashes[base]==hashes['conservative'],
+                       'v1 conservative alias is not byte-identical')
+                expect(hashes[base]!=hashes['mastering'],
+                       'conservative v1 silently executed the v2 mastering decoder')
                 expect(hashes[wide]==hashes['wideband'],'wideband v1 aliases diverged')
                 return {'v1_mastering_sha256':hashes[base],
                         'v1_wideband_sha256':hashes[wide]}
@@ -166,16 +169,16 @@ def main():
                 return {'effect_id':ident,'actual_output_sha256':sha(dest)}
             case(f'v2_explicit_effect_{rate//44100}',explicit_effect)
             def conflicts(rate=rate,ident=ident):
-                p=run('--dsd-plan','--dsd-decode',ident,src[rate],t/'conflict.wav',
+                p=run('--plan','--decode',ident,src[rate],t/'conflict.wav',
                      'dsdpcm','-p','conservative')
                 expect(p.returncode!=0 and 'conflicting' in p.stderr,
                        'conflicting global/explicit versions accepted')
                 return {'conflict_exit':p.returncode}
             case(f'v2_vs_conservative_conflict_{rate//44100}',conflicts)
-        for bad in ('decode.mastering.v0.dsd64','decode.mastering.v2.dsd512',
+        for bad in ('decode.mastering.v0.dsd64','decode.mastering.v2.dsd999',
                     'decode.wideband.v2.dsd64'):
             def unknown(bad=bad):
-                x=run('--dsd-plan','--dsd-decode',bad,src[2822400],t/'bad.wav')
+                x=run('--plan','--decode',bad,src[2822400],t/'bad.wav')
                 expect(x.returncode!=0,'unimplemented ID accepted')
                 return {'id':bad,'exit_code':x.returncode}
             case('reject_unknown_'+bad,unknown)
@@ -188,7 +191,7 @@ def main():
                         input.write_bytes(fixtures.make_dsf(fixtures.bits(frames,channels),rate))
                         ident=f'decode.mastering.v2.dsd{rate//44100}'
                         out_hz=POLICY[rate][2]
-                        x=run('--dsd-mode','auto','--dsd-decode',ident,'-D',input,
+                        x=run('--dsd-mode','auto','--decode',ident,'-D',input,
                               '-r',out_hz,'-e','signed-integer','-b',32,dest)
                         expect(x.returncode==0,x.stderr[-350:])
                         with wave.open(str(dest),'rb') as wav:
@@ -202,14 +205,18 @@ def main():
                         expect(actual==expected,f'edge WAV count/channels {actual} != {expected}')
                         return {'actual':actual,'frames_in':frames}
                     case(f'v2_boundary_{rate//44100}_{channels}ch_{frames}native',edges)
-        # Bit-copy native path does not call any decoder, even when selected.
+        # Native repacking preserves bits. An unused explicit decoder is
+        # now an error, rather than a misleading, silently ignored selection.
         def native_copy():
             original=t/'native_old.dsf';candidate=t/'native_v2.dsf'
-            for target,args in ((original,()),(candidate,('--dsd-decode','decode.mastering.v2.dsd64'))):
-                x=run('--dsd-mode','native',*args,src[2822400],target)
-                expect(x.returncode==0,x.stderr[-350:])
-            expect(sha(original)==sha(candidate),'native copy changed by decoder-only option')
-            return {'native_output_sha256':sha(candidate)}
+            x=run('--dsd-mode','native',src[2822400],original)
+            expect(x.returncode==0,x.stderr[-350:])
+            y=run('--dsd-mode','native','--decode',
+                  'decode.mastering.v2.dsd64',src[2822400],candidate)
+            expect(y.returncode!=0 and not candidate.exists(),
+                   'native copy silently accepted an unused decoder selector')
+            return {'native_output_sha256':sha(original),
+                    'unused_decoder_rejected':True}
         case('native_dsd_repacking_unchanged',native_copy)
     save()
     final=json.loads(results.read_text())

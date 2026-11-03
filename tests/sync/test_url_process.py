@@ -101,9 +101,11 @@ exit "$SYNC_STATUS"
         # A completed native DSD stream must not be marked successful in the
         # structured report until the downloader's final exit status is known.
         dsf = root/'source.dsf'
+        # Leave headroom: the qualified PCM-to-DSD interpolator correctly
+        # refuses full-scale synthesis if its reconstruction exceeds 0 dBFS.
         synth = subprocess.run([str(sox.resolve()), '-n', '-r', '2822400',
                                 '-c', '1', str(dsf), 'synth', '0.02', 'sine',
-                                '1000'], cwd=root, text=True,
+                                '1000', 'vol', '0.5'], cwd=root, text=True,
                                capture_output=True, timeout=20)
         if synth.returncode or not dsf.is_file():
             raise AssertionError(f'DSF test fixture generation failed: {synth.stderr[-600:]}')
@@ -113,7 +115,7 @@ exit "$SYNC_STATUS"
             out = root/f'native-{status}.dsf'
             report = root/f'native-{status}.json'
             got = subprocess.run([str(sox.resolve()), '--dsd-mode', 'native',
-                                  '--dsd-report', str(report),
+                                  '--report', str(report),
                                   'http://offline.invalid/native.dsf', str(out)],
                                  env=env, cwd=root, capture_output=True,
                                  text=True, timeout=30)

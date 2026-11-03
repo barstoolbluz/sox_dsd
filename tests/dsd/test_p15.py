@@ -208,9 +208,9 @@ def main():
             expected(sha(dest)==sha(pinned),'default qualified PCM differs from mastering profile')
             legacy=t/'legacy.wav'
             c=run('--dsd-mode','legacy',*common,legacy,'rate','-v')
-            expected(c.returncode!=0 and not legacy.exists(),
-                'raw DSD pulses must not be interpreted as PCM')
-            return dict(wav_sha256=sha(dest), legacy_raw_pcm_rejected=True)
+            expected(c.returncode==0 and sha(legacy)==sha(dest),
+                'explicit legacy mode must execute the same qualified decoder')
+            return dict(wav_sha256=sha(dest), legacy_qualified_pcm_equal=True)
         case('default_pcm_matches_qualified_mastering',default_qualified_pcm)
 
         def level_measure():
