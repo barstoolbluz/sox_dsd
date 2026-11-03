@@ -1467,7 +1467,9 @@ static void dsd_insert_boundary(sox_effects_chain_t *chain,
         lsx_fail("P15-R3: missing v2 candidate for implicit decoder clock");exit(2);
       }
       argv[1]=(char *)profile->canonical_id;
-    } else argv[1]=dsd_policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":"mastering";
+    } else if (dsd_policy.decode==LSX_DSD_PROFILE_WIDEBAND) argv[1]="wideband";
+    else if (dsd_policy.decode==LSX_DSD_PROFILE_LEGACY) argv[1]="legacy";
+    else argv[1]="conservative"; /* Frozen v1, not the v2 mastering default. */
     argv[2]="-l";
     argv[3]=dsd_policy.level==LSX_DSD_LEVEL_SACD?"sacd":"preserve";
     argv[4]=rate;
@@ -2514,22 +2516,20 @@ static void calculate_combiner_signal_parameters(void)
         total_length = SOX_UNKNOWN_LEN;
     }
 
-    /* Legacy SoX rejects differing clocks before the combiner.  Opt-in DSD
-   * planning must accept this metadata long enough to place per-input
-   * reconstruction at a common PCM rate; P05 blocks execution of that graph
-   * until the composite decoder is implemented.  Other invocations retain
-   * the original rate check. */
-  if (min_rate != max_rate) {
-    sox_bool has_native=sox_false;
-    sox_bool opt_in=(dsd_plan_only || dsd_new_policy_explicit ||
-        (!dsd_mode_explicit || dsd_policy.mode==LSX_DSD_MODE_AUTO));
-    for (i=0;i<input_count;i++)
-      if (files[i]->ft->encoding.encoding==SOX_ENCODING_DSD) has_native=sox_true;
-    if (!is_parallel(combine_method) || !has_native || !opt_in ||
-        (dsd_mode_explicit && dsd_policy.mode!=LSX_DSD_MODE_AUTO))
-      lsx_fail("input files must have the same sample-rate");
-    else min_rate=max_rate; /* only the preflight can authorize this request */
-  }
+    /* The combiner ordinarily requires matching source clocks. Planned DSD
+     * reconstruction, in either auto or legacy mode, can first bring native
+     * inputs to the common PCM clock. Native-only mode cannot do that. Keep
+     * the traditional restriction for every PCM-only command. */
+    if (min_rate != max_rate) {
+      sox_bool has_native=sox_false;
+      for (i=0;i<input_count;i++)
+        if (files[i]->ft->encoding.encoding==SOX_ENCODING_DSD)
+          has_native=sox_true;
+      if (!is_parallel(combine_method) || !has_native ||
+          (dsd_mode_explicit && dsd_policy.mode==LSX_DSD_MODE_NATIVE))
+        lsx_fail("input files must have the same sample-rate");
+      else min_rate=max_rate; /* preflight authorizes the common PCM graph */
+    }
   if (min_channels != max_channels) {
     if (combine_method == sox_concatenate) {
       lsx_fail("input files must have the same number of channels");
