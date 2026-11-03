@@ -236,7 +236,10 @@ check-dsd-cli: all
 # The original 'make check' target is unchanged.
 .PHONY: check-dsd
 DSD_PHASE ?= P18
-DSD_RESULTS ?= $(abs_builddir)/tests/dsd/results/$(DSD_PHASE)
+# Phase gates write receipts. Keep new runs outside the versioned historical
+# evidence directory; callers may still choose a different location with
+# DSD_RESULTS=... for comparison or archival qualification.
+DSD_RESULTS ?= $(abs_builddir)/.dsd-check-results/$(DSD_PHASE)
 check-dsd: all
 	$(MAKE) check-dsd-optimization
 	$(MAKE) check-sdm-guard-policy

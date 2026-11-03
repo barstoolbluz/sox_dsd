@@ -67,6 +67,12 @@ chronology, report byte invariance on all major routes, rejected
 combinations, and ordinary SoX PCM commands. The independent C gates
 and original `make check` remain useful for lower-level regression checks.
 
+Phase-gate runs write their receipts to `.dsd-check-results/P18/` (or the
+selected `DSD_PHASE`) under the build directory by default. Set
+`DSD_RESULTS=/path/to/results` to select an explicit destination. Previously
+committed receipts under `tests/dsd/results/` remain frozen, so an ordinary
+`make check-dsd` no longer rewrites historical evidence.
+
 The included delivery validation report records exactly what ran and any
 historical phase gates that remain incompatible with the new DSD-only
 option spellings. Historical qualification receipts are not revised or
