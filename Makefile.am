@@ -40,8 +40,9 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
              tests/sync/test_p16_p18_path.py tests/sync/test_waveaudio_teardown.py \
 	     README.sh FEATURES.in test/* issues wiki/* \
              tests/rename_smoke.sh \
-             tests/dsd/test_cli_usability.py \
-             docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md
+             tests/dsd/test_cli_usability.py tests/dsd/test_loud_encode.py \
+             docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md \
+             docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md
 
 if HAVE_PKGCONFIG
 pkgconfig_DATA = sox_ng.pc
@@ -230,6 +231,13 @@ check-rename: all
 check-dsd-cli: all
 	PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$(abs_srcdir)/tests/dsd" \
 	  python3 "$(abs_srcdir)/tests/dsd/test_cli_usability.py" \
+	  --sox "$(abs_builddir)/src/sox"
+	$(MAKE) check-dsd-loud-encode
+
+# Standalone loud-master acceptance; no dependency on historical receipts.
+.PHONY: check-dsd-loud-encode
+check-dsd-loud-encode: all
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/test_loud_encode.py" \
 	  --sox "$(abs_builddir)/src/sox"
 
 # P00 and subsequent DSD phases use one runner and one named make target.
