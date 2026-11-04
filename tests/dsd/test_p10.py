@@ -306,7 +306,10 @@ def main():
             return dict(exit_code=cp.returncode,diagnostic=clean(cp.stderr))
         record('fractional_source_clock_rejected',fractional)
         overload=tmp/'overload.wav';wav(overload,88200,2,frames=32768,peak=1.,kind='step')
-        for glob in (('-D',),('-D','--buffer','32'),('-D','--multi-threaded')):
+        # Deliberate overloads opt into the retained strict policy.
+        for glob in (('-D','--dsd-clip','error'),
+                     ('-D','--dsd-clip','error','--buffer','32'),
+                     ('-D','--dsd-clip','error','--multi-threaded')):
             def over(glob=glob):
                 dst=tmp/'overload.dsf';cp=encode(overload,dst,glob=glob,ok=False)
                 assert ('interpolation overload' in cp.stderr and 'attenuation' in cp.stderr and
@@ -326,7 +329,7 @@ def main():
             with wave.open(str(src),'wb') as f:
                 f.setnchannels(2);f.setsampwidth(4);f.setframerate(88200);f.writeframes(values.tobytes())
             destination=tmp/'second-channel-overload.dsf'
-            cp=encode(src,destination,glob=('-D','--multi-threaded'),ok=False)
+            cp=encode(src,destination,glob=('-D','--dsd-clip','error','--multi-threaded'),ok=False)
             assert 'interpolation overload' in cp.stderr and 'channel 1,' in cp.stderr,cp.stderr
             return dict(exit_code=cp.returncode,first_bad_channel=1,output_removed=True,diagnostic=clean(cp.stderr))
         record('second_channel_failure_discards_multichannel_output',second_channel_overload)

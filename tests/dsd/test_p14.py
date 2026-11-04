@@ -434,8 +434,11 @@ def main():
             # Report provenance must describe the requested kernel. Automatic
             # SDM dispatch is qualified separately by test_sdm_auto; it no
             # longer has an unconditional scalar default.
-            p=run(args.candidate.resolve(),'--dsd-mode','auto','--report',report,
-                  '-D',pcm,'-r','2822400',dst,env={'SOX_DSD_KERNEL_SDM':'scalar'})
+            # The user-facing default now clips/warns. This report-contract
+            # test explicitly requests the historical fatal overload behavior.
+            p=run(args.candidate.resolve(),'--dsd-mode','auto','--dsd-clip','error',
+                  '--report',report,'-D',pcm,'-r','2822400',dst,
+                  env={'SOX_DSD_KERNEL_SDM':'scalar'})
             require(p.returncode==0,p.stderr[-800:])
             doc=json.loads(report.read_text());valid_report(doc)
             enc=doc['processing']['encoder'];require(len(enc)==1,'missing actual encoder')
@@ -461,8 +464,11 @@ def main():
                 w.writeframes(b''.join(struct.pack('<i',2147483646 if i>=frames//2
                               else -2147483646) for i in range(frames)))
             dst=d/'encoder-overload.dsf';report=d/'encoder-overload.json'
-            p=run(args.candidate.resolve(),'--dsd-mode','auto','--report',report,
-                  '-D',pcm,'-r','2822400',dst,env={'SOX_DSD_KERNEL_SDM':'scalar'})
+            # The user-facing default now clips/warns. This report-contract
+            # test explicitly requests the historical fatal overload behavior.
+            p=run(args.candidate.resolve(),'--dsd-mode','auto','--dsd-clip','error',
+                  '--report',report,'-D',pcm,'-r','2822400',dst,
+                  env={'SOX_DSD_KERNEL_SDM':'scalar'})
             require(p.returncode!=0,'interpolation overload silently accepted')
             require('overload' in p.stderr,'missing P10 overload diagnostic')
             require(not dst.exists(),'partial output remains after encoder overload')
