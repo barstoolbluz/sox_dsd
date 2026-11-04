@@ -6,7 +6,8 @@ input and output formats decide whether to decode, encode, or simply repack
 DSD. You normally do not need DSD-specific flags.
 
 This guide describes the interface implemented by the November 2, 2026 CLI
-redesign built from SoX DSD 1.0.4. For all SoX options and effects, consult
+redesign and the November 4, 2026 loud-encode controls, built from SoX
+DSD 1.0.4. For all SoX options and effects, consult
 `man sox`, `man soxeffect_ng`, and `man soxformat_ng`. `sox --help-dsd` displays
 short examples.
 
@@ -53,6 +54,52 @@ Specify `-b 24` when a particular output format allows it and you require it.
 Supported explicit reconstruction PCM rates are 44.1, 48, 88.2, 96, 176.4,
 192, 352.8, 384, 705.6 and 1411.2 kHz; the selected profile and container
 must also support the request.
+
+## Loud PCM masters: clipping and headroom
+
+PCM samples below 0 dBFS can overshoot **between** samples after the
+qualified reconstruction/interpolation stages. Plain `sox in.wav out.dsf`
+now clips only these interpolated peaks to the mastering encoder's safe
+modulator-input envelope and **warns with the number of clipped samples**.
+The underlying finite-state/numerical safety checks remain active.
+
+```sh
+# Normal, fast, one-pass conversion; report if interpolation clips.
+sox loud.wav -r dsd128 loud.dsf
+
+# Fixed 2 dB cut before modulation. No scan, no automatic normalization.
+sox --headroom 2 loud.wav -r dsd128 reduced.dsf
+
+# Measure the full interpolated peak and cut just enough to fit the envelope.
+sox --auto-headroom loud.wav -r dsd128 measured.dsf
+
+# Alternatively, reject an over-limit peak instead of clipping it.
+sox --dsd-clip error loud.wav -r dsd128 strict.dsf
+
+# Require strict behavior after measured headroom, and keep the measurements.
+sox --dsd-clip error --auto-headroom --report encode.json \
+  loud.wav -r dsd128 measured.dsf
+```
+
+`--headroom` accepts a **nonnegative attenuation** in dB (`0` through `120`),
+not a signed gain: `--headroom 2` means a 2 dB cut. `--auto-headroom`
+measures the actual source-rate conversion, prefilter, final interpolation
+and its finite tail. It applies **one shared attenuation across all channels**,
+without boosting quiet audio. If nothing exceeds the modulation envelope,
+the DSD output remains identical to a plain conversion. The two choices
+cannot be combined. Both work with an explicit `pcmdsd` effect, and both
+leave native DSD bit-preserving repacks and PCM-only operations unchanged
+(the flags are rejected when no composite encoder is present).
+
+Automatic measurement uses a PCM-rate temporary file to handle long
+programmes and non-seekable inputs without storing them in memory. It runs
+the interpolation twice, uses more disk space/I/O, and takes longer than
+one-pass encoding. It does **not** silently substitute a different SDM
+profile. The `--plan` policy names the selected mode, while `--report`
+records `headroom_applied_db` and `clipped_interpolated_samples` for each
+executed encoder channel, as well as an `encoder_interpolation` clipping
+aggregate and a report warning when clipping occurs. A strict-mode failure removes a partial regular
+output file. The other numeric and state bounds still apply in every mode.
 
 ## Native DSD versus processing
 
@@ -167,15 +214,12 @@ For encoding, `--encode mastering` selects the qualified mastering-v1
 modulator for DSD64/128/256 and qualified mastering-v2 CLANS-7 for
 DSD512/1024. A mismatched version-pinned native bit clock causes an error.
 Unsupported or unqualified legacy composite profiles do not acquire
-qualification through these selectors. Mastering overload checks remain
-active: reduce the input level if encoding fails with an overload.
-For example, a full-scale synthetic tone can overshoot during interpolation;
-leave headroom with an ordinary SoX volume effect rather than disabling the
-numerical protection:
-
-```sh
-sox -n -r dsd64 tone.dsf synth 0.02 sine 1000 vol 0.5
-```
+qualification through these selectors. Only interpolated input-level
+overshoots use the default clip-and-warn policy; nonfinite samples and
+modulator-state guard failures still stop the conversion. Use
+`--dsd-clip error` to turn input-level overshoots into fatal errors, or
+`--headroom` / `--auto-headroom` to avoid clipping without modifying the
+mastering profile. See [Loud PCM masters](#loud-pcm-masters-clipping-and-headroom).
 
 The low-level `rate -v` effect changes the resampling response and can
 therefore change one-bit output relative to an unqualified legacy `rate`
@@ -185,7 +229,8 @@ Additional controls: `--dsd-bandwidth adapt|strict` (default `adapt`, which
 allows a reduced passband when decoding to a lower PCM rate),
 `--dsd-level preserve|sacd` (default `preserve`, with `sacd` multiplying the
 reconstructed amplitude by two), `--dsd-clip warn|error` (default `warn`),
-`--dsd-layout`, `--dsd-layout-loss`, and `--dsd-mode native` (rejects any
+`--headroom DB`, `--auto-headroom`, `--dsd-layout`,
+`--dsd-layout-loss`, and `--dsd-mode native` (rejects any
 route that would require PCM processing). For compatibility,
 `--dsd-mode legacy` still accepts PCM-only SoX operations, but **never**
 bypasses qualified routing for a DSD input or output. DSD rate changes,

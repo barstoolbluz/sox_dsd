@@ -361,7 +361,15 @@ lsx_dsd_effect_options lsx_dsd_effect_get_options(sox_effect_t const *effect)
 void lsx_dsd_effect_apply_policy(sox_effect_t *effect, const lsx_dsd_policy *policy)
 {
   lsx_dsd_effect_options *opt;
-  if (!effect || !policy || strcmp(effect->handler.name,"dsdpcm")) return;
+  if (!effect || !policy) return;
+  if (!strcmp(effect->handler.name,"pcmdsd")) {
+    opt=effect->priv;
+    opt->clip=policy->clip;
+    opt->headroom=policy->headroom;
+    opt->headroom_db=policy->headroom_db;
+    return;
+  }
+  if (strcmp(effect->handler.name,"dsdpcm")) return;
   opt=effect->priv;
   /* The planner already resolves global selectors versus effect-local options.
    * Apply the same inherited choices to the executing effect, but leave the

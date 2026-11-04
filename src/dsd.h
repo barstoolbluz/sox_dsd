@@ -40,6 +40,8 @@ typedef enum {LSX_DSD_ENCODE_MASTERING, LSX_DSD_ENCODE_LEGACY,
               LSX_DSD_ENCODE_EXPERIMENTAL} lsx_dsd_encode;
 typedef enum {LSX_DSD_LEVEL_PRESERVE, LSX_DSD_LEVEL_SACD} lsx_dsd_level;
 typedef enum {LSX_DSD_CLIP_WARN, LSX_DSD_CLIP_ERROR} lsx_dsd_clip;
+typedef enum {LSX_DSD_HEADROOM_NONE, LSX_DSD_HEADROOM_FIXED,
+              LSX_DSD_HEADROOM_AUTO} lsx_dsd_headroom;
 typedef enum {LSX_DSD_BANDWIDTH_ADAPT, LSX_DSD_BANDWIDTH_STRICT} lsx_dsd_bandwidth;
 typedef enum {LSX_DSD_REF_AUTO, LSX_DSD_REF_PCM, LSX_DSD_REF_DSD} lsx_dsd_reference;
 typedef enum {LSX_DSD_COMBINE_SEQUENCE, LSX_DSD_COMBINE_CONCAT,
@@ -54,6 +56,8 @@ typedef struct {
   int profile_specified, level_specified, reference_specified;
   uint32_t pinned_native_hz; /* Versioned profile ID, or 0 for alias. */
   lsx_dsd_clip clip;
+  lsx_dsd_headroom headroom;
+  double headroom_db;     /* Positive attenuation, never PCM amplification. */
   lsx_dsd_bandwidth bandwidth;
 } lsx_dsd_effect_options;
 
@@ -63,6 +67,8 @@ typedef struct {
   lsx_dsd_encode encode;
   lsx_dsd_level level;
   lsx_dsd_clip clip;
+  lsx_dsd_headroom headroom;
+  double headroom_db;     /* Positive attenuation, never PCM amplification. */
   lsx_dsd_bandwidth bandwidth;
   int layout_loss_warn;
   int guarded;

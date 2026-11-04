@@ -1518,9 +1518,43 @@ uses unity gain.  The
 mode applies a factor of two (+6.0206 dB).  Neither normalizes audio.
 .TP
 .B \-\-dsd\-clip warn|error
-Choose warning (default) or fatal rejection for clipping at the
-reconstructed PCM graph boundary.  The mastering modulator retains
-its own numerical overload checks regardless of this setting.
+Choose warning and clipping (default), or fatal rejection, for
+reconstructed PCM graph-boundary overshoots and interpolated PCM-to-DSD
+modulator input overshoots.  In warning mode, the mastering encoder
+clamps only the over-limit interpolated samples to its qualified 0.5
+input envelope and reports their count.  Nonfinite samples and
+modulator-state guard violations remain fatal in either mode.
+.TP
+.B \-\-headroom DB
+For PCM-to-DSD encoding, cut the level by the specified nonnegative
+decibel amount (0 through 120), at the interpolated modulator input.
+For example,
+.B --headroom 2
+cuts 2 dB.  This is a fixed attenuation, not normalization, and
+never changes the input files.  It is not available for PCM-only
+processing, bit-preserving DSD repacks, or low-level
+.B sdm
+modulation.
+.TP
+.B \-\-auto\-headroom
+Scan the full interpolated PCM-to-DSD signal (including the filter
+tail), then apply the smallest common attenuation that keeps all
+channels inside the 0.5 modulator-input envelope.  Does not amplify
+quiet inputs.  The scan stores PCM-rate samples in a temporary file;
+expect two interpolation passes, extra disk I/O, and a delay before
+DSD output begins.  Works with non-seekable input such as pipes.
+May be combined with
+.B --dsd-clip error
+for strict refusal if a later safety guard fails.  The applied cut
+and clipped-interpolation count are recorded by
+.B --report
+and the selected mode appears in
+.B --plan.
+Only one of
+.B --headroom
+and
+.B --auto-headroom
+may be used at once.
 .TP
 .B \-\-dsd\-layout role,role,...
 Provide an ordered speaker role assignment when native source
@@ -1560,6 +1594,9 @@ Examples:
    sox input.dsf output.wav
    sox input.dsf -r 96k -b 24 output.wav
    sox input.wav -r dsd128 output.dsf
+   sox --headroom 2 input.wav output.dsf
+   sox --auto-headroom input.wav output.dsf
+   sox --dsd-clip error input.wav output.dsf
    sox input.dsf output.dff
    sox --dop input.dsf output.wav
    sox --plan input.dsf output.wav

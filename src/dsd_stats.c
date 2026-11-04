@@ -498,6 +498,8 @@ static void json_enc(FILE *f,const encode_record *r)
   fputs(",\"committed_native_frames\":",f);jint(f,r->base.committed_frames);
   fputs(",\"effective_passband_hz\":",f);jnumber(f,r->base.effective_pass_hz);
   fputs(",\"modulator_input_scale_actual\":",f);jnumber(f,r->reference_scale);
+  fputs(",\"headroom_applied_db\":",f);jnumber(f,r->base.applied_headroom_db);
+  fputs(",\"clipped_interpolated_samples\":",f);jint(f,r->base.clipped_native_samples);
   fputs(",\"first_error_frame\":",f);
   if(r->base.failure==LSX_PCMDSD_NO_ERROR)fputs("null",f);else jint(f,r->base.first_bad_frame);
   fprintf(f,",\"failure_code\":%u,\"channel_index\":%u,\"peak_modulator_input\":",
@@ -530,6 +532,11 @@ void lsx_dsd_report_json(FILE *f,const lsx_dsd_report_context *r,
     const char *version)
 {
   size_t i,j;
+  uint64_t encoder_clips=0;
+  if (r) for (i=0;i<r->nencs;++i) {
+    uint64_t count=r->enc[i].base.clipped_native_samples;
+    encoder_clips=count>UINT64_MAX-encoder_clips?UINT64_MAX:encoder_clips+count;
+  }
   fprintf(f,"{\n  \"schema\":\"sox.dsd.conversion.v1\",\n  \"schema_version\":1,\n  \"build\":{\"version\":");
   jstr(f,version);
   fputs(",\"source_baseline\":\"d940cc93\",\"build_source_digest\":null,\"build_digest_note\":\"unavailable from source-only archive without git\"},\n  \"status\":",f);
@@ -611,7 +618,13 @@ void lsx_dsd_report_json(FILE *f,const lsx_dsd_report_context *r,
   fputs(",\n  \"clipping\":{\"output_writer\":",f);jint(f,output_clips);
   fputs(",\"input_adapter\":",f);jint(f,adapter_clips);
   fputs(",\"combiner\":",f);jint(f,mixing_clips);
+  fputs(",\"encoder_interpolation\":",f);jint(f,encoder_clips);
   fputs("},\n  \"warnings\":[",f);
-  if(r && r->out_of_memory)jstr(f,"report evidence incomplete: allocation failure");
+  if (encoder_clips)
+    jstr(f,"PCM-to-DSD interpolation clipped; see per-channel encoder counts");
+  if(r && r->out_of_memory) {
+    if (encoder_clips) fputc(',',f);
+    jstr(f,"report evidence incomplete: allocation failure");
+  }
   fputs("]\n}\n",f);
 }

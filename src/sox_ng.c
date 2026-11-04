@@ -250,6 +250,7 @@ static lsx_dsd_policy dsd_policy = {
   .encode=LSX_DSD_ENCODE_MASTERING,
   .level=LSX_DSD_LEVEL_PRESERVE,
   .clip=LSX_DSD_CLIP_WARN,
+  .headroom=LSX_DSD_HEADROOM_NONE,
   .bandwidth=LSX_DSD_BANDWIDTH_ADAPT
 };
 static sox_bool dsd_mode_explicit = sox_false, dsd_plan_only = sox_false;
@@ -1525,6 +1526,7 @@ static void dsd_insert_encoder(sox_effects_chain_t *chain,
   e=sox_create_effect(sox_find_effect("pcmdsd"));
   snprintf(rate,sizeof(rate),"%.0f",plan->rate_after);args[0]=rate;
   if (sox_effect_options(e,1,args)!=SOX_SUCCESS) exit(2);
+  lsx_dsd_effect_apply_policy(e,&dsd_policy);
   lsx_pcmdsd_set_reference(e,plan->reference);
   if (add_effect(chain,e,signal,&ofile->ft->signal,&no_guard)!=SOX_SUCCESS) exit(2);
   free(e);dsd_encode_before[index]=0;*guard=-1;
@@ -2787,7 +2789,8 @@ static void preflight_dsd(void)
     free(input);free(effect);exit(2);
   }
   if (!has_dsd_input && !spec.output_native_capable && !has_new_effect &&
-      !dsd_plan_only && !dsd_report_path) {
+      !dsd_plan_only && !dsd_report_path &&
+      spec.policy.headroom==LSX_DSD_HEADROOM_NONE) {
     free(input);free(effect);return;
   }
   for (i=0;i<spec.effect_count;i++) {
@@ -3380,6 +3383,8 @@ static void display_dsd_help(void)
        "  sox input.dsf output.wav               Reconstruct DSD as PCM\n"
        "  sox input.dsf -r 96k -b 24 output.wav  Set PCM output rate and depth\n"
        "  sox input.wav -r dsd128 output.dsf    Encode DSD128\n"
+       "  sox --headroom 2 in.wav out.dsf      Cut encoder input by 2 dB\n"
+       "  sox --auto-headroom in.wav out.dsf   Measure and prevent interpolated overs\n"
        "  sox input.dsf output.dff               Repack native DSD bits\n"
        "  sox --dop input.dsf output.wav        Package DSD over PCM (24-bit)\n"
        "  sox --plan input.dsf output.wav       Inspect the processing graph\n"
@@ -3431,7 +3436,9 @@ static void usage(void)
 "--encode mastering|encode.mastering.vN.dsdNNN  DSD modulation profile",
 "                         Mastering encoding is active for native DSD64 to DSD1024; guards remain enforced",
 "--dsd-level preserve|sacd  Decoder level convention",
-"--dsd-clip warn|error    Graph-boundary clipping policy",
+"--dsd-clip warn|error    Warn/clip interpolated DSD overs (default) or refuse",
+"--headroom DB            Cut PCM-to-DSD level by DB (nonnegative dB, no normalization)",
+"--auto-headroom          Measure interpolated peak and cut only if needed (two passes)",
 "--dsd-bandwidth adapt|strict  PCM reconstruction passband policy",
 "--report PATH           Write a JSON conversion report (or - for stdout)",
 "--plan                  Show JSON conversion plan without creating audio",
@@ -3753,6 +3760,8 @@ static lsx_option_t const long_options[] = {
    * occupy new indices so all existing indexed switch cases stay stable. */
   {"rep"             , lsx_option_arg_required, NULL, 0}, /* 39: replay-gain */
   {"pla"             , lsx_option_arg_required, NULL, 0}, /* 40: play-rate-arg */
+  {"headroom"        , lsx_option_arg_required, NULL, 0}, /* 41 */
+  {"auto-headroom"   , lsx_option_arg_none    , NULL, 0}, /* 42 */
 
   /*
    * These instead are indexed by their letters, which limits the
@@ -4052,6 +4061,29 @@ static char parse_gopts_and_fopts(file_t * f)
       case 38:
         display_dsd_help();
         exit(0);
+      case 41: {
+        char *end;
+        double cut;
+        if (dsd_policy.headroom!=LSX_DSD_HEADROOM_NONE) {
+          lsx_fail("choose only one --headroom or --auto-headroom");exit(1);
+        }
+        errno=0;end=NULL;cut=strtod(optstate.arg,&end);
+        if (end==optstate.arg || *end || errno || !isfinite(cut) ||
+            cut<0 || cut>120) {
+          lsx_fail("--headroom requires a nonnegative attenuation in dB (0..120)");exit(1);
+        }
+        dsd_policy.headroom=LSX_DSD_HEADROOM_FIXED;
+        dsd_policy.headroom_db=cut;
+        dsd_new_policy_explicit=sox_true;
+        break;
+      }
+      case 42:
+        if (dsd_policy.headroom!=LSX_DSD_HEADROOM_NONE) {
+          lsx_fail("choose only one --headroom or --auto-headroom");exit(1);
+        }
+        dsd_policy.headroom=LSX_DSD_HEADROOM_AUTO;
+        dsd_new_policy_explicit=sox_true;
+        break;
       case 36:
         if (!strcmp(optstate.arg,"on"))
           lsx_sdm_set_guard_policy(SDM_GUARD_ON);
