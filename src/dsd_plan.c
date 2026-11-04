@@ -771,6 +771,16 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   if (spec->requested_encoding.bits_per_sample &&
       p->output_bits && spec->requested_encoding.bits_per_sample != p->output_bits)
     return fail(error,n,"explicit output precision conflicts with %s endpoint",lsx_dsd_domain_name(domain));
+  /* A requested attenuation must never silently apply to PCM-only output,
+   * native bit-preserving copies, or unqualified low-level sdm effects. */
+  if (spec->policy.headroom!=LSX_DSD_HEADROOM_NONE) {
+    int composite=0;
+    for (i=0;i<p->step_count;++i)
+      if (is(p->steps[i].name,"pcmdsd") ||
+          is(p->steps[i].name,"implicit_pcmdsd")) ++composite;
+    if (!composite || composite!=p->encode_count)
+      return fail(error,n,"--headroom and --auto-headroom require a composite PCM-to-DSD encoder");
+  }
   if (spec->policy.mode==LSX_DSD_MODE_NATIVE && p->needs_unimplemented_dsp)
     return fail(error,n,"native mode does not permit DSD reconstruction/modulation");
   p->output_channels=channels;
@@ -850,6 +860,13 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   json_string(fp,spec->policy.level==LSX_DSD_LEVEL_SACD?"sacd":"preserve");
   fprintf(fp,", \"clip\": ");
   json_string(fp,spec->policy.clip==LSX_DSD_CLIP_ERROR?"error":"warn");
+  fprintf(fp,", \"headroom_mode\": ");
+  json_string(fp,spec->policy.headroom==LSX_DSD_HEADROOM_AUTO?"auto":
+      spec->policy.headroom==LSX_DSD_HEADROOM_FIXED?"fixed":"none");
+  fprintf(fp,", \"headroom_db\": ");
+  if (spec->policy.headroom==LSX_DSD_HEADROOM_FIXED)
+    fprintf(fp,"%.17g",spec->policy.headroom_db);
+  else fputs("null",fp);
   fprintf(fp,", \"bandwidth\": ");
   json_string(fp,spec->policy.bandwidth==LSX_DSD_BANDWIDTH_STRICT?"strict":"adapt");
   fprintf(fp,", \"layout_loss\": ");

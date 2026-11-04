@@ -24,12 +24,13 @@ typedef enum {
   LSX_PCMDSD_STATE_NONFINITE, LSX_PCMDSD_STATE_BOUND, LSX_PCMDSD_STREAM_ERROR
 } lsx_pcmdsd_failure;
 typedef struct {
-  uint64_t input_frames, committed_frames, first_bad_frame;
+  uint64_t input_frames, committed_frames, first_bad_frame, clipped_native_samples;
   unsigned channel, coordinate;
   /* minimum_attenuation_db is a lower bound from the FIRST overloading
    * sample; fail-fast processing cannot know the maximum of the remainder.
    * A retry with exactly this attenuation is not guaranteed to succeed. */
   double peak, failure_value, minimum_attenuation_db, effective_pass_hz;
+  double applied_headroom_db;
   lsx_pcmdsd_failure failure;
   sdm_normal_monitor_t monitor;
 } lsx_pcmdsd_report;
@@ -45,6 +46,11 @@ typedef enum {
 typedef void (*lsx_pcmdsd_stage_observer)(void *opaque, lsx_pcmdsd_stage,
     const double *samples, size_t frames);
 void lsx_pcmdsd_observe(lsx_pcmdsd *, lsx_pcmdsd_stage_observer, void *opaque);
+/* Effect-only controls. Core qualification callers retain strict overload
+ * refusal and exact unmodified modulation unless they opt in. */
+void lsx_pcmdsd_set_clip(lsx_pcmdsd *, int warn_and_clip);
+void lsx_pcmdsd_set_gain(lsx_pcmdsd *, double attenuation);
+void lsx_pcmdsd_set_peak_scan(lsx_pcmdsd *);
 /* Read-only per-context selection, used by P11 regression tests. */
 const char *lsx_pcmdsd_kernel_name(const lsx_pcmdsd *);
 const lsx_pcmdsd_profile *lsx_pcmdsd_profile_of(const lsx_pcmdsd *);
@@ -79,6 +85,11 @@ typedef struct {
   lsx_dsd_effect_options options; /* parser prefix; owns nothing */
   lsx_pcmdsd *encoder;           /* allocated after channel cloning */
   double resolved_reference;
+  double applied_gain;
+  FILE *scan_file;              /* AUTO: PCM-rate disk spool, bounded RAM. */
+  sox_sample_t replay[256];
+  size_t replay_pos, replay_size;
+  int scan_started, replay_eof;
 } lsx_pcmdsd_private;
 int lsx_pcmdsd_start(sox_effect_t *);
 /* Test driver only: same wrapper, but explicit unqualified candidate create. */

@@ -61,7 +61,8 @@ static const lsx_pcmdsd_profile profiles[] = {
 struct lsx_pcmdsd {
   const lsx_pcmdsd_profile *profile;
   uint32_t input_hz;
-  double scale, envelope, bounds[8];
+  double scale, gain, envelope, bounds[8];
+  int clip_overload, peak_only;
   unsigned guarded, finishing, done, source_done;
   lsx_rate_f64_t *source, *interpolator;
   double *ring;
@@ -91,6 +92,17 @@ void lsx_pcmdsd_observe(lsx_pcmdsd *p, lsx_pcmdsd_stage_observer callback, void 
 {
   if (p) {p->observer=callback;p->observer_opaque=opaque;}
 }
+void lsx_pcmdsd_set_clip(lsx_pcmdsd *p, int warn_and_clip)
+{ if (p) p->clip_overload=!!warn_and_clip; }
+void lsx_pcmdsd_set_gain(lsx_pcmdsd *p, double attenuation)
+{
+  if (p && isfinite(attenuation) && attenuation>0 && attenuation<=1) {
+    p->gain=attenuation;
+    p->report.applied_headroom_db=-20*log10(attenuation);
+  }
+}
+void lsx_pcmdsd_set_peak_scan(lsx_pcmdsd *p)
+{ if (p) p->peak_only=1; }
 static void observe(lsx_pcmdsd *p, lsx_pcmdsd_stage stage,
     const double *samples, size_t count)
 {
@@ -165,6 +177,7 @@ sox_dsd_status_t lsx_pcmdsd_candidate_create(uint32_t source_hz,
   p->profile=profile;
   p->input_hz=source_hz;
   p->scale=scale;
+  p->gain=1.;
   /* Two SOURCE int32 LSBs in normalized PCM, mapped by the resolved scale. */
   p->envelope=.5+scale*(2./SOX_SAMPLE_MAX);
   p->guarded=bounds!=NULL;
@@ -220,6 +233,21 @@ sox_dsd_status_t lsx_pcmdsd_modulate(lsx_pcmdsd *p, const double *input,
   int rc;
   if (!p || (!input && n) || (!output && n)) return SOX_DSD_BAD_ARGUMENT;
   if (p->error) return p->error;
+  /* A first pass for measured headroom performs the IDENTICAL SRC and FIR,
+   * but never runs the SDM or writes decisions. Its maximum is the exact
+   * post-interpolation, post-reference peak, including the finite EOF tail. */
+  if (p->peak_only) {
+    size_t i;
+    if (n>UINT64_MAX-p->sdm.frames)
+      return fail_stream(p,LSX_PCMDSD_STREAM_ERROR,0,UINT_MAX);
+    for (i=0;i<n;++i) {
+      if (!isfinite(input[i]))
+        return fail_stream(p,LSX_PCMDSD_INPUT_NONFINITE,input[i],UINT_MAX);
+      if (fabs(input[i])>p->report.peak) p->report.peak=fabs(input[i]);
+    }
+    p->sdm.frames+=n;
+    return SOX_DSD_OK;
+  }
   /* One immutable per-context call for the entire block. Each ISA kernel
    * owns its time recurrence, guard and monitor, not an indirect per bit. */
   rc=p->sdm_kernel->sdm_block(&p->sdm,input,n,output,&committed,
@@ -304,8 +332,17 @@ static sox_dsd_status_t pump(lsx_pcmdsd *p,const double *input,size_t *input_n,
       if (got) {
         size_t j;
         observe(p,LSX_PCMDSD_STAGE_NATIVE,native,got);
-        for (j=0;j<got;++j) native[j]*=p->scale;
+        for (j=0;j<got;++j) native[j]*=p->scale*p->gain;
         observe(p,LSX_PCMDSD_STAGE_SCALED,native,got);
+        /* A clipped interpolated overshoot is a recoverable user-level
+         * amplitude condition. Keep certified SDM state/nonfinite guards
+         * fail-closed. Core clients stay strict unless the CLI enables it. */
+        if (p->clip_overload && !p->peak_only)
+          for (j=0;j<got;++j) if (isfinite(native[j]) && fabs(native[j])>.5) {
+            native[j]=copysign(.5,native[j]);
+            if (p->report.clipped_native_samples<UINT64_MAX)
+              ++p->report.clipped_native_samples;
+          }
         if (lsx_pcmdsd_modulate(p,native,output+produced,got)!=SOX_DSD_OK)
           goto failed;
         produced+=got;
@@ -419,6 +456,7 @@ static int effect_start(sox_effect_t *e,int candidate)
   scale=p->options.reference==LSX_DSD_REF_PCM?.5:
       p->options.reference==LSX_DSD_REF_DSD?1.:
       p->resolved_reference?p->resolved_reference:.5;
+  p->resolved_reference=scale;
   if (candidate)
     rc=lsx_pcmdsd_candidate_create(source,profile->native_hz,scale,(unsigned)e->flow,
         NULL,profile->bounds,&p->encoder);
@@ -428,6 +466,21 @@ static int effect_start(sox_effect_t *e,int candidate)
     lsx_fail("pcmdsd: %s unqualified or unavailable (status %d); no output master produced",
         profile->id,(int)rc);
     return SOX_EOF;
+  }
+  p->applied_gain=p->options.headroom==LSX_DSD_HEADROOM_FIXED?
+      pow(10.,-p->options.headroom_db/20.):1.;
+  if (p->options.headroom==LSX_DSD_HEADROOM_AUTO && !candidate) {
+    p->scan_file=lsx_tmpfile();
+    if (!p->scan_file) {
+      lsx_fail("pcmdsd: cannot create headroom scan file: %s",strerror(errno));
+      lsx_pcmdsd_destroy(p->encoder);p->encoder=NULL;
+      return SOX_EOF;
+    }
+    lsx_pcmdsd_set_peak_scan(p->encoder);
+  } else {
+    lsx_pcmdsd_set_gain(p->encoder,p->applied_gain);
+    /* Candidate/test-only controls stay strict by default. */
+    lsx_pcmdsd_set_clip(p->encoder,!candidate && p->options.clip==LSX_DSD_CLIP_WARN);
   }
   e->out_signal.rate=profile->native_hz;e->out_signal.precision=1;
   /* Never let generic precision-1 gain/dither alter the native decisions. */
@@ -469,6 +522,95 @@ static int effect_failure(sox_effect_t *e)
   }
   return LSX_EFF_FATAL;
 }
+/* Streaming exact-peak scan over the SAME interpolation path as the actual
+ * encoder. No modulator decisions are produced during this pass. A PCM-rate
+ * temporary file, rather than an unbounded in-memory array or native-rate
+ * spool, makes the two passes work with long albums and pipes. */
+static int scan_flow(sox_effect_t *e,const sox_sample_t *in,size_t count)
+{
+  lsx_pcmdsd_private *p=e->priv;
+  sox_sample_t discard[PCMDSD_NATIVE_BATCH];
+  size_t used=0;
+  if (count && fwrite(in,sizeof(*in),count,p->scan_file)!=count) {
+    lsx_fail("pcmdsd: cannot spool headroom input: %s",strerror(errno));
+    return LSX_EFF_FATAL;
+  }
+  while (used<count) {
+    double input[PCMDSD_BATCH];
+    size_t i,n=min(count-used,(size_t)PCMDSD_BATCH),out_n=array_length(discard);
+    sox_dsd_status_t rc;
+    for (i=0;i<n;++i) input[i]=(double)in[used+i]/SOX_SAMPLE_MAX;
+    rc=lsx_pcmdsd_process(p->encoder,input,&n,discard,&out_n);
+    if (rc!=SOX_DSD_NEED_INPUT && rc!=SOX_DSD_NEED_OUTPUT)
+      return effect_failure(e);
+    if (!n && !out_n) {
+      fail_stream(p->encoder,LSX_PCMDSD_STREAM_ERROR,0,UINT_MAX);
+      return effect_failure(e);
+    }
+    used+=n;
+  }
+  return SOX_SUCCESS;
+}
+
+/* SoX drains a scanning effect only after all channel flows received EOF.
+ * Like gain -n, flow 0 can then inspect all per-channel previews and apply
+ * ONE common attenuation; no stereo balance change or input reread occurs. */
+static int start_headroom_replay(sox_effect_t *e)
+{
+  sox_effect_t *first=e-e->flow;
+  size_t i;
+  double peak=0., gain;
+  for (i=0;i<e->flows;i++) {
+    sox_effect_t *f=first+i;
+    lsx_pcmdsd_private *p=f->priv;
+    sox_sample_t discard[PCMDSD_NATIVE_BATCH];
+    sox_dsd_status_t rc;
+    lsx_pcmdsd_report r;
+    do {
+      size_t n=array_length(discard);
+      rc=lsx_pcmdsd_finish(p->encoder,discard,&n);
+      if (rc!=SOX_DSD_DONE && rc!=SOX_DSD_NEED_OUTPUT)
+        return effect_failure(f);
+      if (rc==SOX_DSD_NEED_OUTPUT && !n) {
+        lsx_fail("pcmdsd: headroom scan could not finish");
+        return LSX_EFF_FATAL;
+      }
+    } while (rc!=SOX_DSD_DONE);
+    if (lsx_pcmdsd_report_get(p->encoder,&r)!=SOX_DSD_OK) return LSX_EFF_FATAL;
+    if (r.peak>peak) peak=r.peak;
+  }
+  /* Use the measured peak after BOTH SRC stages and the FIR. The tiny
+   * round-off allowance is < 1e-10 dB, not arbitrary programme headroom. */
+  gain=peak>.5 ? (.5*(1.-1e-12))/peak : 1.;
+  lsx_report("pcmdsd: measured interpolated peak %.12g; headroom cut %.9g dB across %u channel(s)",
+      peak,-20.*log10(gain),e->flows);
+  for (i=0;i<e->flows;i++) {
+    sox_effect_t *f=first+i;
+    lsx_pcmdsd_private *p=f->priv;
+    lsx_pcmdsd *fresh=NULL;
+    uint32_t source;
+    sox_dsd_status_t rc;
+    if (!lsx_dsd_integer_rate(f->in_signal.rate,&source)) return LSX_EFF_FATAL;
+    lsx_pcmdsd_destroy(p->encoder);p->encoder=NULL;
+    rc=lsx_pcmdsd_create(source,p->options.rate_hz,
+        p->resolved_reference,(unsigned)f->flow,&fresh);
+    if (rc!=SOX_DSD_OK) {
+      lsx_fail("pcmdsd: cannot start headroom replay (status %d)",(int)rc);
+      return LSX_EFF_FATAL;
+    }
+    p->encoder=fresh;
+    p->applied_gain=gain;
+    lsx_pcmdsd_set_gain(fresh,gain);
+    lsx_pcmdsd_set_clip(fresh,p->options.clip==LSX_DSD_CLIP_WARN);
+    if (fseek(p->scan_file,0,SEEK_SET)) {
+      lsx_fail("pcmdsd: cannot rewind headroom input: %s",strerror(errno));
+      return LSX_EFF_FATAL;
+    }
+    p->scan_started=1;
+  }
+  return SOX_SUCCESS;
+}
+
 int lsx_pcmdsd_flow(sox_effect_t *e,const sox_sample_t *in,sox_sample_t *out,
     size_t *ni,size_t *no)
 {
@@ -476,6 +618,11 @@ int lsx_pcmdsd_flow(sox_effect_t *e,const sox_sample_t *in,sox_sample_t *out,
   double input[PCMDSD_BATCH];
   size_t available=*ni,capacity=*no,used=0,produced=0;
   *ni=*no=0;
+  if (p->scan_file) {
+    if (scan_flow(e,in,available)!=SOX_SUCCESS) return LSX_EFF_FATAL;
+    *ni=available;
+    return SOX_SUCCESS;
+  }
   if (!capacity) return SOX_SUCCESS;
   do {
     size_t i,n=min(available-used,(size_t)PCMDSD_BATCH),got=capacity;
@@ -497,16 +644,71 @@ int lsx_pcmdsd_flow(sox_effect_t *e,const sox_sample_t *in,sox_sample_t *out,
   *ni=used;*no=produced;return SOX_SUCCESS;
 }
 
+static int replay_drain(sox_effect_t *e,sox_sample_t *out,size_t *no)
+{
+  lsx_pcmdsd_private *p=e->priv;
+  size_t capacity=*no;
+  *no=0;
+  if (!p->scan_started && start_headroom_replay(e)!=SOX_SUCCESS)
+    return LSX_EFF_FATAL;
+  while (1) {
+    if (p->replay_pos<p->replay_size) {
+      double input[PCMDSD_BATCH];
+      size_t i,n=p->replay_size-p->replay_pos,got=capacity;
+      sox_dsd_status_t rc;
+      for (i=0;i<n;++i) input[i]=(double)p->replay[p->replay_pos+i]/SOX_SAMPLE_MAX;
+      rc=lsx_pcmdsd_process(p->encoder,input,&n,out,&got);
+      if (rc!=SOX_DSD_NEED_INPUT && rc!=SOX_DSD_NEED_OUTPUT)
+        return effect_failure(e);
+      if (!n && !got) {
+        fail_stream(p->encoder,LSX_PCMDSD_STREAM_ERROR,0,UINT_MAX);
+        return effect_failure(e);
+      }
+      p->replay_pos+=n;
+      if (got) {*no=got;return SOX_SUCCESS;}
+      continue;
+    }
+    if (!p->replay_eof) {
+      p->replay_pos=0;
+      p->replay_size=fread(p->replay,sizeof(*p->replay),array_length(p->replay),p->scan_file);
+      if (ferror(p->scan_file)) {
+        lsx_fail("pcmdsd: cannot replay headroom input: %s",strerror(errno));
+        return LSX_EFF_FATAL;
+      }
+      if (p->replay_size) continue;
+      p->replay_eof=1;
+    }
+    {
+      sox_dsd_status_t rc=lsx_pcmdsd_finish(p->encoder,out,&capacity);
+      if (rc!=SOX_DSD_NEED_OUTPUT && rc!=SOX_DSD_DONE)
+        return effect_failure(e);
+      *no=capacity;
+      return rc==SOX_DSD_DONE?SOX_EOF:SOX_SUCCESS;
+    }
+  }
+}
+
 int lsx_pcmdsd_drain(sox_effect_t *e,sox_sample_t *out,size_t *no)
 {
   lsx_pcmdsd_private *p=e->priv;
-  sox_dsd_status_t rc=lsx_pcmdsd_finish(p->encoder,out,no);
+  sox_dsd_status_t rc;
+  if (p->scan_file) return replay_drain(e,out,no);
+  rc=lsx_pcmdsd_finish(p->encoder,out,no);
   if (rc!=SOX_DSD_NEED_OUTPUT && rc!=SOX_DSD_DONE) {*no=0;return effect_failure(e);}
   return rc==SOX_DSD_DONE?SOX_EOF:SOX_SUCCESS;
 }
 int lsx_pcmdsd_stop(sox_effect_t *e)
 {
   lsx_pcmdsd_private *p=e->priv;
-  lsx_dsd_report_note_encode(p->encoder);
-  lsx_pcmdsd_destroy(p->encoder);p->encoder=NULL;return SOX_SUCCESS;
+  lsx_pcmdsd_report r={0};
+  if (p->encoder) {
+    lsx_pcmdsd_report_get(p->encoder,&r);
+    lsx_dsd_report_note_encode(p->encoder);
+    lsx_pcmdsd_destroy(p->encoder);p->encoder=NULL;
+  }
+  if (p->scan_file) {lsx_close_tmpfile(p->scan_file);p->scan_file=NULL;}
+  if (r.clipped_native_samples)
+    lsx_warn("clipped %" PRIu64 " interpolated samples on channel %u; use --headroom DB or --auto-headroom to avoid clipping",
+        r.clipped_native_samples,(unsigned)e->flow+1);
+  return SOX_SUCCESS;
 }

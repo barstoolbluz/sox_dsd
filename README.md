@@ -34,6 +34,11 @@ selectable. To ask for v1 explicitly:
     sox --decode decode.mastering.v1.dsd64 \
       input.dsf -r 176400 -b 24 output.wav
 
+Loud PCM masters may create peaks above full scale *between* samples.
+PCM-to-DSD encoding clips those interpolated peaks with a warning by default;
+`--headroom 2` cuts a fixed 2 dB, `--auto-headroom` measures and cuts only
+what is needed, and `--dsd-clip error` rejects overloads instead.
+
 For basic conversion, profile selection, supported operations and limitations,
 see [Using SoX DSD](docs/dsd/USING_SOX_DSD.md),
 [the CLI migration table](docs/dsd/MIGRATION_P15.md) and
