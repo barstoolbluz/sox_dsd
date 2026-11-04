@@ -521,11 +521,12 @@ def main() -> int:
                 output__rate_hz=96000,steps__0__rate_out_hz=96000))
         # Executable is a graph qualification, not a promise that arbitrary
         # source levels will stay inside the mastering SDM's numeric bound.
-        # A conservative target succeeds; the same fixture at 0 dBFS must
-        # fail closed on interpolation overload, leaving no partial output.
+        # Strict clipping policy preserves the historical fail-closed check;
+        # default clipping/warnings are exercised by test_loud_encode.py.
         run('norm_native_actual',['--dsd-mode','auto','--norm=-12',ds,'@OUT@'],
             plan=False,suffix='.dsf')
-        run('norm_native_overload_reject',['--dsd-mode','auto','--norm',ds,'@OUT@'],
+        run('norm_native_overload_reject',['--dsd-mode','auto','--dsd-clip','error',
+            '--norm',ds,'@OUT@'],
             plan=False,ok=False,error='interpolation overload',suffix='.dsf')
         run('norm_dop_native',['--norm',ds,'@OUT@','dop'],
             inspect=check_steps('implicit_dsdpcm','auto_normalize','implicit_pcmdsd','dop',
