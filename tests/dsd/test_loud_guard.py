@@ -3,7 +3,7 @@
 
 Uses the original 2026-11-04 synthetic recipes. The source and the tested
 encoder are the same executable; the user-provided reproduction verified
-that the 3ed2434 and 1.0.4 generators produce matching input files.
+that the 0dd7ad224 and 1.0.4 generators produce matching input files.
 
 This is deliberately separate from fast check-dsd-loud-encode: sustained
 SDM exposure is required to detect the original delayed failures.
