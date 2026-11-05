@@ -34,14 +34,16 @@ selectable. To ask for v1 explicitly:
     sox --decode decode.mastering.v1.dsd64 \
       input.dsf -r 176400 -b 24 output.wav
 
-Loud PCM masters may create peaks above full scale *between* samples.
-PCM-to-DSD encoding clips high interpolated levels with a warning by default.
-The warning ceiling is 0.45 at DSD128/256 (to reduce sustained state-guard
-failures), and 0.5 at DSD64/512/1024, relative to the default DSD input
-scale. `--headroom 2` cuts a fixed 2 dB; `--auto-headroom` measures and
-cuts to the rate's warning ceiling without clipping; `--dsd-clip error`
-retains strict overload refusal instead. A lower warning ceiling can clip
-peaks below 0 dBFS, so use measured headroom when that distinction matters.
+Loud PCM masters may exceed full scale *between* samples. By default the
+PCM-to-DSD encoder clips residual interpolated overloads and warns. For
+DSD128/256 it also applies a constant **0.9 linear gain (-0.91515 dB)** to
+avoid distorting otherwise legal PCM with the lower 0.45 modulator ceiling;
+DSD64/512/1024 retain unity gain and a 0.5 ceiling. This fast default changes
+output level even for quiet signals. `--headroom DB` selects an explicit fixed
+cut instead (including `--headroom 0`, which disables the implicit cut);
+`--auto-headroom` measures the complete interpolated peak and applies the
+smallest common cut without clipping. `--dsd-clip error` retains strict,
+unattenuated overload refusal. `--plan` and `--report` disclose the applied gain.
 
 For basic conversion, profile selection, supported operations and limitations,
 see [Using SoX DSD](docs/dsd/USING_SOX_DSD.md),
