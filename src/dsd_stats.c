@@ -499,6 +499,9 @@ static void json_enc(FILE *f,const encode_record *r)
   fputs(",\"effective_passband_hz\":",f);jnumber(f,r->base.effective_pass_hz);
   fputs(",\"modulator_input_scale_actual\":",f);jnumber(f,r->reference_scale);
   fputs(",\"headroom_applied_db\":",f);jnumber(f,r->base.applied_headroom_db);
+  fputs(",\"clip_ceiling_applied\":",f);
+  if (r->base.clip_ceiling_applied>0) jnumber(f,r->base.clip_ceiling_applied);
+  else fputs("null",f);
   fputs(",\"clipped_interpolated_samples\":",f);jint(f,r->base.clipped_native_samples);
   fputs(",\"first_error_frame\":",f);
   if(r->base.failure==LSX_PCMDSD_NO_ERROR)fputs("null",f);else jint(f,r->base.first_bad_frame);

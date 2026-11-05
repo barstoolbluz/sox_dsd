@@ -79,6 +79,10 @@ def main():
         fixture(quiet, False)
         source_hash = digest(hot)
         for native in (64, 128, 256):
+            # The two stressed mastering-v1 clocks use a lower default
+            # clipping ceiling; measured headroom targets the same value.
+            ceiling = 0.5 if native == 64 else 0.45
+            fixed_db = 2 if native == 64 else 4
             output = root / f'out-{native}.dsf'
             report = root / 'run.json'
             rate = f'dsd{native}'
@@ -86,6 +90,16 @@ def main():
                                               hot, '-r', rate, output), 'plan').stdout)
             assert planned['policy']['headroom_mode'] == 'auto'
             assert planned['policy']['headroom_db'] is None
+            assert planned['encoder']['warning_clip_ceiling'] == ceiling
+            strict_plan = json.loads(accepted(run(sox, '--plan', '--dsd-clip',
+                                                'error', hot, '-r', rate, output),
+                                              'strict plan').stdout)
+            assert strict_plan['encoder']['warning_clip_ceiling'] is None
+            unavailable = json.loads(accepted(run(sox, '--plan', '--encode',
+                                                  'legacy', hot, '-r', rate,
+                                                  output), 'legacy plan').stdout)
+            assert not unavailable['executable']
+            assert unavailable['encoder']['warning_clip_ceiling'] is None
             assert not output.exists(), '--plan opened an audio output'
 
             default = accepted(run(sox, hot, '-r', rate, output), 'default warn')
@@ -96,6 +110,8 @@ def main():
             record = json.loads(report.read_text())
             clipped = [int(e['clipped_interpolated_samples'])
                        for e in record['processing']['encoder']]
+            assert all(e['clip_ceiling_applied'] == ceiling
+                       for e in record['processing']['encoder'])
             assert clipped[0] > 0 and clipped[1] == 0, clipped
             assert int(record['clipping']['encoder_interpolation']) == sum(clipped)
             assert any('interpolation clipped' in w for w in record['warnings'])
@@ -107,23 +123,24 @@ def main():
                                 output), 'strict').returncode == 2
             assert not output.exists(), 'failed strict conversion left a partial file'
 
-            accepted(run(sox, '--report', report, '--headroom', '2',
-                         hot, '-r', rate, output), 'fixed 2dB')
+            accepted(run(sox, '--report', report, '--headroom', str(fixed_db),
+                         hot, '-r', rate, output), 'fixed headroom')
             fixed = encoders(report)
             assert int(json.loads(report.read_text())['clipping']['encoder_interpolation']) == 0
             assert all(int(e['clipped_interpolated_samples']) == 0 for e in fixed)
-            assert all(abs(e['headroom_applied_db'] - 2) < 1e-10 for e in fixed)
+            assert all(abs(e['headroom_applied_db'] - fixed_db) < 1e-10 for e in fixed)
             assert digest(output) != default_hash, 'fixed headroom changed no audio'
 
             accepted(run(sox, '--report', report, '--auto-headroom',
                          '--dsd-clip', 'error', hot, '-r', rate, output), 'auto strict')
             auto = encoders(report)
             assert all(int(e['clipped_interpolated_samples']) == 0 for e in auto)
+            assert all(e['clip_ceiling_applied'] is None for e in auto)
             cuts = [e['headroom_applied_db'] for e in auto]
             assert abs(cuts[0] - cuts[1]) < 1e-12, 'channels received different gains'
-            assert 0.01 < cuts[0] < 2., f'headroom was not minimal: {cuts}'
+            assert 0.01 < cuts[0] < 5., f'headroom was not minimal: {cuts}'
             peak = max(e['peak_modulator_input'] for e in auto)
-            assert abs(peak - 0.5) < 1e-9, f'measured cut was not tight: {peak}'
+            assert abs(peak - ceiling) < 1e-9, f'measured cut was not tight: {peak}'
             auto_hash = digest(output)
             accepted(run(sox, '--auto-headroom', '--dsd-clip', 'error',
                          hot, '-r', rate, output), 'auto without report')

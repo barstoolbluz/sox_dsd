@@ -240,6 +240,13 @@ check-dsd-loud-encode: all
 	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/test_loud_encode.py" \
 	  --sox "$(abs_builddir)/src/sox"
 
+# Long-running loud guard regression, deliberately opt-in rather than part
+# of the quick loud encode acceptance or unrelated legacy SoX tests.
+.PHONY: check-dsd-loud-guard
+check-dsd-loud-guard: all
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/test_loud_guard.py" \
+	  --sox "$(abs_builddir)/src/sox"
+
 # P00 and subsequent DSD phases use one runner and one named make target.
 # The original 'make check' target is unchanged.
 .PHONY: check-dsd

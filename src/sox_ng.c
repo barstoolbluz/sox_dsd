@@ -3384,7 +3384,7 @@ static void display_dsd_help(void)
        "  sox input.dsf -r 96k -b 24 output.wav  Set PCM output rate and depth\n"
        "  sox input.wav -r dsd128 output.dsf    Encode DSD128\n"
        "  sox --headroom 2 in.wav out.dsf      Cut encoder input by 2 dB\n"
-       "  sox --auto-headroom in.wav out.dsf   Measure and prevent interpolated overs\n"
+       "  sox --auto-headroom in.wav out.dsf   Measure and prevent encoder clipping\n"
        "  sox input.dsf output.dff               Repack native DSD bits\n"
        "  sox --dop input.dsf output.wav        Package DSD over PCM (24-bit)\n"
        "  sox --plan input.dsf output.wav       Inspect the processing graph\n"
@@ -3438,7 +3438,7 @@ static void usage(void)
 "--dsd-level preserve|sacd  Decoder level convention",
 "--dsd-clip warn|error    Warn/clip interpolated DSD overs (default) or refuse",
 "--headroom DB            Cut PCM-to-DSD level by DB (nonnegative dB, no normalization)",
-"--auto-headroom          Measure interpolated peak and cut only if needed (two passes)",
+"--auto-headroom          Measure peak and cut to warning ceiling (two passes)",
 "--dsd-bandwidth adapt|strict  PCM reconstruction passband policy",
 "--report PATH           Write a JSON conversion report (or - for stdout)",
 "--plan                  Show JSON conversion plan without creating audio",
