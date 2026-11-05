@@ -122,7 +122,8 @@ def main():
         p, out = encode('sq1k+3', 11289600, short,
                         options=('--headroom', '0'), duration=0.5)
         require_ok(p, 'zero headroom')
-        assert digest(out) == default_digest, 'zero headroom changed default bits'
+        assert digest(out) != default_digest, (
+            'explicit --headroom 0 must override the default constant gain')
 
         report = root / 'auto-report.json'
         p, out = encode('sq1k+3', 11289600, short,

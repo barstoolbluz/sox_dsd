@@ -14,6 +14,9 @@ from pathlib import Path
 import subprocess
 import tempfile
 import wave
+import struct
+from array import array
+import sys
 
 
 def fixture(path, hot):
@@ -66,6 +69,49 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def fullscale_sine(path):
+    """IEEE-754 WAV, stereo 1 kHz/44.1 kHz at 0.95 FS, without DSP clipping."""
+    hz, channels, frames = 44100, 2, 2 * 44100
+    pcm = bytearray()
+    for i in range(frames):
+        value = 0.95 * math.sin(2 * math.pi * 1000 * i / hz)
+        pcm.extend(struct.pack('<ff', value, value))
+    header = struct.pack('<4sI4s4sIHHIIHH4sI', b'RIFF', 36 + len(pcm),
+                         b'WAVE', b'fmt ', 16, 3, channels, hz,
+                         hz * channels * 4, channels * 4, 32,
+                         b'data', len(pcm))
+    path.write_bytes(header + pcm)
+
+
+def goertzel_amplitude(signal, frequency, hz=88200):
+    """Coherent, window-free harmonic measurement with no NumPy dependency."""
+    factor = 2 * math.cos(2 * math.pi * frequency / hz)
+    prev, before = 0.0, 0.0
+    for sample in signal:
+        prev, before = sample + factor * prev - before, prev
+    power = max(0.0, prev * prev + before * before - factor * prev * before)
+    return 2 * math.sqrt(power) / len(signal)
+
+
+def decoded_thd(sox, dsd, raw):
+    accepted(run(sox, dsd, '-r', '88200', '-c', '1',
+                 '-e', 'floating-point', '-b', '64', '-L', '-t', 'f64', raw),
+             'DSD reconstruction for THD')
+    samples = array('d')
+    samples.frombytes(raw.read_bytes())
+    if sys.byteorder != 'little':
+        samples.byteswap()
+    # Exclude transition and EOF tails; 1.5 seconds contains 1,500 cycles.
+    segment = samples[88200 // 4:7 * 88200 // 4]
+    assert len(segment) == 132300
+    fundamental = goertzel_amplitude(segment, 1000)
+    harmonics = [goertzel_amplitude(segment, 1000 * h)
+                 for h in range(2, 20)]
+    thd_db = 10 * math.log10(sum(h * h for h in harmonics) /
+                             (fundamental * fundamental))
+    return fundamental, thd_db
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sox', type=Path, required=True)
@@ -91,15 +137,23 @@ def main():
             assert planned['policy']['headroom_mode'] == 'auto'
             assert planned['policy']['headroom_db'] is None
             assert planned['encoder']['warning_clip_ceiling'] == ceiling
+            assert planned['encoder']['planned_linear_gain'] is None
+            default_plan = json.loads(accepted(run(sox, '--plan', hot, '-r',
+                                                   rate, output), 'default plan').stdout)
+            expected_gain = 1.0 if native == 64 else 0.9
+            assert abs(default_plan['encoder']['planned_linear_gain'] -
+                       expected_gain) < 1e-14
             strict_plan = json.loads(accepted(run(sox, '--plan', '--dsd-clip',
                                                 'error', hot, '-r', rate, output),
                                               'strict plan').stdout)
             assert strict_plan['encoder']['warning_clip_ceiling'] is None
+            assert strict_plan['encoder']['planned_linear_gain'] == 1
             unavailable = json.loads(accepted(run(sox, '--plan', '--encode',
                                                   'legacy', hot, '-r', rate,
                                                   output), 'legacy plan').stdout)
             assert not unavailable['executable']
             assert unavailable['encoder']['warning_clip_ceiling'] is None
+            assert unavailable['encoder']['planned_linear_gain'] is None
             assert not output.exists(), '--plan opened an audio output'
 
             default = accepted(run(sox, hot, '-r', rate, output), 'default warn')
@@ -112,13 +166,20 @@ def main():
                        for e in record['processing']['encoder']]
             assert all(e['clip_ceiling_applied'] == ceiling
                        for e in record['processing']['encoder'])
+            expected_db = -20 * math.log10(expected_gain)
+            assert all(abs(e['headroom_applied_db'] - expected_db) < 1e-12
+                       for e in record['processing']['encoder'])
             assert clipped[0] > 0 and clipped[1] == 0, clipped
             assert int(record['clipping']['encoder_interpolation']) == sum(clipped)
             assert any('interpolation clipped' in w for w in record['warnings'])
             assert digest(output) == default_hash, 'report changed default clipping'
             accepted(run(sox, '--headroom', '0', hot, '-r', rate, output),
                      'zero fixed headroom')
-            assert digest(output) == default_hash, '--headroom 0 changed the audio'
+            if native == 64:
+                assert digest(output) == default_hash
+            else:
+                assert digest(output) != default_hash, \
+                    '--headroom 0 must override implicit default attenuation'
             assert declined(run(sox, '--dsd-clip', 'error', hot, '-r', rate,
                                 output), 'strict').returncode == 2
             assert not output.exists(), 'failed strict conversion left a partial file'
@@ -147,6 +208,28 @@ def main():
             assert digest(output) == auto_hash, 'report changed headroom audio'
             assert digest(hot) == source_hash, 'scanning modified the input'
             print(f'PASS DSD{native}: clip/warn, refusal, fixed, stereo measured, report invariance')
+
+        # D-01: previously the 0.45 hard limit clipped ~21% of native
+        # samples of this perfectly valid 0.95-FS sine and generated about
+        # -34 dBc THD. A constant linear default gain must preserve its
+        # waveform, at the cost of a clearly reported 0.915 dB level cut.
+        sine = root/'sine-0.95.wav'
+        fullscale_sine(sine)
+        for native in (128, 256):
+            rate = f'dsd{native}'
+            output = root/f'sine-{native}.dsf'
+            report = root/f'sine-{native}.json'
+            accepted(run(sox, '--report', report, sine, '-r', rate, output),
+                     f'DSD{native} fullscale sine')
+            enc = encoders(report)
+            assert all(int(e['clipped_interpolated_samples']) == 0 for e in enc)
+            assert all(abs(e['headroom_applied_db'] + 20 * math.log10(0.9)) < 1e-12
+                       for e in enc)
+            fundamental, distortion = decoded_thd(sox, output, root/'sine.f64')
+            assert 0.42 < fundamental < 0.435, fundamental
+            assert distortion < -100, f'DSD{native} THD {distortion:.1f} dBc'
+            print(f'PASS DSD{native} legal 0.95-FS sine: '
+                  f'0 clips, THD {distortion:.1f} dBc')
 
         output = root/'quiet.dsf'
         accepted(run(sox, quiet, output), 'quiet ordinary')
