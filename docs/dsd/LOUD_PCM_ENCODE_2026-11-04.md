@@ -10,6 +10,8 @@ fidelity correction also applies a default constant 0.9 gain at DSD128/256;
 explicit headroom and strict mode do not inherit that gain. See
 [the loud guard corrective](LOUD_GUARD_CORRECTIVE_2026-11-05.md) and
 [the D-01 fidelity corrective](LOUD_GUARD_D01_FIDELITY_CORRECTIVE_2026-11-05.md).
+A later change the same day extended the 0.45 ceiling and the 0.9 default gain
+to every DSD rate (see the D-01 record).
 
 ## Decision and scope
 

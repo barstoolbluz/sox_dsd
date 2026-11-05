@@ -3,6 +3,12 @@
 Base: `cli-legacy-route-corrective` at `580f930` (first loud-guard
 corrective). This is a follow-on correction, not a modulator redesign.
 
+**Update (2026-11-05):** the 0.45 ceiling and the 0.9 default gain described
+below for DSD128/256 now apply at every DSD rate, so the default behaves the
+same at all clocks. Failures were observed only at DSD128/256; DSD64 uses the
+same modulator and DSD512/1024 a different one, and neither has been shown to
+be immune. At DSD512/1024 the ceiling is a margin, not a measured limit.
+
 ## Confirmed defect
 
 At DSD128/256, a 0.95-FS, 1 kHz PCM sine has reconstructed peak about 0.475

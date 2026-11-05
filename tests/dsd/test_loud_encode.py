@@ -125,10 +125,10 @@ def main():
         fixture(quiet, False)
         source_hash = digest(hot)
         for native in (64, 128, 256):
-            # The two stressed mastering-v1 clocks use a lower default
-            # clipping ceiling; measured headroom targets the same value.
-            ceiling = 0.5 if native == 64 else 0.45
-            fixed_db = 2 if native == 64 else 4
+            # Every clock uses the same lower default clipping ceiling;
+            # measured headroom targets the same value.
+            ceiling = 0.45
+            fixed_db = 4
             output = root / f'out-{native}.dsf'
             report = root / 'run.json'
             rate = f'dsd{native}'
@@ -140,7 +140,7 @@ def main():
             assert planned['encoder']['planned_linear_gain'] is None
             default_plan = json.loads(accepted(run(sox, '--plan', hot, '-r',
                                                    rate, output), 'default plan').stdout)
-            expected_gain = 1.0 if native == 64 else 0.9
+            expected_gain = 0.9
             assert abs(default_plan['encoder']['planned_linear_gain'] -
                        expected_gain) < 1e-14
             strict_plan = json.loads(accepted(run(sox, '--plan', '--dsd-clip',
@@ -175,11 +175,8 @@ def main():
             assert digest(output) == default_hash, 'report changed default clipping'
             accepted(run(sox, '--headroom', '0', hot, '-r', rate, output),
                      'zero fixed headroom')
-            if native == 64:
-                assert digest(output) == default_hash
-            else:
-                assert digest(output) != default_hash, \
-                    '--headroom 0 must override implicit default attenuation'
+            assert digest(output) != default_hash, \
+                '--headroom 0 must override implicit default attenuation'
             assert declined(run(sox, '--dsd-clip', 'error', hot, '-r', rate,
                                 output), 'strict').returncode == 2
             assert not output.exists(), 'failed strict conversion left a partial file'
@@ -209,13 +206,21 @@ def main():
             assert digest(hot) == source_hash, 'scanning modified the input'
             print(f'PASS DSD{native}: clip/warn, refusal, fixed, stereo measured, report invariance')
 
+        # The high clocks use another modulator but the same default policy.
+        for native in (512, 1024):
+            plan = json.loads(accepted(run(sox, '--plan', hot, '-r', f'dsd{native}',
+                                           root/'high.dsf'), 'high plan').stdout)
+            assert plan['encoder']['warning_clip_ceiling'] == 0.45
+            assert abs(plan['encoder']['planned_linear_gain'] - 0.9) < 1e-14
+        print('PASS DSD512/1024 plans: same default ceiling and gain')
+
         # D-01: previously the 0.45 hard limit clipped ~21% of native
         # samples of this perfectly valid 0.95-FS sine and generated about
         # -34 dBc THD. A constant linear default gain must preserve its
         # waveform, at the cost of a clearly reported 0.915 dB level cut.
         sine = root/'sine-0.95.wav'
         fullscale_sine(sine)
-        for native in (128, 256):
+        for native in (64, 128, 256):
             rate = f'dsd{native}'
             output = root/f'sine-{native}.dsf'
             report = root/f'sine-{native}.json'
@@ -231,8 +236,9 @@ def main():
             print(f'PASS DSD{native} legal 0.95-FS sine: '
                   f'0 clips, THD {distortion:.1f} dBc')
 
+        # Unity gain is the reference: the plain default always cuts 0.9.
         output = root/'quiet.dsf'
-        accepted(run(sox, quiet, output), 'quiet ordinary')
+        accepted(run(sox, '--headroom', '0', quiet, output), 'quiet unity')
         baseline = digest(output)
         accepted(run(sox, '--report', root/'quiet.json', '--auto-headroom',
                      quiet, output), 'quiet measured')
