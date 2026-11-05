@@ -21,6 +21,14 @@
 
 #define PCMDSD_BATCH 256
 #define PCMDSD_NATIVE_BATCH 512
+/* The original 0.5 reference-scale limit is an interpolation overload
+ * limit, not a promise of sustained stability for the P10 v1 modulator.
+ * Only the two affected v1 rates use a lower warn-and-clip ceiling;
+ * strict/qualification paths retain their original input and guards. */
+double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz)
+{
+  return native_hz==5644800 || native_hz==11289600 ? .45 : .5;
+}
 /* qualified=1 as of 2026-10-20: the design authority recorded its P15
  * engineering acceptance on 2026-10-19 and withdrew the outstanding
  * formal-proof obligation as a release blocker. Coefficients, guards and
@@ -61,7 +69,7 @@ static const lsx_pcmdsd_profile profiles[] = {
 struct lsx_pcmdsd {
   const lsx_pcmdsd_profile *profile;
   uint32_t input_hz;
-  double scale, gain, envelope, bounds[8];
+  double scale, gain, envelope, clip_ceiling, bounds[8];
   int clip_overload, peak_only;
   unsigned guarded, finishing, done, source_done;
   lsx_rate_f64_t *source, *interpolator;
@@ -93,7 +101,12 @@ void lsx_pcmdsd_observe(lsx_pcmdsd *p, lsx_pcmdsd_stage_observer callback, void 
   if (p) {p->observer=callback;p->observer_opaque=opaque;}
 }
 void lsx_pcmdsd_set_clip(lsx_pcmdsd *p, int warn_and_clip)
-{ if (p) p->clip_overload=!!warn_and_clip; }
+{
+  if (p) {
+    p->clip_overload=!!warn_and_clip;
+    p->report.clip_ceiling_applied=p->clip_overload?p->clip_ceiling:0.;
+  }
+}
 void lsx_pcmdsd_set_gain(lsx_pcmdsd *p, double attenuation)
 {
   if (p && isfinite(attenuation) && attenuation>0 && attenuation<=1) {
@@ -178,6 +191,7 @@ sox_dsd_status_t lsx_pcmdsd_candidate_create(uint32_t source_hz,
   p->input_hz=source_hz;
   p->scale=scale;
   p->gain=1.;
+  p->clip_ceiling=lsx_pcmdsd_warn_clip_ceiling(native_hz);
   /* Two SOURCE int32 LSBs in normalized PCM, mapped by the resolved scale. */
   p->envelope=.5+scale*(2./SOX_SAMPLE_MAX);
   p->guarded=bounds!=NULL;
@@ -338,8 +352,9 @@ static sox_dsd_status_t pump(lsx_pcmdsd *p,const double *input,size_t *input_n,
          * amplitude condition. Keep certified SDM state/nonfinite guards
          * fail-closed. Core clients stay strict unless the CLI enables it. */
         if (p->clip_overload && !p->peak_only)
-          for (j=0;j<got;++j) if (isfinite(native[j]) && fabs(native[j])>.5) {
-            native[j]=copysign(.5,native[j]);
+          for (j=0;j<got;++j) if (isfinite(native[j]) &&
+              fabs(native[j])>p->clip_ceiling) {
+            native[j]=copysign(p->clip_ceiling,native[j]);
             if (p->report.clipped_native_samples<UINT64_MAX)
               ++p->report.clipped_native_samples;
           }
@@ -581,7 +596,10 @@ static int start_headroom_replay(sox_effect_t *e)
   }
   /* Use the measured peak after BOTH SRC stages and the FIR. The tiny
    * round-off allowance is < 1e-10 dB, not arbitrary programme headroom. */
-  gain=peak>.5 ? (.5*(1.-1e-12))/peak : 1.;
+  {
+    double ceiling=lsx_pcmdsd_warn_clip_ceiling(((lsx_pcmdsd_private *)first->priv)->options.rate_hz);
+    gain=peak>ceiling ? (ceiling*(1.-1e-12))/peak : 1.;
+  }
   lsx_report("pcmdsd: measured interpolated peak %.12g; headroom cut %.9g dB across %u channel(s)",
       peak,-20.*log10(gain),e->flows);
   for (i=0;i<e->flows;i++) {
@@ -708,7 +726,8 @@ int lsx_pcmdsd_stop(sox_effect_t *e)
   }
   if (p->scan_file) {lsx_close_tmpfile(p->scan_file);p->scan_file=NULL;}
   if (r.clipped_native_samples)
-    lsx_warn("clipped %" PRIu64 " interpolated samples on channel %u; use --headroom DB or --auto-headroom to avoid clipping",
-        r.clipped_native_samples,(unsigned)e->flow+1);
+    lsx_warn("clipped %" PRIu64 " interpolated samples on channel %u at %.3g modulator ceiling; use --headroom DB or --auto-headroom to avoid clipping",
+        r.clipped_native_samples,(unsigned)e->flow+1,
+        lsx_pcmdsd_warn_clip_ceiling(p->options.rate_hz));
   return SOX_SUCCESS;
 }

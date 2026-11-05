@@ -894,7 +894,18 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
       p->decoder_gain,p->decoder_pass_hz,p->decoder_stop_hz,p->decoder_intermediate_hz,p->effective_bandwidth_hz);
   fprintf(fp,"  \"encoder\": {\"id\": ");
   if (p->encoder_id) json_string(fp,p->encoder_id); else fputs("null",fp);
-  fprintf(fp,", \"modulator_input_scale\": %.17g, \"lowlevel_filter\": ",p->modulator_input_scale);
+  fprintf(fp,", \"modulator_input_scale\": %.17g, \"warning_clip_ceiling\": ",p->modulator_input_scale);
+  {
+    const lsx_pcmdsd_profile *enc=p->native_output_hz?
+        lsx_pcmdsd_profile_find(p->native_output_hz):NULL;
+    /* A nonexecutable legacy/experimental plan must not advertise an
+     * applied mastering ceiling merely because its native rate is supported. */
+    if (enc && enc->qualified && p->encoder_id &&
+        !strcmp(enc->id,p->encoder_id) && spec->policy.clip==LSX_DSD_CLIP_WARN)
+      fprintf(fp,"%.17g",lsx_pcmdsd_warn_clip_ceiling(p->native_output_hz));
+    else fputs("null",fp);
+  }
+  fputs(", \"lowlevel_filter\": ",fp);
   /* Current low-level SDM/dither filters have no certified mastering ID. */
   if (p->encoder_filter_name) json_string(fp,p->encoder_filter_name);
   else fputs("null",fp);

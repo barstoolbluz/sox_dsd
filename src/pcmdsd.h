@@ -31,6 +31,8 @@ typedef struct {
    * A retry with exactly this attenuation is not guaranteed to succeed. */
   double peak, failure_value, minimum_attenuation_db, effective_pass_hz;
   double applied_headroom_db;
+  /* Selected only for the CLI warn-and-clip path; zero means strict/no clip. */
+  double clip_ceiling_applied;
   lsx_pcmdsd_failure failure;
   sdm_normal_monitor_t monitor;
 } lsx_pcmdsd_report;
@@ -48,6 +50,7 @@ typedef void (*lsx_pcmdsd_stage_observer)(void *opaque, lsx_pcmdsd_stage,
 void lsx_pcmdsd_observe(lsx_pcmdsd *, lsx_pcmdsd_stage_observer, void *opaque);
 /* Effect-only controls. Core qualification callers retain strict overload
  * refusal and exact unmodified modulation unless they opt in. */
+double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz);
 void lsx_pcmdsd_set_clip(lsx_pcmdsd *, int warn_and_clip);
 void lsx_pcmdsd_set_gain(lsx_pcmdsd *, double attenuation);
 void lsx_pcmdsd_set_peak_scan(lsx_pcmdsd *);
