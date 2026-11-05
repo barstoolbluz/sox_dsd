@@ -1521,9 +1521,8 @@ mode applies a factor of two (+6.0206 dB).  Neither normalizes audio.
 Choose warning and clipping (default), or fatal rejection, for
 reconstructed PCM graph-boundary overshoots and interpolated PCM-to-DSD
 modulator input overshoots.  In warning mode, the mastering encoder
-applies a fixed 0.9 linear gain (-0.91515 dB) at DSD128/256 before
-clamping residual interpolated peaks above 0.45; at DSD64/512/1024 it
-uses unity gain and a 0.5 clipping ceiling.  Clipped native samples are
+applies a fixed 0.9 linear gain (-0.91515 dB) at every DSD rate before
+clamping residual interpolated peaks above 0.45.  Clipped native samples are
 counted and warned about.  The default cut protects normal PCM from
 hard-clipping at the lowered ceiling but changes level even on quiet
 programmes.  This is a constant linear attenuation, not a time-varying
@@ -1537,10 +1536,11 @@ decibel amount (0 through 120), at the interpolated modulator input.
 For example,
 .B --headroom 2
 cuts exactly 2 dB.  Explicit fixed headroom replaces the default
-0.91515 dB attenuation at DSD128/256 rather than adding to it.
+0.91515 dB attenuation rather than adding to it.
 .B --headroom 0
-requests unity gain and may therefore change DSD128/256 output compared
-to the implicit default.  This is not normalization and never changes
+requests unity gain and may therefore change output compared to the
+implicit default.  A cut below 0.91515 dB may clip the loudest peaks at
+the 0.45 ceiling, with a warning.  This is not normalization and never changes
 input files.  It is not available for PCM-only
 processing, bit-preserving DSD repacks, or low-level
 .B sdm
@@ -1549,8 +1549,7 @@ modulation.
 .B \-\-auto\-headroom
 Scan the full interpolated PCM-to-DSD signal (including the filter
 tail), then apply the smallest common attenuation that keeps all
-channels inside the rate-dependent warning ceiling (0.45 at
-DSD128/256, 0.5 at DSD64/512/1024).  Does not amplify quiet inputs.
+channels inside the 0.45 warning ceiling.  Does not amplify quiet inputs.
 The scan stores PCM-rate samples in a temporary file;
 expect two interpolation passes, extra disk I/O, and a delay before
 DSD output begins.  Works with non-seekable input such as pipes.

@@ -30,7 +30,7 @@ RECIPES = {
     'sq100-3': ('square', '100', 'norm', '-3'),
 }
 RATES = (2822400, 5644800, 11289600)
-CLIP_CEILING = {2822400: 0.5, 5644800: 0.45, 11289600: 0.45}
+CLIP_CEILING = dict.fromkeys(RATES, 0.45)
 FIELDS = ('signal', 'rate', 'duration_s', 'mode', 'exit', 'clipped', 'seconds')
 
 

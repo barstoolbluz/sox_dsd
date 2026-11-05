@@ -35,12 +35,12 @@ selectable. To ask for v1 explicitly:
       input.dsf -r 176400 -b 24 output.wav
 
 Loud PCM masters may exceed full scale *between* samples. By default the
-PCM-to-DSD encoder clips residual interpolated overloads and warns. For
-DSD128/256 it also applies a constant **0.9 linear gain (-0.91515 dB)** to
-avoid distorting otherwise legal PCM with the lower 0.45 modulator ceiling;
-DSD64/512/1024 retain unity gain and a 0.5 ceiling. This fast default changes
-output level even for quiet signals. `--headroom DB` selects an explicit fixed
-cut instead (including `--headroom 0`, which disables the implicit cut);
+PCM-to-DSD encoder clips residual interpolated overloads and warns. At every
+DSD rate it also applies a constant **0.9 linear gain (-0.91515 dB)** to
+avoid distorting otherwise legal PCM with the lower 0.45 modulator ceiling.
+This fast default changes output level even for quiet signals. `--headroom DB`
+selects an explicit fixed cut instead (including `--headroom 0`, which
+disables the implicit cut; cuts below 0.91515 dB may clip the loudest peaks);
 `--auto-headroom` measures the complete interpolated peak and applies the
 smallest common cut without clipping. `--dsd-clip error` retains strict,
 unattenuated overload refusal. `--plan` and `--report` disclose the applied gain.

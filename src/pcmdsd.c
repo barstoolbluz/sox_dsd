@@ -23,17 +23,20 @@
 #define PCMDSD_NATIVE_BATCH 512
 /* The original 0.5 reference-scale limit is an interpolation overload
  * limit, not a promise of sustained stability for the P10 v1 modulator.
- * Only the two affected v1 rates use a lower warn-and-clip ceiling;
- * strict/qualification paths retain their original input and guards. */
+ * Sustained loud input tripped the state guard at DSD128/256; every rate
+ * uses the same lower warn-and-clip ceiling so the default behaves alike
+ * at all clocks.  Strict/qualification paths retain their original input
+ * and guards. */
 double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz)
 {
-  return native_hz==5644800 || native_hz==11289600 ? .45 : .5;
+  (void)native_hz;
+  return .45;
 }
 /* A one-pass stream has no programme-wide interpolated peak available before
- * it commits DSD decisions.  For the two affected rates use a constant linear
- * gain rather than deforming valid PCM samples at the lower clipping limit.
- * The residual clip-and-warn path still handles larger overshoots.  This
- * gain is specific to the implicit default, not an explicit --headroom cut. */
+ * it commits DSD decisions.  Use a constant linear gain rather than deforming
+ * valid PCM samples at the lower clipping limit.  The residual clip-and-warn
+ * path still handles larger overshoots.  This gain is specific to the
+ * implicit default, not an explicit --headroom cut. */
 double lsx_pcmdsd_default_warn_gain(uint32_t native_hz)
 {
   return lsx_pcmdsd_warn_clip_ceiling(native_hz)/.5;
