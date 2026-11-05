@@ -29,6 +29,15 @@ double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz)
 {
   return native_hz==5644800 || native_hz==11289600 ? .45 : .5;
 }
+/* A one-pass stream has no programme-wide interpolated peak available before
+ * it commits DSD decisions.  For the two affected rates use a constant linear
+ * gain rather than deforming valid PCM samples at the lower clipping limit.
+ * The residual clip-and-warn path still handles larger overshoots.  This
+ * gain is specific to the implicit default, not an explicit --headroom cut. */
+double lsx_pcmdsd_default_warn_gain(uint32_t native_hz)
+{
+  return lsx_pcmdsd_warn_clip_ceiling(native_hz)/.5;
+}
 /* qualified=1 as of 2026-10-20: the design authority recorded its P15
  * engineering acceptance on 2026-10-19 and withdrew the outstanding
  * formal-proof obligation as a release blocker. Coefficients, guards and
@@ -483,7 +492,10 @@ static int effect_start(sox_effect_t *e,int candidate)
     return SOX_EOF;
   }
   p->applied_gain=p->options.headroom==LSX_DSD_HEADROOM_FIXED?
-      pow(10.,-p->options.headroom_db/20.):1.;
+      pow(10.,-p->options.headroom_db/20.):
+      !candidate && p->options.headroom==LSX_DSD_HEADROOM_NONE &&
+      p->options.clip==LSX_DSD_CLIP_WARN?
+      lsx_pcmdsd_default_warn_gain(profile->native_hz):1.;
   if (p->options.headroom==LSX_DSD_HEADROOM_AUTO && !candidate) {
     p->scan_file=lsx_tmpfile();
     if (!p->scan_file) {

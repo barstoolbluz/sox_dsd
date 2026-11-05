@@ -905,6 +905,20 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
       fprintf(fp,"%.17g",lsx_pcmdsd_warn_clip_ceiling(p->native_output_hz));
     else fputs("null",fp);
   }
+  fputs(", \"planned_linear_gain\": ",fp);
+  {
+    const lsx_pcmdsd_profile *enc=p->native_output_hz?
+        lsx_pcmdsd_profile_find(p->native_output_hz):NULL;
+    if (!enc || !enc->qualified || !p->encoder_id ||
+        strcmp(enc->id,p->encoder_id) || !p->executable ||
+        spec->policy.headroom==LSX_DSD_HEADROOM_AUTO)
+      fputs("null",fp);
+    else if (spec->policy.headroom==LSX_DSD_HEADROOM_FIXED)
+      fprintf(fp,"%.17g",pow(10.,-spec->policy.headroom_db/20.));
+    else if (spec->policy.clip==LSX_DSD_CLIP_WARN)
+      fprintf(fp,"%.17g",lsx_pcmdsd_default_warn_gain(p->native_output_hz));
+    else fputs("1",fp);
+  }
   fputs(", \"lowlevel_filter\": ",fp);
   /* Current low-level SDM/dither filters have no certified mastering ID. */
   if (p->encoder_filter_name) json_string(fp,p->encoder_filter_name);
