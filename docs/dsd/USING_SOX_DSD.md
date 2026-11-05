@@ -59,8 +59,8 @@ must also support the request.
 
 PCM samples below 0 dBFS can overshoot **between** samples after the
 qualified reconstruction/interpolation stages. Plain `sox in.wav out.dsf`
-now clips only these interpolated peaks to the mastering encoder's safe
-modulator-input envelope and **warns with the number of clipped samples**.
+now clips only these interpolated peaks to the mastering encoder's
+rate-dependent warning ceiling and **warns with the number of clipped samples**.
 The underlying finite-state/numerical safety checks remain active.
 
 ```sh
@@ -70,7 +70,7 @@ sox loud.wav -r dsd128 loud.dsf
 # Fixed 2 dB cut before modulation. No scan, no automatic normalization.
 sox --headroom 2 loud.wav -r dsd128 reduced.dsf
 
-# Measure the full interpolated peak and cut just enough to fit the envelope.
+# Measure the full interpolated peak and cut to the rate's clipping ceiling.
 sox --auto-headroom loud.wav -r dsd128 measured.dsf
 
 # Alternatively, reject an over-limit peak instead of clipping it.
@@ -85,8 +85,12 @@ sox --dsd-clip error --auto-headroom --report encode.json \
 not a signed gain: `--headroom 2` means a 2 dB cut. `--auto-headroom`
 measures the actual source-rate conversion, prefilter, final interpolation
 and its finite tail. It applies **one shared attenuation across all channels**,
-without boosting quiet audio. If nothing exceeds the modulation envelope,
-the DSD output remains identical to a plain conversion. The two choices
+without boosting quiet audio. The limit is 0.45 for DSD128/256 and 0.5 for
+DSD64/512/1024 (in modulator units, with 0.5 corresponding to 0 dBFS).
+The DSD output remains identical to a plain conversion when neither needs
+clipping. A loud track can reach the lower ceiling even when its interpolated
+peak is below 0 dBFS; using automatic headroom avoids hard clipping at that
+ceiling. The two choices
 cannot be combined. Both work with an explicit `pcmdsd` effect, and both
 leave native DSD bit-preserving repacks and PCM-only operations unchanged
 (the flags are rejected when no composite encoder is present).
@@ -95,11 +99,13 @@ Automatic measurement uses a PCM-rate temporary file to handle long
 programmes and non-seekable inputs without storing them in memory. It runs
 the interpolation twice, uses more disk space/I/O, and takes longer than
 one-pass encoding. It does **not** silently substitute a different SDM
-profile. The `--plan` policy names the selected mode, while `--report`
-records `headroom_applied_db` and `clipped_interpolated_samples` for each
-executed encoder channel, as well as an `encoder_interpolation` clipping
-aggregate and a report warning when clipping occurs. A strict-mode failure removes a partial regular
-output file. The other numeric and state bounds still apply in every mode.
+profile. The `--plan` policy names the selected mode and
+`encoder.warning_clip_ceiling`, while `--report` records
+`clip_ceiling_applied`, `headroom_applied_db`, and
+`clipped_interpolated_samples` for each executed encoder channel, as well as an
+`encoder_interpolation` clipping aggregate and a report warning when clipping
+occurs. A strict-mode failure removes a partial regular output file. The other
+numeric and state bounds still apply in every mode.
 
 ## Native DSD versus processing
 
@@ -214,9 +220,9 @@ For encoding, `--encode mastering` selects the qualified mastering-v1
 modulator for DSD64/128/256 and qualified mastering-v2 CLANS-7 for
 DSD512/1024. A mismatched version-pinned native bit clock causes an error.
 Unsupported or unqualified legacy composite profiles do not acquire
-qualification through these selectors. Only interpolated input-level
-overshoots use the default clip-and-warn policy; nonfinite samples and
-modulator-state guard failures still stop the conversion. Use
+qualification through these selectors. Only interpolated samples above the warning ceiling are clipped;
+nonfinite samples and modulator-state guard failures still stop the
+conversion. At DSD128/256 that ceiling is below the strict 0.5 envelope. Use
 `--dsd-clip error` to turn input-level overshoots into fatal errors, or
 `--headroom` / `--auto-headroom` to avoid clipping without modifying the
 mastering profile. See [Loud PCM masters](#loud-pcm-masters-clipping-and-headroom).

@@ -1521,9 +1521,12 @@ mode applies a factor of two (+6.0206 dB).  Neither normalizes audio.
 Choose warning and clipping (default), or fatal rejection, for
 reconstructed PCM graph-boundary overshoots and interpolated PCM-to-DSD
 modulator input overshoots.  In warning mode, the mastering encoder
-clamps only the over-limit interpolated samples to its qualified 0.5
-input envelope and reports their count.  Nonfinite samples and
-modulator-state guard violations remain fatal in either mode.
+clamps interpolated samples above 0.45 at DSD128/256 and above 0.5 at
+DSD64/512/1024, then reports their count.  The lower ceiling reduces
+sustained state-guard failures at the two affected v1 rates; clipping
+can occur below the strict 0.5 interpolation-overload threshold.
+Nonfinite samples and modulator-state guard violations remain fatal
+in either mode.
 .TP
 .B \-\-headroom DB
 For PCM-to-DSD encoding, cut the level by the specified nonnegative
@@ -1539,8 +1542,9 @@ modulation.
 .B \-\-auto\-headroom
 Scan the full interpolated PCM-to-DSD signal (including the filter
 tail), then apply the smallest common attenuation that keeps all
-channels inside the 0.5 modulator-input envelope.  Does not amplify
-quiet inputs.  The scan stores PCM-rate samples in a temporary file;
+channels inside the rate-dependent warning ceiling (0.45 at
+DSD128/256, 0.5 at DSD64/512/1024).  Does not amplify quiet inputs.
+The scan stores PCM-rate samples in a temporary file;
 expect two interpolation passes, extra disk I/O, and a delay before
 DSD output begins.  Works with non-seekable input such as pipes.
 May be combined with

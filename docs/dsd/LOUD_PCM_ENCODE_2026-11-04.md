@@ -3,6 +3,12 @@
 Source baseline: branch `cli-legacy-route-corrective`, commit `a547e6a`.
 See [Using SoX DSD](USING_SOX_DSD.md) for the user interface.
 
+**Update (2026-11-05):** The original 0.5 clip ceiling and auto-headroom
+formula recorded below are historical. The DSD128/256 warning ceilings
+were changed to 0.45 after sustained state-guard failures. See
+[the loud guard corrective](LOUD_GUARD_CORRECTIVE_2026-11-05.md) for current
+behavior and the independent reproduction.
+
 ## Decision and scope
 
 * The normal composite encoder accepts finite inter-sample PCM overshoots,
