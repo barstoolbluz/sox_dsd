@@ -1,7 +1,7 @@
 # SoX DSD CLI redesign: design and verification
 
 Implementation date: November 2, 2026. Authoritative starting revision:
-`c5f468e` (SoX DSD 1.0.4 snapshot). This file documents the actual
+`ddc03469e` (SoX DSD 1.0.4). This file documents the actual
 implementation, not a proposed interface.
 
 ## Design decisions

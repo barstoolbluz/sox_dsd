@@ -1,6 +1,6 @@
 # Loud PCM-to-DSD encoding: implementation record (2026-11-04)
 
-Source baseline: branch `cli-legacy-route-corrective`, commit `a547e6a`.
+Source baseline: commit `179b434ad`.
 See [Using SoX DSD](USING_SOX_DSD.md) for the user interface.
 
 **Update (2026-11-05):** The original 0.5 clip ceiling and auto-headroom

@@ -2,7 +2,7 @@
 
 ## Provenance and scope
 
-- Parent: `4e92201`, on branch `cli-legacy-route-corrective`.
+- Parent: `63ac63f07`.
 - Authoritative reproduction package: `SoX_DSD_CLI_Checks_2026-11-02.tar.zst`.
 - This corrective uses the existing command parser, DSD planner, `dsdpcm`
   effect, format handlers and numerical profiles. It changes no DSP algorithm,

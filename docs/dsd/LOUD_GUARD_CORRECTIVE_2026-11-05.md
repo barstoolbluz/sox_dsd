@@ -10,7 +10,7 @@ original reproduction record; see
 for current default behavior and new test results. Bit identity claims below
 refer to the first corrective, not the follow-on default-gain change.
 
-Base: `cli-legacy-route-corrective` at `3ed2434`. Source evidence:
+Base: `0dd7ad224`. Source evidence:
 `SoX_DSD_Loud_Guard_2026-11-04.tar.zst`, including
 `observed/synth_guard.sh`, `observed/synth/results.tsv`, and the historical
 1.0.4 comparison. This is a release-scoped 1.0.x corrective, not a new
@@ -45,15 +45,15 @@ nor any dynamically state-dependent processing is hidden in default mode.
 ## Independently reproduced observations
 
 The supplied `observed/synth_guard.sh` was run against the original
-`3ed2434` and the historical base (the Git bundle's release ancestor
-`fd6ca68`). All seven generated input WAV SHA-256 digests matched the
+`0dd7ad224` and the historical base (the SoX DSD 1.0.4 release
+`ddc03469e`). All seven generated input WAV SHA-256 digests matched the
 supplied receipts. The synthetic matrix comprised seven deterministic
 stereo signals, three native rates, and four configurations, i.e. **84
 runs**. The initial command started 84 conversions simultaneously and
 the container OOM-killed ten baseline runs. Repeating those ten serially
 produced **84/84 identical exit statuses, clip counts and failure
 messages** relative to `observed/synth/results.tsv`. The seven default
-`3ed2434` failures also occurred at the **same native frame indices**.
+`0dd7ad224` failures also occurred at the **same native frame indices**.
 An exit 137 caused by host memory contention must not be classified as an
 encoder failure.
 
@@ -85,12 +85,12 @@ On the **0.45 corrective**:
   with strict mode avoids clipping and applies the same attenuation to all
   channels.
 - Ten deliberately non-clipping or strict/attenuated conversion cases were
-  compared byte-for-byte to a **separate rebuild of `3ed2434`**: PCM-only,
+  compared byte-for-byte to a **separate rebuild of `0dd7ad224`**: PCM-only,
   quiet PCM at all five DSD rates, loud DSD64, and attenuated/strict DSD128
   and DSD256. All ten complete output files had identical SHA-256 hashes.
 
 The archive reports six state-guard failures among **1,200 real-track
-conversions** on `3ed2434`. The corresponding recordings were not supplied,
+conversions** on `0dd7ad224`. The corresponding recordings were not supplied,
 so their corrected outputs could **not** be independently tested; the
 supplied TSV receipts are historical observations only.
 

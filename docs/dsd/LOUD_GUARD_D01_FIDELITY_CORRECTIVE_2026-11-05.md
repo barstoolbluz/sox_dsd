@@ -1,6 +1,6 @@
 # Loud guard D-01: prevent default clipping distortion (2026-11-05)
 
-Base: `cli-legacy-route-corrective` at `580f930` (first loud-guard
+Base: `aca194d6d` (first loud-guard
 corrective). This is a follow-on correction, not a modulator redesign.
 
 **Update (2026-11-05):** the 0.45 ceiling and the 0.9 default gain described
@@ -13,10 +13,10 @@ be immune. At DSD512/1024 the ceiling is a margin, not a measured limit.
 
 At DSD128/256, a 0.95-FS, 1 kHz PCM sine has reconstructed peak about 0.475
 in reference-0.5 units. The previous default clipped every native sample
-above 0.45 even though the original `3ed2434` could encode the signal
+above 0.45 even though the original `0dd7ad224` could encode the signal
 without clipping. The independent audit measured ~21% clipped native samples
 and -33.8 dBc THD in the default DSD128/256 output, against ~-155 dBc
-on `3ed2434`. This is a real audio-fidelity regression.
+on `0dd7ad224`. This is a real audio-fidelity regression.
 
 ## Revised one-pass policy
 
