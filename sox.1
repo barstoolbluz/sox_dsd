@@ -1521,20 +1521,27 @@ mode applies a factor of two (+6.0206 dB).  Neither normalizes audio.
 Choose warning and clipping (default), or fatal rejection, for
 reconstructed PCM graph-boundary overshoots and interpolated PCM-to-DSD
 modulator input overshoots.  In warning mode, the mastering encoder
-clamps interpolated samples above 0.45 at DSD128/256 and above 0.5 at
-DSD64/512/1024, then reports their count.  The lower ceiling reduces
-sustained state-guard failures at the two affected v1 rates; clipping
-can occur below the strict 0.5 interpolation-overload threshold.
-Nonfinite samples and modulator-state guard violations remain fatal
-in either mode.
+applies a fixed 0.9 linear gain (-0.91515 dB) at DSD128/256 before
+clamping residual interpolated peaks above 0.45; at DSD64/512/1024 it
+uses unity gain and a 0.5 clipping ceiling.  Clipped native samples are
+counted and warned about.  The default cut protects normal PCM from
+hard-clipping at the lowered ceiling but changes level even on quiet
+programmes.  This is a constant linear attenuation, not a time-varying
+limiter; it is a tested operational measure, not a proof of indefinite
+modulator stability.  Nonfinite samples and modulator-state guard
+violations remain fatal in either mode.
 .TP
 .B \-\-headroom DB
 For PCM-to-DSD encoding, cut the level by the specified nonnegative
 decibel amount (0 through 120), at the interpolated modulator input.
 For example,
 .B --headroom 2
-cuts 2 dB.  This is a fixed attenuation, not normalization, and
-never changes the input files.  It is not available for PCM-only
+cuts exactly 2 dB.  Explicit fixed headroom replaces the default
+0.91515 dB attenuation at DSD128/256 rather than adding to it.
+.B --headroom 0
+requests unity gain and may therefore change DSD128/256 output compared
+to the implicit default.  This is not normalization and never changes
+input files.  It is not available for PCM-only
 processing, bit-preserving DSD repacks, or low-level
 .B sdm
 modulation.

@@ -57,11 +57,14 @@ must also support the request.
 
 ## Loud PCM masters: clipping and headroom
 
-PCM samples below 0 dBFS can overshoot **between** samples after the
-qualified reconstruction/interpolation stages. Plain `sox in.wav out.dsf`
-now clips only these interpolated peaks to the mastering encoder's
-rate-dependent warning ceiling and **warns with the number of clipped samples**.
-The underlying finite-state/numerical safety checks remain active.
+PCM samples below 0 dBFS can overshoot **between** samples after
+reconstruction/interpolation. Plain `sox in.wav out.dsf` uses a fast, one-pass
+clip-and-warn path with a rate-dependent ceiling. At DSD128/256, its default
+also applies a constant 0.9 linear gain (-0.91515 dB) **before** the clip
+check. This avoids hard-clipping ordinary PCM peaks below full scale, but
+reduces the overall output level even for quiet inputs. At DSD64/512/1024 the
+default gain is 1. Clipping warnings report any remaining overloads; the
+modulator state/numerical guards remain active.
 
 ```sh
 # Normal, fast, one-pass conversion; report if interpolation clips.
@@ -82,15 +85,17 @@ sox --dsd-clip error --auto-headroom --report encode.json \
 ```
 
 `--headroom` accepts a **nonnegative attenuation** in dB (`0` through `120`),
-not a signed gain: `--headroom 2` means a 2 dB cut. `--auto-headroom`
+not a signed gain: `--headroom 2` means exactly a 2 dB cut and replaces the
+implicit 0.91515 dB reduction. `--headroom 0` explicitly requests unity gain;
+it is **not** equivalent to the DSD128/256 default. `--auto-headroom`
 measures the actual source-rate conversion, prefilter, final interpolation
 and its finite tail. It applies **one shared attenuation across all channels**,
 without boosting quiet audio. The limit is 0.45 for DSD128/256 and 0.5 for
 DSD64/512/1024 (in modulator units, with 0.5 corresponding to 0 dBFS).
-The DSD output remains identical to a plain conversion when neither needs
-clipping. A loud track can reach the lower ceiling even when its interpolated
-peak is below 0 dBFS; using automatic headroom avoids hard clipping at that
-ceiling. The two choices
+At DSD128/256 the plain default and measured mode may produce different
+levels even when neither clips: default reduces all input by 0.91515 dB,
+whereas measured mode leaves already-safe material unchanged. The latter is
+preferable if retaining the original level is important. The two choices
 cannot be combined. Both work with an explicit `pcmdsd` effect, and both
 leave native DSD bit-preserving repacks and PCM-only operations unchanged
 (the flags are rejected when no composite encoder is present).
@@ -100,8 +105,9 @@ programmes and non-seekable inputs without storing them in memory. It runs
 the interpolation twice, uses more disk space/I/O, and takes longer than
 one-pass encoding. It does **not** silently substitute a different SDM
 profile. The `--plan` policy names the selected mode and
-`encoder.warning_clip_ceiling`, while `--report` records
-`clip_ceiling_applied`, `headroom_applied_db`, and
+`encoder.warning_clip_ceiling` and `encoder.planned_linear_gain` (null for
+the not-yet-measured automatic mode), while `--report` records
+`clip_ceiling_applied`, `headroom_applied_db` (including the implicit cut), and
 `clipped_interpolated_samples` for each executed encoder channel, as well as an
 `encoder_interpolation` clipping aggregate and a report warning when clipping
 occurs. A strict-mode failure removes a partial regular output file. The other

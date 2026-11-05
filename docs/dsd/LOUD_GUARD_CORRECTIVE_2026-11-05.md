@@ -1,5 +1,15 @@
 # Loud PCM state-guard corrective (2026-11-05)
 
+**Follow-on D-01 fidelity correction:** The 0.45-only warning policy in this
+original delivery distorted valid, high-amplitude PCM. The current source
+retains the 0.45 ceiling but additionally applies a constant 0.9 linear gain
+in the *implicit* DSD128/256 default. Explicit fixed, measured, and strict
+modes retain their original gain semantics. This document preserves the
+original reproduction record; see
+[the D-01 corrective](LOUD_GUARD_D01_FIDELITY_CORRECTIVE_2026-11-05.md)
+for current default behavior and new test results. Bit identity claims below
+refer to the first corrective, not the follow-on default-gain change.
+
 Base: `cli-legacy-route-corrective` at `3ed2434`. Source evidence:
 `SoX_DSD_Loud_Guard_2026-11-04.tar.zst`, including
 `observed/synth_guard.sh`, `observed/synth/results.tsv`, and the historical
@@ -69,7 +79,9 @@ On the **0.45 corrective**:
 - DSD256 `sq100+3` passed 120 seconds and **600 seconds** continuously.
 - DSD128 `brown+9` passed **300 seconds** continuously.
 - Original fixed, strict and measured-headroom regression cases continue to
-  pass. `--headroom 0` is bit-identical to the new default; `--auto-headroom`
+  pass. In this **earlier** corrective, `--headroom 0` was bit-identical
+  to the default; it now explicitly overrides the implicit 0.9 gain.
+  `--auto-headroom`
   with strict mode avoids clipping and applies the same attenuation to all
   channels.
 - Ten deliberately non-clipping or strict/attenuated conversion cases were
@@ -133,8 +145,8 @@ make check-dsd-optimization
 
 `check-dsd-loud-guard` creates exactly the seven deterministic fixtures and
 checks all 21 native-rate/default conversions. It also tests a short
-state-guard witness, strict rejection and cleanup, zero-headroom bit
-identity, and shared-channel measured headroom. The stress option is
+state-guard witness, strict rejection and cleanup, explicit zero-headroom
+override, and shared-channel measured headroom. The stress option is
 **opt-in** because it creates long signals and DSF outputs. Its fixture
 construction uses a fixed SoX random seed (`-R`), not external media.
 
