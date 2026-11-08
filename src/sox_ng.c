@@ -3434,7 +3434,7 @@ static void usage(void)
 "--sdm-guard on|off       Fail-closed legacy 1-bit modulator check; costs CPU (default off)",
 "--decode mastering|conservative|wideband|decode.mastering.vN.dsdNNN",
 "                         DSD reconstruction profile (default conservative, v1; mastering is v2)",
-"--encode mastering|encode.mastering.vN.dsdNNN  DSD modulation profile",
+"--encode mastering|encode.mastering.v1.dsdNNN  DSD modulation profile",
 "                         Mastering encoding is active for native DSD64 to DSD1024; guards remain enforced",
 "--dsd-level preserve|sacd  Decoder level convention",
 "--dsd-clip warn|error    Warn/clip interpolated DSD overs (default) or refuse",
@@ -4030,7 +4030,7 @@ static char parse_gopts_and_fopts(file_t * f)
           int profile;
           if (!lsx_dsd_profile_parse(optstate.arg,1,&profile,
                 &dsd_policy.encode_pinned_native_hz)) {
-            lsx_fail("--encode: choose mastering or an exact encode.mastering.vN.dsdNNN ID");
+            lsx_fail("--encode: choose mastering or an exact encode.mastering.v1.dsdNNN ID");
             exit(1);
           }
           dsd_policy.encode=(lsx_dsd_encode)profile;

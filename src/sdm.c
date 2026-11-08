@@ -709,8 +709,9 @@ static const sdm_profile_t sdm_profiles[] = {
   {"encode.mastering.v1.dsd128", &sdm_filters[19], 176400},
   {"encode.mastering.v1.dsd256", &sdm_filters[9],  176400},
   /* P17 unit-delay SDM coefficients use the SAME normalized NTF/STF, but
-   * are bound to NEW sample-clock identities and are NOT qualified. The
-   * legacy <=rate lookup never sees these private candidates. */
+   * are bound to NEW sample-clock identities. They were qualified at the
+   * 1.1.0 default gain on 2026-11-07 (docs/dsd/V1_HIGH_RATE_ENCODE_2026-11-07.md).
+   * The legacy <=rate lookup never sees these records. */
   {"encode.mastering.v1.dsd512", &lsx_sdm_p17_candidates[0], 176400},
   {"encode.mastering.v2.dsd512", &lsx_sdm_p20_dsd512, 176400},
   {"encode.mastering.v1.dsd1024", &lsx_sdm_p17_candidates[1], 176400},

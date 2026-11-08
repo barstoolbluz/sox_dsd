@@ -98,7 +98,7 @@ typedef struct sox_dsd_decoder sox_dsd_decoder_t;
 typedef enum {
   SOX_DSD_DECODE_MASTERING = 0, SOX_DSD_DECODE_WIDEBAND = 1,
   /* Value 2 is reserved for the private legacy profile (not a public mode).
-   * Explicit unqualified v2 candidate; previous ABI/enum values unchanged. */
+   * Qualified mastering v2; previous ABI/enum values unchanged. */
   SOX_DSD_DECODE_MASTERING_V2 = 3
 } sox_dsd_decode_profile_t;
 typedef enum {

@@ -22,9 +22,10 @@ state is retained in `P18_COMPATIBILITY_LEDGER.md`, `P18_RELEASE_MANIFEST.json`,
 and `handoffs/P18.md`.
 
 **P21 (2026-10-23):** DSD512/1024 DSF and DSDIFF reads/writes, WSD reads,
-and DoP transport are enabled. The high-rate mastering encoders select v2;
-v1 remains unqualified. See `amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md`
-for the live authorization decision and its limits.
+and DoP transport are enabled. See `amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md`
+for the authorization decision and its limits. P21 bound the v2 CLANS-7
+encoders at DSD512/1024; since 2026-11-07 the eighth-order v1 encoders are
+bound there instead (`V1_HIGH_RATE_ENCODE_2026-11-07.md`).
 
 ## Contents
 

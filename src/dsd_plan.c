@@ -915,7 +915,8 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
       fputs("null",fp);
     else if (spec->policy.headroom==LSX_DSD_HEADROOM_FIXED)
       fprintf(fp,"%.17g",pow(10.,-spec->policy.headroom_db/20.));
-    else if (spec->policy.clip==LSX_DSD_CLIP_WARN)
+    else if (spec->policy.clip==LSX_DSD_CLIP_WARN ||
+             lsx_pcmdsd_strict_keeps_default_gain(p->native_output_hz))
       fprintf(fp,"%.17g",lsx_pcmdsd_default_warn_gain(p->native_output_hz));
     else fputs("1",fp);
   }

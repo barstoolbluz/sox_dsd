@@ -74,6 +74,7 @@ sox --headroom 2 loud.wav -r dsd128 reduced.dsf
 sox --auto-headroom loud.wav -r dsd128 measured.dsf
 
 # Alternatively, reject an over-limit peak instead of clipping it.
+# (No gain at DSD64-256; at DSD512/1024 the 0.9 gain still applies.)
 sox --dsd-clip error loud.wav -r dsd128 strict.dsf
 
 # Require strict behavior after measured headroom, and keep the measurements.

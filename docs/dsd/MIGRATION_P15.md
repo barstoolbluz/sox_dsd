@@ -13,7 +13,7 @@ see [Using SoX DSD](USING_SOX_DSD.md) and `man sox`.
 | `--dsd-mode legacy input.wav output.dsf` | `input.wav output.dsf` | Both now use qualified modulation. The legacy flag cannot bypass the planned encoder. Use the explicit `sdm` effect for low-level testing. |
 | `--dsd-mode native input.dsf output.dff` | `input.dsf output.dff` | Native bitstream repacking (advanced `--dsd-mode native` is still available). |
 | `--dsd-decode mastering` (formerly v1) | `--decode conservative` | Preserve exact older mastering-v1 selection. |
-| Unpinned decoding (formerly mastering v2) | Default, or `--decode mastering` | Both use qualified mastering-v2. |
+| Unpinned decoding (formerly mastering v2) | `--decode mastering` | Qualified mastering-v2. Since 2026-11-08 the default is mastering-v1, as `--decode conservative`. |
 | `--dsd-decode decode.mastering.v1.dsd64` | `--decode decode.mastering.v1.dsd64` | Explicit immutable decoder bank and input clock. |
 | `--dsd-encode encode.mastering.v1.dsd128` | `--encode encode.mastering.v1.dsd128` | Explicit qualified encoder identity and output clock. |
 | `--dsd-plan input.dsf output.wav` | `--plan input.dsf output.wav` | Non-executing JSON plan. |

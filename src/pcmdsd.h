@@ -52,6 +52,7 @@ void lsx_pcmdsd_observe(lsx_pcmdsd *, lsx_pcmdsd_stage_observer, void *opaque);
  * refusal and exact unmodified modulation unless they opt in. */
 double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz);
 double lsx_pcmdsd_default_warn_gain(uint32_t native_hz);
+int lsx_pcmdsd_strict_keeps_default_gain(uint32_t native_hz);
 void lsx_pcmdsd_set_clip(lsx_pcmdsd *, int warn_and_clip);
 void lsx_pcmdsd_set_gain(lsx_pcmdsd *, double attenuation);
 void lsx_pcmdsd_set_peak_scan(lsx_pcmdsd *);
@@ -61,7 +62,7 @@ const lsx_pcmdsd_profile *lsx_pcmdsd_profile_of(const lsx_pcmdsd *);
 double lsx_pcmdsd_reference_scale(const lsx_pcmdsd *);
 
 const lsx_pcmdsd_profile *lsx_pcmdsd_profile_find(uint32_t);
-/* Private exact-ID lookup for unqualified candidate instrumentation. */
+/* Private exact-ID lookup for test and candidate instrumentation. */
 const lsx_pcmdsd_profile *lsx_pcmdsd_profile_find_id(uint32_t, const char *);
 int lsx_pcmdsd_qualified(uint32_t);
 sox_dsd_status_t lsx_pcmdsd_create(uint32_t input_hz, uint32_t native_hz,

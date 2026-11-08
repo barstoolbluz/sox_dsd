@@ -3694,8 +3694,8 @@ and 40 kHz; v2
 .RB ( "\-p mastering" )
 passbands are 25, 48, 66, 66, and 66 kHz.  With no requested
 .IR rate ,
-use the profile's intermediate PCM clock (88200 Hz for DSD64,
-176400 Hz for the other rates).  The effective bandwidth depends
+use the profile's intermediate PCM clock (for mastering v1 and v2,
+88200 Hz for DSD64 and 176400 Hz for the other rates).  The effective bandwidth depends
 on both the selected profile and the output PCM rate.
 .SP
 Explicit
@@ -3728,7 +3728,7 @@ uses the qualified mastering v1 encoder at every rate.
 Versioned selectors such as
 .B encode.mastering.v1.dsd128
 pin their output rate.  The v2 CLANS-7 encoders at DSD512 and DSD1024
-are not bound to a rate and cannot be requested from the command line.  Explicit legacy and
+are not in the command-line rate table and cannot be requested there.  Explicit legacy and
 experimental selections are distinct from qualified mastering; they do
 not enable an unqualified composite modulator.
 .SP

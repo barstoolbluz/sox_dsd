@@ -386,7 +386,7 @@ void lsx_dsd_effect_apply_policy(sox_effect_t *effect, const lsx_dsd_policy *pol
 
 const sox_effect_handler_t *lsx_dsdpcm_effect_fn(void)
 {
-  static sox_effect_handler_t h={"dsdpcm", "[-p conservative|mastering|wideband|legacy|decode.mastering.v2.dsd64/128/256] [-l preserve|sacd] [rate]",
+  static sox_effect_handler_t h={"dsdpcm", "[-p conservative|mastering|wideband|legacy|decode.<profile>.vN.dsdNNN] [-l preserve|sacd] [rate]",
     SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, lsx_dsdpcm_start,
     lsx_dsdpcm_flow, lsx_dsdpcm_drain, lsx_dsdpcm_stop, NULL, sizeof(lsx_dsdpcm_private), NULL, NULL, NULL};
   return &h;

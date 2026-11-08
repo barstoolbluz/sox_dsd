@@ -42,8 +42,9 @@ This fast default changes output level even for quiet signals. `--headroom DB`
 selects an explicit fixed cut instead (including `--headroom 0`, which
 disables the implicit cut; cuts below 0.91515 dB may clip the loudest peaks);
 `--auto-headroom` measures the complete interpolated peak and applies the
-smallest common cut without clipping. `--dsd-clip error` retains strict,
-unattenuated overload refusal. `--plan` and `--report` disclose the applied gain.
+smallest common cut without clipping. `--dsd-clip error` retains strict
+overload refusal, unattenuated at DSD64-256; at DSD512/1024 it keeps the
+0.9 gain, with which the eighth-order encoder there was qualified. `--plan` and `--report` disclose the applied gain.
 
 For basic conversion, profile selection, supported operations and limitations,
 see [Using SoX DSD](docs/dsd/USING_SOX_DSD.md),

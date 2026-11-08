@@ -25,8 +25,9 @@
  * limit, not a promise of sustained stability for the P10 v1 modulator.
  * Sustained loud input tripped the state guard at DSD128/256; every rate
  * uses the same lower warn-and-clip ceiling so the default behaves alike
- * at all clocks.  Strict/qualification paths retain their original input
- * and guards. */
+ * at all clocks.  Qualification paths retain their original input and
+ * guards; the strict CLI path keeps the default gain at DSD512/1024 (see
+ * lsx_pcmdsd_strict_keeps_default_gain). */
 double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz)
 {
   (void)native_hz;
@@ -40,6 +41,14 @@ double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz)
 double lsx_pcmdsd_default_warn_gain(uint32_t native_hz)
 {
   return lsx_pcmdsd_warn_clip_ceiling(native_hz)/.5;
+}
+/* The eighth-order v1 encoder at DSD512/1024 was qualified only under the
+ * default gain: at gain 1 it trips its state guard on sustained full-scale
+ * DC. There --dsd-clip error keeps the default gain, so sustained input stays
+ * at or below the 0.45 ceiling; --headroom DB still replaces it. */
+int lsx_pcmdsd_strict_keeps_default_gain(uint32_t native_hz)
+{
+  return native_hz>=22579200;
 }
 /* qualified=1 as of 2026-10-20: the design authority recorded its P15
  * engineering acceptance on 2026-10-19 and withdrew the outstanding
@@ -66,8 +75,9 @@ static const lsx_pcmdsd_profile profiles[] = {
    * what lsx_pcmdsd_create() will build.
    *
    * The v2 CLANS-7 rows that P21 bound on 2026-10-23 stay qualified and are
-   * reachable by exact id. They are no longer in dsd_rates, so the CLI cannot
-   * select them.
+   * reachable by exact id through the private test interface
+   * (lsx_pcmdsd_profile_find_id). They are no longer in dsd_rates, so the
+   * CLI cannot select them.
    *
    * certificate_sha256 names the coefficient manifest, not the modulator;
    * all four profiles use the already-certified 61-tap master64_256 bank. */
@@ -500,7 +510,8 @@ static int effect_start(sox_effect_t *e,int candidate)
   p->applied_gain=p->options.headroom==LSX_DSD_HEADROOM_FIXED?
       pow(10.,-p->options.headroom_db/20.):
       !candidate && p->options.headroom==LSX_DSD_HEADROOM_NONE &&
-      p->options.clip==LSX_DSD_CLIP_WARN?
+      (p->options.clip==LSX_DSD_CLIP_WARN ||
+       lsx_pcmdsd_strict_keeps_default_gain(profile->native_hz))?
       lsx_pcmdsd_default_warn_gain(profile->native_hz):1.;
   if (p->options.headroom==LSX_DSD_HEADROOM_AUTO && !candidate) {
     p->scan_file=lsx_tmpfile();

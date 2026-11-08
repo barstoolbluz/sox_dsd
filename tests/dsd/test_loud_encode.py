@@ -206,13 +206,24 @@ def main():
             assert digest(hot) == source_hash, 'scanning modified the input'
             print(f'PASS DSD{native}: clip/warn, refusal, fixed, stereo measured, report invariance')
 
-        # The high clocks use another modulator but the same default policy.
+        # The high clocks share the default policy. Their eighth-order v1
+        # encoder is qualified only with the 0.9 gain, so strict refusal keeps
+        # it there; an explicit --headroom still replaces it.
         for native in (512, 1024):
             plan = json.loads(accepted(run(sox, '--plan', hot, '-r', f'dsd{native}',
                                            root/'high.dsf'), 'high plan').stdout)
             assert plan['encoder']['warning_clip_ceiling'] == 0.45
             assert abs(plan['encoder']['planned_linear_gain'] - 0.9) < 1e-14
-        print('PASS DSD512/1024 plans: same default ceiling and gain')
+            strict = json.loads(accepted(run(sox, '--plan', '--dsd-clip', 'error', hot,
+                                             '-r', f'dsd{native}', root/'high.dsf'),
+                                         'high strict plan').stdout)
+            assert strict['encoder']['warning_clip_ceiling'] is None
+            assert abs(strict['encoder']['planned_linear_gain'] - 0.9) < 1e-14
+            fixed = json.loads(accepted(run(sox, '--plan', '--dsd-clip', 'error',
+                                            '--headroom', '0', hot, '-r', f'dsd{native}',
+                                            root/'high.dsf'), 'high fixed plan').stdout)
+            assert fixed['encoder']['planned_linear_gain'] == 1
+        print('PASS DSD512/1024 plans: default ceiling and gain; strict keeps the gain')
 
         # D-01: previously the 0.45 hard limit clipped ~21% of native
         # samples of this perfectly valid 0.95-FS sine and generated about

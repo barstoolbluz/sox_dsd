@@ -1527,7 +1527,12 @@ hard-clipping at the lowered ceiling but changes level even on quiet
 programmes.  This is a constant linear attenuation, not a time-varying
 limiter; it is a tested operational measure, not a proof of indefinite
 modulator stability.  Nonfinite samples and modulator-state guard
-violations remain fatal in either mode.
+violations remain fatal in either mode.  In error mode the encoder
+applies no gain at DSD64, DSD128 and DSD256, but keeps the 0.9 gain at
+DSD512 and DSD1024, where the eighth-order encoder is qualified only
+with it;
+.B \-\-headroom
+replaces it there as everywhere.
 .TP
 .B \-\-headroom DB
 For PCM-to-DSD encoding, cut the level by the specified nonnegative
@@ -1539,7 +1544,11 @@ cuts exactly 2 dB.  Explicit fixed headroom replaces the default
 .B --headroom 0
 requests unity gain and may therefore change output compared to the
 implicit default.  A cut below 0.91515 dB may clip the loudest peaks at
-the 0.45 ceiling, with a warning.  This is not normalization and never changes
+the 0.45 ceiling, with a warning.  With
+.B --dsd-clip error
+they are not clipped: only peaks above 0.5 are refused, and at DSD512 and
+DSD1024 sustained full-scale input can stop the encode with a state-guard
+error.  This is not normalization and never changes
 input files.  It is not available for PCM-only
 processing, bit-preserving DSD repacks, or low-level
 .B sdm
