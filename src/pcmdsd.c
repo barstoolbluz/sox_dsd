@@ -65,7 +65,8 @@ static const lsx_pcmdsd_profile profiles[] = {
    * held back because v1.dsd512 failed the sustained nominal gate at min28 6
    * and v1.dsd1024 ran away on full-scale DC, both at the old 0.5 mapping.
    * Under the 1.1.0 default (0.9 gain, 0.45 clip) it passes both: P17 DC
-   * fixtures and 60 s of DC at 0.45 complete at both clocks, and the
+   * fixtures and 60 s of DC at source levels 0.7-1.0 (mapped to
+   * modulator levels 0.315-0.45) complete at both clocks, and the
    * 3,600-second nominal soak passes p17_soak_assess at both clocks
    * (min28 7, max 21). The controls at 0.5 still reproduce both failures.
    * See docs/dsd/V1_HIGH_RATE_ENCODE_2026-11-07.md.
@@ -180,7 +181,11 @@ static sox_dsd_status_t fail_stream(lsx_pcmdsd *p, lsx_pcmdsd_failure why,
     p->report.coordinate=coordinate;
     p->report.first_bad_frame=p->sdm.frames;
     if (why==LSX_PCMDSD_INTERPOLATION_OVERLOAD)
-      p->report.minimum_attenuation_db=20.*log10(fabs(value)/.5);
+      /* --headroom replaces (rather than adds to) the gain already in
+       * effect. Convert the FIRST overload's incremental cut to an absolute
+       * --headroom value. The rest of the programme remains unmeasured. */
+      p->report.minimum_attenuation_db=p->report.applied_headroom_db+
+          20.*log10(fabs(value)/.5);
     p->error=SOX_DSD_NUMERIC_ERROR;
   }
   return p->error;
@@ -547,12 +552,13 @@ static int effect_failure(sox_effect_t *e)
     "interpolation overload","nonfinite modulator state","state guard exceeded",
     "stream error"};
   /* No allocation, buffer or formatting work on the successful read path.
-   * The FIRST rejected sample supplies a lower bound, not the attenuation
-   * that would admit the rest of the stream.  Keep that distinction visible. */
+   * This is an absolute --headroom cut that REPLACES any current gain,
+   * inferred from the first rejected sample only. It does not predict later
+   * interpolated peaks or guarantee state-guard acceptance on retry. */
   if (r.failure==LSX_PCMDSD_INTERPOLATION_OVERLOAD) {
     lsx_fail("pcmdsd: %s (failure %u) at native frame %" PRIu64
         ", channel %u, coordinate %u, value %.17g, observed peak %.17g; "
-        "minimum explicit attenuation %.9g dB (lower bound from first "
+        "minimum explicit --headroom attenuation %.9g dB (lower bound from first "
         "overloaded sample; later peaks may require more); output block discarded",
         failures[r.failure],(unsigned)r.failure,r.first_bad_frame,r.channel,
         r.coordinate,r.failure_value,r.peak,r.minimum_attenuation_db);

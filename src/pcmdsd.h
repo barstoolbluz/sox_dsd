@@ -26,9 +26,10 @@ typedef enum {
 typedef struct {
   uint64_t input_frames, committed_frames, first_bad_frame, clipped_native_samples;
   unsigned channel, coordinate;
-  /* minimum_attenuation_db is a lower bound from the FIRST overloading
-   * sample; fail-fast processing cannot know the maximum of the remainder.
-   * A retry with exactly this attenuation is not guaranteed to succeed. */
+  /* minimum_attenuation_db is the TOTAL explicit --headroom attenuation
+   * that replaces the gain in use, including any implicit default gain.
+   * It is a lower bound from the FIRST overloaded sample, not a whole-stream
+   * peak scan or a guarantee of passing the state guard on retry. */
   double peak, failure_value, minimum_attenuation_db, effective_pass_hz;
   double applied_headroom_db;
   /* Selected only for the CLI warn-and-clip path; zero means strict/no clip. */
