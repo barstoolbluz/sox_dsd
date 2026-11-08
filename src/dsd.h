@@ -29,15 +29,18 @@ typedef struct {
   unsigned capabilities;
   char const *decode_mastering_id, *decode_wideband_id;
   char const *encode_mastering_id;
+  char const *encode_mastering_v2_id; /* NULL except qualified high-rate v2 */
 } lsx_dsd_rate;
 
 typedef enum {LSX_DSD_MODE_LEGACY, LSX_DSD_MODE_AUTO, LSX_DSD_MODE_NATIVE} lsx_dsd_mode;
-/* Existing numeric values and v1 semantics are frozen. The mastering alias
- * selects v1; unpinned auto reconstruction selects v2. */
+/* Existing numeric values and their decoder semantics are frozen. The
+ * automatic and conservative decoder choices select v1; mastering selects
+ * v2. Encoder version numbers describe a separate algorithm family. */
 typedef enum {LSX_DSD_PROFILE_MASTERING=0, LSX_DSD_PROFILE_WIDEBAND=1,
               LSX_DSD_PROFILE_LEGACY=2, LSX_DSD_PROFILE_MASTERING_V2=3} lsx_dsd_decode;
 typedef enum {LSX_DSD_ENCODE_MASTERING, LSX_DSD_ENCODE_LEGACY,
-              LSX_DSD_ENCODE_EXPERIMENTAL} lsx_dsd_encode;
+              LSX_DSD_ENCODE_EXPERIMENTAL,
+              LSX_DSD_ENCODE_MASTERING_V2} lsx_dsd_encode;
 typedef enum {LSX_DSD_LEVEL_PRESERVE, LSX_DSD_LEVEL_SACD} lsx_dsd_level;
 typedef enum {LSX_DSD_CLIP_WARN, LSX_DSD_CLIP_ERROR} lsx_dsd_clip;
 typedef enum {LSX_DSD_HEADROOM_NONE, LSX_DSD_HEADROOM_FIXED,

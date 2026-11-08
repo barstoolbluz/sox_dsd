@@ -11,15 +11,15 @@
 #define CAPS_QUALIFIED (LSX_DSD_READ_NATIVE | LSX_DSD_WRITE_NATIVE | LSX_DSD_RECONSTRUCT | LSX_DSD_MODULATE | LSX_DSD_DOP)
 static lsx_dsd_rate const dsd_rates[] = {
   {2822400, 64, "DSD64", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd64", "decode.wideband.v1.dsd64", "encode.mastering.v1.dsd64"},
+   "decode.mastering.v1.dsd64", "decode.wideband.v1.dsd64", "encode.mastering.v1.dsd64", NULL},
   {5644800, 128, "DSD128", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd128", "decode.wideband.v1.dsd128", "encode.mastering.v1.dsd128"},
+   "decode.mastering.v1.dsd128", "decode.wideband.v1.dsd128", "encode.mastering.v1.dsd128", NULL},
   {11289600, 256, "DSD256", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd256", "decode.wideband.v1.dsd256", "encode.mastering.v1.dsd256"},
+   "decode.mastering.v1.dsd256", "decode.wideband.v1.dsd256", "encode.mastering.v1.dsd256", NULL},
   {22579200, 512, "DSD512", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd512", "decode.wideband.v1.dsd512", "encode.mastering.v1.dsd512"},
+   "decode.mastering.v1.dsd512", "decode.wideband.v1.dsd512", "encode.mastering.v1.dsd512", "encode.mastering.v2.dsd512"},
   {45158400, 1024, "DSD1024", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd1024", "decode.wideband.v1.dsd1024", "encode.mastering.v1.dsd1024"}
+   "decode.mastering.v1.dsd1024", "decode.wideband.v1.dsd1024", "encode.mastering.v1.dsd1024", "encode.mastering.v2.dsd1024"}
 };
 
 /* P21: the operator declared the evidence satisfied and opened all twelve
@@ -262,6 +262,12 @@ int lsx_dsd_profile_parse(char const *text, int encode, int *out, uint32_t *nati
     char const *master=encode?dsd_rates[i].encode_mastering_id:dsd_rates[i].decode_mastering_id;
     char const *w=dsd_rates[i].decode_wideband_id;
     if (master && !strcmp(text,master)) {*out=0;*native=dsd_rates[i].hz;return 1;}
+    if (encode && dsd_rates[i].encode_mastering_v2_id &&
+        !strcmp(text,dsd_rates[i].encode_mastering_v2_id)) {
+      *out=LSX_DSD_ENCODE_MASTERING_V2;
+      *native=dsd_rates[i].hz;
+      return 1;
+    }
     if (!encode && w && !strcmp(text,w)) {*out=1;*native=dsd_rates[i].hz;return 1;}
   }
 
@@ -364,6 +370,12 @@ void lsx_dsd_effect_apply_policy(sox_effect_t *effect, const lsx_dsd_policy *pol
   if (!effect || !policy) return;
   if (!strcmp(effect->handler.name,"pcmdsd")) {
     opt=effect->priv;
+    /* Match the planner's resolved global selection when this effect has no
+     * local -p. A locally explicit -p is validated for conflicts by planner. */
+    if (!opt->profile_specified) {
+      opt->profile=(lsx_dsd_decode)policy->encode;
+      opt->pinned_native_hz=policy->encode_pinned_native_hz;
+    }
     opt->clip=policy->clip;
     opt->headroom=policy->headroom;
     opt->headroom_db=policy->headroom_db;
@@ -393,7 +405,7 @@ const sox_effect_handler_t *lsx_dsdpcm_effect_fn(void)
 }
 const sox_effect_handler_t *lsx_pcmdsd_effect_fn(void)
 {
-  static sox_effect_handler_t h={"pcmdsd", "[-p mastering|legacy|experimental] [--reference auto|pcm|dsd] rate",
+  static sox_effect_handler_t h={"pcmdsd", "[-p mastering|encode.mastering.v1.dsdNNN|encode.mastering.v2.dsd512|encode.mastering.v2.dsd1024|legacy|experimental] [--reference auto|pcm|dsd] rate",
     SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, lsx_pcmdsd_start,
     lsx_pcmdsd_flow, lsx_pcmdsd_drain, lsx_pcmdsd_stop, NULL, sizeof(lsx_pcmdsd_private), NULL, NULL, NULL};
   return &h;

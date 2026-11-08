@@ -118,13 +118,19 @@ static int resolve_encode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
   if (!r || !(r->capabilities & LSX_DSD_MODULATE))
     return fail(error,n,"no supported composite DSD encoder at %u Hz",hz);
   if (profile == LSX_DSD_ENCODE_MASTERING) p->encoder_id=r->encode_mastering_id;
+  else if (profile == LSX_DSD_ENCODE_MASTERING_V2) p->encoder_id=r->encode_mastering_v2_id;
   else if (profile == LSX_DSD_ENCODE_LEGACY) p->encoder_id="encode.legacy.explicit";
   else p->encoder_id="encode.experimental.explicit";
-  if (profile!=LSX_DSD_ENCODE_MASTERING || !lsx_pcmdsd_qualified(hz)) {
+  if (profile==LSX_DSD_ENCODE_MASTERING || profile==LSX_DSD_ENCODE_MASTERING_V2) {
+    const lsx_pcmdsd_profile *enc=p->encoder_id?
+        lsx_pcmdsd_profile_find_id(hz,p->encoder_id):NULL;
+    if (!enc || !enc->qualified) {
+      p->needs_unimplemented_dsp=1;
+      p->unavailable_reason="selected composite encoder is not qualified or available";
+    }
+  } else {
     p->needs_unimplemented_dsp=1;
-    p->unavailable_reason=profile==LSX_DSD_ENCODE_MASTERING?
-        "P10 mastering profile is unqualified; qualification evidence blocks activation":
-        "no qualified composite for legacy/experimental selection; explicit sdm remains available";
+    p->unavailable_reason="no qualified composite for legacy/experimental selection; explicit sdm remains available";
   }
   return 1;
 }
@@ -790,15 +796,16 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   p->dsd_amplitude_per_pcm_unit=ref;
   if (p->encode_count && !p->modulator_input_scale)
     p->modulator_input_scale=ref;
-  /* P08 activates the existing P07 decoder at either graph boundary.  The
-   * private composite encoder, legacy decoder and diagnostic pass-through
-   * remain unavailable; none may be mistaken for a mastering implementation. */
+  /* Composite mastering v1 and selected high-rate v2 are qualified. The
+   * legacy decoder and unqualified low-level routes must not be mistaken for
+   * a qualified mastering processing path. */
   if (p->needs_unimplemented_dsp) {
+    const lsx_pcmdsd_profile *selected=p->native_output_hz && p->encoder_id?
+        lsx_pcmdsd_profile_find_id(p->native_output_hz,p->encoder_id):NULL;
     int unsupported_encoder=p->encoder_id &&
         strcmp(p->encoder_id,"encode.legacy.sdm") &&
         strcmp(p->encoder_id,"encode.legacy.dither-p1") &&
-        !(p->native_output_hz && lsx_pcmdsd_qualified(p->native_output_hz) &&
-          !strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id));
+        !(selected && selected->qualified);
     int unsupported_decoder=p->decoder_id &&
         !strcmp(p->decoder_id,"decode.legacy.generic");
     if (!unsupported_encoder && !unsupported_decoder && !p->dop_count &&
@@ -897,7 +904,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   fprintf(fp,", \"modulator_input_scale\": %.17g, \"warning_clip_ceiling\": ",p->modulator_input_scale);
   {
     const lsx_pcmdsd_profile *enc=p->native_output_hz?
-        lsx_pcmdsd_profile_find(p->native_output_hz):NULL;
+        lsx_pcmdsd_profile_find_id(p->native_output_hz,p->encoder_id):NULL;
     /* A nonexecutable legacy/experimental plan must not advertise an
      * applied mastering ceiling merely because its native rate is supported. */
     if (enc && enc->qualified && p->encoder_id &&
@@ -908,7 +915,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   fputs(", \"planned_linear_gain\": ",fp);
   {
     const lsx_pcmdsd_profile *enc=p->native_output_hz?
-        lsx_pcmdsd_profile_find(p->native_output_hz):NULL;
+        lsx_pcmdsd_profile_find_id(p->native_output_hz,p->encoder_id):NULL;
     if (!enc || !enc->qualified || !p->encoder_id ||
         strcmp(enc->id,p->encoder_id) || !p->executable ||
         spec->policy.headroom==LSX_DSD_HEADROOM_AUTO)
@@ -916,7 +923,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
     else if (spec->policy.headroom==LSX_DSD_HEADROOM_FIXED)
       fprintf(fp,"%.17g",pow(10.,-spec->policy.headroom_db/20.));
     else if (spec->policy.clip==LSX_DSD_CLIP_WARN ||
-             lsx_pcmdsd_strict_keeps_default_gain(p->native_output_hz))
+             lsx_pcmdsd_strict_keeps_default_gain(enc))
       fprintf(fp,"%.17g",lsx_pcmdsd_default_warn_gain(p->native_output_hz));
     else fputs("1",fp);
   }
@@ -925,7 +932,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   if (p->encoder_filter_name) json_string(fp,p->encoder_filter_name);
   else fputs("null",fp);
   if (p->encoder_id && p->native_output_hz) {
-    const lsx_pcmdsd_profile *enc=lsx_pcmdsd_profile_find(p->native_output_hz);
+    const lsx_pcmdsd_profile *enc=lsx_pcmdsd_profile_find_id(p->native_output_hz,p->encoder_id);
     if (enc && !strcmp(enc->id,p->encoder_id)) {
       fprintf(fp,", \"qualified\": %s, \"working_hz\": %u, \"prefilter_design_hz\": %u, \"pass_hz\": %.9g, \"stop_hz\": %.9g, \"certificate_sha256\": ",
           enc->qualified?"true":"false",enc->working_hz,enc->working_hz,enc->pass_hz,enc->stop_hz);

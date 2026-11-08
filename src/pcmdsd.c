@@ -1,4 +1,4 @@
-/* P10 composite mastering candidate.
+/* P10 composite mastering encoder.
  * All DSP between graph normalization and native decisions is binary64:
  * source -> R SRC -> centered non-decimating FIR at R -> native SRC -> scale.
  * Queues are bounded and carry no caller pointers. Native endpoints derive
@@ -26,8 +26,8 @@
  * Sustained loud input tripped the state guard at DSD128/256; every rate
  * uses the same lower warn-and-clip ceiling so the default behaves alike
  * at all clocks.  Qualification paths retain their original input and
- * guards; the strict CLI path keeps the default gain at DSD512/1024 (see
- * lsx_pcmdsd_strict_keeps_default_gain). */
+ * guards; strict mode retains this gain only for the default high-rate v1
+ * profile (see lsx_pcmdsd_strict_keeps_default_gain). */
 double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz)
 {
   (void)native_hz;
@@ -42,13 +42,13 @@ double lsx_pcmdsd_default_warn_gain(uint32_t native_hz)
 {
   return lsx_pcmdsd_warn_clip_ceiling(native_hz)/.5;
 }
-/* The eighth-order v1 encoder at DSD512/1024 was qualified only under the
- * default gain: at gain 1 it trips its state guard on sustained full-scale
- * DC. There --dsd-clip error keeps the default gain, so sustained input stays
- * at or below the 0.45 ceiling; --headroom DB still replaces it. */
-int lsx_pcmdsd_strict_keeps_default_gain(uint32_t native_hz)
+/* The eighth-order v1 encoder at DSD512/1024 was qualified with the
+ * default 0.9 gain. Exact v2 pins retain 1.1.0 strict unity-gain behavior.
+ * Key this policy to the selected immutable profile, not the native clock. */
+int lsx_pcmdsd_strict_keeps_default_gain(const lsx_pcmdsd_profile *profile)
 {
-  return native_hz>=22579200;
+  return profile && profile->native_hz>=22579200 &&
+      profile==lsx_pcmdsd_profile_find(profile->native_hz);
 }
 /* qualified=1 as of 2026-10-20: the design authority recorded its P15
  * engineering acceptance on 2026-10-19 and withdrew the outstanding
@@ -75,10 +75,9 @@ static const lsx_pcmdsd_profile profiles[] = {
    * returns the first row matching a rate, so this is what binds the rate and
    * what lsx_pcmdsd_create() will build.
    *
-   * The v2 CLANS-7 rows that P21 bound on 2026-10-23 stay qualified and are
-   * reachable by exact id through the private test interface
-   * (lsx_pcmdsd_profile_find_id). They are no longer in dsd_rates, so the
-   * CLI cannot select them.
+   * The v2 CLANS-7 rows that P21 bound on 2026-10-23 stay qualified and
+   * can be selected by exact CLI ID through dsd_rates, without changing
+   * the v1 default. Their old 1.1.0 strict unity gain remains intact.
    *
    * certificate_sha256 names the coefficient manifest, not the modulator;
    * all four profiles use the already-certified 61-tap master64_256 bank. */
@@ -256,15 +255,25 @@ sox_dsd_status_t lsx_pcmdsd_candidate_create(uint32_t source_hz,
   return SOX_DSD_OK;
 }
 
-sox_dsd_status_t lsx_pcmdsd_create(uint32_t source_hz, uint32_t native_hz,
-    double scale, unsigned channel, lsx_pcmdsd **out)
+sox_dsd_status_t lsx_pcmdsd_create_id(uint32_t source_hz, uint32_t native_hz,
+    const char *id, double scale, unsigned channel, lsx_pcmdsd **out)
 {
-  const lsx_pcmdsd_profile *profile=lsx_pcmdsd_profile_find(native_hz);
+  const lsx_pcmdsd_profile *profile=id?
+      lsx_pcmdsd_profile_find_id(native_hz,id):lsx_pcmdsd_profile_find(native_hz);
+  const sdm_profile_t *control;
   if (!out) return SOX_DSD_BAD_ARGUMENT;
   *out=NULL;
   if (!profile || !profile->qualified) return SOX_DSD_UNSUPPORTED;
-  return lsx_pcmdsd_candidate_create(source_hz,native_hz,scale,channel,NULL,
-      profile->bounds,out);
+  control=sdm_profile_find(profile->id,native_hz);
+  if (!control) return SOX_DSD_UNSUPPORTED;
+  return lsx_pcmdsd_candidate_create(source_hz,native_hz,scale,channel,
+      control,profile->bounds,out);
+}
+
+sox_dsd_status_t lsx_pcmdsd_create(uint32_t source_hz, uint32_t native_hz,
+    double scale, unsigned channel, lsx_pcmdsd **out)
+{
+  return lsx_pcmdsd_create_id(source_hz,native_hz,NULL,scale,channel,out);
 }
 
 /* Called on already scaled samples. No clamp, gain rescue, reset or fallback.
@@ -492,8 +501,15 @@ static int effect_start(sox_effect_t *e,int candidate)
     lsx_fail("pcmdsd: positive integer source Hz required; insert an explicit rate effect");
     return SOX_EOF;
   }
-  profile=lsx_pcmdsd_profile_find(p->options.rate_hz);
-  if (!profile || p->options.profile!=LSX_DSD_PROFILE_MASTERING ||
+  {
+    const lsx_dsd_rate *rate=lsx_dsd_rate_find(p->options.rate_hz);
+    const char *id=p->options.profile==(lsx_dsd_decode)LSX_DSD_ENCODE_MASTERING?
+        (rate?rate->encode_mastering_id:NULL):
+        p->options.profile==(lsx_dsd_decode)LSX_DSD_ENCODE_MASTERING_V2?
+        (rate?rate->encode_mastering_v2_id:NULL):NULL;
+    profile=id?lsx_pcmdsd_profile_find_id(p->options.rate_hz,id):NULL;
+  }
+  if (!profile || !profile->qualified ||
       (p->options.pinned_native_hz && p->options.pinned_native_hz!=p->options.rate_hz)) {
     lsx_fail("pcmdsd: no matching composite mastering profile; legacy sdm remains explicit");
     return SOX_EOF;
@@ -504,9 +520,10 @@ static int effect_start(sox_effect_t *e,int candidate)
   p->resolved_reference=scale;
   if (candidate)
     rc=lsx_pcmdsd_candidate_create(source,profile->native_hz,scale,(unsigned)e->flow,
-        NULL,profile->bounds,&p->encoder);
+        sdm_profile_find(profile->id,profile->native_hz),profile->bounds,&p->encoder);
   else
-    rc=lsx_pcmdsd_create(source,profile->native_hz,scale,(unsigned)e->flow,&p->encoder);
+    rc=lsx_pcmdsd_create_id(source,profile->native_hz,profile->id,scale,
+        (unsigned)e->flow,&p->encoder);
   if (rc!=SOX_DSD_OK) {
     lsx_fail("pcmdsd: %s unqualified or unavailable (status %d); no output master produced",
         profile->id,(int)rc);
@@ -516,7 +533,7 @@ static int effect_start(sox_effect_t *e,int candidate)
       pow(10.,-p->options.headroom_db/20.):
       !candidate && p->options.headroom==LSX_DSD_HEADROOM_NONE &&
       (p->options.clip==LSX_DSD_CLIP_WARN ||
-       lsx_pcmdsd_strict_keeps_default_gain(profile->native_hz))?
+       lsx_pcmdsd_strict_keeps_default_gain(profile))?
       lsx_pcmdsd_default_warn_gain(profile->native_hz):1.;
   if (p->options.headroom==LSX_DSD_HEADROOM_AUTO && !candidate) {
     p->scan_file=lsx_tmpfile();
@@ -635,7 +652,7 @@ static int start_headroom_replay(sox_effect_t *e)
     double ceiling=lsx_pcmdsd_warn_clip_ceiling(((lsx_pcmdsd_private *)first->priv)->options.rate_hz);
     gain=peak>ceiling ? (ceiling*(1.-1e-12))/peak : 1.;
   }
-  lsx_report("pcmdsd: measured interpolated peak %.12g; headroom cut %.9g dB across %u channel(s)",
+  lsx_report("pcmdsd: measured interpolated peak %.12g; headroom cut %.9g dB across %zu channel(s)",
       peak,-20.*log10(gain),e->flows);
   for (i=0;i<e->flows;i++) {
     sox_effect_t *f=first+i;
@@ -644,8 +661,17 @@ static int start_headroom_replay(sox_effect_t *e)
     uint32_t source;
     sox_dsd_status_t rc;
     if (!lsx_dsd_integer_rate(f->in_signal.rate,&source)) return LSX_EFF_FATAL;
+    /* Preserve the actual v1/v2 selection across the measured-headroom
+     * scan/replay boundary; never silently fall back to the rate default. */
+    const lsx_pcmdsd_profile *selected=lsx_pcmdsd_profile_of(p->encoder);
+    const char *id;
+    if (!selected || !selected->qualified || !selected->id) {
+      lsx_fail("pcmdsd: missing qualified encoder identity for headroom replay");
+      return LSX_EFF_FATAL;
+    }
+    id=selected->id;
     lsx_pcmdsd_destroy(p->encoder);p->encoder=NULL;
-    rc=lsx_pcmdsd_create(source,p->options.rate_hz,
+    rc=lsx_pcmdsd_create_id(source,p->options.rate_hz,id,
         p->resolved_reference,(unsigned)f->flow,&fresh);
     if (rc!=SOX_DSD_OK) {
       lsx_fail("pcmdsd: cannot start headroom replay (status %d)",(int)rc);

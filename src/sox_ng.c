@@ -3435,9 +3435,10 @@ static void usage(void)
 "--decode mastering|conservative|wideband|decode.mastering.vN.dsdNNN",
 "                         DSD reconstruction profile (default conservative, v1; mastering is v2)",
 "--encode mastering|encode.mastering.v1.dsdNNN  DSD modulation profile",
-"                         Mastering encoding is active for native DSD64 to DSD1024; guards remain enforced",
+"         High-rate v2 IDs: encode.mastering.v2.dsd512|dsd1024",
+"         Mastering is v1 at all native rates; profile guards remain enforced",
 "--dsd-level preserve|sacd  Decoder level convention",
-"--dsd-clip warn|error    Clip/warn at 0.45 (default), or refuse above 0.5; strict retains 0.9 gain at DSD512/1024",
+"--dsd-clip warn|error    Decode: clip/warn at PCM limits or fail; encode: 0.45 warn-clip or strict 0.5; high-rate v1 strict gain 0.9",
 "--headroom DB            Replace implicit gain with fixed PCM-to-DSD cut (0..120 dB, no normalization)",
 "--auto-headroom          Measure peak and cut to warning ceiling (two passes)",
 "--dsd-bandwidth adapt|strict  PCM reconstruction passband policy",
@@ -4030,7 +4031,7 @@ static char parse_gopts_and_fopts(file_t * f)
           int profile;
           if (!lsx_dsd_profile_parse(optstate.arg,1,&profile,
                 &dsd_policy.encode_pinned_native_hz)) {
-            lsx_fail("--encode: choose mastering or an exact encode.mastering.v1.dsdNNN ID");
+            lsx_fail("--encode: choose mastering, an exact encode.mastering.v1.dsdNNN ID, or encode.mastering.v2.dsd512|dsd1024");
             exit(1);
           }
           dsd_policy.encode=(lsx_dsd_encode)profile;

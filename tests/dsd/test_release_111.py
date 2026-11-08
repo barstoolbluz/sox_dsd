@@ -25,7 +25,7 @@ VALUE = re.compile(r'\bvalue ([0-9.eE+-]+), observed peak')
 
 
 def pcm(path, kind):
-    hz, length = 176400, 0.35
+    hz, length = 176400, 0.065 if kind == 'quiet' else 0.35
     count = round(hz * length)
     edge = round(hz * 0.02)
     signal = []
@@ -35,6 +35,8 @@ def pcm(path, kind):
             v = 1. if math.sin(2 * math.pi * 1000 * t + .1) >= 0 else -1.
         elif kind == 'limited997':
             v = max(-1., min(1., 2 * math.sin(2 * math.pi * 997 * t)))
+        elif kind == 'quiet':
+            v = .18 * math.sin(2 * math.pi * 997 * t)
         else:
             raise ValueError(kind)
         u = min(1., i / edge, (count - 1 - i) / edge)
@@ -80,8 +82,10 @@ def run():
         root = Path(temp)
         square = root / 'square.wav'
         limited = root / 'limited997.wav'
+        quiet = root / 'quiet.wav'
         inputs = {'square': pcm(square, 'square'),
-                  'limited997': pcm(limited, 'limited997')}
+                  'limited997': pcm(limited, 'limited997'),
+                  'quiet': pcm(quiet, 'quiet')}
 
         # The lower rate is intentionally different: strict mode there uses
         # unity gain, whereas high-rate v1 retains 0.9. Compare actual DSD
@@ -144,15 +148,26 @@ def run():
                    expected_total_headroom_db=expected,
                    output_removed=True)
 
-        # Rate bindings prevent accidentally claiming the internally
-        # qualified v2 encoder can still be CLI-pinned at high rates.
+        # The original 1.1.0 exact v2 pins are qualified and executable.
+        # Strict v2 uses unity gain even though v1 strict keeps 0.9.
+        # Verify the actual encoder report, not just accepted spelling.
         for rate in (22579200, 45158400):
             ident = f'encode.mastering.v2.dsd{rate // 44100}'
             dst = root / f'pin-{rate}.dsf'
-            p = command(sox, '--encode', ident, limited, '-r', rate, dst)
-            require(p.returncode != 0 and not dst.exists() and '--encode:' in p.stderr,
-                    f'CLI unexpectedly accepted former v2 pin {ident}', p)
-            record(f'old_v2_pin_unavailable_{rate}', p, profile_id=ident)
+            report = root / f'pin-{rate}.json'
+            p = command(sox, '--dsd-clip', 'error', '--encode', ident,
+                        '--report', report, quiet, '-r', rate, dst)
+            require(p.returncode == 0 and dst.is_file(),
+                    f'qualified v2 pin was rejected: {ident}', p)
+            data = json.loads(report.read_text())
+            encoders = data['processing']['encoder']
+            require(len(encoders) == 1 and encoders[0]['profile_id'] == ident,
+                    f'v2 pin did not execute the selected profile: {ident}')
+            require(abs(float(encoders[0]['headroom_applied_db'])) < 1e-9,
+                    f'v2 strict did not retain unity gain: {ident}')
+            record(f'v2_pin_strict_{rate}', p, profile_id=ident,
+                   runtime_gain_db=float(encoders[0]['headroom_applied_db']),
+                   output_sha256=hashlib.sha256(dst.read_bytes()).hexdigest())
 
         receipt = dict(schema='sox-dsd-1.1.1-review-strict/1',
                        sox_sha256=hashlib.sha256(sox.read_bytes()).hexdigest(),
