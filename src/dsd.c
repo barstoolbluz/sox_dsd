@@ -11,9 +11,9 @@
 #define CAPS_QUALIFIED (LSX_DSD_READ_NATIVE | LSX_DSD_WRITE_NATIVE | LSX_DSD_RECONSTRUCT | LSX_DSD_MODULATE | LSX_DSD_DOP)
 static lsx_dsd_rate const dsd_rates[] = {
   {2822400, 64, "DSD64", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd64", "decode.wideband.v1.dsd64", "encode.mastering.v1.dsd64"},
+   "decode.mastering.v1.dsd64", "decode.wideband.v1.dsd64", "encode.mastering.v3.dsd64"},
   {5644800, 128, "DSD128", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd128", "decode.wideband.v1.dsd128", "encode.mastering.v1.dsd128"},
+   "decode.mastering.v1.dsd128", "decode.wideband.v1.dsd128", "encode.mastering.v3.dsd128"},
   {11289600, 256, "DSD256", CAPS_QUALIFIED,
    "decode.mastering.v1.dsd256", "decode.wideband.v1.dsd256", "encode.mastering.v1.dsd256"},
   {22579200, 512, "DSD512", CAPS_QUALIFIED,

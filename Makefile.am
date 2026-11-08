@@ -839,3 +839,10 @@ EXTRA_DIST += docs/dsd/SDM_REGISTER_PROOF.md \
   tests/dsd/reference/sdm_register_oracle/sdm_p17_candidates.h \
   tests/dsd/reference/sdm_register_oracle/sdm_p19_candidates.h \
   tests/dsd/reference/sdm_register_oracle/sdm_p20_candidates.h
+
+# 2.0.0 certified switched-resonator certificates and their exact checkers.
+EXTRA_DIST += \
+  src/resonator/dsd64/proofs/certificate.json src/resonator/dsd64/proofs/check_certificate.py \
+  src/resonator/dsd64/proofs/emit_header.py src/resonator/dsd64/results/proof.json \
+  src/resonator/dsd128/proofs/certificate.json src/resonator/dsd128/proofs/check_certificate.py \
+  src/resonator/dsd128/proofs/emit_header.py src/resonator/dsd128/results/proof.json

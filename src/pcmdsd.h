@@ -17,6 +17,9 @@ typedef struct {
   const double *bounds;
   int qualified;
   const char *certificate_sha256;
+  /* 2.0.0: nonzero selects the certified switched-resonator modulator for
+   * this clock instead of the legacy SDM; bounds is then NULL. */
+  int resonator;
 } lsx_pcmdsd_profile;
 
 typedef enum {
@@ -35,6 +38,8 @@ typedef struct {
   double clip_ceiling_applied;
   lsx_pcmdsd_failure failure;
   sdm_normal_monitor_t monitor;
+  /* Certified resonator recovery-mode counters; zero for the legacy SDM. */
+  uint64_t recovery_entries, recovery_steps;
 } lsx_pcmdsd_report;
 
 /* Private diagnostic observer, optional and never enabled by production routing.

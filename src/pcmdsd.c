@@ -13,6 +13,7 @@
 #include "pcmdsd_p20_guards.h"
 #include "rate_internal.h"
 #include "dsd_kernels.h"
+#include "dsd_resonator.h"
 #include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
@@ -46,12 +47,18 @@ double lsx_pcmdsd_default_warn_gain(uint32_t native_hz)
  * formal-proof obligation as a release blocker. Coefficients, guards and
  * certificate digests are unchanged. */
 static const lsx_pcmdsd_profile profiles[] = {
-  {"encode.mastering.v1.dsd64",2822400,88200,20000,40000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[0],1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  {"encode.mastering.v1.dsd128",5644800,176400,30000,60000,
-    lsx_pcmdsd_coeff_master128,77,lsx_pcmdsd_guards[1],1,LSX_PCMDSD_CERTIFICATE_SHA256},
+  /* 2.0.0: DSD64 and DSD128 encode with the certified switched-resonator
+   * modulators in resonator/, replacing the v1 sdm-8 recurrence outright.
+   * The front end (SRC, prefilter, gain and clip ceiling) is unchanged, so
+   * each kernel sees exactly the native input v1 saw. certificate_sha256
+   * still names the front end's coefficient manifest; the modulator's own
+   * certificate is lsx_dsd_resonator_identity(). */
+  {"encode.mastering.v3.dsd64",2822400,88200,20000,40000,
+    lsx_pcmdsd_coeff_master64_256,61,NULL,1,LSX_PCMDSD_CERTIFICATE_SHA256,1},
+  {"encode.mastering.v3.dsd128",5644800,176400,30000,60000,
+    lsx_pcmdsd_coeff_master128,77,NULL,1,LSX_PCMDSD_CERTIFICATE_SHA256,1},
   {"encode.mastering.v1.dsd256",11289600,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256},
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256,0},
   /* P21, 2026-10-23: the operator declared the high-rate evidence satisfied
    * and authorized both clocks. The qualified profile at each is the v2
    * CLANS-7 recurrence, which passed training 17/17, verify 17, holdout
@@ -69,13 +76,13 @@ static const lsx_pcmdsd_profile profiles[] = {
    * certificate_sha256 names the coefficient manifest, not the modulator;
    * both v2 profiles use the already-certified 61-tap master64_256 bank. */
   {"encode.mastering.v2.dsd512",22579200,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_p20_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256},
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_p20_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256,0},
   {"encode.mastering.v1.dsd512",22579200,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],0,NULL},
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],0,NULL,0},
   {"encode.mastering.v2.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_v2_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256},
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_v2_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256,0},
   {"encode.mastering.v1.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],0,NULL}
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],0,NULL,0}
 };
 
 struct lsx_pcmdsd {
@@ -90,8 +97,9 @@ struct lsx_pcmdsd {
   uint64_t fir_received, fir_produced, working_limit, native_limit;
   double working[PCMDSD_BATCH], filtered[PCMDSD_BATCH];
   size_t working_pos, working_n, filtered_pos, filtered_n;
-  sdm_normal_t sdm;
+  sdm_normal_t sdm; /* for a resonator profile only .frames is used */
   const lsx_dsd_kernel *sdm_kernel; /* context-owned, immutable */
+  lsx_dsd_resonator resonator;
   lsx_pcmdsd_report report;
   sox_dsd_status_t error;
   lsx_pcmdsd_stage_observer observer;
@@ -105,6 +113,7 @@ double lsx_pcmdsd_reference_scale(const lsx_pcmdsd *p)
 
 const char *lsx_pcmdsd_kernel_name(const lsx_pcmdsd *p)
 {
+  if (p && p->profile->resonator) return "resonator";
   return p && p->sdm_kernel ? p->sdm_kernel->name : NULL;
 }
 
@@ -186,11 +195,15 @@ sox_dsd_status_t lsx_pcmdsd_candidate_create(uint32_t source_hz,
   *out=NULL;
   if (!source_hz || (scale!=.5 && scale!=1.)) return SOX_DSD_BAD_ARGUMENT;
   if (!profile) return SOX_DSD_UNSUPPORTED;
-  if (!control) control=sdm_profile_find(profile->id,native_hz);
-  if (!control || sdm_profile_rate(control)!=native_hz) return SOX_DSD_UNSUPPORTED;
+  /* No legacy SDM control or guard exists at a resonator clock. */
+  if (profile->resonator && (control || bounds)) return SOX_DSD_UNSUPPORTED;
+  if (!profile->resonator && !control)
+    control=sdm_profile_find(profile->id,native_hz);
+  if (!profile->resonator && (!control || sdm_profile_rate(control)!=native_hz))
+    return SOX_DSD_UNSUPPORTED;
   /* An explicitly named candidate chooses its matching composite definition;
    * legacy diagnostic controls retain the existing per-clock default. */
-  {
+  if (control) {
     const lsx_pcmdsd_profile *named=lsx_pcmdsd_profile_find_id(
         native_hz,sdm_profile_id(control));
     if (named) profile=named;
@@ -223,6 +236,15 @@ sox_dsd_status_t lsx_pcmdsd_candidate_create(uint32_t source_hz,
   cfg.input_hz=profile->working_hz;cfg.output_hz=native_hz;
   rc=lsx_rate_f64_create(&cfg,&p->interpolator);
   if (rc!=SOX_DSD_OK) {lsx_pcmdsd_destroy(p);return rc;}
+  if (profile->resonator) {
+    /* The kernel refuses a non-default rounding or MXCSR environment. */
+    if (lsx_dsd_resonator_init(&p->resonator,native_hz)!=LSX_DSD_RESONATOR_OK) {
+      lsx_pcmdsd_destroy(p);
+      return SOX_DSD_UNSUPPORTED;
+    }
+    *out=p;
+    return SOX_DSD_OK;
+  }
   /* A forced unavailable ISA fails context creation, never execution. */
   {
     int sel=lsx_dsd_kernel_select_sdm_rate(NULL,native_hz,&p->sdm_kernel);
@@ -247,6 +269,46 @@ sox_dsd_status_t lsx_pcmdsd_create(uint32_t source_hz, uint32_t native_hz,
   if (!profile || !profile->qualified) return SOX_DSD_UNSUPPORTED;
   return lsx_pcmdsd_candidate_create(source_hz,native_hz,scale,channel,NULL,
       profile->bounds,out);
+}
+
+/* The certified resonator path. Admission matches the legacy kernels: a
+ * nonfinite sample or one beyond the envelope fails after the prefix before
+ * it is modulated, and the peak covers every sample examined. The envelope
+ * (0.5 plus two source LSBs) is inside the kernel's certified input bound,
+ * which the kernel enforces again. */
+static sox_dsd_status_t resonate(lsx_pcmdsd *p, const double *input,
+    sox_sample_t *output, size_t n)
+{
+  size_t i,done=0,bad=n;
+  int rc=LSX_DSD_RESONATOR_OK;
+  for (i=0;i<n;++i) {
+    double x=input[i];
+    if (!isfinite(x)) {bad=i;break;}
+    if (fabs(x)>p->report.peak) p->report.peak=fabs(x);
+    if (fabs(x)>p->envelope) {bad=i;break;}
+  }
+  if (bad>UINT64_MAX-p->sdm.frames)
+    return fail_stream(p,LSX_PCMDSD_STREAM_ERROR,0,UINT_MAX);
+  while (done<bad && rc==LSX_DSD_RESONATOR_OK) {
+    int8_t bits[PCMDSD_NATIVE_BATCH];
+    size_t j,m=min(bad-done,(size_t)PCMDSD_NATIVE_BATCH);
+    rc=lsx_dsd_resonator_process(&p->resonator,input+done,bits,m);
+    if (rc!=LSX_DSD_RESONATOR_OK) break;
+    for (j=0;j<m;++j) output[done+j]=bits[j]>0?SOX_SAMPLE_MAX:-SOX_SAMPLE_MAX;
+    done+=m;p->sdm.frames+=m;
+  }
+  lsx_dsd_resonator_counters(&p->resonator,&p->report.recovery_entries,
+      &p->report.recovery_steps);
+  if (rc==LSX_DSD_RESONATOR_OK && bad==n) return SOX_DSD_OK;
+  if (rc==LSX_DSD_RESONATOR_OK) {
+    if (!isfinite(input[bad]))
+      return fail_stream(p,LSX_PCMDSD_INPUT_NONFINITE,input[bad],UINT_MAX);
+    return fail_stream(p,LSX_PCMDSD_INTERPOLATION_OVERLOAD,input[bad],UINT_MAX);
+  }
+  /* Unreachable under the certificate for admitted input. */
+  return fail_stream(p,rc==LSX_DSD_RESONATOR_PROOF_BREACH ||
+      rc==LSX_DSD_RESONATOR_STATE?LSX_PCMDSD_STATE_BOUND:LSX_PCMDSD_STREAM_ERROR,
+      0,UINT_MAX);
 }
 
 /* Called on already scaled samples. No clamp, gain rescue, reset or fallback.
@@ -274,6 +336,7 @@ sox_dsd_status_t lsx_pcmdsd_modulate(lsx_pcmdsd *p, const double *input,
     p->sdm.frames+=n;
     return SOX_DSD_OK;
   }
+  if (p->profile->resonator) return resonate(p,input,output,n);
   /* One immutable per-context call for the entire block. Each ISA kernel
    * owns its time recurrence, guard and monitor, not an indirect per bit. */
   rc=p->sdm_kernel->sdm_block(&p->sdm,input,n,output,&committed,

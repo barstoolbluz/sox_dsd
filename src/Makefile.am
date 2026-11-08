@@ -16,6 +16,9 @@
 
 ## Process this file with automake to produce Makefile.in
 
+# Sources under resonator/ keep their objects beside them.
+AUTOMAKE_OPTIONS = subdir-objects
+
 RM = rm -f 
 
 AM_CPPFLAGS = -DLADSPA_PATH="\"@LADSPA_PATH@\""
@@ -159,6 +162,15 @@ libdsd_kernels_avx512_la_SOURCES = dsd_kernels_avx512.c dsd_kernels.h sdm_normal
 libdsd_kernels_avx512_la_CFLAGS = $(WARN_CFLAGS) @DSD_AVX512_CFLAGS@
 libsox_ng_la_LIBADD += libdsd_kernels_avx512.la
 endif
+# 2.0.0: certified switched-resonator modulators, vendored byte for byte
+# with their certificates under resonator/. Their proofs assume IEEE binary64
+# with no FMA contraction and no fast-math, so they get their own flags.
+noinst_LTLIBRARIES += libdsd_resonator.la
+libdsd_resonator_la_SOURCES = dsd_resonator.c dsd_resonator.h \
+	resonator/dsd64/src/dsd64_iq.c resonator/dsd64/src/dsd64_iq.h resonator/dsd64/src/constants.h \
+	resonator/dsd128/src/dsd128_iq.c resonator/dsd128/src/dsd128_iq.h resonator/dsd128/src/constants.h
+libdsd_resonator_la_CFLAGS = $(WARN_CFLAGS) -ffp-contract=off -fno-fast-math -fno-lto
+libsox_ng_la_LIBADD += libdsd_resonator.la
 
 libsox_ng_la_LIBADD += @GOMP_LIBS@
 
