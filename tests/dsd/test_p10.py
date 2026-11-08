@@ -112,7 +112,7 @@ def main():
                 raw=tmp/'reference.f64le';raw.write_bytes(samples.astype('<f8').tobytes())
                 packed=tmp/'reference.bits';report=tmp/'reference.json'
                 check=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                    'encode.mastering.v1.dsd64',str(scale),'guarded',str(raw),str(packed),str(report)],
+                    'encode.mastering.v1.dsd64',str(scale),'guarded-cli',str(raw),str(packed),str(report)],
                     capture_output=True,text=True,timeout=120)
                 assert check.returncode==0,check.stderr
                 actual=read_dsf(destination)
@@ -268,7 +268,7 @@ def main():
                     f64.write_bytes(values.astype('<f8').tobytes())
                     packed=tmp/(prefix+'.bits');report=tmp/(prefix+'.json')
                     p=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                        'encode.mastering.v1.dsd64',str(scale),'guarded',str(f64),str(packed),str(report)],
+                        'encode.mastering.v1.dsd64',str(scale),'guarded-cli',str(f64),str(packed),str(report)],
                         capture_output=True,text=True,timeout=120)
                     assert p.returncode==0,p.stderr
                     out=tmp/(prefix+'.dsf');encode(base,out,extra=gain_args,glob=('-D',*flags))
@@ -288,7 +288,7 @@ def main():
             raw.write_bytes(values.astype('<f8').tobytes())
             packed=tmp/'mixed-reference.bits';report=tmp/'mixed-reference.json'
             check=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                'encode.mastering.v1.dsd64','.5','guarded',str(raw),str(packed),str(report)],
+                'encode.mastering.v1.dsd64','.5','guarded-cli',str(raw),str(packed),str(report)],
                 capture_output=True,text=True,timeout=120)
             assert check.returncode==0,check.stderr
             dst=tmp/'mixed-reference.dsf'

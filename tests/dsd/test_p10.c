@@ -286,10 +286,16 @@ static int render(int argc,char **argv)
   unsigned byte=0,bits=0;int status=SOX_DSD_OK,io_error=0;
   clock_t start=clock();
   if (!profile || !control || !in_batch || !out_batch || in_batch>1048576 || out_batch>1048576) return 2;
-  if (strcmp(mode,"training") && strcmp(mode,"guarded")) return 2;
+  if (strcmp(mode,"training") && strcmp(mode,"guarded") && strcmp(mode,"guarded-cli")) return 2;
   status=lsx_pcmdsd_candidate_create(source,native,scale,0,control,
       !strcmp(mode,"training")?NULL:profile->bounds,&p);
   if (status!=SOX_DSD_OK) {fprintf(stderr,"candidate create failed: %d\n",status);return 2;}
+  /* guarded-cli: the CLI default's gain after interpolation and warning
+   * clip, as pcmdsd's effect_start applies them without --headroom. */
+  if (!strcmp(mode,"guarded-cli")) {
+    lsx_pcmdsd_set_gain(p,lsx_pcmdsd_default_warn_gain(native));
+    lsx_pcmdsd_set_clip(p,1);
+  }
   in=!strcmp(argv[7],"-")?stdin:fopen(argv[7],"rb");out=fopen(argv[8],"wb");
   input=malloc(in_batch*sizeof(*input));output=malloc(out_batch*sizeof(*output));
   if (!in || !out || !input || !output) {io_error=1;goto done;}
@@ -627,6 +633,6 @@ int main(int argc,char **argv)
   else if (argc==6 && !strcmp(argv[1],"--stage-probe")) rc=stage_probe(argc,argv);
   else if (argc==5 && !strcmp(argv[1],"--state-bench"))
     rc=state_bench((unsigned)strtoul(argv[2],NULL,10),strtoul(argv[3],NULL,10),argv[4]);
-  else fprintf(stderr,"usage: %s --unit | --render sourceHz nativeHz profile scale training|guarded input.f64le bits report.json [inputBatch outputBatch] | --soak[-nominal-v2] nativeHz seconds segmentSeconds prefix\n",argv[0]);
+  else fprintf(stderr,"usage: %s --unit | --render sourceHz nativeHz profile scale training|guarded|guarded-cli input.f64le bits report.json [inputBatch outputBatch] | --soak[-nominal-v2] nativeHz seconds segmentSeconds prefix\n",argv[0]);
   sox_quit();return rc;
 }
