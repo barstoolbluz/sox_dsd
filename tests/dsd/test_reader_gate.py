@@ -50,6 +50,77 @@ def test_clean_stereo_passes(tmp_path):
     assert gate.judge(metrics) == (True, [])
 
 
+@pytest.mark.parametrize('hz,delay_us', [(176400, 1.78), (705600, 1.78),
+                                       (1411200, 0.90)])
+def test_common_fractional_filter_delay_passes_and_is_reported(tmp_path, hz, delay_us):
+    """P21 accepts a common filter delay, measured in seconds at any clock."""
+    from scipy import ndimage
+    n = hz // 2
+    t = np.arange(n) / hz
+    ref = np.stack((0.25 * np.sin(2*np.pi*997*t) + 0.14 * np.sin(2*np.pi*11003*t),
+                    0.21 * np.sin(2*np.pi*1311*t) + 0.13 * np.sin(2*np.pi*9007*t)), axis=1)
+    ctrl = np.stack((0.30 * np.sin(2*np.pi*447*t),
+                     0.30 * np.sin(2*np.pi*607*t)), axis=1)
+    ours = ndimage.shift(ref, (delay_us * 1e-6 * hz, 0), order=3,
+                         mode='nearest')
+    paths = [tmp_path / f'{label}.f64' for label in ('ours', 'ref', 'ctrl')]
+    for path, arr in zip(paths, (ours, ref, ctrl)):
+        arr.astype('<f8').tofile(path)
+    metrics, why = gate.compare(*paths, hz, 0.5)
+    assert why is None
+    assert gate.judge(metrics) == (True, [])
+    assert abs(metrics['reference_shift_us'] - delay_us) < 0.15
+    assert abs(metrics['reference_shift_us']) <= metrics['max_reference_shift_us']
+    assert min(c['pearson_r'] for c in metrics['channels']) > 0.99999
+
+
+@pytest.mark.parametrize('fault', ['large-latency', 'timebase-drift',
+                                  'opposite-channel-delay', 'missing-frames',
+                                  'midstream-sample-slip', 'channel-swap',
+                                  'short-dropout'])
+def test_fractional_alignment_preserves_fault_rejection(tmp_path, fault):
+    """One bounded common time shift must not hide real decoding damage."""
+    from scipy import ndimage
+    sr = 176400
+    n = sr
+    t = np.arange(n) / sr
+    ref = np.stack((0.32*np.sin(2*np.pi*431*t) + 0.19*np.sin(2*np.pi*11003*t),
+                    0.27*np.sin(2*np.pi*563*t) + 0.20*np.sin(2*np.pi*9007*t)),axis=1)
+    ctrl = np.stack((0.32*np.sin(2*np.pi*233*t),
+                     0.27*np.sin(2*np.pi*307*t)), axis=1)
+    altered = ndimage.shift(ref, (1.78e-6*sr, 0), order=3, mode='nearest')
+    if fault == 'large-latency':
+        altered = ndimage.shift(ref, (15e-6*sr, 0), order=3, mode='nearest')
+    elif fault == 'timebase-drift':
+        index = np.arange(n, dtype=float) * (1 + 150e-6)
+        altered = np.stack([np.interp(index, np.arange(n), ref[:,c])
+                            for c in (0, 1)], axis=1)
+    elif fault == 'opposite-channel-delay':
+        altered[:,1] = ndimage.shift(ref[:,1], -1.78e-6*sr,
+                                      order=3, mode='nearest')
+    elif fault == 'missing-frames':
+        altered = altered[:-3]
+    elif fault == 'midstream-sample-slip':
+        mid = n//2
+        altered = np.concatenate((altered[:mid], altered[mid+1:],
+                                  altered[-1:]), axis=0)
+    elif fault == 'channel-swap':
+        altered = altered[:,::-1]
+    elif fault == 'short-dropout':
+        altered[2*sr//5:2*sr//5+sr//100] = 0
+    paths = [tmp_path / f'{label}.f64' for label in ('ours', 'ref', 'ctrl')]
+    for path, arr in zip(paths, (altered, ref, ctrl)):
+        arr.astype('<f8').tofile(path)
+    metrics, why = gate.compare(*paths, sr, 1)
+    if why is None:
+        accepted, reasons = gate.judge(metrics)
+        assert not accepted, (fault, metrics)
+        assert reasons, fault
+    else:
+        assert metrics is None
+        assert 'incomplete' in why or 'partial' in why
+
+
 @pytest.mark.parametrize('fault', ['swap','gain','shift','noise','truncation','missing-control',
                                   'odd-frame','nonfinite'])
 def test_faults_fail_closed(tmp_path, fault):

@@ -327,9 +327,15 @@ def decode_reference(ref, src, out_hz, dest, start, seconds, timeout):
 
 
 def compare(ours_path, ref_path, control_path, out_hz, seconds):
-    """Compare complete stereo intervals; fail on missing/truncated control."""
+    """Compare complete stereo intervals with one bounded reference time shift.
+
+    Different reconstruction filters can have a small fractional-sample group
+    delay. Estimate a single shift shared by both channels, in *seconds*, on
+    two separated interior excerpts; never retime, stretch or truncate audio.
+    Full-interval identity, residual, control and frame-count checks still run.
+    """
     import numpy as np
-    from scipy import signal
+    from scipy import ndimage, optimize, signal
 
     expected = int(round(seconds * out_hz))
     if expected < int(out_hz * 0.5):
@@ -357,9 +363,48 @@ def compare(ours_path, ref_path, control_path, out_hz, seconds):
     a = signal.sosfiltfilt(sos, ours, axis=0)
     b = signal.sosfiltfilt(sos, ref, axis=0)
     t = signal.sosfiltfilt(sos, ctl, axis=0)
+
+    # FFmpeg and SoX differ by approximately 1.8 us at DSD512 and 0.9 us
+    # at DSD1024. A 2.5 us *time* bound admits these known filter delays
+    # without allowing alignment to absorb whole-frame or timebase faults.
+    max_shift_us = 2.5
+    max_shift_samples = max_shift_us * 1e-6 * out_hz
+    guard = max(24, int(math.ceil(max_shift_samples)) + 8)
+    half_span = max(guard + 8, min(n // 8, int(round(0.05 * out_hz))))
+    excerpts = []
+    for center in (n // 4, 3 * n // 4):
+        lo, hi_ix = center - half_span, center + half_span
+        excerpts.append((a[lo + guard:hi_ix - guard], b[lo:hi_ix]))
+
+    def mismatch(shift):
+        score = 0.0
+        for target, original in excerpts:
+            shifted = ndimage.shift(original, (shift, 0), order=3,
+                                    mode='nearest')[guard:-guard]
+            for c in (0, 1):
+                sx, sy = float(np.std(target[:, c])), float(np.std(shifted[:, c]))
+                if sx <= 0 or sy <= 0:
+                    return float('inf')
+                score += 1.0 - float(np.corrcoef(target[:, c], shifted[:, c])[0, 1])
+        return score
+
+    # If there is insufficient variation to estimate delay, retain unshifted
+    # comparison; the existing energy/identity/residual gates still apply.
+    shift = 0.0
+    if math.isfinite(mismatch(0.0)):
+        fit = optimize.minimize_scalar(mismatch, bounds=(-max_shift_samples,
+                                     max_shift_samples), method='bounded',
+                                     options={'xatol': 1e-3})
+        if fit.success and math.isfinite(fit.fun) and fit.fun < mismatch(0.0):
+            shift = float(fit.x)
+    if shift:
+        b = ndimage.shift(b, (shift, 0), order=3, mode='nearest')
+
     metrics = dict(frames_compared=int(n), expected_frames=int(expected),
                    analysis_band_hz=[ANALYSIS_BAND_HZ[0], hi], channels=[],
-                   control_pearson_r=[])
+                   control_pearson_r=[], reference_shift_samples=shift,
+                   reference_shift_us=shift * 1e6 / out_hz,
+                   max_reference_shift_us=max_shift_us)
     window = max(32, int(round(WINDOW_SECONDS * out_hz)))
     starts = list(range(0, n - window + 1, window))
     if not starts or starts[-1] + window < n:
