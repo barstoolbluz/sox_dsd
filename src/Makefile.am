@@ -171,6 +171,13 @@ libdsd_resonator_la_SOURCES = dsd_resonator.c dsd_resonator.h \
 	resonator/dsd128/src/dsd128_iq.c resonator/dsd128/src/dsd128_iq.h resonator/dsd128/src/constants.h
 libdsd_resonator_la_CFLAGS = $(WARN_CFLAGS) -ffp-contract=off -fno-fast-math -fno-lto
 libsox_ng_la_LIBADD += libdsd_resonator.la
+# The certified build command is -O3; user CFLAGS come last and would
+# override a per-target -O3, so append it to these two objects only. Without
+# fast-math or contraction the decisions are identical at -O2 and -O3. The
+# targets go through a variable so automake keeps its own compile rules.
+RESONATOR_KERNEL_OBJECTS = resonator/dsd64/src/libdsd_resonator_la-dsd64_iq.lo \
+	resonator/dsd128/src/libdsd_resonator_la-dsd128_iq.lo
+$(RESONATOR_KERNEL_OBJECTS): CFLAGS += -O3
 
 libsox_ng_la_LIBADD += @GOMP_LIBS@
 
