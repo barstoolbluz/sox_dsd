@@ -1530,7 +1530,11 @@ modulator stability.  Nonfinite samples and modulator-state guard
 violations remain fatal in either mode.  In error mode the encoder
 applies no gain at DSD64, DSD128 and DSD256, but keeps the 0.9 gain at
 DSD512 and DSD1024, where the eighth-order encoder is qualified only
-with it;
+with it; consequently, this strict mode accepts an interpolated peak up
+to about 1.111 times full-scale PCM (+0.91515 dB) before the 0.5 modulator
+overload envelope is exceeded.  This is a pre-gain peak allowance, not a
+permission for PCM input samples above the format's full scale, and it does
+not disable the separate state guard.
 .B \-\-headroom
 replaces it there as everywhere.
 .TP
@@ -1548,7 +1552,12 @@ the 0.45 ceiling, with a warning.  With
 .B --dsd-clip error
 they are not clipped: only peaks above 0.5 are refused, and at DSD512 and
 DSD1024 sustained full-scale input can stop the encode with a state-guard
-error.  This is not normalization and never changes
+error when the explicit cut is below 0.91515 dB, even when no sample exceeds
+the 0.5 interpolation limit.  The overload diagnostic suggests a total
+.B --headroom
+cut that replaces the current gain; it is only a lower bound from the first
+rejected sample, and neither later peaks nor the state guard are predicted.
+This is not normalization and never changes
 input files.  It is not available for PCM-only
 processing, bit-preserving DSD repacks, or low-level
 .B sdm

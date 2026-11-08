@@ -41,7 +41,9 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
 	     README.sh FEATURES.in test/* issues wiki/* \
              tests/rename_smoke.sh \
              tests/dsd/test_cli_usability.py tests/dsd/test_loud_encode.py \
+             tests/dsd/test_release_111.py tests/dsd/review_111_evidence.py \
              docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md \
+             docs/dsd/RELEASE_NOTES_1.1.1.md \
              docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md
 
 if HAVE_PKGCONFIG
@@ -233,6 +235,13 @@ check-dsd-cli: all
 	  python3 "$(abs_srcdir)/tests/dsd/test_cli_usability.py" \
 	  --sox "$(abs_builddir)/src/sox"
 	$(MAKE) check-dsd-loud-encode
+	$(MAKE) check-dsd-release-111
+
+# Deterministic strict-mode regression including actual high-rate runtimes.
+.PHONY: check-dsd-release-111
+check-dsd-release-111: all
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/test_release_111.py" \
+	  --sox "$(abs_builddir)/src/sox"
 
 # Standalone loud-master acceptance; no dependency on historical receipts.
 .PHONY: check-dsd-loud-encode

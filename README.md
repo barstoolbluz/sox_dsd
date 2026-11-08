@@ -44,7 +44,19 @@ disables the implicit cut; cuts below 0.91515 dB may clip the loudest peaks);
 `--auto-headroom` measures the complete interpolated peak and applies the
 smallest common cut without clipping. `--dsd-clip error` retains strict
 overload refusal, unattenuated at DSD64-256; at DSD512/1024 it keeps the
-0.9 gain, with which the eighth-order encoder there was qualified. `--plan` and `--report` disclose the applied gain.
+0.9 gain, with which the eighth-order encoder there was qualified. Thus
+strict mode at those rates can admit interpolation peaks above 0 dBFS
+(up to approximately +0.915 dB, measured before the encoder gain) without
+clipping, provided the resulting modulator level stays at or below 0.5.
+It is **not** a promise of guard stability for every possible signal. In
+strict mode, an explicit `--headroom` cut below 0.91515 dB bypasses this
+high-rate operating limit and can provoke a fatal v1 state-guard failure.
+`--plan` and `--report` disclose the applied gain. The overload message's
+suggested `--headroom` is an absolute replacement cut inferred from the
+first failed sample only, not a guaranteed successful retry.
+
+For the 1.1.1 candidate's default changes and explicit high-rate v2 CLI
+compatibility break, see [release notes](docs/dsd/RELEASE_NOTES_1.1.1.md).
 
 For basic conversion, profile selection, supported operations and limitations,
 see [Using SoX DSD](docs/dsd/USING_SOX_DSD.md),

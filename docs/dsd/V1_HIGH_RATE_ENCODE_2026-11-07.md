@@ -40,6 +40,11 @@ At 0.8 and below, every case is within 7–22. For comparison, P20 recorded a mi
 ### Soak (`gates/soak/`)
 
 Each run is 3,600 s of the nominal program (`--soak-nominal-v2`), run by `p17_soak_run.py` and assessed by `p17_soak_assess.py --require-sustained`.
+`gates/soak/launcher.log` is an **empty, zero-byte placeholder**; it is
+not independent launch evidence. The individual `*-execution.json`,
+`*-stdout.log`, `*-stderr.log`, and `*-assess.json` receipts are the
+available run evidence. Their limitations and recorded host fields still
+apply; no missing launch log has been reconstructed.
 
 | Run | Mapping | Clock | min / max ones28 | Longest run | Assessor |
 |---|---|---|---|---|---|
@@ -53,7 +58,14 @@ Each run is 3,600 s of the nominal program (`--soak-nominal-v2`), run by `p17_so
 
 A build of 1.1.0 with the same binding (`real-tracks/build.txt`) encoded 200 tracks (100 CD, 100 hi-res) through `sox IN -r RATE -t dsf /dev/null` at DSD512 and DSD1024, at two levels: as decoded, and raised to a 0 dBFS sample peak.
 
-All 800 runs exited 0 with no `FAIL` line. Track identities are hashes; the audio is private and not included.
+All 800 runs exited 0 with no `FAIL` line. This is an **encode-completion**
+result, not evidence of lossless preservation of input peaks: in the 400
+`peak0` runs, 194 emitted SoX's input-stage `balancing clipped` warning
+(97 distinct tracks at each rate), with 1 to 3,936 clipped input samples
+reported per run. This clipping occurred upstream of `pcmdsd` and is
+separate from the 0.45 modulator clip/warn count. These runs cannot prove
+that the sample-peak normalization preserved the original PCM waveform.
+Track identities are hashes; the audio is private and not included.
 
 ## `--dsd-clip error` keeps the gain at DSD512/1024
 
@@ -63,7 +75,7 @@ All 800 runs exited 0 with no `FAIL` line. Track identities are hashes; the audi
 
 - **1.1.0:** DC completes under every option set at every rate, with v2 at DSD512/1024 and v1 below.
 - **This branch, `--dsd-clip error`:** DC completes at every rate. At DSD512/1024 the clipped sine is now accepted, where 1.1.0 refused it as an overload; its overs stay inside the envelope after the gain.
-- **This branch, `--headroom 0 --dsd-clip error`:** this explicitly asks for the 0.5 mapping, and full-scale DC trips the state guard at DSD512 (native frame 107,185,624) and DSD1024 (frame 23,447,904). The encode stops with an error and writes no output.
+- **This branch, `--headroom 0 --dsd-clip error`:** this explicitly asks for the 0.5 mapping, and full-scale DC trips the state guard at DSD512 (native frame 107,185,624) and DSD1024 (frame 23,447,904). The encode stops with an error. These runs targeted `/dev/null`; they do not establish that no bytes were written before failure. A separate regression tests removal of a partial regular DSF output.
 - **Default, `--headroom 0` and `--auto-headroom`:** these complete every input at every rate on both builds. The clip or the measured cut keeps the input at or below 0.45.
 - **Square wave under either strict option set:** refused as an interpolation overload on both builds.
 

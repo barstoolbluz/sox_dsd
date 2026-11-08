@@ -5,7 +5,10 @@ SoX DSD converts PCM, native DSD, and DSD-over-PCM files with the familiar
 input and output formats decide whether to decode, encode, or simply repack
 DSD. You normally do not need DSD-specific flags.
 
-This guide describes SoX DSD 1.1.0. For all SoX options and effects, consult
+This guide describes the 1.1.1 candidate's behavior; the binary still
+reports version 1.1.0 until the release bump. See
+[1.1.1 release notes](RELEASE_NOTES_1.1.1.md) for changed defaults and
+compatibility. For all SoX options and effects, consult
 `man sox`, `man soxeffect_ng`, and `man soxformat_ng`. `sox --help-dsd` displays
 short examples.
 
@@ -85,13 +88,26 @@ sox --dsd-clip error --auto-headroom --report encode.json \
 `--headroom` accepts a **nonnegative attenuation** in dB (`0` through `120`),
 not a signed gain: `--headroom 2` means exactly a 2 dB cut and replaces the
 implicit 0.91515 dB reduction. `--headroom 0` explicitly requests unity gain;
-it is **not** equivalent to the default. A cut below 0.91515 dB leaves the
-loudest peaks above the 0.45 ceiling, where they are clipped with a warning.
+it is **not** equivalent to the default. In warning mode a cut below 0.91515 dB leaves full-scale
+interpolated peaks above the 0.45 ceiling, where they are clipped with a
+warning. In strict mode no 0.45 clamp takes place; peaks above 0.5 are
+fatal. At DSD512/1024, an explicit cut below 0.91515 dB may also trip v1's
+state guard during sustained full-scale input, even when the 0.5 overload
+limit is not crossed. The 0.91515 dB bound describes the tested operating
+level, not a general stability proof.
 `--auto-headroom`
 measures the actual source-rate conversion, prefilter, final interpolation
 and its finite tail. It applies **one shared attenuation across all channels**,
 without boosting quiet audio. The limit is 0.45 at every rate (in modulator
 units, with 0.5 corresponding to 0 dBFS).
+With `--dsd-clip error` and no explicit headroom, the lower rates
+(DSD64/128/256) use unity gain, so a full-scale PCM sample maps to 0.5
+modulator units and intersample overs above that threshold are rejected.
+DSD512/1024 retain the 0.9 gain even in strict mode, allowing an
+interpolated, pre-gain peak up to approximately 1.111 times PCM full scale
+(+0.91515 dB) before the 0.5 overload threshold. This does not waive the
+v1 state guard. Strict mode means *no clipping*, not *no attenuation*.
+
 The plain default and measured mode may produce different
 levels even when neither clips: default reduces all input by 0.91515 dB,
 whereas measured mode leaves already-safe material unchanged. The latter is
@@ -110,7 +126,11 @@ the not-yet-measured automatic mode), while `--report` records
 `clip_ceiling_applied`, `headroom_applied_db` (including the implicit cut), and
 `clipped_interpolated_samples` for each executed encoder channel, as well as an
 `encoder_interpolation` clipping aggregate and a report warning when clipping
-occurs. A strict-mode failure removes a partial regular output file. The other
+occurs. A strict-mode failure removes a partial regular output file; it cannot
+retract bytes already sent to stdout or `/dev/null`. The error's recommended
+`--headroom` is a total, replacement attenuation derived from the first
+failed interpolated sample, not a full-program peak measurement. Later
+samples or a state-guard violation can still cause a retry to fail. The other
 numeric and state bounds still apply in every mode.
 
 ## Native DSD versus processing
