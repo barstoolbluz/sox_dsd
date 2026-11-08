@@ -17,9 +17,9 @@ static lsx_dsd_rate const dsd_rates[] = {
   {11289600, 256, "DSD256", CAPS_QUALIFIED,
    "decode.mastering.v1.dsd256", "decode.wideband.v1.dsd256", "encode.mastering.v1.dsd256"},
   {22579200, 512, "DSD512", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd512", "decode.wideband.v1.dsd512", "encode.mastering.v2.dsd512"},
+   "decode.mastering.v1.dsd512", "decode.wideband.v1.dsd512", "encode.mastering.v1.dsd512"},
   {45158400, 1024, "DSD1024", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd1024", "decode.wideband.v1.dsd1024", "encode.mastering.v2.dsd1024"}
+   "decode.mastering.v1.dsd1024", "decode.wideband.v1.dsd1024", "encode.mastering.v1.dsd1024"}
 };
 
 /* P21: the operator declared the evidence satisfied and opened all twelve

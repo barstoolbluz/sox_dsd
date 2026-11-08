@@ -3722,14 +3722,11 @@ options govern bandwidth and graph-boundary clipping.
 Encode PCM to native DSD using the composite modulator at the specified
 native DSD bit clock.  The default,
 .BR mastering ,
-uses the qualified mastering v1 encoder at DSD64, DSD128 and DSD256,
-and the qualified mastering v2 CLANS-7 encoder at DSD512 and DSD1024.
+uses the qualified mastering v1 encoder at every rate.
 Versioned selectors such as
 .B encode.mastering.v1.dsd128
-and
-.B encode.mastering.v2.dsd512
-pin their output rate.  The high-rate v1 encoders are unqualified and
-cannot be requested as CLI production profiles.  Explicit legacy and
+pin their output rate.  The v2 CLANS-7 encoders at DSD512 and DSD1024
+are not bound to a rate and cannot be requested from the command line.  Explicit legacy and
 experimental selections are distinct from qualified mastering; they do
 not enable an unqualified composite modulator.
 .SP

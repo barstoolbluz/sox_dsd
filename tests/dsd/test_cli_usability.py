@@ -184,7 +184,7 @@ def main():
             def enc(mult=mult):
                 dest=d/f'encoded{mult}.dsf'
                 doc=plan(exe,d/'input.wav','-r',f'dsd{mult}',dest)
-                ident=f'encode.mastering.v{"1" if mult<=256 else "2"}.dsd{mult}'
+                ident=f'encode.mastering.v1.dsd{mult}'
                 check(doc['output']['domain']=='DSD_NATIVE', 'encoder route')
                 check(doc['output']['rate_hz']==44100*mult, 'named native rate')
                 check(doc['encoder']['id']==ident, 'qualified encoder mismatch')

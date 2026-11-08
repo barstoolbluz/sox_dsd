@@ -222,8 +222,7 @@ sox --encode encode.mastering.v1.dsd128 source.wav -r dsd128 output.dsf
 ```
 
 For encoding, `--encode mastering` selects the qualified mastering-v1
-modulator for DSD64/128/256 and qualified mastering-v2 CLANS-7 for
-DSD512/1024. A mismatched version-pinned native bit clock causes an error.
+modulator at every rate. A mismatched version-pinned native bit clock causes an error.
 Unsupported or unqualified legacy composite profiles do not acquire
 qualification through these selectors. Only interpolated samples above the warning ceiling are clipped;
 nonfinite samples and modulator-state guard failures still stop the

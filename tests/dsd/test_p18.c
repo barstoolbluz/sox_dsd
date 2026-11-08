@@ -50,9 +50,9 @@ static int capabilities(void)
         LSX_DSD_OPERATION_READ)==LSX_DSD_CAP_UNSUPPORTED);
     CHECK(lsx_dsd_capability_check(high[i],LSX_DSD_ENDPOINT_DSF,
         LSX_DSD_OPERATION_TRANSPORT)==LSX_DSD_CAP_UNSUPPORTED);
-    /* the qualified encoder at each clock is v2, not the defective v1 */
+    /* the encoder bound at each clock is v1 (2026-11-07) */
     CHECK(!strcmp(r->encode_mastering_id,
-        high[i]==22579200u?"encode.mastering.v2.dsd512":"encode.mastering.v2.dsd1024"));
+        high[i]==22579200u?"encode.mastering.v1.dsd512":"encode.mastering.v1.dsd1024"));
   }
   /* one past the top supported rate stays unsupported */
   CHECK(lsx_dsd_capability_check(45158400u*2,LSX_DSD_ENDPOINT_DSF,

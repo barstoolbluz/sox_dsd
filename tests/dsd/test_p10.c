@@ -48,13 +48,13 @@ static void envelope(void)
     lsx_pcmdsd_destroy(p);p=NULL;
   }
   p=(void *)1;
-  /* P21 promotes v2 at DSD512; the regular constructor must now succeed
-   * and the private candidate constructor must default to that same row. */
+  /* v1 binds DSD512 again (2026-11-07); the regular constructor and the
+   * private candidate constructor must both default to that row. */
   CHECK(lsx_pcmdsd_create(48000,22579200,.5,0,&p)==SOX_DSD_OK && p);
-  CHECK(!strcmp(lsx_pcmdsd_profile_of(p)->id,"encode.mastering.v2.dsd512"));
+  CHECK(!strcmp(lsx_pcmdsd_profile_of(p)->id,"encode.mastering.v1.dsd512"));
   lsx_pcmdsd_destroy(p);p=NULL;
   CHECK(lsx_pcmdsd_candidate_create(48000,22579200,.5,0,NULL,NULL,&p)==SOX_DSD_OK && p);
-  CHECK(!strcmp(lsx_pcmdsd_profile_of(p)->id,"encode.mastering.v2.dsd512"));
+  CHECK(!strcmp(lsx_pcmdsd_profile_of(p)->id,"encode.mastering.v1.dsd512"));
   lsx_pcmdsd_destroy(p);p=NULL;
   /* Both v1 and v2 are still addressable independently by exact candidate ID. */
   {
@@ -65,13 +65,14 @@ static void envelope(void)
     const char *old_id="encode.mastering.v1.dsd512";
     const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(22579200,old_id);
     const sdm_profile_t *old_control=sdm_profile_find(old_id,22579200);
-    CHECK(lsx_pcmdsd_profile_find(22579200)==v2);
+    CHECK(lsx_pcmdsd_profile_find(22579200)==v1);
     CHECK(v2 && v2->qualified && v2->certificate_sha256 && v2->bounds);
-    CHECK(v1 && !v1->qualified && !v1->certificate_sha256 && old_control);
+    CHECK(v1 && v1->qualified && v1->certificate_sha256 && old_control);
     CHECK(ctl && sdm_profile_rate(ctl)==22579200);
     CHECK(!sdm_profile_coefficients(ctl,&a,&g,&order) && order==7);
+    CHECK(!sdm_profile_coefficients(old_control,&a,&g,&order) && order==8);
     CHECK(lsx_pcmdsd_create(176400,22579200,.5,0,&p)==SOX_DSD_OK && p);
-    CHECK(lsx_pcmdsd_profile_of(p)==v2);
+    CHECK(lsx_pcmdsd_profile_of(p)==v1);
     lsx_pcmdsd_destroy(p);p=NULL;
     CHECK(lsx_pcmdsd_candidate_create(176400,22579200,.5,0,ctl,v2->bounds,&p)==SOX_DSD_OK && p);
     CHECK(lsx_pcmdsd_profile_of(p)==v2);
@@ -80,8 +81,8 @@ static void envelope(void)
     CHECK(lsx_pcmdsd_profile_of(p)==v1);
     lsx_pcmdsd_destroy(p);p=NULL;
   }
-  /* P21 promotes P19's v2 DSD1024 candidate. Its v1 counterpart remains
-   * unqualified and retains its exact-name replay path. */
+  /* v1 binds DSD1024 again (2026-11-07). P19's v2 candidate stays qualified
+   * and reachable by exact name. */
   {
     const char *v2_id="encode.mastering.v2.dsd1024";
     const lsx_pcmdsd_profile *v2=lsx_pcmdsd_profile_find_id(45158400,v2_id);
@@ -90,13 +91,14 @@ static void envelope(void)
     const char *old_id="encode.mastering.v1.dsd1024";
     const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(45158400,old_id);
     const sdm_profile_t *old_control=sdm_profile_find(old_id,45158400);
-    CHECK(lsx_pcmdsd_profile_find(45158400)==v2);
+    CHECK(lsx_pcmdsd_profile_find(45158400)==v1);
     CHECK(v2 && v2->qualified && v2->certificate_sha256 && v2->bounds);
-    CHECK(v1 && !v1->qualified && !v1->certificate_sha256 && old_control);
+    CHECK(v1 && v1->qualified && v1->certificate_sha256 && old_control);
     CHECK(control && sdm_profile_rate(control)==45158400);
     CHECK(!sdm_profile_coefficients(control,&a,&g,&order) && order==7);
+    CHECK(!sdm_profile_coefficients(old_control,&a,&g,&order) && order==8);
     CHECK(lsx_pcmdsd_create(176400,45158400,.5,0,&p)==SOX_DSD_OK && p);
-    CHECK(lsx_pcmdsd_profile_of(p)==v2);
+    CHECK(lsx_pcmdsd_profile_of(p)==v1);
     lsx_pcmdsd_destroy(p);p=NULL;
     CHECK(lsx_pcmdsd_candidate_create(176400,45158400,.5,0,control,v2->bounds,&p)==SOX_DSD_OK && p);
     CHECK(lsx_pcmdsd_profile_of(p)==v2);

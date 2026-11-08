@@ -287,9 +287,9 @@ def main():
                         output_sha256=sha(raw))
                     okay=(desc['rate']==native and desc['channels']==2 and
                           desc['frames']>0 and
-                          chosen==f'encode.mastering.v2.dsd{native//44100}')
+                          chosen==f'encode.mastering.v1.dsd{native//44100}')
                 store(key,'PASS' if okay else 'FAIL',dict(output=got,
-                    expected='qualified v2 encoder, declared in plan and on disk',
+                    expected='qualified v1 encoder, declared in plan and on disk',
                     reference=ref))
         # P21 does not authorize the gaps between canonical high rates.
         # Syntactically valid headers must be refused by every native reader.

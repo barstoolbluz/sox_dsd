@@ -126,20 +126,20 @@ static void unit(void)
     CHECK(rate && rate->capabilities!=0);
     CHECK(rate->decode_mastering_id && rate->decode_wideband_id && rate->encode_mastering_id);
     CHECK(master && wide && encoder && sdm);
-    /* the rate binds to v2, not to the defective v1 that still sits in the
-     * table behind it and must stay unqualified */
+    /* the rate binds to v1 (2026-11-07); the v2 CLANS-7 row behind it stays
+     * qualified and reachable by exact id */
     CHECK(encoder->qualified==1 && encoder->certificate_sha256!=NULL);
-    CHECK(!strcmp(encoder->id,i?"encode.mastering.v2.dsd1024":"encode.mastering.v2.dsd512"));
+    CHECK(!strcmp(encoder->id,i?"encode.mastering.v1.dsd1024":"encode.mastering.v1.dsd512"));
+    for(unsigned coord=0;coord<8;coord++)
+      CHECK(encoder->bounds[coord]==lsx_pcmdsd_guards[i+3][coord]);
     {
-      const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(hz,
-          i?"encode.mastering.v1.dsd1024":"encode.mastering.v1.dsd512");
-      CHECK(v1 && v1->qualified==0 && v1->certificate_sha256==NULL);
+      const lsx_pcmdsd_profile *v2=lsx_pcmdsd_profile_find_id(hz,
+          i?"encode.mastering.v2.dsd1024":"encode.mastering.v2.dsd512");
+      CHECK(v2 && v2->qualified==1 && v2->certificate_sha256!=NULL);
       for(unsigned coord=0;coord<8;coord++)
-        CHECK(v1->bounds[coord]==lsx_pcmdsd_guards[i+3][coord]);
+        CHECK(v2->bounds[coord]==(i?lsx_pcmdsd_v2_guards:lsx_pcmdsd_p20_guards)[coord]);
     }
     CHECK(encoder->bounds!=NULL);
-    for(unsigned coord=0;coord<8;coord++)
-      CHECK(encoder->bounds[coord]==(i?lsx_pcmdsd_v2_guards:lsx_pcmdsd_p20_guards)[coord]);
     CHECK(lsx_pcmdsd_qualified(hz));
     CHECK(master->intermediate_hz==176400 && master->pass_hz==40000 && master->stop_hz==80000);
     CHECK(wide->intermediate_hz==hz/32 && wide->pass_hz==wide->intermediate_hz*.4);

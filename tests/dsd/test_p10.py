@@ -232,17 +232,17 @@ def main():
             return dict(plan=json.loads(clean(json.dumps(data))))
         record('release_plan_discloses_unqualified_profile',plan)
         def unselectable():
-            """Unqualified encoders are unreachable, not merely refused.
+            """Encoders not bound to a clock are unreachable, not merely refused.
 
-            src/pcmdsd.c keeps encode.mastering.v1.dsd512 and .v1.dsd1024 at
-            qualified=0, and dsd_rates carries only the qualified id at each
-            clock, so lsx_dsd_profile_parse cannot resolve them at all. This is
-            the structural half of the release gate: a profile that never
-            qualified has no CLI spelling, so no run can select it by accident.
+            dsd_rates carries only the bound id at each clock, so
+            lsx_dsd_profile_parse cannot resolve the v2 CLANS-7 rows that
+            v1 displaced at DSD512 and DSD1024 on 2026-11-07. A profile that
+            is not bound has no CLI spelling, so no run can select it by
+            accident.
             """
             rows=[]
-            for ident,rate in (('encode.mastering.v1.dsd512','22579200'),
-                               ('encode.mastering.v1.dsd1024','45158400')):
+            for ident,rate in (('encode.mastering.v2.dsd512','22579200'),
+                               ('encode.mastering.v2.dsd1024','45158400')):
                 dst=tmp/f'unselectable-{ident}.dsf'
                 cp=invoke(['--encode',ident,'-D',pcm,'-r',rate,dst],exe=a.sox)
                 assert cp.returncode!=0,(ident,cp.returncode,cp.stdout[-400:])

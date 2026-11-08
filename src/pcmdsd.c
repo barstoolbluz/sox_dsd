@@ -52,30 +52,33 @@ static const lsx_pcmdsd_profile profiles[] = {
     lsx_pcmdsd_coeff_master128,77,lsx_pcmdsd_guards[1],1,LSX_PCMDSD_CERTIFICATE_SHA256},
   {"encode.mastering.v1.dsd256",11289600,176400,40000,80000,
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  /* P21, 2026-10-23: the operator declared the high-rate evidence satisfied
-   * and authorized both clocks. The qualified profile at each is the v2
-   * CLANS-7 recurrence, which passed training 17/17, verify 17, holdout
-   * 36/36, cross-ISA and an uninterrupted 3,600-second nominal soak.
+  /* 2026-11-07: v1 (eighth order) binds DSD512 and DSD1024 again. It was
+   * held back because v1.dsd512 failed the sustained nominal gate at min28 6
+   * and v1.dsd1024 ran away on full-scale DC, both at the old 0.5 mapping.
+   * Under the 1.1.0 default (0.9 gain, 0.45 clip) it passes both: P17 DC
+   * fixtures and 60 s of DC at 0.45 complete at both clocks, and the
+   * 3,600-second nominal soak passes p17_soak_assess at both clocks
+   * (min28 7, max 21). The controls at 0.5 still reproduce both failures.
+   * See docs/dsd/V1_HIGH_RATE_ENCODE_2026-11-07.md.
    *
-   * v2 is ordered FIRST at each clock deliberately: lsx_pcmdsd_profile_find()
+   * v1 is ordered FIRST at each clock deliberately: lsx_pcmdsd_profile_find()
    * returns the first row matching a rate, so this is what binds the rate and
    * what lsx_pcmdsd_create() will build.
    *
-   * The v1 rows below it stay qualified=0 and remain reachable only by exact
-   * id, for archived P17/P19 replay. They are NOT merely older: v1.dsd512
-   * failed the sustained nominal gate at min28 6, and v1.dsd1024 is the
-   * defective eighth order. Do not promote either without new evidence.
+   * The v2 CLANS-7 rows that P21 bound on 2026-10-23 stay qualified and are
+   * reachable by exact id. They are no longer in dsd_rates, so the CLI cannot
+   * select them.
    *
    * certificate_sha256 names the coefficient manifest, not the modulator;
-   * both v2 profiles use the already-certified 61-tap master64_256 bank. */
+   * all four profiles use the already-certified 61-tap master64_256 bank. */
+  {"encode.mastering.v1.dsd512",22579200,176400,40000,80000,
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],1,LSX_PCMDSD_CERTIFICATE_SHA256},
   {"encode.mastering.v2.dsd512",22579200,176400,40000,80000,
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_p20_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  {"encode.mastering.v1.dsd512",22579200,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],0,NULL},
-  {"encode.mastering.v2.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_v2_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256},
   {"encode.mastering.v1.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],0,NULL}
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],1,LSX_PCMDSD_CERTIFICATE_SHA256},
+  {"encode.mastering.v2.dsd1024",45158400,176400,40000,80000,
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_v2_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256}
 };
 
 struct lsx_pcmdsd {
