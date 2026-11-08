@@ -13,12 +13,33 @@ import sys
 import numpy as np
 
 
+def fake_native_clock(source):
+    """Read only the metadata needed for the stub reference's clock offset."""
+    with Path(source).open('rb') as stream:
+        header = stream.read(2048)
+    if header[:4] == b'DSD ' and len(header) >= 60:
+        return struct.unpack_from('<I', header, 56)[0]
+    if header[:4] == b'1bit' and len(header) >= 40:
+        return struct.unpack_from('>I', header, 36)[0]
+    if header[:4] == b'FRM8':
+        pos = header.find(b'FS  ')
+        if pos >= 0 and len(header) >= pos + 16:
+            return struct.unpack_from('>I', header, pos + 12)[0]
+    raise ValueError('test double requires a structurally recognized DSD container')
+
+
 def generate(source, output, hz, seconds):
     digest = hashlib.sha256(Path(source).read_bytes()).digest()
     freqs = [191 + int.from_bytes(digest[:2], 'little') % 490,
              911 + int.from_bytes(digest[2:4], 'little') % 490]
     count = int(round(float(seconds) * int(hz)))
-    t = np.arange(count, dtype=np.float64) / float(hz)
+    # The independent FFmpeg oracle in the observed P21 corpus lags the SoX
+    # result by 40.5 *native* frames. The offline test double simulates that
+    # offset so fault-injection tests use the same timing contract. This is
+    # deterministic synthetic PCM, never a genuine independent decoder.
+    ref_delay = (40.5 * hz / fake_native_clock(source)
+                 if Path(sys.argv[0]).name == 'ffmpeg' else 0.0)
+    t = (np.arange(count, dtype=np.float64) - ref_delay) / float(hz)
     channels = [0.33 * np.sin(2*np.pi*freq*t) +
                 0.10 * np.sin(2*np.pi*(freq*4 + 41)*t) for freq in freqs]
     samples = np.stack(channels, axis=1)
@@ -96,6 +117,19 @@ def main():
         hz = int(argv[argv.index('-r')+1])
         seconds = float(argv[argv.index('trim')+2])
         generate(source, output, hz, seconds)
+        if '--report' in argv:
+            # Mirror just the minimal SoX decoder receipt consumed by the
+            # offline test gate. Never claim this is real SoX DSP evidence.
+            profile = (argv[argv.index('--decode') + 1]
+                       if '--decode' in argv else 'conservative')
+            family = {'mastering': 'decode.mastering.v2',
+                      'wideband': 'decode.wideband.v1',
+                      'conservative': 'decode.mastering.v1'}[profile]
+            native = fake_native_clock(source)
+            profile_id = f'{family}.dsd{native // 44100}'
+            report = {'processing': {'decoder': [{'profile_id': profile_id}]
+                                             * 2}}
+            Path(argv[argv.index('--report') + 1]).write_text(json.dumps(report))
         return 0
     # Encode raw PCM to a deterministic stand-in with native container headers.
     if '-t' in argv:

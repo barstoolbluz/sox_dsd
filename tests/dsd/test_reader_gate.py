@@ -393,8 +393,16 @@ def make_fake_environment(tmp_path):
     sox.chmod(0o755); ref.chmod(0o755)
     media = tmp_path / 'licensed'
     media.mkdir()
+    # P21 now inspects the on-disk native channel count independently. Give
+    # the offline fixture real DSF metadata, never arbitrary marker bytes.
+    # These files contain synthetic stub payloads, NOT licensed program audio.
+    spec = importlib.util.spec_from_file_location('fake_media_encoder', src)
+    fake = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fake)
     for i in range(2):
-        (media/f'commercial-{i}.dsf').write_bytes(f'commercial-track-{i}'.encode())
+        marker = tmp_path / f'commercial-stub-{i}.bin'
+        marker.write_bytes(f'commercial-track-{i}'.encode())
+        fake.encode_fake_dsd(media / f'commercial-{i}.dsf', marker, 22579200)
     return sox, ref, media
 
 
