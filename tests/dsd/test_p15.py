@@ -130,8 +130,11 @@ def main():
                     return dict(requested=ident,exit=cp.returncode)
                 case(f'versioned_decode_wrong_clock_{rate//44100}_{profile}',wrong_clock)
 
+        # 2.0.0: DSD64/128 encode with the v3 resonators; DSD256 keeps v1.
+        def encode_id(rate):
+            return f'encode.mastering.v{3 if rate<=5644800 else 1}.dsd{rate//44100}'
         for rate in RATES:
-            ident=f'encode.mastering.v1.dsd{rate//44100}'
+            ident=encode_id(rate)
             def encode_plan(rate=rate,ident=ident):
                 p=plan('--encode',ident,wav,'-r',rate,t/'planned.dsf')
                 expected(p['encoder']['id']==ident,'wrong versioned encoder identity')
@@ -159,7 +162,7 @@ def main():
             case(f'versioned_encode_audio_{rate//44100}',encode_audio)
             def wrong_encode(rate=rate):
                 other=next(x for x in RATES if x!=rate)
-                ident=f'encode.mastering.v1.dsd{other//44100}'
+                ident=encode_id(other)
                 cp=run('--plan','--encode',ident,wav,'-r',rate,t/'bad.dsf')
                 expected(cp.returncode!=0,'wrong encoder rate accepted')
                 expected('different native DSD clock' in cp.stderr,cp.stderr[:400])
