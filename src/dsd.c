@@ -275,8 +275,8 @@ int lsx_dsd_profile_parse(char const *text, int encode, int *out, uint32_t *nati
       }
     if (!strcmp(text,"conservative")) { *out=LSX_DSD_PROFILE_MASTERING; return 1; }
   }
-  /* A named mastering decoder must match the qualified automatic default.
-   * Versioned v1 identities and the conservative v1 alias remain explicit. */
+  /* A named mastering decoder is v2. The automatic default is v1, which
+   * the conservative alias and the versioned v1 identities also select. */
   if (!strcmp(text,"mastering")) {
     *out=encode?LSX_DSD_ENCODE_MASTERING:LSX_DSD_PROFILE_MASTERING_V2;
     return 1;
@@ -301,11 +301,11 @@ static int dsd_getopts(sox_effect_t *eff, int argc, char **argv)
   int i, is_encode=!strcmp(eff->handler.name,"pcmdsd"), profile;
   int seen_profile=0, seen_level=0, seen_reference=0, seen_rate=0;
   memset(opt,0,sizeof(*opt));
-  /* Decode default promoted v1 -> v2 per the operator decision of
-   * 2026-10-15, on the engineering acceptance of 2026-10-19. The encoder
-   * shares this parser and its profile enum is a different space, so its
-   * default is left exactly as it was. v1 stays selectable via -p. */
-  opt->profile=is_encode?LSX_DSD_ENCODE_MASTERING:LSX_DSD_PROFILE_MASTERING_V2;
+  /* Decode default returned v2 -> v1 on 2026-11-08 (it was promoted
+   * v1 -> v2 on 2026-10-15). The encoder shares this parser and its profile
+   * enum is a different space, so its default is unchanged. v2 stays
+   * selectable via -p mastering. */
+  opt->profile=is_encode?LSX_DSD_ENCODE_MASTERING:LSX_DSD_PROFILE_MASTERING;
   opt->level=LSX_DSD_LEVEL_PRESERVE;
   opt->reference=LSX_DSD_REF_AUTO;
   opt->clip=LSX_DSD_CLIP_WARN;

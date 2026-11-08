@@ -168,14 +168,14 @@ def main() -> int:
         run('pcm_only_plan',[w88,'@OUT@'],inspect=expect(
             executable=True,output__domain='PCM_AUDIO',graph_decoder_count=0))
 
-        # The unpinned P15 release default is mastering v2; explicit v1 stays selectable.
+        # The unpinned default is mastering v1 (2026-11-08); explicit v2 stays selectable.
         # P08 activates the existing binary64 decoder for planned graph boundaries.
         for name,src,expected,clock in (('master64',ds,88200,64),
                                         ('master128',ds128,176400,128),
                                         ('master256',ds256,176400,256)):
             run(name,[src,'@OUT@'],inspect=expect(executable=True,needs_unimplemented_dsp=False,
                 decoder__intermediate_hz=expected,
-                decoder__id=f'decode.mastering.v2.dsd{clock}',
+                decoder__id=f'decode.mastering.v1.dsd{clock}',
                 output__bits_per_sample=24,
                 graph_decoder_count=1))
         run('wideband256',['--decode','wideband',ds256,'@OUT@'],
@@ -245,8 +245,8 @@ def main() -> int:
             run('combine_'+c,['--combine',c,ds,ds,'@OUT@'],inspect=per_input)
         run('mixed_dsd_clocks',['--combine','mix',ds,ds128,'@OUT@'],
             inspect=expect(input_decoder_count=2,combiner__rate_hz=176400,
-                inputs__0__decoder_id='decode.mastering.v2.dsd64',
-                inputs__1__decoder_id='decode.mastering.v2.dsd128'))
+                inputs__0__decoder_id='decode.mastering.v1.dsd64',
+                inputs__1__decoder_id='decode.mastering.v1.dsd128'))
         run('mixed_dsd_clocks_native_ambiguous',['--combine','mix',ds,ds128,'@OUT@'],
             ok=False,error='explicit native output rate',suffix='.dsf')
         run('mixed_dsd_clocks_native_pinned',['--combine','mix',ds,ds128,
@@ -365,17 +365,17 @@ def main() -> int:
         run('mod_decode_gain',[w88,'@OUT@','pcmdsd','2822400',
             'dsdpcm','88200','gain','-3'],
             inspect=check_steps('pcmdsd','dsdpcm','gain',encoder_count=1,
-                graph_decoder_count=1,decoder__id='decode.mastering.v2.dsd64'))
+                graph_decoder_count=1,decoder__id='decode.mastering.v1.dsd64'))
         run('mod_decode_wrong_pin',[w88,'@OUT@','pcmdsd','2822400',
             'dsdpcm','-p','decode.mastering.v1.dsd128'],ok=False,
             error='different native DSD clock')
         run('mod_to_128_decode',[w88,'@OUT@','pcmdsd','5644800','dsdpcm','176400'],
             inspect=expect(encoder_count=1,graph_decoder_count=1,
-                decoder__id='decode.mastering.v2.dsd128',decoder__intermediate_hz=176400))
+                decoder__id='decode.mastering.v1.dsd128',decoder__intermediate_hz=176400))
         run('mod64_decode_mod128_decode',[ds,'@OUT@','dsdpcm','88200',
             'pcmdsd','5644800','dsdpcm','176400'],
             inspect=expect(encoder_count=1,graph_decoder_count=2,
-                decoder__id='decode.mastering.v2.dsd128'))
+                decoder__id='decode.mastering.v1.dsd128'))
         run('mod64_decode_mod128_pin',[ds,'@OUT@','dsdpcm','88200',
             'pcmdsd','5644800','dsdpcm','-p','decode.mastering.v1.dsd128'],
             inspect=expect(decoder__id='decode.mastering.v1.dsd128'))

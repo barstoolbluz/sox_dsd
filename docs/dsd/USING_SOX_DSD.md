@@ -12,7 +12,7 @@ short examples.
 ## Basic conversions
 
 ```sh
-# DSD to an ordinary WAV. Qualified mastering v2 reconstruction is automatic.
+# DSD to an ordinary WAV. Qualified mastering v1 reconstruction is automatic.
 sox music.dsf music.wav
 
 # Specify a PCM output rate and bit depth. File-specific flags precede output.
@@ -199,19 +199,21 @@ DSD conversions; PCM-only commands continue to use normal SoX diagnostics.
 
 ## Qualified profiles for advanced use
 
-The normal profile is **mastering**; you do not need to specify it. For DSD
-reconstruction, `--decode mastering` and omitting `--decode` select the
-identical qualified mastering-v2 bank matched to the source bit clock.
-`--decode conservative` selects the older mastering-v1 bank, while
-`--decode wideband` selects the qualified wideband-v1 bank. Exact versioned
+For DSD reconstruction, omitting `--decode` and `--decode conservative`
+select the qualified mastering-v1 bank matched to the source bit clock:
+passband 20 kHz at DSD64, 30 kHz at DSD128 and 40 kHz from DSD256 up.
+`--decode mastering` selects the wider mastering-v2 bank (25, 48 and
+66 kHz), and `--decode wideband` selects the qualified wideband-v1 bank.
+For encoding, the normal profile is **mastering**; you do not need to
+specify it. Exact versioned
 identities are available when reproducibility matters:
 
 ```sh
 # An exact decoder bank, tied to DSD64 input.
-sox --decode decode.mastering.v1.dsd64 source64.dsf older.wav
+sox --decode decode.mastering.v1.dsd64 source64.dsf v1.wav
 
 # An exact decoder bank, tied to DSD128 input.
-sox --decode decode.mastering.v2.dsd128 source128.dsf current.wav
+sox --decode decode.mastering.v2.dsd128 source128.dsf v2.wav
 
 # Wideband reconstruction with explicit bandwidth policy.
 sox --decode wideband --dsd-bandwidth strict source64.dsf \
@@ -276,8 +278,8 @@ select supported execution tiers for reproducible numerical checks. The traditio
 The new interface replaces `--dsd-decode`, `--dsd-encode`, `--dsd-plan`,
 and `--dsd-report` with `--decode`, `--encode`, `--plan`, and `--report`.
 It changes the DSD-routing default from legacy to automatic, and makes
-explicit `--decode mastering` select the same mastering-v2 profile as the
-implicit default. Earlier mastering-v1 behavior remains available using
-`--decode conservative` or an exact `decode.mastering.v1.dsdNNN` ID.
+explicit `--decode mastering` select the mastering-v2 profile. The
+automatic default is mastering v1, also selected by `--decode conservative`
+or an exact `decode.mastering.v1.dsdNNN` ID.
 These changes affect SoX DSD-specific 1.0.4 controls, not conventional
 SoX/SoX-NG syntax. See [the migration table](MIGRATION_P15.md).

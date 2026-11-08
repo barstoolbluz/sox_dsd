@@ -28,12 +28,11 @@ DSD1024 it replaced the seventh-order v2 CLANS-7 on 2026-11-07
 on any particular player, DAC or transport device. See
 [the P21 authorization record](docs/dsd/amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md).
 
-The source-aware v2 mastering reconstruction is the default for DSD64,
-DSD128, DSD256, DSD512 and DSD1024. The earlier v1 filters are preserved and remain
-selectable. To ask for v1 explicitly:
+The v1 mastering reconstruction is the default at every rate: passband
+20 kHz at DSD64, 30 kHz at DSD128 and 40 kHz from DSD256 up. The wider
+v2 mastering filters (25, 48 and 66 kHz) remain selectable:
 
-    sox --decode decode.mastering.v1.dsd64 \
-      input.dsf -r 176400 -b 24 output.wav
+    sox --decode mastering input.dsf -r 176400 -b 24 output.wav
 
 Loud PCM masters may exceed full scale *between* samples. By default the
 PCM-to-DSD encoder clips residual interpolated overloads and warns. At every

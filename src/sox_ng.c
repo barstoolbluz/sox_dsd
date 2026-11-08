@@ -245,8 +245,9 @@ static char *dsd_layout_assignment = NULL;
 static sox_bool dsd_layout_loss_warn = sox_false;
 static lsx_dsd_policy dsd_policy = {
   .mode=LSX_DSD_MODE_AUTO,
-  /* Qualified mastering v2 applies to automatic and named mastering decode. */
-  .decode=LSX_DSD_PROFILE_MASTERING_V2,
+  /* Automatic decode is v1 (conservative) again from 2026-11-08; the named
+   * mastering profile stays v2. */
+  .decode=LSX_DSD_PROFILE_MASTERING,
   .encode=LSX_DSD_ENCODE_MASTERING,
   .level=LSX_DSD_LEVEL_PRESERVE,
   .clip=LSX_DSD_CLIP_WARN,
@@ -1470,7 +1471,7 @@ static void dsd_insert_boundary(sox_effects_chain_t *chain,
       argv[1]=(char *)profile->canonical_id;
     } else if (dsd_policy.decode==LSX_DSD_PROFILE_WIDEBAND) argv[1]="wideband";
     else if (dsd_policy.decode==LSX_DSD_PROFILE_LEGACY) argv[1]="legacy";
-    else argv[1]="conservative"; /* Frozen v1, not the v2 mastering default. */
+    else argv[1]="conservative"; /* Frozen v1, the automatic default. */
     argv[2]="-l";
     argv[3]=dsd_policy.level==LSX_DSD_LEVEL_SACD?"sacd":"preserve";
     argv[4]=rate;
@@ -3390,7 +3391,7 @@ static void display_dsd_help(void)
        "  sox --plan input.dsf output.wav       Inspect the processing graph\n"
        "  sox --report run.json input.dsf output.wav  Convert and report\n"
        "\n"
-       "Automatic decoding uses qualified mastering v2 filters. For advanced\n"
+       "Automatic decoding uses the qualified v1 filters. For advanced\n"
        "controls: --decode PROFILE, --encode PROFILE, --dsd-bandwidth adapt|strict,\n"
        "--dsd-level preserve|sacd, --dsd-clip warn|error, --dsd-mode auto|native.\n"
        "Use --help-effect dsdpcm or pcmdsd for explicit effects.\n"
@@ -3432,7 +3433,7 @@ static void usage(void)
 "--dsd-mode auto|native|legacy  DSD planning is mandatory in all modes; native forbids PCM",
 "--sdm-guard on|off       Fail-closed legacy 1-bit modulator check; costs CPU (default off)",
 "--decode mastering|conservative|wideband|decode.mastering.vN.dsdNNN",
-"                         DSD reconstruction profile (default mastering v2; conservative is v1)",
+"                         DSD reconstruction profile (default conservative, v1; mastering is v2)",
 "--encode mastering|encode.mastering.vN.dsdNNN  DSD modulation profile",
 "                         Mastering encoding is active for native DSD64 to DSD1024; guards remain enforced",
 "--dsd-level preserve|sacd  Decoder level convention",

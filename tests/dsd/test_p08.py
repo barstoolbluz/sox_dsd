@@ -412,7 +412,7 @@ def main() -> int:
             snapshot=plan('processed_dsd_modulator_available',args)
             assert snapshot['executable'] and not snapshot['needs_unimplemented_dsp']
             assert snapshot['encoder_count']==1 and snapshot['graph_decoder_count']==1
-            assert snapshot['decoder']['id']=='decode.mastering.v2.dsd64'
+            assert snapshot['decoder']['id']=='decode.mastering.v1.dsd64'
             p=subprocess.run([exe,'--dsd-mode','auto',
                 '--dsd-layout-loss','warn',*args],
                 capture_output=True,text=True,timeout=30)

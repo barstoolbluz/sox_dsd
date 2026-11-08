@@ -199,13 +199,14 @@ def main():
         case('default_native_repack_equals_explicit_legacy',legacy_repack)
 
         def default_qualified_pcm():
-            source=dsd[RATES[0]];dest=t/'default.wav';pinned=t/'mastering.wav'
+            # The default is conservative (mastering v1) from 2026-11-08.
+            source=dsd[RATES[0]];dest=t/'default.wav';pinned=t/'conservative.wav'
             common=('-D',source,'-r',88200,'-e','signed-integer','-b',32)
             a=run(*common,dest,'rate','-v')
-            b=run('--decode','mastering',*common,pinned,'rate','-v')
+            b=run('--decode','conservative',*common,pinned,'rate','-v')
             expected(a.returncode==0 and b.returncode==0,
-                f'default/explicit mastering decode failed: {a.stderr[-200:]} {b.stderr[-200:]}')
-            expected(sha(dest)==sha(pinned),'default qualified PCM differs from mastering profile')
+                f'default/explicit conservative decode failed: {a.stderr[-200:]} {b.stderr[-200:]}')
+            expected(sha(dest)==sha(pinned),'default qualified PCM differs from conservative profile')
             legacy=t/'legacy.wav'
             c=run('--dsd-mode','legacy',*common,legacy,'rate','-v')
             expected(c.returncode==0 and sha(legacy)==sha(dest),

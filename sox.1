@@ -1406,7 +1406,7 @@ before the output filename, as in traditional SoX.  Native DSD is one-bit;
 selects PCM output precision, not a native DSD precision.
 .SP
 Without an explicit PCM output rate, decoding uses the qualified
-mastering-v2 intermediate clock: 88200 Hz for DSD64; 176400 Hz for
+mastering intermediate clock: 88200 Hz for DSD64; 176400 Hz for
 DSD128, DSD256, DSD512 and DSD1024.  Where the format supports it,
 the default is signed 24-bit PCM.  For a different PCM clock, specify
 .B \-r
@@ -1461,11 +1461,11 @@ Display a short set of DSD examples and commonly used advanced controls.
 .TP
 .B \-\-decode mastering|conservative|wideband|legacy|ID
 Select a reconstruction profile when processing DSD as PCM.  The
-.B mastering
-alias and automatic default both select qualified mastering v2,
-matched to the native DSD input rate.
 .B conservative
-selects the original mastering v1; the
+alias and automatic default both select qualified mastering v1,
+matched to the native DSD input rate.
+.B mastering
+selects the wider mastering v2; the
 .B wideband
 alias selects wideband v1.  Explicit immutable IDs such as
 .B decode.mastering.v1.dsd64

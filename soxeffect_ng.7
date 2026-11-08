@@ -3688,19 +3688,21 @@ effect or to legacy routing.  See the DSD section of
 Reconstruct native DSD to PCM with the profile's source-rate filter and
 binary64 DSP.  Without
 .BR \-p ,
-mastering v2 is selected according to the input DSD clock.  For DSD64,
-128, 256, 512, and 1024, v2 passbands are respectively 25, 48, 66, 66,
-and 66 kHz.  With no requested
+mastering v1 is selected according to the input DSD clock.  For DSD64,
+128, 256, 512, and 1024, v1 passbands are respectively 20, 30, 40, 40,
+and 40 kHz; v2
+.RB ( "\-p mastering" )
+passbands are 25, 48, 66, 66, and 66 kHz.  With no requested
 .IR rate ,
-use the profile's intermediate PCM clock (88200 Hz for DSD64 v2,
-176400 Hz for the other v2 rates).  The effective bandwidth depends
+use the profile's intermediate PCM clock (88200 Hz for DSD64,
+176400 Hz for the other rates).  The effective bandwidth depends
 on both the selected profile and the output PCM rate.
 .SP
 Explicit
-.B \-p mastering
-or
 .B \-p conservative
-selects mastering v1; explicit
+selects mastering v1;
+.B \-p mastering
+selects mastering v2; explicit
 .B \-p wideband
 selects wideband v1.  Pinned IDs such as
 .B decode.mastering.v2.dsd128
