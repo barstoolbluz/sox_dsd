@@ -35,9 +35,9 @@ MAX_WINDOW_RMS_RESIDUAL = 0.15
 WINDOW_SECONDS = 0.1
 ANALYSIS_BAND_HZ = (0, 20000)
 PROFILES = (
-    ('mastering', 'decode.mastering.v1', {22579200: 176400, 45158400: 176400}),
+    ('mastering', 'decode.mastering.v2', {22579200: 176400, 45158400: 176400}),
     ('wideband', 'decode.wideband.v1', {22579200: 705600, 45158400: 1411200}),
-    (None, 'decode.mastering.v2', {22579200: 176400, 45158400: 176400}),
+    (None, 'decode.mastering.v1', {22579200: 176400, 45158400: 176400}),
 )
 SELF_RATES = (22579200, 45158400)
 # Containers this gate covers. WSD is read-only by construction: src/dsd.c
@@ -305,10 +305,11 @@ def wsd_from_dff(dff_path, dest):
     return rate, channels, len(payload)
 
 
-def decode_ours(sox, src, profile, out_hz, dest, start, seconds, timeout):
-    cmd = [str(sox), '--dsd-layout-loss', 'warn']
+def decode_ours(sox, src, profile, out_hz, dest, start, seconds, timeout,
+                report_path):
+    cmd = [str(sox), '--dsd-layout-loss', 'warn', '--report', str(report_path)]
     if profile is not None:
-        cmd += ['--dsd-decode', profile]
+        cmd += ['--decode', profile]
     cmd += ['-D', str(src), '-t', 'f64', '-r', str(out_hz), '-c', '2', str(dest),
             'trim', str(start), str(seconds)]
     p = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True,
@@ -562,11 +563,26 @@ def main():
                     raise RuntimeError(f'duplicate reader case receipt: {tag}')
                 ours, refp, ctlp = (scratch / f'{tag}-{suffix}.f64'
                                     for suffix in ('ours', 'ref', 'ctl'))
+                our_report = scratch / f'{tag}-sox-report.json'
                 started = time.monotonic()
                 start = args.start_seconds if item['provenance'] == 'commercial' else 0.0
                 span = args.seconds if item['provenance'] == 'commercial' else args.seconds / 2
                 rc_o, err_o = decode_ours(args.sox, track, flag, out_hz, ours,
-                                          start, span, args.timeout)
+                                          start, span, args.timeout, our_report)
+                expected_id = f'{pid}.dsd{native // 44100}'
+                observed_ids = []
+                report_error = None
+                if rc_o == 0:
+                    try:
+                        actual = json.loads(our_report.read_text())
+                        observed_ids = [row['profile_id'] for row in
+                                        actual['processing']['decoder']]
+                        if len(observed_ids) != 2 or any(x != expected_id for x in observed_ids):
+                            report_error = (f'wrong runtime decode profile: '
+                                            f'{observed_ids!r}, expected {expected_id}')
+                    except (OSError, KeyError, TypeError, ValueError) as exc:
+                        report_error = f'missing or invalid SoX runtime report: {exc}'
+                our_report.unlink(missing_ok=True)
                 rc_r, err_r = decode_reference(args.reference, track, out_hz, refp,
                                                start, span, args.timeout)
                 rc_ctl, err_ctl = (None, 'negative control unavailable')
@@ -582,6 +598,9 @@ def main():
                 if why:
                     reasons.insert(0, why)
                     passed = False
+                if report_error:
+                    reasons.insert(0, report_error)
+                    passed = False
                 row = dict(schema=CASE_SCHEMA, status='PASS' if passed else 'FAIL',
                            source_sha256=source_hash, source_id=token,
                            source_bytes=track.stat().st_size,
@@ -590,6 +609,8 @@ def main():
                            control_sha256=control_hash, native_hz=native,
                            capability_row=f'{item["container"]}-read-{native}',
                            profile_id=pid, cli_decode_flag=flag or '(default)',
+                           expected_runtime_profile_id=expected_id,
+                           runtime_profile_ids=observed_ids,
                            output_hz=out_hz, start_seconds=start, seconds=span,
                            sox_sha256=sox_sha, runner_sha256=runner_sha,
                            reference_sha256=ref_sha, reference=ref_version,

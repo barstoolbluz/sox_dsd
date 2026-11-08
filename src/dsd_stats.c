@@ -442,8 +442,11 @@ static void json_dec(FILE *f,const decode_record *r)
   fputs(",\"intermediate_pcm_hz\":",f);fprintf(f,"%u",r->base.intermediate_hz);
   fputs(",\"guaranteed_passband_hz\":",f);if(p)jnumber(f,p->pass_hz);else fputs("null",f);
   fputs(",\"guaranteed_stopband_hz\":",f);if(p)jnumber(f,p->stop_hz);else fputs("null",f);
+  /* Compatibility field: an available immutable frontend is qualified.
+   * A missing registry entry must not be represented as qualified. The old
+   * hard-coded v2=true flag was stale after v2 release qualification. */
   fputs(",\"candidate_unqualified\":",f);
-  fputs(r->profile==LSX_DSD_PROFILE_MASTERING_V2?"true":"false",f);
+  fputs(p?"false":"true",f);
   fputs(",\"frames_consumed\":",f);jint(f,r->base.native_frames);
   fputs(",\"frames_produced\":",f);jint(f,r->base.output_frames);
   fputs(",\"intermediate_frames\":",f);jint(f,r->base.intermediate_frames);

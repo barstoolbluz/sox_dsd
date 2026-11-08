@@ -192,7 +192,7 @@ def main():
         # encoding. Asserting refusal here would assert behaviour the project
         # deliberately changed at P15. Refusal remains covered by the
         # experimental arm, which still resolves no qualified composite, and by
-        # unqualified_profile_unselectable below.
+        # unbound_qualified_profile_unselectable below.
         for mode in ('auto','explicit','experimental'):
             def gate(mode=mode):
                 dst=tmp/f'public-{mode}.dsf'
@@ -232,7 +232,7 @@ def main():
             return dict(plan=json.loads(clean(json.dumps(data))))
         record('release_plan_discloses_unqualified_profile',plan)
         def unselectable():
-            """Encoders not bound to a clock are unreachable, not merely refused.
+            """Qualified encoders not bound to a clock are CLI-unreachable.
 
             dsd_rates carries only the bound id at each clock, so
             lsx_dsd_profile_parse cannot resolve the v2 CLANS-7 rows that
@@ -251,7 +251,7 @@ def main():
                 rows.append(dict(id=ident,native_hz=int(rate),exit_code=cp.returncode,
                     output_created=False,diagnostic=clean(cp.stderr.strip().splitlines()[-1])))
             return dict(unselectable=rows)
-        record('unqualified_profile_unselectable',unselectable)
+        record('unbound_qualified_profile_unselectable',unselectable)
         # Reconstruct a candidate tone, then independently re-encode those graph
         # samples with the resolved inverse decoder reference. This checks the
         # DSD provenance scale, not just two spellings of automatic routing.

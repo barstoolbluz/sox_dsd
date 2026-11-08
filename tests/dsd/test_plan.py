@@ -376,9 +376,9 @@ def main() -> int:
             'pcmdsd','5644800','dsdpcm','176400'],
             inspect=expect(encoder_count=1,graph_decoder_count=2,
                 decoder__id='decode.mastering.v1.dsd128'))
-        run('mod64_decode_mod128_pin',[ds,'@OUT@','dsdpcm','88200',
-            'pcmdsd','5644800','dsdpcm','-p','decode.mastering.v1.dsd128'],
-            inspect=expect(decoder__id='decode.mastering.v1.dsd128'))
+        run('mod64_decode_mod128_v2_pin',[ds,'@OUT@','dsdpcm','88200',
+            'pcmdsd','5644800','dsdpcm','-p','decode.mastering.v2.dsd128'],
+            inspect=expect(decoder__id='decode.mastering.v2.dsd128'))
         run('mod_mod_rejected',[w88,'-r','2822400','@OUT@',
             'pcmdsd','2822400','pcmdsd','2822400'],ok=False,error='duplicates',suffix='.dsf')
         run('mod_native_noop',[w88,'-r','2822400','@OUT@','pcmdsd','2822400',

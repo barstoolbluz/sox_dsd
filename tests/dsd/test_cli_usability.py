@@ -228,14 +228,14 @@ def main():
                   'v2 decoder request silently executed the v1 default')
             # A report records the decoder actually executed, not merely the
             # preflight choice. Compare audio with and without the report.
-            logged=d/'v1-reported.wav'; report=d/'v1-decoder-report.json'
-            run(exe,'--report',report,'--decode','conservative',src,logged)
-            check(logged.read_bytes()==(d/'conservative.wav').read_bytes(),
-                  'report changed v1 decoder output')
+            logged=d/'v2-reported.wav'; report=d/'v2-decoder-report.json'
+            run(exe,'--report',report,'--decode','mastering',src,logged)
+            check(logged.read_bytes()==(d/'mastering.wav').read_bytes(),
+                  'report changed explicitly selected v2 decoder output')
             rows=json.loads(report.read_text())['processing']['decoder']
-            check(rows and all(row['profile_id']=='decode.mastering.v1.dsd64'
-                               for row in rows),
-                  'report observed a different decoder than the selected v1')
+            check(rows and all(row['profile_id']=='decode.mastering.v2.dsd64'
+                               and row['candidate_unqualified'] is False for row in rows),
+                  'runtime report did not confirm the qualified, nondefault v2 decoder')
         case('conservative alias equals default and versioned v1, mastering is v2',default_profile)
 
         def explicit_decoder_inherits_global():

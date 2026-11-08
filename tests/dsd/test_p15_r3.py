@@ -104,7 +104,7 @@ def main():
                     expect(d['coefficients']['bank_last_sha256']==meta['banks'][bank]['rounded_hex_sha256'],
                         'actual decoder bank hash does not match v2 header')
                     expect(d['effective_passband_hz']==eff,'actual effective passband not reported')
-                    expect(d['candidate_unqualified'] is True,'report incorrectly indicates qualification')
+                    expect(d['candidate_unqualified'] is False,'qualified v2 decoder mislabeled candidate')
                     expect(int(d['filter_delay_native_frames'])==meta['profiles'][ident]['delay_native_frames'],
                         'report delay does not reflect new taps')
                     return dict(input_hz=rate,requested_pcm_hz=out_hz,
