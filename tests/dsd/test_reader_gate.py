@@ -38,39 +38,49 @@ def audio(tmp_path, seconds=1.0):
     return sr, reference, (ours_path, ref_path, control_path)
 
 
-def compare(data, paths, sr, seconds):
+def with_reference_offset(reference, out_hz, native_hz=22579200):
+    """Model the measured SoX/FFmpeg offset for synthetic controls only.
+
+    This is a controlled fault test, not evidence about which decoder owns
+    the offset. Its sign matches the reference being shifted to align to SoX.
+    """
+    from scipy import ndimage
+    shift = gate.REFERENCE_OFFSET_NATIVE_FRAMES * out_hz / native_hz
+    return ndimage.shift(reference, (shift, 0), order=3, mode='nearest')
+
+
+def compare(data, paths, sr, seconds, native_hz=22579200):
     data.astype('<f8').tofile(paths[0])
-    return gate.compare(*paths, sr, seconds)
+    return gate.compare(*paths, sr, native_hz, 2, seconds)
 
 
 def test_clean_stereo_passes(tmp_path):
     hz, reference, paths = audio(tmp_path)
-    metrics, why = compare(reference, paths, hz, 1)
+    metrics, why = compare(with_reference_offset(reference, hz), paths, hz, 1)
     assert why is None
     assert gate.judge(metrics) == (True, [])
 
 
-@pytest.mark.parametrize('hz,delay_us', [(176400, 1.78), (705600, 1.78),
-                                       (1411200, 0.90)])
-def test_common_fractional_filter_delay_passes_and_is_reported(tmp_path, hz, delay_us):
-    """P21 accepts a common filter delay, measured in seconds at any clock."""
-    from scipy import ndimage
+@pytest.mark.parametrize('hz,native_hz', [(176400,22579200),
+                                             (705600,22579200),
+                                             (1411200,45158400)])
+def test_known_native_reference_offset_passes_and_is_reported(tmp_path, hz, native_hz):
+    """The measured offset is fixed in native frames, not in seconds."""
     n = hz // 2
     t = np.arange(n) / hz
     ref = np.stack((0.25 * np.sin(2*np.pi*997*t) + 0.14 * np.sin(2*np.pi*11003*t),
                     0.21 * np.sin(2*np.pi*1311*t) + 0.13 * np.sin(2*np.pi*9007*t)), axis=1)
     ctrl = np.stack((0.30 * np.sin(2*np.pi*447*t),
                      0.30 * np.sin(2*np.pi*607*t)), axis=1)
-    ours = ndimage.shift(ref, (delay_us * 1e-6 * hz, 0), order=3,
-                         mode='nearest')
+    ours = with_reference_offset(ref, hz, native_hz)
     paths = [tmp_path / f'{label}.f64' for label in ('ours', 'ref', 'ctrl')]
     for path, arr in zip(paths, (ours, ref, ctrl)):
         arr.astype('<f8').tofile(path)
-    metrics, why = gate.compare(*paths, hz, 0.5)
+    metrics, why = gate.compare(*paths, hz, native_hz, 2, 0.5)
     assert why is None
     assert gate.judge(metrics) == (True, [])
-    assert abs(metrics['reference_shift_us'] - delay_us) < 0.15
-    assert abs(metrics['reference_shift_us']) <= metrics['max_reference_shift_us']
+    assert abs(metrics['reference_shift_native_frames'] -
+               gate.REFERENCE_OFFSET_NATIVE_FRAMES) < gate.MAX_REFERENCE_ERROR_NATIVE_FRAMES
     assert min(c['pearson_r'] for c in metrics['channels']) > 0.99999
 
 
@@ -88,7 +98,7 @@ def test_fractional_alignment_preserves_fault_rejection(tmp_path, fault):
                     0.27*np.sin(2*np.pi*563*t) + 0.20*np.sin(2*np.pi*9007*t)),axis=1)
     ctrl = np.stack((0.32*np.sin(2*np.pi*233*t),
                      0.27*np.sin(2*np.pi*307*t)), axis=1)
-    altered = ndimage.shift(ref, (1.78e-6*sr, 0), order=3, mode='nearest')
+    altered = with_reference_offset(ref, sr)
     if fault == 'large-latency':
         altered = ndimage.shift(ref, (15e-6*sr, 0), order=3, mode='nearest')
     elif fault == 'timebase-drift':
@@ -96,7 +106,8 @@ def test_fractional_alignment_preserves_fault_rejection(tmp_path, fault):
         altered = np.stack([np.interp(index, np.arange(n), ref[:,c])
                             for c in (0, 1)], axis=1)
     elif fault == 'opposite-channel-delay':
-        altered[:,1] = ndimage.shift(ref[:,1], -1.78e-6*sr,
+        altered[:,1] = ndimage.shift(ref[:,1],
+                                      -gate.REFERENCE_OFFSET_NATIVE_FRAMES * sr / 22579200,
                                       order=3, mode='nearest')
     elif fault == 'missing-frames':
         altered = altered[:-3]
@@ -111,7 +122,7 @@ def test_fractional_alignment_preserves_fault_rejection(tmp_path, fault):
     paths = [tmp_path / f'{label}.f64' for label in ('ours', 'ref', 'ctrl')]
     for path, arr in zip(paths, (altered, ref, ctrl)):
         arr.astype('<f8').tofile(path)
-    metrics, why = gate.compare(*paths, sr, 1)
+    metrics, why = gate.compare(*paths, sr, 22579200, 2, 1)
     if why is None:
         accepted, reasons = gate.judge(metrics)
         assert not accepted, (fault, metrics)
@@ -125,7 +136,7 @@ def test_fractional_alignment_preserves_fault_rejection(tmp_path, fault):
                                   'odd-frame','nonfinite'])
 def test_faults_fail_closed(tmp_path, fault):
     hz, reference, paths = audio(tmp_path)
-    bad = reference.copy()
+    bad = with_reference_offset(reference, hz)
     if fault == 'swap':
         bad = bad[:, ::-1]
     elif fault == 'gain':
@@ -141,11 +152,11 @@ def test_faults_fail_closed(tmp_path, fault):
     metrics, why = compare(bad, paths, hz, 1)
     if fault == 'missing-control':
         paths[2].unlink()
-        metrics, why = gate.compare(*paths, hz, 1)
+        metrics, why = gate.compare(*paths, hz, 22579200, 2, 1)
     elif fault == 'odd-frame':
         with paths[0].open('ab') as f:
             f.write(b'12345678')
-        metrics, why = gate.compare(*paths, hz, 1)
+        metrics, why = gate.compare(*paths, hz, 22579200, 2, 1)
     if why is not None:
         assert metrics is None
     else:
@@ -156,7 +167,7 @@ def test_faults_fail_closed(tmp_path, fault):
 
 def test_short_drop_is_caught_locally_even_if_global_r_passes(tmp_path):
     hz, reference, paths = audio(tmp_path, 10)
-    bad = reference.copy()
+    bad = with_reference_offset(reference, hz)
     bad[5*hz:5*hz+hz//100] = 0
     metrics, why = compare(bad, paths, hz, 10)
     assert why is None
@@ -170,8 +181,9 @@ def test_short_drop_is_caught_locally_even_if_global_r_passes(tmp_path):
 
 def test_zero_or_nan_control_fails(tmp_path):
     hz, reference, paths = audio(tmp_path)
-    reference.astype('<f8').tofile(paths[0])
-    copy = gate.compare(*paths, hz, 1)[0]
+    with_reference_offset(reference, hz).astype('<f8').tofile(paths[0])
+    copy = gate.compare(*paths, hz, 22579200, 2, 1)[0]
+    assert copy is not None
     for control in (None, [float('nan'), 0.0], [1.0, 1.0], [float('inf'), 0.0]):
         changed = dict(copy)
         changed['control_pearson_r'] = control
@@ -222,7 +234,17 @@ def test_dropout_shim_fails_at_shortest_comparison_interval(tmp_path):
     assert np.array_equal(changed[:start], unmodified[:start])
     assert np.array_equal(changed[start:start + 1764], np.zeros((1764, 2)))
     assert np.array_equal(changed[start + 1764:], unmodified[start + 1764:])
-    metrics, error = gate.compare(mutated, clean, control, 176400, 0.5)
+    # SoX-to-SoX copies have no FFmpeg offset. Construct an artificial
+    # reference with the measured opposite shift to test dropout rejection
+    # independently from the offset acceptance rule.
+    from scipy import ndimage
+    reference = tmp_path / 'ffmpeg-like-reference.f64'
+    clean_audio = np.fromfile(clean, dtype='<f8').reshape(-1, 2)
+    ndimage.shift(clean_audio, (-gate.REFERENCE_OFFSET_NATIVE_FRAMES *
+                                176400 / 22579200, 0), order=3,
+                  mode='nearest').astype('<f8').tofile(reference)
+    metrics, error = gate.compare(mutated, reference, control, 176400,
+                                  22579200, 2, 0.5)
     assert error is None
     assert not gate.judge(metrics)[0]
 

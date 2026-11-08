@@ -34,6 +34,16 @@ MAX_CONTROL_PEARSON = 0.5
 MAX_WINDOW_RMS_RESIDUAL = 0.15
 WINDOW_SECONDS = 0.1
 ANALYSIS_BAND_HZ = (0, 20000)
+# The supplied 36 independent FFmpeg comparisons (DSF/DFF/WSD, both native
+# rates, all 3 decoders) measure a common -40.5 native-frame offset, with
+# <0.008 frame spread. Its origin is not established as filter group delay:
+# the shift is essentially identical for all reconstruction frontends.
+# A 1-native-frame tolerance permits measurement variation without permitting
+# a full block of timestamp/reader slip. The estimate is checked independently
+# of the alignment optimization; a search bound is NOT an acceptance bound.
+REFERENCE_OFFSET_NATIVE_FRAMES = -40.5
+MAX_REFERENCE_ERROR_NATIVE_FRAMES = 1.0
+REFERENCE_SEARCH_NATIVE_FRAMES = 48.0
 PROFILES = (
     ('mastering', 'decode.mastering.v2', {22579200: 176400, 45158400: 176400}),
     ('wideband', 'decode.wideband.v1', {22579200: 705600, 45158400: 1411200}),
@@ -89,6 +99,8 @@ def thresholds():
                 min_channel_margin=MIN_CHANNEL_MARGIN,
                 max_control_pearson=MAX_CONTROL_PEARSON,
                 max_window_rms_residual=MAX_WINDOW_RMS_RESIDUAL,
+                reference_offset_native_frames=REFERENCE_OFFSET_NATIVE_FRAMES,
+                max_reference_error_native_frames=MAX_REFERENCE_ERROR_NATIVE_FRAMES,
                 window_seconds=WINDOW_SECONDS)
 
 
@@ -162,6 +174,72 @@ def native_dsd_rate(path, container):
         if len(sample_rates) != 1:
             raise ValueError('missing or ambiguous DSDIFF sample-rate field')
         return sample_rates[0]
+
+
+
+def native_dsd_channels(path, container):
+    """Read channel count from the on-disk header, without relying on SoX's
+    runtime decoder report. DSDIFF chunks are traversed by seek, without
+    loading audio into RAM, and bounds are checked before each read.
+    """
+    path = Path(path)
+    size = path.stat().st_size
+    with path.open('rb') as f:
+        if container == 'dsf':
+            hdr = f.read(80)
+            if (len(hdr) != 80 or hdr[:4] != b'DSD ' or hdr[28:32] != b'fmt ' or
+                    struct.unpack_from('<Q', hdr, 32)[0] < 52):
+                raise ValueError('invalid DSF channel header')
+            channels = struct.unpack_from('<I', hdr, 52)[0]
+        elif container == 'wsd':
+            hdr = f.read(72)
+            if len(hdr) != 72 or hdr[:4] != b'1bit':
+                raise ValueError('invalid WSD channel header')
+            channels = hdr[44]
+        elif container == 'dff':
+            hdr = f.read(16)
+            if len(hdr) != 16 or hdr[:4] != b'FRM8' or hdr[12:16] != b'DSD ':
+                raise ValueError('invalid DSDIFF form')
+            form_end = 12 + struct.unpack_from('>Q', hdr, 4)[0]
+            if form_end > size or form_end < 16:
+                raise ValueError('invalid DSDIFF form extent')
+            channels = None
+            pos = 16
+            while pos + 12 <= form_end:
+                f.seek(pos)
+                h = f.read(12)
+                name, length = h[:4], struct.unpack_from('>Q', h, 4)[0]
+                body = pos + 12
+                if length > form_end - body:
+                    raise ValueError('invalid DSDIFF chunk extent')
+                if name == b'PROP' and length >= 4:
+                    f.seek(body)
+                    if f.read(4) == b'SND ':
+                        subpos, limit = body + 4, body + length
+                        while subpos + 12 <= limit:
+                            f.seek(subpos)
+                            subhdr = f.read(12)
+                            sublen = struct.unpack_from('>Q', subhdr, 4)[0]
+                            subbody = subpos + 12
+                            if sublen > limit - subbody:
+                                raise ValueError('invalid DSDIFF property extent')
+                            if subhdr[:4] == b'CHNL':
+                                if sublen < 2:
+                                    raise ValueError('invalid DSDIFF channel field')
+                                f.seek(subbody)
+                                channels = struct.unpack('>H', f.read(2))[0]
+                                break
+                            subpos = subbody + sublen + (sublen & 1)
+                if channels is not None:
+                    break
+                pos = body + length + (length & 1)
+            if channels is None:
+                raise ValueError('DSDIFF channel count not found')
+        else:
+            raise ValueError(f'unsupported DSD container {container!r}')
+    if not 2 <= channels <= 6:
+        raise ValueError(f'independent channel identity gate requires 2..6 channels, got {channels}')
+    return channels
 
 
 def make_sources(sox, scratch, seconds, count=2, from_tracks=None,
@@ -305,34 +383,35 @@ def wsd_from_dff(dff_path, dest):
     return rate, channels, len(payload)
 
 
-def decode_ours(sox, src, profile, out_hz, dest, start, seconds, timeout,
+def decode_ours(sox, src, profile, out_hz, channels, dest, start, seconds, timeout,
                 report_path):
     cmd = [str(sox), '--dsd-layout-loss', 'warn', '--report', str(report_path)]
     if profile is not None:
         cmd += ['--decode', profile]
-    cmd += ['-D', str(src), '-t', 'f64', '-r', str(out_hz), '-c', '2', str(dest),
+    cmd += ['-D', str(src), '-t', 'f64', '-r', str(out_hz), '-c', str(channels), str(dest),
             'trim', str(start), str(seconds)]
     p = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True,
                        text=True, timeout=timeout)
     return p.returncode, sanitized(p.stderr, src)
 
 
-def decode_reference(ref, src, out_hz, dest, start, seconds, timeout):
+def decode_reference(ref, src, out_hz, channels, dest, start, seconds, timeout):
     cmd = [str(ref), '-hide_banner', '-v', 'error', '-ss', str(start),
-           '-i', str(src), '-t', str(seconds), '-ar', str(out_hz), '-ac', '2',
+           '-i', str(src), '-t', str(seconds), '-ar', str(out_hz), '-ac', str(channels),
            '-c:a', 'pcm_f64le', '-f', 'f64le', str(dest), '-y']
     p = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True,
                        text=True, timeout=timeout)
     return p.returncode, sanitized(p.stderr, src)
 
 
-def compare(ours_path, ref_path, control_path, out_hz, seconds):
-    """Compare complete stereo intervals with one bounded reference time shift.
+def compare(ours_path, ref_path, control_path, out_hz, native_hz, channels, seconds):
+    """Compare complete multichannel intervals with one measured time shift.
 
-    Different reconstruction filters can have a small fractional-sample group
-    delay. Estimate a single shift shared by both channels, in *seconds*, on
-    two separated interior excerpts; never retime, stretch or truncate audio.
-    Full-interval identity, residual, control and frame-count checks still run.
+    The reference FFmpeg implementation has an observed common -40.5 native-
+    frame offset relative to SoX on the supplied synthetic corpus, independent
+    of reconstruction profile. Do not attribute it to filter delay or allow an
+    arbitrary time offset: estimate on separated excerpts, accept only the
+    measured narrow native-frame window, and retain full-duration checks.
     """
     import numpy as np
     from scipy import ndimage, optimize, signal
@@ -340,21 +419,23 @@ def compare(ours_path, ref_path, control_path, out_hz, seconds):
     expected = int(round(seconds * out_hz))
     if expected < int(out_hz * 0.5):
         return None, 'comparison interval shorter than 0.5 seconds'
+    if not 2 <= channels <= 6 or native_hz not in SELF_RATES:
+        return None, 'unsupported native rate or channel count'
     paths = (ours_path, ref_path, control_path)
     if any(p is None or not Path(p).is_file() for p in paths):
         return None, 'missing decode or independent negative control'
     lengths = []
     for p in paths:
         size = Path(p).stat().st_size
-        if size % 16 != 0:
-            return None, f'non-stereo or partial f64 frame: {Path(p).name}'
-        frames = size // 16
+        if size % (8 * channels) != 0:
+            return None, f'partial multichannel f64 frame: {Path(p).name}'
+        frames = size // (8 * channels)
         if abs(frames - expected) > 2:
             return None, (f'incomplete or extended decode: {Path(p).name} '
                           f'{frames} frames, expected {expected}')
         lengths.append(frames)
     n = min(lengths)
-    ours, ref, ctl = (np.fromfile(p, dtype='<f8').reshape(-1, 2)[:n]
+    ours, ref, ctl = (np.fromfile(p, dtype='<f8').reshape(-1, channels)[:n]
                       for p in paths)
     if not all(np.isfinite(v).all() for v in (ours, ref, ctl)):
         return None, 'non-finite PCM samples'
@@ -363,12 +444,19 @@ def compare(ours_path, ref_path, control_path, out_hz, seconds):
     a = signal.sosfiltfilt(sos, ours, axis=0)
     b = signal.sosfiltfilt(sos, ref, axis=0)
     t = signal.sosfiltfilt(sos, ctl, axis=0)
+    # Some reference decoders return success for a multichannel format while
+    # emitting silence for a channel. Such output is not usable as an audio
+    # oracle; fail the case with a recorded reason instead of attempting
+    # correlations that produce NaN and break JSON receipt publication.
+    for c in range(channels):
+        for label, signal_data in (('SoX', a), ('independent reference', b),
+                                   ('negative control', t)):
+            if float(np.std(signal_data[:, c])) <= 1e-14:
+                return None, f'ch{c} {label} has no usable audio-band variation'
 
-    # FFmpeg and SoX differ by approximately 1.8 us at DSD512 and 0.9 us
-    # at DSD1024. A 2.5 us *time* bound admits these known filter delays
-    # without allowing alignment to absorb whole-frame or timebase faults.
-    max_shift_us = 2.5
-    max_shift_samples = max_shift_us * 1e-6 * out_hz
+    # Search sufficiently wide to *detect* a wrong offset. The eventual
+    # acceptance tolerance is separately expressed in native frames.
+    max_shift_samples = REFERENCE_SEARCH_NATIVE_FRAMES * out_hz / native_hz
     guard = max(24, int(math.ceil(max_shift_samples)) + 8)
     half_span = max(guard + 8, min(n // 8, int(round(0.05 * out_hz))))
     excerpts = []
@@ -381,11 +469,14 @@ def compare(ours_path, ref_path, control_path, out_hz, seconds):
         for target, original in excerpts:
             shifted = ndimage.shift(original, (shift, 0), order=3,
                                     mode='nearest')[guard:-guard]
-            for c in (0, 1):
+            for c in range(channels):
                 sx, sy = float(np.std(target[:, c])), float(np.std(shifted[:, c]))
                 if sx <= 0 or sy <= 0:
                     return float('inf')
-                score += 1.0 - float(np.corrcoef(target[:, c], shifted[:, c])[0, 1])
+                r = float(np.corrcoef(target[:, c], shifted[:, c])[0, 1])
+                if not math.isfinite(r):
+                    return float('inf')
+                score += 1.0 - r
         return score
 
     # If there is insufficient variation to estimate delay, retain unshifted
@@ -401,15 +492,17 @@ def compare(ours_path, ref_path, control_path, out_hz, seconds):
         b = ndimage.shift(b, (shift, 0), order=3, mode='nearest')
 
     metrics = dict(frames_compared=int(n), expected_frames=int(expected),
-                   analysis_band_hz=[ANALYSIS_BAND_HZ[0], hi], channels=[],
-                   control_pearson_r=[], reference_shift_samples=shift,
+                   analysis_band_hz=[ANALYSIS_BAND_HZ[0], hi], channel_count=channels,
+                   channels=[], control_pearson_r=[], reference_shift_samples=shift,
                    reference_shift_us=shift * 1e6 / out_hz,
-                   max_reference_shift_us=max_shift_us)
+                   reference_shift_native_frames=shift * native_hz / out_hz,
+                   expected_reference_shift_native_frames=REFERENCE_OFFSET_NATIVE_FRAMES,
+                   max_reference_shift_error_native_frames=MAX_REFERENCE_ERROR_NATIVE_FRAMES)
     window = max(32, int(round(WINDOW_SECONDS * out_hz)))
     starts = list(range(0, n - window + 1, window))
     if not starts or starts[-1] + window < n:
         starts.append(max(0, n - window))
-    for c in (0, 1):
+    for c in range(channels):
         x, y, z = a[:, c], b[:, c], t[:, c]
         sa, sb = float(np.std(x)), float(np.std(y))
         if sb <= 0 or sa <= 0:
@@ -427,7 +520,8 @@ def compare(ours_path, ref_path, control_path, out_hz, seconds):
                             max(local_rms, 0.1 * global_rms))
         metrics['channels'].append(dict(
             channel=c, pearson_r=float(np.corrcoef(x, y)[0, 1]),
-            cross_channel_pearson_r=float(np.corrcoef(x, b[:, 1 - c])[0, 1]),
+            cross_channel_pearson_r=max(float(np.corrcoef(x, b[:, other])[0, 1])
+                                        for other in range(channels) if other != c),
             level_delta_db=float(20 * np.log10(sa / sb)),
             max_window_rms_residual=float(local_max)))
         metrics['control_pearson_r'].append(float(np.corrcoef(x, z)[0, 1]))
@@ -441,8 +535,18 @@ def judge(metrics):
     reasons = []
     channels = metrics.get('channels')
     control = metrics.get('control_pearson_r')
-    if not isinstance(channels, list) or len(channels) != 2 or not isinstance(control, list) or len(control) != 2:
+    channel_count = metrics.get('channel_count')
+    if (not isinstance(channel_count, int) or not 2 <= channel_count <= 6 or
+            not isinstance(channels, list) or len(channels) != channel_count or
+            not isinstance(control, list) or len(control) != channel_count):
         return False, ['incomplete channel metrics or negative control']
+    shift = metrics.get('reference_shift_native_frames')
+    if not isinstance(shift, (int, float)) or not math.isfinite(shift):
+        reasons.append('reference shift estimate missing or non-finite')
+    elif abs(shift - REFERENCE_OFFSET_NATIVE_FRAMES) > MAX_REFERENCE_ERROR_NATIVE_FRAMES:
+        reasons.append(f'reference offset {shift:.6f} native frames differs from '
+                       f'{REFERENCE_OFFSET_NATIVE_FRAMES} by more than '
+                       f'{MAX_REFERENCE_ERROR_NATIVE_FRAMES} frame')
     for idx, ch in enumerate(channels):
         if not isinstance(ch, dict) or ch.get('channel') != idx:
             reasons.append(f'ch{idx} metrics missing')
@@ -600,6 +704,7 @@ def main():
                     raise RuntimeError(f'nonintegral or nonfinite rate for input {token}')
             if native not in SELF_RATES:
                 raise RuntimeError(f'unsupported input rate for {token}: {native}')
+            channels = native_dsd_channels(track, item['container'])
             for flag, pid, out_map in PROFILES:
                 out_hz = out_map[native]
                 tag = f'{token}-{item["container"]}-{pid}'
@@ -612,8 +717,8 @@ def main():
                 started = time.monotonic()
                 start = args.start_seconds if item['provenance'] == 'commercial' else 0.0
                 span = args.seconds if item['provenance'] == 'commercial' else args.seconds / 2
-                rc_o, err_o = decode_ours(args.sox, track, flag, out_hz, ours,
-                                          start, span, args.timeout, our_report)
+                rc_o, err_o = decode_ours(args.sox, track, flag, out_hz, channels,
+                                          ours, start, span, args.timeout, our_report)
                 expected_id = f'{pid}.dsd{native // 44100}'
                 observed_ids = []
                 report_error = None
@@ -622,23 +727,23 @@ def main():
                         actual = json.loads(our_report.read_text())
                         observed_ids = [row['profile_id'] for row in
                                         actual['processing']['decoder']]
-                        if len(observed_ids) != 2 or any(x != expected_id for x in observed_ids):
+                        if len(observed_ids) != channels or any(x != expected_id for x in observed_ids):
                             report_error = (f'wrong runtime decode profile: '
                                             f'{observed_ids!r}, expected {expected_id}')
                     except (OSError, KeyError, TypeError, ValueError) as exc:
                         report_error = f'missing or invalid SoX runtime report: {exc}'
                 our_report.unlink(missing_ok=True)
-                rc_r, err_r = decode_reference(args.reference, track, out_hz, refp,
-                                               start, span, args.timeout)
+                rc_r, err_r = decode_reference(args.reference, track, out_hz,
+                                               channels, refp, start, span, args.timeout)
                 rc_ctl, err_ctl = (None, 'negative control unavailable')
                 if control_track is not None and control_hash != source_hash:
                     rc_ctl, err_ctl = decode_reference(args.reference, control_track,
-                                                       out_hz, ctlp, start, span, args.timeout)
+                                                       out_hz, channels, ctlp, start, span, args.timeout)
                 if rc_o or rc_r or rc_ctl != 0:
                     metrics, why = None, (f'decode exit: sox={rc_o}, reference={rc_r}, '
                                           f'negative_control={rc_ctl}: {err_ctl[-200:]}')
                 else:
-                    metrics, why = compare(ours, refp, ctlp, out_hz, span)
+                    metrics, why = compare(ours, refp, ctlp, out_hz, native, channels, span)
                 passed, reasons = judge(metrics)
                 if why:
                     reasons.insert(0, why)
@@ -654,6 +759,7 @@ def main():
                            control_sha256=control_hash, native_hz=native,
                            capability_row=f'{item["container"]}-read-{native}',
                            profile_id=pid, cli_decode_flag=flag or '(default)',
+                           source_channels=channels,
                            expected_runtime_profile_id=expected_id,
                            runtime_profile_ids=observed_ids,
                            output_hz=out_hz, start_seconds=start, seconds=span,
