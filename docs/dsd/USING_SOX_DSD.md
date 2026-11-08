@@ -5,10 +5,9 @@ SoX DSD converts PCM, native DSD, and DSD-over-PCM files with the familiar
 input and output formats decide whether to decode, encode, or simply repack
 DSD. You normally do not need DSD-specific flags.
 
-This guide describes the 1.1.1 candidate's behavior; the binary still
-reports version 1.1.0 until the release bump. See
+This guide describes the SoX DSD 1.1.1 behavior. See
 [1.1.1 release notes](RELEASE_NOTES_1.1.1.md) for changed defaults and
-compatibility. For all SoX options and effects, consult
+compatibility. The source release number is set by the release process. For all SoX options and effects, consult
 `man sox`, `man soxeffect_ng`, and `man soxformat_ng`. `sox --help-dsd` displays
 short examples.
 
@@ -77,7 +76,7 @@ sox --headroom 2 loud.wav -r dsd128 reduced.dsf
 sox --auto-headroom loud.wav -r dsd128 measured.dsf
 
 # Alternatively, reject an over-limit peak instead of clipping it.
-# (No gain at DSD64-256; at DSD512/1024 the 0.9 gain still applies.)
+# (Unity gain for high-rate v2 or rates 64-256; high-rate default v1 uses 0.9.)
 sox --dsd-clip error loud.wav -r dsd128 strict.dsf
 
 # Require strict behavior after measured headroom, and keep the measurements.
@@ -91,10 +90,11 @@ implicit 0.91515 dB reduction. `--headroom 0` explicitly requests unity gain;
 it is **not** equivalent to the default. In warning mode a cut below 0.91515 dB leaves full-scale
 interpolated peaks above the 0.45 ceiling, where they are clipped with a
 warning. In strict mode no 0.45 clamp takes place; peaks above 0.5 are
-fatal. At DSD512/1024, an explicit cut below 0.91515 dB may also trip v1's
-state guard during sustained full-scale input, even when the 0.5 overload
-limit is not crossed. The 0.91515 dB bound describes the tested operating
-level, not a general stability proof.
+fatal. At DSD512/1024 with the default v1 encoder, full-scale DC and
+`--headroom 0` reproduce a state-guard failure despite remaining inside the
+0.5 overload envelope. Other cuts below 0.91515 dB exceed the mapping that
+was qualified but were not individually demonstrated to fail; even the tested
+operating point is not an unlimited-duration stability proof.
 `--auto-headroom`
 measures the actual source-rate conversion, prefilter, final interpolation
 and its finite tail. It applies **one shared attenuation across all channels**,
@@ -103,10 +103,14 @@ units, with 0.5 corresponding to 0 dBFS).
 With `--dsd-clip error` and no explicit headroom, the lower rates
 (DSD64/128/256) use unity gain, so a full-scale PCM sample maps to 0.5
 modulator units and intersample overs above that threshold are rejected.
-DSD512/1024 retain the 0.9 gain even in strict mode, allowing an
-interpolated, pre-gain peak up to approximately 1.111 times PCM full scale
-(+0.91515 dB) before the 0.5 overload threshold. This does not waive the
-v1 state guard. Strict mode means *no clipping*, not *no attenuation*.
+DSD512/1024 retain the 0.9 gain in strict mode **only when the v1 encoder
+is selected** (the default or an exact v1 pin). An exact high-rate v2 pin
+retains unity gain, as in 1.1.0. For PCM-origin input only, the v1 mapping
+allows an interpolated pre-gain peak up to approximately 1.111 times PCM
+full scale (+0.91515 dB) before the 0.5 overload envelope. DSD-origin
+re-encoding uses a different reference scale; neither mode permits PCM input
+samples above the source format's full scale or waives the state guard.
+Strict mode means *no clipping*, not necessarily *no attenuation*.
 
 The plain default and measured mode may produce different
 levels even when neither clips: default reduces all input by 0.91515 dB,
@@ -242,10 +246,17 @@ sox --decode wideband --dsd-bandwidth strict source64.dsf \
 
 # An exact qualified encoder, tied to DSD128 output.
 sox --encode encode.mastering.v1.dsd128 source.wav -r dsd128 output.dsf
+
+# Preserve the 1.1.0 high-rate v2 CLANS-7 choice explicitly.
+sox --encode encode.mastering.v2.dsd512 source.wav -r dsd512 v2-512.dsf
+sox --encode encode.mastering.v2.dsd1024 source.wav -r dsd1024 v2-1024.dsf
 ```
 
 For encoding, `--encode mastering` selects the qualified mastering-v1
-modulator at every rate. A mismatched version-pinned native bit clock causes an error.
+modulator at every rate. The exact high-rate v2 IDs are also qualified and
+select the previously available CLANS-7 modulator, not a different name for
+v1. Explicit `pcmdsd -p` accepts the same exact versions. An incompatible
+version-pinned native bit clock causes an error.
 Unsupported or unqualified legacy composite profiles do not acquire
 qualification through these selectors. Only interpolated samples above the warning ceiling are clipped;
 nonfinite samples and modulator-state guard failures still stop the

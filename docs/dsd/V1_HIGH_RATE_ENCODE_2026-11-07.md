@@ -69,13 +69,16 @@ Track identities are hashes; the audio is private and not included.
 
 ## `--dsd-clip error` keeps the gain at DSD512/1024
 
-`--dsd-clip error` turns off the 0.45 clip, and in 1.1.0 it also turned off the 0.9 gain. With v1 bound, that would leave the encoder at the 0.5 mapping where it fails. So at DSD512 and DSD1024 only, `--dsd-clip error` keeps the 0.9 gain (`lsx_pcmdsd_strict_keeps_default_gain`). The 0.5 envelope is unchanged: a sample above it after the gain is fatal, so PCM overs up to about 1.11 now pass where 1.1.0 refused those above 1.0. With the gain, sustained PCM input stays at or below 0.45, and only intersample overs between 0.45 and 0.5 reach the modulator. `--headroom DB` still replaces the gain.
+`--dsd-clip error` turns off the 0.45 clip, and in 1.1.0 it also turned off the 0.9 gain. With v1 bound, that would leave the encoder at the 0.5 mapping where it fails. So with the high-rate **v1** selected, `--dsd-clip error` keeps the 0.9 gain (`lsx_pcmdsd_strict_keeps_default_gain`). High-rate v2 still uses gain 1 in strict mode as in 1.1.0. The 0.5 envelope is unchanged: for PCM-origin input, the high-rate v1 gain allows a pre-gain interpolated peak up to about 1.11, where the earlier v2 strict path refused those above 1.0. DSD-origin encoding uses a different reference scale. With the gain, sustained PCM input stays at or below 0.45, and only intersample overs between 0.45 and 0.5 reach the modulator. `--headroom DB` still replaces the gain.
 
-`cli-paths/` runs 5 s of full-scale DC (both polarities), a 997 Hz sine hard-clipped at 0 dBFS, and a 0 dBFS 1 kHz square. Each runs under five option sets at all five rates, on 1.1.0 (`sox_dsd-1.1.0.jsonl`) and on this branch (`release-1.1.1.jsonl`):
+`cli-paths/` runs 5 s of full-scale DC (both polarities), a 997 Hz sine hard-clipped at 0 dBFS, and a 0 dBFS 1 kHz square. Each runs under five option sets at all five rates, on 1.1.0 (`sox_dsd-1.1.0.jsonl`) and on an **earlier, pre-v2-pin review
+snapshot** (`release-1.1.1.jsonl`). The latter is not evidence from the final
+branch. Its FAIL lines contain the old headroom hint because it predates patch
+0005; source code with the corrected absolute hint was not used for that run:
 
 - **1.1.0:** DC completes under every option set at every rate, with v2 at DSD512/1024 and v1 below.
-- **This branch, `--dsd-clip error`:** DC completes at every rate. At DSD512/1024 the clipped sine is now accepted, where 1.1.0 refused it as an overload; its overs stay inside the envelope after the gain.
-- **This branch, `--headroom 0 --dsd-clip error`:** this explicitly asks for the 0.5 mapping, and full-scale DC trips the state guard at DSD512 (native frame 107,185,624) and DSD1024 (frame 23,447,904). The encode stops with an error. These runs targeted `/dev/null`; they do not establish that no bytes were written before failure. A separate regression tests removal of a partial regular DSF output.
+- **Historical pre-v2-pin snapshot, `--dsd-clip error`:** DC completes at every rate. At DSD512/1024 the clipped sine is now accepted, where 1.1.0 refused it as an overload; its overs stay inside the envelope after the gain.
+- **Historical pre-v2-pin snapshot, `--headroom 0 --dsd-clip error`:** this explicitly asks for the 0.5 mapping, and full-scale DC trips the state guard at DSD512 (native frame 107,185,624) and DSD1024 (frame 23,447,904). The encode stops with an error. These runs targeted `/dev/null`; they do not establish that no bytes were written before failure. A separate regression tests removal of a partial regular DSF output.
 - **Default, `--headroom 0` and `--auto-headroom`:** these complete every input at every rate on both builds. The clip or the measured cut keeps the input at or below 0.45.
 - **Square wave under either strict option set:** refused as an interpolation overload on both builds.
 
@@ -83,5 +86,10 @@ Track identities are hashes; the audio is private and not included.
 
 - The soak passes sit at the gate's lower edge (min 7).
 - One deterministic soak program, one host, and the default build's kernel tiers.
-- At DSD512/1024, `--dsd-clip error` with any `--headroom` cut below 0.915 dB (including `--headroom 0`) puts v1 above the gain it was qualified at, and can stop with a state-guard error on sustained full-scale input.
-- The v2 rows stay qualified and are reachable by exact id through the private test interface (`lsx_pcmdsd_profile_find_id`). They are no longer in `dsd_rates`, so the CLI cannot select them.
+- At DSD512/1024, `--dsd-clip error --headroom 0` with sustained full-scale DC
+  reproduces a v1 state-guard failure. Other explicit cuts below 0.91515 dB
+  exceed the qualified gain mapping but were **not** individually tested for
+  guard failure; the input-dependent outcome must not be assumed.
+- This original evidence preceded the v2-pin corrective change. The v2 rows
+  remain qualified and are now selectable by exact CLI ID at both rates;
+  `--encode mastering` still selects v1.

@@ -1,56 +1,58 @@
-# SoX DSD 1.1.1: release candidate notes
+# SoX DSD 1.1.1: release notes
 
-The source version remains **1.1.0** until release. These notes describe
-changes to the unpushed 1.1.1 branch and its independent review corrections.
+These notes describe the 1.1.1 behavior. The source version bump is performed
+at release time, separately from the review changes.
 
-## Changed defaults
+## Defaults and compatible high-rate v2 pins
 
 - **PCM to DSD:** the eighth-order `encode.mastering.v1` modulator is the
-  automatic encoder at DSD512 and DSD1024 (as it already was at DSD64/128/256).
-  The seventh-order `encode.mastering.v2` remains qualified for those high
-  rates but is accessible only through the private test interface.
+  default at all five DSD clocks, including DSD512 and DSD1024. Its high-rate
+  qualification evidence used the implicit 0.9 gain and 0.45 clipping ceiling.
+- **Optional high-rate v2:** the seventh-order `encode.mastering.v2.dsd512`
+  and `encode.mastering.v2.dsd1024` are still qualified and selectable with
+  `--encode` or explicit `pcmdsd -p`. These are the same exact IDs accepted in
+  1.1.0 and retain the 1.1.0 CLANS-7 algorithm, guards, and bits for the same
+  input/settings. `--encode mastering` selects **v1**, not v2.
 - **DSD to PCM:** `decode.mastering.v1` is the automatic decoder at all five
-  clocks. Explicit `--decode mastering` still selects the wider v2, while
-  `--decode conservative` and the exact v1 IDs select v1.
-- **Default PCM-to-DSD level:** normal warning mode applies a fixed 0.9 gain
-  (-0.91515 dB) and clips residual interpolated values above 0.45 modulator
-  units, with a warning, at all five rates. This is unchanged from 1.1.0.
-- **Strict clipping:** `--dsd-clip error` never clips. Without an explicit
-  headroom selection it uses gain 1 at DSD64/128/256, but retains 0.9 at
-  DSD512/1024 so the high-rate v1 modulator stays at its tested input level.
-  A pre-gain interpolated peak up to roughly 1.111 times PCM full scale can
-  therefore be accepted by high-rate strict mode (0.5 modulator ceiling),
-  whereas a comparable peak is rejected at lower rates. This is not a
-  guarantee against separate modulator-state guard failures.
-- **Explicit level:** `--headroom DB` replaces any implicit gain, rather
-  than adding to it. `--auto-headroom` measures the complete interpolated
-  peak and applies no amplification, cutting all channels to at most 0.45
-  in a second pass. Both are compatible with strict clipping; the guard
-  remains fail-closed. The strict overload diagnostic now gives a *total*
-  `--headroom` lower bound inferred from the first failure, not a guaranteed
-  cure for later overloads or state-guard failures.
+  clocks. Explicit `--decode mastering` selects the wider v2, while
+  `--decode conservative` and exact v1 IDs select v1. Decoder and encoder
+  version numbers are independent.
+- **Default PCM-to-DSD level:** warn-and-clip mode applies a fixed 0.9 gain
+  (-0.91515 dB) before clipping residual interpolated peaks above 0.45
+  modulator units. This is unchanged from 1.1.0, including for v2.
+- **Strict encoding:** `--dsd-clip error` never clips. With no explicit
+  headroom, it uses unity gain for DSD64/128/256 and for exact high-rate v2;
+  the default high-rate v1 retains gain 0.9. For PCM-origin input only,
+  high-rate v1 can therefore admit a pre-gain interpolated peak up to about
+  1.111 times PCM full scale before the 0.5 modulator envelope is exceeded.
+  This is not permission for out-of-range PCM input samples, and it is not
+  applicable to DSD-origin re-encoding, which has a different reference scale.
+- **Strict decoding:** `--dsd-clip error` also refuses reconstructed PCM
+  reaching +1.0 or falling below -1.0 at the PCM graph boundary rather than
+  clipping; the negative endpoint -1.0 itself is representable.
+- **Explicit headroom:** `--headroom DB` replaces any implicit gain, not the
+  numeric overload or state guards. `--auto-headroom` measures the complete
+  interpolated signal and applies a non-amplifying, shared multichannel cut to
+  at most 0.45 before the modulator. A strict overload diagnostic suggests a
+  total replacement `--headroom` lower bound inferred from the first failed
+  sample, not a successful-retry guarantee.
 
-## Incompatible command-line change
+## Qualification and evidence limits
 
-In 1.1.0, both `--encode encode.mastering.v2.dsd512` and
-`--encode encode.mastering.v2.dsd1024` were accepted. **They now fail**, even
-though the v2 profiles remain qualified internally: those exact IDs are no
-longer bound for CLI selection. An existing invocation pinned to either
-profile must be reviewed and adjusted. There is **no equivalent CLI pin**
-for the former high-rate v2 bitstream in this candidate. Do not assume the
-new v1 default produces the same bitstream or the same ultrasonic spectrum.
-
-## Qualification limits
-
-The supplied evidence includes 60-second DC checks at both high clocks,
+The high-rate v1 evidence includes 60-second DC checks at both clocks,
 3,600-second nominal soaks and 800 real-track encode-completion runs. These
-show bounded behavior under the tested conditions, not mathematical proof of
-arbitrary-duration or arbitrary-signal v1 stability. The real-track peak0
-runs also include **194/400 input-stage clipping warnings** (up to 3,936
-samples per run), independent of the 0.45 modulator clipping. The original
-soak's `launcher.log` is empty; individual execution, stdout, stderr and
-assessor receipts are available. The reported `/dev/null` tests do not
-prove that no output bytes were emitted before a failure.
+show bounded behavior under tested conditions, not mathematical proof of
+arbitrary-duration or arbitrary-signal stability. Full-scale DC with
+`--headroom 0 --dsd-clip error` reproduces v1 state-guard failure at both
+high rates. Other cuts below the implicit 0.91515 dB were not systematically
+tested and cannot be claimed to fail. The real-track peak0 runs include
+**194/400 input-stage clipping warnings** (up to 3,936 samples per run),
+independent of modulator clipping. The historical soak's `launcher.log` is
+empty; its individual execution and assessor receipts are available. Tests
+targeting `/dev/null` do not prove that output was never emitted before a
+failure. The documented historical `cli-paths/release-1.1.1.jsonl` records
+predate the later headroom-hint correction and are not output from this final
+review branch.
 
-See [Using SoX DSD](USING_SOX_DSD.md) and
+See [Using SoX DSD](USING_SOX_DSD.md) and the
 [high-rate v1 evidence](V1_HIGH_RATE_ENCODE_2026-11-07.md).

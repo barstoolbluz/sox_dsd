@@ -38,12 +38,22 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
 	     docs/UPSTREAM.md \
 	     tests/sync/test_url_process.py tests/sync/test_p10_path.py \
              tests/sync/test_p16_p18_path.py tests/sync/test_waveaudio_teardown.py \
-	     README.sh FEATURES.in test/* issues wiki/* \
+	     README.sh FEATURES.in test/* issues $(wildcard wiki/*) \
              tests/rename_smoke.sh \
              tests/dsd/test_cli_usability.py tests/dsd/test_loud_encode.py \
              tests/dsd/test_release_111.py tests/dsd/review_111_evidence.py \
+             tests/dsd/p21_independent_reader.py \
+             tests/dsd/test_reader_gate.py \
+             tests/dsd/p17_media_qualification.py \
+             tests/dsd/fake_decoder.py tests/dsd/fake_p17_probe.py \
+             tests/dsd/mutation-shim.py \
+             tests/dsd/review_p21_offsets.py tests/dsd/test_p21_reader_regression.py \
+             tests/dsd/test_v2_pin_111.py tests/dsd/test_v2_110_compat.py \
+             tests/dsd/results/V1_HIGH_RATE_ENCODE_2026-11-07/real-tracks/results.jsonl \
+             tests/dsd/results/V1_HIGH_RATE_ENCODE_2026-11-07/gates/soak/launcher.log \
              docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md \
              docs/dsd/RELEASE_NOTES_1.1.1.md \
+             docs/dsd/REVIEW_111_V2_PIN_RESOLUTION_2026-11-08.md \
              docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md
 
 if HAVE_PKGCONFIG
@@ -241,6 +251,8 @@ check-dsd-cli: all
 .PHONY: check-dsd-release-111
 check-dsd-release-111: all
 	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/test_release_111.py" \
+	  --sox "$(abs_builddir)/src/sox"
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/test_v2_pin_111.py" \
 	  --sox "$(abs_builddir)/src/sox"
 
 # Standalone loud-master acceptance; no dependency on historical receipts.

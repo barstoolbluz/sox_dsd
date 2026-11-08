@@ -23,8 +23,11 @@ than treating all DSD-to-PCM conversions as interchangeable.
 (2026-10-23).** DSF and DSDIFF support native read/write, WSD supports
 native read, and DoP transport is enabled for both clocks. The default
 encoder at every rate is the eighth-order mastering v1; at DSD512 and
-DSD1024 it replaced the seventh-order v2 CLANS-7 on 2026-11-07
-([evidence](docs/dsd/V1_HIGH_RATE_ENCODE_2026-11-07.md)). File and DoP authorization does not establish support
+DSD1024 it replaced the seventh-order v2 CLANS-7 as the **default** on 2026-11-07
+([evidence](docs/dsd/V1_HIGH_RATE_ENCODE_2026-11-07.md)). v2 remains qualified
+and explicitly selectable with `--encode encode.mastering.v2.dsd512` or
+`--encode encode.mastering.v2.dsd1024`, retaining the 1.1.0 v2 bitstream.
+File and DoP authorization does not establish support
 on any particular player, DAC or transport device. See
 [the P21 authorization record](docs/dsd/amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md).
 
@@ -43,20 +46,22 @@ selects an explicit fixed cut instead (including `--headroom 0`, which
 disables the implicit cut; cuts below 0.91515 dB may clip the loudest peaks);
 `--auto-headroom` measures the complete interpolated peak and applies the
 smallest common cut without clipping. `--dsd-clip error` retains strict
-overload refusal, unattenuated at DSD64-256; at DSD512/1024 it keeps the
-0.9 gain, with which the eighth-order encoder there was qualified. Thus
-strict mode at those rates can admit interpolation peaks above 0 dBFS
-(up to approximately +0.915 dB, measured before the encoder gain) without
-clipping, provided the resulting modulator level stays at or below 0.5.
-It is **not** a promise of guard stability for every possible signal. In
-strict mode, an explicit `--headroom` cut below 0.91515 dB bypasses this
-high-rate operating limit and can provoke a fatal v1 state-guard failure.
+overload refusal. It uses gain 1 at DSD64-256 and for an explicitly selected
+high-rate v2 encoder; the default high-rate v1 encoder retains gain 0.9.
+For PCM-origin input only, that 0.9 mapping can admit interpolated pre-gain
+peaks up to approximately +0.915 dB above PCM full scale without exceeding
+the 0.5 modulator overload envelope. It does not permit input samples above
+the PCM format's full scale; DSD-origin re-encodes use a different reference
+scale. It is **not** a promise of guard stability. Full-scale DC with the v1
+encoder and `--headroom 0` is a reproduced state-guard failure at both high
+rates. Intermediate headroom cuts below 0.91515 dB were not systematically
+tested and should not be described as having failed.
 `--plan` and `--report` disclose the applied gain. The overload message's
 suggested `--headroom` is an absolute replacement cut inferred from the
 first failed sample only, not a guaranteed successful retry.
 
-For the 1.1.1 candidate's default changes and explicit high-rate v2 CLI
-compatibility break, see [release notes](docs/dsd/RELEASE_NOTES_1.1.1.md).
+For the 1.1.1 default changes and high-rate v2 selection rules,
+see [release notes](docs/dsd/RELEASE_NOTES_1.1.1.md).
 
 For basic conversion, profile selection, supported operations and limitations,
 see [Using SoX DSD](docs/dsd/USING_SOX_DSD.md),
