@@ -218,12 +218,13 @@ sox --decode wideband --dsd-bandwidth strict source64.dsf \
   -r 176400 wide.wav
 
 # An exact qualified encoder, tied to DSD128 output.
-sox --encode encode.mastering.v1.dsd128 source.wav -r dsd128 output.dsf
+sox --encode encode.mastering.v3.dsd128 source.wav -r dsd128 output.dsf
 ```
 
-For encoding, `--encode mastering` selects the qualified mastering-v1
-modulator for DSD64/128/256 and qualified mastering-v2 CLANS-7 for
-DSD512/1024. A mismatched version-pinned native bit clock causes an error.
+For encoding, `--encode mastering` selects the certified mastering-v3
+switched-resonator modulator for DSD64/128, mastering-v1 for DSD256 and
+qualified mastering-v2 CLANS-7 for DSD512/1024. The v1 IDs at DSD64/128
+were retired in 2.0.0. A mismatched version-pinned native bit clock causes an error.
 Unsupported or unqualified legacy composite profiles do not acquire
 qualification through these selectors. Only interpolated samples above the warning ceiling are clipped;
 nonfinite samples and modulator-state guard failures still stop the

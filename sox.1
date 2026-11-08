@@ -1480,10 +1480,11 @@ in a planned composite route.
 .B \-\-encode mastering|ID
 Select a qualified PCM-to-DSD modulator.  The default
 .B mastering
-selects encode.mastering.v1.dsd64/128/256 or
+selects encode.mastering.v3.dsd64/128 (the certified switched-resonator
+modulators), encode.mastering.v1.dsd256 or
 encode.mastering.v2.dsd512/1024, depending on output clock.
 An explicit ID such as
-.B encode.mastering.v1.dsd128
+.B encode.mastering.v3.dsd128
 pins the DSD output clock.  Out-of-range modulation fails rather than
 silently clipping; lower the PCM input level and retry.  The legacy and
 experimental selectors do not authorize unqualified composite encoding.
