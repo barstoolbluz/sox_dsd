@@ -142,7 +142,9 @@ static void test_context_overrides(void)
   sox_dsd_decoder_t *dec=NULL;
   sox_dsd_decode_options_t opt;
   const lsx_dsd_kernel *kernel=NULL;
-  const lsx_pcmdsd_profile *profile=lsx_pcmdsd_profile_find(2822400);
+  /* 2.0.0: DSD64/128 encode with the scalar resonator, so SDM tier forcing
+   * is exercised at DSD256, the lowest clock still on the legacy SDM. */
+  const lsx_pcmdsd_profile *profile=lsx_pcmdsd_profile_find(11289600);
   CHECK(profile!=NULL,"P10 profile available for P11 context tests");
   set_override("LSX_DSD_FIR_KERNEL","avx2");
   set_override("LSX_DSD_SDM_KERNEL","avx2");
@@ -156,7 +158,7 @@ static void test_context_overrides(void)
               &fir_second)==SOX_DSD_OK,"documented FIR force creates context");
     CHECK(!strcmp(lsx_dsd_reconstruction_kernel_name(fir_second),tier),
           "documented FIR force selects requested implementation");
-    CHECK(lsx_pcmdsd_candidate_create(88200,2822400,.5,0,NULL,
+    CHECK(lsx_pcmdsd_candidate_create(88200,11289600,.5,0,NULL,
               profile->bounds,&sdm_second)==SOX_DSD_OK,
           "documented SDM force creates candidate context");
     CHECK(!strcmp(lsx_pcmdsd_kernel_name(sdm_second),tier),
@@ -178,7 +180,7 @@ static void test_context_overrides(void)
             &fir_second)==SOX_DSD_UNSUPPORTED && !fir_second,
         "unknown documented FIR override fails at creation");
   set_override("SOX_DSD_KERNEL_SDM","unknown-p11-sdm");
-  CHECK(lsx_pcmdsd_candidate_create(88200,2822400,.5,0,NULL,
+  CHECK(lsx_pcmdsd_candidate_create(88200,11289600,.5,0,NULL,
             profile->bounds,&sdm_second)==SOX_DSD_BAD_ARGUMENT && !sdm_second,
         "unknown documented SDM override fails at creation");
   set_override("SOX_DSD_KERNEL_FIR","avx2-fma");
@@ -186,7 +188,7 @@ static void test_context_overrides(void)
             &fir_second)==SOX_DSD_UNSUPPORTED && !fir_second,
         "unsupported documented FIR override fails without substitution");
   set_override("SOX_DSD_KERNEL_SDM","avx2-fma");
-  CHECK(lsx_pcmdsd_candidate_create(88200,2822400,.5,0,NULL,
+  CHECK(lsx_pcmdsd_candidate_create(88200,11289600,.5,0,NULL,
             profile->bounds,&sdm_second)==SOX_DSD_UNSUPPORTED && !sdm_second,
         "unsupported documented SDM override fails without substitution");
   CHECK(!strcmp(lsx_dsd_reconstruction_kernel_name(fir_first),"scalar") &&
@@ -249,7 +251,7 @@ static void test_context_overrides(void)
             &fir_second)==SOX_DSD_OK &&
         !strcmp(lsx_dsd_reconstruction_kernel_name(fir_second),"scalar"),
         "legacy FIR alias remains a fallback");
-  CHECK(lsx_pcmdsd_candidate_create(88200,2822400,.5,0,NULL,
+  CHECK(lsx_pcmdsd_candidate_create(88200,11289600,.5,0,NULL,
             profile->bounds,&sdm_second)==SOX_DSD_OK &&
         !strcmp(lsx_pcmdsd_kernel_name(sdm_second),"scalar"),
         "legacy SDM alias remains a fallback");

@@ -436,8 +436,9 @@ def main():
             # longer has an unconditional scalar default.
             # The user-facing default now clips/warns. This report-contract
             # test explicitly requests the historical fatal overload behavior.
+            # 2.0.0: DSD64/128 use the resonator, so SDM forcing is at DSD256.
             p=run(args.candidate.resolve(),'--dsd-mode','auto','--dsd-clip','error',
-                  '--report',report,'-D',pcm,'-r','2822400',dst,
+                  '--report',report,'-D',pcm,'-r','11289600',dst,
                   env={'SOX_DSD_KERNEL_SDM':'scalar'})
             require(p.returncode==0,p.stderr[-800:])
             doc=json.loads(report.read_text());valid_report(doc)
@@ -445,9 +446,9 @@ def main():
             facts=enc[0]
             require(facts['sdm_kernel_actual']=='scalar',
                     f'forced scalar SDM misreported: {facts["sdm_kernel_actual"]}')
-            require(facts['profile_id']=='encode.mastering.v1.dsd64','wrong encoder ID')
+            require(facts['profile_id']=='encode.mastering.v1.dsd256','wrong encoder ID')
             require(len(facts['coefficient_certificate_sha256'])==64,'missing certificate')
-            require(facts['committed_native_frames']==str(frames*32),'encoder output count')
+            require(facts['committed_native_frames']==str(frames*128),'encoder output count')
             require(facts['monitor']['first_overload_frame'] is None,'fabricated overload')
             return dict(mastering_release_promoted=False,profile=facts['profile_id'],
                         actual_kernel=facts['sdm_kernel_actual'],
@@ -455,19 +456,26 @@ def main():
         case('test_candidate_actual_encoder_and_monitor_provenance',candidate_complete)
 
         def candidate_overload():
+            # 2.0.0: the forced scalar SDM at DSD256, and the certified
+            # resonator at DSD64, must both fail closed and report it.
+            results={}
+            for native,kernel in (('11289600','scalar'),('2822400','resonator')):
+                results[kernel]=overload_at(native,kernel)
+            return results
+        def overload_at(native,kernel):
             if not args.candidate.is_file():
                 return dict(status='UNRUN',reason='GNU link-time candidate test executable unavailable')
             import wave,struct
-            pcm=d/'encoder-overload.wav';frames=32768
+            pcm=d/f'encoder-overload-{kernel}.wav';frames=32768
             with wave.open(str(pcm),'wb') as w:
                 w.setnchannels(1);w.setsampwidth(4);w.setframerate(88200)
                 w.writeframes(b''.join(struct.pack('<i',2147483646 if i>=frames//2
                               else -2147483646) for i in range(frames)))
-            dst=d/'encoder-overload.dsf';report=d/'encoder-overload.json'
+            dst=d/f'encoder-overload-{kernel}.dsf';report=d/f'encoder-overload-{kernel}.json'
             # The user-facing default now clips/warns. This report-contract
             # test explicitly requests the historical fatal overload behavior.
             p=run(args.candidate.resolve(),'--dsd-mode','auto','--dsd-clip','error',
-                  '--report',report,'-D',pcm,'-r','2822400',dst,
+                  '--report',report,'-D',pcm,'-r',native,dst,
                   env={'SOX_DSD_KERNEL_SDM':'scalar'})
             require(p.returncode!=0,'interpolation overload silently accepted')
             require('overload' in p.stderr,'missing P10 overload diagnostic')
@@ -479,7 +487,7 @@ def main():
             require(facts['failure_code']!=0,'missing encoder failure event')
             require(facts['first_error_frame'] is not None,'missing first overload/error index')
             require(facts['committed_native_frames']=='0','failed block published')
-            require(facts['sdm_kernel_actual']=='scalar','wrong failed kernel')
+            require(facts['sdm_kernel_actual']==kernel,'wrong failed kernel')
             # The P10 monitor's state overloads are distinct from P10
             # interpolation saturation. Neither may be silently conflated.
             require(int(facts['monitor']['overloads'])==0,

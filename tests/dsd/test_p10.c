@@ -21,6 +21,9 @@ static const double test_bounds[8]={0x1p100,0x1p100,0x1p100,0x1p100,0x1p100,0x1p
 static lsx_pcmdsd *create(uint32_t a,uint32_t b,double scale,const double *bounds)
 {
   lsx_pcmdsd *p=NULL;
+  const lsx_pcmdsd_profile *d=lsx_pcmdsd_profile_find(b);
+  /* 2.0.0: a resonator clock has no legacy SDM guard to pass. */
+  if (d && d->resonator) bounds=NULL;
   CHECK(lsx_pcmdsd_candidate_create(a,b,scale,3,NULL,bounds,&p)==SOX_DSD_OK && p);
   return p;
 }
@@ -40,7 +43,9 @@ static void envelope(void)
     /* P15 promoted the original 64/128/256 mastering profiles. The P10
      * developmental test must assert current positive qualification, not
      * resurrect its pre-P15 unavailable-profile assumption. */
-    CHECK(d && d->native_hz==rates[i] && d->qualified && d->bounds);
+    CHECK(d && d->native_hz==rates[i] && d->qualified);
+    /* 2.0.0: DSD64/128 are the certified resonators, with no SDM guard. */
+    CHECK(d->resonator==(i<2) && (d->resonator?!d->bounds:d->bounds!=NULL));
     CHECK(d->working_hz==(i?176400:88200));
     CHECK(d->pass_hz==(i==0?20000:i==1?30000:40000));
     p=(void *)1;
@@ -136,7 +141,8 @@ static void envelope(void)
   CHECK(sdm_normal_step_guarded(&s,.2,&bit,bounds,&coordinate)==-2);
   CHECK(coordinate==0 && s.frames==0 && s.bank==0 && s.previous_decision==0 && bit==91);
   CHECK(sdm_normal_step_guarded(&s,NAN,&bit,test_bounds,&coordinate)==-1 && !s.frames);
-  p=create(88200,2822400,.5,bounds);
+  /* The legacy SDM state guard now first applies at DSD256. */
+  p=create(88200,11289600,.5,bounds);
   x[0]=.2;
   CHECK(lsx_pcmdsd_modulate(p,x,out,1)==SOX_DSD_NUMERIC_ERROR);
   CHECK(lsx_pcmdsd_report_get(p,&r)==SOX_DSD_OK && r.failure==LSX_PCMDSD_STATE_BOUND && r.coordinate==0 && !r.first_bad_frame);
@@ -159,7 +165,7 @@ static void failed_block_commit(void)
   n=512;m=65536;input[511]=0;
   CHECK(lsx_pcmdsd_process(p,input,&n,output,&m)==SOX_DSD_NUMERIC_ERROR && !n && !m);
   lsx_pcmdsd_destroy(p);
-  p=create(88200,2822400,.5,tight);n=512;m=65536;
+  p=create(88200,11289600,.5,tight);n=512;m=65536;
   {
     sox_dsd_status_t rc=lsx_pcmdsd_process(p,input,&n,output,&m);
     if(rc==SOX_DSD_NEED_INPUT) {
@@ -609,6 +615,34 @@ static int state_bench(unsigned native,unsigned long samples,const char *mode)
   return 0;
 }
 
+/* 2.0.0 resonator oracle feed: native binary64 samples on stdin through the
+ * production modulate path, one byte per decision (1 or 0) on stdout, in
+ * deliberately uneven blocks; recovery counters as JSON on stderr. */
+static int modulate_stream(uint32_t native)
+{
+  static const size_t blocks[]={1,7,512,13,4096,3};
+  double *x=malloc(4096*sizeof(*x));
+  sox_sample_t *y=malloc(4096*sizeof(*y));
+  unsigned char *bits=malloc(4096);
+  lsx_pcmdsd *p=NULL;lsx_pcmdsd_report r;
+  size_t k=0,n,i;uint64_t total=0;
+  CHECK(x && y && bits);
+  CHECK(lsx_pcmdsd_create(44100,native,.5,0,&p)==SOX_DSD_OK && p);
+  CHECK(lsx_pcmdsd_profile_of(p)->resonator);
+  while ((n=fread(x,sizeof(*x),blocks[k++%array_length(blocks)],stdin))>0) {
+    CHECK(lsx_pcmdsd_modulate(p,x,y,n)==SOX_DSD_OK);
+    for (i=0;i<n;++i) bits[i]=y[i]>0;
+    CHECK(fwrite(bits,1,n,stdout)==n);
+    total+=n;
+  }
+  CHECK(lsx_pcmdsd_report_get(p,&r)==SOX_DSD_OK);
+  fprintf(stderr,"{\"frames\":%" PRIu64 ",\"recovery_entries\":%" PRIu64
+      ",\"recovery_steps\":%" PRIu64 ",\"peak\":%.17g}\n",
+      total,r.recovery_entries,r.recovery_steps,r.peak);
+  lsx_pcmdsd_destroy(p);free(x);free(y);free(bits);
+  return 0;
+}
+
 int main(int argc,char **argv)
 {
   int rc=2;
@@ -623,6 +657,8 @@ int main(int argc,char **argv)
       !strcmp(argv[1],"--soak-dsd512-v2") ||
       !strcmp(argv[1],"--soak-nominal-dsd512-v2"))) rc=soak(argc,argv);
   else if (argc==6 && !strcmp(argv[1],"--stage-probe")) rc=stage_probe(argc,argv);
+  else if (argc==3 && !strcmp(argv[1],"--modulate"))
+    rc=modulate_stream((uint32_t)strtoul(argv[2],NULL,10));
   else if (argc==5 && !strcmp(argv[1],"--state-bench"))
     rc=state_bench((unsigned)strtoul(argv[2],NULL,10),strtoul(argv[3],NULL,10),argv[4]);
   else fprintf(stderr,"usage: %s --unit | --render sourceHz nativeHz profile scale training|guarded input.f64le bits report.json [inputBatch outputBatch] | --soak[-nominal-v2] nativeHz seconds segmentSeconds prefix\n",argv[0]);

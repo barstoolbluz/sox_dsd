@@ -184,7 +184,8 @@ def main():
             def enc(mult=mult):
                 dest=d/f'encoded{mult}.dsf'
                 doc=plan(exe,d/'input.wav','-r',f'dsd{mult}',dest)
-                ident=f'encode.mastering.v{"1" if mult<=256 else "2"}.dsd{mult}'
+                # 2.0.0: DSD64/128 are the certified resonators (v3).
+                ident=f'encode.mastering.v{"3" if mult<=128 else "1" if mult==256 else "2"}.dsd{mult}'
                 check(doc['output']['domain']=='DSD_NATIVE', 'encoder route')
                 check(doc['output']['rate_hz']==44100*mult, 'named native rate')
                 check(doc['encoder']['id']==ident, 'qualified encoder mismatch')
@@ -362,7 +363,7 @@ def main():
         def encode_override():
             automatic=d/'encauto.dsf'; named=d/'encmaster.dsf'; version=d/'encv1.dsf'
             for flags,out in (((),automatic), (('--encode','mastering'),named),
-                              (('--encode','encode.mastering.v1.dsd128'),version)):
+                              (('--encode','encode.mastering.v3.dsd128'),version)):
                 run(exe,*flags,d/'input.wav','-r','dsd128',out)
             check(sha(automatic)==sha(named)==sha(version),
                   'explicit and unpinned qualified encoding disagree')
@@ -464,9 +465,11 @@ def main():
                           ('-r','dsd128',d/'input.wav',d/'invalid2.dsf')):
                 run(exe,*flags,ok=False)
             run(exe,'--decode','decode.mastering.v1.dsd128',d/'dsd64.dsf',d/'wrong-dec.wav',ok=False)
-            run(exe,'--encode','encode.mastering.v1.dsd64',d/'input.wav','-r','dsd128',d/'wrong-enc.dsf',ok=False)
+            run(exe,'--encode','encode.mastering.v3.dsd64',d/'input.wav','-r','dsd128',d/'wrong-enc.dsf',ok=False)
+            # 2.0.0 retired the v1 sdm-8 encoder at DSD64/128; its IDs are refused.
+            run(exe,'--encode','encode.mastering.v1.dsd64',d/'input.wav','-r','dsd64',d/'retired-enc.dsf',ok=False)
             run(exe,'--decode','nonexistent',d/'dsd64.dsf',d/'bad-dec.wav',ok=False)
-            for f in ('invalid.wav','invalid2.dsf','wrong-dec.wav','wrong-enc.dsf','bad-dec.wav'):
+            for f in ('invalid.wav','invalid2.dsf','wrong-dec.wav','wrong-enc.dsf','retired-enc.dsf','bad-dec.wav'):
                 check(not (d/f).exists(), f'failed preflight created {f}')
         case('misplaced or incompatible rate and profile options fail',rate_errors)
 
@@ -591,12 +594,12 @@ def main():
             doc=plan(exe,'--dsd-mode','legacy','--encode','mastering',src,
                      d/'legacy-encode-planned.dsf')
             check(doc['encoder_count']==1 and
-                  doc['encoder']['id']=='encode.mastering.v1.dsd64',
+                  doc['encoder']['id']=='encode.mastering.v3.dsd64',
                   'legacy encoder plan did not honor explicit qualified profile')
             run(exe,src,baseline)
             run(exe,'--dsd-mode','legacy','--encode','mastering',src,unpinned)
             run(exe,'--dsd-mode','legacy','--encode',
-                'encode.mastering.v1.dsd64',src,explicit)
+                'encode.mastering.v3.dsd64',src,explicit)
             run(exe,'--dsd-mode','legacy','--report',report,src,logged)
             check(baseline.read_bytes()==unpinned.read_bytes()==
                   explicit.read_bytes()==logged.read_bytes(),
@@ -604,7 +607,7 @@ def main():
             j=json.loads(report.read_text())
             check(j['status']=='complete' and j['processing']['encoder'] and
                   j['processing']['encoder'][0]['profile_id']==
-                    'encode.mastering.v1.dsd64',
+                    'encode.mastering.v3.dsd64',
                   'legacy report did not observe mastering encoder')
         case('legacy PCM to DSD selects qualified profile and stable reporting',
              legacy_encoder_profiles)
