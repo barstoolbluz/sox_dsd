@@ -233,6 +233,16 @@ check-dsd-cli: all
 	  python3 "$(abs_srcdir)/tests/dsd/test_cli_usability.py" \
 	  --sox "$(abs_builddir)/src/sox"
 	$(MAKE) check-dsd-loud-encode
+	$(MAKE) check-dsd-resonator
+
+# 2.0.0 certified resonators: exact certificate replay, independent bit-exact
+# oracle and CLI provenance at DSD64/128. No music files needed.
+.PHONY: check-dsd-resonator
+check-dsd-resonator: all
+	$(MAKE) -C test dsd_test_p10$(EXEEXT)
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/test_resonator.py" \
+	  --src "$(abs_srcdir)/src" --sox "$(abs_builddir)/src/sox" \
+	  --unit "$(abs_builddir)/test/dsd_test_p10$(EXEEXT)"
 
 # Standalone loud-master acceptance; no dependency on historical receipts.
 .PHONY: check-dsd-loud-encode
@@ -842,6 +852,7 @@ EXTRA_DIST += docs/dsd/SDM_REGISTER_PROOF.md \
 
 # 2.0.0 certified switched-resonator certificates and their exact checkers.
 EXTRA_DIST += \
+  tests/dsd/test_resonator.py \
   src/resonator/dsd64/proofs/certificate.json src/resonator/dsd64/proofs/check_certificate.py \
   src/resonator/dsd64/proofs/emit_header.py src/resonator/dsd64/results/proof.json \
   src/resonator/dsd128/proofs/certificate.json src/resonator/dsd128/proofs/check_certificate.py \
