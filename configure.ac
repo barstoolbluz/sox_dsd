@@ -45,6 +45,59 @@ AC_CONFIG_SRCDIR(sox.1)
 dnl Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
+
+dnl Phase 01: a build capability, not a new CLI route. The known unsafe
+ dnl backend flags must not silently enter a native-enabled build. The native
+ dnl runtime guard also checks rounding/traps/FTZ per worker and per block.
+AC_ARG_ENABLE([native-f64],
+    [AS_HELP_STRING([--disable-native-f64],
+        [build legacy SoX only; native binary64 DSP remains unavailable])],
+    [enable_native_f64=$enableval], [enable_native_f64=yes])
+AS_CASE([$enable_native_f64], [yes|no], [],
+        [AC_MSG_ERROR([--enable-native-f64 accepts only yes or no])])
+
+PCM_F64_STRICT_CFLAGS='-ffp-contract=off -fno-fast-math -fno-lto -fexcess-precision=standard -frounding-math -fno-unsafe-math-optimizations -fno-finite-math-only -fsigned-zeros -ftrapping-math'
+AC_SUBST([PCM_F64_STRICT_CFLAGS])
+AM_CONDITIONAL([NATIVE_F64], [test "x$enable_native_f64" = xyes])
+if test "x$enable_native_f64" = xyes; then
+    dnl Do not rewrite rate.c or ordinary SoX compilation policy. Refuse the
+    dnl native capability when unsafe options would reach shared SRC/FIR.
+    for pcm64_flag in $CC $CFLAGS $CPPFLAGS $LDFLAGS; do
+        case "$pcm64_flag" in
+          -Ofast|-ffast-math|-funsafe-math-optimizations|-fassociative-math|\
+          -ffinite-math-only|-fno-signed-zeros|-fno-trapping-math|\
+          -ffp-contract=fast|-ffp-contract=on|-freciprocal-math|\
+          -fexcess-precision=fast|-fno-rounding-math|-flto|-flto=*|\
+          -ffp-model=fast|-fno-honor-infinities|-fno-honor-nans)
+            AC_MSG_ERROR([unsafe shared-backend option $pcm64_flag with native-f64; use safe flags or --disable-native-f64]) ;;
+        esac
+    done
+    AC_MSG_CHECKING([for a strict IEEE binary64 compilation model])
+    pcm64_saved_CFLAGS=$CFLAGS
+    CFLAGS="$CFLAGS $PCM_F64_STRICT_CFLAGS"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include <float.h>
+#include <limits.h>
+#if CHAR_BIT != 8 || FLT_RADIX != 2 || DBL_MANT_DIG != 53 || \
+    DBL_MIN_EXP != -1021 || DBL_MAX_EXP != 1024 || FLT_EVAL_METHOD != 0
+#error Unsupported native binary64 arithmetic model
+#endif
+#if defined(__FAST_MATH__) || defined(__FINITE_MATH_ONLY__) && __FINITE_MATH_ONLY__
+#error Native binary64 must not use approximate/finite-only arithmetic
+#endif
+]], [[volatile double x=1.0, y=2.0; return (x+y)==3.0 ? 0 : 1;]])],
+        [pcm64_strict_works=yes], [pcm64_strict_works=no])
+    CFLAGS=$pcm64_saved_CFLAGS
+    AC_MSG_RESULT([$pcm64_strict_works])
+    if test "x$pcm64_strict_works" != xyes; then
+        AC_MSG_ERROR([cannot verify the strict native binary64 compile model; use --disable-native-f64])
+    fi
+    AC_DEFINE([PCM_F64_NATIVE_ENABLED], [1],
+              [Compiled native F64 DSP support, subject to per-worker runtime checks])
+else
+    AC_DEFINE([PCM_F64_NATIVE_ENABLED], [0],
+              [Compiled native F64 DSP support, subject to per-worker runtime checks])
+fi
 AC_PROG_INSTALL
 AC_PROG_LN_S
 
@@ -1040,6 +1093,7 @@ fi
 # Report configuration.
 echo
 echo "BUILD OPTIONS"
+echo "Native binary64 DSP build...$enable_native_f64 (runtime environment is checked separately)"
 echo "Debugging build............$enable_debug"
 echo "Distro name ...............$DISTRO"
 echo "Dynamic loading support....$using_libltdl"

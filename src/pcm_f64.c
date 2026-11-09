@@ -327,7 +327,11 @@ pcm_f64_status pcm_f64_quantize_int(double value, unsigned bits,
   if (abs_value >= 1.0) {
     if (negative) {
       magnitude = limit;
-      *saturated = abs_value > 1.0;
+      /* A negative nominal excursion may still round exactly to the
+       * representable minimum. Saturation starts at the OUT-OF-RANGE
+       * half-step, not simply when x < -1. The threshold is a representable
+       * binary64 dyadic for all supported widths. */
+      *saturated = abs_value >= 1.0 + ldexp(1.0, -(int)bits);
     } else {
       magnitude = limit - 1;
       *saturated = true;

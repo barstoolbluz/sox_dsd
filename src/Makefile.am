@@ -90,7 +90,7 @@ sox_sample_test_DEPENDENCIES = $(SPARSE_FILE_TEST)
 libsox_ng_la_SOURCES = adpcms.c adpcms.h aiff.c aiff.h cvsd.c cvsd.h cvsdfilt.h \
 	g711.c g711.h g721.c g723_24.c g723_40.c g72x.c g72x.h vox.c vox.h \
 	mod.c mod.h mod-tabs.c msupcm.c mul.c raw.c raw.h \
-	formats.c formats.h formats_i.c sox_i.h dsd.h dsd.c dsd_packed.c dsd_packed.h dsd_plan.c dsd_stats.c dsd_stats.h dsdstat.c dsd_decode.c dsd_decode.h dsd_public.c dsdpcm.c pcmdsd.c pcmdsd.h pcmdsd_coeffs.h pcmdsd_guards.h rate_internal.h dsd_kernels_scalar.c dsd_dispatch.c dsd_kernels.h sdm_normal_commit_i.h dsd_coeffs.h dsd_coeffs_v2.h sox_dsd.h dsd_layout_i.h dsd_layout_query.h dsd_layout.c wav-size.h keymap.c \
+	formats.c formats.h formats_i.c sox_i.h pcm_f64.c pcm_f64.h dsd.h dsd.c dsd_packed.c dsd_packed.h dsd_plan.c dsd_stats.c dsd_stats.h dsdstat.c dsd_decode.c dsd_decode.h dsd_public.c dsdpcm.c pcmdsd.c pcmdsd.h pcmdsd_coeffs.h pcmdsd_guards.h rate_internal.h dsd_kernels_scalar.c dsd_dispatch.c dsd_kernels.h sdm_normal_commit_i.h dsd_coeffs.h dsd_coeffs_v2.h sox_dsd.h dsd_layout_i.h dsd_layout_query.h dsd_layout.c wav-size.h keymap.c \
 	xmalloc.c xmalloc.h getopt.c util.c util.h libsox_ng.c libsox_i.c \
 	sox-fmt.c soxomp.h win32-unicode.c win32-unicode.h
 
@@ -177,7 +177,30 @@ libsox_ng_la_LIBADD += libdsd_resonator.la
 # targets go through a variable so automake keeps its own compile rules.
 RESONATOR_KERNEL_OBJECTS = resonator/dsd64/src/libdsd_resonator_la-dsd64_iq.lo \
 	resonator/dsd128/src/libdsd_resonator_la-dsd128_iq.lo
-$(RESONATOR_KERNEL_OBJECTS): CFLAGS += -O3
+# Override even `make CFLAGS=...`: the GNU make command-line variable must
+# not remove strict flags or the certificate's -O3 effective optimization.
+$(RESONATOR_KERNEL_OBJECTS): override CFLAGS += $(PCM_F64_STRICT_CFLAGS) -O3
+# Only the private native PCM arithmetic, never rate.c or ordinary effects.
+src_pcm_f64_object = libsox_ng_la-pcm_f64.lo
+$(src_pcm_f64_object): override CFLAGS += $(PCM_F64_STRICT_CFLAGS)
+
+if NATIVE_F64
+# Catch unsafe flags passed to make *after* configure (configuring safely is
+# insufficient if a developer overrides CFLAGS on a later make invocation).
+.PHONY: pcm64-native-flag-gate
+pcm64-native-flag-gate:
+	@for flag in $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS); do \
+	  case "$$flag" in \
+	    -Ofast|-ffast-math|-funsafe-math-optimizations|-fassociative-math|\
+	    -ffinite-math-only|-fno-signed-zeros|-fno-trapping-math|\
+	    -ffp-contract=fast|-ffp-contract=on|-freciprocal-math|\
+	    -fexcess-precision=fast|-fno-rounding-math|-flto|-flto=*|\
+	    -ffp-model=fast|-fno-honor-infinities|-fno-honor-nans) \
+	      echo "unsafe native-f64 build flag: $$flag" >&2; exit 1 ;; \
+	  esac; \
+	done
+libsox_ng.la libdsd_resonator.la: pcm64-native-flag-gate
+endif
 
 libsox_ng_la_LIBADD += @GOMP_LIBS@
 

@@ -207,3 +207,11 @@ EXTRA_PROGRAMS += dsd_test_p17_dsf
 dsd_test_p17_dsf_SOURCES = ../tests/dsd/p17_dsf_probe.c
 dsd_test_p17_dsf_CPPFLAGS = -I$(top_srcdir)/src
 dsd_test_p17_dsf_LDADD = $(top_builddir)/src/libsox_ng.la
+
+# Phase 01 private binary64 contract/quantizer/fenv probe. Keep this uninstalled
+# and compile the same PCM implementation used by the production library,
+# without exposing the private symbols as part of an installed ABI.
+EXTRA_PROGRAMS += pcm64_probe
+pcm64_probe_SOURCES = ../tests/pcm64/pcm64_probe.c ../src/pcm_f64.c
+pcm64_probe_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src
+pcm64_probe_CFLAGS = $(WARN_CFLAGS) $(PCM_F64_STRICT_CFLAGS)

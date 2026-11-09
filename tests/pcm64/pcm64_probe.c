@@ -144,6 +144,8 @@ static int selftest(void)
   CHECK(pcm_f64_quantize_int(nextafter(ldexp(1.0,-24),0.0),24,&q,&sat)==PCM_F64_OK && q==0);
   CHECK(pcm_f64_quantize_int(-ldexp(1.0,-24),24,&q,&sat)==PCM_F64_OK && q==-256);
   CHECK(pcm_f64_quantize_int(nextafter(ldexp(1.0,-32),0.0),32,&q,&sat)==PCM_F64_OK && q==0);
+  CHECK(pcm_f64_quantize_int(nextafter(-1.0,-INFINITY),32,&q,&sat)==PCM_F64_OK && q==INT32_MIN && !sat);
+  CHECK(pcm_f64_quantize_int(-1.0-ldexp(1.0,-32),32,&q,&sat)==PCM_F64_OK && q==INT32_MIN && sat);
   printf("SELFTEST assertions=%u status=PASS\n",checks);
   return 0;
 }

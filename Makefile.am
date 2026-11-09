@@ -42,7 +42,8 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
              tests/rename_smoke.sh \
              tests/dsd/test_cli_usability.py tests/dsd/test_loud_encode.py \
              docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md \
-             docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md
+             docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md \
+             tests/pcm64/run.py tests/pcm64/pcm64_probe.c
 
 if HAVE_PKGCONFIG
 pkgconfig_DATA = sox_ng.pc
@@ -857,3 +858,15 @@ EXTRA_DIST += \
   src/resonator/dsd64/proofs/emit_header.py src/resonator/dsd64/results/proof.json \
   src/resonator/dsd128/proofs/certificate.json src/resonator/dsd128/proofs/check_certificate.py \
   src/resonator/dsd128/proofs/emit_header.py src/resonator/dsd128/results/proof.json
+
+# Phase 01: stable, failure-sensitive private suite entry point. Selection of a
+# later unimplemented suite must fail, not falsely pass by running zero cases.
+PCM64_SUITE = foundation
+PCM64_RESULTS = $(abs_top_builddir)/evidence/phase01
+.PHONY: check-pcm64
+check-pcm64: all
+	$(MAKE) -C test pcm64_probe
+	python3 '$(abs_top_srcdir)/tests/pcm64/run.py' --suite '$(PCM64_SUITE)' \
+	  --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' \
+	  --probe '$(abs_top_builddir)/test/pcm64_probe$(EXEEXT)' \
+	  --results '$(PCM64_RESULTS)'
