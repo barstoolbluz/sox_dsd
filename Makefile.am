@@ -655,14 +655,14 @@ EXTRA_DIST += tests/dsd/test_p09.c tests/dsd/test_p09.py \
   tests/dsd/reference/analysis-v1/fir-11289600.f64le \
   docs/dsd/handoffs/P09.md docs/dsd/handoffs/P09_CHECKPOINT.md
 EXTRA_DIST += tests/dsd/bench_p09.py
-EXTRA_DIST += docs/dsd/briefs/P09_brief.md tests/dsd/sanitize_p09_results.py
+EXTRA_DIST += docs/dsd/briefs/P09.md tests/dsd/sanitize_p09_results.py
 
 # P10 fail-closed composite candidate and executable qualification evidence.
 EXTRA_DIST += tests/dsd/test_p10.c tests/dsd/test_p10.py \
   tests/dsd/p10_candidate_cli.c tests/dsd/generate_p10_coeffs.py \
   tests/dsd/p10_corpus.py tests/dsd/qualify_p10.py \
   tests/dsd/reference/p10_prefilters.json tests/dsd/reference/p10_guards.json \
-  docs/dsd/handoffs/P10.md docs/dsd/briefs/P10_brief.md
+  docs/dsd/handoffs/P10.md docs/dsd/briefs/P10.md
 
 EXTRA_DIST += tests/dsd/soak_p10.py tests/dsd/bench_p10.py \
   tests/dsd/corroborate_p10.py
@@ -762,8 +762,7 @@ EXTRA_DIST += tests/dsd/test_legacy_sdm_guard_policy.py \
   docs/dsd/LEGACY_SDM_GUARD_POLICY.md
 
 # Non-phase performance investigation; no production policy or DSP changes.
-EXTRA_DIST += tests/dsd/profile_decode.py tests/dsd/test_perf_measurements.py \
-  docs/dsd/PERFORMANCE_INVESTIGATION_2026-10-12.md
+EXTRA_DIST += tests/dsd/profile_decode.py tests/dsd/test_perf_measurements.py
 
 .PHONY: check-dsd-optimization
 check-dsd-optimization: all

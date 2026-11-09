@@ -31,6 +31,8 @@ check-am: samples$(EXEEXT) wav_size_state_test$(EXEEXT)
 dist-hook:
 	rm -f $(distdir)/samples$(EXEEXT) $(distdir)/samples.o
 	rm -rf $(distdir)/.deps
+	rm -f $(distdir)/Makefile $(distdir)/*.o
+	cd $(distdir) && rm -f $(EXTRA_PROGRAMS)
 
 # P00 independent DSD test probe: check-dsd builds it explicitly.
 # Register it as an optional program so Automake does not generate a second
