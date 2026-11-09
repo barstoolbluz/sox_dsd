@@ -16,8 +16,8 @@ processing more generally.
 
 The current work extends DSD64, DSD128 and DSD256 processing, including
 native DSF and DSDIFF I/O, DSD-to-PCM reconstruction, and DSD encoding.
-It adds DSD-aware planning and versioned reconstruction filters rather
-than treating all DSD-to-PCM conversions as interchangeable.
+It adds DSD-aware planning and qualified mastering and wideband reconstruction
+filters rather than treating all DSD-to-PCM conversions as interchangeable.
 
 **DSD512 and DSD1024 file and transport paths are enabled as of P21
 (2026-10-23).** DSF and DSDIFF support native read/write, WSD supports
@@ -31,11 +31,16 @@ File and DoP authorization does not establish support
 on any particular player, DAC or transport device. See
 [the P21 authorization record](docs/dsd/amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md).
 
-The v1 mastering reconstruction is the default at every rate: passband
-20 kHz at DSD64, 30 kHz at DSD128 and 40 kHz from DSD256 up. The wider
-v2 mastering filters (25, 48 and 66 kHz) remain selectable:
+The sole standard decoder is mastering v1 at every native rate: passband
+20 kHz at DSD64, 30 kHz at DSD128 and 40 kHz from DSD256 up. The
+qualified wideband-v1 decoder is the only reconstruction alternative.
+`--decode mastering` is equivalent to omitting `--decode`; v2 **decoder**
+filters and the `--decode conservative`/`legacy` aliases are removed.
 
-    sox --decode mastering input.dsf -r 176400 -b 24 output.wav
+    sox --decode wideband input.dsf -r 176400 -b 24 output.wav
+
+The optional mastering v2 **encoder** at DSD512/1024 is independent and
+remains selectable by its exact `encode.mastering.v2.dsdNNN` ID.
 
 Loud PCM masters may exceed full scale *between* samples. By default the
 PCM-to-DSD encoder clips residual interpolated overloads and warns. At every

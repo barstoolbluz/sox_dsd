@@ -1,7 +1,7 @@
 # SoX DSD 1.1.1: release notes
 
-These notes describe the 1.1.1 behavior. The source version bump is performed
-at release time, separately from the review changes.
+The DSD decoder has one standard mastering profile at all five native clocks.
+The optional high-rate mastering v2 **encoder** remains available by exact ID.
 
 ## Defaults and compatible high-rate v2 pins
 
@@ -13,10 +13,11 @@ at release time, separately from the review changes.
   `--encode` or explicit `pcmdsd -p`. These are the same exact IDs accepted in
   1.1.0 and retain the 1.1.0 CLANS-7 algorithm, guards, and bits for the same
   input/settings. `--encode mastering` selects **v1**, not v2.
-- **DSD to PCM:** `decode.mastering.v1` is the automatic decoder at all five
-  clocks. Explicit `--decode mastering` selects the wider v2, while
-  `--decode conservative` and exact v1 IDs select v1. Decoder and encoder
-  version numbers are independent.
+- **DSD to PCM:** `decode.mastering.v1.dsdNNN` is the standard decoder at all
+  five clocks. Explicit `--decode mastering` matches the default and the
+  corresponding exact v1 ID. `--decode wideband` selects the only qualified
+  alternative. Decoder v2 and the retired `conservative`/`legacy` decoder
+  spellings are no longer accepted. Encoder v2 is a separate component.
 - **Default PCM-to-DSD level:** warn-and-clip mode applies a fixed 0.9 gain
   (-0.91515 dB) before clipping residual interpolated peaks above 0.45
   modulator units. This is unchanged from 1.1.0, including for v2.
@@ -51,8 +52,8 @@ independent of modulator clipping. The historical soak's `launcher.log` is
 empty; its individual execution and assessor receipts are available. Tests
 targeting `/dev/null` do not prove that output was never emitted before a
 failure. The documented historical `cli-paths/release-1.1.1.jsonl` records
-predate the later headroom-hint correction and are not output from this final
-review branch.
+predate the later headroom-hint correction and should not be read as
+measurements of the present source tree.
 
 See [Using SoX DSD](USING_SOX_DSD.md) and the
 [high-rate v1 evidence](V1_HIGH_RATE_ENCODE_2026-11-07.md).

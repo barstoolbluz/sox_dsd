@@ -3690,27 +3690,28 @@ binary64 DSP.  Without
 .BR \-p ,
 mastering v1 is selected according to the input DSD clock.  For DSD64,
 128, 256, 512, and 1024, v1 passbands are respectively 20, 30, 40, 40,
-and 40 kHz; v2
-.RB ( "\-p mastering" )
-passbands are 25, 48, 66, 66, and 66 kHz.  With no requested
+and 40 kHz.  The only other reconstruction profile is qualified
+.B wideband
+(v1).  With no requested
 .IR rate ,
-use the profile's intermediate PCM clock (for mastering v1 and v2,
+use the profile's intermediate PCM clock (for mastering v1,
 88200 Hz for DSD64 and 176400 Hz for the other rates).  The effective bandwidth depends
 on both the selected profile and the output PCM rate.
 .SP
 Explicit
-.B \-p conservative
-selects mastering v1;
 .B \-p mastering
-selects mastering v2; explicit
+selects the standard v1 decoder;
 .B \-p wideband
-selects wideband v1.  Pinned IDs such as
-.B decode.mastering.v2.dsd128
+selects the qualified wideband-v1 alternative.  Pinned IDs such as
+.B decode.mastering.v1.dsd128
 and
 .B decode.wideband.v1.dsd256
-select the version and native input clock.  A clock mismatch fails.
-.B \-p legacy
-is parsed but no executable composite legacy decoder is supplied.
+select the bank and native input clock.  A clock mismatch fails.
+Decoder-v2 IDs and the obsolete decoder spellings
+.B conservative
+and
+.B legacy
+are rejected.
 .B \-l sacd
 applies +6.0206 dB; the default
 .B preserve
@@ -3727,8 +3728,12 @@ native DSD bit clock.  The default,
 uses the qualified mastering v1 encoder at every rate.
 Versioned selectors such as
 .B encode.mastering.v1.dsd128
-pin their output rate.  The v2 CLANS-7 encoders at DSD512 and DSD1024
-are not in the command-line rate table and cannot be requested there.  Explicit legacy and
+pin their output rate.  The still-qualified v2 CLANS-7 encoders at DSD512 and DSD1024 can be
+selected explicitly by their exact IDs
+.B encode.mastering.v2.dsd512
+and
+.BR encode.mastering.v2.dsd1024 .
+These are separate from decoder versions.  Explicit legacy and
 experimental selections are distinct from qualified mastering; they do
 not enable an unqualified composite modulator.
 .SP

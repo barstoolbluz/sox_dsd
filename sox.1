@@ -1459,23 +1459,24 @@ conversions.
 .B \-\-help\-dsd
 Display a short set of DSD examples and commonly used advanced controls.
 .TP
-.B \-\-decode mastering|conservative|wideband|legacy|ID
+.B \-\-decode mastering|wideband|ID
 Select a reconstruction profile when processing DSD as PCM.  The
-.B conservative
-alias and automatic default both select qualified mastering v1,
-matched to the native DSD input rate.
+automatic default and
 .B mastering
-selects the wider mastering v2; the
+both select qualified mastering v1, matched to the native DSD input
+clock.
 .B wideband
-alias selects wideband v1.  Explicit immutable IDs such as
+selects the qualified wideband-v1 alternative.  Explicit immutable IDs
+such as
 .B decode.mastering.v1.dsd64
 or
-.B decode.mastering.v2.dsd128
+.B decode.wideband.v1.dsd128
 pin both the bank and the native input clock, so a clock mismatch
-is an error.  The
+is an error.  The previous decoder-v2 bank and the decoder spellings
+.B conservative
+and
 .B legacy
-selector is a historical unqualified decoder and may be unavailable
-in a planned composite route.
+are no longer supported.  This does not affect the high-rate v2 encoder.
 .TP
 .B \-\-encode mastering|ID
 Select a qualified PCM-to-DSD modulator.  The default

@@ -2,7 +2,10 @@
 
 For the implemented end-user command-line interface, start with
 [Using SoX DSD](USING_SOX_DSD.md) or [the CLI migration table](MIGRATION_P15.md).
-The historical phase records below are not release user instructions.
+The [unified decoder corrective](UNIFIED_DECODER_2026-11-09.md) records
+the current mastering-v1 default, optional wideband decoder, and independent
+high-rate v2 encoder IDs. P15-R3 decoder-v2 records, review notes and the
+phase records below are historical, not release user instructions.
 
 The approved design for a planned sox_ng DSD engine refactoring, revision 1.0
 (2026-10-07), written against source baseline

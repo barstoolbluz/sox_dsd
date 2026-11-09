@@ -224,11 +224,12 @@ DSD conversions; PCM-only commands continue to use normal SoX diagnostics.
 
 ## Qualified profiles for advanced use
 
-For DSD reconstruction, omitting `--decode` and `--decode conservative`
-select the qualified mastering-v1 bank matched to the source bit clock:
+For DSD reconstruction, omitting `--decode` and specifying `--decode mastering`
+select the same qualified mastering-v1 bank matched to the source bit clock:
 passband 20 kHz at DSD64, 30 kHz at DSD128 and 40 kHz from DSD256 up.
-`--decode mastering` selects the wider mastering-v2 bank (25, 48 and
-66 kHz), and `--decode wideband` selects the qualified wideband-v1 bank.
+`--decode wideband` selects the qualified wideband-v1 bank. No mastering-v2
+decoder or `conservative`/`legacy` decoder alias remains. The independent
+mastering-v2 **encoder** at high native rates is unaffected.
 For encoding, the normal profile is **mastering**; you do not need to
 specify it. Exact versioned
 identities are available when reproducibility matters:
@@ -238,7 +239,7 @@ identities are available when reproducibility matters:
 sox --decode decode.mastering.v1.dsd64 source64.dsf v1.wav
 
 # An exact decoder bank, tied to DSD128 input.
-sox --decode decode.mastering.v2.dsd128 source128.dsf v2.wav
+sox --decode decode.mastering.v1.dsd128 source128.dsf v1-128.wav
 
 # Wideband reconstruction with explicit bandwidth policy.
 sox --decode wideband --dsd-bandwidth strict source64.dsf \
@@ -309,9 +310,10 @@ select supported execution tiers for reproducible numerical checks. The traditio
 
 The new interface replaces `--dsd-decode`, `--dsd-encode`, `--dsd-plan`,
 and `--dsd-report` with `--decode`, `--encode`, `--plan`, and `--report`.
-It changes the DSD-routing default from legacy to automatic, and makes
-explicit `--decode mastering` select the mastering-v2 profile. The
-automatic default is mastering v1, also selected by `--decode conservative`
-or an exact `decode.mastering.v1.dsdNNN` ID.
+It changes the DSD-routing default from legacy to automatic. In 1.1.1
+`--decode mastering`, the automatic default, and an exact
+`decode.mastering.v1.dsdNNN` ID all select the same mastering-v1 decoder.
+The older DSD-specific decoder spellings `conservative` and `legacy`, and
+the decoder-v2 IDs, are no longer available.
 These changes affect SoX DSD-specific 1.0.4 controls, not conventional
 SoX/SoX-NG syntax. See [the migration table](MIGRATION_P15.md).
