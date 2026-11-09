@@ -129,6 +129,24 @@ static result exercise(uint32_t native,uint32_t pcm,
   return rv;
 }
 
+/* The retired numeric values must fail in the existing ABI's argument
+ * validator; callers passing a stale integer may not acquire another bank. */
+static void rejected_decoder_profiles(void)
+{
+  sox_dsd_decode_options_t options;
+  sox_dsd_decoder_t *decoder = NULL;
+  int obsolete;
+  sox_dsd_decode_options_init(&options);
+  options.native_hz = 2822400;
+  options.output_hz = 88200;
+  options.channels = 1;
+  for (obsolete = 2; obsolete <= 3; ++obsolete) {
+    options.profile = (sox_dsd_decode_profile_t)obsolete;
+    CHECK(sox_dsd_decoder_create(&options,&decoder)==SOX_DSD_BAD_ARGUMENT);
+    CHECK(decoder==NULL);
+  }
+}
+
 static void public_tests(void)
 {
   size_t i,j,p;
@@ -210,7 +228,7 @@ static void api_overrange(void)
 
 int main(void)
 {
-  count_tests();identity_src();public_tests();api_overrange();
+  count_tests();identity_src();rejected_decoder_profiles();public_tests();api_overrange();
   printf("P07 %lu assertions, 0 failures\n",checks);
   return 0;
 }

@@ -158,8 +158,8 @@ def main() -> int:
             inspect=expect(executable=True,layout_identity_preserved=True),suffix='.dsf')
         run('native_trim',[ds,'@OUT@','trim','0','0.00001'],
             inspect=expect(executable=True,native_trim_seek=True),suffix='.dff')
-        run('native_unused_decoder_rejected',['--decode','legacy',ds,'@OUT@'],
-            ok=False,error='requires reconstruction',suffix='.dsf')
+        run('native_invalid_decoder_rejected',['--decode','legacy',ds,'@OUT@'],
+            ok=False,error='--decode:',suffix='.dsf')
         run('native_only_mode',['--dsd-mode','native',ds,'@OUT@'],
             inspect=expect(executable=True),suffix='.dsf')
         run('native_actual_dff',['--dsd-mode','native',ds,'@OUT@'],plan=False,suffix='.dff')
@@ -168,7 +168,7 @@ def main() -> int:
         run('pcm_only_plan',[w88,'@OUT@'],inspect=expect(
             executable=True,output__domain='PCM_AUDIO',graph_decoder_count=0))
 
-        # The unpinned default is mastering v1 (2026-11-08); explicit v2 stays selectable.
+        # Both the unpinned default and named mastering use the v1 decoder.
         # P08 activates the existing binary64 decoder for planned graph boundaries.
         for name,src,expected,clock in (('master64',ds,88200,64),
                                         ('master128',ds128,176400,128),
@@ -181,11 +181,9 @@ def main() -> int:
         run('wideband256',['--decode','wideband',ds256,'@OUT@'],
             inspect=expect(decoder__id='decode.wideband.v1.dsd256',decoder__pass_hz=141120,
                 decoder__stop_hz=176400,decoder__intermediate_hz=352800,output__rate_hz=352800))
-        run('legacy_decoder',['--decode','legacy',ds,'@OUT@'],
-            inspect=expect(decoder__id='decode.legacy.generic',decoder__pass_hz=0,
-                policy__decode='legacy',decoder__intermediate_hz=88200))
-        run('legacy_strict',['--decode','legacy','--dsd-bandwidth','strict',
-            ds,'@OUT@'],ok=False,error='cannot certify')
+        for removed in ('legacy','conservative','decode.mastering.v2.dsd64'):
+            run('removed_decoder_'+removed,['--decode',removed,ds,'@OUT@'],
+                ok=False,error='--decode:')
         run('float_fallback',['--dsd-layout-loss','warn',ds,'@OUT@'],
             inspect=expect(output__bits_per_sample=32,output__encoding=3),suffix='.f32')
         run('sacd_gain',['--dsd-level','sacd',ds,'@OUT@'],
@@ -376,9 +374,9 @@ def main() -> int:
             'pcmdsd','5644800','dsdpcm','176400'],
             inspect=expect(encoder_count=1,graph_decoder_count=2,
                 decoder__id='decode.mastering.v1.dsd128'))
-        run('mod64_decode_mod128_v2_pin',[ds,'@OUT@','dsdpcm','88200',
-            'pcmdsd','5644800','dsdpcm','-p','decode.mastering.v2.dsd128'],
-            inspect=expect(decoder__id='decode.mastering.v2.dsd128'))
+        run('mod64_decode_mod128_wideband_pin',[ds,'@OUT@','dsdpcm','88200',
+            'pcmdsd','5644800','dsdpcm','-p','decode.wideband.v1.dsd128'],
+            inspect=expect(decoder__id='decode.wideband.v1.dsd128'))
         run('mod_mod_rejected',[w88,'-r','2822400','@OUT@',
             'pcmdsd','2822400','pcmdsd','2822400'],ok=False,error='duplicates',suffix='.dsf')
         run('mod_native_noop',[w88,'-r','2822400','@OUT@','pcmdsd','2822400',

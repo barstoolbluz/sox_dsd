@@ -85,7 +85,7 @@ def main():
                     def decode_plan(rate=rate,source=source,profile=profile,ident=ident,hz=hz):
                         p=plan('--decode',ident,source,'-r',hz,t/'plan.wav')
                         expected(p['decoder']['id']==ident,'wrong pinned decoder')
-                        expected(p['policy']['decode']==('conservative' if profile=='mastering' else profile),'policy profile mismatch')
+                        expected(p['policy']['decode']==('mastering' if profile=='mastering' else profile),'policy profile mismatch')
                         expected(p['decoder']['gain']==1,'preserve decoder silently gained')
                         expected(p['output']['rate_hz']==hz,'PCM destination clock mismatch')
                         expected(p['executable'] is True,'qualified decoder unavailable')
@@ -101,7 +101,7 @@ def main():
                         common=('--dsd-mode','auto','-D',source,'-r',hz,
                                 '-e','signed-integer','-b',32)
                         p=run('--decode',ident,*common,pinned)
-                        q=run('--decode','conservative' if profile=='mastering' else profile,*common,human)
+                        q=run('--decode','mastering' if profile=='mastering' else profile,*common,human)
                         expected(p.returncode==0 and q.returncode==0,
                             f'actual decode failed: {p.stderr[-350:]} {q.stderr[-350:]}')
                         with wave.open(str(pinned),'rb') as f:
@@ -115,7 +115,7 @@ def main():
                                     pcm_sha256=sha(pinned),decode_profile=ident)
                     case(f'versioned_decode_audio_{rate//44100}_{profile}_{hz}',decode_wav)
                 def equivalent(rate=rate,source=source,profile=profile,ident=ident):
-                    q=plan('--decode','conservative' if profile=='mastering' else profile,source,'-r',88200,t/'plan.wav')
+                    q=plan('--decode','mastering' if profile=='mastering' else profile,source,'-r',88200,t/'plan.wav')
                     r=plan('--decode',ident,source,'-r',88200,t/'plan.wav')
                     expected(q['decoder']==r['decoder'],'versioned ID differs from human alias')
                     return dict(id=ident)
@@ -167,7 +167,7 @@ def main():
                 return dict(requested=ident,exit=cp.returncode)
             case(f'versioned_encode_wrong_clock_{rate//44100}',wrong_encode)
 
-        for decode_id in ('decode.mastering.v0.dsd64','decode.mastering.v1.dsd512','decode.wideband.v1.dsd999'):
+        for decode_id in ('decode.mastering.v0.dsd64','decode.mastering.v2.dsd512','decode.wideband.v1.dsd999'):
             def bad_id(decode_id=decode_id):
                 cp=run('--plan','--decode',decode_id,dsd[RATES[0]],t/'bad.wav')
                 expected(cp.returncode!=0,'unknown decoder version accepted')
@@ -199,14 +199,14 @@ def main():
         case('default_native_repack_equals_explicit_legacy',legacy_repack)
 
         def default_qualified_pcm():
-            # The default is conservative (mastering v1) from 2026-11-08.
-            source=dsd[RATES[0]];dest=t/'default.wav';pinned=t/'conservative.wav'
+            # The default and named mastering decoder both select v1.
+            source=dsd[RATES[0]];dest=t/'default.wav';pinned=t/'mastering.wav'
             common=('-D',source,'-r',88200,'-e','signed-integer','-b',32)
             a=run(*common,dest,'rate','-v')
-            b=run('--decode','conservative',*common,pinned,'rate','-v')
+            b=run('--decode','mastering',*common,pinned,'rate','-v')
             expected(a.returncode==0 and b.returncode==0,
-                f'default/explicit conservative decode failed: {a.stderr[-200:]} {b.stderr[-200:]}')
-            expected(sha(dest)==sha(pinned),'default qualified PCM differs from conservative profile')
+                f'default/explicit mastering decode failed: {a.stderr[-200:]} {b.stderr[-200:]}')
+            expected(sha(dest)==sha(pinned),'default qualified PCM differs from mastering profile')
             legacy=t/'legacy.wav'
             c=run('--dsd-mode','legacy',*common,legacy,'rate','-v')
             expected(c.returncode==0 and sha(legacy)==sha(dest),

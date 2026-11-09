@@ -108,6 +108,8 @@ def main():
                     planned = json.loads(plan.stdout)
                     require(planned['encoder']['id'] == ident and planned['executable'],
                             f'DSD{mult} {mode}: plan identity or executable status differs')
+                    require(planned['policy']['encode'] == (ident if label == 'v2' else 'mastering'),
+                            f'DSD{mult} {mode}: policy.encode conceals selected encoder pin')
                     require(abs(planned['encoder']['planned_linear_gain'] - profile_gain) < 1e-14,
                             f'DSD{mult} {mode}: plan gain differs from execution')
                     cases.append(dict(case=f'{mult}_{mode}_{label}',

@@ -41,7 +41,11 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
 	     README.sh FEATURES.in test/* issues $(wildcard wiki/*) \
              tests/rename_smoke.sh \
              tests/dsd/test_cli_usability.py tests/dsd/test_loud_encode.py \
-             tests/dsd/test_release_111.py tests/dsd/review_111_evidence.py \
+             tests/dsd/test_release_111.py tests/dsd/test_unified_decode_111.py \
+             tests/dsd/test_111_receipt_redaction.py \
+             tests/dsd/sanitize_111_real_track_receipts.py \
+             tests/dsd/release_evidence/v1_high_rate_real_tracks_redacted.jsonl \
+             tests/dsd/review_111_evidence.py \
              tests/dsd/p21_independent_reader.py \
              tests/dsd/test_reader_gate.py \
              tests/dsd/p17_media_qualification.py \
@@ -49,10 +53,11 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
              tests/dsd/mutation-shim.py \
              tests/dsd/review_p21_offsets.py tests/dsd/test_p21_reader_regression.py \
              tests/dsd/test_v2_pin_111.py tests/dsd/test_v2_110_compat.py \
-             tests/dsd/results/V1_HIGH_RATE_ENCODE_2026-11-07/real-tracks/results.jsonl \
              tests/dsd/results/V1_HIGH_RATE_ENCODE_2026-11-07/gates/soak/launcher.log \
              docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md \
              docs/dsd/RELEASE_NOTES_1.1.1.md \
+             docs/dsd/UNIFIED_DECODER_2026-11-09.md \
+             docs/dsd/FFMPEG_DSD_OFFSET_2026-11-08.md \
              docs/dsd/REVIEW_111_V2_PIN_RESOLUTION_2026-11-08.md \
              docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md
 
@@ -254,6 +259,9 @@ check-dsd-release-111: all
 	  --sox "$(abs_builddir)/src/sox"
 	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/test_v2_pin_111.py" \
 	  --sox "$(abs_builddir)/src/sox"
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/test_unified_decode_111.py" \
+	  --sox "$(abs_builddir)/src/sox"
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/test_111_receipt_redaction.py"
 
 # Standalone loud-master acceptance; no dependency on historical receipts.
 .PHONY: check-dsd-loud-encode
@@ -767,23 +775,13 @@ EXTRA_DIST += docs/dsd/handoffs/P15_CLOSEOUT_ADJUDICATION_2026-10-14.md \
   tests/dsd/results/P15_closeout_adjudication_2026-10-14/review.json \
   tests/dsd/results/P15_closeout_adjudication_2026-10-14/preservation.json
 
-# P15-R3 additive candidate: explicit, opt-in qualification runner.
-# Results go to the build directory; never mutate historical source receipts.
-.PHONY: check-dsd-p15-r3
-check-dsd-p15-r3: all
-	$(MAKE) -C test dsd_test_p15_instrument dsd_test_p07_reference
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/generate_coeffs.py --check
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/generate_p15_r3_coeffs.py --check
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/certify_p15_r3_filters.py --grid 8192 --results $(abs_builddir)/p15-r3-check/numeric
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3_numeric.py --probe $(abs_builddir)/test/dsd_test_p15_instrument --results $(abs_builddir)/p15-r3-check/numeric
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3.py --sox $(abs_builddir)/src/sox --results $(abs_builddir)/p15-r3-check/integration
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3_src_spot.py --probe $(abs_builddir)/test/dsd_test_p07_reference --results $(abs_builddir)/p15-r3-check/numeric
-
+# Retired P15-R3 decoder-v2 execution tests are removed from the release
+# tree. Historical design/research generators and certificates remain available
+# to reproduce the archived evidence, but they are not live decoder targets.
 EXTRA_DIST += docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_HANDOFF.md \
   docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_CHECKPOINT.md \
   tests/dsd/generate_p15_r3_coeffs.py tests/dsd/certify_p15_r3_filters.py \
-  tests/dsd/test_p15_r3_numeric.py tests/dsd/test_p15_r3.py \
-  tests/dsd/test_p15_r3_src_spot.py tests/dsd/bench_p15_r3_local.py \
+  tests/dsd/bench_p15_r3_local.py \
   tests/dsd/reference/p15_r3_coefficients.json \
   tests/dsd/results/P15_R3/numeric/fir-certificate.json \
   tests/dsd/results/P15_R3/numeric/finite-and-isa.json \

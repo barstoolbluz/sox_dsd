@@ -212,76 +212,71 @@ def main():
 
         def default_profile():
             src=d/'dsd64.dsf'
-            names=['automatic','mastering','conservative','v1']
-            for n in names:
-                f=d/f'{n}.wav'
-                flag=() if n=='automatic' else ('--decode',
-                       'decode.mastering.v1.dsd64' if n=='v1' else n)
-                run(exe,*flag,src,f)
-            check(sha(d/'automatic.wav')==sha(d/'conservative.wav')==sha(d/'v1.wav'),
-                  'automatic, conservative and explicit frozen v1 differ')
-            check(plan(exe,src,d/'check-v1.wav')['decoder']['id'] ==
-                  'decode.mastering.v1.dsd64', 'automatic must select qualified v1')
-            check(plan(exe,'--decode','mastering',src,d/'check-v2.wav')['decoder']['id'] ==
-                  'decode.mastering.v2.dsd64', 'mastering must select qualified v2')
-            check(sha(d/'automatic.wav') != sha(d/'mastering.wav'),
-                  'v2 decoder request silently executed the v1 default')
-            # A report records the decoder actually executed, not merely the
-            # preflight choice. Compare audio with and without the report.
-            logged=d/'v2-reported.wav'; report=d/'v2-decoder-report.json'
+            for name, flag in (('automatic',()), ('mastering',('--decode','mastering')),
+                               ('v1',('--decode','decode.mastering.v1.dsd64'))):
+                run(exe,*flag,src,d/f'{name}.wav')
+            check(sha(d/'automatic.wav')==sha(d/'mastering.wav')==sha(d/'v1.wav'),
+                  'automatic, mastering alias and exact v1 must match')
+            check(plan(exe,'--decode','mastering',src,d/'check-v1.wav')['decoder']['id'] ==
+                  'decode.mastering.v1.dsd64', 'named mastering must select v1')
+            logged=d/'reported.wav'; report=d/'decoder-report.json'
             run(exe,'--report',report,'--decode','mastering',src,logged)
             check(logged.read_bytes()==(d/'mastering.wav').read_bytes(),
-                  'report changed explicitly selected v2 decoder output')
+                  'report changed mastering decoder output')
             rows=json.loads(report.read_text())['processing']['decoder']
-            check(rows and all(row['profile_id']=='decode.mastering.v2.dsd64'
+            check(rows and all(row['profile_id']=='decode.mastering.v1.dsd64'
                                and row['candidate_unqualified'] is False for row in rows),
-                  'runtime report did not confirm the qualified, nondefault v2 decoder')
-        case('conservative alias equals default and versioned v1, mastering is v2',default_profile)
+                  'runtime report did not confirm standard v1 decoder')
+            for removed in ('conservative','legacy','decode.mastering.v2.dsd64'):
+                dest=d/f'removed-{removed}.wav'
+                run(exe,'--decode',removed,src,dest,ok=False)
+                check(not dest.exists(), 'removed decoder spelling produced output')
+        case('mastering default, exact v1 and runtime report agree',default_profile)
 
         def explicit_decoder_inherits_global():
-            # A named global policy and effect-local -p must reach the same FIR.
-            # -R/-D suppress unrelated output-dither differences.
+            # Global selection, effect-local -p and exact profile pins must
+            # reach the same FIR; an incompatible explicit selection fails.
             for mult in (64, 128):
                 src=d/f'dsd{mult}.dsf'
                 opts=('-R','-D')
-                global_pcm=d/f'explicit-global-v2-{mult}.wav'
-                local_pcm=d/f'explicit-local-v2-{mult}.wav'
+                global_pcm=d/f'explicit-global-wide-{mult}.wav'
+                local_pcm=d/f'explicit-local-wide-{mult}.wav'
                 default_pcm=d/f'explicit-default-v1-{mult}.wav'
-                pinned_pcm=d/f'explicit-pinned-v2-{mult}.wav'
-                logged_pcm=d/f'explicit-reported-v2-{mult}.wav'
-                report=d/f'explicit-v2-{mult}.json'
-                doc=plan(exe,'--decode','mastering',src,
-                         d/f'explicit-plan-v2-{mult}.wav','dsdpcm')
-                ident=f'decode.mastering.v2.dsd{mult}'
+                pinned_pcm=d/f'explicit-pinned-wide-{mult}.wav'
+                logged_pcm=d/f'explicit-reported-wide-{mult}.wav'
+                report=d/f'explicit-wide-{mult}.json'
+                doc=plan(exe,'--decode','wideband',src,
+                         d/f'explicit-plan-wide-{mult}.wav','dsdpcm')
+                ident=f'decode.wideband.v1.dsd{mult}'
                 check(doc['decoder']['id']==ident and
                       doc['graph_decoder_count']==1 and doc['executable'],
-                      'explicit dsdpcm plan did not select mastering v2')
-                run(exe,*opts,'--decode','mastering',src,global_pcm,'dsdpcm')
-                run(exe,*opts,src,local_pcm,'dsdpcm','-p','mastering')
+                      'explicit dsdpcm plan did not select wideband')
+                run(exe,*opts,'--decode','wideband',src,global_pcm,'dsdpcm')
+                run(exe,*opts,src,local_pcm,'dsdpcm','-p','wideband')
                 run(exe,*opts,src,default_pcm,'dsdpcm')
                 run(exe,*opts,'--decode',ident,src,pinned_pcm,'dsdpcm')
                 check(global_pcm.read_bytes()==local_pcm.read_bytes()==
                       pinned_pcm.read_bytes(),
-                      f'DSD{mult}: global mastering did not execute v2')
+                      f'DSD{mult}: global wideband did not execute explicit effect')
                 check(sha(global_pcm)!=sha(default_pcm),
-                      f'DSD{mult}: selected v2 silently executed default v1')
-                run(exe,*opts,'--decode','mastering','--report',report,
+                      f'DSD{mult}: selected wideband silently executed mastering')
+                run(exe,*opts,'--decode','wideband','--report',report,
                     src,logged_pcm,'dsdpcm')
                 check(logged_pcm.read_bytes()==global_pcm.read_bytes(),
                       f'DSD{mult}: report changed explicit decoder audio')
                 rows=json.loads(report.read_text())['processing']['decoder']
                 check(rows and all(row['profile_id']==ident for row in rows),
-                      f'DSD{mult}: report did not observe executed mastering v2')
+                      f'DSD{mult}: report did not observe executed wideband')
                 conflict=d/f'explicit-conflict-profile-{mult}.wav'
-                run(exe,'--decode','mastering',src,conflict,
-                    'dsdpcm','-p','conservative',ok=False)
+                run(exe,'--decode','wideband',src,conflict,
+                    'dsdpcm','-p','mastering',ok=False)
                 check(not conflict.exists(), 'conflicting decoder created output')
                 wrong=d/f'explicit-wrong-pin-{mult}.wav'
                 other=128 if mult==64 else 64
-                run(exe,'--decode',f'decode.mastering.v2.dsd{other}',
+                run(exe,'--decode',f'decode.wideband.v1.dsd{other}',
                     src,wrong,'dsdpcm',ok=False)
                 check(not wrong.exists(), 'wrong pinned decoder clock created output')
-        case('global decoder reaches explicit dsdpcm at DSD64/128',
+        case('global wideband reaches explicit dsdpcm at DSD64/128',
              explicit_decoder_inherits_global)
 
         def explicit_level_inherits_global():
@@ -318,9 +313,9 @@ def main():
                 # A locally pinned decoder must not suppress inheritance of
                 # an independently selected global level.
                 run(exe,*opts,'--dsd-level','sacd',src,combined_pcm,
-                    'dsdpcm','-p','conservative')
+                    'dsdpcm','-p','mastering')
                 run(exe,*opts,src,combined_local,
-                    'dsdpcm','-p','conservative','-l','sacd')
+                    'dsdpcm','-p','mastering','-l','sacd')
                 check(combined_pcm.read_bytes()==combined_local.read_bytes(),
                       f'DSD{mult}: local profile suppressed global level')
                 conflict=d/f'explicit-conflict-level-{mult}.wav'
@@ -330,9 +325,9 @@ def main():
         case('global SACD level reaches explicit dsdpcm at DSD64/128',
              explicit_level_inherits_global)
 
-        def conservative_strict():
+        def mastering_strict():
             src=d/'dsd64.dsf';dest=d/'conservative-strict.wav'
-            opts=('--decode','conservative','--dsd-bandwidth','strict',
+            opts=('--decode','mastering','--dsd-bandwidth','strict',
                   src,'-r','44100')
             doc=plan(exe,*opts,d/'not-created.wav')
             check(doc['executable'] and doc['decoder']['id']==
@@ -340,7 +335,7 @@ def main():
             run(exe,*opts,dest)
             check(info(dest)[0].framerate==44100,
                   'executable v1 strict plan failed to produce PCM')
-        case('v1 strict plan executes with the selected v1 filter',conservative_strict)
+        case('v1 strict plan executes with the selected v1 filter',mastering_strict)
 
         def legacy_mixed_clocks():
             srcs=(d/'dsd64.dsf',d/'dsd128.dsf')
@@ -654,9 +649,9 @@ def main():
         def advanced():
             src=d/'dsd64.dsf'
             strict=d/'strict.wav'
-            # v2's 25 kHz DSD64 passband exceeds 44.1k's 20.95 kHz limit;
-            # the default v1 (20 kHz) fits.
-            run(exe,'--decode','mastering','--dsd-bandwidth','strict',src,'-r','44.1k',strict,ok=False)
+            # Wideband's 35.28 kHz DSD64 passband cannot fit at 44.1k;
+            # the standard mastering filter (20 kHz) can.
+            run(exe,'--decode','wideband','--dsd-bandwidth','strict',src,'-r','44.1k',strict,ok=False)
             run(exe,'--dsd-bandwidth','strict',src,'-r','44.1k',d/'strict-v1.wav')
             run(exe,'--dsd-bandwidth','adapt',src,'-r','44.1k',d/'adapt.wav')
             check(info(d/'adapt.wav')[0].framerate==44100,'adapt missing')

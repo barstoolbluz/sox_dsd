@@ -34,20 +34,19 @@ MAX_CONTROL_PEARSON = 0.5
 MAX_WINDOW_RMS_RESIDUAL = 0.15
 WINDOW_SECONDS = 0.1
 ANALYSIS_BAND_HZ = (0, 20000)
-# The supplied 36 independent FFmpeg comparisons (DSF/DFF/WSD, both native
-# rates, all 3 decoders) measure a common -40.5 native-frame offset, with
-# <0.008 frame spread. Its origin is not established as filter group delay:
-# the shift is essentially identical for all reconstruction frontends.
-# A 1-native-frame tolerance permits measurement variation without permitting
-# a full block of timestamp/reader slip. The estimate is checked independently
-# of the alignment optimization; a search bound is NOT an acceptance bound.
+# Observed zero-seek FFmpeg 7.1.3 decoder timing lags SoX by about 40.5
+# native DSD frames (see docs/dsd/FFMPEG_DSD_OFFSET_2026-11-08.md and the
+# retained click-timing evidence). This is not a SoX FIR latency. A one-frame
+# acceptance tolerance distinguishes the fixed decoder offset from a seek
+# or timestamp error. Other FFmpeg versions require independent calibration.
 REFERENCE_OFFSET_NATIVE_FRAMES = -40.5
 MAX_REFERENCE_ERROR_NATIVE_FRAMES = 1.0
 REFERENCE_SEARCH_NATIVE_FRAMES = 48.0
+# The default is mastering v1; wideband is the only alternative. Explicit
+# `--decode mastering` equivalence is checked by the unified-decoder gate.
 PROFILES = (
-    ('mastering', 'decode.mastering.v2', {22579200: 176400, 45158400: 176400}),
-    ('wideband', 'decode.wideband.v1', {22579200: 705600, 45158400: 1411200}),
     (None, 'decode.mastering.v1', {22579200: 176400, 45158400: 176400}),
+    ('wideband', 'decode.wideband.v1', {22579200: 705600, 45158400: 1411200}),
 )
 SELF_RATES = (22579200, 45158400)
 # Containers this gate covers. WSD is read-only by construction: src/dsd.c
@@ -396,8 +395,14 @@ def decode_ours(sox, src, profile, out_hz, channels, dest, start, seconds, timeo
 
 
 def decode_reference(ref, src, out_hz, channels, dest, start, seconds, timeout):
-    cmd = [str(ref), '-hide_banner', '-v', 'error', '-ss', str(start),
-           '-i', str(src), '-t', str(seconds), '-ar', str(out_hz), '-ac', str(channels),
+    # Output-side seeking decodes from the beginning before trimming. Input-
+    # side `-ss` is inaccurate for fractional DSD seeks in FFmpeg 7.1.3: it
+    # created a roughly 7.4-native-frame alignment error at 1.2345 seconds.
+    # Do not pass `-ac`: FFmpeg may treat quad DSF's layout as a remix matrix
+    # and silently emit an all-zero channel. The comparison separately checks
+    # the resulting PCM channel count, duration and per-channel variation.
+    cmd = [str(ref), '-hide_banner', '-v', 'error', '-i', str(src),
+           '-ss', str(start), '-t', str(seconds), '-ar', str(out_hz),
            '-c:a', 'pcm_f64le', '-f', 'f64le', str(dest), '-y']
     p = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True,
                        text=True, timeout=timeout)
@@ -407,11 +412,10 @@ def decode_reference(ref, src, out_hz, channels, dest, start, seconds, timeout):
 def compare(ours_path, ref_path, control_path, out_hz, native_hz, channels, seconds):
     """Compare complete multichannel intervals with one measured time shift.
 
-    The reference FFmpeg implementation has an observed common -40.5 native-
-    frame offset relative to SoX on the supplied synthetic corpus, independent
-    of reconstruction profile. Do not attribute it to filter delay or allow an
-    arbitrary time offset: estimate on separated excerpts, accept only the
-    measured narrow native-frame window, and retain full-duration checks.
+    FFmpeg 7.1.3's DSD decoder has an observed common -40.5 native-frame
+    offset relative to SoX at zero seek. Decode from the start before trimming
+    in FFmpeg for fractional offsets. Reject other timing errors rather than
+    using unconstrained alignment to make an incorrect comparison pass.
     """
     import numpy as np
     from scipy import ndimage, optimize, signal
@@ -667,10 +671,20 @@ def main():
     with tempfile.TemporaryDirectory(prefix='p21-reader-', dir=args.scratch) as scratch_name:
         scratch = Path(scratch_name)
         work = []
-        for i, track in enumerate(tracks):
-            work.append(dict(path=track, rate=None, container='dsf',
-                             provenance='commercial',
-                             control=tracks[(i + 1) % len(tracks)] if len(tracks) > 1 else None))
+        # Negative controls must match the source's native clock and channel
+        # count. A cyclic index across mixed mono/stereo/multichannel DSFs
+        # would compare different PCM shapes and falsely reject good audio.
+        # One unpaired track still fails closed: no independent negative
+        # control is available for it.
+        groups = {}
+        for track in tracks:
+            key = (native_dsd_rate(track, 'dsf'), native_dsd_channels(track, 'dsf'))
+            groups.setdefault(key, []).append(track)
+        for peers in groups.values():
+            for i, track in enumerate(peers):
+                control = peers[(i + 1) % len(peers)] if len(peers) > 1 else None
+                work.append(dict(path=track, rate=None, container='dsf',
+                                 provenance='commercial', control=control))
         if args.self_encoded:
             made = make_sources(args.sox, scratch, args.seconds, args.self_sources,
                                 from_tracks=tracks if tracks else None,

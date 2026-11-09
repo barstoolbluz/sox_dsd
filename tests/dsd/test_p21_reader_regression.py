@@ -53,8 +53,9 @@ def unit():
         require(not judge(fake_metrics(n))[0], 'unsupported channel count must fail')
 
 
-def wav(path, channels, other=False):
-    rate, frames = 176400, round(.65 * 176400)
+def wav(path, channels, other=False, seconds=.65):
+    rate = 176400
+    frames = round(seconds * rate)
     freqs = ([1801, 2141, 2897, 3271, 3719, 4327] if other else
              [997, 1237, 1709, 2081, 2741, 3121])
     with wave.open(str(path), 'wb') as out:
@@ -72,13 +73,20 @@ def wav(path, channels, other=False):
 
 def execute(sox, ref, root):
     rows = []
-    for n, hz, ext, profile in ((4, 22579200, 'dff', None),
-                                (6, 45158400, 'dff', 'mastering')):
+    # Cover DSDIFF, the quad DSF channel-layout regression, and a fractional
+    # nonzero seek that exposed input-side FFmpeg seeking drift. The source is
+    # long enough to contain the entire .5-second comparison after each seek.
+    cases = ((4, 22579200, 'dff', 0.0),
+             (4, 22579200, 'dsf', 0.0),
+             (4, 22579200, 'dsf', 1.2345),
+             (6, 45158400, 'dff', 0.0))
+    for case_index, (n, hz, ext, start) in enumerate(cases):
+        profile = None
         samples = []
         for k in (0, 1):
-            src = root / f'{n}ch-{k}.wav'
-            dst = root / f'{n}ch-{k}.{ext}'
-            wav(src, n, other=bool(k))
+            src = root / f'case{case_index}-{n}ch-{k}.wav'
+            dst = root / f'case{case_index}-{n}ch-{k}.{ext}'
+            wav(src, n, other=bool(k), seconds=start + .6)
             roles = ('FL,FR,BL,BR' if n == 4 else 'FL,FR,FC,LFE,BL,BR')
             p = subprocess.run([str(sox), str(src), '--dsd-layout', roles,
                                 '-r', str(hz), str(dst)],
@@ -88,22 +96,22 @@ def execute(sox, ref, root):
             require(native_dsd_rate(dst, ext) == hz, 'native header rate mismatch')
             samples.append(dst)
         out_hz = 176400
-        ours = root / f'{n}ch-ours.f64'
-        ref_pcm = root / f'{n}ch-ref.f64'
-        control = root / f'{n}ch-control.f64'
-        report = root / f'{n}ch-report.json'
+        ours = root / f'case{case_index}-ours.f64'
+        ref_pcm = root / f'case{case_index}-ref.f64'
+        control = root / f'case{case_index}-control.f64'
+        report = root / f'case{case_index}-report.json'
         rc, err = decode_ours(sox, samples[0], profile, out_hz, n, ours,
-                               0.0, .5, 120, report)
+                               start, .5, 120, report)
         require(rc == 0, f'{n}ch SoX decode failed: {err}')
         decoder = json.loads(report.read_text())['processing']['decoder']
-        expected = f'decode.mastering.{"v2" if profile else "v1"}.dsd{hz//44100}'
+        expected = f'decode.mastering.v1.dsd{hz//44100}'
         require(len(decoder) == n and all(x['profile_id'] == expected for x in decoder),
                 f'{n}ch wrong runtime decoder rows: {decoder}')
         rc, err = decode_reference(ref, samples[0], out_hz, n, ref_pcm,
-                                   0.0, .5, 120)
+                                   start, .5, 120)
         require(rc == 0, f'{n}ch FFmpeg decode failed: {err}')
         rc, err = decode_reference(ref, samples[1], out_hz, n, control,
-                                   0.0, .5, 120)
+                                   start, .5, 120)
         require(rc == 0, f'{n}ch FFmpeg negative control failed: {err}')
         metrics, why = compare(ours, ref_pcm, control, out_hz, hz, n, .5)
         require(metrics is not None, f'{n}ch compare failed: {why}')
@@ -111,7 +119,7 @@ def execute(sox, ref, root):
         require(passed, f'{n}ch P21 fail: {reasons}, metrics {metrics}')
         if n == 4:
             import numpy as np
-            broken = root/'4ch-silent-reference.f64'
+            broken = root/f'case{case_index}-silent-reference.f64'
             frames = np.fromfile(ref_pcm, dtype='<f8').reshape(-1, n)
             frames[:, 2] = 0.
             frames.tofile(broken)
@@ -119,7 +127,8 @@ def execute(sox, ref, root):
             require(invalid is None and reason and
                     'independent reference has no usable' in reason,
                     'silent reference channel must fail closed with a stable reason')
-        rows.append(dict(channels=n, native_hz=hz, decoder_id=expected,
+        rows.append(dict(channels=n, native_hz=hz, container=ext, seek_seconds=start,
+                         decoder_id=expected,
                          reference_shift_native_frames=metrics['reference_shift_native_frames'],
                          min_pearson=min(row['pearson_r'] for row in metrics['channels']),
                          status='PASS'))

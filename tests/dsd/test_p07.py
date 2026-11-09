@@ -76,9 +76,9 @@ def main():
             partition[1]['status']='fail';partition[1]['reason']='chunk partition changes PCM bytes'
         invoke('strict_wide64_reject',source,44100,'wideband',('--dsd-bandwidth','strict'),expect_ok=False)
         # The default mastering-v2 passband is 25 kHz and cannot fit
-        # into 44.1 kHz PCM under strict policy. The v1 conservative
+        # into 44.1 kHz PCM under strict policy. The v1 mastering
         # profile is the qualified 44.1 kHz strict-policy control.
-        invoke('strict_master64_allow',source,44100,'conservative',('--dsd-bandwidth','strict'))
+        invoke('strict_master64_allow',source,44100,'mastering',('--dsd-bandwidth','strict'))
         # Channel clones must have independent histories.
         stereo=path/'stereo.dsf'
         stereo.write_bytes(fixtures.make_dsf(fixtures.bits(native_frames,2,'distinct'),rate=source_rate))

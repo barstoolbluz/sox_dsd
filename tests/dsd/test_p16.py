@@ -95,7 +95,7 @@ def main():
             raise RuntimeError(f'fixture builder exit {mk.returncode}: {mk.stderr}')
         rates = RATES[:1] if args.quick else RATES
         chans = (1,2) if args.quick else (1,2,6)
-        profiles = ('conservative','wideband') if args.quick else ('conservative','wideband','v2')
+        profiles = ('mastering','wideband')
         outputs = (88200,) if args.quick else (44100,192000)
         kernels = ('scalar',) if args.quick else tuple(args.tiers)
         for rate in rates:
@@ -104,7 +104,7 @@ def main():
                     inp = d/f'p16-{ch}-{rate}.{ext}'
                     if not inp.is_file(): raise RuntimeError(f'fixture missing: {inp}')
                     for profile in profiles:
-                        p = f'decode.mastering.v2.dsd{rate//44100}' if profile=='v2' else profile
+                        p = profile
                         for output in outputs:
                             for kernel in kernels:
                                 name = f'{rate}-{ext}-{ch}ch-{profile}-{output}-{kernel}'

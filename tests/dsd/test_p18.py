@@ -237,10 +237,9 @@ def main():
                 store(name,'PASS' if okay else 'FAIL',dict(output=got,reported_rate=seen,
                     reference_sha256=sha(source.read_bytes()),
                     expected=f'WSD read accepted and reported at {native} Hz'))
-        # The P21 v2 decode rows must work in the planned CLI path, not
-        # merely instantiate through the private P17 constructor.
+        # The remaining v1 decoder must work in the planned CLI path.
         for native in RATES:
-            key=f'auto-decode-v2-{native}'
+            key=f'auto-decode-v1-{native}'
             if key in old:report['cases'].append(old[key]);continue
             inp=VECTORS/f'p18-{native}-dsf-1-2-32769.dsf'
             dst=work/f'auto-decode-{native}.wav'
@@ -255,7 +254,7 @@ def main():
                     okay=(details['rate']==176400 and details['channels']==2
                           and details['frames']>0)
             store(key,'PASS' if okay else 'FAIL',dict(output=got,
-                expected='planned high-rate v2 native-to-PCM decode',reference=details))
+                expected='planned high-rate v1 native-to-PCM decode',reference=details))
         # Production v2 encoder selection, native rate preservation and plan
         # reporting must agree on both DSF and DSDIFF destinations.
         source_pcm=work/'auto-v2-source.wav'

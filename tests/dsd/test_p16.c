@@ -248,14 +248,14 @@ static void matrix_check(void)
   const uint32_t pcm[]={44100u,48000u,88200u,96000u,176400u,
       192000u,352800u,384000u,705600u};
   const sox_dsd_decode_profile_t profiles[]={
-    SOX_DSD_DECODE_MASTERING,SOX_DSD_DECODE_WIDEBAND,SOX_DSD_DECODE_MASTERING_V2};
+    SOX_DSD_DECODE_MASTERING,SOX_DSD_DECODE_WIDEBAND};
   const char *tiers[]={"scalar","sse2","avx1","avx2","avx512"};
   const unsigned required[]={0,LSX_DSD_CPU_SSE2,
       LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1,
       LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1|LSX_DSD_CPU_AVX2,
       LSX_DSD_CPU_SSE2|LSX_DSD_CPU_AVX1|LSX_DSD_CPU_AVX2|LSX_DSD_CPU_AVX512F};
   const unsigned host=lsx_dsd_features_host();
-  for(unsigned r=0;r<3;r++)for(unsigned pr=0;pr<3;pr++)
+  for(unsigned r=0;r<3;r++)for(unsigned pr=0;pr<sizeof(profiles)/sizeof(profiles[0]);pr++)
    for(size_t out=0;out<sizeof(pcm)/sizeof(pcm[0]);out++)for(unsigned k=0;k<5;k++)
     for(unsigned planar=0;planar<2;planar++)for(unsigned offset=0;offset<8;offset++) {
       sox_dsd_packed_block_t b;

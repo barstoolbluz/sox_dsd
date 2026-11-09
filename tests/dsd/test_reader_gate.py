@@ -386,7 +386,7 @@ def test_duplicate_self_encoded_source_does_not_overwrite_a_receipt(tmp_path):
     assert not (results / 'independent-reader-evidence.json').exists()
 
 
-def make_fake_environment(tmp_path):
+def make_fake_environment(tmp_path, channel_groups=(2,)):
     src = Path(__file__).with_name('fake_decoder.py')
     sox, ref = tmp_path / 'sox', tmp_path / 'ffmpeg'
     sox.write_bytes(src.read_bytes()); ref.write_bytes(src.read_bytes())
@@ -399,15 +399,17 @@ def make_fake_environment(tmp_path):
     spec = importlib.util.spec_from_file_location('fake_media_encoder', src)
     fake = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(fake)
-    for i in range(2):
-        marker = tmp_path / f'commercial-stub-{i}.bin'
-        marker.write_bytes(f'commercial-track-{i}'.encode())
-        fake.encode_fake_dsd(media / f'commercial-{i}.dsf', marker, 22579200)
+    for ch in channel_groups:
+        for i in range(2):
+            marker = tmp_path / f'commercial-stub-{ch}-{i}.bin'
+            marker.write_bytes(f'commercial-track-{ch}-{i}'.encode())
+            fake.encode_fake_dsd(media / f'commercial-{ch}ch-{i}.dsf',
+                                 marker, 22579200, channels=ch)
     return sox, ref, media
 
 
-def run_gate(tmp_path, env_override=None, with_self=True):
-    sox, ref, media = make_fake_environment(tmp_path)
+def run_gate(tmp_path, env_override=None, with_self=True, channel_groups=(2,)):
+    sox, ref, media = make_fake_environment(tmp_path, channel_groups)
     results = tmp_path / 'out'
     env = dict(os.environ, FAKE_DECODER='sox')
     if env_override:
@@ -438,9 +440,9 @@ def test_end_to_end_and_collector_validation(full_run):
     report_path = results / 'independent-reader-evidence.json'
     report = json.loads(report_path.read_text())
     assert report['independent_reader_and_audio_reference_gate'] == 'PASS'
-    # 2 self-encoded sources x 2 clocks x 3 containers x 3 profiles, plus the
-    # commercial source's 3 profiles x 2 rows. WSD added the third container.
-    assert report['case_count'] == 42
+    # Two self-encoded sources x two clocks x three containers x two
+    # profiles, plus two commercial sources x two profiles.
+    assert report['case_count'] == 28
     assert {c['container'] for c in
             (json.loads((results / rel).read_text())
              for rel in report['case_receipts'])} == set(gate.SELF_CONTAINERS)
@@ -525,6 +527,30 @@ def test_p17_refuses_unlicensed_stimulus_origin(full_run):
 
 
 
+
+@pytest.mark.slow
+def test_fake_gate_checks_every_quad_and_six_channel_row(tmp_path):
+    """End-to-end orchestration, using stub PCM only, never qualification."""
+    proc, _, _, _, results = run_gate(tmp_path, with_self=False,
+                                      channel_groups=(2, 4, 6))
+    # Without the separate DFF/WSD/DSD1024 self-encoded rows, an otherwise
+    # sound set of commercial-stub comparisons must remain INCOMPLETE.
+    assert proc.returncode != 0, proc.stderr[-1200:] + proc.stdout[-1200:]
+    report = json.loads((results / 'independent-reader-evidence.json').read_text())
+    assert report['case_count'] == 12
+    assert report['independent_reader_and_audio_reference_gate'] == 'INCOMPLETE'
+    cases = [json.loads((results / rel).read_text())
+             for rel in report['case_receipts']]
+    assert {row['source_channels'] for row in cases} == {2, 4, 6}
+    assert len([row for row in cases if row['source_channels'] == 4]) == 4
+    assert len([row for row in cases if row['source_channels'] == 6]) == 4
+    for row in cases:
+        assert row['status'] == 'PASS'
+        assert len(row['runtime_profile_ids']) == row['source_channels']
+        assert len(row['metrics']['channels']) == row['source_channels']
+        assert len(row['metrics']['control_pearson_r']) == row['source_channels']
+
+
 @pytest.mark.slow
 def test_failed_decode_has_nonzero_exit(tmp_path):
     proc, _, _, _, results = run_gate(tmp_path, {'FAKE_MUTATION': 'gain'}, with_self=False)
@@ -559,11 +585,11 @@ def test_p17_collector_fail_closed_and_profile_scope(tmp_path, full_run):
     assert good['independent_reader_and_audio_reference_gate'] == 'PASS'
     q = good['decoder_profile_qualified']
     assert q['decode.mastering.v1.dsd512']
-    assert q['decode.mastering.v2.dsd512']
     assert q['decode.wideband.v1.dsd512']
-    # There is no wideband v2 decode profile at any rate, so the report must not
-    # enumerate one. The old cartesian product emitted it as false, which read
-    # as a real capability that had failed to qualify.
+    # Neither retired mastering v2 nor any wideband v2 decode profile may
+    # appear in current qualification results.
+    assert 'decode.mastering.v2.dsd512' not in q
+    assert 'decode.mastering.v2.dsd1024' not in q
     assert 'decode.wideband.v2.dsd512' not in q
     assert 'decode.wideband.v2.dsd1024' not in q
     assert set(q) == {f'{base}.dsd{rate}' for base in gate.PROFILE_IDS

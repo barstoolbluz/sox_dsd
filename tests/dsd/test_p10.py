@@ -106,13 +106,14 @@ def main():
         for reference,scale in (('auto',.5),('pcm',.5),('dsd',1.)):
             def reference_case(reference=reference,scale=scale):
                 destination=tmp/f'reference-{reference}.dsf'
-                cp=encode(pcm,destination,extra=('pcmdsd','--reference',reference,'2822400'))
+                cp=encode(pcm,destination,extra=('pcmdsd','--reference',reference,'2822400'),
+                          glob=('-D','--headroom','0'))
                 with wave.open(str(pcm),'rb') as f:
                     samples=np.frombuffer(f.readframes(f.getnframes()),dtype='<i4').astype(np.float64)/(2**31-1)
                 raw=tmp/'reference.f64le';raw.write_bytes(samples.astype('<f8').tobytes())
                 packed=tmp/'reference.bits';report=tmp/'reference.json'
                 check=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                    'encode.mastering.v1.dsd64',str(scale),'guarded-cli',str(raw),str(packed),str(report)],
+                    'encode.mastering.v1.dsd64',str(scale),'guarded',str(raw),str(packed),str(report)],
                     capture_output=True,text=True,timeout=120)
                 assert check.returncode==0,check.stderr
                 actual=read_dsf(destination)
@@ -192,7 +193,7 @@ def main():
         # encoding. Asserting refusal here would assert behaviour the project
         # deliberately changed at P15. Refusal remains covered by the
         # experimental arm, which still resolves no qualified composite, and by
-        # unbound_qualified_profile_unselectable below.
+        # high_rate_v2_selectable below, which positively tests exact pins.
         for mode in ('auto','explicit','experimental'):
             def gate(mode=mode):
                 dst=tmp/f'public-{mode}.dsf'
@@ -231,27 +232,29 @@ def main():
             assert isinstance(encoder.get('certificate_sha256'),str) and encoder['certificate_sha256'],data
             return dict(plan=json.loads(clean(json.dumps(data))))
         record('release_plan_discloses_unqualified_profile',plan)
-        def unselectable():
-            """Qualified encoders not bound to a clock are CLI-unreachable.
+        def high_rate_v2_selectable():
+            """The high-rate CLANS-7 v2 *encoders* are qualified exact pins.
 
-            dsd_rates carries only the bound id at each clock, so
-            lsx_dsd_profile_parse cannot resolve the v2 CLANS-7 rows that
-            v1 displaced at DSD512 and DSD1024 on 2026-11-07. A profile that
-            is not bound has no CLI spelling, so no run can select it by
-            accident.
+            v1 remains the default; v2 is available at its own native clock.
+            The former `unbound_qualified_profile_unselectable` assertion
+            became obsolete when patch 0009 bound the two v2 encoder IDs.
             """
             rows=[]
             for ident,rate in (('encode.mastering.v2.dsd512','22579200'),
                                ('encode.mastering.v2.dsd1024','45158400')):
-                dst=tmp/f'unselectable-{ident}.dsf'
-                cp=invoke(['--encode',ident,'-D',pcm,'-r',rate,dst],exe=a.sox)
-                assert cp.returncode!=0,(ident,cp.returncode,cp.stdout[-400:])
-                assert not dst.exists(),('unselectable profile produced output',ident)
-                assert '--encode:' in cp.stderr,(ident,cp.stderr[-400:])
+                dst=tmp/f'selectable-{ident}.dsf'
+                report=tmp/f'selectable-{ident}.json'
+                cp=invoke(['--encode',ident,'--report',report,'-D',pcm,'-r',rate,dst],exe=a.sox)
+                assert cp.returncode==0 and dst.is_file() and report.is_file(),(
+                    ident,cp.returncode,cp.stderr[-800:])
+                parsed=read_dsf(dst)
+                assert parsed['rate']==int(rate) and parsed['frames']>0,ident
+                records=json.loads(report.read_text())['processing']['encoder']
+                assert records and all(row['profile_id']==ident for row in records),records
                 rows.append(dict(id=ident,native_hz=int(rate),exit_code=cp.returncode,
-                    output_created=False,diagnostic=clean(cp.stderr.strip().splitlines()[-1])))
-            return dict(unselectable=rows)
-        record('unbound_qualified_profile_unselectable',unselectable)
+                                 output_created=True,reported_profile_id=records[0]['profile_id']))
+            return dict(selectable=rows)
+        record('high_rate_v2_encoder_selectable',high_rate_v2_selectable)
         # Reconstruct a candidate tone, then independently re-encode those graph
         # samples with the resolved inverse decoder reference. This checks the
         # DSD provenance scale, not just two spellings of automatic routing.
@@ -268,10 +271,11 @@ def main():
                     f64.write_bytes(values.astype('<f8').tobytes())
                     packed=tmp/(prefix+'.bits');report=tmp/(prefix+'.json')
                     p=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                        'encode.mastering.v1.dsd64',str(scale),'guarded-cli',str(f64),str(packed),str(report)],
+                        'encode.mastering.v1.dsd64',str(scale),'guarded',str(f64),str(packed),str(report)],
                         capture_output=True,text=True,timeout=120)
                     assert p.returncode==0,p.stderr
-                    out=tmp/(prefix+'.dsf');encode(base,out,extra=gain_args,glob=('-D',*flags))
+                    out=tmp/(prefix+'.dsf');encode(base,out,extra=gain_args,
+                        glob=('-D',*flags,'--headroom','0'))
                     actual=read_dsf(out)
                     expected=np.unpackbits(np.frombuffer(packed.read_bytes(),dtype=np.uint8))[:actual['frames']].tobytes()
                     assert actual['timeline'][0]==expected,('reference scale mismatch',reference_name,gain)
@@ -288,11 +292,11 @@ def main():
             raw.write_bytes(values.astype('<f8').tobytes())
             packed=tmp/'mixed-reference.bits';report=tmp/'mixed-reference.json'
             check=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                'encode.mastering.v1.dsd64','.5','guarded-cli',str(raw),str(packed),str(report)],
+                'encode.mastering.v1.dsd64','.5','guarded',str(raw),str(packed),str(report)],
                 capture_output=True,text=True,timeout=120)
             assert check.returncode==0,check.stderr
             dst=tmp/'mixed-reference.dsf'
-            cp=invoke(['-D','--dsd-layout','MONO','-m',base,pcm,'-r','2822400',dst])
+            cp=invoke(['-D','--headroom','0','--dsd-layout','MONO','-m',base,pcm,'-r','2822400',dst])
             assert cp.returncode==0,cp.stderr
             actual=read_dsf(dst)
             expected=np.unpackbits(np.frombuffer(packed.read_bytes(),dtype=np.uint8))[:actual['frames']].tobytes()
