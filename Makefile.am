@@ -57,6 +57,18 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
              docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md \
              docs/dsd/RELEASE_NOTES_1.1.1.md \
              docs/dsd/UNIFIED_DECODER_2026-11-09.md \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/README.md \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/gate_tails.txt \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/host.txt \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/p21_reader_regression.json \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/summary.txt \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/unified_decode.json \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v1_decode_identity.jsonl \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v1_decode_identity.py \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v1_encode_identity.jsonl \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v1_encode_identity.py \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v2_110_compat.json \
+             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v2_pin.json \
              docs/dsd/FFMPEG_DSD_OFFSET_2026-11-08.md \
              docs/dsd/REVIEW_111_V2_PIN_RESOLUTION_2026-11-08.md \
              docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md
