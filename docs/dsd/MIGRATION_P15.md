@@ -12,8 +12,8 @@ see [Using SoX DSD](USING_SOX_DSD.md) and `man sox`.
 | `--dsd-mode auto input.wav -r 5644800 output.dsf` | `input.wav -r dsd128 output.dsf` | Qualified encoding for DSD128. Numeric rates remain valid. |
 | `--dsd-mode legacy input.wav output.dsf` | `input.wav output.dsf` | Both now use qualified modulation. The legacy flag cannot bypass the planned encoder. Use the explicit `sdm` effect for low-level testing. |
 | `--dsd-mode native input.dsf output.dff` | `input.dsf output.dff` | Native bitstream repacking (advanced `--dsd-mode native` is still available). |
-| `--dsd-decode mastering` (formerly v1) | `--decode conservative` | Preserve exact older mastering-v1 selection. |
-| Unpinned decoding (formerly mastering v2) | `--decode mastering` | Qualified mastering-v2. Since 2026-11-08 the default is mastering-v1, as `--decode conservative`. |
+| `--dsd-decode mastering` (formerly v1) | `--decode mastering`, or omit `--decode` | Mastering v1, the standard decoder at every rate. |
+| Unpinned decoding (mastering v2 in 1.0.x and 1.1.0) | Unpinned decoding | Mastering v1 from 1.1.1; the v2 decoder is removed. |
 | `--dsd-decode decode.mastering.v1.dsd64` | `--decode decode.mastering.v1.dsd64` | Explicit immutable decoder bank and input clock. |
 | `--dsd-encode encode.mastering.v1.dsd128` | `--encode encode.mastering.v1.dsd128` | Explicit qualified encoder identity and output clock. |
 | `--dsd-plan input.dsf output.wav` | `--plan input.dsf output.wav` | Non-executing JSON plan. |

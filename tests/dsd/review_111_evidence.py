@@ -14,6 +14,9 @@ import re
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_ROOT = HERE / 'results' / 'V1_HIGH_RATE_ENCODE_2026-11-07'
+# A distribution tarball ships only the path-redacted copy of the receipt;
+# it keeps every field this summary reads.
+REDACTED = HERE / 'release_evidence' / 'v1_high_rate_real_tracks_redacted.jsonl'
 INPUT_WARNING = re.compile(r'\bbalancing clipped ([0-9,]+) samples?\b')
 
 
@@ -30,6 +33,8 @@ def main():
     args = parser.parse_args()
     root = args.results_root
     source = root / 'real-tracks' / 'results.jsonl'
+    if not source.is_file() and root == DEFAULT_ROOT:
+        source = REDACTED
     rows = [json.loads(line) for line in source.read_text().splitlines() if line.strip()]
     if not rows:
         raise ValueError('no historical run records')

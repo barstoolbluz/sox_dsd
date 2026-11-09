@@ -35,8 +35,8 @@ made that one decoding bandwidth is inherently better for all content.
 
 ## Reproducible checks and their scope
 
-The build/review package includes logs and machine-readable results in
-`validation/`. The most relevant executable gates are:
+Results of these gates on the release host are in
+`tests/dsd/results/UNIFIED_DECODER_2026-11-09/`. The most relevant executable gates are:
 
 - `python3 tests/dsd/test_unified_decode_111.py --sox "$PWD/src/sox"`
   (65 cases, five native clocks): default/mastering/pinned PCM byte equality,
@@ -49,8 +49,8 @@ The build/review package includes logs and machine-readable results in
 - `python3 tests/dsd/test_p21_reader_regression.py --sox "$PWD/src/sox" \
   --reference /usr/bin/ffmpeg`: deterministic, self-encoded multichannel
   DSDIFF and DSF comparisons including 1.2345-second fractional seeking and
-  a deliberately silent reference-channel negative control. On this container,
-  FFmpeg 7.1.5 passed four 4-/6-channel comparisons, with measured offsets
+  a deliberately silent reference-channel negative control. With FFmpeg
+  7.1.3 (Debian 13), four 4-/6-channel comparisons passed, with measured offsets
   between -40.5013 and -40.5024 native DSD frames. This **does not** establish
   compatibility with a private music library, other reference versions, or
   every commercial DSDIFF header variant.
@@ -58,29 +58,23 @@ The build/review package includes logs and machine-readable results in
   synthetic fault-injection/orchestration checks, including 2/4/6-channel
   stub rows. Stubs are never passed off as independent-decoder qualification.
 - `python3 tests/dsd/test_v2_110_compat.py --old-sox OLD --new-sox NEW`:
-  20 independently executed byte-for-byte comparisons between an original
-  1.1.0 source build (all thirteen input patches reversed) and this candidate:
+  20 independently executed byte-for-byte comparisons between a build of the
+  `sox_dsd-1.1.0` tag and this candidate:
   DSD512 and DSD1024, DSF and DSDIFF, two PCM stimuli, clip-and-warn and
   strict policies, plus automatic and fixed headroom. This verifies the
   encoder-v2 bitstream in those cases, not all possible audio.
 - `python3 tests/dsd/test_p10.py --sox ... --candidate ... --results ...`:
   64 passing CLI-graph cases, including positive high-rate encoder-v2 pins.
-  Three old bitstream-reference render cases and five DSD-origin/mixed-graph
-  cases explicitly disable the newer default headroom and use the guarded
-  unity-gain oracle; modern default headroom is checked separately.
+  Three bitstream-reference render cases and five DSD-origin/mixed-graph
+  cases compare the CLI's default-gain output with the `guarded-cli` oracle.
 - `python3 tests/dsd/test_111_receipt_redaction.py`: deterministic 800-row
   release-data sanitization; the historical input remains unchanged.
 
 The correct command to exercise the normal release-facing suite is
 `make check-dsd-cli` after `autoreconf -fi && ./configure && make`.
-`make check` covers the retained general SoX tests. The *full historical*
-`make check-dsd DSD_PHASE=P10` command is not a passing gate from this
-**deliberately truncated** input archive: it requires
-`tests/dsd/results/P10/numeric/qualification.json` and
-`tests/dsd/results/P10/certificate-input.json`, both omitted by the sender
-(see `MANIFEST.md` in the delivery bundle). Those two certificate checks
-remain fail-closed rather than quietly pass or invent missing receipts.
-The separately run P10 CLI test is 64/64 PASS. An independent P21
+`make check` covers the retained general SoX tests. `make check-dsd
+DSD_PHASE=P10` passes in the full tree, which carries the P10 certificate
+inputs. An independent P21
 full reader gate on private licensed audio and audio-device interoperability
 are not established by these synthetic tests.
 
@@ -112,12 +106,14 @@ are not established by these synthetic tests.
 7. **Untraceable review validation claims:** `12 further synthetic reader
    cases` and the prior `make check` success claim have no retained output
    in the supplied tree. Both are explicitly withdrawn from the old review
-   document. New claims in this note must be backed by `validation/` receipts.
-8. **Incomplete historical CLI build inventory:** the patch-0009 source
-   change set includes all seven files `src/dsd.c`, `src/dsd.h`,
-   `src/dsd_plan.c`, `src/pcmdsd.c`, `src/pcmdsd.h`, `src/dsd_stats.c`, and
-   `src/sox_ng.c` (the original P10 local `cli-paths/build.txt` listed just
-   four). `tests/dsd/results/` and its original README are untouched:
+   document. New claims in this note must be backed by receipts in
+   `tests/dsd/results/UNIFIED_DECODER_2026-11-09/`.
+8. **Incomplete historical CLI build inventory:**
+   `tests/dsd/results/V1_HIGH_RATE_ENCODE_2026-11-07/cli-paths/build.txt`
+   names four `src/` files that differ from the run's build tree; patch 0009
+   later changed six (`src/dsd.c`, `src/dsd.h`, `src/dsd_plan.c`,
+   `src/pcmdsd.c`, `src/pcmdsd.h`, `src/sox_ng.c`). `tests/dsd/results/` and
+   its original README are untouched:
    `cli-paths/release-1.1.1.jsonl` is a **pre-v2-pin snapshot**, not evidence
    from the finished release branch.
 9. **Private paths in release distribution:** the 800-row historical real-
@@ -130,8 +126,8 @@ are not established by these synthetic tests.
 10. **Review-process wording in release notes:** removed. The notes describe
     1.1.1 behavior, not a temporary review status.
 11. **Unproved "9 of 36" statement in patch 0008:** withdrawn as a
-    factual qualification claim. The historical patch body is immutable,
-    but none of the supplied receipts proves that numerator, and the 36 cases
+    factual qualification claim, and the commit message no longer makes it:
+    none of the supplied receipts proves that numerator, and the 36 cases
     covered *both* high-rate clocks rather than just DSD512. No corrected
     count is invented.
 12. **`policy.encode` ambiguity:** resolved for exact v2 pins; the plan
@@ -143,10 +139,12 @@ are not established by these synthetic tests.
 ## Historical scope, changed files and limits
 
 Historical `docs/dsd/handoffs/`, `docs/dsd/briefs/`,
-`docs/dsd/amendments/`, and `tests/dsd/results/` are **unchanged**.
+`docs/dsd/amendments/`, and the existing `tests/dsd/results/` records are
+**unchanged**; this change only adds `tests/dsd/results/UNIFIED_DECODER_2026-11-09/`.
 Current-behavior documents changed here are `README.md`, `sox.1`,
 `soxeffect_ng.7`, `docs/dsd/USING_SOX_DSD.md`,
-`docs/dsd/RELEASE_NOTES_1.1.1.md`, `docs/dsd/README.md`, and this note.
+`docs/dsd/RELEASE_NOTES_1.1.1.md`, `docs/dsd/README.md`,
+`docs/dsd/MIGRATION_P15.md`, `docs/dsd/CLI_USABILITY_DESIGN.md`, and this note.
 The older `docs/dsd/FFMPEG_DSD_OFFSET_2026-11-08.md` preserves its measured
 numbers but clarifies that v2 decoder rows are historical and that its
 FFmpeg attribution is build-specific. The earlier
@@ -160,9 +158,6 @@ numerical certificates including `generate_p15_r3_coeffs.py`,
 `certify_p15_r3_filters.py`, and archived P15-R3 results are retained to
 explain prior decisions, **not** to certify present decoder behavior.
 
-No private audio or native hardware was supplied for these checks. The
-20-case byte-for-byte high-rate encoder replay used an actual clean 1.1.0
-reconstruction from the supplied pre-1.1.1 branch patch series, built
-separately. The delivery package retains the comparison script and its
-input/output digest receipt, not the generated executables. The 1.1.0
-reconstruction procedure is in `validation/REPRODUCE.md`.
+No private audio or native hardware was used for these checks. The
+20-case byte-for-byte high-rate encoder replay ran against a build of the
+`sox_dsd-1.1.0` tag.

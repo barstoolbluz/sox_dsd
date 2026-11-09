@@ -11,6 +11,14 @@ script=root/'tests/dsd/sanitize_111_real_track_receipts.py'
 source=root/'tests/dsd/results/V1_HIGH_RATE_ENCODE_2026-11-07/real-tracks/results.jsonl'
 expected=root/'tests/dsd/release_evidence/v1_high_rate_real_tracks_redacted.jsonl'
 sha=lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+if not source.is_file():
+    # A distribution tarball ships only the redacted copy: check that alone.
+    data=expected.read_bytes()
+    assert len(data.splitlines())==800, 'redacted receipt is not 800 rows'
+    for marker in (b'/home/',b'/Users/',b'/mnt/'):
+        assert marker not in data, marker
+    print('PASS: 800 shipped release rows carry no local paths (no source receipt)')
+    sys.exit(0)
 source_sha=sha(source)
 subprocess.run([sys.executable,str(script),'--check'],check=True)
 with tempfile.TemporaryDirectory(prefix='sox-release-redaction-') as temp:

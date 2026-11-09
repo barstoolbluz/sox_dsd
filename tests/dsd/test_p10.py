@@ -106,14 +106,13 @@ def main():
         for reference,scale in (('auto',.5),('pcm',.5),('dsd',1.)):
             def reference_case(reference=reference,scale=scale):
                 destination=tmp/f'reference-{reference}.dsf'
-                cp=encode(pcm,destination,extra=('pcmdsd','--reference',reference,'2822400'),
-                          glob=('-D','--headroom','0'))
+                cp=encode(pcm,destination,extra=('pcmdsd','--reference',reference,'2822400'))
                 with wave.open(str(pcm),'rb') as f:
                     samples=np.frombuffer(f.readframes(f.getnframes()),dtype='<i4').astype(np.float64)/(2**31-1)
                 raw=tmp/'reference.f64le';raw.write_bytes(samples.astype('<f8').tobytes())
                 packed=tmp/'reference.bits';report=tmp/'reference.json'
                 check=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                    'encode.mastering.v1.dsd64',str(scale),'guarded',str(raw),str(packed),str(report)],
+                    'encode.mastering.v1.dsd64',str(scale),'guarded-cli',str(raw),str(packed),str(report)],
                     capture_output=True,text=True,timeout=120)
                 assert check.returncode==0,check.stderr
                 actual=read_dsf(destination)
@@ -192,8 +191,7 @@ def main():
         # and the gate correctly accepts both automatic and explicit DSD64
         # encoding. Asserting refusal here would assert behaviour the project
         # deliberately changed at P15. Refusal remains covered by the
-        # experimental arm, which still resolves no qualified composite, and by
-        # high_rate_v2_selectable below, which positively tests exact pins.
+        # experimental arm, which still resolves no qualified composite.
         for mode in ('auto','explicit','experimental'):
             def gate(mode=mode):
                 dst=tmp/f'public-{mode}.dsf'
@@ -271,11 +269,10 @@ def main():
                     f64.write_bytes(values.astype('<f8').tobytes())
                     packed=tmp/(prefix+'.bits');report=tmp/(prefix+'.json')
                     p=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                        'encode.mastering.v1.dsd64',str(scale),'guarded',str(f64),str(packed),str(report)],
+                        'encode.mastering.v1.dsd64',str(scale),'guarded-cli',str(f64),str(packed),str(report)],
                         capture_output=True,text=True,timeout=120)
                     assert p.returncode==0,p.stderr
-                    out=tmp/(prefix+'.dsf');encode(base,out,extra=gain_args,
-                        glob=('-D',*flags,'--headroom','0'))
+                    out=tmp/(prefix+'.dsf');encode(base,out,extra=gain_args,glob=('-D',*flags))
                     actual=read_dsf(out)
                     expected=np.unpackbits(np.frombuffer(packed.read_bytes(),dtype=np.uint8))[:actual['frames']].tobytes()
                     assert actual['timeline'][0]==expected,('reference scale mismatch',reference_name,gain)
@@ -292,11 +289,11 @@ def main():
             raw.write_bytes(values.astype('<f8').tobytes())
             packed=tmp/'mixed-reference.bits';report=tmp/'mixed-reference.json'
             check=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                'encode.mastering.v1.dsd64','.5','guarded',str(raw),str(packed),str(report)],
+                'encode.mastering.v1.dsd64','.5','guarded-cli',str(raw),str(packed),str(report)],
                 capture_output=True,text=True,timeout=120)
             assert check.returncode==0,check.stderr
             dst=tmp/'mixed-reference.dsf'
-            cp=invoke(['-D','--headroom','0','--dsd-layout','MONO','-m',base,pcm,'-r','2822400',dst])
+            cp=invoke(['-D','--dsd-layout','MONO','-m',base,pcm,'-r','2822400',dst])
             assert cp.returncode==0,cp.stderr
             actual=read_dsf(dst)
             expected=np.unpackbits(np.frombuffer(packed.read_bytes(),dtype=np.uint8))[:actual['frames']].tobytes()

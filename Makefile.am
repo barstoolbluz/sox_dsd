@@ -776,8 +776,9 @@ EXTRA_DIST += docs/dsd/handoffs/P15_CLOSEOUT_ADJUDICATION_2026-10-14.md \
   tests/dsd/results/P15_closeout_adjudication_2026-10-14/preservation.json
 
 # Retired P15-R3 decoder-v2 execution tests are removed from the release
-# tree. Historical design/research generators and certificates remain available
-# to reproduce the archived evidence, but they are not live decoder targets.
+# tree. The historical generators and certificates are kept as a record, not
+# as live targets: the generators read src/dsd_coeffs_v2.h, removed in 1.1.1,
+# so rerunning them needs a 1.1.0 checkout.
 EXTRA_DIST += docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_HANDOFF.md \
   docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_CHECKPOINT.md \
   tests/dsd/generate_p15_r3_coeffs.py tests/dsd/certify_p15_r3_filters.py \

@@ -32,12 +32,13 @@ implementation, not a proposed interface.
    output rates for DSF/DSDIFF. Existing integer and `k`-suffix clocks
    retain their original semantics.
 5. **Unify mastering defaults.** Omitting `--decode` and selecting
-   `--decode conservative` both select the qualified mastering-v1 bank for
-   the actual native input clock; `--decode mastering` selects the wider
-   mastering-v2 bank. (Until 2026-11-08 the default was v2.) Explicit
-   versioned IDs preserve reproducibility. The encoder selects the
-   qualified mastering-v1 modulator at every rate (until 2026-11-07,
-   mastering-v2 at DSD512/1024).
+   `--decode mastering` both select the qualified mastering-v1 bank for
+   the actual native input clock; `--decode wideband` is the one
+   alternative. (In 1.0.x and 1.1.0 the default was a mastering-v2 bank,
+   removed in 1.1.1.) Explicit versioned IDs preserve reproducibility. The
+   encoder selects the qualified mastering-v1 modulator at every rate
+   (until 2026-11-07, mastering-v2 at DSD512/1024); the v2 encoder remains
+   selectable there by its exact ID.
 6. **Reuse DoP.** `--dop` appends the existing terminal `dop` effect.
    The planner validates input type, exact carrier clock, signed 24-bit
    lossless output, and effect ordering. DoP is not PCM reconstruction.

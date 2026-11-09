@@ -18,6 +18,14 @@ The optional high-rate mastering v2 **encoder** remains available by exact ID.
   corresponding exact v1 ID. `--decode wideband` selects the only qualified
   alternative. Decoder v2 and the retired `conservative`/`legacy` decoder
   spellings are no longer accepted. Encoder v2 is a separate component.
+- **Changed from 1.1.0:** 1.1.0 decoded with mastering v2 by default and for
+  `--decode mastering`, so default DSD-to-PCM output differs in 1.1.1. The
+  v2 bank extended the passband into the ultrasonic range; v1's rated
+  passband is 20 kHz at DSD64, 30 kHz at DSD128 and 40 kHz above.
+- **C API:** `sox_dsd_decode_options_init` now selects mastering v1, so
+  callers that keep its default get v1 output. `SOX_DSD_DECODE_MASTERING_V2`
+  is removed from `sox_dsd.h`: code that names it no longer compiles, and
+  `sox_dsd_decoder_create` rejects the value 3 with `SOX_DSD_BAD_ARGUMENT`.
 - **Default PCM-to-DSD level:** warn-and-clip mode applies a fixed 0.9 gain
   (-0.91515 dB) before clipping residual interpolated peaks above 0.45
   modulator units. This is unchanged from 1.1.0, including for v2.

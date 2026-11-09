@@ -334,7 +334,9 @@ def main():
             got=command_result([args.sox,'--help'],environment)
             proc=subprocess.run([str(args.sox),'--help'],cwd=ROOT,env=environment,
                 stdin=subprocess.DEVNULL,capture_output=True,timeout=45)
-            matches=b'encode.mastering.vN.dsdNNN' in proc.stdout
+            # Help names the v1 pattern and the two exact v2 encoder pins.
+            matches=(b'encode.mastering.v1.dsdNNN' in proc.stdout and
+                     b'encode.mastering.v2.dsd512|dsd1024' in proc.stdout)
             store(key,'PASS' if got['exit']==0 and matches else 'FAIL',
                 dict(output=got,expected='v1 and v2 explicit encoder IDs in CLI help',
                     contains_versioned_id=matches))
