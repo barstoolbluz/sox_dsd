@@ -199,7 +199,9 @@ pcm64-native-flag-gate:
 	      echo "unsafe native-f64 build flag: $$flag" >&2; exit 1 ;; \
 	  esac; \
 	done
-libsox_ng.la libdsd_resonator.la: pcm64-native-flag-gate
+# An order-only prerequisite checks each invocation without forcing an
+# archive relink. A normal phony prerequisite would relink every time.
+libsox_ng.la libdsd_resonator.la: | pcm64-native-flag-gate
 endif
 
 libsox_ng_la_LIBADD += @GOMP_LIBS@
