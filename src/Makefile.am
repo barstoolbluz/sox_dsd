@@ -188,9 +188,9 @@ if NATIVE_F64
 # Catch unsafe flags passed to make *after* configure (configuring safely is
 # insufficient if a developer overrides CFLAGS on a later make invocation).
 .PHONY: pcm64-native-flag-gate
+# Include effective Automake target flags, not only environment CFLAGS:
+# otherwise `make libsox_ng_la_CFLAGS=-ffast-math` bypasses admission.
 pcm64-native-flag-gate:
-	# Include effective Automake target flags, not only environment CFLAGS:
-	# otherwise `make libsox_ng_la_CFLAGS=-ffast-math` bypasses admission.
 	@for flag in $(CC) $(CFLAGS) $(CPPFLAGS) $(AM_CPPFLAGS) \
 	  $(AM_CFLAGS) $(libsox_ng_la_CFLAGS) \
 	  $(libdsd_resonator_la_CFLAGS) $(LDFLAGS) $(AM_LDFLAGS) \
