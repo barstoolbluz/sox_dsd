@@ -422,9 +422,6 @@ static const char *bank_hash(lsx_dsd_last_bank bank)
     case LSX_DSD_BANK_MASTER64_256:return "76749b06a43bb529207e68abc8d71631d21013f547de74ecd7837638d6506139";
     case LSX_DSD_BANK_MASTER128:return "306a836d730b97b8f8f8e82d01ea2fc87eeec7efc70939c76558ab8e8fc44673";
     case LSX_DSD_BANK_WIDEBAND:return "658f940a7fbc529a6f927e05c36b9d3c4b5858f001d2b21759e7a6e36ed658d0";
-    case LSX_DSD_BANK_MASTER64_V2:return "1cf7807a6be4651bfd264873dd09075f7f532b22ab3b9638223857f4af09107b";
-    case LSX_DSD_BANK_MASTER128_V2:return "8f84430b2f0113d4b2055073833b8ab9acba2cd145b300f0f75b7cccc0faaf1b";
-    case LSX_DSD_BANK_MASTER256_V2:return "2b908ebaa0cacc23965d63e46b3838d7eff4149dee5dd01e2d8f12996ee20231";
     default:return NULL;
   }
 }

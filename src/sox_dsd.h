@@ -95,11 +95,11 @@ sox_format_t *SOX_DSD_CALL sox_open_write_dsd(
 /* P07: additive binary64 reconstruction ABI.  API samples retain values
  * beyond +/-1.0; only the SoX graph adapter clips to signed int32. */
 typedef struct sox_dsd_decoder sox_dsd_decoder_t;
+/* Decoder values 2 (retired legacy) and 3 (retired mastering v2) are invalid.
+ * These were never needed for a release ABI; the high-rate mastering v2
+ * *encoder* remains available via the independent encode selector. */
 typedef enum {
-  SOX_DSD_DECODE_MASTERING = 0, SOX_DSD_DECODE_WIDEBAND = 1,
-  /* Value 2 is reserved for the private legacy profile (not a public mode).
-   * Qualified mastering v2; previous ABI/enum values unchanged. */
-  SOX_DSD_DECODE_MASTERING_V2 = 3
+  SOX_DSD_DECODE_MASTERING = 0, SOX_DSD_DECODE_WIDEBAND = 1
 } sox_dsd_decode_profile_t;
 typedef enum {
   SOX_DSD_LEVEL_PRESERVE = 0, SOX_DSD_LEVEL_SACD = 1

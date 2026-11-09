@@ -245,8 +245,7 @@ static char *dsd_layout_assignment = NULL;
 static sox_bool dsd_layout_loss_warn = sox_false;
 static lsx_dsd_policy dsd_policy = {
   .mode=LSX_DSD_MODE_AUTO,
-  /* Automatic decode is v1 (conservative) again from 2026-11-08; the named
-   * mastering profile stays v2. */
+  /* Mastering v1 is both the default and the named standard decoder. */
   .decode=LSX_DSD_PROFILE_MASTERING,
   .encode=LSX_DSD_ENCODE_MASTERING,
   .level=LSX_DSD_LEVEL_PRESERVE,
@@ -1461,17 +1460,7 @@ static void dsd_insert_boundary(sox_effects_chain_t *chain,
     }
     snprintf(rate,sizeof(rate),"%.0f",destination);
     argv[0]="-p";
-    if (dsd_policy.decode==LSX_DSD_PROFILE_MASTERING_V2) {
-      uint32_t native;
-      const lsx_dsd_frontend_profile *profile;
-      if (!lsx_dsd_integer_rate(signal->rate,&native) ||
-          !(profile=lsx_dsd_frontend_profile_find(native,dsd_policy.decode))) {
-        lsx_fail("P15-R3: missing v2 candidate for implicit decoder clock");exit(2);
-      }
-      argv[1]=(char *)profile->canonical_id;
-    } else if (dsd_policy.decode==LSX_DSD_PROFILE_WIDEBAND) argv[1]="wideband";
-    else if (dsd_policy.decode==LSX_DSD_PROFILE_LEGACY) argv[1]="legacy";
-    else argv[1]="conservative"; /* Frozen v1, the automatic default. */
+    argv[1]=dsd_policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":"mastering";
     argv[2]="-l";
     argv[3]=dsd_policy.level==LSX_DSD_LEVEL_SACD?"sacd":"preserve";
     argv[4]=rate;
@@ -3432,11 +3421,11 @@ static void usage(void)
 "--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
 "--dsd-mode auto|native|legacy  DSD planning is mandatory in all modes; native forbids PCM",
 "--sdm-guard on|off       Fail-closed legacy 1-bit modulator check; costs CPU (default off)",
-"--decode mastering|conservative|wideband|decode.mastering.vN.dsdNNN",
-"                         DSD reconstruction profile (default conservative, v1; mastering is v2)",
+"--decode mastering|wideband|decode.<profile>.v1.dsdNNN",
+"                         DSD reconstruction profile (default mastering v1)",
 "--encode mastering|encode.mastering.v1.dsdNNN  DSD modulation profile",
-"         High-rate v2 IDs: encode.mastering.v2.dsd512|dsd1024",
-"         Mastering is v1 at all native rates; profile guards remain enforced",
+"                         High-rate v2 IDs: encode.mastering.v2.dsd512|dsd1024",
+"                         Mastering is v1 at all native rates; profile guards remain enforced",
 "--dsd-level preserve|sacd  Decoder level convention",
 "--dsd-clip warn|error    Decode: clip/warn at PCM limits or fail; encode: 0.45 warn-clip or strict 0.5; high-rate v1 strict gain 0.9",
 "--headroom DB            Replace implicit gain with fixed PCM-to-DSD cut (0..120 dB, no normalization)",
@@ -4018,7 +4007,7 @@ static char parse_gopts_and_fopts(file_t * f)
           int profile;
           if (!lsx_dsd_profile_parse(optstate.arg,0,&profile,
                 &dsd_policy.decode_pinned_native_hz)) {
-            lsx_fail("--decode: choose mastering, conservative, wideband, or an exact decode.<profile>.vN.dsdNNN ID");
+            lsx_fail("--decode: choose mastering, wideband, or an exact decode.<profile>.v1.dsdNNN ID");
             exit(1);
           }
           dsd_policy.decode=(lsx_dsd_decode)profile;

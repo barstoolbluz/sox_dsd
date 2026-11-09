@@ -180,21 +180,7 @@ static const lsx_dsd_frontend_profile dsd_frontends[] = {
   {22579200, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 7, LSX_DSD_BANK_MASTER64_256,  5476, "decode.mastering.v1.dsd512"},
   {45158400, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 8, LSX_DSD_BANK_MASTER64_256, 10980, "decode.mastering.v1.dsd1024"},
   {22579200, 705600, LSX_DSD_PROFILE_WIDEBAND, 282240, 352800, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd512"},
-  {45158400,1411200, LSX_DSD_PROFILE_WIDEBAND, 564480, 705600, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd1024"},
-  { 2822400,  88200, LSX_DSD_PROFILE_MASTERING_V2,  25000,  40000, 5, LSX_DSD_BANK_MASTER64_V2, 1636, "decode.mastering.v2.dsd64"},
-  { 5644800, 176400, LSX_DSD_PROFILE_MASTERING_V2,  48000,  60000, 5, LSX_DSD_BANK_MASTER128_V2, 3428, "decode.mastering.v2.dsd128"},
-  {11289600, 176400, LSX_DSD_PROFILE_MASTERING_V2,  66000,  80000, 6, LSX_DSD_BANK_MASTER256_V2, 6052, "decode.mastering.v2.dsd256"},
-  /* P21: v2 decode at the two high clocks. No new coefficients: the final
-   * bank, intermediate clock and band edges are those of the DSD256 v2
-   * profile, and only the half-band cascade grows, exactly as v1 reuses
-   * MASTER64_256 across DSD256/512/1024. The edges stay at 66k/80k because
-   * the intermediate clock stays at 176400 and its Nyquist is 88200, so the
-   * stop edge cannot usefully move; v1 holds its own edges constant from
-   * DSD256 up for the same reason. delay_native_frames follows the cascade
-   * identity 28*(2^(stages-1)-1) + ((taps-1)/2)*2^(stages-1), which
-   * reproduces all eight pre-existing published delays. */
-  {22579200, 176400, LSX_DSD_PROFILE_MASTERING_V2,  66000,  80000, 7, LSX_DSD_BANK_MASTER256_V2, 12132, "decode.mastering.v2.dsd512"},
-  {45158400, 176400, LSX_DSD_PROFILE_MASTERING_V2,  66000,  80000, 8, LSX_DSD_BANK_MASTER256_V2, 24292, "decode.mastering.v2.dsd1024"}
+  {45158400,1411200, LSX_DSD_PROFILE_WIDEBAND, 564480, 705600, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd1024"}
 };
 
 const lsx_dsd_frontend_profile *lsx_dsd_frontend_profile_find(
@@ -271,24 +257,14 @@ int lsx_dsd_profile_parse(char const *text, int encode, int *out, uint32_t *nati
     if (!encode && w && !strcmp(text,w)) {*out=1;*native=dsd_rates[i].hz;return 1;}
   }
 
-  if (!encode) {
-    for (i=0;i<sizeof(dsd_frontends)/sizeof(dsd_frontends[0]);++i)
-      if (dsd_frontends[i].kind == LSX_DSD_PROFILE_MASTERING_V2 &&
-          !strcmp(text,dsd_frontends[i].canonical_id)) {
-        *out=LSX_DSD_PROFILE_MASTERING_V2;
-        *native=dsd_frontends[i].native_hz;
-        return 1;
-      }
-    if (!strcmp(text,"conservative")) { *out=LSX_DSD_PROFILE_MASTERING; return 1; }
-  }
-  /* A named mastering decoder is v2. The automatic default is v1, which
-   * the conservative alias and the versioned v1 identities also select. */
+  /* Human `mastering` always denotes the standard v1 decoder (or v1
+   * encoder); exact versioned v1 IDs retain native-clock pinning. */
   if (!strcmp(text,"mastering")) {
-    *out=encode?LSX_DSD_ENCODE_MASTERING:LSX_DSD_PROFILE_MASTERING_V2;
+    *out=encode?LSX_DSD_ENCODE_MASTERING:LSX_DSD_PROFILE_MASTERING;
     return 1;
   }
   if (!encode && !strcmp(text,"wideband")) { *out=1; return 1; }
-  if (!strcmp(text,"legacy")) { *out=encode?1:2; return 1; }
+  if (encode && !strcmp(text,"legacy")) { *out=LSX_DSD_ENCODE_LEGACY; return 1; }
   if (encode && !strcmp(text,"experimental")) { *out=2; return 1; }
   return 0;
 }
@@ -307,10 +283,8 @@ static int dsd_getopts(sox_effect_t *eff, int argc, char **argv)
   int i, is_encode=!strcmp(eff->handler.name,"pcmdsd"), profile;
   int seen_profile=0, seen_level=0, seen_reference=0, seen_rate=0;
   memset(opt,0,sizeof(*opt));
-  /* Decode default returned v2 -> v1 on 2026-11-08 (it was promoted
-   * v1 -> v2 on 2026-10-15). The encoder shares this parser and its profile
-   * enum is a different space, so its default is unchanged. v2 stays
-   * selectable via -p mastering. */
+  /* Decode defaults to standard mastering v1; the encoder's own v2
+   * selection is independent and still requires an exact high-rate ID. */
   opt->profile=is_encode?LSX_DSD_ENCODE_MASTERING:LSX_DSD_PROFILE_MASTERING;
   opt->level=LSX_DSD_LEVEL_PRESERVE;
   opt->reference=LSX_DSD_REF_AUTO;
@@ -398,7 +372,7 @@ void lsx_dsd_effect_apply_policy(sox_effect_t *effect, const lsx_dsd_policy *pol
 
 const sox_effect_handler_t *lsx_dsdpcm_effect_fn(void)
 {
-  static sox_effect_handler_t h={"dsdpcm", "[-p conservative|mastering|wideband|legacy|decode.<profile>.vN.dsdNNN] [-l preserve|sacd] [rate]",
+  static sox_effect_handler_t h={"dsdpcm", "[-p mastering|wideband|decode.<profile>.v1.dsdNNN] [-l preserve|sacd] [rate]",
     SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, lsx_dsdpcm_start,
     lsx_dsdpcm_flow, lsx_dsdpcm_drain, lsx_dsdpcm_stop, NULL, sizeof(lsx_dsdpcm_private), NULL, NULL, NULL};
   return &h;

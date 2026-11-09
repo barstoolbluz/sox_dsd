@@ -33,11 +33,9 @@ typedef struct {
 } lsx_dsd_rate;
 
 typedef enum {LSX_DSD_MODE_LEGACY, LSX_DSD_MODE_AUTO, LSX_DSD_MODE_NATIVE} lsx_dsd_mode;
-/* Existing numeric values and their decoder semantics are frozen. The
- * automatic and conservative decoder choices select v1; mastering selects
- * v2. Encoder version numbers describe a separate algorithm family. */
-typedef enum {LSX_DSD_PROFILE_MASTERING=0, LSX_DSD_PROFILE_WIDEBAND=1,
-              LSX_DSD_PROFILE_LEGACY=2, LSX_DSD_PROFILE_MASTERING_V2=3} lsx_dsd_decode;
+/* Only mastering v1 and wideband are available reconstruction profiles.
+ * Encoder version numbers describe a separate algorithm family. */
+typedef enum {LSX_DSD_PROFILE_MASTERING=0, LSX_DSD_PROFILE_WIDEBAND=1} lsx_dsd_decode;
 typedef enum {LSX_DSD_ENCODE_MASTERING, LSX_DSD_ENCODE_LEGACY,
               LSX_DSD_ENCODE_EXPERIMENTAL,
               LSX_DSD_ENCODE_MASTERING_V2} lsx_dsd_encode;
@@ -199,8 +197,7 @@ int lsx_dsd_count_convert(uint64_t frames, uint32_t input_hz, uint32_t output_hz
  * compose these with a separate final-rate adapter. Bank codes are immutable
  * internal identities, never user-selectable kernel implementations. */
 typedef enum {LSX_DSD_BANK_MASTER64_256, LSX_DSD_BANK_MASTER128,
-              LSX_DSD_BANK_WIDEBAND, LSX_DSD_BANK_MASTER64_V2,
-              LSX_DSD_BANK_MASTER128_V2, LSX_DSD_BANK_MASTER256_V2} lsx_dsd_last_bank;
+              LSX_DSD_BANK_WIDEBAND} lsx_dsd_last_bank;
 typedef struct {
   uint32_t native_hz, intermediate_hz;
   lsx_dsd_decode kind;
