@@ -701,13 +701,13 @@ EXTRA_DIST += tests/dsd/corpus_realworld.py \
 
 # P10 independent release gate ratification (versioned; historical corrective
 # receipts/certificates remain frozen). No source audio is distributed.
-EXTRA_DIST += docs/dsd/handoffs/P10_RATIFICATION.md \
-  docs/dsd/handoffs/P10_RATIFICATION_WORKLOG.md \
+# P10_RATIFICATION.md, P10_HOTFIX.md and P15_CLOSEOUT_ADJUDICATION_2026-10-14.md
+# name private recordings and stay in the repository only.
+EXTRA_DIST += docs/dsd/handoffs/P10_RATIFICATION_WORKLOG.md \
   tests/dsd/reference/p10_ratification_criteria.json \
   tests/dsd/ratify_p10_gates.py \
   tests/dsd/qualify_p10_ratification.py \
   tests/dsd/test_p10_ratification.py \
-  docs/dsd/handoffs/P10_HOTFIX.md \
   docs/dsd/handoffs/P10_HOTFIX_CHECKPOINT.md
 
 # P10 explicit reviewer closeout; positive certification and verifier are
@@ -780,8 +780,7 @@ EXTRA_DIST += docs/dsd/handoffs/P15.md docs/dsd/handoffs/P15_CHECKPOINT.md \
 
 # P15 closeout is an adjudication of retained source-bound receipts, not a
 # qualification bit or automatic-default migration.
-EXTRA_DIST += docs/dsd/handoffs/P15_CLOSEOUT_ADJUDICATION_2026-10-14.md \
-  docs/dsd/handoffs/P15_CLOSEOUT_CHECKPOINT_2026-10-14.md \
+EXTRA_DIST += docs/dsd/handoffs/P15_CLOSEOUT_CHECKPOINT_2026-10-14.md \
   tests/dsd/p15_closeout_review.py tests/dsd/test_p15_closeout_review.py \
   tests/dsd/results/P15_closeout_adjudication_2026-10-14/review.json \
   tests/dsd/results/P15_closeout_adjudication_2026-10-14/preservation.json
