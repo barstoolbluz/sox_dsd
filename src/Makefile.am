@@ -189,7 +189,12 @@ if NATIVE_F64
 # insufficient if a developer overrides CFLAGS on a later make invocation).
 .PHONY: pcm64-native-flag-gate
 pcm64-native-flag-gate:
-	@for flag in $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS); do \
+	# Include effective Automake target flags, not only environment CFLAGS:
+	# otherwise `make libsox_ng_la_CFLAGS=-ffast-math` bypasses admission.
+	@for flag in $(CC) $(CFLAGS) $(CPPFLAGS) $(AM_CPPFLAGS) \
+	  $(AM_CFLAGS) $(libsox_ng_la_CFLAGS) \
+	  $(libdsd_resonator_la_CFLAGS) $(LDFLAGS) $(AM_LDFLAGS) \
+	  $(libsox_ng_la_LDFLAGS) $(libdsd_resonator_la_LDFLAGS); do \
 	  case "$$flag" in \
 	    -Ofast|-ffast-math|-funsafe-math-optimizations|-fassociative-math|\
 	    -ffinite-math-only|-fno-signed-zeros|-fno-trapping-math|\
