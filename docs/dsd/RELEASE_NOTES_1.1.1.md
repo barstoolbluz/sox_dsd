@@ -42,9 +42,10 @@ The optional high-rate mastering v2 **encoder** remains available by exact ID.
 - **Explicit headroom:** `--headroom DB` replaces any implicit gain, not the
   numeric overload or state guards. `--auto-headroom` measures the complete
   interpolated signal and applies a non-amplifying, shared multichannel cut to
-  at most 0.45 before the modulator. A strict overload diagnostic suggests a
-  total replacement `--headroom` lower bound inferred from the first failed
-  sample, not a successful-retry guarantee.
+  at most 0.45 before the modulator. A strict overload diagnostic suggests
+  retrying with `--auto-headroom`. It also gives a total replacement
+  `--headroom` lower bound inferred from the first failed sample, not a
+  successful-retry guarantee.
 
 ## Qualification and evidence limits
 

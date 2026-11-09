@@ -61,9 +61,11 @@ scale. It is **not** a promise of guard stability. Full-scale DC with the v1
 encoder and `--headroom 0` is a reproduced state-guard failure at both high
 rates. Intermediate headroom cuts below 0.91515 dB were not systematically
 tested and should not be described as having failed.
-`--plan` and `--report` disclose the applied gain. The overload message's
-suggested `--headroom` is an absolute replacement cut inferred from the
-first failed sample only, not a guaranteed successful retry.
+`--plan` and `--report` disclose the applied gain. The overload message
+suggests retrying with `--auto-headroom`, which measures the whole stream. It
+also gives the smallest fixed `--headroom` that clears the first failed
+sample; that is an absolute replacement cut, not a guaranteed successful
+retry.
 
 For the 1.1.1 default changes and high-rate v2 selection rules,
 see [release notes](docs/dsd/RELEASE_NOTES_1.1.1.md).

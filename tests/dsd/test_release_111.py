@@ -20,7 +20,7 @@ import wave
 
 RATES = (11289600, 22579200, 45158400)
 GAIN_DB = -20 * math.log10(0.9)
-HINT = re.compile(r'minimum explicit --headroom attenuation ([0-9.eE+-]+) dB')
+HINT = re.compile(r'a fixed --headroom must be at least ([0-9.eE+-]+) dB')
 VALUE = re.compile(r'\bvalue ([0-9.eE+-]+), observed peak')
 
 
@@ -133,6 +133,8 @@ def run():
             hint = HINT.search(p.stderr)
             bad = VALUE.search(p.stderr)
             require(bool(hint and bad), 'missing first-sample total-headroom hint', p)
+            require('retry with --auto-headroom' in p.stderr,
+                    'overload message does not suggest --auto-headroom', p)
             value = abs(float(bad.group(1)))
             suggested = float(hint.group(1))
             old_gain_db = GAIN_DB if cut is None and rate >= 22579200 else (cut or 0.)
@@ -147,6 +149,22 @@ def run():
                    suggested_total_headroom_db=suggested,
                    expected_total_headroom_db=expected,
                    output_removed=True)
+
+        # The overload message suggests --auto-headroom; following it must
+        # encode the same input in strict mode, with a measured cut.
+        for rate in RATES:
+            dst = root / f'auto-{rate}.dsf'
+            report = root / f'auto-{rate}.json'
+            p = command(sox, '--dsd-clip', 'error', '--auto-headroom',
+                        '--report', report, square, '-r', rate, dst)
+            require(p.returncode == 0 and dst.is_file(),
+                    f'strict --auto-headroom retry failed at {rate}', p)
+            enc = json.loads(report.read_text())['processing']['encoder']
+            require(all(float(e['headroom_applied_db']) > 0 for e in enc),
+                    'strict --auto-headroom applied no cut')
+            record(f'strict_auto_headroom_{rate}', p,
+                   runtime_headroom_db=float(enc[0]['headroom_applied_db']),
+                   output_sha256=hashlib.sha256(dst.read_bytes()).hexdigest())
 
         # The original 1.1.0 exact v2 pins are qualified and executable.
         # Strict v2 uses unity gain even though v1 strict keeps 0.9.

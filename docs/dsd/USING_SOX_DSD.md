@@ -131,10 +131,12 @@ the not-yet-measured automatic mode), while `--report` records
 `clipped_interpolated_samples` for each executed encoder channel, as well as an
 `encoder_interpolation` clipping aggregate and a report warning when clipping
 occurs. A strict-mode failure removes a partial regular output file; it cannot
-retract bytes already sent to stdout or `/dev/null`. The error's recommended
-`--headroom` is a total, replacement attenuation derived from the first
-failed interpolated sample, not a full-program peak measurement. Later
-samples or a state-guard violation can still cause a retry to fail. The other
+retract bytes already sent to stdout or `/dev/null`. The error suggests
+retrying with `--auto-headroom`, which measures the whole program. It also
+gives the smallest fixed `--headroom`: a total, replacement attenuation
+derived from the first failed interpolated sample, not a full-program peak
+measurement. Later samples or a state-guard violation can still cause a
+fixed-cut retry to fail. The other
 numeric and state bounds still apply in every mode.
 
 ## Native DSD versus processing

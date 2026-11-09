@@ -569,16 +569,21 @@ static int effect_failure(sox_effect_t *e)
     "interpolation overload","nonfinite modulator state","state guard exceeded",
     "stream error"};
   /* No allocation, buffer or formatting work on the successful read path.
-   * This is an absolute --headroom cut that REPLACES any current gain,
-   * inferred from the first rejected sample only. It does not predict later
-   * interpolated peaks or guarantee state-guard acceptance on retry. */
+   * --auto-headroom measures the whole stream, so it is the retry to suggest;
+   * a fixed --headroom raised to the first-sample bound often overloads again
+   * on a later peak. The bound is an absolute cut that REPLACES any current
+   * gain, inferred from the first rejected sample only. It does not predict
+   * later interpolated peaks or guarantee state-guard acceptance on retry. */
   if (r.failure==LSX_PCMDSD_INTERPOLATION_OVERLOAD) {
     lsx_fail("pcmdsd: %s (failure %u) at native frame %" PRIu64
         ", channel %u, coordinate %u, value %.17g, observed peak %.17g; "
-        "minimum explicit --headroom attenuation %.9g dB (lower bound from first "
-        "overloaded sample; later peaks may require more); output block discarded",
+        "output block discarded; %sa fixed --headroom must be at least %.9g dB "
+        "(lower bound from first overloaded sample; later peaks may require more)",
         failures[r.failure],(unsigned)r.failure,r.first_bad_frame,r.channel,
-        r.coordinate,r.failure_value,r.peak,r.minimum_attenuation_db);
+        r.coordinate,r.failure_value,r.peak,
+        p->options.headroom==LSX_DSD_HEADROOM_AUTO?"":
+        "retry with --auto-headroom, which measures the whole stream; ",
+        r.minimum_attenuation_db);
   } else {
     lsx_fail("pcmdsd: %s (failure %u) at native frame %" PRIu64
         ", channel %u, coordinate %u, value %.17g, observed peak %.17g; "

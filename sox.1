@@ -1567,9 +1567,11 @@ DSD1024 a full-scale DC test with
 has stopped the v1 encoder on the state guard, even without breaching the
 0.5 interpolation envelope.  Other cuts below 0.91515 dB exceed the
 qualification mapping but were not proven to fail; neither they nor the
-tested mapping guarantee unrestricted stability.  The overload diagnostic suggests a total
+tested mapping guarantee unrestricted stability.  The overload diagnostic suggests retrying with
+.BR --auto-headroom ,
+which measures the whole stream.  It also gives a total
 .B --headroom
-cut that replaces the current gain; it is only a lower bound from the first
+cut that replaces the current gain; that is only a lower bound from the first
 rejected sample, and neither later peaks nor the state guard are predicted.
 This is not normalization and never changes
 input files.  It is not available for PCM-only
