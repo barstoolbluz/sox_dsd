@@ -204,8 +204,15 @@ pcm64-native-flag-gate:
 	      echo "unsafe native-f64 build flag: $$flag" >&2; exit 1 ;; \
 	  esac; \
 	done
-# An order-only prerequisite checks each invocation without forcing an
-# archive relink. A normal phony prerequisite would relink every time.
+# Gate compilation, not just the final link. Otherwise make can build an
+# object under rejected flags, leave it behind after the failed link, then
+# reuse it on a later safe make (compiler flags are not file dependencies).
+# The shared backend, certified resonator and linked SIMD convenience
+# libraries all must pass admission before any of their objects are replaced.
+# Order-only prerequisites recheck each invocation without forcing a rebuild.
+$(libsox_ng_la_OBJECTS) $(libdsd_resonator_la_OBJECTS) \
+ $(libdsd_kernels_sse2_la_OBJECTS) $(libdsd_kernels_avx1_la_OBJECTS) \
+ $(libdsd_kernels_avx2_la_OBJECTS) $(libdsd_kernels_avx512_la_OBJECTS): | pcm64-native-flag-gate
 libsox_ng.la libdsd_resonator.la: | pcm64-native-flag-gate
 endif
 
