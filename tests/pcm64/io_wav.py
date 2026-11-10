@@ -646,26 +646,78 @@ class CaseRunner:
                              'PCM64_TEST_TARGET':str(lateclose)},label='late-close-failure',
                         trace_event='C')
             self.tick('late_write_or_close_failure',2)
-        # Exercise a real kernel EACCES both as root (drop child UID) and as
-        # a non-root runner (remove the owner's write bit). Never silently
-        # count an unexecuted permission check as a passing test.
-        if os.name == 'posix':
-            restricted=self.file('unprivileged-denial.wav',b'LOCKED-SENTINEL'*6)
-            os.chmod(self.root,0o755)
-            is_root=os.geteuid()==0
-            os.chmod(restricted,0o600 if is_root else 0o400)
-            try:
-                self.reject(['generate',raw,restricted,'f64','L',1,44100,1,1],
-                            sentinels=(restricted,),label='EACCES',
-                            stderr_contains='Permission denied',
-                            preexec_fn=(lambda:os.setuid(65534)) if is_root else None)
-            finally:
-                os.chmod(restricted,0o600)
-            self.tick('permission_error_real_eacces')
-            self.gates['permission_error_real_eacces']='PASS'
-        else:
-            self.gates['permission_error_real_eacces']='NOT_RUN: requires POSIX file permissions'
+        self.permission_denial()
         insist(prior==b'SENTINEL-preserve-original-bytes-'*10,'internal test sentinel mutation')
+
+    def permission_denial(self):
+        # Use a self-contained fixture under /tmp: the caller's --results
+        # ancestors may be mode 0700 under umask 077 and inaccessible after
+        # dropping privileges. Do not relax permissions on those ancestors.
+        gate = 'permission_error_real_eacces'
+        if os.name != 'posix':
+            self.gates[gate] = 'NOT_RUN: requires POSIX file permissions'
+            return
+        if not Path('/tmp').is_dir():
+            self.gates[gate] = 'NOT_RUN: no system /tmp for UID-accessible fixture'
+            return
+        is_root = os.geteuid() == 0
+        if is_root and not all(hasattr(os, name) for name in ('setgroups', 'setgid', 'setuid')):
+            self.gates[gate] = 'NOT_RUN: UID/GID transition unavailable on this host'
+            return
+
+        def drop_identity():
+            os.setgroups([])
+            os.setgid(65534)
+            os.setuid(65534)
+
+        child_identity = drop_identity if is_root else None
+        self.gates[gate] = 'FAIL: native output-acquisition EACCES not demonstrated'
+        writer_error = 'native WAV: nontruncating open failed: Permission denied'
+        sentinel = b'LOCKED-SENTINEL' * 6
+        with tempfile.TemporaryDirectory(prefix='pcm64-eacces-', dir='/tmp') as tmp:
+            fixture = Path(tmp)
+            fixture.chmod(0o755)
+            readable = fixture / 'input.raw64'
+            readable.write_bytes(raw_double_words([ieee_f64_bits(0.5)]))
+            readable.chmod(0o644)
+            restricted = fixture / 'unwritable.wav'
+            restricted.write_bytes(sentinel)
+            restricted.chmod(0o400)
+
+            args = ['generate', readable, restricted, 'f64', 'L', 1, 44100, 1, 1]
+            try:
+                err = self.reject(args, sentinels=(restricted,), label='EACCES',
+                                  stderr_contains=writer_error, env={'LC_ALL': 'C'},
+                                  preexec_fn=child_identity)
+            except subprocess.SubprocessError as exc:
+                if is_root and 'preexec_fn' in str(exc):
+                    self.gates[gate] = 'NOT_RUN: could not drop child to UID/GID 65534'
+                    return
+                raise
+            insist('FAIL safe open: no format handle' in err,
+                   'EACCES: the probe did not reach native output acquisition')
+
+            # Negative control: a raw-input EACCES must never qualify as the
+            # writer refusal, even though it also exits nonzero and contains
+            # the words "Permission denied".
+            unreadable = fixture / 'unreadable.raw64'
+            unreadable.write_bytes(readable.read_bytes())
+            unreadable.chmod(0o000)
+            _, negative = self.invoke(
+                ['generate', unreadable, restricted, 'f64', 'L', 1, 44100, 1, 1],
+                expect=1, label='EACCES-unreadable-input-negative-control',
+                env={'LC_ALL': 'C'}, preexec_fn=child_identity)
+            insist('raw input: Permission denied' in negative,
+                   'EACCES negative control did not exercise unreadable input')
+            insist(writer_error not in negative and 'FAIL safe open:' not in negative,
+                   'EACCES negative control falsely looks like a writer refusal')
+            insist(restricted.read_bytes() == sentinel,
+                   'EACCES negative control modified the destination')
+
+        self.tick('permission_error_real_eacces')
+        self.tick('permission_unreadable_input_negative_control')
+        self.gates[gate] = 'PASS'
+        self.gates['permission_unreadable_input_negative_control'] = 'PASS'
 
     def writer_environment(self):
         # The native preflight must happen before opening any destination.
@@ -824,6 +876,7 @@ def main():
                 'utc':dt.datetime.now(dt.timezone.utc).isoformat(),
                 'error':f'{type(exc).__name__}: {exc}',
                 'completed_checks':runner.counts,
+                'gate_execution':runner.gates,
                 'commands':runner.commands}
         receipt.write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')
         print('FAIL io-wav:',record['error'],file=sys.stderr)
