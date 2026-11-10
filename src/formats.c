@@ -31,8 +31,6 @@
 #include "dsd_layout_query.h"
 #include "dsd.h"
 #include "pcm_f64_io.h"
-#include "dsd_layout_i.h"
-#include "dsd_layout_query.h"
 
 #include <ctype.h>
 #include <fcntl.h>
@@ -1666,6 +1664,10 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
   }
   have_source_facts = source &&
       lsx_pcm_f64_wav_query(source,&source_facts)==PCM_F64_OK;
+  if (have_source_facts && source_facts.has_speaker_mask && !layout) {
+    lsx_fail("native WAV: explicit source channel mask requires a retained layout");
+    return NULL;
+  }
   if (layout && have_source_facts &&
       source_facts.stream.channels != format->channels) {
     lsx_fail("native WAV: source layout channel mismatch"); return NULL;

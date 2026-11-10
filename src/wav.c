@@ -2318,6 +2318,14 @@ pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
         (uint64_t)w->native_rate * w->native_block_align != w->native_byte_rate ||
         w->native_data_size % w->native_block_align)
       return PCM_F64_UNSUPPORTED;
+    /* An explicit nonzero speaker mask must name exactly the channels
+     * stored in the WAV payload. Zero means unassigned, not mono/stereo. */
+    if (w->native_ext && w->native_mask) {
+      uint32_t mask=w->native_mask;
+      unsigned count=0;
+      while (mask) { count += mask & 1u; mask >>= 1; }
+      if (count != w->native_channels) return PCM_F64_UNSUPPORTED;
+    }
     bits = w->native_bits;
     enc = w->formatTag == WAVE_FORMAT_IEEE_FLOAT ? SOX_ENCODING_FLOAT :
         bits == 8 ? SOX_ENCODING_UNSIGNED : SOX_ENCODING_SIGN2;

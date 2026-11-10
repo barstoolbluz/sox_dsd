@@ -234,12 +234,21 @@ class CaseRunner:
         return stdout,p.stderr.decode('utf-8','replace')
 
     def reject(self,args,*,sentinels=(), env=None, label=None, stderr_contains=None,
-               preexec_fn=None, stdout_pipe=False):
+               preexec_fn=None, stdout_pipe=False, trace_event=None):
+        trace=None
+        if trace_event:
+            trace=self.root/('injected-'+str(label)+'.events')
+            trace.unlink(missing_ok=True)
+            env={**(env or {}),'PCM64_TRACE':str(trace)}
         prior={str(x):x.read_bytes() for x in sentinels}
         output,err=self.invoke(args,expect=1,env=env,label=label,preexec_fn=preexec_fn,stdout_pipe=stdout_pipe)
         for path in sentinels:
             insist(path.read_bytes()==prior[str(path)],
                    f'precommit refusal modified sentinel: {label}: {path}')
+        if trace_event:
+            insist(trace.is_file() and trace_event.encode() in trace.read_bytes(),
+                   f'fault hook {trace_event!r} did not actually execute for {label}')
+            self.tick('observed_fault_hook_events')
         if stderr_contains:
             insist(stderr_contains.lower() in err.lower(),
                    f'{label}: expected diagnostic {stderr_contains!r}, got {err!r}')
@@ -414,6 +423,11 @@ class CaseRunner:
             else:
                 self.reject(['query',dst],label=title)
             self.tick('invalid_headers_or_nonfinite_inputs')
+        invalid_mask=self.file('mismatched-speaker-mask.wav',wave_bytes(
+            struct.pack('<d',1.0)*2,channels=2,code='f64',
+            extensible=True,mask=0x4))
+        self.reject(['query',invalid_mask],label='mismatched-speaker-mask')
+        self.tick('invalid_headers_or_nonfinite_inputs')
         # FLOAT32 nonfinite input with channel-indexed failure, separately
         # from FLOAT64 and with a format parser not derived from libSoX.
         f32_bad=self.file('nonfinite-f32.wav',wave_bytes(
@@ -470,11 +484,17 @@ class CaseRunner:
                     sentinels=(existing,),label='overwrite-denial')
         self.reject(['generate',raw,existing,'f64','L',1,44100,1,1,'allow',existing],
                     sentinels=(existing,),label='report-alias')
+        report_hardlink=self.root/'report-hardlink.log'
+        os.link(existing,report_hardlink)
+        self.reject(['generate',raw,existing,'f64','L',1,44100,1,1,'allow',report_hardlink],
+                    sentinels=(existing,report_hardlink),label='report-hardlink-alias')
         self.reject(['generate',raw,existing,'f64','L',1,4294967295,1,1],
                     sentinels=(existing,),label='byte-rate-overflow')
         self.reject(['generate',raw,existing,'i8','L',1,44100,1<<32,1],
                     sentinels=(existing,),label='fact/RIFF-overflow')
         # Existing hardlink alias to input must fail with original bytes intact.
+        self.reject(['copy',source,source,'f64','L'],
+                    sentinels=(source,),label='source-same-path-alias')
         in_link=self.root/'alias-to-input.wav'
         os.link(source,in_link)
         self.reject(['copy',source,in_link,'f64','L'],
@@ -543,13 +563,15 @@ class CaseRunner:
         if self.shim:
             preload={'LD_PRELOAD':str(self.shim)}
             self.reject(['generate',raw,existing,'f64','L',1,44100,1,1],
-                        env={**preload,'PCM64_FAIL_FDOPEN':'1'},sentinels=(existing,),label='fdopen-refusal')
+                        env={**preload,'PCM64_FAIL_FDOPEN':'1'},sentinels=(existing,),label='fdopen-refusal',
+                        trace_event='D')
             self.reject(['generate',raw,existing,'f64','L',1,44100,1,1],
                         env={**preload,'PCM64_FAIL_SETVBUF':'1','PCM64_TEST_TARGET':str(existing)},
-                        sentinels=(existing,),label='setvbuf-refusal')
+                        sentinels=(existing,),label='setvbuf-refusal',trace_event='V')
             new=self.root/'fdopen-created-fail.wav'
             self.reject(['generate',raw,new,'f64','L',1,44100,1,1],
-                        env={**preload,'PCM64_FAIL_FDOPEN':'1'},label='failed-new-create')
+                        env={**preload,'PCM64_FAIL_FDOPEN':'1'},label='failed-new-create',
+                        trace_event='D')
             insist(not new.exists(),'failed precommit exclusive creation left a path')
             target_new=self.file('symlink-race-target.wav',b'RACE TARGET-SENTINEL'*10)
             race=self.root/'symlink-race.wav'
@@ -557,17 +579,22 @@ class CaseRunner:
             self.reject(['generate',raw,race,'f64','L',1,44100,1,1],
                         env={**preload,'PCM64_SWAP_PATH':str(race),
                              'PCM64_SWAP_TO':str(target_new)},
-                        sentinels=(existing,target_new),label='symlink-retarget-race')
+                        sentinels=(existing,target_new),label='symlink-retarget-race',trace_event='S')
             # Read short chunks that are not frame-aligned: 3-byte underlying reads.
             sr=self.file('short-read-input.wav',wave_bytes(struct.pack('<d',0.125)*13,1,code='f64'))
             p=parse_wave(sr)
+            short_trace=self.root/'short-read-events'
+            short_trace.unlink(missing_ok=True)
             out,_=self.invoke(['dump',sr,7],
-                              env={**preload,'PCM64_SHORT_READ':'1',
+                              env={**preload,'PCM64_TRACE':str(short_trace),'PCM64_SHORT_READ':'1',
                                    'PCM64_TEST_TARGET':str(sr),
                                    'PCM64_DATA_OFFSET':str(p['data_offset'])},
                               label='unaligned-short-reads')
             insist(read_double_words(out)==[ieee_f64_bits(0.125)]*13,
                    'short underlying reads changed frame samples')
+            insist(short_trace.exists() and b'R' in short_trace.read_bytes(),
+                   'short-read shim was not actually invoked')
+            self.tick('observed_fault_hook_events')
             self.tick('short_read_fault_injections')
             # Late write and close failures: can mutate new output and must
             # propagate nonzero rather than silently mark success.
@@ -575,11 +602,13 @@ class CaseRunner:
             self.reject(['generate',raw,late,'f64','L',1,44100,1,1],
                         env={**preload,'PCM64_SHORT_WRITE':'1',
                              'PCM64_TEST_TARGET':str(late),
-                             'PCM64_DATA_OFFSET':str(parse_wave(fresh)['data_offset'])},label='late-short-write')
+                             'PCM64_DATA_OFFSET':str(parse_wave(fresh)['data_offset'])},
+                        label='late-short-write',trace_event='W')
             lateclose=self.root/'late-close-failure.wav'
             self.reject(['generate',raw,lateclose,'f64','L',1,44100,1,1],
                         env={**preload,'PCM64_FAIL_FCLOSE':'1',
-                             'PCM64_TEST_TARGET':str(lateclose)},label='late-close-failure')
+                             'PCM64_TEST_TARGET':str(lateclose)},label='late-close-failure',
+                        trace_event='C')
             self.tick('late_write_or_close_failure',2)
         # When run as root, use a non-privileged child to force actual EACCES;
         # no privileges changed in the SoX implementation itself.

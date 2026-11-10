@@ -10,6 +10,22 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
+
+/* Write a deterministic trace on the raw syscall path: a test cannot
+ * pass its injection case merely because its interposer was not reached. */
+static void trace_event(char c)
+{
+  const char *path=getenv("PCM64_TRACE");
+  int fd;
+  if (!path) return;
+#ifdef SYS_openat
+  fd=(int)syscall(SYS_openat,AT_FDCWD,path,O_WRONLY|O_CREAT|O_APPEND,0600);
+#else
+  fd=open(path,O_WRONLY|O_CREAT|O_APPEND,0600);
+#endif
+  if (fd>=0) { (void)write(fd,&c,1); close(fd); }
+}
 
 static int matches(FILE *stream)
 {
@@ -40,6 +56,7 @@ int open(const char *path,int flags,...)
   }
   if (!swapped && swap_path && swap_to && !strcmp(path,swap_path)) {
     swapped=1;
+    trace_event('S');
     unlink(path);
     symlink(swap_to,path); /* changes link and target after approval */
   }
@@ -50,7 +67,7 @@ FILE *fdopen(int fd,const char *mode)
 {
   static FILE *(*real_fdopen)(int,const char *)=NULL;
   if (!real_fdopen) real_fdopen=dlsym(RTLD_NEXT,"fdopen");
-  if (getenv("PCM64_FAIL_FDOPEN")) { errno=EMFILE;return NULL; }
+  if (getenv("PCM64_FAIL_FDOPEN")) { trace_event('D'); errno=EMFILE;return NULL; }
   return real_fdopen(fd,mode);
 }
 
@@ -59,7 +76,7 @@ int setvbuf(FILE *stream,char *buf,int mode,size_t size)
   static int (*real_setvbuf)(FILE *,char *,int,size_t)=NULL;
   if (!real_setvbuf) real_setvbuf=dlsym(RTLD_NEXT,"setvbuf");
   if (getenv("PCM64_FAIL_SETVBUF") && matches(stream)) {
-    errno=ENOMEM;return -1;
+    trace_event('V');errno=ENOMEM;return -1;
   }
   return real_setvbuf(stream,buf,mode,size);
 }
@@ -71,7 +88,7 @@ size_t fread(void *ptr,size_t size,size_t nmemb,FILE *stream)
   const char *off=getenv("PCM64_DATA_OFFSET");
   if (!real_fread) real_fread=dlsym(RTLD_NEXT,"fread");
   if (short_read && matches(stream) && off && ftello(stream)>=atoll(off) &&
-      size==1 && nmemb>3) nmemb=3;
+      size==1 && nmemb>3) { trace_event('R');nmemb=3; }
   return real_fread(ptr,size,nmemb,stream);
 }
 
@@ -82,7 +99,7 @@ size_t fwrite(const void *ptr,size_t size,size_t nmemb,FILE *stream)
   const char *off=getenv("PCM64_DATA_OFFSET");
   if (!real_fwrite) real_fwrite=dlsym(RTLD_NEXT,"fwrite");
   if (short_write && matches(stream) && off && ftello(stream)>=atoll(off) &&
-      size==1 && nmemb>7) nmemb=7;
+      size==1 && nmemb>7) { trace_event('W');nmemb=7; }
   return real_fwrite(ptr,size,nmemb,stream);
 }
 
@@ -93,6 +110,6 @@ int fclose(FILE *stream)
   int rc;
   if (!real_fclose) real_fclose=dlsym(RTLD_NEXT,"fclose");
   rc=real_fclose(stream);
-  if (inject) {errno=EIO;return EOF;}
+  if (inject) {trace_event('C');errno=EIO;return EOF;}
   return rc;
 }
