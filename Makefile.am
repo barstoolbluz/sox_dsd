@@ -43,7 +43,7 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
              tests/dsd/test_cli_usability.py tests/dsd/test_loud_encode.py \
              docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md \
              docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md \
-             tests/pcm64/run.py tests/pcm64/pcm64_probe.c
+             tests/pcm64/run.py tests/pcm64/pcm64_probe.c tests/pcm64/io_wav.py
 
 if HAVE_PKGCONFIG
 pkgconfig_DATA = sox_ng.pc
