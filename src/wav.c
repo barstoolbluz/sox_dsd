@@ -107,7 +107,7 @@ typedef struct {
     uint32_t native_mask;
     uint8_t native_guid[16];
     uint64_t native_data_size;
-    bool native_big, native_ext;
+    bool native_big, native_ext, native_bad_fmt_extent;
 
     /* One lifetime and one accounting owner: this WAV handler.  The legacy
      * sample I/O and native frame I/O must never share an active cursor. */
@@ -961,7 +961,12 @@ static int startread_wav(sox_format_t * ft)
       if (lsx_readw(ft, &extensionSize))
         read_error();
       len -= 2;
-      if (extensionSize < 22 || len < 22 || extensionSize > len)
+      /* Keep legacy parsing and its historical diagnostics unchanged.
+       * Its permissive EXTENSIBLE handling may consume bytes beyond the
+       * declared fmt extent; native access must independently refuse those
+       * ambiguous headers instead of changing what the CLI accepts. */
+      wav->native_bad_fmt_extent = len < 22 || extensionSize > len;
+      if (extensionSize < 22)
       {
         lsx_fail_errno(ft,SOX_EHDR,"fmt chunk is too short");
         return SOX_EOF;
@@ -1078,7 +1083,7 @@ static int startread_wav(sox_format_t * ft)
     /* non-PCM formats except alaw and mulaw formats have extended fmt chunk.
      * Check for those cases.
      */
-    if (!wav->native_ext && wav->formatTag != WAVE_FORMAT_PCM &&
+    if (wav->formatTag != WAVE_FORMAT_PCM &&
         wav->formatTag != WAVE_FORMAT_ALAW &&
         wav->formatTag != WAVE_FORMAT_MULAW) {
         if (len >= 2) {
@@ -2300,7 +2305,8 @@ pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
   if (pcm_f64_check_ieee_storage() != PCM_F64_OK)
     return PCM_F64_UNSUPPORTED;
   if (ft->mode == 'r') {
-    if (w->isRF64 || w->ignoreSize || !w->native_channels || !w->native_rate ||
+    if (w->isRF64 || w->ignoreSize || w->native_bad_fmt_extent ||
+        !w->native_channels || !w->native_rate ||
         !w->native_bits || w->native_bits != w->native_valid_bits ||
         w->native_bits % 8 || w->native_bits > 64 ||
         w->native_channels > 64 ||

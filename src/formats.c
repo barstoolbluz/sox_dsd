@@ -1637,6 +1637,15 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     lsx_fail("native WAV: unsupported format or unknown length");
     return NULL;
   }
+  /* Arithmetic eligibility is a pre-open property, not a first-write check.
+   * In particular, DAZ/FTZ or non-nearest rounding must not leave a header
+   * in a newly created file or truncate an approved existing destination.
+   * FLOAT64 identity uses only raw-word copies and needs no DSP arithmetic. */
+  if ((encoding != SOX_ENCODING_FLOAT || bits == 32) &&
+      pcm_f64_check_dsp_env() != PCM_F64_OK) {
+    lsx_fail("native WAV arithmetic environment unsupported");
+    return NULL;
+  }
   samples = format->total_frames * format->channels;
   align = format->channels * (bits/8);
   extensible = ((encoding == SOX_ENCODING_SIGN2 ||
