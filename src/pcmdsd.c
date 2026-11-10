@@ -22,22 +22,23 @@
 
 #define PCMDSD_BATCH 256
 #define PCMDSD_NATIVE_BATCH 512
-/* The original 0.5 reference-scale limit is an interpolation overload
- * limit, not a promise of sustained stability for the P10 v1 modulator.
- * Sustained loud input tripped the state guard at DSD128/256; every rate
- * uses the same lower warn-and-clip ceiling so the default behaves alike
- * at all clocks.  Strict/qualification paths retain their original input
- * and guards. */
+/* Level policy follows the selected, qualified modulator, not a blanket
+ * DSD rate rule. DSD64/128 use certified switched resonators with an input
+ * theorem covering +/- (0.5 + 2^-28). A 0.45 stability-protection ceiling
+ * is therefore unjustified. In warn mode, clip ONLY true excursions above
+ * nominal SACD full scale (0.5), not ordinary samples in (0.45, 0.5].
+ * The retained two-source-LSB tolerance and resonator's own exact admission
+ * check still reject inputs outside the certified bound in strict mode.
+ * Legacy SDM clocks retain their historical 0.45 protection. */
 double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz)
 {
-  (void)native_hz;
-  return .45;
+  const lsx_pcmdsd_profile *profile=lsx_pcmdsd_profile_find(native_hz);
+  return profile && profile->qualified && profile->resonator ? .5 : .45;
 }
-/* A one-pass stream has no programme-wide interpolated peak available before
- * it commits DSD decisions.  Use a constant linear gain rather than deforming
- * valid PCM samples at the lower clipping limit.  The residual clip-and-warn
- * path still handles larger overshoots.  This gain is specific to the
- * implicit default, not an explicit --headroom cut. */
+/* A one-pass default has no programme-wide interpolated peak available.
+ * Certified resonator clocks need no unconditional reduction: 0 dBFS PCM
+ * maps to 0.5 nominal native input. Uncertified SDM clocks retain the
+ * historical 0.9 linear cut; explicit headroom always overrides it. */
 double lsx_pcmdsd_default_warn_gain(uint32_t native_hz)
 {
   return lsx_pcmdsd_warn_clip_ceiling(native_hz)/.5;
@@ -49,10 +50,11 @@ double lsx_pcmdsd_default_warn_gain(uint32_t native_hz)
 static const lsx_pcmdsd_profile profiles[] = {
   /* 2.0.0: DSD64 and DSD128 encode with the certified switched-resonator
    * modulators in resonator/, replacing the v1 sdm-8 recurrence outright.
-   * The front end (SRC, prefilter, gain and clip ceiling) is unchanged, so
-   * each kernel sees exactly the native input v1 saw. certificate_sha256
-   * still names the front end's coefficient manifest; the modulator's own
-   * certificate is lsx_dsd_resonator_identity(). */
+   * The SRC and prefilter stay unchanged; the owner-approved Phase 01 level
+   * policy removes v1's 0.9 gain / 0.45 protective clip ceiling. The 0.5
+   * nominal-full-scale warn policy does not extend the certified envelope.
+   * certificate_sha256 names the front-end coefficient manifest; the
+   * modulator's certificate is lsx_dsd_resonator_identity(). */
   {"encode.mastering.v3.dsd64",2822400,88200,20000,40000,
     lsx_pcmdsd_coeff_master64_256,61,NULL,1,LSX_PCMDSD_CERTIFICATE_SHA256,1},
   {"encode.mastering.v3.dsd128",5644800,176400,30000,60000,
@@ -804,7 +806,7 @@ int lsx_pcmdsd_stop(sox_effect_t *e)
   }
   if (p->scan_file) {lsx_close_tmpfile(p->scan_file);p->scan_file=NULL;}
   if (r.clipped_native_samples)
-    lsx_warn("clipped %" PRIu64 " interpolated samples on channel %u at %.3g modulator ceiling; use --headroom DB or --auto-headroom to avoid clipping",
+    lsx_warn("clipped %" PRIu64 " interpolated samples on channel %u at %.3g native input ceiling; use --headroom DB or --auto-headroom to avoid clipping",
         r.clipped_native_samples,(unsigned)e->flow+1,
         lsx_pcmdsd_warn_clip_ceiling(p->options.rate_hz));
   return SOX_SUCCESS;
