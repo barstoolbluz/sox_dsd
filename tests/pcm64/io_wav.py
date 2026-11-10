@@ -14,6 +14,7 @@ import hashlib
 import json
 import math
 import os
+import platform
 from pathlib import Path
 import random
 import resource
@@ -361,6 +362,37 @@ class CaseRunner:
         insist(bridge_words!=clipped,'int32-bridge mutation was not detected')
         self.tick('int32_bridge_negative_controls')
 
+    def daz_guard(self):
+        # DAZ affects SSE FLOAT32 -> binary64 widening, not bitwise FLOAT64
+        # transfer. Exercise the *actual* reader under both MXCSR settings.
+        if platform.machine().lower() not in ('x86_64', 'amd64'):
+            self.tick('daz_regression_skipped_non_x86_64')
+            return
+        f32 = [0x00000001, 0x80000001, 0x007fffff, 0x807fffff,
+               0x00012345, 0x80054321, 0x00800000, 0x80800000,
+               0x3f800000, 0xbf800000, 0x00000000, 0x80000000]
+        src = self.file('daz-subnormal-f32.wav',wave_bytes(
+            enc_float_words(f32,32,False),channels=2,code='f32'))
+        want = [ieee_f64_bits(struct.unpack('<f',struct.pack('<I',w))[0])
+                for w in f32]
+        actual,_ = self.invoke(['daz',src,'off'],label='f32-daz-disabled')
+        insist(read_double_words(actual)==want,
+               'FLOAT32 subnormal widening changed with DAZ disabled')
+        rejected,_ = self.invoke(['daz',src,'on'],label='f32-daz-refused-and-latched')
+        insist(rejected==b'', 'DAZ rejection published decoded FLOAT32 samples')
+        self.tick('f32_daz_off_exact_samples',len(f32))
+        self.tick('f32_daz_on_refusals_latched_and_unpublished')
+        f64 = [0x0000000000000000, 0x8000000000000000,
+               0x0000000000000001, 0x8000000000000001,
+               0x000fffffffffffff, 0x800fffffffffffff,
+               0x0010000000000000, 0x3ff0000000000000]
+        src64 = self.file('daz-identity-f64.wav',wave_bytes(
+            enc_float_words(f64,64,False),channels=2,code='f64'))
+        actual64,_ = self.invoke(['daz',src64,'on'],label='f64-daz-on-identity')
+        insist(read_double_words(actual64)==f64,
+               'FLOAT64 bitwise ingress changed under DAZ')
+        self.tick('f64_daz_on_identity_samples',len(f64))
+
     def quantization(self):
         # Independent ties-away and exact pre-half-step neighboring values.
         for bits in (8,16,24,32):
@@ -683,6 +715,7 @@ class CaseRunner:
         insist(self.sox.is_file() and self.probe.is_file(),'missing binaries')
         self.prepare_shim()
         self.formats()
+        self.daz_guard()
         self.quantization()
         self.malformed()
         self.safety()

@@ -6,6 +6,9 @@
 #include <inttypes.h>
 #include <string.h>
 #include <stdlib.h>
+#if (defined(__i386__) || defined(__x86_64__)) && defined(__SSE2__)
+#include <xmmintrin.h>
+#endif
 
 static sox_bool decline(const char *ignored UNUSED) { return sox_false; }
 static unsigned long long number(const char *s)
@@ -130,6 +133,61 @@ static int run(int argc,char **argv)
       if (p.produced_frames!=1 || memcmp(first,second,
             facts.stream.channels*sizeof(double))) goto finish;
       rc=0;
+    } else if (!strcmp(mode,"daz")) {
+      /* A test-only, in-process MXCSR check: assert both the first refusal
+       * and its latch, without publishing even a partial decoded block. */
+#if (defined(__i386__) || defined(__x86_64__)) && defined(__SSE2__)
+      unsigned original_csr = _mm_getcsr();
+      bool enable;
+      size_t bytes, i;
+      pcm_f64_progress again;
+      if (argc != 4 || (strcmp(argv[3],"on") && strcmp(argv[3],"off")) ||
+          facts.encoding != SOX_ENCODING_FLOAT ||
+          (facts.container_bits != 32 && facts.container_bits != 64) ||
+          !facts.stream.total_frames || facts.stream.total_frames > 257) goto finish;
+      enable = !strcmp(argv[3],"on");
+      n = (size_t)facts.stream.total_frames;
+      bytes = n * facts.stream.channels * sizeof(double);
+      memset(samples,0xa5,bytes);
+      _mm_setcsr((original_csr & ~(0x40u | 0x8000u)) | (enable ? 0x40u : 0));
+      p = lsx_pcm_f64_wav_read(in,(pcm_f64_output){samples,n});
+      /* Clear DAZ/FTZ before testing the latch, restore the original on exit. */
+      _mm_setcsr(original_csr & ~(0x40u | 0x8000u));
+      if (enable && facts.container_bits == 32) {
+        if (p.status != PCM_F64_UNSUPPORTED || p.consumed_frames || p.produced_frames) {
+          fprintf(stderr,"DAZ read failed to refuse: status=%s frames=%zu\n",
+              pcm_f64_status_name(p.status),p.produced_frames);
+          _mm_setcsr(original_csr);
+          goto finish;
+        }
+        for (i=0;i<bytes;++i) if (((unsigned char *)samples)[i]!=0xa5) {
+          fprintf(stderr,"DAZ read altered the rejected output buffer\n");
+          _mm_setcsr(original_csr);
+          goto finish;
+        }
+        again=lsx_pcm_f64_wav_read(in,(pcm_f64_output){samples,n});
+        _mm_setcsr(original_csr);
+        if (again.status != PCM_F64_IO || again.consumed_frames || again.produced_frames) {
+          fprintf(stderr,"DAZ failure did not latch: status=%s frames=%zu\n",
+              pcm_f64_status_name(again.status),again.produced_frames);
+          goto finish;
+        }
+        for (i=0;i<bytes;++i) if (((unsigned char *)samples)[i]!=0xa5) {
+          fprintf(stderr,"latched read altered the rejected output buffer\n");
+          goto finish;
+        }
+        rc=0; /* Deliberate refusal was observed, no samples written. */
+      } else {
+        _mm_setcsr(original_csr);
+        if (p.status != PCM_F64_DONE || p.produced_frames != n ||
+            fwrite(samples,facts.stream.channels*sizeof(double),n,stdout)!=n)
+          goto finish;
+        rc=0;
+      }
+#else
+      fprintf(stderr,"DAZ regression requires x86 SSE2\n");
+      rc=2;
+#endif
     } else if (!strcmp(mode,"copy") || !strcmp(mode,"dump")) {
       if (!strcmp(mode,"copy")) {
         if (argc<6 || !code(argv[4],&encoding,&bits)) { rc=2;goto finish; }

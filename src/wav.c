@@ -2407,6 +2407,12 @@ pcm_f64_progress lsx_wav_native_read(sox_format_t *ft, pcm_f64_output out)
     return p;
   }
   if (!out.capacity_frames) { p.status = PCM_F64_NEED_OUTPUT; return p; }
+  /* FLOAT32 widening is arithmetic: DAZ/FTZ or altered rounding can erase
+   * subnormals. Check once per read, before consuming any input bytes. */
+  if (f.encoding == SOX_ENCODING_FLOAT && f.container_bits == 32 &&
+      pcm_f64_check_dsp_env() != PCM_F64_OK)
+    return native_failed(ft,w,PCM_F64_UNSUPPORTED,
+        "native WAV arithmetic environment unsupported");
   bytes = f.container_bits/8;
   align = f.stream.channels * bytes;
   p.status = native_scratch(ft, w, align);
