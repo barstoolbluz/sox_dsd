@@ -194,6 +194,8 @@ class CaseRunner:
         self.commands=[]
         self.artifacts={}
         self.shim=None
+        self.fenv=None
+        self.gates={}
         self.rng=random.Random(SEED)
 
     def tick(self,group,n=1):
@@ -644,17 +646,64 @@ class CaseRunner:
                              'PCM64_TEST_TARGET':str(lateclose)},label='late-close-failure',
                         trace_event='C')
             self.tick('late_write_or_close_failure',2)
-        # When run as root, use a non-privileged child to force actual EACCES;
-        # no privileges changed in the SoX implementation itself.
-        if os.geteuid()==0:
+        # Exercise a real kernel EACCES both as root (drop child UID) and as
+        # a non-root runner (remove the owner's write bit). Never silently
+        # count an unexecuted permission check as a passing test.
+        if os.name == 'posix':
             restricted=self.file('unprivileged-denial.wav',b'LOCKED-SENTINEL'*6)
             os.chmod(self.root,0o755)
-            os.chmod(restricted,0o600)
-            self.reject(['generate',raw,restricted,'f64','L',1,44100,1,1],
-                        sentinels=(restricted,),label='EACCES',
-                        preexec_fn=lambda:os.setuid(65534))
+            is_root=os.geteuid()==0
+            os.chmod(restricted,0o600 if is_root else 0o400)
+            try:
+                self.reject(['generate',raw,restricted,'f64','L',1,44100,1,1],
+                            sentinels=(restricted,),label='EACCES',
+                            stderr_contains='Permission denied',
+                            preexec_fn=(lambda:os.setuid(65534)) if is_root else None)
+            finally:
+                os.chmod(restricted,0o600)
             self.tick('permission_error_real_eacces')
+            self.gates['permission_error_real_eacces']='PASS'
+        else:
+            self.gates['permission_error_real_eacces']='NOT_RUN: requires POSIX file permissions'
         insist(prior==b'SENTINEL-preserve-original-bytes-'*10,'internal test sentinel mutation')
+
+    def writer_environment(self):
+        # The native preflight must happen before opening any destination.
+        # Test both entry points (generation and native copy), each supported
+        # arithmetic output and both pre-existing and absent destinations.
+        if self.fenv is None:
+            self.gates['writer_environment_preflight']='NOT_RUN: requires x86 SSE2'
+            return
+        raw=self.file('fenv-native-input.raw64',raw_double_words([
+            ieee_f64_bits(0.25),ieee_f64_bits(-0.5),ieee_f64_bits(0.75),ieee_f64_bits(0.0)]))
+        source=self.root/'fenv-native-source.wav'
+        self.native_generate(raw,source,'f64',False,2,48000,2)
+        existing=self.root/'fenv-native-existing.wav'
+        absent=self.root/'fenv-native-absent.wav'
+        for mode in ('generate','copy'):
+            for code in ('f32','i32','i24','i16','i8','f64'):
+                for setting in (0x40,0x8000,0x2000,0x4000,0x6000):
+                    env={'LD_PRELOAD':str(self.fenv),'PCM64_TEST_MXCSR_OR':hex(setting)}
+                    for name,dest in (('existing',existing),('absent',absent)):
+                        dest.unlink(missing_ok=True)
+                        if name=='existing':
+                            dest.write_bytes(b'PRESERVE-EXISTING-WAV'*5)
+                        args=(['generate',raw,dest,code,'L',2,48000,2,2]
+                              if mode=='generate' else ['copy',source,dest,code,'L'])
+                        label=f'fenv-{mode}-{code}-{setting:x}-{name}'
+                        if code=='f64':
+                            self.invoke(args,env=env,label=label)
+                            insist(parse_wave(dest)['data']==raw.read_bytes(),
+                                   f'FLOAT64 identity changed by MXCSR setting: {label}')
+                            self.tick('writer_environment_f64_unaffected')
+                        else:
+                            self.reject(args,env=env,label=label,
+                                        sentinels=(dest,) if name=='existing' else (),
+                                        stderr_contains='native WAV arithmetic environment unsupported')
+                            insist(name=='existing' or not dest.exists(),
+                                   f'rejected native writer created an output file: {label}')
+                            self.tick('writer_environment_preopen_refusals')
+        self.gates['writer_environment_preflight']='PASS'
 
     def streaming(self):
         # A duration-independent heap limit: 350k x 6 frames with a 96 MiB
@@ -710,6 +759,14 @@ class CaseRunner:
         insist(so.returncode==0,f'shim could not compile: {so.stderr}')
         self.shim=self.root/'libwav_fault.so'
         self.tick('fault_shim_builds')
+        if platform.machine().lower() in ('x86_64','amd64','i386','i686'):
+            source=Path(__file__).with_name('wav_fenv_preload.c')
+            so=subprocess.run(['cc','-shared','-fPIC','-O2','-Wall','-Wextra',
+                               '-o',str(self.root/'libwav_fenv.so'),str(source)],
+                              capture_output=True,text=True)
+            insist(so.returncode==0,f'fenv preload could not compile: {so.stderr}')
+            self.fenv=self.root/'libwav_fenv.so'
+            self.tick('fenv_shim_builds')
 
     def execute(self):
         insist(self.sox.is_file() and self.probe.is_file(),'missing binaries')
@@ -719,6 +776,7 @@ class CaseRunner:
         self.quantization()
         self.malformed()
         self.safety()
+        self.writer_environment()
         self.streaming()
         self.compatibility()
         return {
@@ -732,6 +790,7 @@ class CaseRunner:
             'seed':SEED,
             'oracles':'independent Python struct RIFF+RIFX parser/writer and Fraction rational nearest ties-away',
             'checks':self.counts,
+            'gate_execution':self.gates,
             'commands':self.commands,
             'fixture_sha256':self.artifacts,
             'platform':sys.platform,
