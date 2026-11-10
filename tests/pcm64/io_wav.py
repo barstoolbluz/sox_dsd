@@ -23,6 +23,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 
 SEED = 0x2026110902
 GUID_TAIL = bytes.fromhex('000000001000800000aa00389b71')
@@ -205,6 +206,7 @@ class CaseRunner:
 
     def invoke(self,args,*,expect=0,env=None,output=None,stdin=None,preexec_fn=None, label=None, stdout_pipe=False):
         command=[str(self.probe)]+[str(x) for x in args]
+        started=time.perf_counter()
         runenv=os.environ.copy()
         if env: runenv.update({str(k):str(v) for k,v in env.items()})
         if stdout_pipe:
@@ -222,6 +224,7 @@ class CaseRunner:
         record={'label':label or args[0], 'argv':command,'exit':p.returncode,
                 'stdout_sha256':hashlib.sha256(stdout).hexdigest(),
                 'stdout_bytes':len(stdout),
+                'wall_seconds':round(time.perf_counter()-started,6),
                 'stderr':p.stderr.decode('utf-8','replace')[:4096],
                 'env':{k:v for k,v in (env or {}).items() if k.startswith('PCM64_')}}
         self.commands.append(record)
@@ -301,6 +304,8 @@ class CaseRunner:
                 insist(parsed['guid'][2:]==GUID_TAIL,
                        'noncanonical EXTENSIBLE GUID writer')
             self.dump(dst,n,chosen,block=1)
+            self.invoke(['mixed',src],label='mixed-access-'+src.name)
+            self.tick('mixed_seek_eof_state_checks')
             self.tick('f64_roundtrip_samples',n)
         # F32: each possible exponent class, both signs, and subnormal tails.
         for ch,big,ext in ((1,False,False),(2,True,False),(6,False,True)):
@@ -392,10 +397,6 @@ class CaseRunner:
         cases={}
         # Invalid canonical GUID and header canonicality; do not assume
         # legacy parser itself rejects malformed headers at open.
-        cases['guid-tail']=lambda x:x.__setitem__(44,0xff)
-        cases['valid-bits']=lambda x:x.__setitem__(38,56)
-        cases['byte-rate']=lambda x:x.__setitem__(28,0)
-        cases['block-align']=lambda x:x.__setitem__(32,1)
         cases['float-infinity']=lambda x:x.__setitem__(slice(data_offset,data_offset+8),struct.pack('<d',math.inf))
         cases['float-nan']=lambda x:x.__setitem__(slice(data_offset,data_offset+8),struct.pack('<Q',0x7ff8000000000010))
         # Fixed synthetic variants. Addressing bytes via parsed fmt chunk.
@@ -413,6 +414,26 @@ class CaseRunner:
             else:
                 self.reject(['query',dst],label=title)
             self.tick('invalid_headers_or_nonfinite_inputs')
+        # FLOAT32 nonfinite input with channel-indexed failure, separately
+        # from FLOAT64 and with a format parser not derived from libSoX.
+        f32_bad=self.file('nonfinite-f32.wav',wave_bytes(
+            struct.pack('<f',0.0)+struct.pack('<I',0x7f800001),
+            channels=2,code='f32'))
+        self.reject(['dump',f32_bad,1],label='float32-snan',
+                    stderr_contains='frame 0 channel 1')
+        self.tick('invalid_headers_or_nonfinite_inputs')
+        # Native writers must also reject input infinities, NaNs, and a
+        # finite binary64 value that overflows the destination FLOAT32.
+        for title,values,encoding,diagnostic in (
+            ('write-f64-inf',[math.inf],'f64','frame 0 channel 0'),
+            ('write-f64-qnan',[math.nan],'f64','frame 0 channel 0'),
+            ('write-f64-second-channel',[0.0,-math.inf],'f64','frame 0 channel 1'),
+            ('write-f32-overflow',[sys.float_info.max],'f32','frame 0 channel 0')):
+            raw=self.file(title+'.raw64',b''.join(struct.pack('<d',v) for v in values))
+            out=self.root/(title+'.wav')
+            self.reject(['generate',raw,out,encoding,'L',len(values),44100,1,1],
+                        label=title,stderr_contains=diagnostic)
+            self.tick('nonfinite_output_refusals')
         # Truncated physical bytes despite a declared full frame, with
         # correct outer RIFF length to keep the parser in the data section.
         trunc=self.file('truncated-payload.wav',wave_bytes(struct.pack('<d',0.5)*2,
@@ -422,6 +443,15 @@ class CaseRunner:
         trunc.write_bytes(arr[:-3])
         self.reject(['dump',trunc,1],label='physically-truncated-input')
         self.tick('truncated_inputs')
+        # Declared WAV data size must contain only complete PCM frames.
+        incomplete=self.file('incomplete-frame.wav',wave_bytes(b'1234567',
+                                                              channels=1,code='f64'))
+        self.reject(['query',incomplete],label='incomplete-frame')
+        self.tick('incomplete_frame_refusals')
+        zero=self.file('zero-frame-input.wav',wave_bytes(b'',channels=1,code='f64'))
+        self.query(zero,frames=0,channels=1,bits=64)
+        self.dump(zero,0,[],block=1)
+        self.tick('zero_frame_input_checks')
         # Reject foreign metadata overrides (not a blind trust in sox signal).
         self.reject(['query',good,48000],label='rate-override')
         self.tick('metadata_override_refusals')
@@ -496,6 +526,16 @@ class CaseRunner:
         insist(len(parse_wave(odd)['data'])==3 and len(odd.read_bytes())%2==0,
                'odd data-chunk pad not written')
         self.tick('zero_one_odd_frames',3)
+        # The stdout FILE* path may be used only when the exact descriptor is
+        # an inspectable regular file. Verify no second path-open is involved.
+        stdfile=self.root/'stdout-regular.wav'
+        with stdfile.open('wb') as fout:
+            proc=subprocess.run([str(self.probe),'generate',str(raw),'-',
+                                 'f64','L','1','44100','1','1'],stdout=fout,
+                                stderr=subprocess.PIPE,timeout=15)
+        insist(proc.returncode==0 and parse_wave(stdfile)['data']==struct.pack('<d',0.5),
+               'stdout regular file denied or corrupted')
+        self.tick('stdout_regular_descriptor_checks')
         # stdout is allowed for inspectable regular descriptors, but never
         # blindly write to a pipe or FIFO. Shell redirection is outside guarantee.
         self.reject(['generate',raw,'-','f64','L',1,44100,1,1],label='stdout-pipe-refusal',stdout_pipe=True)
@@ -535,7 +575,7 @@ class CaseRunner:
             self.reject(['generate',raw,late,'f64','L',1,44100,1,1],
                         env={**preload,'PCM64_SHORT_WRITE':'1',
                              'PCM64_TEST_TARGET':str(late),
-                             'PCM64_DATA_OFFSET':'0'},label='late-short-write')
+                             'PCM64_DATA_OFFSET':str(parse_wave(fresh)['data_offset'])},label='late-short-write')
             lateclose=self.root/'late-close-failure.wav'
             self.reject(['generate',raw,lateclose,'f64','L',1,44100,1,1],
                         env={**preload,'PCM64_FAIL_FCLOSE':'1',
@@ -552,6 +592,34 @@ class CaseRunner:
                         preexec_fn=lambda:os.setuid(65534))
             self.tick('permission_error_real_eacces')
         insist(prior==b'SENTINEL-preserve-original-bytes-'*10,'internal test sentinel mutation')
+
+    def streaming(self):
+        # A duration-independent heap limit: 350k x 6 frames with a 96 MiB
+        # process virtual-address cap. Test content is constructed and
+        # checked independently; no full-array allocation in the C process.
+        ch=6
+        frames=350000
+        pattern=[0x8000000000000000,0x1,0x3cb0000000000000,
+                 0x3ff0000000000000,0x4000000000000000,0x7fefffffffffffff]
+        raw=self.root/'stream-input.raw64'
+        block=raw_double_words(pattern)*1024
+        with raw.open('wb') as f:
+            for _ in range(frames//1024): f.write(block)
+            f.write(raw_double_words(pattern)*(frames%1024))
+        out=self.root/'stream-output.wav'
+        lim=96*1024*1024
+        def capped():
+            resource.setrlimit(resource.RLIMIT_AS,(lim,lim))
+        self.invoke(['generate',raw,out,'f64','L',ch,44100,frames,frames],
+                    preexec_fn=capped,label='long-stream-96MiB-address-space')
+        parsed=parse_wave(out)
+        insist(len(parsed['data'])==frames*ch*8 and
+               hashlib.sha256(parsed['data']).hexdigest()==digest(raw),
+               'long streaming writer altered binary64 words')
+        self.tick('streaming_frames',frames)
+        self.tick('streaming_samples',frames*ch)
+        self.tick('streaming_address_space_cap_mib',96)
+        self.tick('streaming_bytes',frames*ch*8)
 
     def compatibility(self):
         # Check that a normal CLI WAV writer still uses the original public
@@ -587,6 +655,7 @@ class CaseRunner:
         self.quantization()
         self.malformed()
         self.safety()
+        self.streaming()
         self.compatibility()
         return {
             'suite':'io-wav','status':'PASS',

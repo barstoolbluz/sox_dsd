@@ -9,7 +9,7 @@
 - Owner DSD64/DSD128 unity/no artificial front-end ceiling decision remains in effect. No DSP kernels, profiles, release defaults or CLI native switch changed.
 - Coherent first implementation checkpoint: `b7ae49d` (private handler dispatch and build scaffolding). The current working tree includes native WAV I/O, safe descriptor acquisition, deterministic private probe and independently constructed fixtures. Do not treat a nonempty git status as an accepted release.
 - Completed locally before first Phase 02A edit: baseline `make check-pcm64 PCM64_SUITE=foundation`, 81,539 streamed cases, PASS.
-- Current draft io-wav suite in `tests/pcm64/io_wav.py`: direct invocation PASS (224,027 words decoded, 30 expected refusals, late output failures, symlink races, permission denial, no legacy CLI mutation). **Must rerun after final edits and build changes.** See external working evidence until packaged.
+- Current draft io-wav suite in `tests/pcm64/io_wav.py`: direct invocation PASS after expanded tests (224,027 words decoded, 36 expected refusals, 350k-frame six-channel stream under 96 MiB virtual memory limit, 6 mixed-access/seek/EOF checks, late output failures, symlink races, permission denial, no legacy CLI mutation). **Must rerun after final edits and build changes.** See external working evidence until packaged.
 
 ## Next actions and acceptance commands
 
@@ -22,3 +22,7 @@
 ## Safety boundary
 
 Named existing destinations are never opened with `O_TRUNC` or `"w+b"` in the private writer path. Existing regular-file identity and aliases are checked on the retained descriptor; explicit `ftruncate` after all precommit checks is the commit point. A caller's shell `>` redirection is outside SoX and may truncate before launch. Output can be partial if I/O fails after commit. No FLAC, RF64 or production CLI binary64 activation in Phase 02A. This package is **not** a Phase 02 acceptance until 02B passes.
+
+### In-progress acceptance command
+
+`autoreconf -fi && ./configure --disable-shared --enable-static && make -j12 V=1 && make check-pcm64 PCM64_SUITE=foundation && make check-pcm64 PCM64_SUITE=io-wav && make check` is **RUNNING/UNVERIFIED** until exits and receipts are recorded.

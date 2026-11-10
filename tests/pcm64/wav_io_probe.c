@@ -115,6 +115,20 @@ static int run(int argc,char **argv)
           sox_read(in,legacy,facts.stream.channels)!=facts.stream.channels ||
           lsx_pcm_f64_wav_read(in,(pcm_f64_output){second,1}).status!=PCM_F64_STATE)
         goto finish;
+      /* Native read must work after a reset, finish precisely at EOF, and
+       * repeated EOF must not advance the cursor or deliver extra frames. */
+      if (sox_seek(in,0,SOX_SEEK_SET)!=SOX_SUCCESS) goto finish;
+      for (read_frames=0; read_frames<facts.stream.total_frames; ++read_frames) {
+        p=lsx_pcm_f64_wav_read(in,(pcm_f64_output){second,1});
+        if (p.produced_frames!=1 || (read_frames+1==facts.stream.total_frames ?
+            p.status!=PCM_F64_DONE : p.status!=PCM_F64_OK)) goto finish;
+      }
+      p=lsx_pcm_f64_wav_read(in,(pcm_f64_output){second,1});
+      if (p.status!=PCM_F64_DONE || p.produced_frames) goto finish;
+      if (sox_seek(in,0,SOX_SEEK_SET)!=SOX_SUCCESS) goto finish;
+      p=lsx_pcm_f64_wav_read(in,(pcm_f64_output){second,1});
+      if (p.produced_frames!=1 || memcmp(first,second,
+            facts.stream.channels*sizeof(double))) goto finish;
       rc=0;
     } else if (!strcmp(mode,"copy") || !strcmp(mode,"dump")) {
       if (!strcmp(mode,"copy")) {
