@@ -368,7 +368,7 @@ class CaseRunner:
         # DAZ affects SSE FLOAT32 -> binary64 widening, not bitwise FLOAT64
         # transfer. Exercise the *actual* reader under both MXCSR settings.
         if platform.machine().lower() not in ('x86_64', 'amd64'):
-            self.tick('daz_regression_skipped_non_x86_64')
+            self.gates['f32_daz_read_guard']='NOT_RUN: requires x86-64 SSE2'
             return
         f32 = [0x00000001, 0x80000001, 0x007fffff, 0x807fffff,
                0x00012345, 0x80054321, 0x00800000, 0x80800000,
@@ -394,6 +394,7 @@ class CaseRunner:
         insist(read_double_words(actual64)==f64,
                'FLOAT64 bitwise ingress changed under DAZ')
         self.tick('f64_daz_on_identity_samples',len(f64))
+        self.gates['f32_daz_read_guard']='PASS'
 
     def quantization(self):
         # Independent ties-away and exact pre-half-step neighboring values.
@@ -654,15 +655,19 @@ class CaseRunner:
         # ancestors may be mode 0700 under umask 077 and inaccessible after
         # dropping privileges. Do not relax permissions on those ancestors.
         gate = 'permission_error_real_eacces'
+        negative_gate = 'permission_unreadable_input_negative_control'
+        def skip(reason):
+            self.gates[gate] = 'NOT_RUN: ' + reason
+            self.gates[negative_gate] = 'NOT_RUN: ' + reason
         if os.name != 'posix':
-            self.gates[gate] = 'NOT_RUN: requires POSIX file permissions'
+            skip('requires POSIX file permissions')
             return
         if not Path('/tmp').is_dir():
-            self.gates[gate] = 'NOT_RUN: no system /tmp for UID-accessible fixture'
+            skip('no system /tmp for UID-accessible fixture')
             return
         is_root = os.geteuid() == 0
         if is_root and not all(hasattr(os, name) for name in ('setgroups', 'setgid', 'setuid')):
-            self.gates[gate] = 'NOT_RUN: UID/GID transition unavailable on this host'
+            skip('UID/GID transition unavailable on this host')
             return
 
         def drop_identity():
@@ -691,7 +696,7 @@ class CaseRunner:
                                   preexec_fn=child_identity)
             except subprocess.SubprocessError as exc:
                 if is_root and 'preexec_fn' in str(exc):
-                    self.gates[gate] = 'NOT_RUN: could not drop child to UID/GID 65534'
+                    skip('could not drop child to UID/GID 65534')
                     return
                 raise
             insist('FAIL safe open: no format handle' in err,
@@ -725,6 +730,7 @@ class CaseRunner:
         # arithmetic output and both pre-existing and absent destinations.
         if self.fenv is None:
             self.gates['writer_environment_preflight']='NOT_RUN: requires x86 SSE2'
+            self.gates['source_environment_preflight']='NOT_RUN: requires x86 SSE2'
             return
         raw=self.file('fenv-native-input.raw64',raw_double_words([
             ieee_f64_bits(0.25),ieee_f64_bits(-0.5),ieee_f64_bits(0.75),ieee_f64_bits(0.0)]))
@@ -779,6 +785,56 @@ class CaseRunner:
                 self.tick('source_environment_preopen_refusals')
         self.gates['source_environment_preflight']='PASS'
         self.gates['writer_environment_preflight']='PASS'
+
+    def preopen_input_checks(self):
+        # Argument errors and physical source exhaustion are known before
+        # sample transfer.  Neither may acquire or alter an output pathname.
+        raw=self.file('preopen-two-frames.raw64',raw_double_words([
+            ieee_f64_bits(0.25),ieee_f64_bits(-0.25),
+            ieee_f64_bits(0.5),ieee_f64_bits(0.0)]))
+        source=self.root/'preopen-source-f64.wav'
+        self.native_generate(raw,source,'f64',False,2,48000,2)
+        f32=self.root/'preopen-source-f32.wav'
+        self.native_generate(raw,f32,'f32',False,2,48000,2)
+        truncated=self.file('preopen-truncated-f32.wav',f32.read_bytes()[:-10])
+        # Legacy accepts certain metadata variants which private native
+        # access must refuse.  A copy must not create output for such input.
+        invalid_header=self.file('preopen-bad-extensible.wav',wave_bytes(
+            struct.pack('<d',0.25)*2,channels=2,code='f64',
+            extensible=True,mask=0x4))
+        cases=[
+            ('copy-zero-block',['copy',source,'DEST','f64','L','0'],2,None),
+            ('copy-large-block',['copy',source,'DEST','f64','L','300'],2,None),
+            ('copy-abc-block',['copy',source,'DEST','f64','L','abc'],2,'bad integer'),
+            ('generate-bad-count',['generate',raw,'DEST','f64','L',2,48000,2,'abc'],2,'bad integer'),
+            ('generate-short-input',['generate',raw,'DEST','f64','L',2,48000,4,4],1,'short raw input'),
+            ('copy-truncated-f32',['copy',truncated,'DEST','f64','L'],1,
+                'source data extent exceeds'),
+            ('copy-invalid-header',['copy',invalid_header,'DEST','f64','L'],1,
+                'native WAV unsupported'),
+            ('generate-bad-endian',['generate',raw,'DEST','f64','broken',2,48000,2,2],2,None),
+            ('generate-overflow-rate',['generate',raw,'DEST','f64','L',2,1<<32,2,2],2,None),
+        ]
+        for title,args,expected,diagnostic in cases:
+            for state in ('existing','absent'):
+                dst=self.root/f'preopen-{title}-{state}.wav'
+                sentinel=b'PRESERVE-WHOLE-ORIGINAL-FILE'*7
+                if state=='existing': dst.write_bytes(sentinel)
+                else: dst.unlink(missing_ok=True)
+                actual=[str(dst) if x=='DEST' else x for x in args]
+                _,err=self.invoke(actual,expect=expected,label=title+'-'+state)
+                if diagnostic:
+                    insist(diagnostic.lower() in err.lower(),
+                           f'{title}: missing preopen diagnostic: {err}')
+                if state=='existing':
+                    insist(dst.read_bytes()==sentinel,
+                           f'{title} overwrote a pre-existing destination')
+                else:
+                    insist(not dst.exists(),f'{title} created a rejected destination')
+                self.tick('preopen_input_argument_refusals')
+        # Deliberately mismatching declared and supplied writer frames remains
+        # a *runtime* writer-count error, not a preflight rejection.
+        self.gates['preopen_input_argument_validation']='PASS'
 
     def streaming(self):
         # A duration-independent heap limit: 350k x 6 frames with a 96 MiB
@@ -852,6 +908,7 @@ class CaseRunner:
         self.malformed()
         self.safety()
         self.writer_environment()
+        self.preopen_input_checks()
         self.streaming()
         self.compatibility()
         return {
