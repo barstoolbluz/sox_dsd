@@ -1,86 +1,50 @@
-# DSD engine design documentation
+# SoX DSD documentation
 
-For the implemented end-user command-line interface, start with
-[Using SoX DSD](USING_SOX_DSD.md) or [the CLI migration table](MIGRATION_P15.md).
-The [unified decoder corrective](UNIFIED_DECODER_2026-11-09.md) records
-the current mastering-v1 default, optional wideband decoder, and independent
-high-rate v2 encoder IDs. P15-R3 decoder-v2 records, review notes and the
-phase records below are historical, not release user instructions.
+SoX DSD 1.1.1 extends SoX-NG with native DSD processing while retaining the
+upstream audio formats, effects, libraries and build system.
 
-The approved design for a planned sox_ng DSD engine refactoring, revision 1.0
-(2026-10-07), written against source baseline
-`16aa7e17531dd3612f29247da98c8ea570cd905a`. This is documentation and
-design-time evidence only: nothing here asserts that the described engine
-exists or has been release-qualified.
+## Start here
 
-Read `DSD_DESIGN.md`, then the next permitted phase's entry in
-`IMPLEMENTATION_PLAN.md`, then that phase's `sows/Pxx.md`, then prior
-`handoffs/`. P00–P15 are the DSD64/128/256 release; P16–P18 are a separately
-gated extension for packed input and DSD512/1024 — do not advertise the
-extension as present merely because the type system can represent its rates.
+- [Using SoX DSD](USING_SOX_DSD.md): formats, native rates, conversion examples,
+  profile selection and limitations.
+- [1.1.1 release notes](RELEASE_NOTES_1.1.1.md): defaults, compatibility and
+  version-specific behavior.
+- [CLI migration reference](MIGRATION_P15.md): options and renamed profiles.
+- [Unified decoder](UNIFIED_DECODER_2026-11-09.md): mastering and wideband
+  reconstruction, and independent high-rate encoder selection.
+- [High-rate v1 encoder](V1_HIGH_RATE_ENCODE_2026-11-07.md): encoder qualification
+  and high-rate default changes.
+- [Qualification and tests](QUALIFICATION.md): checks, test inputs and evidence
+  publication boundaries.
 
-**P18 (2026-10-21):** Higher-rate capability checks and synthetic test fixtures
-were implemented with DSD512/1024 DSF/DSDIFF/DoP disabled. That archived
-state is retained in `P18_COMPATIBILITY_LEDGER.md`, `P18_RELEASE_MANIFEST.json`,
-and `handoffs/P18.md`.
+## Technical references
 
-**P21 (2026-10-23):** DSD512/1024 DSF and DSDIFF reads/writes, WSD reads,
-and DoP transport are enabled. See `amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md`
-for the authorization decision and its limits. P21 bound the v2 CLANS-7
-encoders at DSD512/1024; since 2026-11-07 the eighth-order v1 encoders are
-bound there instead (`V1_HIGH_RATE_ENCODE_2026-11-07.md`).
+These describe algorithms or interface contracts, not instructions to reopen
+past engineering phases:
 
-## Contents
+- [DSD engine design](DSD_DESIGN.md) (historical design specification; shipping
+  behavior is defined by the current source and release notes)
+- [SDM register stability proof](SDM_REGISTER_PROOF.md)
+- [Guard policy](LEGACY_SDM_GUARD_POLICY.md)
+- [Seek contract](SEEK_CONTRACT.md) and [channel-layout contract](LAYOUT_CONTRACT.md)
+- [CLI design](CLI_USABILITY_DESIGN.md)
 
-| Path | Role |
-| --- | --- |
-| `DSD_DESIGN.md` | Technical specification: architecture, algorithms, interfaces, acceptance contracts. The authority that resolves conflicts with any phase summary. |
-| `IMPLEMENTATION_PLAN.md` | Dependency-ordered plan, P00–P18, with per-phase scope, gates and dependencies. |
-| `sows/P00.md` … `sows/P18.md` | Standalone fresh-session statements of work, one per phase. Each assumes no chat history. |
-| `phase_manifest.json` | The same 19 phases in machine-readable form: id, title, dependencies, files read/changed, steps and test gates. |
-| `evidence/` | Probes, logs and results from the design session, with `evidence/README.md` explaining what was actually observed versus what remains future qualification work. |
-| `briefs/` | The instructions actually dispatched for each round, including corrective ones. These are ours, not part of the approved design package: where a brief and `DSD_DESIGN.md` disagree, the design wins. |
-| `OPTIMIZATION_BACKLOG.md` | Work deliberately deferred rather than forgotten, with the evidence already gathered. Nothing in it blocks a gate. |
-| `handoffs/` | One `Pxx.md` per completed phase: objective, files changed, commands and exit codes, evidence paths, passed/failed/skipped gates, deviations, next permitted phase. Empty until P00 lands. |
-| `DSD_HANDOFF.md` | The combined deliverable as received, sha256 `e1d4218f…`. Frozen for provenance — the files above are split from it byte-for-byte, so make edits there, not here. |
+## Source tests versus historical evidence
 
-## Provenance
+`tests/dsd/` contains runnable tests, fixtures, numerical references and
+research scripts. Test runs write new receipts under `.dsd-check-results/`
+(or the explicitly supplied `DSD_RESULTS` path); generated receipts are not
+tracked. The `tests/dsd/release_evidence/` fixture is retained because the
+1.1.1 evidence review and redaction regression consume it.
 
-`DSD_DESIGN.md`, `IMPLEMENTATION_PLAN.md`, `sows/`, `evidence/` and
-`phase_manifest.json` are installed verbatim from the
-`repository_overlay/docs/dsd/` tree of `sox_ng_dsd_design_package.zip`
-(sha256 `1a5335f175cc1cae4f01fe1051b5a756867d2ba59c589a9f060da09994ad6c16`),
-whose 81 files verified against its own `SHA256SUMS`. That package's
-`QA_REPORT.json` records structural checks only — 19 phases present, balanced
-Markdown fences, parseable JSON — and is explicitly not a numerical audit.
+Archived phase briefs, handoffs, statements of work, gate reports, raw run
+receipts, checksum inventories and numerical experiment outputs belong to the
+**SoX DSD 1.1.1 evidence archive**, distributed as a separate GitHub release
+asset (`SoX_DSD_1.1.1_Evidence_2026-11-09.tar.zst`). It preserves the original
+repository-relative paths, lists source and published SHA-256 values, and
+records host-path redactions. It is not required to build or run the project.
+The scripts and policy under `scripts/` explain how that asset was made and
+how the repository history is rewritten.
 
-`evidence/` is design-time material, not the regression harness. P00 ports the
-reproductions into named expected-failure tests with independently checked
-fixtures; later phases remove only the matching expected failure once the
-defect is fixed.
-
-## Phase results
-
-Test infrastructure and recorded phase results live outside this directory, under
-`tests/dsd/` — the harness (`run.py`, `measure.py`, `bench.py`, `test_io.c`), the
-independent fixture oracle in `tests/dsd/reference/`, and per-phase output in
-`tests/dsd/results/`. Run the DSD gate with `make check-dsd`.
-
-`tests/dsd/results/P00/P00_SHA256SUMS.txt` is the delivery manifest for the P00
-bundle, covering 857 files. Its paths are repository-root-relative, so verify with
-`sha256sum -c tests/dsd/results/P00/P00_SHA256SUMS.txt` from the repository root.
-It was delivered at the repository root and relocated here; the prose pointer in
-`tests/dsd/results/P00/build/provenance.json` still says "delivery root" and was
-deliberately left as recorded evidence.
-
-## Paths later phases create
-
-| Path | Created by |
-| --- | --- |
-| `docs/dsd/BASELINE.md` | P00 |
-| `docs/dsd/SEEK_CONTRACT.md` | P03 |
-| `docs/dsd/QUALIFICATION.md` | P15 |
-| `docs/dsd/handoffs/Pxx.md` | each phase |
-| `tests/dsd/{fixtures,reference,results}`, `tests/dsd/run.py`, `measure.py`, `bench.py`, `test_io.c` | P00 |
-
-For the implemented CLI design and verification approach, see [CLI usability design](CLI_USABILITY_DESIGN.md).
+SoX DSD remains a fork intended to merge upstream SoX-NG releases. Upstream
+files and project build conventions have not been reorganized.

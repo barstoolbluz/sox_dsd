@@ -28,8 +28,9 @@ DSD1024 it replaced the seventh-order v2 CLANS-7 as the **default** on 2026-11-0
 and explicitly selectable with `--encode encode.mastering.v2.dsd512` or
 `--encode encode.mastering.v2.dsd1024`, retaining the 1.1.0 v2 bitstream.
 File and DoP authorization does not establish support
-on any particular player, DAC or transport device. See
-[the P21 authorization record](docs/dsd/amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md).
+on any particular player, DAC or transport device. See the [1.1.1 release notes](docs/dsd/RELEASE_NOTES_1.1.1.md) for
+shipping behavior and limits. The original P21 authorization record is
+preserved in the separately published evidence archive.
 
 The sole standard decoder is mastering v1 at every native rate: passband
 20 kHz at DSD64, 30 kHz at DSD128 and 40 kHz from DSD256 up. The

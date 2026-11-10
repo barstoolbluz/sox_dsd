@@ -35,6 +35,9 @@ def main():
     source = root / 'real-tracks' / 'results.jsonl'
     if not source.is_file() and root == DEFAULT_ROOT:
         source = REDACTED
+        launcher = HERE / 'release_evidence' / 'v1_high_rate_soak_launcher.log'
+    else:
+        launcher = root / 'gates' / 'soak' / 'launcher.log'
     rows = [json.loads(line) for line in source.read_text().splitlines() if line.strip()]
     if not rows:
         raise ValueError('no historical run records')
@@ -68,7 +71,6 @@ def main():
     peak = [row for row in cohorts if row['level'] == 'peak0']
     warn_count = sum(x['input_stage_clipping_runs'] for x in peak)
     max_clipped = max((x['maximum_input_stage_clipped_samples'] for x in peak), default=0)
-    launcher = root / 'gates' / 'soak' / 'launcher.log'
     response = dict(schema='sox-dsd-1.1.1-observations-recheck/1',
                     source_sha256=checksum(source), total_runs=len(rows),
                     zero_exit_runs=sum(r['exit'] == 0 for r in rows),

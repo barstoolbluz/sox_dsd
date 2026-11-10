@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Redact host filesystem paths in the historical 800-row real-track receipt.
 
-The signed-off original under tests/dsd/results remains byte-for-byte
-untouched. Publication uses only this deterministic derived distribution copy.
-The source contains no audio or track names, only hashes and per-run outcomes.
+The pre-cleanup original is not shipped in source after history rewrite;
+pass --source /private/pre-cleanup/checkout/.../results.jsonl to reproduce
+the original public redacted fixture. Original audio is not included.
 """
 import argparse
 import hashlib
@@ -41,9 +41,13 @@ def sanitize(blob):
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--check',action='store_true')
+    ap.add_argument('--source',type=Path,default=ORIGINAL,
+                    help='original private pre-cleanup JSONL receipt')
     ap.add_argument('--output',type=Path,default=REDACTED)
     args=ap.parse_args()
-    original=ORIGINAL.read_bytes()
+    if not args.source.is_file():
+        ap.error('original receipt not present: specify --source from your private pre-cleanup backup')
+    original=args.source.read_bytes()
     before=hashlib.sha256(original).hexdigest()
     result,count=sanitize(original)
     if args.check:
@@ -52,7 +56,7 @@ def main():
     else:
         args.output.parent.mkdir(parents=True,exist_ok=True)
         args.output.write_bytes(result)
-    if hashlib.sha256(ORIGINAL.read_bytes()).hexdigest()!=before:
+    if hashlib.sha256(args.source.read_bytes()).hexdigest()!=before:
         raise SystemExit('historical source modified during redaction')
     print(json.dumps(dict(rows=count, historical_source_sha256=before,
                           published_sha256=hashlib.sha256(result).hexdigest(),

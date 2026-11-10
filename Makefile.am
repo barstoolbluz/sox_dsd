@@ -27,51 +27,32 @@ RM = rm -f
 # prefix to ensure they are added to the distribution.
 dist_man_MANS = sox.1 soxi.1 soxeffect_ng.7 soxformat_ng.7 \
                 libsox_ng.3 libsoxeffect_ng.3 libsoxformat_ng.3
-EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
-             libsox_ng.txt libsoxeffect_ng.txt libsoxformat_ng.txt \
-             sox.pdf soxi.pdf soxeffect_ng.pdf soxformat_ng.pdf \
-             libsox_ng.pdf libsoxeffect_ng.pdf libsoxformat_ng.pdf \
-             ltmain.sh compile missing install-sh config.guess config.sub \
-	     sox_ng.pc.in sox_dsd.mk COPYING AUTHORS INSTALL \
-	     README.win32 scripts/batch-example.bat \
-	     README.md RULES.md RULES-issues.md RULES-wiki.md \
-	     docs/UPSTREAM.md \
-	     tests/sync/test_url_process.py tests/sync/test_p10_path.py \
-             tests/sync/test_p16_p18_path.py tests/sync/test_waveaudio_teardown.py \
-	     README.sh FEATURES.in test/* issues $(wildcard wiki/*) \
-             tests/rename_smoke.sh \
-             tests/dsd/test_cli_usability.py tests/dsd/test_loud_encode.py \
-             tests/dsd/test_release_111.py tests/dsd/test_unified_decode_111.py \
-             tests/dsd/test_111_receipt_redaction.py \
-             tests/dsd/sanitize_111_real_track_receipts.py \
-             tests/dsd/release_evidence/v1_high_rate_real_tracks_redacted.jsonl \
-             tests/dsd/review_111_evidence.py \
-             tests/dsd/p21_independent_reader.py \
-             tests/dsd/test_reader_gate.py \
-             tests/dsd/p17_media_qualification.py \
-             tests/dsd/fake_decoder.py tests/dsd/fake_p17_probe.py \
-             tests/dsd/mutation-shim.py \
-             tests/dsd/review_p21_offsets.py tests/dsd/test_p21_reader_regression.py \
-             tests/dsd/test_v2_pin_111.py tests/dsd/test_v2_110_compat.py \
-             tests/dsd/results/V1_HIGH_RATE_ENCODE_2026-11-07/gates/soak/launcher.log \
-             docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md \
-             docs/dsd/RELEASE_NOTES_1.1.1.md \
-             docs/dsd/UNIFIED_DECODER_2026-11-09.md \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/README.md \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/gate_tails.txt \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/host.txt \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/p21_reader_regression.json \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/summary.txt \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/unified_decode.json \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v1_decode_identity.jsonl \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v1_decode_identity.py \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v1_encode_identity.jsonl \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v1_encode_identity.py \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v2_110_compat.json \
-             tests/dsd/results/UNIFIED_DECODER_2026-11-09/v2_pin.json \
-             docs/dsd/FFMPEG_DSD_OFFSET_2026-11-08.md \
-             docs/dsd/REVIEW_111_V2_PIN_RESOLUTION_2026-11-08.md \
-             docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md
+EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt libsox_ng.txt \
+  libsoxeffect_ng.txt libsoxformat_ng.txt sox.pdf soxi.pdf soxeffect_ng.pdf soxformat_ng.pdf \
+  libsox_ng.pdf libsoxeffect_ng.pdf libsoxformat_ng.pdf ltmain.sh compile missing install-sh \
+  config.guess config.sub sox_ng.pc.in sox_dsd.mk COPYING AUTHORS INSTALL README.win32 \
+  scripts/batch-example.bat README.md RULES.md RULES-issues.md RULES-wiki.md \
+  docs/UPSTREAM.md tests/sync/test_url_process.py tests/sync/test_p10_path.py \
+  tests/sync/test_p16_p18_path.py tests/sync/test_waveaudio_teardown.py README.sh \
+  FEATURES.in test/* issues $(wildcard wiki/*) tests/rename_smoke.sh \
+  tests/dsd/test_cli_usability.py tests/dsd/test_loud_encode.py \
+  tests/dsd/test_release_111.py tests/dsd/test_unified_decode_111.py \
+  tests/dsd/test_111_receipt_redaction.py tests/dsd/sanitize_111_real_track_receipts.py \
+  tests/dsd/release_evidence/v1_high_rate_real_tracks_redacted.jsonl \
+  tests/dsd/release_evidence/v1_high_rate_soak_launcher.log \
+  tests/dsd/review_111_evidence.py tests/dsd/p21_independent_reader.py \
+  tests/dsd/test_reader_gate.py tests/dsd/p17_media_qualification.py \
+  tests/dsd/fake_decoder.py tests/dsd/fake_p17_probe.py tests/dsd/mutation-shim.py \
+  tests/dsd/review_p21_offsets.py tests/dsd/test_p21_reader_regression.py \
+  tests/dsd/test_v2_pin_111.py tests/dsd/test_v2_110_compat.py docs/dsd/USING_SOX_DSD.md \
+  docs/dsd/CLI_USABILITY_DESIGN.md docs/dsd/RELEASE_NOTES_1.1.1.md \
+  docs/dsd/UNIFIED_DECODER_2026-11-09.md
+
+# Release-engineering scripts are not needed by the program at runtime,
+# but must accompany a source distribution for audit/reproduction.
+EXTRA_DIST += scripts/REPOSITORY_CLEANUP.md scripts/repo_cleanup_policy.json \
+  scripts/apply_repo_cleanup.py scripts/build_dsd_evidence_archive.py \
+  scripts/rewrite_dsd_history.py
 
 if HAVE_PKGCONFIG
 pkgconfig_DATA = sox_ng.pc
@@ -542,106 +523,70 @@ check-dsd: all
 	fi
 
 
-EXTRA_DIST += \
-  docs/dsd/BASELINE.md docs/dsd/DSD_DESIGN.md docs/dsd/DSD_HANDOFF.md \
-  docs/dsd/IMPLEMENTATION_PLAN.md docs/dsd/README.md docs/dsd/evidence/README.md \
-  docs/dsd/evidence/autoreconf.log docs/dsd/evidence/build.log docs/dsd/evidence/candidate_filter_coefficients.npz \
-  docs/dsd/evidence/configure.log docs/dsd/evidence/environment.json docs/dsd/evidence/filter_feasibility.json \
-  docs/dsd/evidence/make-check.log docs/dsd/evidence/probe_filters.py docs/dsd/evidence/probe_io.c \
-  docs/dsd/evidence/probe_remodulation.py docs/dsd/evidence/probe_sdm.c docs/dsd/evidence/remodulation_level.json \
-  docs/dsd/evidence/replay_sdm_probe.py docs/dsd/evidence/reproduce.py docs/dsd/evidence/reproductions.json \
-  docs/dsd/evidence/sdm_short_stress.json docs/dsd/handoffs/P00.md docs/dsd/handoffs/P00_CHECKPOINT.txt \
-  docs/dsd/phase_manifest.json docs/dsd/sows/P00.md docs/dsd/sows/P01.md \
-  docs/dsd/sows/P02.md docs/dsd/sows/P03.md docs/dsd/sows/P04.md \
-  docs/dsd/sows/P05.md docs/dsd/sows/P06.md docs/dsd/sows/P07.md \
-  docs/dsd/sows/P08.md docs/dsd/sows/P09.md docs/dsd/sows/P10.md \
-  docs/dsd/sows/P11.md docs/dsd/sows/P12.md docs/dsd/sows/P13.md \
-  docs/dsd/sows/P14.md docs/dsd/sows/P15.md docs/dsd/sows/P16.md \
-  docs/dsd/sows/P17.md docs/dsd/sows/P18.md tests/dsd/README.md \
-  tests/dsd/bench.py tests/dsd/fixtures/block_minus_1.dsf tests/dsd/fixtures/block_plus_1.dsf \
-  tests/dsd/fixtures/dop_stereo_1.pcm24le tests/dsd/fixtures/dop_stereo_15.pcm24le tests/dsd/fixtures/dop_stereo_16.pcm24le \
-  tests/dsd/fixtures/dop_stereo_17.pcm24le tests/dsd/fixtures/dop_stereo_32.pcm24le tests/dsd/fixtures/dop_stereo_33.pcm24le \
-  tests/dsd/fixtures/empty.dsf tests/dsd/fixtures/five_16.dff tests/dsd/fixtures/five_96.dsf \
-  tests/dsd/fixtures/four_16.dff tests/dsd/fixtures/manifest.json tests/dsd/fixtures/mono_128_manf.dff \
-  tests/dsd/fixtures/mono_16.dff tests/dsd/fixtures/mono_16.wsd tests/dsd/fixtures/mono_32_dop.dsf \
-  tests/dsd/fixtures/mono_9.dff tests/dsd/fixtures/mono_96.dsf tests/dsd/fixtures/msb_stereo_96.dsf \
-  tests/dsd/fixtures/nine.dsf tests/dsd/fixtures/one.dsf tests/dsd/fixtures/one_cluster.dff \
-  tests/dsd/fixtures/pcm_sine_352800.wav tests/dsd/fixtures/pcm_sine_705600.wav tests/dsd/fixtures/pcm_sine_88200.wav \
-  tests/dsd/fixtures/seven.dsf tests/dsd/fixtures/six_16.dff tests/dsd/fixtures/six_96.dsf \
-  tests/dsd/fixtures/stereo_128.dff tests/dsd/fixtures/stereo_32.wsd tests/dsd/fixtures/stereo_96.dsf \
-  tests/dsd/fixtures/type4_quad_96.dsf tests/dsd/fixtures/type5_quad_96.dsf tests/dsd/measure.py \
-  tests/dsd/reference/__init__.py tests/dsd/reference/fixtures.py tests/dsd/reference/metrology.py \
+EXTRA_DIST += docs/dsd/DSD_DESIGN.md docs/dsd/README.md tests/dsd/README.md \
+  tests/dsd/bench.py tests/dsd/fixtures/block_minus_1.dsf \
+  tests/dsd/fixtures/block_plus_1.dsf tests/dsd/fixtures/dop_stereo_1.pcm24le \
+  tests/dsd/fixtures/dop_stereo_15.pcm24le tests/dsd/fixtures/dop_stereo_16.pcm24le \
+  tests/dsd/fixtures/dop_stereo_17.pcm24le tests/dsd/fixtures/dop_stereo_32.pcm24le \
+  tests/dsd/fixtures/dop_stereo_33.pcm24le tests/dsd/fixtures/empty.dsf \
+  tests/dsd/fixtures/five_16.dff tests/dsd/fixtures/five_96.dsf \
+  tests/dsd/fixtures/four_16.dff tests/dsd/fixtures/manifest.json \
+  tests/dsd/fixtures/mono_128_manf.dff tests/dsd/fixtures/mono_16.dff \
+  tests/dsd/fixtures/mono_16.wsd tests/dsd/fixtures/mono_32_dop.dsf \
+  tests/dsd/fixtures/mono_9.dff tests/dsd/fixtures/mono_96.dsf \
+  tests/dsd/fixtures/msb_stereo_96.dsf tests/dsd/fixtures/nine.dsf \
+  tests/dsd/fixtures/one.dsf tests/dsd/fixtures/one_cluster.dff \
+  tests/dsd/fixtures/pcm_sine_352800.wav tests/dsd/fixtures/pcm_sine_705600.wav \
+  tests/dsd/fixtures/pcm_sine_88200.wav tests/dsd/fixtures/seven.dsf \
+  tests/dsd/fixtures/six_16.dff tests/dsd/fixtures/six_96.dsf \
+  tests/dsd/fixtures/stereo_128.dff tests/dsd/fixtures/stereo_32.wsd \
+  tests/dsd/fixtures/stereo_96.dsf tests/dsd/fixtures/type4_quad_96.dsf \
+  tests/dsd/fixtures/type5_quad_96.dsf tests/dsd/measure.py tests/dsd/reference/__init__.py \
+  tests/dsd/reference/fixtures.py tests/dsd/reference/metrology.py \
   tests/dsd/reference/verify.py tests/dsd/run.py tests/dsd/test_io.c \
   tests/dsd/test_dff_writer.c tests/dsd/reference/writer.py \
   tests/dsd/fixtures/p01_writer_vectors.json tests/dsd/bench_dff.py \
-  docs/dsd/handoffs/P01.md docs/dsd/handoffs/P01_CHECKPOINT.md \
-  tests/dsd/BENCHMARKING.md tests/dsd/benchprep.sh \
-  tests/dsd/test_streaming.py tests/dsd/test_dop_capacity.c \
-  tests/dsd/bench_read_p02.py docs/dsd/handoffs/P02.md \
-  docs/dsd/handoffs/P02_CHECKPOINT.md \
-  docs/dsd/SEEK_CONTRACT.md docs/dsd/handoffs/P03.md \
-  docs/dsd/handoffs/P03_CHECKPOINT.md \
+  tests/dsd/BENCHMARKING.md tests/dsd/benchprep.sh tests/dsd/test_streaming.py \
+  tests/dsd/test_dop_capacity.c tests/dsd/bench_read_p02.py docs/dsd/SEEK_CONTRACT.md \
   tests/dsd/test_seek.py tests/dsd/test_seek_contract.c
 
 # P04 independent channel-identity evidence and documentation.
-EXTRA_DIST += \
-  docs/dsd/LAYOUT_CONTRACT.md docs/dsd/handoffs/P04.md \
-  docs/dsd/handoffs/P04_CHECKPOINT.md \
-  tests/dsd/test_layout.py tests/dsd/test_layout.c \
-  tests/dsd/fixtures/p04/manifest.json \
-  tests/dsd/fixtures/p04/p04_ambiguous.dff \
-  tests/dsd/fixtures/p04/p04_context.dff \
-  tests/dsd/fixtures/p04/p04_five_lsco3.dff \
+EXTRA_DIST += docs/dsd/LAYOUT_CONTRACT.md tests/dsd/test_layout.py tests/dsd/test_layout.c \
+  tests/dsd/fixtures/p04/manifest.json tests/dsd/fixtures/p04/p04_ambiguous.dff \
+  tests/dsd/fixtures/p04/p04_context.dff tests/dsd/fixtures/p04/p04_five_lsco3.dff \
   tests/dsd/fixtures/p04/p04_mono_unmasked.wav \
   tests/dsd/fixtures/p04/p04_opaque_assignment.wsd \
-  tests/dsd/fixtures/p04/p04_quad_unmasked.wav \
-  tests/dsd/fixtures/p04/p04_six_lsco4.dff \
-  tests/dsd/fixtures/p04/p04_stereo_masked.wav \
-  tests/dsd/fixtures/p04/p04_stereo_lsco0.dff \
+  tests/dsd/fixtures/p04/p04_quad_unmasked.wav tests/dsd/fixtures/p04/p04_six_lsco4.dff \
+  tests/dsd/fixtures/p04/p04_stereo_masked.wav tests/dsd/fixtures/p04/p04_stereo_lsco0.dff \
   tests/dsd/fixtures/p04/p04_stereo_side_masked.wav \
   tests/dsd/fixtures/p04/p04_stereo_unmasked.wav \
   tests/dsd/fixtures/p04/p04_stereo_unsupported_mask.wav \
-  tests/dsd/fixtures/p04/p04_swap_lsco.dff \
-  tests/dsd/fixtures/p04/p04_type5_standard.dff
+  tests/dsd/fixtures/p04/p04_swap_lsco.dff tests/dsd/fixtures/p04/p04_type5_standard.dff
 
 # P05 preflight fixture generators, numeric/unit tests and human handoff.
-EXTRA_DIST += docs/dsd/sows/P05.md docs/dsd/handoffs/P05.md \
-  tests/dsd/test_plan.c tests/dsd/test_plan.py tests/dsd/bench_plan.py
+EXTRA_DIST += tests/dsd/test_plan.c tests/dsd/test_plan.py tests/dsd/bench_plan.py
 
 # Round briefs: the instructions dispatched per phase and correction.
-EXTRA_DIST += docs/dsd/briefs/P00a-corrective.md \
-  docs/dsd/briefs/P01.md \
-  docs/dsd/briefs/P02.md \
-  docs/dsd/briefs/P03.md \
-  docs/dsd/briefs/P04.md \
-  docs/dsd/briefs/P05.md \
-  docs/dsd/briefs/hotfix-p02-dff-read.md
 
 # P02 DFF read hotfix: equivalence check, targeted bench and handoff.
-EXTRA_DIST += tests/dsd/bench_hotfix_dff.py \
-  tests/dsd/check_hotfix_equivalence.py \
-  docs/dsd/handoffs/P02_DFF_READ_HOTFIX.md
+EXTRA_DIST += tests/dsd/bench_hotfix_dff.py tests/dsd/check_hotfix_equivalence.py
 
 # P06 private scalar reconstruction certification, fixtures and benchmarks.
 EXTRA_DIST += src/dsd_packed.h src/dsd_packed.c
 EXTRA_DIST += src/dsd_coeffs.h src/dsd_decode.h src/dsd_kernels.h \
-  tests/dsd/generate_coeffs.py tests/dsd/certify_filters.py \
-  tests/dsd/test_decode.c tests/dsd/test_decode.py \
-  tests/dsd/bench_decode.py tests/dsd/test_decode_faults.c tests/dsd/reference/p06_coefficients.json \
-  docs/dsd/handoffs/P06.md
-EXTRA_DIST += docs/dsd/briefs/P07.md
+  tests/dsd/generate_coeffs.py tests/dsd/certify_filters.py tests/dsd/test_decode.c \
+  tests/dsd/test_decode.py tests/dsd/bench_decode.py tests/dsd/test_decode_faults.c \
+  tests/dsd/reference/p06_coefficients.json
 
 # P07 public decoder and explicit conversion integration evidence.
-EXTRA_DIST += src/rate_internal.h src/dsd_public.c src/dsdpcm.c \
-  tests/dsd/test_p07.c tests/dsd/test_p07.py tests/dsd/test_p07_output_failures.py tests/dsd/bench_p06_hotfix.py \
+EXTRA_DIST += src/rate_internal.h src/dsd_public.c src/dsdpcm.c tests/dsd/test_p07.c \
+  tests/dsd/test_p07.py tests/dsd/test_p07_output_failures.py tests/dsd/bench_p06_hotfix.py \
   tests/dsd/test_p07_reference.c tests/dsd/test_p07_reference.py \
-  tests/dsd/test_p07_composite.py tests/dsd/test_p07_impulse.py tests/dsd/test_p07_public_rate.py tests/dsd/bench_p07.py \
-  docs/dsd/handoffs/P06_READ_HOTFIX_CHECKPOINT.md \
-  docs/dsd/handoffs/P07.md \
-  docs/dsd/handoffs/P06_READ_HOTFIX.md
+  tests/dsd/test_p07_composite.py tests/dsd/test_p07_impulse.py \
+  tests/dsd/test_p07_public_rate.py tests/dsd/bench_p07.py
 
 # P08 automatic graph and pre-combiner domain boundaries.
-EXTRA_DIST += tests/dsd/test_p08.py tests/dsd/bench_p08_adapter.py docs/dsd/handoffs/P08.md
+EXTRA_DIST += tests/dsd/test_p08.py tests/dsd/bench_p08_adapter.py
 
 # P09 exact-rate registry, immutable analysis reference, tests and handoff.
 EXTRA_DIST += tests/dsd/test_p09.c tests/dsd/test_p09.py \
@@ -649,49 +594,38 @@ EXTRA_DIST += tests/dsd/test_p09.c tests/dsd/test_p09.py \
   tests/dsd/reference/analysis-v1/README.md tests/dsd/reference/analysis-v1/generate.py \
   tests/dsd/reference/analysis-v1/analyze.py tests/dsd/reference/analysis-v1/verify.py \
   tests/dsd/reference/analysis-v1/measure_candidates.py \
-  tests/dsd/reference/analysis-v1/manifest.json tests/dsd/reference/analysis-v1/SHA256SUMS.txt \
+  tests/dsd/reference/analysis-v1/manifest.json \
+  tests/dsd/reference/analysis-v1/SHA256SUMS.txt \
   tests/dsd/reference/analysis-v1/fir-2822400.f64le \
   tests/dsd/reference/analysis-v1/fir-5644800.f64le \
-  tests/dsd/reference/analysis-v1/fir-11289600.f64le \
-  docs/dsd/handoffs/P09.md docs/dsd/handoffs/P09_CHECKPOINT.md
+  tests/dsd/reference/analysis-v1/fir-11289600.f64le
 EXTRA_DIST += tests/dsd/bench_p09.py
-EXTRA_DIST += docs/dsd/briefs/P09.md tests/dsd/sanitize_p09_results.py
+EXTRA_DIST += tests/dsd/sanitize_p09_results.py
 
 # P10 fail-closed composite candidate and executable qualification evidence.
-EXTRA_DIST += tests/dsd/test_p10.c tests/dsd/test_p10.py \
-  tests/dsd/p10_candidate_cli.c tests/dsd/generate_p10_coeffs.py \
-  tests/dsd/p10_corpus.py tests/dsd/qualify_p10.py \
-  tests/dsd/reference/p10_prefilters.json tests/dsd/reference/p10_guards.json \
-  docs/dsd/handoffs/P10.md docs/dsd/briefs/P10.md
+EXTRA_DIST += tests/dsd/test_p10.c tests/dsd/test_p10.py tests/dsd/p10_candidate_cli.c \
+  tests/dsd/generate_p10_coeffs.py tests/dsd/p10_corpus.py tests/dsd/qualify_p10.py \
+  tests/dsd/reference/p10_prefilters.json tests/dsd/reference/p10_guards.json
 
 EXTRA_DIST += tests/dsd/soak_p10.py tests/dsd/bench_p10.py \
   tests/dsd/corroborate_p10.py
 
 EXTRA_DIST += tests/dsd/test_p10_qualification.py
 
-EXTRA_DIST += tests/dsd/generate_p10_profiles.py tests/dsd/reference/p10_profiles.json \
-  tests/dsd/results/P10/certificate-input.json
+EXTRA_DIST += tests/dsd/generate_p10_profiles.py tests/dsd/reference/p10_profiles.json
 
 EXTRA_DIST += tests/dsd/bench_p10_kernel_control.py
 
 # P10 corrective: evidence classification, independent stage measurements and
 # a versioned *negative* profile record. These are not release activation gates.
-EXTRA_DIST += docs/dsd/handoffs/P10_CORRECTIVE.md \
-  docs/dsd/handoffs/P10_CORRECTIVE_CHECKPOINT.md \
-  tests/dsd/reference/p10_soak_nominal_v2.json \
-  tests/dsd/reference/p10_profiles_corrective.json \
-  tests/dsd/verify_p10_corrective.py \
-  tests/dsd/replay_p10_numeric_bits.py \
-  tests/dsd/sanitize_p10_corrective.py \
-  tests/dsd/qualify_p10_corrective.py \
-  tests/dsd/test_p10_corrective_qualification.py \
+EXTRA_DIST += tests/dsd/reference/p10_soak_nominal_v2.json \
+  tests/dsd/reference/p10_profiles_corrective.json tests/dsd/verify_p10_corrective.py \
+  tests/dsd/replay_p10_numeric_bits.py tests/dsd/sanitize_p10_corrective.py \
+  tests/dsd/qualify_p10_corrective.py tests/dsd/test_p10_corrective_qualification.py \
   tests/dsd/generate_p10_corrective_profiles.py
 
 # P10 revalidation: executable receipt coverage and source-quantization audit.
-EXTRA_DIST += tests/dsd/test_p10_soak_receipts.py \
-  tests/dsd/test_p10_fixture_rounding.c \
-  docs/dsd/handoffs/P10_REVALIDATION.md \
-  docs/dsd/handoffs/P10_REVALIDATION_CHECKPOINT.md
+EXTRA_DIST += tests/dsd/test_p10_soak_receipts.py tests/dsd/test_p10_fixture_rounding.c
 
 # P10 release-gate measurement on material this project did not generate. The
 # corpus audio itself is not distributed; only the driver and its analyser.
@@ -703,27 +637,17 @@ EXTRA_DIST += tests/dsd/corpus_realworld.py \
 # receipts/certificates remain frozen). No source audio is distributed.
 # P10_RATIFICATION.md, P10_HOTFIX.md and P15_CLOSEOUT_ADJUDICATION_2026-10-14.md
 # name private recordings and stay in the repository only.
-EXTRA_DIST += docs/dsd/handoffs/P10_RATIFICATION_WORKLOG.md \
-  tests/dsd/reference/p10_ratification_criteria.json \
-  tests/dsd/ratify_p10_gates.py \
-  tests/dsd/qualify_p10_ratification.py \
-  tests/dsd/test_p10_ratification.py \
-  docs/dsd/handoffs/P10_HOTFIX_CHECKPOINT.md
+EXTRA_DIST += tests/dsd/reference/p10_ratification_criteria.json \
+  tests/dsd/ratify_p10_gates.py tests/dsd/qualify_p10_ratification.py \
+  tests/dsd/test_p10_ratification.py
 
 # P10 explicit reviewer closeout; positive certification and verifier are
 # separate from historical negative receipts and P15 default activation.
-EXTRA_DIST += docs/dsd/handoffs/P10_ADJUDICATION.md \
-  docs/dsd/handoffs/P10_ADJUDICATION_WORKLOG.md \
-  tests/dsd/check_p10_certification.py \
-  tests/dsd/results/P10_certification_2026-10-11/certification.json \
-  tests/dsd/results/P10_certification_2026-10-11/README.md \
-  docs/dsd/handoffs/P10_ADJUDICATION_SHA256SUMS.txt
+EXTRA_DIST += tests/dsd/check_p10_certification.py
 
 # P11 per-context dispatch, frozen cross-ISA qualifications, runnable ISA
 # isolation and host-specific throughput characterization.
-EXTRA_DIST += \
-  docs/dsd/handoffs/P11.md docs/dsd/handoffs/P11_CHECKPOINT.md \
-  tests/dsd/test_sdm_auto.c tests/dsd/test_p11.c tests/dsd/test_p11_numeric.py \
+EXTRA_DIST += tests/dsd/test_sdm_auto.c tests/dsd/test_p11.c tests/dsd/test_p11_numeric.py \
   tests/dsd/test_p11_integration.py tests/dsd/test_p11_p10_regression.py \
   tests/dsd/check_p11_isa.py tests/dsd/test_check_p11_isa.py tests/dsd/bench_p11.py \
   tests/dsd/bench_p11_e2e.py
@@ -731,22 +655,16 @@ EXTRA_DIST += tests/dsd/sanitize_p11_results.py
 EXTRA_DIST += tests/dsd/qualify_p11_avx1_emulator.py
 
 # P12 independently forceable AVX2, numerical tests and ISA evidence.
-EXTRA_DIST += docs/dsd/handoffs/P12.md docs/dsd/handoffs/P12_CHECKPOINT.md \
-  src/dsd_kernels_avx2.c tests/dsd/check_p12_isa.py \
-  tests/dsd/test_p12_bounds.c tests/dsd/test_p12_channels.py \
-  tests/dsd/bench_p12_matrix.py tests/dsd/sanitize_p12_results.py
+EXTRA_DIST += src/dsd_kernels_avx2.c tests/dsd/check_p12_isa.py tests/dsd/test_p12_bounds.c \
+  tests/dsd/test_p12_channels.py tests/dsd/bench_p12_matrix.py \
+  tests/dsd/sanitize_p12_results.py
 
 # P13 AVX-512F baseline, numeric/guard/ISA tests and host-bound matrix.
-EXTRA_DIST += docs/dsd/handoffs/P13.md docs/dsd/handoffs/P13_CHECKPOINT.md \
-  src/dsd_kernels_avx512.c tests/dsd/test_p13.c \
-  tests/dsd/check_p13_isa.py tests/dsd/bench_p13_matrix.py
+EXTRA_DIST += src/dsd_kernels_avx512.c tests/dsd/test_p13.c tests/dsd/check_p13_isa.py \
+  tests/dsd/bench_p13_matrix.py
 
 # P14 observational native statistics and versioned report contract.
-EXTRA_DIST += docs/dsd/handoffs/P14.md docs/dsd/handoffs/P14_CHECKPOINT.md \
-  docs/dsd/handoffs/P14_CORRECTIVE.md \
-  docs/dsd/handoffs/P14_CORRECTIVE_CHECKPOINT.md \
-  tests/dsd/test_p14.c \
-  tests/dsd/test_p14.py tests/dsd/test_p14_numeric.py \
+EXTRA_DIST += tests/dsd/test_p14.c tests/dsd/test_p14.py tests/dsd/test_p14_numeric.py \
   tests/dsd/bench_p14.py tests/dsd/reference/p14_report_schema_v1.json \
   tests/dsd/reference/p14_report_golden.json
 
@@ -773,64 +691,71 @@ check-dsd-optimization: all
 EXTRA_DIST += tests/dsd/bench_decode_optimization.py
 
 # P15 release qualification and migration (source-only continuation).
-EXTRA_DIST += docs/dsd/handoffs/P15.md docs/dsd/handoffs/P15_CHECKPOINT.md \
-  docs/dsd/QUALIFICATION.md docs/dsd/MIGRATION_P15.md \
-  docs/dsd/P15_RELEASE_NOTES.md tests/dsd/test_p15.py \
+EXTRA_DIST += docs/dsd/QUALIFICATION.md docs/dsd/MIGRATION_P15.md tests/dsd/test_p15.py \
   tests/dsd/p15_release_manifest.py
 
 # P15 closeout is an adjudication of retained source-bound receipts, not a
 # qualification bit or automatic-default migration.
-EXTRA_DIST += docs/dsd/handoffs/P15_CLOSEOUT_CHECKPOINT_2026-10-14.md \
-  tests/dsd/p15_closeout_review.py tests/dsd/test_p15_closeout_review.py \
-  tests/dsd/results/P15_closeout_adjudication_2026-10-14/review.json \
-  tests/dsd/results/P15_closeout_adjudication_2026-10-14/preservation.json
+EXTRA_DIST += tests/dsd/p15_closeout_review.py tests/dsd/test_p15_closeout_review.py
 
 # Retired P15-R3 decoder-v2 execution tests are removed from the release
 # tree. The historical generators and certificates are kept as a record, not
 # as live targets: the generators read src/dsd_coeffs_v2.h, removed in 1.1.1,
 # so rerunning them needs a 1.1.0 checkout.
-EXTRA_DIST += docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_HANDOFF.md \
-  docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_CHECKPOINT.md \
-  tests/dsd/generate_p15_r3_coeffs.py tests/dsd/certify_p15_r3_filters.py \
-  tests/dsd/bench_p15_r3_local.py \
-  tests/dsd/reference/p15_r3_coefficients.json \
-  tests/dsd/results/P15_R3/numeric/fir-certificate.json \
-  tests/dsd/results/P15_R3/numeric/finite-and-isa.json \
-  tests/dsd/results/P15_R3/numeric/src-sampled-holdouts.json \
-  tests/dsd/results/P15_R3/integration/selection-and-audio.json \
-  tests/dsd/results/P15_R3/regression/cli-qualification.json \
-  tests/dsd/results/P15_R3/performance/local-unmatched-development-benchmark.json \
-  tests/dsd/results/P15_R3/preservation.json
+EXTRA_DIST += tests/dsd/generate_p15_r3_coeffs.py tests/dsd/certify_p15_r3_filters.py \
+  tests/dsd/bench_p15_r3_local.py tests/dsd/reference/p15_r3_coefficients.json
 
 # P16 additive native-packed contract, probes and paired end-to-end benchmark.
-EXTRA_DIST += src/dsd_packed.h src/dsd_packed.c tests/dsd/test_p16.c \
-  tests/dsd/test_p16.py tests/dsd/bench_p16.py docs/dsd/handoffs/P16.md
+EXTRA_DIST += src/dsd_packed.h src/dsd_packed.c tests/dsd/test_p16.c tests/dsd/test_p16.py \
+  tests/dsd/bench_p16.py
 
 # P17 private research candidates and source-bound qualification records.
 EXTRA_DIST += src/sdm_p17_candidates.h tests/dsd/test_p17.c \
   tests/dsd/generate_p17_profiles.py tests/dsd/reference/p17_profiles.json \
-  tests/dsd/test_p17_numeric.py tests/dsd/bench_p17.py \
-  docs/dsd/handoffs/P17.md
+  tests/dsd/test_p17_numeric.py tests/dsd/bench_p17.py
 
 # P18 closed capability release machinery and synthetic reference fixtures.
 EXTRA_DIST += tests/dsd/test_p18.c tests/dsd/test_p18.py \
-  docs/dsd/handoffs/P18.md docs/dsd/handoffs/P18_CHECKPOINT.md \
-  docs/dsd/P18_COMPATIBILITY_LEDGER.md docs/dsd/P18_RELEASE_NOTES.md \
-  docs/dsd/P18_RELEASE_MANIFEST.json docs/dsd/P18_RELEASE_MANIFEST.schema.json \
   tests/dsd/reference/p18_fixture_matrix.json tests/dsd/seal_p18_manifest.py \
-  tests/dsd/fixtures/p18/p18-22579200-dff-8-1-1.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-1-17.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-1-32769.dff \
-  tests/dsd/fixtures/p18/p18-22579200-dff-8-2-1.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-2-17.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-2-32769.dff \
-  tests/dsd/fixtures/p18/p18-22579200-dff-8-6-1.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-6-17.dff tests/dsd/fixtures/p18/p18-22579200-dff-8-6-32769.dff \
-  tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-1.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-17.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-32769.dsf \
-  tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-1.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-17.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-32769.dsf \
-  tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-1.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-17.dsf tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-32769.dsf \
-  tests/dsd/fixtures/p18/p18-45158400-dff-8-1-1.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-1-17.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-1-32769.dff \
-  tests/dsd/fixtures/p18/p18-45158400-dff-8-2-1.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-2-17.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-2-32769.dff \
-  tests/dsd/fixtures/p18/p18-45158400-dff-8-6-1.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-6-17.dff tests/dsd/fixtures/p18/p18-45158400-dff-8-6-32769.dff \
-  tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-1.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-17.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-32769.dsf \
-  tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-1.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-17.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-32769.dsf \
-  tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-1.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-17.dsf tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-32769.dsf \
-  tests/dsd/fixtures/p18/p18-dop-22579200-2-17.pcm24le tests/dsd/fixtures/p18/p18-dop-22579200-2-33.pcm24le tests/dsd/fixtures/p18/p18-dop-45158400-2-17.pcm24le \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-1-1.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-1-17.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-1-32769.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-2-1.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-2-17.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-2-32769.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-6-1.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-6-17.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dff-8-6-32769.dff \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-1.dsf \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-17.dsf \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-1-32769.dsf \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-1.dsf \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-17.dsf \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-2-32769.dsf \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-1.dsf \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-17.dsf \
+  tests/dsd/fixtures/p18/p18-22579200-dsf-1-6-32769.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-1-1.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-1-17.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-1-32769.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-2-1.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-2-17.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-2-32769.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-6-1.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-6-17.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dff-8-6-32769.dff \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-1.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-17.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-1-32769.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-1.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-17.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-2-32769.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-1.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-17.dsf \
+  tests/dsd/fixtures/p18/p18-45158400-dsf-1-6-32769.dsf \
+  tests/dsd/fixtures/p18/p18-dop-22579200-2-17.pcm24le \
+  tests/dsd/fixtures/p18/p18-dop-22579200-2-33.pcm24le \
+  tests/dsd/fixtures/p18/p18-dop-45158400-2-17.pcm24le \
   tests/dsd/fixtures/p18/p18-dop-45158400-2-33.pcm24le
 
 # Scoped upstream-sync lifecycle regressions; no external network or fixtures.
