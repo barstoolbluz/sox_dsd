@@ -26,6 +26,9 @@
   */
 
 #include "sox_i.h"
+#include "pcm_f64_io.h"
+#include <float.h>
+#include <fenv.h>
 
 
 #include "ima_rw.h"
@@ -95,6 +98,26 @@ typedef struct {
     size_t         gsmbytecount;    /* Count of bytes written to data block */
     sox_bool       isRF64;          /* True if file being read is a RF64 */
     uint64_t       ds64_dataSize;   /* Size of data chunk from ds64 header */
+
+    /* Parse-time facts from the actual WAV header, never user overrides. */
+    uint16_t native_header_tag;
+    uint16_t native_channels, native_bits, native_valid_bits;
+    uint16_t native_block_align;
+    uint32_t native_rate, native_byte_rate;
+    uint32_t native_mask;
+    uint8_t native_guid[16];
+    uint64_t native_data_size;
+    bool native_big, native_ext;
+
+    /* One lifetime and one accounting owner: this WAV handler.  The legacy
+     * sample I/O and native frame I/O must never share an active cursor. */
+    unsigned native_access; /* 0 none; 1 legacy; 2 native */
+    bool native_writer, native_failed;
+    uint64_t native_frames_expected, native_frames_done;
+    bool native_writer_mask_present;
+    uint32_t native_writer_mask;
+    unsigned char *native_scratch; /* bounded, allocated at first native I/O */
+    size_t native_scratch_capacity;
 
     /* WAV write-side diagnostics.  A seekable output can write the header
      * twice, so keep warning state in the format instance rather than
@@ -847,6 +870,7 @@ static int startread_wav(sox_format_t * ft)
     if (strncmp("RIFX", magic, (size_t)4) == 0)
     {
         lsx_debug("Found RIFX header");
+        wav->native_big = true;
         ft->encoding.reverse_bytes = MACHINE_IS_LITTLEENDIAN;
     }
     else ft->encoding.reverse_bytes = MACHINE_IS_BIGENDIAN;
@@ -912,6 +936,13 @@ static int startread_wav(sox_format_t * ft)
         lsx_readw(ft, &wBitsPerSample))      /* bits per sample per channel */
         read_error();
     len -= 16;
+    wav->native_header_tag = wav->formatTag;
+    wav->native_channels = wChannels;
+    wav->native_rate = dwSamplesPerSecond;
+    wav->native_byte_rate = dwAvgBytesPerSec;
+    wav->native_block_align = wav->blockAlign;
+    wav->native_bits = wBitsPerSample;
+    wav->native_valid_bits = wBitsPerSample;
 
     if (wav->formatTag == WAVE_FORMAT_EXTENSIBLE)
     {
@@ -930,7 +961,7 @@ static int startread_wav(sox_format_t * ft)
       if (lsx_readw(ft, &extensionSize))
         read_error();
       len -= 2;
-      if (extensionSize < 22)
+      if (extensionSize < 22 || len < 22 || extensionSize > len)
       {
         lsx_fail_errno(ft,SOX_EHDR,"fmt chunk is too short");
         return SOX_EOF;
@@ -939,9 +970,15 @@ static int startread_wav(sox_format_t * ft)
           lsx_readdw(ft, &speakerPositionMask) ||
           lsx_readw(ft, &subFormatTag))
         read_error();
-      for (i = 0; i < 14; ++i)
-        if (lsx_readb(ft, &dummyByte))
-          read_error();
+      wav->native_ext = true;
+      wav->native_valid_bits = numberOfValidBits;
+      wav->native_mask = speakerPositionMask;
+      wav->native_guid[0] = (uint8_t)subFormatTag;
+      wav->native_guid[1] = (uint8_t)(subFormatTag >> 8);
+      for (i = 0; i < 14; ++i) {
+        if (lsx_readb(ft, &dummyByte)) read_error();
+        wav->native_guid[i + 2] = dummyByte;
+      }
       len -= 22;
       wav->originalSpeakerMask = speakerPositionMask;
       wav->hadSpeakerMask = sox_true;
@@ -1041,7 +1078,7 @@ static int startread_wav(sox_format_t * ft)
     /* non-PCM formats except alaw and mulaw formats have extended fmt chunk.
      * Check for those cases.
      */
-    if (wav->formatTag != WAVE_FORMAT_PCM &&
+    if (!wav->native_ext && wav->formatTag != WAVE_FORMAT_PCM &&
         wav->formatTag != WAVE_FORMAT_ALAW &&
         wav->formatTag != WAVE_FORMAT_MULAW) {
         if (len >= 2) {
@@ -1230,6 +1267,7 @@ static int startread_wav(sox_format_t * ft)
 
     /* ds64 size will have been applied in findChunk */
     qwDataLength = len;
+    wav->native_data_size = qwDataLength;
     /* XXX - does MS_UNSPEC apply to RF64 files? */
     if (qwDataLength == 0x7FFFFFFF ||  /* LAME */
         qwDataLength == 0xFFFFFFFF ||  /* FFMPEG and madplay */
@@ -1468,6 +1506,11 @@ static size_t read_samples_wav(sox_format_t * ft, sox_sample_t *buf, size_t len)
 {
         priv_t *   wav = (priv_t *) ft->priv;
         size_t done;
+        if (wav->native_access == 2 || wav->native_failed) {
+            lsx_fail_errno(ft, SOX_EFMT, "mixed legacy/native WAV reader access");
+            return 0;
+        }
+        if (len) wav->native_access = 1;
 
         ft->sox_errno = SOX_SUCCESS;
 
@@ -1571,6 +1614,8 @@ static int stopread_wav(sox_format_t * ft)
     free(wav->lsx_ms_adpcm_i_coefs);
     free(wav->ms_adpcm_data);
     free(wav->comment);
+    free(wav->native_scratch);
+    wav->native_scratch = NULL;
     wav->comment = NULL;
 
     switch (ft->encoding.encoding)
@@ -1822,7 +1867,7 @@ static int wavwritehdr(sox_format_t * ft, int second_header)
      * hint then write default value.  Also, use default value even
      * on header update if more then 32-bit length needs to be written.
      */
-    if (!second_header && !ft->signal.length) {
+    if (!second_header && !ft->signal.length && !wav->native_writer) {
         /* adjust for blockAlign */
         blocksWritten = MS_UNSPEC/wBlockAlign;
         dwDataLength = blocksWritten * wBlockAlign;
@@ -1907,7 +1952,9 @@ static int wavwritehdr(sox_format_t * ft, int second_header)
       /* if not amb, assume most likely channel masks from number of channels; not
        * ideal solution, but will make files playable in many/most situations
        */
-      if (wav->metadata.layout) {
+      if (wav->native_writer && wav->native_writer_mask_present)
+        dwChannelMask = wav->native_writer_mask;
+      else if (wav->metadata.layout) {
         if (sox_dsd_layout_wav_mask(wav->metadata.layout,
               &dwChannelMask, NULL, 0) != SOX_DSD_OK)
           dwChannelMask = 0; /* Unknown identity is not an angle guess. */
@@ -1998,6 +2045,11 @@ static size_t write_samples_wav(sox_format_t * ft, const sox_sample_t *buf, size
 {
         priv_t *   wav = (priv_t *) ft->priv;
         ptrdiff_t total_len = len;
+        if (wav->native_access == 2 || wav->native_failed) {
+            lsx_fail_errno(ft, SOX_EFMT, "mixed legacy/native WAV writer access");
+            return 0;
+        }
+        if (len) wav->native_access = 1;
 
         ft->sox_errno = SOX_SUCCESS;
 
@@ -2040,8 +2092,18 @@ static int stopwrite_wav(sox_format_t * ft)
         priv_t *   wav = (priv_t *) ft->priv;
         int pad_result = SOX_SUCCESS;
 
+        if (wav->native_writer) {
+            /* A successful close requires exactly the declared number of
+             * complete frames, even on the no-rewrite fast path. */
+            if (wav->native_failed || wav->numSamples != wav->native_frames_expected) {
+                lsx_fail_errno(ft, SOX_EOF, "native WAV frame count mismatch: %" PRIu64 "/%" PRIu64,
+                    wav->numSamples, wav->native_frames_expected);
+                free(wav->native_scratch);
+                wav->native_scratch = NULL;
+                return SOX_EOF;
+            }
+        }
         ft->sox_errno = SOX_SUCCESS;
-
 
         /* Call this to flush out any remaining data. */
         switch (wav->formatTag)
@@ -2065,13 +2127,16 @@ static int stopwrite_wav(sox_format_t * ft)
         free(wav->packet);
         free(wav->samples);
         free(wav->lsx_ms_adpcm_i_coefs);
+        free(wav->native_scratch);
+        wav->native_scratch = NULL;
         if (pad_result != SOX_SUCCESS) return SOX_EOF;
 
         /* All samples are already written out. */
         /* If file header needs fixing up, for example it needs the */
         /* the number of samples in a field, seek back and write them here. */
-        if (ft->signal.length && wav->numSamples <= 0xffffffff &&
-            wav->numSamples == ft->signal.length) {
+        if (wav->numSamples <= 0xffffffff &&
+            ((wav->native_writer && wav->numSamples == wav->native_frames_expected) ||
+             (ft->signal.length && wav->numSamples == ft->signal.length))) {
           /* This fast path leaves the first header in place.  If that header
            * had to use MS_UNSPEC because the RIFF size overflowed while the
            * sample count still fit, emit the advisory here; suppressing first-
@@ -2184,10 +2249,312 @@ static int seek_wav(sox_format_t * ft, sox_uint64_t offset)
   if ((size_t)(off_t)wav->dataStart != wav->dataStart)
     return SOX_EOF;
   rc = lsx_offset_seek(ft, (off_t)wav->dataStart, offset);
-  if (rc == SOX_SUCCESS)
+  if (rc == SOX_SUCCESS) {
     wav->numSamples = frame < wav->originalSamples ?
       wav->originalSamples - frame : 0;
+    wav->native_frames_done = frame;
+    wav->native_access = 0;
+    wav->native_failed = false;
+  }
   return rc;
+}
+
+/* ---------------- Private, exact binary64 WAV access -------------------
+ * The legacy parser, seek and close functions remain the single owner of
+ * the physical stream and its frame counters. The client uses frame units.
+ */
+static const uint8_t native_wav_guid_tail[14] = {
+  0, 0, 0, 0, 0x10, 0, 0x80, 0, 0, 0xaa, 0, 0x38, 0x9b, 0x71
+};
+
+static uint64_t native_word(const unsigned char *b, unsigned bytes, bool big)
+{
+  uint64_t u = 0;
+  unsigned i;
+  if (big) for (i=0; i<bytes; ++i) u = (u << 8) | b[i];
+  else for (i=0; i<bytes; ++i) u |= (uint64_t)b[i] << (8*i);
+  return u;
+}
+
+static void native_put_word(unsigned char *b, uint64_t u, unsigned bytes, bool big)
+{
+  unsigned i;
+  for (i=0; i<bytes; ++i) {
+    unsigned at = big ? bytes-1-i : i;
+    b[at] = (unsigned char)(u >> (8*i));
+  }
+}
+
+/* Available only for unambiguous RIFF/RIFX full-container formats.  The
+ * ordinary WAV reader deliberately keeps accepting its historical variants. */
+pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
+    lsx_pcm_f64_wav_facts *facts)
+{
+  const priv_t *w;
+  unsigned bits;
+  sox_encoding_t enc;
+  uint64_t frames;
+  pcm_f64_status rc;
+  if (!ft || !facts || !ft->priv) return PCM_F64_ARGUMENT;
+  w = (const priv_t *)ft->priv;
+  if (pcm_f64_check_ieee_storage() != PCM_F64_OK)
+    return PCM_F64_UNSUPPORTED;
+  if (ft->mode == 'r') {
+    if (w->isRF64 || w->ignoreSize || !w->native_channels || !w->native_rate ||
+        !w->native_bits || w->native_bits != w->native_valid_bits ||
+        w->native_bits % 8 || w->native_bits > 64 ||
+        w->native_channels > 64 ||
+        (w->native_header_tag != WAVE_FORMAT_PCM &&
+         w->native_header_tag != WAVE_FORMAT_IEEE_FLOAT &&
+         w->native_header_tag != WAVE_FORMAT_EXTENSIBLE) ||
+        (w->native_ext && memcmp(w->native_guid + 2,
+            native_wav_guid_tail, sizeof(native_wav_guid_tail))) ||
+        (w->native_ext && (w->native_guid[0] != (uint8_t)w->formatTag ||
+            w->native_guid[1] != (uint8_t)(w->formatTag >> 8))) ||
+        w->native_channels != ft->signal.channels ||
+        w->native_rate != ft->signal.rate ||
+        w->native_bits != ft->encoding.bits_per_sample ||
+        w->native_block_align != w->native_channels * (w->native_bits/8) ||
+        (uint64_t)w->native_rate * w->native_block_align != w->native_byte_rate ||
+        w->native_data_size % w->native_block_align)
+      return PCM_F64_UNSUPPORTED;
+    bits = w->native_bits;
+    enc = w->formatTag == WAVE_FORMAT_IEEE_FLOAT ? SOX_ENCODING_FLOAT :
+        bits == 8 ? SOX_ENCODING_UNSIGNED : SOX_ENCODING_SIGN2;
+    if (enc != ft->encoding.encoding ||
+        (enc == SOX_ENCODING_FLOAT && bits != 32 && bits != 64) ||
+        (enc == SOX_ENCODING_SIGN2 && bits != 16 && bits != 24 && bits != 32) ||
+        (enc == SOX_ENCODING_UNSIGNED && bits != 8))
+      return PCM_F64_UNSUPPORTED;
+    frames = w->native_data_size / w->native_block_align;
+    if (frames != w->originalSamples ||
+        frames > UINT64_MAX / w->native_channels ||
+        ft->signal.length != frames * w->native_channels)
+      return PCM_F64_UNSUPPORTED;
+  } else if (ft->mode == 'w' && w->native_writer) {
+    enc = ft->encoding.encoding;
+    bits = ft->encoding.bits_per_sample;
+    frames = w->native_frames_expected;
+  } else return PCM_F64_UNSUPPORTED;
+  memset(facts, 0, sizeof(*facts));
+  rc = pcm_f64_format_init(&facts->stream, ft->mode == 'r' ?
+      w->native_rate : (uint32_t)ft->signal.rate,
+      ft->mode == 'r' ? w->native_channels : ft->signal.channels,
+      true, frames);
+  if (rc != PCM_F64_OK) return rc;
+  facts->encoding = enc;
+  facts->container_bits = bits;
+  facts->valid_bits = ft->mode == 'r' ? w->native_valid_bits : bits;
+  facts->speaker_mask = ft->mode == 'r' ? w->native_mask : 0;
+  facts->has_speaker_mask = ft->mode == 'r' && w->native_ext;
+  facts->big_endian = ft->mode == 'r' ? w->native_big :
+      ft->encoding.reverse_bytes == MACHINE_IS_LITTLEENDIAN;
+  facts->extensible = ft->mode == 'r' ? w->native_ext : false;
+  facts->data_bytes = ft->mode == 'r' ? w->native_data_size :
+      frames * (uint64_t)ft->signal.channels * (bits/8);
+  return PCM_F64_OK;
+}
+
+static pcm_f64_status native_scratch(sox_format_t *ft, priv_t *w, unsigned align)
+{
+  size_t n;
+  if (w->native_scratch) return PCM_F64_OK;
+  if (!align || align > 512) return PCM_F64_LIMIT;
+  n = (65536 / align) * (size_t)align;
+  w->native_scratch = malloc(n);
+  if (!w->native_scratch) {
+    lsx_fail_errno(ft, SOX_ENOMEM, "native WAV scratch allocation failed");
+    return PCM_F64_IO;
+  }
+  w->native_scratch_capacity = n;
+  return PCM_F64_OK;
+}
+
+static pcm_f64_progress native_failed(sox_format_t *ft, priv_t *w,
+    pcm_f64_status status, const char *message)
+{
+  pcm_f64_progress p = {0, 0, status};
+  w->native_failed = true;
+  lsx_fail_errno(ft, SOX_EOF, "%s", message);
+  return p;
+}
+
+pcm_f64_progress lsx_wav_native_read(sox_format_t *ft, pcm_f64_output out)
+{
+  pcm_f64_progress p = {0, 0, PCM_F64_ARGUMENT};
+  lsx_pcm_f64_wav_facts f;
+  priv_t *w;
+  size_t frames, nbytes, have, frame, chan;
+  unsigned bytes, align;
+  if (!ft || ft->mode != 'r' || !ft->priv) return p;
+  w = (priv_t*)ft->priv;
+  if (w->native_failed) { p.status = PCM_F64_IO; return p; }
+  if (w->native_access == 1) { p.status = PCM_F64_STATE; return p; }
+  p.status = lsx_wav_native_facts(ft, &f);
+  if (p.status != PCM_F64_OK) return p;
+  p.status = pcm_f64_validate_output(&f.stream, out);
+  if (p.status != PCM_F64_OK) return p;
+  if (w->native_frames_done == f.stream.total_frames) {
+    p.status = PCM_F64_DONE;
+    return p;
+  }
+  if (!out.capacity_frames) { p.status = PCM_F64_NEED_OUTPUT; return p; }
+  bytes = f.container_bits/8;
+  align = f.stream.channels * bytes;
+  p.status = native_scratch(ft, w, align);
+  if (p.status != PCM_F64_OK) return native_failed(ft,w,p.status,"native WAV scratch unavailable");
+  frames = min(out.capacity_frames, w->native_scratch_capacity / align);
+  if ((uint64_t)frames > f.stream.total_frames - w->native_frames_done)
+    frames = (size_t)(f.stream.total_frames - w->native_frames_done);
+  nbytes = frames * align;
+  for (have=0; have<nbytes;) {
+    size_t n=lsx_readbuf(ft, w->native_scratch+have, nbytes-have);
+    if (!n) return native_failed(ft,w,PCM_F64_IO,
+        "native WAV input truncated or failed mid-frame/block");
+    have+=n;
+  }
+  /* Classification before any arithmetic or publication. */
+  for (frame=0; frame<frames; ++frame) for (chan=0; chan<f.stream.channels; ++chan) {
+    const unsigned char *b = w->native_scratch + frame*align + chan*bytes;
+    uint64_t u = native_word(b,bytes,f.big_endian);
+    double d;
+    if (f.encoding == SOX_ENCODING_FLOAT && bytes == 8) {
+      if ((u & UINT64_C(0x7ff0000000000000)) == UINT64_C(0x7ff0000000000000)) {
+        lsx_fail_errno(ft, SOX_EOF, "nonfinite WAV at frame %" PRIu64 " channel %zu",
+            w->native_frames_done+frame,chan);
+        w->native_failed = true; p.status=PCM_F64_NUMERIC; return p;
+      }
+      memcpy(&d,&u,sizeof(d));
+    } else if (f.encoding == SOX_ENCODING_FLOAT) {
+      uint32_t word = (uint32_t)u;
+      float single;
+      if ((word & UINT32_C(0x7f800000)) == UINT32_C(0x7f800000)) {
+        lsx_fail_errno(ft, SOX_EOF, "nonfinite WAV at frame %" PRIu64 " channel %zu",
+            w->native_frames_done+frame,chan);
+        w->native_failed = true; p.status=PCM_F64_NUMERIC; return p;
+      }
+      memcpy(&single,&word,sizeof(single));
+      d=(double)single;
+    } else if (bytes == 1) {
+      pcm_f64_normalize_u8((uint8_t)u,&d);
+    } else {
+      int64_t signed_code = (int64_t)u;
+      if (u & (UINT64_C(1) << (f.container_bits-1)))
+        signed_code -= (int64_t)(UINT64_C(1) << f.container_bits);
+      pcm_f64_normalize_signed((int32_t)signed_code,f.container_bits,&d);
+    }
+    out.data[frame*f.stream.channels+chan] = d;
+  }
+  w->native_access = 2;
+  w->native_frames_done += frames;
+  w->numSamples -= frames;
+  ft->olength += (uint64_t)frames * f.stream.channels;
+  p.produced_frames=frames;
+  p.status = w->native_frames_done == f.stream.total_frames ? PCM_F64_DONE : PCM_F64_OK;
+  return p;
+}
+
+pcm_f64_status lsx_wav_native_prepare_write(sox_format_t *ft, uint64_t frames,
+    bool keep_mask, uint32_t mask)
+{
+  priv_t *w;
+  if (!ft || !ft->priv || ft->mode != 'w' || !ft->seekable ||
+      !ft->signal.channels || ft->signal.channels > 64 ||
+      frames > UINT64_MAX/ft->signal.channels ||
+      ft->signal.length != frames*ft->signal.channels)
+    return PCM_F64_ARGUMENT;
+  w = (priv_t*)ft->priv;
+  w->native_writer = true;
+  w->native_access = 2;
+  w->native_frames_expected = frames;
+  w->native_frames_done = 0;
+  w->native_writer_mask_present = keep_mask;
+  w->native_writer_mask = mask;
+  return PCM_F64_OK;
+}
+
+pcm_f64_progress lsx_wav_native_write(sox_format_t *ft, pcm_f64_input in)
+{
+  pcm_f64_progress p = {0, 0, PCM_F64_ARGUMENT};
+  lsx_pcm_f64_wav_facts f;
+  priv_t *w;
+  size_t offset, take, i, bytes, align;
+  if (!ft || ft->mode != 'w' || !ft->priv) return p;
+  w = (priv_t*)ft->priv;
+  if (w->native_failed) { p.status=PCM_F64_IO; return p; }
+  if (!w->native_writer || w->native_access != 2) {
+    p.status=PCM_F64_STATE; return p;
+  }
+  p.status = lsx_wav_native_facts(ft,&f);
+  if (p.status != PCM_F64_OK) return p;
+  if (!in.data && in.frames) return p.status=PCM_F64_ARGUMENT,p;
+  if (in.frames > SIZE_MAX/f.stream.channels ||
+      (uint64_t)in.frames > f.stream.total_frames-w->native_frames_done) {
+    p.status = PCM_F64_LIMIT;
+    return p;
+  }
+  if (!in.frames) { p.status=PCM_F64_NEED_INPUT; return p; }
+  if ((f.encoding != SOX_ENCODING_FLOAT || f.container_bits == 32) &&
+      pcm_f64_check_dsp_env() != PCM_F64_OK) {
+    return native_failed(ft,w,PCM_F64_UNSUPPORTED,"native WAV arithmetic environment unsupported");
+  }
+  bytes=f.container_bits/8;
+  align=bytes*f.stream.channels;
+  p.status=native_scratch(ft,w,align);
+  if (p.status!=PCM_F64_OK) return native_failed(ft,w,p.status,"native WAV scratch unavailable");
+  for (offset=0;offset<in.frames;offset+=take) {
+    take=min(in.frames-offset,w->native_scratch_capacity/align);
+    for (i=0;i<take*f.stream.channels;++i) {
+      const double *value = &in.data[(offset*f.stream.channels)+i];
+      uint64_t word;
+      pcm_f64_word_class kind;
+      if (pcm_f64_classify(value,&kind)!=PCM_F64_OK || kind!=PCM_F64_WORD_FINITE) {
+        lsx_fail_errno(ft,SOX_EOF,"nonfinite native WAV output at frame %" PRIu64 " channel %zu",
+            w->native_frames_done+i/f.stream.channels,i%f.stream.channels);
+        w->native_failed=true; p.status=PCM_F64_NUMERIC; return p;
+      }
+      if (f.encoding==SOX_ENCODING_FLOAT && bytes==8) {
+        memcpy(&word,value,sizeof(word));
+      } else if (f.encoding==SOX_ENCODING_FLOAT) {
+        volatile float narrowed=(float)*value;
+        uint32_t b32;
+        float nf=narrowed;
+        memcpy(&b32,&nf,sizeof(b32));
+        if ((b32 & UINT32_C(0x7f800000)) == UINT32_C(0x7f800000)) {
+          lsx_fail_errno(ft,SOX_EOF,"nonfinite FLOAT32 result at frame %" PRIu64 " channel %zu",
+              w->native_frames_done+i/f.stream.channels,i%f.stream.channels);
+          w->native_failed=true; p.status=PCM_F64_NUMERIC; return p;
+        }
+        word=b32;
+      } else {
+        int32_t aligned;
+        int64_t code;
+        bool saturated;
+        pcm_f64_status rc=pcm_f64_quantize_int(*value,f.container_bits,&aligned,&saturated);
+        if (rc!=PCM_F64_OK) return native_failed(ft,w,rc,"native WAV quantization failed");
+        code=(int64_t)aligned / (INT64_C(1)<<(32-f.container_bits));
+        word=(uint32_t)(code + (bytes==1 ? 128 : 0));
+      }
+      native_put_word(w->native_scratch+i*bytes,word,(unsigned)bytes,f.big_endian);
+    }
+    {
+      size_t written=lsx_writebuf(ft,w->native_scratch,take*align);
+      size_t full=written/align;
+      w->numSamples+=full;
+      w->native_frames_done+=full;
+      ft->olength+=(uint64_t)full*f.stream.channels;
+      p.consumed_frames+=full;
+      if (written!=take*align) {
+        w->native_failed=true;
+        lsx_fail_errno(ft,SOX_EOF,"native WAV short write at frame %" PRIu64,
+            w->native_frames_done);
+        p.status=PCM_F64_IO;
+        return p;
+      }
+    }
+  }
+  p.status=PCM_F64_OK;
+  return p;
 }
 
 LSX_FORMAT_HANDLER(wav)

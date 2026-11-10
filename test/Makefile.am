@@ -215,3 +215,10 @@ EXTRA_PROGRAMS += pcm64_probe
 pcm64_probe_SOURCES = ../tests/pcm64/pcm64_probe.c ../src/pcm_f64.c
 pcm64_probe_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src
 pcm64_probe_CFLAGS = $(WARN_CFLAGS) $(PCM_F64_STRICT_CFLAGS)
+
+# Phase 02A, private only. Link actual compiled WAV handler through libSoX.
+EXTRA_PROGRAMS += pcm64_wav_probe
+pcm64_wav_probe_SOURCES = ../tests/pcm64/wav_io_probe.c
+pcm64_wav_probe_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src
+pcm64_wav_probe_CFLAGS = $(WARN_CFLAGS) $(PCM_F64_STRICT_CFLAGS)
+pcm64_wav_probe_LDADD = $(top_builddir)/src/libsox_ng.la

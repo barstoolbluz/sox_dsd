@@ -2,8 +2,9 @@
 #ifndef LSX_PCM_F64_IO_H
 #define LSX_PCM_F64_IO_H
 #include "pcm_f64.h"
-#include "sox.h"
+#include "sox_ng.h"
 #include "sox_dsd.h"
+sox_format_handler_t const *lsx_wav_format_fn(void);
 
 typedef struct {
   pcm_f64_format stream;
@@ -40,6 +41,6 @@ pcm_f64_status lsx_wav_native_facts(const sox_format_t *,
     lsx_pcm_f64_wav_facts *);
 pcm_f64_progress lsx_wav_native_read(sox_format_t *, pcm_f64_output);
 pcm_f64_progress lsx_wav_native_write(sox_format_t *, pcm_f64_input);
-pcm_f64_status lsx_wav_native_prepare_write(sox_format_t *, uint64_t);
+pcm_f64_status lsx_wav_native_prepare_write(sox_format_t *, uint64_t, bool, uint32_t);
 
 #endif

@@ -28,7 +28,11 @@
 
 #include "sox_i.h"
 #include "dsd_layout_i.h"
+#include "dsd_layout_query.h"
 #include "dsd.h"
+#include "pcm_f64_io.h"
+#include "dsd_layout_i.h"
+#include "dsd_layout_query.h"
 
 #include <ctype.h>
 #include <fcntl.h>
@@ -1571,6 +1575,280 @@ error:
   free(ft);
   return NULL;
 }
+
+/* The strict native WAV path is distinct from legacy open_write(): the
+ * selected WAV handler receives the exact same FILE* whose descriptor was
+ * validated, and an existing regular destination is truncated only at the
+ * explicit, post-validation commit point. POSIX-only on purpose. */
+#if defined(HAVE_UNISTD_H) && defined(HAVE_FCNTL_H) && !defined(_WIN32)
+static sox_bool same_object(const struct stat *a, const struct stat *b)
+{
+  return a->st_dev == b->st_dev && a->st_ino == b->st_ino &&
+      (a->st_mode & S_IFMT) == (b->st_mode & S_IFMT);
+}
+
+static sox_bool aliases_descriptor(const struct stat *output,
+    const sox_format_t *source)
+{
+  struct stat in;
+  return source && source->fp && fileno((FILE*)source->fp) >= 0 &&
+      !fstat(fileno((FILE*)source->fp),&in) && same_object(output,&in);
+}
+
+static sox_bool aliases_report(const struct stat *output,
+    const char *report_path)
+{
+  struct stat report;
+  if (!report_path) return sox_false;
+  if (!strcmp(report_path,"-"))
+    return fileno(stdout) >= 0 && !fstat(fileno(stdout),&report) &&
+        same_object(output,&report);
+  return !stat(report_path,&report) && same_object(output,&report);
+}
+
+sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
+    const pcm_f64_format *format, sox_encoding_t encoding, unsigned bits,
+    bool big_endian, const sox_dsd_layout_t *layout,
+    const sox_format_t *source, const char *report_path,
+    sox_bool (*overwrite_permitted)(const char *filename))
+{
+  sox_format_t *ft = NULL;
+  struct stat before_link = {0}, before = {0}, after = {0},
+      current_link = {0}, current = {0};
+  sox_bool existed = sox_false, created = sox_false, committed = sox_false;
+  sox_bool stdout_path;
+  sox_bool extensible, fact;
+  uint64_t samples, data, header, riff;
+  lsx_pcm_f64_wav_facts source_facts;
+  bool have_source_facts=false;
+  unsigned align;
+  int fd = -1;
+  FILE *stream = NULL;
+  int flags;
+  sox_format_handler_t const *handler;
+
+  /* STATIC gate.  No path interaction, callback or open before this. */
+  if (!path || !*path || !format || !format->length_known ||
+      !format->rate_hz || !format->channels || format->channels > 64 ||
+      pcm_f64_check_ieee_storage() != PCM_F64_OK ||
+      (encoding == SOX_ENCODING_FLOAT ? (bits!=32 && bits!=64) :
+       encoding == SOX_ENCODING_UNSIGNED ? bits!=8 :
+       encoding == SOX_ENCODING_SIGN2 ? (bits!=16 && bits!=24 && bits!=32) : 1) ||
+      (layout && layout->channels != format->channels) ||
+      format->total_frames > UINT64_MAX / format->channels) {
+    lsx_fail("native WAV: unsupported format or unknown length");
+    return NULL;
+  }
+  samples = format->total_frames * format->channels;
+  align = format->channels * (bits/8);
+  extensible = ((encoding == SOX_ENCODING_SIGN2 ||
+      encoding == SOX_ENCODING_UNSIGNED) && (bits > 16 || format->channels > 2)) ||
+      layout != NULL;
+  fact = extensible || encoding == SOX_ENCODING_FLOAT;
+  /* Exactly the current WAV handler's fmt/fact/data chunk layout. */
+  header = 12 + 8 + (extensible ? 40 :
+      encoding == SOX_ENCODING_FLOAT ? 18 : 16) + (fact ? 12 : 0) + 8;
+  if (align > UINT16_MAX || (uint64_t)format->rate_hz*align > UINT32_MAX ||
+      format->total_frames > UINT64_MAX/align ||
+      (fact && format->total_frames > UINT32_MAX)) {
+    lsx_fail("native WAV: sample count or rate cannot be represented");
+    return NULL;
+  }
+  data = format->total_frames*align;
+  if (data > UINT32_MAX) {
+    lsx_fail("native WAV: data extent requires RF64 (Phase 03)");
+    return NULL;
+  }
+  riff = header-8+data+(data&1);
+  if (riff>UINT32_MAX) {
+    lsx_fail("native WAV: RIFF chunk extent exceeds 32 bits");
+    return NULL;
+  }
+  have_source_facts = source &&
+      lsx_pcm_f64_wav_query(source,&source_facts)==PCM_F64_OK;
+  if (layout && have_source_facts &&
+      source_facts.stream.channels != format->channels) {
+    lsx_fail("native WAV: source layout channel mismatch"); return NULL;
+  }
+  if (report_path && (!strcmp(path,report_path) ||
+      (!strcmp(path,"-") && !strcmp(report_path,"-")))) {
+    lsx_fail("native WAV: report path aliases output");
+    return NULL;
+  }
+  stdout_path = !strcmp(path,"-");
+  handler = lsx_wav_format_fn();
+  ft = lsx_calloc(1,sizeof(*ft));
+  ft->handler = *handler;
+  ft->mode = 'w';
+  ft->filetype = lsx_strdup("wav");
+  ft->filename = lsx_strdup(path);
+  ft->signal.rate = format->rate_hz;
+  ft->signal.channels = format->channels;
+  ft->signal.length = samples;
+  ft->signal.precision = sox_precision(encoding,bits);
+  sox_init_encodinginfo(&ft->encoding);
+  ft->encoding.encoding = encoding;
+  ft->encoding.bits_per_sample = bits;
+  ft->encoding.reverse_bytes = big_endian ? MACHINE_IS_LITTLEENDIAN : MACHINE_IS_BIGENDIAN;
+  set_endiannesses(ft);
+  set_output_format(ft);
+  if (ft->signal.rate != format->rate_hz ||
+      ft->signal.channels != format->channels ||
+      ft->encoding.encoding != encoding || ft->encoding.bits_per_sample != bits ||
+      ft->signal.length != samples) {
+    lsx_fail("native WAV: the handler changed the requested format");
+    goto failure;
+  }
+  ft->priv = lsx_calloc(1, ft->handler.priv_size);
+  if (layout) {
+    lsx_dsd_layout_state_t *st = lsx_dsd_layout_state(ft);
+    unsigned *order = NULL, i;
+    uint32_t mask;
+    if (!st) { lsx_fail("native WAV: layout state unavailable"); goto failure; }
+    if (sox_dsd_layout_wav_mask(layout,&mask,NULL,0)==SOX_DSD_OK) {
+      order=malloc(layout->channels*sizeof(*order));
+      if (!order) goto failure;
+      if (sox_dsd_layout_wav_mask(layout,&mask,order,layout->channels)!=SOX_DSD_OK) {
+        free(order); goto failure;
+      }
+      for (i=0;i<layout->channels && order[i]==i;++i) {}
+      free(order);
+      if (i!=layout->channels) {
+        lsx_fail("native WAV: channel order differs from channel mask"); goto failure;
+      }
+    } else if (!lsx_dsd_layout_wav_without_assignment(layout) &&
+               !(have_source_facts && source_facts.has_speaker_mask)) {
+      lsx_fail("native WAV: layout cannot be represented faithfully"); goto failure;
+    }
+    st->layout=sox_dsd_layout_copy(layout);
+    if (!st->layout) goto failure;
+  }
+
+  /* PATH classification. A symlink to a stable regular file is allowed.
+   * Dangling symlinks, directories, devices and FIFOs are never opened. */
+  if (stdout_path) {
+    if (sox_globals.stdout_in_use_by) {
+      lsx_fail("native WAV: stdout already claimed"); goto failure;
+    }
+    fd = fileno(stdout);
+    if (fd < 0 || fstat(fd,&after)) {
+      lsx_fail("native WAV: stdout has no inspectable descriptor"); goto failure;
+    }
+    stream=stdout;
+    ft->fp=stream;
+  } else {
+    if (!lstat(path,&before_link)) {
+      existed=sox_true;
+      if (stat(path,&before) || !S_ISREG(before.st_mode)) {
+        lsx_fail("native WAV: destination is not an existing regular file");
+        goto failure;
+      }
+      if (overwrite_permitted && !overwrite_permitted(path)) {
+        lsx_fail("native WAV: overwrite rejected for `%s'",path); goto failure;
+      }
+    } else if (errno != ENOENT) {
+      lsx_fail("native WAV: cannot inspect destination `%s': %s",path,strerror(errno));
+      goto failure;
+    }
+    flags = O_RDWR | O_NONBLOCK;
+#ifdef O_CLOEXEC
+    flags |= O_CLOEXEC;
+#endif
+    if (!existed) flags |= O_CREAT | O_EXCL;
+    fd = open(path,flags,0666);
+    if (fd < 0) {
+      lsx_fail("native WAV: nontruncating open failed: %s",strerror(errno));
+      goto failure;
+    }
+    created = !existed;
+    if (fstat(fd,&after) || !S_ISREG(after.st_mode) ||
+        (existed && !same_object(&before,&after))) {
+      lsx_fail("native WAV: acquired descriptor differs from approved regular file");
+      goto failure;
+    }
+    if (aliases_descriptor(&after,source) || aliases_report(&after,report_path)) {
+      lsx_fail("native WAV: output aliases input or report descriptor");
+      goto failure;
+    }
+    stream = fdopen(fd,"r+b"); /* never w+b; retains the inspected fd */
+    if (!stream) {
+      lsx_fail("native WAV: fdopen failed: %s",strerror(errno));
+      goto failure;
+    }
+    fd = -1; /* stream owns the validated descriptor */
+    ft->fp=stream;
+  }
+  if (!S_ISREG(after.st_mode) || aliases_descriptor(&after,source) ||
+      aliases_report(&after,report_path) ||
+      !is_seekable(ft) || fseeko(stream,0,SEEK_SET)) {
+    lsx_fail("native WAV: actual output descriptor is nonregular, aliased or nonseekable");
+    goto failure;
+  }
+  if (setvbuf(stream,NULL,_IOFBF,sox_globals.bufsiz)) {
+    lsx_fail("native WAV: unable to configure stream buffer"); goto failure;
+  }
+  ft->seekable=sox_true;
+  if (!stdout_path) {
+    if (lstat(path,&current_link) || stat(path,&current) ||
+        !same_object(&current,&after) ||
+        (existed && !same_object(&current_link,&before_link)) ||
+        (!existed && (!S_ISREG(current_link.st_mode) ||
+                       !same_object(&current_link,&after)))) {
+      lsx_fail("native WAV: pathname changed during nontruncating acquisition");
+      goto failure;
+    }
+  }
+  if (lsx_wav_native_prepare_write(ft,format->total_frames,
+         have_source_facts && source_facts.has_speaker_mask,
+         have_source_facts ? source_facts.speaker_mask : 0)!=PCM_F64_OK ||
+      sox_checkformat(ft)!=SOX_SUCCESS) {
+    lsx_fail("native WAV: handler preparation failed before commit");
+    goto failure;
+  }
+
+  /* COMMIT boundary: no pre-commit failure above can destroy existing bytes.
+   * Shell > redirection may already have truncated stdout's target. */
+  if (!stdout_path && existed) {
+    if (ftruncate(fileno(stream),0)) {
+      lsx_fail("native WAV: checked truncate failed: %s",strerror(errno));
+      goto failure;
+    }
+  }
+  committed=sox_true;
+  if (ft->handler.startwrite && ft->handler.startwrite(ft)!=SOX_SUCCESS) {
+    lsx_fail("native WAV: header write failed after commit: %s",ft->sox_errstr);
+    goto failure;
+  }
+  return ft;
+
+failure:
+  if (stream && stream!=stdout) { fclose(stream); stream=NULL; ft->fp=NULL; }
+  else if (fd>=0 && !stdout_path) close(fd);
+  if (created && !committed && !lstat(path,&current_link) &&
+      S_ISREG(current_link.st_mode) && same_object(&current_link,&after))
+    unlink(path); /* only an empty exclusive-creation path still owned by us */
+  if (ft) {
+    lsx_dsd_layout_state_t *st=lsx_dsd_layout_state(ft);
+    if (st) sox_dsd_layout_free(st->layout);
+    free(ft->priv);
+    free(ft->filetype);
+    free(ft->filename);
+    free(ft);
+  }
+  return NULL;
+}
+#else
+sox_format_t *lsx_pcm_f64_wav_open_write(const char *path UNUSED,
+    const pcm_f64_format *format UNUSED, sox_encoding_t encoding UNUSED,
+    unsigned bits UNUSED, bool big_endian UNUSED,
+    const sox_dsd_layout_t *layout UNUSED, const sox_format_t *source UNUSED,
+    const char *report_path UNUSED,
+    sox_bool (*overwrite_permitted)(const char *filename) UNUSED)
+{
+  lsx_fail("native WAV safe descriptor acquisition is unavailable on this platform");
+  return NULL;
+}
+#endif
 
 sox_format_t * sox_open_write(
     char               const * path,

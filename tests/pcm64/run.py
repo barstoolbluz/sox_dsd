@@ -206,7 +206,10 @@ def run_all(sox: Path, probe: Path, results: Path):
                   source / "test/pcm64_probe", source / "src/sox"]
     for path in core_paths:
         assert_true(path.is_file(), f"required input absent: {path}")
-    revision = run(["git", "-C", str(source), "rev-parse", "HEAD"])
+    try:
+        revision = run(["git", "-C", str(source), "rev-parse", "HEAD"])
+    except FileNotFoundError:
+        revision = subprocess.CompletedProcess([], 127, "", "git not installed")
     record = {
         "suite": "foundation",
         "status": "PASS",
@@ -228,6 +231,18 @@ def run_all(sox: Path, probe: Path, results: Path):
     return record
 
 
+def io_main_wrapper(io_main, args):
+    previous = sys.argv
+    try:
+        sys.argv = [str(Path(__file__).with_name("io_wav.py")),
+                    "--sox", str(args.sox),
+                    "--probe", str(Path(args.probe).with_name("pcm64_wav_probe")),
+                    "--results", str(args.results)]
+        return io_main()
+    finally:
+        sys.argv = previous
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--suite", required=True)
@@ -239,8 +254,11 @@ def main():
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite != "foundation":
+    if args.suite not in ("foundation", "io-wav"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
+    if args.suite == "io-wav":
+        from io_wav import main as io_main
+        return io_main_wrapper(io_main, args)
     try:
         record = run_all(args.sox.resolve(), args.probe.resolve(), results)
     except Exception as exc:
