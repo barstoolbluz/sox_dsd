@@ -5,9 +5,9 @@ SoX DSD converts PCM, native DSD, and DSD-over-PCM files with the familiar
 input and output formats decide whether to decode, encode, or simply repack
 DSD. You normally do not need DSD-specific flags.
 
-This guide describes the SoX DSD 1.1.1 behavior. See
+This guide describes SoX DSD 1.1.1. See
 [1.1.1 release notes](RELEASE_NOTES_1.1.1.md) for changed defaults and
-compatibility. The source release number is set by the release process. For all SoX options and effects, consult
+compatibility. For all SoX options and effects, consult
 `man sox`, `man soxeffect_ng`, and `man soxformat_ng`. `sox --help-dsd` displays
 short examples.
 
