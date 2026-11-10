@@ -18,6 +18,10 @@ stripped rather than presented as valid after changing the tag targets.
   `tests/dsd/reference/`, `tests/dsd/release_evidence/`, or upstream files.
 - `build_dsd_evidence_archive.py` builds the standalone evidence release asset
   from the **original checkout** before source deletion or history rewrite.
+  It preserves both the original HEAD evidence and every distinct prior
+  path/blob revision excluded from history, including files already deleted
+  at the 1.1.1 baseline. `HISTORY_MANIFEST.jsonl` maps the old Git blob IDs
+  to their separately redacted copies under `history/`.
 - `rewrite_dsd_history.py` consumes the cleaned *committed* checkout and
   produces a new bare repository and optional, fully portable Git bundle.
 
@@ -35,11 +39,13 @@ stripped rather than presented as valid after changing the tag targets.
    zstd -t /path/to/SoX_DSD_1.1.1_Evidence_2026-11-09.tar.zst
    ```
 
-   The exporter checks the original HEAD, tracked file inventory, source
-   types and redaction completeness. It does not modify its input. The asset
-   contains `README.md`, `MANIFEST.jsonl`, `REDACTIONS.json`, and `files/`.
+   The exporter checks the original HEAD, tracked file inventory, full reachable
+   historical path/blob inventory, source types and redaction completeness. It
+   does not modify its input. The asset contains `README.md`, `MANIFEST.jsonl`,
+   `HISTORY_MANIFEST.jsonl`, `REDACTIONS.json`, `files/` and `history/`.
    File names are repository-relative; raw private recording material was not
    supplied. Unchanged binary evidence is copied byte-identically.
+   Run `python3 scripts/test_build_dsd_evidence_archive.py` before export.
 3. Apply the supplied cleanup commit to the original repository (or use the
    supplied prebuilt cleaned Git bundle). Confirm `git status --porcelain` is
    empty, then build and test the cleaned working tree; run `make dist` and
@@ -90,8 +96,9 @@ stripped rather than presented as valid after changing the tag targets.
 - All original local branch names, remote GitHub branch names and release tag
   names survive. All annotated tags remain annotated, excluding obsolete
   cryptographic signatures.
-- The archive can be integrity-checked and lists every redacted file and the
-  original/published SHA-256; no host-private paths are republished as text.
+- The archive can be integrity-checked and lists every redacted current or
+  historical revision with original/published SHA-256 and original Git blob
+  IDs for the earlier versions. No host-private paths are republished as text.
 - `nix build .#default` and `.#checked` should be run on the owner host.
 
 The cleanup policy intentionally leaves test sources and existing fixtures in

@@ -52,7 +52,7 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt libsox_ng.txt \
 # but must accompany a source distribution for audit/reproduction.
 EXTRA_DIST += scripts/REPOSITORY_CLEANUP.md scripts/repo_cleanup_policy.json \
   scripts/apply_repo_cleanup.py scripts/build_dsd_evidence_archive.py \
-  scripts/rewrite_dsd_history.py
+  scripts/rewrite_dsd_history.py scripts/test_build_dsd_evidence_archive.py
 
 if HAVE_PKGCONFIG
 pkgconfig_DATA = sox_ng.pc
