@@ -20,7 +20,7 @@ import qualify_p10 as q
 class QualificationAccounting(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.original = json.loads((q.ROOT/'tests/dsd/results/P10/numeric/qualification.json').read_text())
+        cls.original = json.loads((q.ROOT/'tests/dsd/reference/p10_qualification_snapshot.json').read_text())
         if len(cls.original['rows']) != len(q.jobs(q.configurations())):
             raise RuntimeError('complete retained numeric evidence is required for accounting tests')
 

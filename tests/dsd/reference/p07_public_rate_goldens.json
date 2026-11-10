@@ -1,0 +1,109 @@
+{
+  "schema": "sox.dsd.p07.public-rate-golden.v1",
+  "basis": "P06-hotfix compiled binary; identical source WAV and flags for P06-hotfix and P07",
+  "cases": [
+    {
+      "name": "88to48",
+      "input": "pcm_sine_88200.wav",
+      "output_hz": 48000,
+      "public_rate_options": [],
+      "control_sha256": "b9ff944a2f5d082133cfc78c575daaf0525b7de91a805a9ec611c037c2db69f1",
+      "candidate_sha256": "b9ff944a2f5d082133cfc78c575daaf0525b7de91a805a9ec611c037c2db69f1",
+      "pcm_bytes": 8916,
+      "equivalent": true
+    },
+    {
+      "name": "88to44",
+      "input": "pcm_sine_88200.wav",
+      "output_hz": 44100,
+      "public_rate_options": [],
+      "control_sha256": "b432014186f416d3a0ff3d0178dd3e50cb67f2f827deeb2df688f93ecb24fbd7",
+      "candidate_sha256": "b432014186f416d3a0ff3d0178dd3e50cb67f2f827deeb2df688f93ecb24fbd7",
+      "pcm_bytes": 8192,
+      "equivalent": true
+    },
+    {
+      "name": "88to192",
+      "input": "pcm_sine_88200.wav",
+      "output_hz": 192000,
+      "public_rate_options": [],
+      "control_sha256": "0a333caa4dfec1904f0a905f67e72ad2f3f390a512e177c659eb23fcb7899626",
+      "candidate_sha256": "0a333caa4dfec1904f0a905f67e72ad2f3f390a512e177c659eb23fcb7899626",
+      "pcm_bytes": 35664,
+      "equivalent": true
+    },
+    {
+      "name": "352to96",
+      "input": "pcm_sine_352800.wav",
+      "output_hz": 96000,
+      "public_rate_options": [],
+      "control_sha256": "be1d4592271d79c2313a19d0cfd46f6fa85aa8cfc2ca4397780944962e2a3fd2",
+      "candidate_sha256": "be1d4592271d79c2313a19d0cfd46f6fa85aa8cfc2ca4397780944962e2a3fd2",
+      "pcm_bytes": 4460,
+      "equivalent": true
+    },
+    {
+      "name": "352to705",
+      "input": "pcm_sine_352800.wav",
+      "output_hz": 705600,
+      "public_rate_options": [],
+      "control_sha256": "1d1f3040ed9b003d66c9e4b5cc35628bec8bcb74cf0e1bdab203d0537f26d2b4",
+      "candidate_sha256": "1d1f3040ed9b003d66c9e4b5cc35628bec8bcb74cf0e1bdab203d0537f26d2b4",
+      "pcm_bytes": 32768,
+      "equivalent": true
+    },
+    {
+      "name": "705to48",
+      "input": "pcm_sine_705600.wav",
+      "output_hz": 48000,
+      "public_rate_options": [],
+      "control_sha256": "d343be00447af5b6858800017bf63b0c9f424481f0f35765866cd9b35808d8da",
+      "candidate_sha256": "d343be00447af5b6858800017bf63b0c9f424481f0f35765866cd9b35808d8da",
+      "pcm_bytes": 1116,
+      "equivalent": true
+    },
+    {
+      "name": "705to384",
+      "input": "pcm_sine_705600.wav",
+      "output_hz": 384000,
+      "public_rate_options": [],
+      "control_sha256": "77fc97e48f2f174e07fa32cc5410f841b3b668f06ed0633b027579cd916dfda6",
+      "candidate_sha256": "77fc97e48f2f174e07fa32cc5410f841b3b668f06ed0633b027579cd916dfda6",
+      "pcm_bytes": 8916,
+      "equivalent": true
+    },
+    {
+      "name": "88to48_high",
+      "input": "pcm_sine_88200.wav",
+      "output_hz": 48000,
+      "public_rate_options": [
+        "-v",
+        "-B",
+        "95",
+        "-R",
+        "180"
+      ],
+      "control_sha256": "fad80ff2cf57e04dafb4d3d9d30416f1c840a946e801099e98aefc0ba8621c3a",
+      "candidate_sha256": "fad80ff2cf57e04dafb4d3d9d30416f1c840a946e801099e98aefc0ba8621c3a",
+      "pcm_bytes": 8916,
+      "equivalent": true
+    },
+    {
+      "name": "705to48_high",
+      "input": "pcm_sine_705600.wav",
+      "output_hz": 48000,
+      "public_rate_options": [
+        "-v",
+        "-B",
+        "95",
+        "-R",
+        "180"
+      ],
+      "control_sha256": "f4e2435e63bdb99a5d8baba8330dc7e4583cd013510fcb1a95cb6c82391212be",
+      "candidate_sha256": "f4e2435e63bdb99a5d8baba8330dc7e4583cd013510fcb1a95cb6c82391212be",
+      "pcm_bytes": 1116,
+      "equivalent": true
+    }
+  ],
+  "all_equivalent": true
+}

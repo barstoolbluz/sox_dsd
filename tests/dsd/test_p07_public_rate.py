@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--sox',type=Path,required=True)
-    p.add_argument('--goldens',type=Path,default=ROOT/'tests/dsd/results/P07/numeric/public-rate-goldens.json')
+    p.add_argument('--goldens',type=Path,default=ROOT/'tests/dsd/reference/p07_public_rate_goldens.json')
     args=p.parse_args()
     manifest=json.loads(args.goldens.read_text())
     if not manifest.get('all_equivalent') or len(manifest['cases'])!=9:

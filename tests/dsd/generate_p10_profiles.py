@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Reproduce P10's negative certificates. This tool cannot promote a profile.
 
-Evidence is copied to a fixed certificate-input snapshot before generation.
+The frozen certificate-input snapshot is retained in reference/; the
+certificate's `evidence_input` field names its original historical path to
+preserve the already-published certificate bytes and hash.
 Later experiments must use new result IDs; changing the snapshot is explicit.
 The certificate binds scientific rows and failed soaks, not its own compiled
 binary, so recording its hash cannot introduce a self-referential hash cycle.
@@ -14,7 +16,7 @@ from pathlib import Path
 import re
 from p10_corpus import RATES, identity
 ROOT=Path(__file__).resolve().parents[2]
-INPUT=ROOT/'tests/dsd/results/P10/certificate-input.json'
+INPUT=ROOT/'tests/dsd/reference/p10_certificate_input.json'
 OUTPUT=ROOT/'tests/dsd/reference/p10_profiles.json'
 HEADER=ROOT/'src/pcmdsd_guards.h'
 

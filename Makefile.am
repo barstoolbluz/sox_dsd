@@ -583,7 +583,8 @@ EXTRA_DIST += src/rate_internal.h src/dsd_public.c src/dsdpcm.c tests/dsd/test_p
   tests/dsd/test_p07.py tests/dsd/test_p07_output_failures.py tests/dsd/bench_p06_hotfix.py \
   tests/dsd/test_p07_reference.c tests/dsd/test_p07_reference.py \
   tests/dsd/test_p07_composite.py tests/dsd/test_p07_impulse.py \
-  tests/dsd/test_p07_public_rate.py tests/dsd/bench_p07.py
+  tests/dsd/test_p07_public_rate.py tests/dsd/reference/p07_public_rate_goldens.json \
+  tests/dsd/bench_p07.py
 
 # P08 automatic graph and pre-combiner domain boundaries.
 EXTRA_DIST += tests/dsd/test_p08.py tests/dsd/bench_p08_adapter.py
@@ -612,7 +613,10 @@ EXTRA_DIST += tests/dsd/soak_p10.py tests/dsd/bench_p10.py \
 
 EXTRA_DIST += tests/dsd/test_p10_qualification.py
 
-EXTRA_DIST += tests/dsd/generate_p10_profiles.py tests/dsd/reference/p10_profiles.json
+EXTRA_DIST += tests/dsd/generate_p10_profiles.py \
+  tests/dsd/reference/p10_profiles.json \
+  tests/dsd/reference/p10_certificate_input.json \
+  tests/dsd/reference/p10_qualification_snapshot.json
 
 EXTRA_DIST += tests/dsd/bench_p10_kernel_control.py
 

@@ -82,6 +82,13 @@ def run_archive(source: Path, output: Path, policy: dict, *, compression: int) -
     revision = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
     if revision != policy['base_commit']:
         raise SystemExit(f'wrong source revision {revision}; expected {policy["base_commit"]}')
+    # HEAD alone does not establish which bytes are in a working checkout.
+    # Never silently archive modified tracked evidence under a baseline ID.
+    status = subprocess.run(['git', '-C', str(source), 'status', '--porcelain',
+                             '--untracked-files=no'], capture_output=True,
+                            text=True, check=True)
+    if status.stdout.strip():
+        raise SystemExit('original evidence checkout has uncommitted tracked changes')
     selected_files = [p for p in git_files(source) if selected(p, policy)]
     if not selected_files or 'P15_HIGH_RATE_SOURCE_MANIFEST.json' not in selected_files:
         raise SystemExit('source appears already cleaned; original evidence is required')
