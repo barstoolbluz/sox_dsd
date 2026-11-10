@@ -27,7 +27,7 @@ The spectrum improvements on previously admitted tones remain real. However, 40â
 
 ## Minimal experimental soak implementation
 
-`g3-soak-test-p10.patch` changes **only the private** `tests/dsd/test_p10.c`, not production encoder files or historic P20 sources. It adds:
+`g3-soak-test-p10.patch` changes **only the private** `tests/dsd/native/test_p10.c`, not production encoder files or historic P20 sources. It adds:
 
 - `--render-candidate`: guarded experimental render with **explicit eight bounds**, instead of unintentionally inheriting CLANS-7's bounds.
 - `--soak-candidate` and `--soak-candidate-nominal`: select an explicit test-only `encode.experimental.ntf.*.dsd512` SDM profile, accept eight explicit bounds and reuse the original P10 continuous composite, intermediate state snapshots, replay comparison, guard monitor and final result logic. Existing soak flags remain intact.

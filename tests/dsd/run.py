@@ -725,7 +725,7 @@ def main():
                 return dict(correct=True,command=command,summary=result['stdout'].strip())
             runner.add('P18_'+label+'_closed_gate', 'unit', gate)
         def fixture_cli():
-            command=[sys.executable,str(ROOT/'tests/dsd/test_p18.py'),
+            command=[sys.executable,str(ROOT/'tests/dsd/checks/test_p18.py'),
                 '--sox',str(args.sox),'--results',str(args.results/'integration')]
             result=runner.invoke(command,timeout=300)
             require(result['exit']==0, 'P18 independent synthetic CLI matrix: '+result['stderr'][-1500:])
@@ -739,7 +739,7 @@ def main():
     if args.phase=='P14' and not floor and args.only=='*' and args.mode=='all':
         # P00's inherited floor is still reported separately; the P14 gate
         # is an executable report/bit/stream contract, not a relabeled floor.
-        command=[sys.executable,str(ROOT/'tests/dsd/test_p14.py'),
+        command=[sys.executable,str(ROOT/'tests/dsd/checks/test_p14.py'),
             '--sox',str(args.sox),
             '--unit',str(args.probe.parent/'dsd_test_p14'),
             '--results',str(args.results/'report')]
@@ -762,13 +762,13 @@ def main():
     # Keep the inherited 36-case floor visible, and execute real P10 contracts
     # in a separate report rather than relabeling that floor as qualification.
     tasks=[('P10_core',[str(ROOT/'test/dsd_test_p10'),'--unit']),
-        ('P10_CLI',[sys.executable,str(ROOT/'tests/dsd/test_p10.py'),
+        ('P10_CLI',[sys.executable,str(ROOT/'tests/dsd/checks/test_p10.py'),
             '--sox',str(args.sox),'--results',str(args.results/'cli')]),
-        ('P10_continuation_replay',[sys.executable,str(ROOT/'tests/dsd/soak_p10.py'),
+        ('P10_continuation_replay',[sys.executable,str(ROOT/'tests/dsd/qualification/soak_p10.py'),
             '--test-replay','--results',str(args.results/'soak')]),
-        ('P10_prefilter_reproduction',[sys.executable,str(ROOT/'tests/dsd/generate_p10_coeffs.py'),'--check']),
-        ('P10_qualification_accounting',[sys.executable,str(ROOT/'tests/dsd/test_p10_qualification.py')]),
-        ('P10_negative_certificates',[sys.executable,str(ROOT/'tests/dsd/generate_p10_profiles.py'),'--check'])]
+        ('P10_prefilter_reproduction',[sys.executable,str(ROOT/'tests/dsd/generators/generate_p10_coeffs.py'),'--check']),
+        ('P10_qualification_accounting',[sys.executable,str(ROOT/'tests/dsd/checks/test_p10_qualification.py')]),
+        ('P10_negative_certificates',[sys.executable,str(ROOT/'tests/dsd/generators/generate_p10_profiles.py'),'--check'])]
     records=[]
     for name,command in tasks:
         try:
@@ -780,7 +780,7 @@ def main():
             record=dict(name=name,status='FAIL',error=str(error))
         records.append(record)
         print(name,record['status'],flush=True)
-        from soak_p10 import atomic
+        from qualification.soak_p10 import atomic
         atomic(args.results/'implementation.json',dict(schema='P10/implementation-tests/1',
             rows=records,qualified=False,status='FAIL' if any(r['status']=='FAIL' for r in records) else
             'PASS' if len(records)==len(tasks) else 'INCOMPLETE',

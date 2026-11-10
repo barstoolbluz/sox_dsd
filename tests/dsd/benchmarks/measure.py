@@ -1,0 +1,301 @@
+#!/usr/bin/env python3
+"""DSD numerical contract entry point, initially P00 measurement scaffolding.
+
+Do not certify a DSD algorithm from legacy design-time filter feasibility.
+"""
+from __future__ import annotations
+
+# Allow standalone test tools to resolve their relocated sibling modules.
+from pathlib import Path as _DSDPath
+import sys as _DSDSys
+_DSD = _DSDPath(__file__).resolve().parents[1]
+_DSDSys.path[:0] = [str(_DSD / _part) for _part in
+                    ('support', 'phases', 'generators', 'qualification',
+                     'benchmarks', 'checks')] + [str(_DSD)]
+
+
+import argparse
+import hashlib
+import json
+import math
+import pathlib
+import platform
+import subprocess
+import sys
+import time
+import wave
+
+from reference import metrology, writer
+
+ROOT = pathlib.Path(__file__).resolve().parents[3]
+
+
+def self_checks() -> list[dict]:
+    import numpy as np
+    tests = []
+    def test(name, fn):
+        try:
+            detail = fn()
+            tests.append(dict(name=name, status='pass', detail=detail))
+        except Exception as exc:
+            tests.append(dict(name=name, status='fail', error=f'{type(exc).__name__}: {exc}'))
+
+    def units():
+        assert abs(metrology.band_dbfs(.5)) < 1e-12
+        assert abs(metrology.band_dbfs(.125) + 6.02059991328) < 1e-10
+        assert abs(metrology.snr_db(.5, .005) - 20) < 1e-12
+        assert metrology.band_dbfs(0) == -math.inf
+        return dict(sine_power_dbfs=metrology.band_dbfs(.5), quarter_sine_power_dbfs=metrology.band_dbfs(.125))
+    test('normalized_power_dbfs_and_snr', units)
+
+    def fit():
+        rate, n, hz = 88200, 8820, 1000
+        y = .17 + .25 * np.sin(2 * np.pi * hz * np.arange(n) / rate + .3)
+        r = metrology.tone_fit(y, rate, hz)
+        assert abs(r['peak_amplitude'] - .25) < 2e-12
+        assert abs(r['dc'] - .17) < 2e-12
+        assert abs(r['phase_rad'] - .3) < 2e-12
+        assert float(np.max(np.abs(r['residual']))) < 2e-12
+        return dict(fit_amplitude=r['peak_amplitude'], phase=r['phase_rad'], residual_peak=float(np.max(np.abs(r['residual']))))
+    test('independent_analytic_tone_fit', fit)
+
+    def window():
+        w, enbw = metrology.blackman_harris4(4096)
+        assert abs(enbw - 2.0043529382) < .00002
+        assert abs(float(np.mean(w)) - .35875) < 1e-10
+        noise = np.zeros(4096)
+        assert metrology.baseband_residual_power(noise, 88200)['power'] == 0
+        return dict(enbw_bins=enbw)
+    test('window_coefficients_enbw', window)
+
+    def source():
+        rows = []
+        for rate in (88200, 352800, 705600):
+            path = ROOT / 'tests/dsd/fixtures' / f'pcm_sine_{rate}.wav'
+            with wave.open(str(path), 'rb') as f:
+                assert f.getframerate() == rate and f.getnchannels() == 1
+                assert f.getsampwidth() == 2 and f.getnframes() == 4096
+            rows.append(dict(rate_hz=rate, sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
+        return rows
+    test('synthetic_pcm_sources', source)
+    return tests
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('--phase', default='P00')
+    ap.add_argument('--results', type=pathlib.Path, default=ROOT/'tests/dsd/results/P00/numeric')
+    ap.add_argument('--prepare-analysis-v1', action='store_true', help='emit the immutable-design request, never claim generated coefficients')
+    ap.add_argument('--sox', type=pathlib.Path, default=ROOT/'src/sox')
+    args = ap.parse_args()
+    if args.phase not in ['P' + str(i).zfill(2) for i in range(19)]:
+        ap.error('unknown phase')
+    args.results.mkdir(parents=True, exist_ok=True)
+    passed = self_checks()
+    native_commands = []
+    if int(args.phase[1:]) >= 1:
+        from run import Runner
+        observer = Runner(args)
+        try:
+            native = writer.cross_format(observer)
+            passed.append(dict(name='P01_native_program_bits_and_completed_frame_counts',
+                               status='pass', detail=native))
+        except Exception as exc:
+            passed.append(dict(name='P01_native_program_bits_and_completed_frame_counts',
+                               status='fail', error=f'{type(exc).__name__}: {exc}'))
+        native_commands = observer.commands
+    p06_results = []
+    if int(args.phase[1:]) >= 6:
+        p06_steps = [
+            ('P06_independent_coefficients_and_composites',
+             [sys.executable, str(ROOT/'tests/dsd/qualification/certify_filters.py'),
+              '--results', str(args.results)], 'filter-certificate.json'),
+            ('P06_high_precision_finite_stream_oracle',
+             [sys.executable, str(ROOT/'tests/dsd/checks/test_decode.py'),
+              '--unit', str(ROOT/'test/dsd_test_decode'),
+              '--results', str(args.results/'scalar')], 'scalar/oracle.json'),
+        ]
+        for name, command, evidence in p06_steps:
+            try:
+                proc = subprocess.run(command, capture_output=True, text=True,
+                                      cwd=ROOT, timeout=300)
+                detail = dict(exit=proc.returncode,stdout=proc.stdout,
+                              stderr=proc.stderr,evidence=evidence)
+                p06_results.append(dict(name=name, status='pass' if proc.returncode==0 else 'fail',detail=detail))
+            except (subprocess.TimeoutExpired,OSError) as exc:
+                p06_results.append(dict(name=name,status='fail',error=str(exc)))
+        passed.extend(p06_results)
+    # P09 has an immutable, independently synthesized analysis reference.
+    # Its self-tests must pass before running any candidate comparisons.
+    p09_runs = []
+    if int(args.phase[1:]) >= 9:
+        base = ROOT / 'tests/dsd/reference/analysis-v1'
+        tasks = [
+            ('P09_frozen_analysis_selftests',
+             [sys.executable, str(base/'verify.py'), '--results', str(args.results)],
+             'analysis-v1-selftest.json'),
+            ('P09_scalar_candidate_analysis_v1',
+             [sys.executable, str(base/'measure_candidates.py'),
+              '--unit', str(ROOT/'test/dsd_test_p09'),
+              '--results', str(args.results/'candidate')],
+             'candidate/candidate-analysis-v1.json'),
+        ]
+        for name, command, evidence in tasks:
+            if name.endswith('analysis_v1') and any(r['status'] != 'pass' for r in p09_runs):
+                p09_runs.append(dict(name=name, status='fail',
+                                     reason='frozen analysis selftest failed; candidate measurement withheld'))
+                continue
+            try:
+                proc = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=1800)
+                p09_runs.append(dict(name=name, status='pass' if proc.returncode==0 else 'fail',
+                                     detail=dict(exit=proc.returncode,evidence=evidence,
+                                                 stdout=proc.stdout,stderr=proc.stderr)))
+            except (subprocess.TimeoutExpired,OSError) as exc:
+                p09_runs.append(dict(name=name,status='fail',error=str(exc)))
+        passed.extend(p09_runs)
+    if args.phase in ('P14','P15','P16','P17','P18'):
+        command=[sys.executable,str(ROOT/'tests/dsd/checks/test_p14_numeric.py'),
+            '--unit',str(ROOT/'test/dsd_test_p14'),
+            '--sox',str(args.sox), '--results',str(args.results/'native-sos')]
+        try:
+            proc=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=400)
+            case=dict(name='P14_independent_digital_SOS_and_native_band',
+                      status='pass' if proc.returncode==0 else 'fail',
+                      detail=dict(exit=proc.returncode,stdout=proc.stdout,stderr=proc.stderr,
+                                  evidence='native-sos/numeric-p14.json'))
+        except (OSError,subprocess.TimeoutExpired) as exc:
+            case=dict(name='P14_independent_digital_SOS_and_native_band',
+                      status='fail',error=str(exc))
+        passed.append(case)
+    if args.phase in ('P17','P18'):
+        # Separate P17 sampled/finite evidence; it cannot promote a profile.
+        command=[sys.executable,str(ROOT/'tests/dsd/checks/test_p17_numeric.py'),
+                 '--results',str(args.results/'highrate-development')]
+        try:
+            proc=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=600)
+            case=dict(name='P17_highrate_independent_FIR_and_SDM_development',
+                      status='pass' if proc.returncode==0 else 'fail',
+                      detail=dict(exit=proc.returncode,stdout=proc.stdout[-2000:],
+                                  stderr=proc.stderr[-2000:],
+                                  evidence='highrate-development/qualification.json',
+                                  qualified=False,writer_enabled=False))
+        except (subprocess.TimeoutExpired,OSError) as exc:
+            case=dict(name='P17_highrate_independent_FIR_and_SDM_development',
+                      status='fail',error=str(exc))
+        passed.append(case)
+    analysis_procedures = (dict(metrology.ANALYSIS_V1) if int(args.phase[1:]) < 9 else
+             dict(reference='tests/dsd/reference/analysis-v1/manifest.json',
+                  frozen_sha256=hashlib.sha256((ROOT/'tests/dsd/reference/analysis-v1/SHA256SUMS.txt').read_bytes()).hexdigest(),
+                  verification='tests/dsd/reference/analysis-v1/verify.py',
+                  scoring='tests/dsd/reference/analysis-v1/analyze.py'))
+    result = dict(schema='dsd-numerical-results/1', phase=args.phase,
+                  executed_command=sys.argv, utc_timestamp=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+                  python=platform.python_version(),
+                  procedures=analysis_procedures,
+                  source_fixture_catalog=str(ROOT/'tests/dsd/fixtures/manifest.json'),
+                  unit_tests=passed,
+                  native_commands=native_commands,
+                  independent_analysis=(dict(status='frozen-selftests-passed',candidate_qualification='INCOMPLETE; P10 qualification and soak unrun')
+                    if int(args.phase[1:])>=9 and p09_runs and all(r['status']=='pass' for r in p09_runs) else
+                    dict(status='unrun-or-failed',reason='P09 analysis gate incomplete or failed')), 
+                  filters_evidence=(dict(status='P06_certified_final_hex',
+                      path='src/dsd_coeffs.h',
+                      certificate='numeric/filter-certificate.json',
+                      manifest='tests/dsd/reference/p06_coefficients.json',
+                      sha256=hashlib.sha256((ROOT/'src/dsd_coeffs.h').read_bytes()).hexdigest())
+                    if int(args.phase[1:])>=6 else dict(status='prior_design_evidence_only',
+                       path='docs/dsd/evidence/filter_feasibility.json',
+                       sha256=hashlib.sha256((ROOT/'docs/dsd/evidence/filter_feasibility.json').read_bytes()).hexdigest())),
+                  quality_measurements=([dict(status='analytic-scalar-unqualified',
+                    path='numeric/candidate/candidate-analysis-v1.json')] if int(args.phase[1:]) >= 9 else []),
+                  summary=dict(passed=sum(x['status']=='pass' for x in passed),
+                               failed=sum(x['status']=='fail' for x in passed),
+                               unrun_gates=(['P10 full production PCM interpolation/filter qualification',
+                                            'P10 30-minute per-rate and one-hour ISA soaks',
+                                            'real-world independent DSD corpus'] if int(args.phase[1:])>=9 else
+                                           ['analysis-v1 coefficient generation/certification' if int(args.phase[1:])<6
+                                             else 'P09 analysis-v1 audio corpus qualification',
+                                            'independent DSD quality measurements'])))
+    if args.phase=='P10':
+        from soak_p10 import inspect as inspect_soaks
+        from bench_p10 import performance_summary
+        inspect_soaks(args.results.parent/'soak')
+        performance_summary(args.results.parent/'performance')
+        command=[sys.executable,str(ROOT/'tests/dsd/qualification/qualify_p10.py'),
+            '--stage','evaluate','--results',str(args.results)]
+        cp=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=3600)
+        qualification_path=args.results/'qualification.json'
+        qualification=json.loads(qualification_path.read_text()) if qualification_path.exists() else {'status':'FAILED','qualified':False}
+        result['p10_composite']=dict(exit_code=cp.returncode,status=qualification['status'],qualified=False,
+            evidence='qualification.json',stdout=cp.stdout,stderr=cp.stderr)
+        result['summary']['qualification_status']=qualification['status']
+        result['summary']['unrun_gates']=[name for name,gate in qualification.get('gates',{}).items()
+            if isinstance(gate,dict) and gate.get('status') in ('UNRUN','INCONCLUSIVE')]
+        result['independent_analysis']['candidate_qualification']=qualification['status']
+        result['quality_measurements'].append(dict(status='unpromoted',path='numeric/qualification.json'))
+        if cp.returncode not in (0,2):result['summary']['failed']+=1
+    if args.phase in ('P17','P18'):
+        result['summary']['unrun_gates']=[
+            'DSD512/DSD1024 independent external licensed/reference media and transport interoperability',
+            'continuous-frequency composite/alias interval extremum proof',
+            '30-minute-per-rate high-rate mastering/ultrasonic soak and 1-hour sustained ISA runs',
+            'physical Intel/AMD AVX-512 cross-host metrology and performance qualification',
+            'P18 writer/container/DoP authorization and compatibility']
+        result['summary']['qualification_status']='UNQUALIFIED (P17 development only)'
+        result['quality_measurements'].append(dict(status='sampled-and-finite-development-only',
+             path='highrate-development/qualification.json',qualified=False))
+    if args.phase=='P18':
+        result['summary']['unrun_gates']=[
+            'P17 independent high-rate DSP certification, real media and continuous spectral bounds',
+            'DSD512/DSD1024 external decoder/player and physical device interoperability',
+            'DSD512/DSD1024 file and DoP production throughput: not authorized to execute',
+            'P18 high-rate write/transport promotion withheld by operator authority']
+        result['summary']['qualification_status']='P18 FAIL_CLOSED (all higher-rate endpoints disabled)'
+        result['p18_capability_policy']={
+            'manifest':'docs/dsd/P18_RELEASE_MANIFEST.json',
+            'qualification':'UNQUALIFIED; no higher-rate DSP/container/transport enabled',
+            'independent_highrate_media':'UNRUN',
+            'numerical_coefficients_modified':False}
+    if args.phase=='P15':
+        # P00-P14 historical report text predates the P10 positive review.
+        # Never substitute a frozen P10 certificate for a P15 release result.
+        certificate=ROOT/'tests/dsd/results/P10_certification_2026-10-11/certification.json'
+        revision=json.loads(certificate.read_text())
+        result['p15_p10_inherited_certificate']=dict(
+            decision=revision['decision'],
+            scope='original scalar composite candidates only',
+            evidence='tests/dsd/results/P10_certification_2026-10-11/certification.json',
+            sha256=hashlib.sha256(certificate.read_bytes()).hexdigest(),
+            current_source_lineage='see P15 release manifest; not P10 re-certification')
+        result['independent_analysis']['candidate_qualification']=(
+            'P10 scalar profiles certified on historical source; P15 current-revision release qualification OPEN')
+        result['summary']['unrun_gates']=[
+            'Full P15 3 native rates x 9 PCM rates x 2 decode profiles spectral release qualification',
+            'P15 full independent real-world corpus rerender (historical P10 receipts retained)',
+            'P15 physical Intel/older-AVX performance and current ISA release soaks',
+            'P15 controlled-reference 2x decode performance target and full hardware matrix']
+    report_path=args.results/'measure.json'
+    if report_path.exists():
+        old=report_path.read_bytes()
+        try:
+            previous=json.loads(old)
+            if previous.get('summary',{}).get('failed',0):
+                backup=report_path.with_name('measure-failed-'+hashlib.sha256(old).hexdigest()[:16]+'.json')
+                if not backup.exists():backup.write_bytes(old)
+        except ValueError:
+            pass
+    temp=report_path.with_suffix('.json.tmp')
+    temp.write_text(json.dumps(result, indent=2, sort_keys=True, allow_nan=False) + '\n')
+    temp.replace(report_path)
+    if args.prepare_analysis_v1:
+        (args.results/'analysis-v1-request.json').write_text(
+            json.dumps(metrology.ANALYSIS_V1, indent=2, sort_keys=True) + '\n')
+    print(json.dumps({'schema':result['schema'], 'summary':result['summary'],
+                      'result_path':str(args.results/'measure.json')}))
+    if result['summary']['failed']:return 1
+    if args.phase=='P10' and result['p10_composite']['status']!='QUALIFIED':return 2
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

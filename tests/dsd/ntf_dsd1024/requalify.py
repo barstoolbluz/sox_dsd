@@ -57,7 +57,7 @@ def clone_scratch(dest: Path) -> None:
                 'original_guard_header_sha256':sha(ROOT/HEADER),
                 'original_coefficients_sha256':sha(ROOT/SOURCE_C),
                 'original_sdm_sha256':sha(ROOT/'src/sdm.c'),
-                'original_p19_runner_sha256':sha(ROOT/'tests/dsd/p19_qualify_dsd1024.py')}
+                'original_p19_runner_sha256':sha(ROOT/'tests/dsd/phases/p19_qualify_dsd1024.py')}
     shutil.copytree(ROOT,dest,symlinks=False,ignore=shutil.ignore_patterns(
         '__pycache__','*.pyc','.git','.libs','.deps','autom4te.cache'))
     (dest/MARKER).write_text(canonical(original))
@@ -82,10 +82,10 @@ def check(dest: Path) -> None:
               'original_guard_header_sha256':sha(ROOT/HEADER),
               'original_coefficients_sha256':sha(ROOT/SOURCE_C),
               'original_sdm_sha256':sha(ROOT/'src/sdm.c'),
-              'original_p19_runner_sha256':sha(ROOT/'tests/dsd/p19_qualify_dsd1024.py')}
+              'original_p19_runner_sha256':sha(ROOT/'tests/dsd/phases/p19_qualify_dsd1024.py')}
     if not (dest/MARKER).is_file() or json.loads((dest/MARKER).read_text()) != expected:
         raise RuntimeError('Scratch marker or frozen original changed')
-    for path in (SOURCE_C,Path('src/sdm.c'),Path('tests/dsd/p19_qualify_dsd1024.py')):
+    for path in (SOURCE_C,Path('src/sdm.c'),Path('tests/dsd/phases/p19_qualify_dsd1024.py')):
         if sha(dest/path)!=sha(ROOT/path):
             raise RuntimeError('Scratch source differs from verified original: '+str(path))
 
@@ -125,7 +125,7 @@ def requalify(dest: Path,jobs: int, evidence_dir: Path, quick: bool) -> None:
         run_command(argv,dest,evidence_dir/filename)
     unit=str(dest/'test/dsd_test_p10')
     run_command([unit,'--unit'],dest,evidence_dir/'p10-unit.log')
-    runner=['python3','tests/dsd/p19_qualify_dsd1024.py']
+    runner=['python3','tests/dsd/phases/p19_qualify_dsd1024.py']
     options=['--unit',unit,'--jobs',str(jobs),'--timeout','1800','--kernel','scalar']
     if quick:
         run_command(runner+['run-training']+options+['--indices','0,1'],dest,evidence_dir/'training-smoke.log')

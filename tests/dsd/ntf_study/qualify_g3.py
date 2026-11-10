@@ -35,9 +35,9 @@ RESULTS = ROOT/'tests/dsd/results/NTF_ORDER7_G3_QUALIFICATION'
 DESIGNS = ROOT/'tests/dsd/ntf_study/designs-sweep.json'
 HEADER = ROOT/'src/ntf_experiment_candidates.h'
 SDM = ROOT/'src/sdm.c'
-P10 = ROOT/'tests/dsd/test_p10.c'
-CORPUS = ROOT/'tests/dsd/p10_corpus.py'
-SPLIT = ROOT/'tests/dsd/p17_qualify_guards.py'
+P10 = ROOT/'tests/dsd/native/test_p10.c'
+CORPUS = ROOT/'tests/dsd/phases/p10_corpus.py'
+SPLIT = ROOT/'tests/dsd/phases/p17_qualify_guards.py'
 
 
 def sha(path):

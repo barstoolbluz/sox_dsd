@@ -12,12 +12,12 @@ Candidate monitor/acceptance code is not shared with the oracle.
 Use a configured native build directory containing `src/soxconfig.h`:
 
 ```sh
-python3 tests/dsd/run_sdm_register.py \
+python3 tests/dsd/qualification/run_sdm_register.py \
   --build /absolute/path/to/build \
   --output /absolute/path/to/evidence/register \
   -- --exceptions
 
-python3 tests/dsd/run_sdm_register.py \
+python3 tests/dsd/qualification/run_sdm_register.py \
   --build /absolute/path/to/build \
   --output /absolute/path/to/evidence/register-sanitized \
   --sanitize address,undefined \

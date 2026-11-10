@@ -20,8 +20,8 @@ make check-dsd-optimization
 make check-dsd
 make check-dsd DSD_PHASE=P15
 make check-dsd DSD_PHASE=P10
-python3 tests/dsd/test_111_receipt_redaction.py
-python3 tests/dsd/review_111_evidence.py --check-expected
+python3 tests/dsd/checks/test_111_receipt_redaction.py
+python3 tests/dsd/qualification/review_111_evidence.py --check-expected
 ```
 
 For the independently reported numerical checks and other scripts, consult

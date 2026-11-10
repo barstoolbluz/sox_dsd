@@ -53,15 +53,15 @@ which `benchprep.sh status` does.
 
 ## Preparing a host
 
-`tests/dsd/benchprep.sh` applies and reverts the machine-level settings. It
+`tests/dsd/benchmarks/benchprep.sh` applies and reverts the machine-level settings. It
 needs root, saves the previous values, and restores exactly what it saved.
 
 ```sh
-sudo tests/dsd/benchprep.sh prepare --cpu 8   # fix clocks, offline cpu 8's sibling
-tests/dsd/benchprep.sh status                 # confirm before trusting a run
-tests/dsd/benchprep.sh noise --cpu 8          # measure the host's own spread
+sudo tests/dsd/benchmarks/benchprep.sh prepare --cpu 8   # fix clocks, offline cpu 8's sibling
+tests/dsd/benchmarks/benchprep.sh status                 # confirm before trusting a run
+tests/dsd/benchmarks/benchprep.sh noise --cpu 8          # measure the host's own spread
 # ... run the benchmark ...
-sudo tests/dsd/benchprep.sh restore           # put the machine back
+sudo tests/dsd/benchmarks/benchprep.sh restore           # put the machine back
 ```
 
 Run `noise` first and believe its verdict. If the host cannot hold its own

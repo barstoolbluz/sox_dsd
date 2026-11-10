@@ -1,0 +1,367 @@
+#!/usr/bin/env python3
+"""P02 native read/repack paired throughput comparison.
+
+Every workload runs both binaries in randomised AB/BA pairs on one pinned CPU,
+after discarded warmups, with sources and outputs on tmpfs where available.
+Synthetic DSD payloads are assembled independently of the tested SoX binaries.
+
+A verdict is emitted per workload and overall, against the design's two
+separate numbers: no more than 5% median regression, admissible only when
+measurement noise is under 2%. Noisy workloads are inconclusive, never passes.
+Earlier revisions of this script recorded unqualified samples only and
+hardcoded host_unqualified; admissibility is now measured rather than assumed.
+See tests/dsd/BENCHMARKING.md for host preparation.
+"""
+from __future__ import annotations
+
+# Allow standalone test tools to resolve their relocated sibling modules.
+from pathlib import Path as _DSDPath
+import sys as _DSDSys
+_DSD = _DSDPath(__file__).resolve().parents[1]
+_DSDSys.path[:0] = [str(_DSD / _part) for _part in
+                    ('support', 'phases', 'generators', 'qualification',
+                     'benchmarks', 'checks')] + [str(_DSD)]
+
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import random
+import resource
+import statistics
+import struct
+import subprocess
+import tempfile
+import time
+
+from reference import fixtures
+from bench_dff import dsf_bytes
+
+ROOT = Path(__file__).resolve().parents[3]
+
+
+def checksum(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def dff_bytes(channels, frames):
+    assert frames % 8 == 0
+    count = frames // 8
+    # Asymmetric byte patterns in channel-interleaved, MSB-first byte clusters.
+    patterns = (0x96, 0x39, 0xa5, 0x69, 0x1e, 0xc3)
+    payload = bytes(patterns[c] ^ (0xff if i & 1 else 0)
+                    for i in range(count) for c in range(channels))
+    chnl = struct.pack('>H', channels) + b''.join(
+        f'C{i:03d}'.encode('ascii') for i in range(channels))
+    prop = (b'SND ' + fixtures.chunk(b'FS  ', struct.pack('>I', fixtures.DSD64))
+            + fixtures.chunk(b'CHNL', chnl)
+            + fixtures.chunk(b'CMPR', b'DSD ' + bytes([14]) + b'not compressed'))
+    return fixtures.chunk(b'FRM8', b'DSD '
+                          + fixtures.chunk(b'FVER', bytes.fromhex('01050000'))
+                          + fixtures.chunk(b'PROP', prop)
+                          + fixtures.chunk(b'DSD ', payload))
+
+
+REGRESSION_LIMIT = .05
+NOISE_LIMIT = .02
+
+# The workloads that produced identical outputs under the P01 and P02 arms in
+# the prepared-host record. A hotfix round for that comparison must not buy
+# throughput by changing what they decode, which would drop them from the gate
+# and read as a pass by exclusion.
+#
+# This is an assertion about one comparison, not an invariant of the codebase:
+# a phase that legitimately changes an output, as P04 does by writing channel
+# identity into DFF headers, must not be reported as violating it. Select it
+# with --require-comparable-preset p01p02, or name workloads individually with
+# --require-comparable.
+PRESET_COMPARABLE = frozenset({
+    'dff-2ch-repack-large', 'dff-2ch-repack-small', 'dff-6ch-repack-large',
+    'dsf-2ch-repack-large', 'dsf-2ch-repack-small', 'dsf-6ch-repack-large',
+})
+
+
+def summarize(baseline, candidate, seed):
+    """Paired median ratio with a bootstrap interval, and a robust noise estimate.
+
+    Noise is reported per arm as a robust relative sigma so that a workload is
+    judged inadmissible on its own dispersion, not on a whole-host probe.
+    """
+    def robust_sigma(v):
+        s = sorted(v)
+        q1 = s[len(s)//4]
+        q3 = s[(3*len(s))//4]
+        return (q3 - q1) / 1.349 / statistics.median(s) if statistics.median(s) else 0.0
+
+    n = min(len(baseline), len(candidate))
+    b, c = baseline[:n], candidate[:n]
+    ratio = statistics.median(c) / statistics.median(b)
+    rng = random.Random(seed)
+    draws = []
+    for _ in range(4000):
+        idx = [rng.randrange(n) for _ in range(n)]
+        draws.append(statistics.median([c[i] for i in idx]) /
+                     statistics.median([b[i] for i in idx]))
+    draws.sort()
+    lo, hi = draws[100], draws[3899]
+    noise = max(robust_sigma(b), robust_sigma(c))
+    # Decide from the interval, not the point estimate, as
+    # tests/dsd/BENCHMARKING.md states: entirely inside the limit passes,
+    # entirely beyond it fails, and an interval straddling the limit is
+    # inconclusive however comfortable its median looks.
+    limit = 1 + REGRESSION_LIMIT
+    status = ('inconclusive-noise' if noise >= NOISE_LIMIT else
+              'pass' if hi <= limit else
+              'fail-regression' if lo > limit else
+              'inconclusive-interval')
+    return {'samples': n,
+            'baseline_median_cpu_seconds': statistics.median(b),
+            'candidate_median_cpu_seconds': statistics.median(c),
+            'median_ratio': ratio, 'regression_percent': (ratio - 1) * 100,
+            'paired_bootstrap_95pct_interval': [lo, hi],
+            'measurement_noise': noise, 'status': status}
+
+
+def null_invocation(baseline, candidate, source, extra, cpu, both=()):
+    """Pick the one -t null invocation both binaries accept, or report none.
+
+    Option support is not symmetric across every phase boundary. P04 refuses a
+    null destination carrying a named channel layout unless the loss is made
+    explicit, while its predecessor does not recognise that option at all, so
+    no single command line runs on both. That is a property of the boundary,
+    not a failure of either binary, and must be reported as such rather than
+    counted as errors.
+    """
+    def works(sox, args):
+        with tempfile.TemporaryDirectory(dir='/dev/shm' if Path('/dev/shm').is_dir()
+                                         else None) as td:
+            return run(sox, source, Path(td)/'o.dff', 32, 'null', cpu,
+                       args, both)['exit'] == 0
+    for label, args in (('with-extra-args', tuple(extra)), ('plain', ())):
+        if (not args) or extra:
+            if works(baseline, args) and works(candidate, args):
+                return label, list(args), None
+    return None, [], ('no -t null invocation is accepted by both binaries: '
+                     'option support differs across this boundary')
+
+
+def run(sox, source, target, cap, output, cpu=None, null_extra=(),
+        both_extra=()):
+    args = []
+    if cpu is not None:
+        args += ['taskset', '-c', str(cpu)]
+    args += [str(sox), '--buffer', str(cap), *map(str, both_extra)]
+    # Options needed only to make a null destination acceptable. From P04 a
+    # named channel layout must be explicitly discardable, so without
+    # --dsd-layout-loss warn every -t null run exits 2. Applied to both arms
+    # or neither: an asymmetric command line is not a comparison.
+    args += [str(a) for a in null_extra] if output == 'null' else []
+    args += [str(source)]
+    if output == 'null':
+        args += ['-t', 'null', '-']
+    else:
+        args += [str(target)]
+    before = resource.getrusage(resource.RUSAGE_CHILDREN)
+    t0 = time.perf_counter()
+    proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                          timeout=120, cwd=ROOT)
+    wall = time.perf_counter() - t0
+    after = resource.getrusage(resource.RUSAGE_CHILDREN)
+    result = {'argv':args, 'exit':proc.returncode, 'wall_seconds':wall,
+              'cpu_seconds':after.ru_utime + after.ru_stime - before.ru_utime - before.ru_stime,
+              'stderr':proc.stderr.decode(errors='replace')[-2000:],
+              'stdout_bytes':len(proc.stdout)}
+    if output != 'null' and target.exists():
+        result.update(output_size=target.stat().st_size, output_sha256=checksum(target))
+    return result
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument('--baseline-sox', type=Path, required=True)
+    p.add_argument('--sox', type=Path, default=ROOT/'src/sox')
+    p.add_argument('--results', type=Path,
+                   default=ROOT/'tests/dsd/results/P02/bench-read')
+    p.add_argument('--large-frames', type=int, default=1048576)
+    p.add_argument('--small-frames', type=int, default=131072)
+    p.add_argument('--pairs', type=int, default=15)
+    p.add_argument('--warmups', type=int, default=2)
+    p.add_argument('--cpu', type=int, default=None,
+                   help='pin every run to this CPU; required for a verdict')
+    p.add_argument('--working-directory', type=Path, default=None,
+                   help='source/output parent; /dev/shm isolates disk latency')
+    p.add_argument('--operation', choices=('all','null','repack'), default='all',
+                   help='measure both workload types or just one; P08 uses '
+                        'repack for auto-mode comparability')
+    p.add_argument('--both-arg', action='append', default=[], metavar='ARG',
+                   help='identical extra option applied to both arms, for '
+                        'example --dsd-mode=auto. Repeatable')
+    p.add_argument('--require-comparable', action='append', default=[],
+                   metavar='WORKLOAD',
+                   help='this workload must stay comparable; if its two arms '
+                        'stop agreeing that is an error rather than a silent '
+                        'exclusion from the gate. Repeatable')
+    p.add_argument('--require-comparable-preset', choices=('p01p02',),
+                   help='shorthand for the six workloads that agreed between '
+                        'the P01 and P02 arms')
+    p.add_argument('--null-extra-arg', action='append', default=[],
+                   metavar='ARG',
+                   help='extra argument for -t null runs only, repeatable; '
+                        'both binaries must accept it or the comparison is '
+                        'invalid. From P04 onward -t null needs '
+                        '--dsd-layout-loss warn')
+    args = p.parse_args()
+    if args.pairs < 15 or args.warmups < 1:
+        p.error('a verdict needs at least 15 pairs and 1 warmup')
+    required = set(args.require_comparable)
+    if args.require_comparable_preset == 'p01p02':
+        required |= PRESET_COMPARABLE
+    if args.working_directory is None and Path('/dev/shm').is_dir():
+        args.working_directory = Path('/dev/shm')
+    args.baseline_sox = args.baseline_sox.resolve()
+    args.sox = args.sox.resolve()
+    args.results.mkdir(parents=True, exist_ok=True)
+    records = []
+    errors = []
+    rng = random.Random(0x502)
+    summaries = {}
+    null_mode, null_args, null_reason = None, [], None
+    with tempfile.TemporaryDirectory(prefix='sox-ng-p02-bench-',
+                                     dir=args.working_directory) as tmp:
+        td = Path(tmp)
+        probe = td/'null-capability.dsf'
+        probe.write_bytes(dsf_bytes(2, 32768)[0])
+        null_mode, null_args, null_reason = null_invocation(
+            args.baseline_sox, args.sox, probe, args.null_extra_arg, args.cpu,
+            args.both_arg)
+        print(f'-t null invocation: {null_mode or "unavailable"}'
+              + (f' ({null_reason})' if null_reason else ''), flush=True)
+        for fmt in ('dsf','dff'):
+            for channels in (2,6):
+                for operation in ('null', 'repack'):
+                    for size, frames, cap in (('small',args.small_frames,32),
+                                              ('large',args.large_frames,65536)):
+                        if frames % (4096 * 8):
+                            raise ValueError('frame lengths must be multiples of DSF blocks')
+                        if args.operation != 'all' and operation != args.operation:
+                            continue
+                        key0 = f'{fmt}-{channels}ch-{operation}-{size}'
+                        if operation == 'null' and null_mode is None:
+                            summaries[key0] = {'status': 'not-comparable',
+                                               'unavailable': True,
+                                               'reason': null_reason}
+                            print(f'{key0}: skipped, {null_reason}', flush=True)
+                            continue
+                        source = td/f'{fmt}-{channels}-{size}.{fmt}'
+                        source.write_bytes(dsf_bytes(channels, frames)[0] if fmt == 'dsf'
+                                           else dff_bytes(channels, frames))
+                        input_hash = checksum(source)
+                        # Both sizes are paired: small capacities are where the
+                        # retained-bit reader changes actually bite.
+                        variants = [v for pair in range(args.pairs)
+                                    for v in (('candidate','baseline') if rng.randrange(2)
+                                              else ('baseline','candidate'))]
+                        warmups = ['baseline', 'candidate'] * args.warmups
+                        timings = {'baseline': [], 'candidate': []}
+                        # Per-arm reference hashes. Each binary must be
+                        # deterministic across its own repetitions; the two arms
+                        # are not required to agree, because a phase that repairs
+                        # a reader defect is meant to change what it decodes.
+                        # Behavioral equivalence is run.py's job, not a timing
+                        # harness's.
+                        reference_hash = {}
+                        for repetition, name in enumerate(warmups + variants):
+                            measured = repetition >= len(warmups)
+                            sox = args.sox if name == 'candidate' else args.baseline_sox
+                            target = td/f'output-{fmt}-{channels}-{size}-{operation}-{name}.dff'
+                            if target.exists():
+                                target.unlink()
+                            result = run(sox, source, target, cap, operation,
+                                         args.cpu, null_args, args.both_arg)
+                            result.update(source_format=fmt, channels=channels,
+                                          operation=operation, size=size, frames=frames,
+                                          buffer_samples=cap, variant=name,
+                                          repetition=repetition, input_sha256=input_hash,
+                                          warmup=not measured)
+                            if measured and not result['exit']:
+                                timings[name].append(result['cpu_seconds'])
+                            if result['exit']:
+                                errors.append(f'{fmt}/{channels}/{operation}/{size}/{name}: exit {result["exit"]}')
+                            if operation == 'repack':
+                                if result.get('output_size',0) <= 100:
+                                    errors.append(f'{fmt}/{channels}/{operation}/{size}/{name}: empty output')
+                                if name not in reference_hash:
+                                    reference_hash[name] = result.get('output_sha256')
+                                elif reference_hash[name] != result.get('output_sha256'):
+                                    errors.append(f'{fmt}/{channels}/{operation}/{size}/{name}: nondeterministic output')
+                            records.append(result)
+                        key = f'{fmt}-{channels}ch-{operation}-{size}'
+                        if min(len(timings['baseline']), len(timings['candidate'])) >= 15:
+                            summaries[key] = summarize(timings['baseline'],
+                                                       timings['candidate'], seed=0x502)
+                            if operation == 'repack':
+                                summaries[key]['arms_agree'] = (
+                                    reference_hash.get('baseline')
+                                    == reference_hash.get('candidate'))
+                                summaries[key]['output_sha256'] = reference_hash
+                        print(f'{key}: {len(variants)} measured, {len(warmups)} warmups'
+                              + (f", {summaries[key]['regression_percent']:+.2f}%"
+                                 f" {summaries[key]['status']}" if key in summaries else ''),
+                              flush=True)
+    # The design gates "unchanged native repacking or legacy paths", so a
+    # workload only gates once both arms are shown to do equivalent work.
+    # A repack workload demonstrates that directly by producing identical
+    # bytes. A `-t null` workload leaves no artifact, so it inherits the
+    # verdict of the repack workload on the same source and buffer: if those
+    # two arms decoded identically there, they read the same data here.
+    for key, s in summaries.items():
+        if '-repack-' in key:
+            comparable = s.get('arms_agree') is True
+        else:
+            twin = summaries.get(key.replace('-null-', '-repack-'))
+            comparable = bool(twin) and twin.get('arms_agree') is True
+            s['arms_agree'] = None
+            s['comparability_from'] = key.replace('-null-', '-repack-')
+        if not comparable:
+            if key in required:
+                errors.append(f'{key}: required-comparable output changed')
+            s['status'] = 'not-comparable'
+    gating = [s['status'] for s in summaries.values()
+              if s['status'] != 'not-comparable']
+    inconclusive = {'inconclusive-noise', 'inconclusive-interval'}
+    if errors or not gating:
+        verdict = 'failed' if errors else 'no-comparable-workload'
+    elif 'fail-regression' in gating:
+        verdict = 'fail'
+    elif inconclusive & set(gating):
+        verdict = 'incomplete'
+    else:
+        verdict = 'pass'
+    data = {'baseline_sox':str(args.baseline_sox), 'candidate_sox':str(args.sox),
+            'baseline_sha256':checksum(args.baseline_sox),
+            'candidate_sha256':checksum(args.sox),
+            'pinned_cpu':args.cpu, 'working_directory':str(args.working_directory),
+            'pairs':args.pairs, 'warmups':args.warmups,
+            'null_extra_args':args.null_extra_arg,
+            'null_invocation':null_mode, 'null_unavailable_reason':null_reason,
+            'required_comparable':sorted(required),
+            'both_extra_args':args.both_arg,
+            'selected_operation':args.operation,
+            'regression_limit':REGRESSION_LIMIT, 'noise_limit':NOISE_LIMIT,
+            'host_unqualified':verdict != 'pass' and any(
+                s['status'] == 'inconclusive-noise' for s in summaries.values()),
+            'purpose':'paired native read/repack throughput comparison',
+            'summaries':summaries,
+            'cases':records, 'errors':errors, 'status':verdict}
+    dest = args.results/'bench-read.json'
+    temp = dest.with_suffix('.json.tmp')
+    temp.write_text(json.dumps(data,indent=2)+'\n')
+    os.replace(temp,dest)
+    print(f'{len(records)} benchmark commands; {len(errors)} errors; {dest}')
+    return bool(errors)
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

@@ -59,7 +59,7 @@ DSD-reconstruction planning must handle reconstruction pre-roll separately.
 
 - `tests/dsd/run.py --phase P03` asserts all original P03 cases become hard
   passes while leaving P04's Type 5 channel-identity XFAIL unchanged.
-- `tests/dsd/test_seek.py` generates CC0 independent DSF (LSB/MSB), DFF,
+- `tests/dsd/checks/test_seek.py` generates CC0 independent DSF (LSB/MSB), DFF,
   WSD, WAV PCM, raw PCM and MSU PCM fixtures; launches
   `test/dsd_test_seek_contract`, which compares complete read-after-seek
   slices with an independent full sequential decoding pass. P00/P02 separately

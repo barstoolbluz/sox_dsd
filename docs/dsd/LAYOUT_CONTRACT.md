@@ -104,9 +104,9 @@ sox_ng in.dsf --dsd-layout-loss warn -e signed-integer -b 16 out.raw
 
 ## Evidence and limits
 
-`tests/dsd/test_layout.c` exercises ownership, version checks, original type
+`tests/dsd/native/test_layout.c` exercises ownership, version checks, original type
 and ID preservation, permutation/invalidating behavior and metadata queried
-after input close. `tests/dsd/test_layout.py` constructs independent DFF, WSD
+after input close. `tests/dsd/checks/test_layout.py` constructs independent DFF, WSD
 and PCM WAV fixtures with distinct per-channel sequences. It checks decoded
 WAV data in mask order, exact DFF ID/LSCO round trips, no-op and changing
 `channels` effects, PCM-to-DSD mono/stereo assignment, extensible masks and

@@ -94,7 +94,7 @@ setting for concurrently running effects.
 ## Verification and limits
 
 The added standard-library integration test
-`tests/dsd/test_legacy_sdm_guard_policy.py` exercises the option parser,
+`tests/dsd/checks/test_legacy_sdm_guard_policy.py` exercises the option parser,
 `SOX_OPTS`, normal/trellis routes, two channels, implicit dither, known
 terminal failure, file cleanup, reference hash, and healthy-path identity.
 Run `make check-sdm-guard-policy`. It is also part of `make check-dsd`.

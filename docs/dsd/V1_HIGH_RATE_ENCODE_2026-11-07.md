@@ -9,7 +9,7 @@ v1 failed two checks, both at the old 0.5 modulator mapping:
 - **DSD1024:** on 1.6 s of full-scale DC (P17 training fixtures `04-dc-positive` and `05-dc-negative`), the state ran away at native frame 33,108,316 (`tests/dsd/results/P17_qualification_2026-10-21/guards/training/45158400/`; `docs/dsd/handoffs/P19_DSD1024_V2_CORRECTION_2026-10-21.md` gives "approximately 33.1 million").
 - **DSD512:** in a 3,600-second nominal soak, the minimum count of ones in a 28-bit window was 6, against the gate of 7–22 (`tests/dsd/results/P19_OPERATOR_QUALIFICATION_2026-10-22/`).
 
-v2 CLANS-7 passed both checks, at a cost in noise. On a 997 Hz tone with binary64 input (`tone-997--6` in `tests/dsd/p20_audio_compare.py`), its fitted residual was 40.99 dB higher at DSD512 and 37.47 dB higher at DSD1024 (`tests/dsd/results/P20_OPERATOR_QUALIFICATION_2026-10-22/README.md`). At DSD512, 99.97% of that residual lies between 40 and 88.2 kHz (`docs/dsd/experiments/DSD512_SDM_ORDER_STUDY_2026-10-22.md`).
+v2 CLANS-7 passed both checks, at a cost in noise. On a 997 Hz tone with binary64 input (`tone-997--6` in `tests/dsd/phases/p20_audio_compare.py`), its fitted residual was 40.99 dB higher at DSD512 and 37.47 dB higher at DSD1024 (`tests/dsd/results/P20_OPERATOR_QUALIFICATION_2026-10-22/README.md`). At DSD512, 99.97% of that residual lies between 40 and 88.2 kHz (`docs/dsd/experiments/DSD512_SDM_ORDER_STUDY_2026-10-22.md`).
 
 ## What changed
 
@@ -17,7 +17,7 @@ Since 1.1.0, the default encode applies a 0.9 gain after interpolation and clips
 
 Evidence is in `tests/dsd/results/V1_HIGH_RATE_ENCODE_2026-11-07/`.
 
-The tests ran on tag `sox_dsd-1.1.0` with v1 bound first (`gates/build.txt`). They used `tests/dsd/test_p10.c` with `P10_CLI_GAIN=1`, which calls `lsx_pcmdsd_set_gain(lsx_pcmdsd_default_warn_gain())` and `lsx_pcmdsd_set_clip(1)`. The diff is in `gates/build.diff`.
+The tests ran on tag `sox_dsd-1.1.0` with v1 bound first (`gates/build.txt`). They used `tests/dsd/native/test_p10.c` with `P10_CLI_GAIN=1`, which calls `lsx_pcmdsd_set_gain(lsx_pcmdsd_default_warn_gain())` and `lsx_pcmdsd_set_clip(1)`. The diff is in `gates/build.diff`.
 
 That switch exists only in the test build; it is not part of this change, so the soaks cannot be rerun from this tree as is. The guarded DC renders can: `--render` mode `guarded-cli` applies the same gain and clip with the guard bounds. The unguarded (`training`) renders have no equivalent mode. Every gained run logs `P10_CLI_GAIN gain=0.9… clip=0.45…` to stderr.
 

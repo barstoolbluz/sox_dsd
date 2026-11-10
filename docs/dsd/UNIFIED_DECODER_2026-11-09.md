@@ -38,15 +38,15 @@ made that one decoding bandwidth is inherently better for all content.
 Results of these gates on the release host are in
 `tests/dsd/results/UNIFIED_DECODER_2026-11-09/`. The most relevant executable gates are:
 
-- `python3 tests/dsd/test_unified_decode_111.py --sox "$PWD/src/sox"`
+- `python3 tests/dsd/checks/test_unified_decode_111.py --sox "$PWD/src/sox"`
   (65 cases, five native clocks): default/mastering/pinned PCM byte equality,
   distinct wideband output, effect-local routing, planner/runtime profile
   agreement, rejected removed decoder spellings and wrong clock pins.
-- `python3 tests/dsd/test_v2_pin_111.py --sox "$PWD/src/sox"`:
+- `python3 tests/dsd/checks/test_v2_pin_111.py --sox "$PWD/src/sox"`:
   both high-rate encoder-v2 pins, actual output, gain/bitstream, strict/warn,
   headroom replay, wrong-clock/conflict refusal; now also verifies
   `policy.encode` against the exact selected encoder ID.
-- `python3 tests/dsd/test_p21_reader_regression.py --sox "$PWD/src/sox" \
+- `python3 tests/dsd/checks/test_p21_reader_regression.py --sox "$PWD/src/sox" \
   --reference /usr/bin/ffmpeg`: deterministic, self-encoded multichannel
   DSDIFF and DSF comparisons including 1.2345-second fractional seeking and
   a deliberately silent reference-channel negative control. With FFmpeg
@@ -54,20 +54,20 @@ Results of these gates on the release host are in
   between -40.5013 and -40.5024 native DSD frames. This **does not** establish
   compatibility with a private music library, other reference versions, or
   every commercial DSDIFF header variant.
-- `python3 -m pytest -q tests/dsd/test_reader_gate.py`: 42 passing
+- `python3 -m pytest -q tests/dsd/checks/test_reader_gate.py`: 42 passing
   synthetic fault-injection/orchestration checks, including 2/4/6-channel
   stub rows. Stubs are never passed off as independent-decoder qualification.
-- `python3 tests/dsd/test_v2_110_compat.py --old-sox OLD --new-sox NEW`:
+- `python3 tests/dsd/checks/test_v2_110_compat.py --old-sox OLD --new-sox NEW`:
   20 independently executed byte-for-byte comparisons between a build of the
   `sox_dsd-1.1.0` tag and this candidate:
   DSD512 and DSD1024, DSF and DSDIFF, two PCM stimuli, clip-and-warn and
   strict policies, plus automatic and fixed headroom. This verifies the
   encoder-v2 bitstream in those cases, not all possible audio.
-- `python3 tests/dsd/test_p10.py --sox ... --candidate ... --results ...`:
+- `python3 tests/dsd/checks/test_p10.py --sox ... --candidate ... --results ...`:
   64 passing CLI-graph cases, including positive high-rate encoder-v2 pins.
   Three bitstream-reference render cases and five DSD-origin/mixed-graph
   cases compare the CLI's default-gain output with the `guarded-cli` oracle.
-- `python3 tests/dsd/test_111_receipt_redaction.py`: deterministic 800-row
+- `python3 tests/dsd/checks/test_111_receipt_redaction.py`: deterministic 800-row
   release-data sanitization; the historical input remains unchanged.
 
 The correct command to exercise the normal release-facing suite is
@@ -83,7 +83,7 @@ are not established by these synthetic tests.
 1. **P10 refusal of qualified v2 encoder pins:** incorrect. The old
    `unbound_qualified_profile_unselectable` expectation is replaced by an
    executable positive selection/report test for both high-rate IDs in
-   `tests/dsd/test_p10.py`. The retained legacy test case names bound into
+   `tests/dsd/checks/test_p10.py`. The retained legacy test case names bound into
    earlier P10 certificates are not renamed.
 2. **Effect manual falsely denies v2 encoding:** corrected in
    `soxeffect_ng.7`, which gives both exact optional high-rate encoder IDs.

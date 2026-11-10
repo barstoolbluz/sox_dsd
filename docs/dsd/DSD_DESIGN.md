@@ -759,7 +759,7 @@ behavior remain independent required checks.
 
 The P15 code-side comparator disposition and criteria are recorded in
 `tests/dsd/reference/p15_src_numerical_criteria.json` and
-`tests/dsd/p15_src_envelope_review.py`; the numerical and transfer limits
+`tests/dsd/phases/p15_src_envelope_review.py`; the numerical and transfer limits
 **are defined by this section and §6.1, not duplicated by a new policy
 copy**. The first release remains blocked until both the same-transfer
 arithmetic and complete-chain transfer evidence exist, plus other named

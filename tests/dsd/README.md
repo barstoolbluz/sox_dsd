@@ -6,6 +6,26 @@ release-evidence fixture consumed by the 1.1.1 checks. It is not a repository
 of historical qualification receipts. For the current user guide and release
 behavior see [`docs/dsd/`](../../docs/dsd/README.md).
 
+## Directory map
+
+- `checks/`: executable Python regression and release-acceptance tests.
+- `native/`: C probes built through the existing Automake target names.
+- `phases/`: phase-scoped numerical, reader, and experimental analysis.
+- `qualification/`: qualification campaigns, evidence review, and DSD
+  test-support utilities formerly under `scripts/`.
+- `benchmarks/`: independent benchmark and profiling entry points.
+- `generators/`: deterministic coefficient and fixture generators.
+- `support/`: shared code, synthetic decoders, and fault-injection shims.
+- `fixtures/`, `reference/`, `release_evidence/`: retained immutable inputs.
+- `ntf_study/`, `ntf_dsd1024/`: retained optional research trees.
+
+`run.py` remains at `tests/dsd/run.py` as the phase-runner entry point.
+Scripts within the grouped directories can be invoked directly, including
+from outside the repository root. The Makefile's check target names are
+unchanged. Repository history-rewrite and evidence-export utilities are
+supplied separately with the release evidence rather than in `scripts/`;
+that directory contains only the upstream SoX-NG scripts.
+
 ## Build and check
 
 In a configured source checkout:
@@ -35,10 +55,10 @@ New test and benchmark runs write to `.dsd-check-results/` or a caller-chosen
 make check-dsd DSD_PHASE=P10 DSD_RESULTS=/tmp/sox-dsd-P10
 python3 tests/dsd/run.py --phase P10 --sox src/sox \
   --results /tmp/sox-dsd-run-P10
-python3 tests/dsd/test_plan.py --sox src/sox \
+python3 tests/dsd/checks/test_plan.py --sox src/sox \
   --results /tmp/sox-dsd-plan
-python3 tests/dsd/review_111_evidence.py --check-expected
-python3 -m pytest -q -p no:cacheprovider tests/dsd/test_reader_gate.py
+python3 tests/dsd/qualification/review_111_evidence.py --check-expected
+python3 -m pytest -q -p no:cacheprovider tests/dsd/checks/test_reader_gate.py
 ```
 
 ## Input and output boundaries
