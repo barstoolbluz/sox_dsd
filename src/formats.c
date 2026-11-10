@@ -1673,6 +1673,16 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
   }
   have_source_facts = source &&
       lsx_pcm_f64_wav_query(source,&source_facts)==PCM_F64_OK;
+  /* A native FLOAT32 source widens samples with DSP arithmetic. Its read
+   * guard would otherwise fire only after this writer has committed a header.
+   * Apply the same guard before touching the destination. Binary64 sources
+   * remain bitwise copies and do not require a DSP arithmetic environment. */
+  if (have_source_facts && source_facts.encoding == SOX_ENCODING_FLOAT &&
+      source_facts.container_bits == 32 &&
+      pcm_f64_check_dsp_env() != PCM_F64_OK) {
+    lsx_fail("native WAV: source arithmetic environment unsupported");
+    return NULL;
+  }
   if (have_source_facts && source_facts.has_speaker_mask && !layout) {
     lsx_fail("native WAV: explicit source channel mask requires a retained layout");
     return NULL;

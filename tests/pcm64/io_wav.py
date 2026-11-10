@@ -755,6 +755,29 @@ class CaseRunner:
                             insist(name=='existing' or not dest.exists(),
                                    f'rejected native writer created an output file: {label}')
                             self.tick('writer_environment_preopen_refusals')
+        # A safe f64 destination cannot bypass the reader's FLOAT32 widening
+        # requirements. The source handle is available before output open.
+        source32=self.root/'fenv-native-source-f32.wav'
+        self.native_generate(raw,source32,'f32',False,2,48000,2)
+        converted=self.root/'fenv-f32-to-f64-safe.wav'
+        self.native_copy(source32,converted,'f64',False)
+        insist(parse_wave(converted)['data']==raw.read_bytes(),
+               'safe FLOAT32-to-FLOAT64 native copy changed exact dyadic samples')
+        self.tick('source_environment_safe_copies')
+        for setting in (0x40,0x8000,0x2000,0x4000,0x6000):
+            env={'LD_PRELOAD':str(self.fenv),'PCM64_TEST_MXCSR_OR':hex(setting)}
+            for name,dest in (('existing',existing),('absent',absent)):
+                dest.unlink(missing_ok=True)
+                if name=='existing':
+                    dest.write_bytes(b'PRESERVE-F32-SOURCE'*9)
+                label=f'fenv-f32-source-f64-dest-{setting:x}-{name}'
+                self.reject(['copy',source32,dest,'f64','L'],env=env,label=label,
+                            sentinels=(dest,) if name=='existing' else (),
+                            stderr_contains='native WAV: source arithmetic environment unsupported')
+                insist(name=='existing' or not dest.exists(),
+                       f'rejected FLOAT32 source created an output: {label}')
+                self.tick('source_environment_preopen_refusals')
+        self.gates['source_environment_preflight']='PASS'
         self.gates['writer_environment_preflight']='PASS'
 
     def streaming(self):
@@ -832,7 +855,9 @@ class CaseRunner:
         self.streaming()
         self.compatibility()
         return {
-            'suite':'io-wav','status':'PASS',
+            'suite':'io-wav',
+            'status':'PASS_WITH_NOT_RUN' if any(
+                value.startswith('NOT_RUN') for value in self.gates.values()) else 'PASS',
             'utc':dt.datetime.now(dt.timezone.utc).isoformat(),
             'git_commit':git_commit(Path(__file__).resolve().parents[2]),
             'source_and_binary_sha256':{
@@ -882,7 +907,7 @@ def main():
         print('FAIL io-wav:',record['error'],file=sys.stderr)
         return 1
     receipt.write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')
-    print('PASS io-wav:',json.dumps(record['checks'],sort_keys=True))
+    print(record['status']+' io-wav:',json.dumps(record['checks'],sort_keys=True))
     return 0
 
 
