@@ -455,6 +455,7 @@ class CaseRunner:
         arr=bytearray(trunc.read_bytes())
         # Remove last few physical bytes without repairing header size.
         trunc.write_bytes(arr[:-3])
+        self.artifacts[trunc.name]=digest(trunc)
         self.reject(['dump',trunc,1],label='physically-truncated-input')
         self.tick('truncated_inputs')
         # Declared WAV data size must contain only complete PCM frames.
@@ -512,6 +513,7 @@ class CaseRunner:
                'native writer replaced stable symlink')
         insist(parse_wave(target)['data']==struct.pack('<d',0.5),
                'stable symlink target was not populated correctly')
+        self.artifacts[target.name]=digest(target)
         self.tick('stable_symlinks')
         # Reject special files before opening, and do not block on FIFO.
         fifo=self.root/'named-fifo.wav'
