@@ -125,9 +125,10 @@ def main():
         fixture(quiet, False)
         source_hash = digest(hot)
         for native in (64, 128, 256):
-            # Every clock uses the same lower default clipping ceiling;
-            # measured headroom targets the same value.
-            ceiling = 0.45
+            # Only the certified resonators (DSD64/128) use nominal 0.5
+            # full-scale input without the v1 stability-protection margin.
+            # Uncertified DSD256 retains the legacy 0.45/0.9 policy.
+            ceiling = 0.5 if native in (64, 128) else 0.45
             fixed_db = 4
             output = root / f'out-{native}.dsf'
             report = root / 'run.json'
@@ -140,7 +141,7 @@ def main():
             assert planned['encoder']['planned_linear_gain'] is None
             default_plan = json.loads(accepted(run(sox, '--plan', hot, '-r',
                                                    rate, output), 'default plan').stdout)
-            expected_gain = 0.9
+            expected_gain = 1.0 if native in (64, 128) else 0.9
             assert abs(default_plan['encoder']['planned_linear_gain'] -
                        expected_gain) < 1e-14
             strict_plan = json.loads(accepted(run(sox, '--plan', '--dsd-clip',
@@ -175,8 +176,12 @@ def main():
             assert digest(output) == default_hash, 'report changed default clipping'
             accepted(run(sox, '--headroom', '0', hot, '-r', rate, output),
                      'zero fixed headroom')
-            assert digest(output) != default_hash, \
-                '--headroom 0 must override implicit default attenuation'
+            if native in (64, 128):
+                assert digest(output) == default_hash, \
+                    'certified default must equal explicit unity (no implicit cut)'
+            else:
+                assert digest(output) != default_hash, \
+                    'legacy --headroom 0 must override implicit attenuation'
             assert declined(run(sox, '--dsd-clip', 'error', hot, '-r', rate,
                                 output), 'strict').returncode == 2
             assert not output.exists(), 'failed strict conversion left a partial file'
@@ -204,7 +209,7 @@ def main():
                          hot, '-r', rate, output), 'auto without report')
             assert digest(output) == auto_hash, 'report changed headroom audio'
             assert digest(hot) == source_hash, 'scanning modified the input'
-            print(f'PASS DSD{native}: clip/warn, refusal, fixed, stereo measured, report invariance')
+            print(f'PASS DSD{native}: level policy, clip/warn, strict refusal, fixed, stereo measured, report invariance')
 
         # The high clocks use another modulator but the same default policy.
         for native in (512, 1024):
@@ -214,10 +219,9 @@ def main():
             assert abs(plan['encoder']['planned_linear_gain'] - 0.9) < 1e-14
         print('PASS DSD512/1024 plans: same default ceiling and gain')
 
-        # D-01: previously the 0.45 hard limit clipped ~21% of native
-        # samples of this perfectly valid 0.95-FS sine and generated about
-        # -34 dBc THD. A constant linear default gain must preserve its
-        # waveform, at the cost of a clearly reported 0.915 dB level cut.
+        # A legal 0.95-FS sine must pass DSD64/128 at full requested level:
+        # no old 0.9 default cut, no old 0.45 clip, no THD penalty.
+        # DSD256 retains v1's measured attenuation policy.
         sine = root/'sine-0.95.wav'
         fullscale_sine(sine)
         for native in (64, 128, 256):
@@ -228,15 +232,25 @@ def main():
                      f'DSD{native} fullscale sine')
             enc = encoders(report)
             assert all(int(e['clipped_interpolated_samples']) == 0 for e in enc)
-            assert all(abs(e['headroom_applied_db'] + 20 * math.log10(0.9)) < 1e-12
+            expected_gain = 1 if native in (64, 128) else 0.9
+            assert all(abs(e['headroom_applied_db'] + 20 * math.log10(expected_gain)) < 1e-12
                        for e in enc)
+            default_hash = digest(output)
+            if native in (64, 128):
+                accepted(run(sox, '--headroom', '0', sine, '-r', rate, output),
+                         f'DSD{native} explicit unity sine')
+                assert digest(output) == default_hash, \
+                    'certified default modified in-range programme level'
             fundamental, distortion = decoded_thd(sox, output, root/'sine.f64')
-            assert 0.42 < fundamental < 0.435, fundamental
+            if native in (64, 128):
+                assert 0.467 < fundamental < 0.484, fundamental
+            else:
+                assert 0.42 < fundamental < 0.435, fundamental
             assert distortion < -100, f'DSD{native} THD {distortion:.1f} dBc'
             print(f'PASS DSD{native} legal 0.95-FS sine: '
-                  f'0 clips, THD {distortion:.1f} dBc')
+                  f'0 clips, default gain {expected_gain:.1f}, THD {distortion:.1f} dBc')
 
-        # Unity gain is the reference: the plain default always cuts 0.9.
+        # The measured mode must equal explicit unity when no cut is needed.
         output = root/'quiet.dsf'
         accepted(run(sox, '--headroom', '0', quiet, output), 'quiet unity')
         baseline = digest(output)

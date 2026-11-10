@@ -56,12 +56,18 @@ must also support the request.
 ## Loud PCM masters: clipping and headroom
 
 PCM samples below 0 dBFS can overshoot **between** samples after
-reconstruction/interpolation. Plain `sox in.wav out.dsf` uses a fast, one-pass
-clip-and-warn path with a 0.45 ceiling at every DSD rate. Its default also
-applies a constant 0.9 linear gain (-0.91515 dB) **before** the clip check.
-This avoids hard-clipping ordinary PCM peaks below full scale, but reduces the
-overall output level even for quiet inputs. Clipping warnings report any
-remaining overloads; the modulator state/numerical guards remain active.
+reconstruction/interpolation. At **DSD64 and DSD128**, the certified
+switched-resonator modulators use **unity default gain**; the old 0.9 cut and
+0.45 modulator-protection ceiling have been removed. The fast one-pass default
+still warns and clips *actual interpolated excursions above nominal native
+full scale* (0.5 with ordinary 0.5 reference scaling), not samples in
+(0.45, 0.5]. The resonator itself enforces the separate certified envelope
+0.5 + 2^-28. A strict conversion fails on values outside that envelope.
+
+DSD256, DSD512 and DSD1024 retain the older 0.9 gain and 0.45 protective
+ceiling because their available qualifications are not equivalent to the
+resonators' mathematical proof. At every rate, clipping warnings report
+actual alterations; state and numerical guards remain active.
 
 ```sh
 # Normal, fast, one-pass conversion; report if interpolation clips.
@@ -70,10 +76,10 @@ sox loud.wav -r dsd128 loud.dsf
 # Fixed 2 dB cut before modulation. No scan, no automatic normalization.
 sox --headroom 2 loud.wav -r dsd128 reduced.dsf
 
-# Measure the full interpolated peak and cut to the clipping ceiling.
+# Measure the full interpolated peak; cut only when it exceeds full scale.
 sox --auto-headroom loud.wav -r dsd128 measured.dsf
 
-# Alternatively, reject an over-limit peak instead of clipping it.
+# Alternatively, reject an input outside the certified/legacy bound.
 sox --dsd-clip error loud.wav -r dsd128 strict.dsf
 
 # Require strict behavior after measured headroom, and keep the measurements.
@@ -82,22 +88,22 @@ sox --dsd-clip error --auto-headroom --report encode.json \
 ```
 
 `--headroom` accepts a **nonnegative attenuation** in dB (`0` through `120`),
-not a signed gain: `--headroom 2` means exactly a 2 dB cut and replaces the
-implicit 0.91515 dB reduction. `--headroom 0` explicitly requests unity gain;
-it is **not** equivalent to the default. A cut below 0.91515 dB leaves the
-loudest peaks above the 0.45 ceiling, where they are clipped with a warning.
-`--auto-headroom`
-measures the actual source-rate conversion, prefilter, final interpolation
-and its finite tail. It applies **one shared attenuation across all channels**,
-without boosting quiet audio. The limit is 0.45 at every rate (in modulator
-units, with 0.5 corresponding to 0 dBFS).
-The plain default and measured mode may produce different
-levels even when neither clips: default reduces all input by 0.91515 dB,
-whereas measured mode leaves already-safe material unchanged. The latter is
-preferable if retaining the original level is important. The two choices
-cannot be combined. Both work with an explicit `pcmdsd` effect, and both
-leave native DSD bit-preserving repacks and PCM-only operations unchanged
-(the flags are rejected when no composite encoder is present).
+not a signed gain: `--headroom 2` requests exactly a 2 dB cut. `--headroom 0`
+is equivalent to the DSD64/128 default for input that remains within the
+nominal 0.5 ceiling; on DSD256/512/1024 it overrides the historical 0.91515 dB
+implicit cut. Inter-sample overshoots may still exceed nominal full scale,
+regardless of source sample peaks.
+
+`--auto-headroom` measures the actual source-rate conversion, prefilter,
+final interpolation and finite tail. It applies **one shared attenuation
+across all channels**, without boosting quiet audio, and only if needed.
+Its target is **0.5 at DSD64/128** and **0.45 at DSD256/512/1024** (native
+modulator input units). The certified rate's target is nominal full scale, not
+a lower stability margin. The plain and measured defaults are bit-identical
+for a signal whose interpolated peak is within the relevant target. The two
+headroom choices cannot be combined. Both work with an explicit `pcmdsd`
+effect, and both leave native DSD bit-preserving repacks and PCM-only
+operations unchanged (the flags are rejected without a composite encoder).
 
 Automatic measurement uses a PCM-rate temporary file to handle long
 programmes and non-seekable inputs without storing them in memory. It runs

@@ -34,16 +34,23 @@ selectable. To ask for v1 explicitly:
     sox --decode decode.mastering.v1.dsd64 \
       input.dsf -r 176400 -b 24 output.wav
 
-Loud PCM masters may exceed full scale *between* samples. By default the
-PCM-to-DSD encoder clips residual interpolated overloads and warns. At every
-DSD rate it also applies a constant **0.9 linear gain (-0.91515 dB)** to
-avoid distorting otherwise legal PCM with the lower 0.45 modulator ceiling.
-This fast default changes output level even for quiet signals. `--headroom DB`
-selects an explicit fixed cut instead (including `--headroom 0`, which
-disables the implicit cut; cuts below 0.91515 dB may clip the loudest peaks);
-`--auto-headroom` measures the complete interpolated peak and applies the
-smallest common cut without clipping. `--dsd-clip error` retains strict,
-unattenuated overload refusal. `--plan` and `--report` disclose the applied gain.
+Loud PCM masters may exceed full scale *between* samples. **DSD64 and
+DSD128**, which use the mathematically certified switched-resonator modulators,
+encode with **unity default gain**. The old modulator-protection 0.9 gain and
+0.45 clip ceiling do not apply. In the default warn-and-clip mode, only genuine
+interpolated excursions above nominal native full scale (0.5, corresponding to
+0 dBFS PCM with reference scaling 0.5) are clipped and reported. The kernel's
+independently enforced certified input bound remains 0.5 + 2^-28.
+
+The DSD256/512/1024 modulators do not have that proof and retain their
+historical 0.9 default gain and 0.45 protective ceiling. `--headroom DB`
+requests an explicit fixed cut; `--headroom 0` equals the DSD64/128 default
+for in-range material. `--auto-headroom` measures the complete interpolated
+peak and, when necessary, applies one common cut across channels: to nominal
+0.5 at DSD64/128 or 0.45 at other rates. `--dsd-clip error` disables clipping
+and fails on input outside the admitted envelope. `--plan` and `--report`
+disclose each rate's actual policy. See
+[the Phase 01 level-policy decision](docs/dsd/PHASE01_OWNER_LEVEL_POLICY_2026-11-09.md).
 
 For basic conversion, profile selection, supported operations and limitations,
 see [Using SoX DSD](docs/dsd/USING_SOX_DSD.md),
