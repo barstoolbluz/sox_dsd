@@ -1,293 +1,185 @@
 # SoX DSD
 
-SoX DSD is a fork of [SoX-NG](https://codeberg.org/sox_ng/sox_ng),
-with better DSD support as its first priority. It remains a general-purpose
-SoX: the existing formats, effects, command-line tools and build system
-are part of the project, not something we plan to replace.
-
-SoX-NG maintains and improves SoX by bringing together fixes and new work
-from distributions and other forks. SoX DSD builds on that work, but is
-putting more effort into DSD and into the numerical quality of audio
-processing more generally.
-
-## What is different?
-
-### DSD
-
-The current work extends DSD64, DSD128 and DSD256 processing, including
-native DSF and DSDIFF I/O, DSD-to-PCM reconstruction, and DSD encoding.
-It adds DSD-aware planning and qualified mastering and wideband reconstruction
-filters rather than treating all DSD-to-PCM conversions as interchangeable.
-
-**DSD512 and DSD1024 file and transport paths are enabled as of P21
-(2026-10-23).** DSF and DSDIFF support native read/write, WSD supports
-native read, and DoP transport is enabled for both clocks. The default
-encoder at every rate is the eighth-order mastering v1; at DSD512 and
-DSD1024 it replaced the seventh-order v2 CLANS-7 as the **default** on 2026-11-07
-([evidence](docs/dsd/V1_HIGH_RATE_ENCODE_2026-11-07.md)). v2 remains qualified
-and explicitly selectable with `--encode encode.mastering.v2.dsd512` or
-`--encode encode.mastering.v2.dsd1024`, retaining the 1.1.0 v2 bitstream.
-File and DoP authorization does not establish support
-on any particular player, DAC or transport device. See the [1.1.1 release notes](docs/dsd/RELEASE_NOTES_1.1.1.md) for
-shipping behavior and limits. The original P21 authorization record is
-preserved in the separately published evidence archive.
-
-The sole standard decoder is mastering v1 at every native rate: passband
-20 kHz at DSD64, 30 kHz at DSD128 and 40 kHz from DSD256 up. The
-qualified wideband-v1 decoder is the only reconstruction alternative.
-`--decode mastering` is equivalent to omitting `--decode`; v2 **decoder**
-filters and the `--decode conservative`/`legacy` aliases are removed.
-
-    sox --decode wideband input.dsf -r 176400 -b 24 output.wav
-
-The optional mastering v2 **encoder** at DSD512/1024 is independent and
-remains selectable by its exact `encode.mastering.v2.dsdNNN` ID.
-
-Loud PCM masters may exceed full scale *between* samples. By default the
-PCM-to-DSD encoder clips residual interpolated overloads and warns. At every
-DSD rate it also applies a constant **0.9 linear gain (-0.91515 dB)** to
-avoid distorting otherwise legal PCM with the lower 0.45 modulator ceiling.
-This fast default changes output level even for quiet signals. `--headroom DB`
-selects an explicit fixed cut instead (including `--headroom 0`, which
-disables the implicit cut; cuts below 0.91515 dB may clip the loudest peaks);
-`--auto-headroom` measures the complete interpolated peak and applies the
-smallest common cut without clipping. `--dsd-clip error` retains strict
-overload refusal. It uses gain 1 at DSD64-256 and for an explicitly selected
-high-rate v2 encoder; the default high-rate v1 encoder retains gain 0.9.
-For PCM-origin input only, that 0.9 mapping can admit interpolated pre-gain
-peaks up to approximately +0.915 dB above PCM full scale without exceeding
-the 0.5 modulator overload envelope. It does not permit input samples above
-the PCM format's full scale; DSD-origin re-encodes use a different reference
-scale. It is **not** a promise of guard stability. Full-scale DC with the v1
-encoder and `--headroom 0` is a reproduced state-guard failure at both high
-rates. Intermediate headroom cuts below 0.91515 dB were not systematically
-tested and should not be described as having failed.
-`--plan` and `--report` disclose the applied gain. The overload message
-suggests retrying with `--auto-headroom`, which measures the whole stream. It
-also gives the smallest fixed `--headroom` that clears the first failed
-sample; that is an absolute replacement cut, not a guaranteed successful
-retry.
-
-For the 1.1.1 default changes and high-rate v2 selection rules,
-see [release notes](docs/dsd/RELEASE_NOTES_1.1.1.md).
-
-For basic conversion, profile selection, supported operations and limitations,
-see [Using SoX DSD](docs/dsd/USING_SOX_DSD.md),
-[the CLI migration table](docs/dsd/MIGRATION_P15.md) and
-[the DSD documentation](docs/dsd/README.md).
-
-### Numerical accuracy
-
-DSD is where we're starting, not where we intend to stop. We also want to
-improve the rest of SoX's DSP where better algorithms or more careful
-arithmetic can make a real difference: resampling, filtering, gain
-processing and other effects.
-
-We care about errors small enough to measure, even when they are too small
-to hear. But more bits and more complicated code are not automatically
-better. We'll use independent numerical references, difficult test cases
-and measurements to find out whether a change actually improves things.
-And we'll keep performance in view. The aim is to get as close to the
-mathematically intended result as practical, without claiming that a
-finite-precision program can be literally perfect.
-
-## Terminology
-
-`sox` means the command-line executable used by SoX DSD; the original SoX project is at [sox.sf.net](http://sox.sf.net)<BR>
-`SoX` means the Swiss Army Knife of command-line audio processing in any of its incarnations<BR>
-`sox_ng` means the hard fork of `sox-14.4.2` aiming to sanitize `SoX`<BR>
-`SoX_ng` means the project to maintain `sox_ng`<BR>
-`SoX DSD` means this fork of SoX-NG
-
-## How to get it
-
-Use the SoX DSD source tree or a release archive from this project.
-The [SoX-NG repository](https://codeberg.org/sox_ng/sox_ng) and its
-[releases](https://codeberg.org/sox_ng/sox_ng/releases) are **upstream
-SoX-NG**, not SoX DSD.
+**SoX with first-class Direct Stream Digital support.**
 
-### Nix (recommended)
+SoX DSD is an independently versioned fork of [SoX-NG](https://codeberg.org/sox_ng/sox_ng), itself a continuation of [SoX](https://sox.sourceforge.net/). It keeps SoX's general-purpose audio conversion, effects, formats, command-line model, and library interfaces. The additional work concentrates on native DSD, controlled DSD/PCM conversion, and measurable numerical quality.
 
-The easiest way to build SoX DSD is with Nix. The source tree is a flake,
-and `flake.lock` pins every dependency, so there is nothing else to
-install. With flakes enabled, run it without installing:
+**Current version: 1.1.1**, based on **SoX-NG 14.8.1**. This is the behavior of the 1.1.1 release and the current `main` branch as of November 2026. The commits after the release tag reorganize tests and repository evidence without changing the audio engine.
 
-    nix run github:barstoolbluz/sox_dsd -- --version
+## Why this fork exists
 
-or build it from a checkout:
+SoX already handles a wide range of audio tasks. SoX DSD builds on that foundation rather than replacing it with a DSD-only tool. Its distinguishing work is:
 
-    nix build            # same as .#full
-    ./result/bin/sox --version
+| Area | What SoX DSD adds |
+| --- | --- |
+| **Native DSD** | DSF and DSDIFF read/write at DSD64, DSD128, DSD256, DSD512, and DSD1024, with native-bitstream repacking when no audio processing is required. |
+| **DSD reconstruction and encoding** | Qualified, rate-specific reconstruction filters and noise-shaping encoders with explicit, versioned profile identities. |
+| **Transport** | DSD-over-PCM (DoP) packaging without reconstructing audio PCM; native WSD input is also supported. |
+| **Predictable routing** | DSD-aware planning distinguishes native repacking from operations that need PCM reconstruction, processing, and re-encoding. |
+| **Headroom and diagnostics** | Interpolated-peak handling, explicit and measured headroom, strict clipping policy, JSON preflight plans, and execution reports. |
+| **Numerical verification** | Independent references, regression and qualification tests, SIMD checks, and separately published historical evidence. |
 
-There are three builds:
+The project also pursues better numerical results in conventional PCM processing. That is an engineering direction, **not** a claim that every inherited SoX effect has already been replaced or that more computation automatically produces better audio.
 
-- `full` (the default): every optional format library, with FFmpeg
-  support. `ffmpeg`, `curl` and `wget` are put on the `PATH` of the
-  installed `sox`, so FFmpeg input and URL input work.
-- `bare`: no optional codecs and no FFmpeg; a static library. Small and
-  quick to build.
-- `checked`: `bare`, plus `make check-dsd` run during the build.
+## What works in 1.1.1
 
-Pick one with `nix build .#bare` or `nix build .#checked`.
+### Native rates, files, and transport
 
-The `checked` variant runs the DSD suite on the current builder. It tests
-scalar and all SIMD tiers that the **CPU and OS can execute** (including the
-required saved register state), reporting missing tiers as `SKIP`. It still
-compiles and audits available SIMD kernel objects, even when the builder
-cannot run them. A supported tier that fails, or is missing from the build,
-remains a test failure. Thus `checked` passing on an AVX2-only machine does
-not establish AVX-512 executable qualification; use a host with AVX-512F for
-that additional coverage.
+| Native rate | One-bit clock | Default DSD-to-PCM output | DoP carrier rate |
+| --- | ---: | ---: | ---: |
+| DSD64 | 2,822,400 Hz | 88,200 Hz | 176,400 Hz |
+| DSD128 | 5,644,800 Hz | 176,400 Hz | 352,800 Hz |
+| DSD256 | 11,289,600 Hz | 176,400 Hz | 705,600 Hz |
+| DSD512 | 22,579,200 Hz | 176,400 Hz | 1,411,200 Hz |
+| DSD1024 | 45,158,400 Hz | 176,400 Hz | 2,822,400 Hz |
 
-If flakes are not enabled, add `--extra-experimental-features 'nix-command flakes'`
-to each `nix` command.
+- **DSF (`.dsf`) and DSDIFF (`.dff`)** support native DSD reading and writing at all five rates. **WSD is read-only.** DST-compressed DSDIFF is not supported.
+- **Native repacking** between DSF and DSDIFF at the same bit clock preserves the one-bit audio stream when no PCM-domain operation is requested. Changing the DSD clock, applying gain or effects, or resampling requires a processing path.
+- **DoP** carries DSD bits in a lossless signed 24-bit PCM stream with markers. It is not a DSD-to-PCM audio conversion; the receiver must recognize DoP. File and carrier support do not imply that a particular DAC, player, or connection accepts every rate.
+- Channel-layout metadata is handled explicitly. Operations that would lose a known channel identity are not silently treated as lossless native transfers.
 
-`nix develop` opens a shell with the autotools, every optional library
-and the Python packages the DSD regression suite needs. Inside it, build
-as for a git checkout below.
+### Reconstruction and modulation profiles
 
-### Releases
+**Decoder and encoder versions refer to different algorithms.** They are not a matched v1/v2 pair.
 
-For a SoX DSD source release on Unix-compatible systems, extract the
-archive, change into its directory, and build it:
+- **DSD to PCM:** the default is the qualified **mastering v1 decoder** at every native clock. `--decode mastering` selects the same bank. Its rated passband is 20 kHz for DSD64, 30 kHz for DSD128, and 40 kHz for DSD256 and above. `--decode wideband` selects the qualified **wideband v1** alternative, subject to the selected PCM output rate and bandwidth policy.
+- **PCM to DSD:** the default is the qualified **eighth-order mastering v1 encoder** at all five rates. `--encode mastering` selects it explicitly.
+- **Optional high-rate encoder:** `encode.mastering.v2.dsd512` and `encode.mastering.v2.dsd1024` select the distinct qualified **seventh-order CLANS-7** encoder, retained for explicit compatibility with 1.1.0 output. These are **encoder** profiles; there is no mastering v2 decoder in 1.1.1.
+- **Exact IDs** such as `decode.mastering.v1.dsd64` and `encode.mastering.v1.dsd256` pin a qualified profile to a native rate. An incompatible pin is rejected rather than silently substituted.
 
-    ./configure
-    make
+Compared with **1.1.0**, 1.1.1 selects mastering **v1**, not mastering v2, as its standard decoder. Default decoded PCM can therefore differ between those releases. The older `--decode conservative` and `--decode legacy` aliases and mastering-v2 decoder IDs are no longer supported. The separately named high-rate v2 *encoder* remains available.
 
-Install it:
+A *qualified* profile has passed the project's release-authorization checks for its stated scope. The term does not promise universal hardware compatibility, unconditional modulator stability, or superiority for every recording. See the [1.1.1 release notes](docs/dsd/RELEASE_NOTES_1.1.1.md).
 
-    sudo make install
+### Clipping and headroom
 
-The command-line executable is named `sox`. The source still retains
-SoX-NG-derived library and header names, including `sox_ng.h` and
-`libsox_ng.so`.
-The accompanying commands use the standard names `soxi`, `play` and `rec`
-(where audio-device support makes `play`/`rec` available). Existing
-`soxi_ng`, `play_ng` and `rec_ng` command aliases remain available for
-compatibility when symbolic links are enabled. `--disable-symlinks`
-suppresses those aliases; `--enable-replace` now controls only optional
-library, header, pkg-config and library-documentation compatibility aliases.
-This binary-name change does **not** rename the library ABI or the headers.
+PCM can overshoot between samples after interpolation. For PCM-to-DSD conversions, the normal fast path applies a **0.9 linear gain** (approximately **-0.91515 dB**) even to quiet input, then clips residual interpolated peaks above its 0.45 modulator-unit warning ceiling and reports the clipping. This is a deliberate, audible-level-affecting default, not transparent gain preservation.
 
-### Development branches
+- `--headroom DB` replaces the implicit cut with an explicit fixed attenuation.
+- `--auto-headroom` measures the full interpolated signal and chooses the smallest non-amplifying, shared multichannel cut that stays within the warning ceiling. It needs additional passes and temporary storage.
+- `--dsd-clip error` rejects overloads instead of clipping. Its default gain differs by rate/profile; strict mode does **not** universally mean unity gain. Modulator state and numerical guards remain active under every policy.
 
-#### main
+If retaining source level or avoiding clipping is important, choose the headroom policy explicitly. In particular, high-rate mastering v1 with `--headroom 0` is **not** guaranteed stable for full-scale inputs. The [user guide](docs/dsd/USING_SOX_DSD.md) explains the policies and their limits.
 
-From a checkout of this project's source tree, compile it with:
+## Start converting
 
-    autoreconf -i
-    ./configure
-    make
+SoX DSD retains the ordinary SoX command structure:
 
-and install it with:
+```text
+sox [options] input [output-options] output [effects]
+```
 
-    sudo make install
+Most DSD operations need no DSD-specific switches:
 
-To build with FFmpeg format support when FFmpeg is installed, add
-`--with-ffmpeg` to `./configure`. For DSD-specific regression tests,
-run `make check-dsd`.
+```sh
+# Native DSD to 24-bit PCM
+sox concert.dsf -r 96000 -b 24 concert.wav
 
-## Runtime dependencies
+# PCM to native DSD128 with the default qualified encoder
+sox master.wav -r dsd128 master.dsf
 
-If `ffmpeg` is installed on your system, `sox` will be able to read
-four dozen more audio formats as well as extract soundtracks from video files.
+# Repack native DSD without decoding or re-encoding
+sox concert.dsf concert.dff
 
-If `wget`, `wget2` or `curl` are installed, you can fetch URLs as input
-streams.
+# Package native DSD as DoP in a 24-bit WAV carrier
+sox --dop concert.dsf concert-dop.wav
 
-## Build dependencies
+# Measure interpolated peaks and apply only the required headroom
+sox --auto-headroom master.wav -r dsd256 master.dsf
 
-To compile a release tarball you will need `make`, and `gcc` or `clang`
+# Inspect the intended DSD processing graph without writing audio
+sox --plan concert.dsf concert.wav
 
-To build the git repository you will also need `autoconf`, `automake`
-and `libtool`.
+# Convert and save the actual processing details as JSON
+sox --report conversion.json concert.dsf concert.wav
+```
 
-To enable all of SoX's optional modules you can install
-`ladspa-sdk`
-`lame`,
-`libao`,
-`libfftw3`,
-`libflac`,
-`libid3tag`,
-`libmad`
-`libogg`,
-`libopus`,
-`libopusfile`,
-`libpng`,
-`libsndfile`,
-`libspeex`,
-`libspeexdsp`,
-`libvorbis`,
-`opencore-amr`,
-`twolame`,
-`wavpack`.
+For advanced selection:
 
-### Debian, Ubuntu, Mint etc.
+```sh
+# Choose qualified wideband reconstruction
+sox --decode wideband concert.dsf -r 176400 wideband.wav
 
-    apt install gcc make libtool ladspa-sdk libao-dev libasound2-dev libfftw3-dev \
-    libgsm1-dev libid3tag0-dev libltdl-dev libmad0-dev libmagic-dev \
-    libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev \
-    libopusfile-dev libpng-dev libpulse-dev \
-    libsndfile1-dev libspeex-dev libspeexdsp-dev libtwolame-dev \
-    libvorbis-dev libwavpack-dev
+# Pin the optional 1.1.0-compatible high-rate v2 encoder
+sox --encode encode.mastering.v2.dsd512 master.wav -r dsd512 v2.dsf
 
-and to run `issues/getissues.sh` and the `makehtml.sh` scripts you will need
+# Reject interpolated overload rather than clipping it
+sox --dsd-clip error --auto-headroom master.wav -r dsd128 strict.dsf
+```
 
-    apt-get install jq libtext-multimarkdown-perl
+Use `sox --help-dsd` for a short DSD reference. The full [Using SoX DSD](docs/dsd/USING_SOX_DSD.md) guide covers PCM clock selection, native versus reconstructed processing, DoP restrictions, layout controls, decoder bandwidth, the `dsdpcm`/`pcmdsd` effects, and profile compatibility.
 
-### Fedora, Red Hat, CentOS etc.
+## Build and install
 
-    yum install gcc make libtool \
-    alsa-lib-devel fftw-devel file-devel flac-devel gsm-devel \
-    ladspa-devel lame-devel libao-devel libid3tag-devel \
-    libmad-devel libpng-devel libsndfile-devel \
-    libtool-ltdl-devel libvorbis-devel opencore-amr-devel \
-    opusfile-devel pulseaudio-libs-devel speex-devel speexdsp-devel \
-    twolame-devel wavpack-devel
+### Nix
 
-and to run `issues/getissues.sh` and the `makehtml.sh` scripts you will need
+The repository includes a pinned flake. With Nix flakes enabled:
 
-    yum install jq multimarkdown
+```sh
+nix build                 # full build, with optional format support
+./result/bin/sox --version
 
-### FreeBSD
+nix build .#bare          # smaller build, without optional codecs or FFmpeg
+nix build .#checked       # bare build plus the DSD checks
+```
 
-    pkg install gcc dmake fftw3 file ladspa libid3tag png \
-    flac gsm lame libmad libsndfile libvorbis opencore-amr \
-    opusfile speex speexdsp twolame wavpack
+`nix run github:barstoolbluz/sox_dsd -- --version` runs the full variant from the hosted source. The full Nix package also places FFmpeg and URL-fetch helpers on the executable's runtime `PATH`.
 
-but you can almost certainly omit `file` which it wants for `libmagic`
-which is installed in a default FreeBSD installation in `/usr/lib`.
-If you install it with `pkg`, you get a second copy under `/usr/local`.
+### Source release
 
-You can also install `pulseaudio` `alsa-libs` and `libao`
-if you want support for those alternative sound I/O systems.
+A release archive includes generated Autotools files:
 
-If you are compiling its development git tree you will also need to
+```sh
+./configure
+make
+make check
+sudo make install
+```
 
-    pkg install autotools libtool
+### Git checkout
 
-To run `issues/getissues.sh` and the `makehtml.sh` scripts you will need
+A development checkout needs a C compiler, Make, Autoconf, Automake, and Libtool:
 
-    pkg install jq multimarkdown
+```sh
+autoreconf -i
+./configure
+make
+make check
+```
 
-## Upstream SoX-NG
+Add `--with-ffmpeg` to `./configure` when FFmpeg format support is wanted and available. Optional codec libraries depend on the formats you want. See [INSTALL](INSTALL), [README-cmake.md](README-cmake.md), and [README.win32](README.win32) for alternative build environments.
 
-The original SoX-NG code, wiki and issue tracker are at
-[codeberg.org/sox_ng/sox_ng](https://codeberg.org/sox_ng/sox_ng).
-The following contacts belong to **SoX-NG**, not to SoX DSD.
+The executable is **`sox`**, alongside the familiar `soxi`, `play`, and `rec` commands where supported. The inherited library/header names remain **`libsox_ng`** and **`sox_ng.h`**; this fork has not renamed the library ABI. Compatibility command aliases may be installed where symlinks are enabled.
 
-### Accessibility
+## Tests and reproducibility
 
-You can edit and commit to the upstream code and wiki using Codeberg's web
-interface or from the command-line. The command-line is the only way to add
-images and attachments to the wiki.
+The ordinary SoX tests and DSD-specific checks coexist:
 
-The issues can be downloaded as well as uploaded replacing all remote content
-but this risks overwriting changes made via the web interface so for now
-it is recommended to edit them on the Codeberg web site.
+```sh
+make check                     # inherited SoX regression suite
+make check-dsd-cli             # DSD CLI, release, and loud-encode acceptance
+make check-dsd-release-111     # 1.1.1 profile and compatibility regressions
+make check-dsd-optimization    # DSD numerical and optimization checks
+make check-dsd                # DSD phase runner (defaults to P18)
+```
 
-## README and PDFs
+The DSD phase suite uses Python 3 and, for numerical checks, `numpy`, `scipy`, and `mpmath`. Its CPU-specific checks exercise only the instruction-set tiers supported by the running machine. A pass on one host does not certify unexecuted CPU tiers, hardware transports, or private media collections.
 
-To generate SoX's original README, run `./README.sh` or `make README`
+`tests/dsd/` groups executable checks, native probes, phase studies, qualification tools, benchmarks, generators, fixtures, numerical references, and shared support code. Run outputs go under `.dsd-check-results/` or a caller-specified `DSD_RESULTS` directory, not into tracked evidence. See [tests/dsd/README.md](tests/dsd/README.md) and [Qualification](docs/dsd/QUALIFICATION.md).
 
-To generate the PDF version of the documentation, `make pdf`
+The repository cleanup after 1.1.1 also restored the original identities of untouched upstream commits, retained the release tags, and moved historical receipts and repository-rewrite utilities into **separate release evidence/tooling assets**. The in-tree `scripts/` directory contains the eight inherited SoX-NG scripts. That separation keeps the source and build inputs available without treating historical results as fresh test executions.
+
+## Documentation
+
+- [Using SoX DSD](docs/dsd/USING_SOX_DSD.md): practical commands and behavior.
+- [1.1.1 release notes](docs/dsd/RELEASE_NOTES_1.1.1.md): exact defaults, changed behavior, and compatibility limits.
+- [DSD documentation index](docs/dsd/README.md): engine design, API-related behavior, profiles, and technical contracts.
+- [CLI migration table](docs/dsd/MIGRATION_P15.md): earlier SoX DSD option spellings.
+- [Qualification](docs/dsd/QUALIFICATION.md): executable checks and the boundaries of the historical evidence.
+- [Upstream relationship](docs/UPSTREAM.md): separate versioning and the intended SoX-NG merge model.
+
+## Relationship to SoX and licensing
+
+SoX DSD stands on the work of SoX, SoX-NG, their contributors, and the libraries used by optional formats. **The upstream SoX-NG repository and its releases are not SoX DSD releases.** This fork retains upstream source structure where future merges expect it and versions its own work independently.
+
+SoX is distributed under the **GNU General Public License, version 2**; individual files may carry other compatible notices. See [COPYING](COPYING) and [AUTHORS](AUTHORS).
