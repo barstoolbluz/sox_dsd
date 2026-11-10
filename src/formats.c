@@ -1593,6 +1593,26 @@ static sox_bool aliases_descriptor(const struct stat *output,
       !fstat(fileno((FILE*)source->fp),&in) && same_object(output,&in);
 }
 
+/* Phase 02A native copies require a size-verifiable, regular WAV input.
+ * The WAV handler already parsed and validated its declared data extent;
+ * check that the actual descriptor contains every declared payload byte
+ * before the output can cross its destructive commit boundary.  Do not
+ * consume source samples or use the pathname to perform this check. */
+static sox_bool native_source_extent_complete(const sox_format_t *source,
+    const lsx_pcm_f64_wav_facts *facts)
+{
+  struct stat st;
+  uint64_t start;
+  int fd;
+  if (!source || !source->fp || !source->seekable ||
+      (fd=fileno((FILE *)source->fp))<0 || fstat(fd,&st) ||
+      !S_ISREG(st.st_mode) || st.st_size<0)
+    return sox_false;
+  start=(uint64_t)source->data_start;
+  return start <= (uint64_t)st.st_size &&
+      facts->data_bytes <= (uint64_t)st.st_size-start;
+}
+
 static sox_bool aliases_report(const struct stat *output,
     const char *report_path)
 {
@@ -1673,6 +1693,14 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
   }
   have_source_facts = source &&
       lsx_pcm_f64_wav_query(source,&source_facts)==PCM_F64_OK;
+  if (source && !have_source_facts) {
+    lsx_fail("native WAV: source header is ineligible for native access");
+    return NULL;
+  }
+  if (have_source_facts && !native_source_extent_complete(source,&source_facts)) {
+    lsx_fail("native WAV: source data extent exceeds the available regular input");
+    return NULL;
+  }
   /* A native FLOAT32 source widens samples with DSP arithmetic. Its read
    * guard would otherwise fire only after this writer has committed a header.
    * Apply the same guard before touching the destination. Binary64 sources

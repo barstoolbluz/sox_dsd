@@ -6,6 +6,11 @@
 #include <inttypes.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
+#if defined(HAVE_UNISTD_H) && !defined(_WIN32)
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 #if (defined(__i386__) || defined(__x86_64__)) && defined(__SSE2__)
 #include <xmmintrin.h>
 #endif
@@ -14,10 +19,43 @@ static sox_bool decline(const char *ignored UNUSED) { return sox_false; }
 static unsigned long long number(const char *s)
 {
   char *e=NULL;
-  unsigned long long n=strtoull(s,&e,10);
-  if (!s[0] || !e || *e) { fprintf(stderr,"bad integer: %s\n",s); exit(2); }
+  unsigned long long n;
+  errno=0;
+  n=strtoull(s,&e,10);
+  if (!s[0] || s[0]=='-' || errno==ERANGE || !e || *e) {
+    fprintf(stderr,"bad integer: %s\n",s); exit(2);
+  }
   return n;
 }
+/* The probe uses a raw, seekable binary64 fixture.  Verify its available
+ * input frames without reading sample data, before any native writer open.
+ * A pipe or uninspectable source cannot satisfy this preflight contract. */
+static bool raw_has_frames(FILE *raw, uint32_t channels, uint64_t frames)
+{
+#if defined(HAVE_UNISTD_H) && !defined(_WIN32)
+  struct stat st;
+  off_t offset;
+  uint64_t needed;
+  if (!raw || !channels || fstat(fileno(raw),&st) ||
+      !S_ISREG(st.st_mode) || st.st_size<0 ||
+      (offset=ftello(raw))<0 || offset>st.st_size ||
+      frames > UINT64_MAX / ((uint64_t)channels*sizeof(double))) {
+    fprintf(stderr,"raw input length cannot be verified before native output\n");
+    return false;
+  }
+  needed=frames*channels*sizeof(double);
+  if (needed > (uint64_t)(st.st_size-offset)) {
+    fprintf(stderr,"short raw input: insufficient frames before native output\n");
+    return false;
+  }
+  return true;
+#else
+  (void)raw; (void)channels; (void)frames;
+  fprintf(stderr,"raw input length preflight is unavailable on this host\n");
+  return false;
+#endif
+}
+
 static int code(const char *arg,sox_encoding_t *encoding,unsigned *bits)
 {
   if (!strcmp(arg,"f64")) { *encoding=SOX_ENCODING_FLOAT;*bits=64; }
@@ -44,7 +82,8 @@ static int run(int argc,char **argv)
   sox_encoding_t encoding=SOX_ENCODING_UNKNOWN;
   unsigned bits=0;
   bool big=false;
-  uint64_t frames,read_frames=0,written_frames=0;
+  uint64_t frames,to_write=0,read_frames=0,written_frames=0;
+  uint64_t channels_arg,rate_arg;
   size_t block=23, n;
   double samples[64*257];
   int rc=1;
@@ -57,19 +96,29 @@ static int run(int argc,char **argv)
   if (!strcmp(mode,"generate")) {
     /* generate raw64 out type L|B channels rate declared_frames to_write
      *          [allow|deny] [report_path] */
-    if (argc < 10 || !code(argv[4],&encoding,&bits)) { rc=2;goto finish; }
+    if (argc < 10 || argc > 12 || !code(argv[4],&encoding,&bits) ||
+        (strcmp(argv[5],"L") && strcmp(argv[5],"B")) ||
+        (argc>10 && strcmp(argv[10],"allow") && strcmp(argv[10],"deny"))) {
+      rc=2;goto finish;
+    }
+    big=!strcmp(argv[5],"B");
+    channels_arg=number(argv[6]);
+    rate_arg=number(argv[7]);
+    frames=number(argv[8]);
+    to_write=number(argv[9]); /* Must parse before acquiring the output. */
+    if (channels_arg>UINT32_MAX || rate_arg>UINT32_MAX) { rc=2;goto finish; }
+    if (frames==UINT64_MAX) { /* a sentinel for unknown, always refused */
+      if (pcm_f64_format_init(&fmt,(uint32_t)rate_arg,(uint32_t)channels_arg,
+          false,0)!=PCM_F64_OK) goto finish;
+    } else if (pcm_f64_format_init(&fmt,(uint32_t)rate_arg,
+           (uint32_t)channels_arg,true,frames)!=PCM_F64_OK) goto finish;
     raw=fopen(argv[2],"rb");
     if (!raw) { perror("raw input");goto finish; }
-    big=argv[5][0]=='B';
-    frames=number(argv[8]);
-    if (frames==UINT64_MAX) { /* a sentinel for unknown, always refused */
-      pcm_f64_format_init(&fmt,(uint32_t)number(argv[7]),(uint32_t)number(argv[6]),false,0);
-    } else if (pcm_f64_format_init(&fmt,(uint32_t)number(argv[7]),
-           (uint32_t)number(argv[6]),true,frames)!=PCM_F64_OK) goto finish;
+    if (!raw_has_frames(raw,fmt.channels,to_write)) goto finish;
     out=lsx_pcm_f64_wav_open_write(argv[3],&fmt,encoding,bits,big,NULL,NULL,
         argc>11 ? argv[11] : NULL,argc>10 && !strcmp(argv[10],"deny") ? decline : NULL);
     if (!out) { fail("safe open",NULL);goto finish; }
-    frames=number(argv[9]);
+    frames=to_write;
     while (frames) {
       unsigned char snapshot[sizeof(samples)];
       n=(size_t)min((uint64_t)257,frames);
@@ -189,18 +238,30 @@ static int run(int argc,char **argv)
       rc=2;
 #endif
     } else if (!strcmp(mode,"copy") || !strcmp(mode,"dump")) {
+      /* Block arguments are input-independent: refuse them before the writer
+       * opens a destination, not after it has committed the WAV header. */
+      if (argc>6 && !strcmp(mode,"copy")) {
+        uint64_t requested=number(argv[6]);
+        if (!requested || requested>257) { rc=2;goto finish; }
+        block=(size_t)requested;
+      } else if (argc>3 && !strcmp(mode,"dump")) {
+        uint64_t requested=number(argv[3]);
+        if (!requested || requested>257) { rc=2;goto finish; }
+        block=(size_t)requested;
+      }
       if (!strcmp(mode,"copy")) {
-        if (argc<6 || !code(argv[4],&encoding,&bits)) { rc=2;goto finish; }
-        big=argv[5][0]=='B';
+        if (argc<6 || argc>9 || !code(argv[4],&encoding,&bits) ||
+            (strcmp(argv[5],"L") && strcmp(argv[5],"B")) ||
+            (argc>7 && strcmp(argv[7],"allow") && strcmp(argv[7],"deny"))) {
+          rc=2;goto finish;
+        }
+        big=!strcmp(argv[5],"B");
         if (sox_dsd_get_layout(in,&layout)!=SOX_DSD_OK) goto finish;
         out=lsx_pcm_f64_wav_open_write(argv[3],&facts.stream,encoding,bits,big,
             layout,in,argc>8 ? argv[8] : NULL,
             argc>7 && !strcmp(argv[7],"deny") ? decline : NULL);
         if (!out) { fail("safe output",NULL); goto finish; }
       }
-      if (argc>6 && !strcmp(mode,"copy")) block=(size_t)number(argv[6]);
-      else if (argc>3 && !strcmp(mode,"dump")) block=(size_t)number(argv[3]);
-      if (block<1 || block>257) { rc=2;goto finish; }
       for (;;) {
         p=lsx_pcm_f64_wav_read(in,(pcm_f64_output){samples,block});
         if (pcm_f64_is_failure(p.status)) { fail("native read",in);goto finish; }
