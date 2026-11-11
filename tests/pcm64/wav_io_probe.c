@@ -123,7 +123,14 @@ static int run(int argc,char **argv)
   FILE *raw=NULL;
   const char *mode;
 
-  if (argc<3) { fprintf(stderr,"usage: probe query|dump|copy|generate|mixed ...\n");return 2; }
+  /* Test-harness capability query; no format handle or WAV data is opened.
+   * A disabled/unsupported arithmetic backend must not turn a platform gate
+   * into an apparent conformance failure. */
+  if (argc == 2 && !strcmp(argv[1], "capabilities")) {
+    printf("native_dsp=%s\n", pcm_f64_status_name(pcm_f64_check_dsp_env()));
+    return 0;
+  }
+  if (argc<3) { fprintf(stderr,"usage: probe capabilities|query|dump|copy|generate|mixed ...\n");return 2; }
   mode=argv[1];
   if (sox_init()!=SOX_SUCCESS) { fprintf(stderr,"sox_init failed\n");return 2; }
   if (!strcmp(mode,"generate")) {

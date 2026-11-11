@@ -199,7 +199,19 @@ class CaseRunner:
         self.shim=None
         self.fenv=None
         self.gates={}
+        self.native_dsp=None
+        self.native_dsp_status=None
+        self.executed_binary_sha256={}
         self.rng=random.Random(SEED)
+
+    def record_binary(self, path):
+        # Store the content of the executable actually selected, including
+        # when a later assertion turns this suite receipt into FAIL.
+        path=Path(path).resolve()
+        self.executed_binary_sha256[str(path)]=digest(path)
+
+    def native_unavailable(self):
+        return 'NOT_RUN: native binary64 arithmetic unavailable (' + self.native_dsp_status + ')'
 
     def tick(self,group,n=1):
         self.counts[group]=self.counts.get(group,0)+n
@@ -234,6 +246,7 @@ class CaseRunner:
                 'stderr':p.stderr.decode('utf-8','replace')[:4096],
                 'env':{k:v for k,v in (env or {}).items() if k.startswith('PCM64_')}}
         self.commands.append(record)
+        self.record_binary(self.probe)
         insist((p.returncode==0) == (expect==0),
                f'command {label or args[0]} unexpected exit {p.returncode}, expected {expect}; '
                f'arguments={command} stderr={record["stderr"]}')
@@ -322,6 +335,14 @@ class CaseRunner:
             self.invoke(['mixed',src],label='mixed-access-'+src.name)
             self.tick('mixed_seek_eof_state_checks')
             self.tick('f64_roundtrip_samples',n)
+        self.gates['f64_exact_wav_roundtrip']='PASS'
+        if not self.native_dsp:
+            # FLOAT64 direct bit transfer remains usable in legacy-only
+            # builds, but conversion, normalization and quantization do not.
+            self.gates['f32_exact_wav_roundtrip']=self.native_unavailable()
+            self.gates['integer_exact_wav_roundtrip']=self.native_unavailable()
+            self.int32_bridge_negative()
+            return
         # F32: each possible exponent class, both signs, and subnormal tails.
         for ch,big,ext in ((1,False,False),(2,True,False),(6,False,True)):
             words32=f32_words()
@@ -338,6 +359,7 @@ class CaseRunner:
             insist(parsed['data']==enc_float_words(words32,32,not big),
                    f'float32 exact widening/narrowing changed native words {ch}')
             self.tick('f32_roundtrip_samples',len(words32))
+        self.gates['f32_exact_wav_roundtrip']='PASS'
         # All four integer PCM widths; exact fraction-to-double on ingress.
         for bits in (8,16,24,32):
             scale=1<<(bits-1)
@@ -359,6 +381,10 @@ class CaseRunner:
                 insist(parsed['data']==integer_bytes(encoded,bits,not big),
                        f'integer decoded/quantized value diverged at {bits} bits')
                 self.tick('integer_roundtrip_samples',len(codes))
+        self.gates['integer_exact_wav_roundtrip']='PASS'
+        self.int32_bridge_negative()
+
+    def int32_bridge_negative(self):
         # Distinguish binary64 from an int32 bridge: finite nonunity and tiny
         # values must not be clamped, quantized or reconstituted as zeros.
         bridge_words=[ieee_f64_bits(x) for x in (2.0,-1.5,math.ldexp(1.0,-40),
@@ -368,10 +394,25 @@ class CaseRunner:
         self.tick('int32_bridge_negative_controls')
 
     def daz_guard(self):
-        # DAZ affects SSE FLOAT32 -> binary64 widening, not bitwise FLOAT64
-        # transfer. Exercise the *actual* reader under both MXCSR settings.
+        # DAZ affects SSE FLOAT32-to-binary64 widening, not bitwise FLOAT64
+        # transfer. Keep qualifying the latter even without native DSP.
         if platform.machine().lower() not in ('x86_64', 'amd64'):
             self.gates['f32_daz_read_guard']='NOT_RUN: requires x86-64 SSE2'
+            self.gates['f64_daz_identity']='NOT_RUN: requires x86-64 SSE2'
+            return
+        f64 = [0x0000000000000000, 0x8000000000000000,
+               0x0000000000000001, 0x8000000000000001,
+               0x000fffffffffffff, 0x800fffffffffffff,
+               0x0010000000000000, 0x3ff0000000000000]
+        src64 = self.file('daz-identity-f64.wav',wave_bytes(
+            enc_float_words(f64,64,False),channels=2,code='f64'))
+        actual64,_ = self.invoke(['daz',src64,'on'],label='f64-daz-on-identity')
+        insist(read_double_words(actual64)==f64,
+               'FLOAT64 bitwise ingress changed under DAZ')
+        self.tick('f64_daz_on_identity_samples',len(f64))
+        self.gates['f64_daz_identity']='PASS'
+        if not self.native_dsp:
+            self.gates['f32_daz_read_guard']=self.native_unavailable()
             return
         f32 = [0x00000001, 0x80000001, 0x007fffff, 0x807fffff,
                0x00012345, 0x80054321, 0x00800000, 0x80800000,
@@ -387,19 +428,13 @@ class CaseRunner:
         insist(rejected==b'', 'DAZ rejection published decoded FLOAT32 samples')
         self.tick('f32_daz_off_exact_samples',len(f32))
         self.tick('f32_daz_on_refusals_latched_and_unpublished')
-        f64 = [0x0000000000000000, 0x8000000000000000,
-               0x0000000000000001, 0x8000000000000001,
-               0x000fffffffffffff, 0x800fffffffffffff,
-               0x0010000000000000, 0x3ff0000000000000]
-        src64 = self.file('daz-identity-f64.wav',wave_bytes(
-            enc_float_words(f64,64,False),channels=2,code='f64'))
-        actual64,_ = self.invoke(['daz',src64,'on'],label='f64-daz-on-identity')
-        insist(read_double_words(actual64)==f64,
-               'FLOAT64 bitwise ingress changed under DAZ')
-        self.tick('f64_daz_on_identity_samples',len(f64))
         self.gates['f32_daz_read_guard']='PASS'
 
     def quantization(self):
+        if not self.native_dsp:
+            self.gates['integer_writer_quantization']=self.native_unavailable()
+            self.gates['float32_writer_narrowing']=self.native_unavailable()
+            return
         # Independent ties-away and exact pre-half-step neighboring values.
         for bits in (8,16,24,32):
             scale=1<<(bits-1)
@@ -436,6 +471,8 @@ class CaseRunner:
             insist(p['data']==b''.join(struct.pack('>f' if big else '<f',v)
                                         for v in float_values), 'binary32 RNE conversion mismatch')
             self.tick('float32_narrowing_samples',len(float_values))
+        self.gates['integer_writer_quantization']='PASS'
+        self.gates['float32_writer_narrowing']='PASS'
 
     def malformed(self):
         good=self.file('invalid-baseline.wav',wave_bytes(struct.pack('<d',1.0),channels=1,code='f64',extensible=True,mask=4))
@@ -471,9 +508,13 @@ class CaseRunner:
         f32_bad=self.file('nonfinite-f32.wav',wave_bytes(
             struct.pack('<f',0.0)+struct.pack('<I',0x7f800001),
             channels=2,code='f32'))
-        self.reject(['dump',f32_bad,1],label='float32-snan',
-                    stderr_contains='frame 0 channel 1')
-        self.tick('invalid_headers_or_nonfinite_inputs')
+        if self.native_dsp:
+            self.reject(['dump',f32_bad,1],label='float32-snan',
+                        stderr_contains='frame 0 channel 1')
+            self.tick('invalid_headers_or_nonfinite_inputs')
+            self.gates['float32_nonfinite_read']='PASS'
+        else:
+            self.gates['float32_nonfinite_read']=self.native_unavailable()
         # Native writers must also reject input infinities, NaNs, and a
         # finite binary64 value that overflows the destination FLOAT32.
         for title,values,encoding,diagnostic in (
@@ -481,11 +522,17 @@ class CaseRunner:
             ('write-f64-qnan',[math.nan],'f64','frame 0 channel 0'),
             ('write-f64-second-channel',[0.0,-math.inf],'f64','frame 0 channel 1'),
             ('write-f32-overflow',[sys.float_info.max],'f32','frame 0 channel 0')):
+            if encoding=='f32' and not self.native_dsp:
+                self.gates['float32_overflow_refusal']=self.native_unavailable()
+                continue
             raw=self.file(title+'.raw64',b''.join(struct.pack('<d',v) for v in values))
             out=self.root/(title+'.wav')
             self.reject(['generate',raw,out,encoding,'L',len(values),44100,1,1],
                         label=title,stderr_contains=diagnostic)
             self.tick('nonfinite_output_refusals')
+        if self.native_dsp:
+            self.gates['float32_overflow_refusal']='PASS'
+        self.gates['float64_nonfinite_refusal']='PASS'
         # Truncated physical bytes despite a declared full frame, with
         # correct outer RIFF length to keep the parser in the data section.
         trunc=self.file('truncated-payload.wav',wave_bytes(struct.pack('<d',0.5)*2,
@@ -583,12 +630,17 @@ class CaseRunner:
         empty=self.root/'empty.wav'
         self.native_generate(raw,empty,'f64',False,1,44100,0,0)
         insist(parse_wave(empty)['data']==b'','empty WAV data chunk missing')
-        oddinput=self.file('odd-samples.raw64',struct.pack('<d',0.0)*3)
-        odd=self.root/'odd-i8.wav'
-        self.native_generate(oddinput,odd,'i8',False,1,44100,3)
-        insist(len(parse_wave(odd)['data'])==3 and len(odd.read_bytes())%2==0,
-               'odd data-chunk pad not written')
-        self.tick('zero_one_odd_frames',3)
+        if self.native_dsp:
+            oddinput=self.file('odd-samples.raw64',struct.pack('<d',0.0)*3)
+            odd=self.root/'odd-i8.wav'
+            self.native_generate(oddinput,odd,'i8',False,1,44100,3)
+            insist(len(parse_wave(odd)['data'])==3 and len(odd.read_bytes())%2==0,
+                   'odd data-chunk pad not written')
+            self.tick('zero_one_odd_frames',3)
+            self.gates['odd_integer_chunk_padding']='PASS'
+        else:
+            self.tick('zero_one_odd_frames',2)
+            self.gates['odd_integer_chunk_padding']=self.native_unavailable()
         # The stdout FILE* path may be used only when the exact descriptor is
         # an inspectable regular file. Verify no second path-open is involved.
         stdfile=self.root/'stdout-regular.wav'
@@ -596,6 +648,7 @@ class CaseRunner:
             proc=subprocess.run([str(self.probe),'generate',str(raw),'-',
                                  'f64','L','1','44100','1','1'],stdout=fout,
                                 stderr=subprocess.PIPE,timeout=15)
+        self.record_binary(self.probe)
         insist(proc.returncode==0 and parse_wave(stdfile)['data']==struct.pack('<d',0.5),
                'stdout regular file denied or corrupted')
         self.tick('stdout_regular_descriptor_checks')
@@ -616,6 +669,7 @@ class CaseRunner:
                 proc=subprocess.run(command,stdout=fout,stderr=subprocess.PIPE,
                                     timeout=15,cwd=self.root)
             stderr=proc.stderr.decode('utf-8','replace')
+            self.record_binary(self.probe)
             self.commands.append({'label':'stdout-'+label,'argv':command,
                                   'exit':proc.returncode,'stderr':stderr[:4096],
                                   'destination_sha256':digest(target)})
@@ -764,6 +818,7 @@ class CaseRunner:
         if self.fenv is None:
             self.gates['writer_environment_preflight']='NOT_RUN: requires x86 SSE2'
             self.gates['source_environment_preflight']='NOT_RUN: requires x86 SSE2'
+            self.gates['writer_environment_f64_identity']='NOT_RUN: requires x86 SSE2'
             return
         raw=self.file('fenv-native-input.raw64',raw_double_words([
             ieee_f64_bits(0.25),ieee_f64_bits(-0.5),ieee_f64_bits(0.75),ieee_f64_bits(0.0)]))
@@ -773,6 +828,8 @@ class CaseRunner:
         absent=self.root/'fenv-native-absent.wav'
         for mode in ('generate','copy'):
             for code in ('f32','i32','i24','i16','i8','f64'):
+                if code!='f64' and not self.native_dsp:
+                    continue
                 for setting in (0x40,0x8000,0x2000,0x4000,0x6000):
                     env={'LD_PRELOAD':str(self.fenv),'PCM64_TEST_MXCSR_OR':hex(setting)}
                     for name,dest in (('existing',existing),('absent',absent)):
@@ -794,6 +851,11 @@ class CaseRunner:
                             insist(name=='existing' or not dest.exists(),
                                    f'rejected native writer created an output file: {label}')
                             self.tick('writer_environment_preopen_refusals')
+        self.gates['writer_environment_f64_identity']='PASS'
+        if not self.native_dsp:
+            self.gates['writer_environment_preflight']=self.native_unavailable()
+            self.gates['source_environment_preflight']=self.native_unavailable()
+            return
         # A safe f64 destination cannot bypass the reader's FLOAT32 widening
         # requirements. The source handle is available before output open.
         source32=self.root/'fenv-native-source-f32.wav'
@@ -827,8 +889,11 @@ class CaseRunner:
             ieee_f64_bits(0.5),ieee_f64_bits(0.0)]))
         source=self.root/'preopen-source-f64.wav'
         self.native_generate(raw,source,'f64',False,2,48000,2)
-        f32=self.root/'preopen-source-f32.wav'
-        self.native_generate(raw,f32,'f32',False,2,48000,2)
+        # Construct this malformed FLOAT32 source independently. Its data
+        # extent check is metadata-only and must run in native-disabled builds.
+        f32=self.file('preopen-source-f32.wav',wave_bytes(
+            b''.join(struct.pack('<f',v) for v in (0.25,-0.25,0.5,0.0)),
+            channels=2,rate=48000,code='f32'))
         truncated=self.file('preopen-truncated-f32.wav',f32.read_bytes()[:-10])
         # Legacy accepts certain metadata variants which private native
         # access must refuse.  A copy must not create output for such input.
@@ -976,6 +1041,7 @@ class CaseRunner:
         target=self.root/'legacy-output.wav'
         p=subprocess.run([str(self.sox),str(stdin),str(target)],
                          stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20)
+        self.record_binary(self.sox)
         self.commands.append({'label':'legacy-sox-wav-copy',
                               'argv':[str(self.sox),str(stdin),str(target)],
                               'exit':p.returncode,'stderr':p.stderr.decode('utf-8','replace')[:2000]})
@@ -1016,6 +1082,12 @@ class CaseRunner:
 
     def execute(self):
         insist(self.sox.is_file() and self.probe.is_file(),'missing binaries')
+        capability,_=self.invoke(['capabilities'],label='native-dsp-capabilities')
+        status=capability.decode('ascii').strip()
+        insist(status in ('native_dsp=OK','native_dsp=UNSUPPORTED','native_dsp=NUMERIC'),
+               'invalid native DSP capability result: '+repr(status))
+        self.native_dsp_status=status.split('=',1)[1]
+        self.native_dsp=(self.native_dsp_status=='OK')
         self.prepare_shim()
         self.formats()
         self.daz_guard()
@@ -1036,6 +1108,8 @@ class CaseRunner:
                 str(x):digest(x) for x in [self.sox,self.probe,
                    Path(__file__),Path(__file__).with_name('wav_io_probe.c'),
                    Path(__file__).with_name('wav_fault_shim.c')]},
+            'executed_binary_sha256':dict(self.executed_binary_sha256),
+            'native_dsp_status':self.native_dsp_status,
             'seed':SEED,
             'oracles':'independent Python struct RIFF+RIFX parser/writer and Fraction rational nearest ties-away',
             'checks':self.counts,
@@ -1073,7 +1147,8 @@ def main():
                 'utc':dt.datetime.now(dt.timezone.utc).isoformat(),
                 'gate_execution':{'native_posix_wav':
                     'NOT_RUN: Phase 02A native writer requires POSIX descriptors'},
-                'checks':{},'platform':sys.platform}
+                'checks':{},'platform':sys.platform,
+                'executed_binary_sha256':{},'source_and_binary_sha256':{}}
         receipt.write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')
         print('NOT_RUN io-wav: native POSIX writer unavailable',file=sys.stderr)
         return 2
@@ -1086,7 +1161,10 @@ def main():
                 'error':f'{type(exc).__name__}: {exc}',
                 'completed_checks':runner.counts,
                 'gate_execution':runner.gates,
-                'commands':runner.commands}
+                'commands':runner.commands,
+                'native_dsp_status':runner.native_dsp_status,
+                'executed_binary_sha256':dict(runner.executed_binary_sha256),
+                'source_and_binary_sha256':dict(runner.executed_binary_sha256)}
         receipt.write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')
         print('FAIL io-wav:',record['error'],file=sys.stderr)
         return 1
