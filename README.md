@@ -53,11 +53,15 @@ A *qualified* profile has passed the project's release-authorization checks for 
 
 ### Clipping and headroom
 
-Converting PCM to DSD necessarily changes how the audio is represented. DSD has its own reference level and requires sufficient headroom for reliable encoding. SoX DSD provides this headroom by reducing the input level by approximately 0.9 dB by default. This small, uniform adjustment preserves the music's relative dynamics and does not itself introduce distortion.
+PCM and DSD use different level conventions. Under the [SACD standard](https://www.sonicstudio.com/pdf/dsd/SACD_SignalPropertiesV13.pdf), 0 dB SACD corresponds to 50% of the theoretical maximum DSD signal amplitude. SoX DSD follows this reference convention at all supported DSD rates.
 
-SoX DSD uses an eighth-order noise shaper that delivers exceptionally low noise within the audible frequency range. Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) found it to be the strongest overall choice for in-band noise performance across DSD64 through DSD1024, although other designs can produce less ultrasonic noise.
+SoX DSD retains the original SoX noise shapers, but uses a qualified eighth-order mastering encoder based on SDM-8 by default at all five DSD rates. Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) found that SDM-8 delivers exceptional in-band noise performance, outperforming the alternatives overall on that measure, although other designs can produce less ultrasonic noise.
 
-Eighth-order noise shapers have a known limitation: they can become unstable with unusually demanding, sustained signals, such as strong DC offsets or high-level test tones. This behavior has been [documented in earlier DSD-capable SoX builds](https://archimago.blogspot.com/2021/10/measurements-look-at-dsd-and-using-sox.html). SoX DSD 1.1.1 addresses the risk through qualified operating levels and safeguards that detect modulator instability. Its qualification tests also include real music, not just synthetic signals.
+Eighth-order noise shapers have a known limitation, however: they can become unstable with unusually demanding, sustained signals, such as near-full-scale DC or high-level test tones. This behavior has also been [documented in earlier DSD-capable SoX builds](https://archimago.blogspot.com/2021/10/measurements-look-at-dsd-and-using-sox.html).
+
+To operate within its qualified limits, the default encoder applies approximately 0.9 dB of additional headroom. This maps full-scale PCM to approximately 45%, rather than the SACD reference level of 50%, of theoretical maximum DSD modulation. **The adjustment lowers the overall signal level without compressing the music's dynamics.**
+
+Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates exceptionally low noise with the default SDM-8-based mastering encoder within the audio band: At DSD64, the default encoder's in-band noise floor is about 141 dB below full scale (121 dB below a −20 dBFS test tone), comparable to 23-bit PCM. At higher DSD rates, the measured signal-to-noise ratio was substantially greater, eventually reaching the limits of the experiment's 32-bit signal path. If interpolated peaks still exceed the encoder's limit, SoX DSD clips them and issues a warning. Separate safeguards detect modulator instability.
 
 - `--headroom DB` replaces the implicit cut with an explicit fixed attenuation.
 - `--auto-headroom` measures the full interpolated signal and chooses the smallest non-amplifying, shared multichannel cut that stays within the warning ceiling. It needs additional passes and temporary storage.
