@@ -89,9 +89,9 @@ def quant_oracle(bits: int, x: float) -> tuple[int, bool, bool]:
     return aligned, saturated, nominal
 
 
-def run_stream(probe: Path, jobs: list[tuple[str, str]], counts: dict):
+def run_stream(probe: Path, jobs: list[tuple[str, str]], counts: dict, run_command=run):
     req = "".join(query + "\n" for query, expected in jobs)
-    completed = run([str(probe), "--stream"], input_text=req)
+    completed = run_command([str(probe), "--stream"], input_text=req)
     assert_true(completed.returncode == 0,
                 f"stream process failed ({completed.returncode}): {completed.stderr[:1000]}")
     lines = completed.stdout.splitlines()
@@ -165,16 +165,25 @@ def generate_jobs(counts: dict):
     return jobs
 
 
-def run_all(sox: Path, probe: Path, results: Path):
+def run_all(sox: Path, probe: Path, results: Path, executed: dict[str, str]):
     assert_true(sox.is_file() and os.access(sox, os.X_OK), "SoX executable missing")
     assert_true(probe.is_file() and os.access(probe, os.X_OK), "probe executable missing")
+
+    def run_test(command: list[str], *, input_text: str | None = None):
+        # Bind the exact executable selected by --probe, not a same-named
+        # binary in the source tree. Retain identities even on suite failure.
+        path = Path(command[0])
+        if path in (probe, sox):
+            executed[str(path)] = sha256(path)
+        return run(command, input_text=input_text)
+
     counts: dict[str, int] = {}
-    cp = run([str(probe), "--selftest"])
+    cp = run_test([str(probe), "--selftest"])
     assert_true(cp.returncode == 0 and "status=PASS" in cp.stdout,
                 f"private C invariants failed: rc={cp.returncode} {cp.stderr} {cp.stdout}")
     counts["c_assertions"] = int(cp.stdout.split("assertions=")[1].split()[0])
     assert_true(counts["c_assertions"] > 50, "zero or stale C selftest selection")
-    env = run([str(probe), "--environment"])
+    env = run_test([str(probe), "--environment"])
     assert_true(env.returncode == 0 and "ENV workers=" in env.stdout,
                 f"fenv/worker test failed: rc={env.returncode} {env.stderr} {env.stdout}")
     fields = dict(part.split("=", 1) for part in env.stdout.split() if "=" in part)
@@ -208,7 +217,7 @@ def run_all(sox: Path, probe: Path, results: Path):
                 "fenv controls not sufficiently exercised")
     jobs = generate_jobs(counts)
     assert_true(len(jobs) > 1000, "test set is empty or incomplete")
-    run_stream(probe, jobs, counts)
+    run_stream(probe, jobs, counts, run_test)
 
     # Independent negative: the common old abs(s)*scale+0.5 method incorrectly
     # rounds the immediate predecessor to the positive half-quantizer step.
@@ -219,8 +228,8 @@ def run_all(sox: Path, probe: Path, results: Path):
         assert_true(naive == 1 and correct[0] == 0,
                     f"half-step mutation was not detected at {bits} bits")
     counts["halfstep_negative_controls"] = 2
-    zero = run([str(probe), "--stream"], input_text="")
-    unknown = run([str(probe), "--no-such-mode"])
+    zero = run_test([str(probe), "--stream"], input_text="")
+    unknown = run_test([str(probe), "--no-such-mode"])
     assert_true(zero.returncode != 0 and unknown.returncode != 0,
                 "probe accepted empty input or unknown suite")
     counts["fail_closed_negative_controls"] = 2
@@ -229,8 +238,7 @@ def run_all(sox: Path, probe: Path, results: Path):
     core_paths = [source / "src/pcm_f64.c", source / "src/pcm_f64.h",
                   source / "tests/pcm64/pcm64_probe.c", source / "tests/pcm64/run.py",
                   source / "configure.ac", source / "src/Makefile.am",
-                  source / "test/Makefile.am", source / "Makefile.am",
-                  source / "test/pcm64_probe", source / "src/sox"]
+                  source / "test/Makefile.am", source / "Makefile.am"]
     for path in core_paths:
         assert_true(path.is_file(), f"required input absent: {path}")
     try:
@@ -245,13 +253,18 @@ def run_all(sox: Path, probe: Path, results: Path):
         "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "source_directory": str(source),
         "source_git_commit": revision.stdout.strip() if revision.returncode == 0 else None,
-        "sox_version": run([str(sox), "--version"]).stdout.strip(),
+        "sox_version": run_test([str(sox), "--version"]).stdout.strip(),
         "command": [sys.executable, str(Path(__file__).resolve()), "--suite", "foundation",
                     "--sox", str(sox), "--probe", str(probe), "--results", str(results)],
         "actual_checks": counts,
         "fenv_result": env.stdout.strip(),
         "c_selftest_result": cp.stdout.strip(),
-        "source_and_binary_sha256": {str(p.relative_to(source)): sha256(p) for p in core_paths},
+        "source_and_binary_sha256": {
+            **{str(p.relative_to(source)): sha256(p) for p in core_paths},
+            "test/pcm64_probe": executed[str(probe)],
+            "src/sox": executed[str(sox)],
+        },
+        "executed_binary_sha256": dict(executed),
         "python": sys.version,
         "platform": sys.platform,
         "seed": SEED,
@@ -288,12 +301,18 @@ def main():
     if args.suite == "io-wav":
         from io_wav import main as io_main
         return io_main_wrapper(io_main, args)
+    executed: dict[str, str] = {}
     try:
-        record = run_all(args.sox.resolve(), args.probe.resolve(), results)
+        record = run_all(args.sox.resolve(), args.probe.resolve(), results, executed)
     except Exception as exc:
         failure = {"suite": args.suite, "status": "FAIL",
                    "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                   "error": f"{type(exc).__name__}: {exc}"}
+                   "error": f"{type(exc).__name__}: {exc}",
+                   "executed_binary_sha256": dict(executed),
+                   "source_and_binary_sha256": {
+                       ("test/pcm64_probe" if path == str(args.probe.resolve())
+                        else "src/sox"): content_hash
+                       for path, content_hash in executed.items()}}
         output.write_text(json.dumps(failure, indent=2, sort_keys=True) + "\n")
         print(f"FAIL foundation: {failure['error']}", file=sys.stderr)
         return 1
