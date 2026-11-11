@@ -964,9 +964,14 @@ class CaseRunner:
             self.gates['fd_fault_injection']='NOT_RUN: Linux LD_PRELOAD fault shim required'
             self.gates['fenv_preload_build']='NOT_RUN: Linux LD_PRELOAD required'
             return
-        so=subprocess.run(['cc','-shared','-fPIC','-O2','-Wall','-Wextra',
-                           '-o',str(self.root/'libwav_fault.so'),str(source),'-ldl'],
-                          capture_output=True,text=True)
+        try:
+            so=subprocess.run(['cc','-shared','-fPIC','-O2','-Wall','-Wextra',
+                               '-o',str(self.root/'libwav_fault.so'),str(source),'-ldl'],
+                              capture_output=True,text=True)
+        except FileNotFoundError:
+            self.gates['fd_fault_injection']='NOT_RUN: no C compiler for Linux fault shim'
+            self.gates['fenv_preload_build']='NOT_RUN: no C compiler for arithmetic preload'
+            return
         insist(so.returncode==0,f'shim could not compile: {so.stderr}')
         self.shim=self.root/'libwav_fault.so'
         self.tick('fault_shim_builds')
@@ -1034,6 +1039,18 @@ def main():
     results.mkdir(parents=True,exist_ok=True)
     receipt=results/'io-wav.json'
     receipt.unlink(missing_ok=True)
+    if os.name != 'posix':
+        # The Phase 02A native descriptor writer is POSIX-only. Report that
+        # the entire suite could not run; never emit a misleading PASS/FAIL
+        # for a platform on which its entrypoint is intentionally unavailable.
+        record={'suite':'io-wav','status':'NOT_RUN',
+                'utc':dt.datetime.now(dt.timezone.utc).isoformat(),
+                'gate_execution':{'native_posix_wav':
+                    'NOT_RUN: Phase 02A native writer requires POSIX descriptors'},
+                'checks':{},'platform':sys.platform}
+        receipt.write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')
+        print('NOT_RUN io-wav: native POSIX writer unavailable',file=sys.stderr)
+        return 2
     runner=CaseRunner(args.sox.resolve(),args.probe.resolve(),results)
     try:
         record=runner.execute()
