@@ -599,8 +599,34 @@ class CaseRunner:
         insist(proc.returncode==0 and parse_wave(stdfile)['data']==struct.pack('<d',0.5),
                'stdout regular file denied or corrupted')
         self.tick('stdout_regular_descriptor_checks')
-        # stdout is allowed for inspectable regular descriptors, but never
-        # blindly write to a pipe or FIFO. Shell redirection is outside guarantee.
+        # Borrowed stdout cannot be truncated and reopened like named output.
+        # A dirty file retains stale bytes, while O_APPEND defeats RIFF header
+        # rewrites. Refuse those descriptors *before* writing any WAV bytes.
+        # The source is known-good, so require the specific stdout admission
+        # diagnostic rather than accepting an unrelated input error.
+        for label, original, mode in (
+                ('dirty-rw', b'\xaa'*800, 'r+b'),
+                ('dirty-append', b'PREFIX-x', 'ab'),
+                ('empty-append', b'', 'ab')):
+            target=self.root/f'stdout-{label}.wav'
+            target.write_bytes(original)
+            command=[str(self.probe),'generate',str(raw),'-',
+                     'f64','L','1','44100','1','1']
+            with target.open(mode) as fout:
+                proc=subprocess.run(command,stdout=fout,stderr=subprocess.PIPE,
+                                    timeout=15,cwd=self.root)
+            stderr=proc.stderr.decode('utf-8','replace')
+            self.commands.append({'label':'stdout-'+label,'argv':command,
+                                  'exit':proc.returncode,'stderr':stderr[:4096],
+                                  'destination_sha256':digest(target)})
+            insist(proc.returncode != 0 and
+                   'stdout requires an empty non-append regular file' in stderr,
+                   f'stdout-{label} did not refuse at descriptor admission: {stderr}')
+            insist(target.read_bytes()==original,
+                   f'stdout-{label} modified the pre-existing destination')
+            self.tick('stdout_unsafe_descriptor_refusals')
+        self.gates['stdout_regular_descriptor_integrity']='PASS'
+        # Pipes are not qualified as native Phase 02A WAV destinations.
         self.reject(['generate',raw,'-','f64','L',1,44100,1,1],label='stdout-pipe-refusal',stdout_pipe=True)
         # Inject failure at exact descriptor handoff, before existing-file truncate.
         if self.shim:

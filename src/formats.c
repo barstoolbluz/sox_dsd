@@ -1795,6 +1795,16 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     if (fd < 0 || fstat(fd,&after)) {
       lsx_fail("native WAV: stdout has no inspectable descriptor"); goto failure;
     }
+    /* stdout is borrowed and cannot be reopened with truncation semantics.
+     * With pre-existing bytes, a successful short WAV write would leave a
+     * stale tail; with O_APPEND, header rewrites land at EOF. Phase 02A only
+     * qualifies an empty, non-appending regular stdout file. Refuse other
+     * descriptors before the first output byte (pipes belong to Phase 03). */
+    if (!S_ISREG(after.st_mode) || after.st_size != 0 ||
+        (flags=fcntl(fd,F_GETFL)) < 0 || (flags & O_APPEND)) {
+      lsx_fail("native WAV: stdout requires an empty non-append regular file");
+      goto failure;
+    }
     stream=stdout;
     ft->fp=stream;
   } else {
