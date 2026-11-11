@@ -27,12 +27,13 @@ pcm_f64_progress lsx_pcm_f64_wav_write(sox_format_t *ft, pcm_f64_input in);
 
 /* Exact known-length, small RIFF/RIFX output ONLY. The writer is not exposed
  * to the CLI until the phase-specific qualification and native coordinator.
- * source and report_path are checked for descriptor/path aliasing, before
- * any truncation. Layout ownership remains with the WAV handler. */
+ * source and raw_source (if supplied) are checked against the actual
+ * acquired output descriptor before any truncation.  report_path is also
+ * checked for aliasing. Layout ownership remains with the WAV handler. */
 sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     const pcm_f64_format *format, sox_encoding_t encoding, unsigned bits,
     bool big_endian, const sox_dsd_layout_t *layout,
-    const sox_format_t *source, const char *report_path,
+    const sox_format_t *source, FILE *raw_source, const char *report_path,
     sox_bool (*overwrite_permitted)(const char *filename));
 
 /* WAV handler-private calls. Used only by the same-identity dispatch above

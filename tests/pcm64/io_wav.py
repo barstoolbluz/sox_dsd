@@ -890,6 +890,23 @@ class CaseRunner:
                                f'{alias_kind}/{count} broke the input hardlink')
                 self.tick('generate_input_destination_alias_refusals')
             self.gates[f'generate_alias_{alias_kind.replace("-","_")}']='PASS'
+        if self.shim is None:
+            self.gates['generate_alias_symlink_retarget']='NOT_RUN: Linux FD shim unavailable'
+        else:
+            raw=self.file('generate-alias-race-raw.raw64',bytes(range(256))*3+bytes(range(32)))
+            original_target=self.file('generate-alias-race-original.wav',b'ORIGINAL-WAV-SENTINEL'*40)
+            changed_link=self.root/'generate-alias-race-output.wav'
+            changed_link.symlink_to(original_target)
+            self.reject(['generate',raw,changed_link,'f64','L',1,48000,100,100],
+                        sentinels=(raw,original_target),
+                        env={'LD_PRELOAD':str(self.shim),
+                             'PCM64_SWAP_BEFORE_APPROVAL_PATH':str(changed_link),
+                             'PCM64_SWAP_BEFORE_APPROVAL_TO':str(raw)},
+                        label='generate-alias-after-path-preflight',trace_event='T')
+            insist(changed_link.is_symlink() and changed_link.resolve()==raw.resolve(),
+                   'the symlink race did not retarget the destination')
+            self.tick('generate_alias_symlink_retarget_refusals')
+            self.gates['generate_alias_symlink_retarget']='PASS'
 
     def streaming(self):
         # A duration-independent heap limit: 350k x 6 frames with a 96 MiB

@@ -63,6 +63,25 @@ int open(const char *path,int flags,...)
   return real_open(path,flags,mode);
 }
 
+/* In a generate call, the probe's stat(path) can see a safe referent,
+ * then another actor can retarget the symlink before the writer's first
+ * lstat(path).  Exercise this window deterministically. */
+int lstat(const char *path, struct stat *st)
+{
+  static int (*real_lstat)(const char *, struct stat *) = NULL;
+  static int swapped = 0;
+  const char *path_to_swap=getenv("PCM64_SWAP_BEFORE_APPROVAL_PATH");
+  const char *new_target=getenv("PCM64_SWAP_BEFORE_APPROVAL_TO");
+  if (!real_lstat) real_lstat=dlsym(RTLD_NEXT,"lstat");
+  if (!swapped && path_to_swap && new_target && !strcmp(path,path_to_swap)) {
+    swapped=1;
+    trace_event('T');
+    unlink(path);
+    symlink(new_target,path);
+  }
+  return real_lstat(path,st);
+}
+
 FILE *fdopen(int fd,const char *mode)
 {
   static FILE *(*real_fdopen)(int,const char *)=NULL;

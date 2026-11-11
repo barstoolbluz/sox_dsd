@@ -149,7 +149,7 @@ static int run(int argc,char **argv)
     if (!raw) { perror("raw input");goto finish; }
     if (!raw_has_frames(raw,fmt.channels,to_write) ||
         !raw_distinct_from_destination(raw,argv[3])) goto finish;
-    out=lsx_pcm_f64_wav_open_write(argv[3],&fmt,encoding,bits,big,NULL,NULL,
+    out=lsx_pcm_f64_wav_open_write(argv[3],&fmt,encoding,bits,big,NULL,NULL,raw,
         argc>11 ? argv[11] : NULL,argc>10 && !strcmp(argv[10],"deny") ? decline : NULL);
     if (!out) { fail("safe open",NULL);goto finish; }
     frames=to_write;
@@ -292,7 +292,7 @@ static int run(int argc,char **argv)
         big=!strcmp(argv[5],"B");
         if (sox_dsd_get_layout(in,&layout)!=SOX_DSD_OK) goto finish;
         out=lsx_pcm_f64_wav_open_write(argv[3],&facts.stream,encoding,bits,big,
-            layout,in,argc>8 ? argv[8] : NULL,
+            layout,in,NULL,argc>8 ? argv[8] : NULL,
             argc>7 && !strcmp(argv[7],"deny") ? decline : NULL);
         if (!out) { fail("safe output",NULL); goto finish; }
       }

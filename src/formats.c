@@ -1593,6 +1593,18 @@ static sox_bool aliases_descriptor(const struct stat *output,
       !fstat(fileno((FILE*)source->fp),&in) && same_object(output,&in);
 }
 
+/* generate passes a raw FILE*, not a WAV handler.  Its pathname preflight
+ * cannot protect against a retarget between that check and the writer's
+ * acquisition.  Compare the actual retained descriptors before commit.
+ * Failure to inspect an explicitly supplied input is a refusal, not evidence
+ * that two files are distinct. */
+static sox_bool aliases_raw_descriptor(const struct stat *output, FILE *raw)
+{
+  struct stat in;
+  if (!raw) return sox_false;
+  return fileno(raw) < 0 || fstat(fileno(raw),&in) || same_object(output,&in);
+}
+
 /* Phase 02A native copies require a size-verifiable, regular WAV input.
  * The WAV handler already parsed and validated its declared data extent;
  * check that the actual descriptor contains every declared payload byte
@@ -1627,7 +1639,7 @@ static sox_bool aliases_report(const struct stat *output,
 sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     const pcm_f64_format *format, sox_encoding_t encoding, unsigned bits,
     bool big_endian, const sox_dsd_layout_t *layout,
-    const sox_format_t *source, const char *report_path,
+    const sox_format_t *source, FILE *raw_source, const char *report_path,
     sox_bool (*overwrite_permitted)(const char *filename))
 {
   sox_format_t *ft = NULL;
@@ -1815,7 +1827,9 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
       lsx_fail("native WAV: acquired descriptor differs from approved regular file");
       goto failure;
     }
-    if (aliases_descriptor(&after,source) || aliases_report(&after,report_path)) {
+    if (aliases_descriptor(&after,source) ||
+        aliases_raw_descriptor(&after,raw_source) ||
+        aliases_report(&after,report_path)) {
       lsx_fail("native WAV: output aliases input or report descriptor");
       goto failure;
     }
@@ -1828,6 +1842,7 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     ft->fp=stream;
   }
   if (!S_ISREG(after.st_mode) || aliases_descriptor(&after,source) ||
+      aliases_raw_descriptor(&after,raw_source) ||
       aliases_report(&after,report_path) ||
       !is_seekable(ft) || fseeko(stream,0,SEEK_SET)) {
     lsx_fail("native WAV: actual output descriptor is nonregular, aliased or nonseekable");
@@ -1891,7 +1906,7 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path UNUSED,
     const pcm_f64_format *format UNUSED, sox_encoding_t encoding UNUSED,
     unsigned bits UNUSED, bool big_endian UNUSED,
     const sox_dsd_layout_t *layout UNUSED, const sox_format_t *source UNUSED,
-    const char *report_path UNUSED,
+    FILE *raw_source UNUSED, const char *report_path UNUSED,
     sox_bool (*overwrite_permitted)(const char *filename) UNUSED)
 {
   lsx_fail("native WAV safe descriptor acquisition is unavailable on this platform");
