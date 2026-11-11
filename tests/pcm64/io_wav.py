@@ -536,6 +536,33 @@ class CaseRunner:
             extensible=True,mask=0x4))
         self.reject(['query',invalid_mask],label='mismatched-speaker-mask')
         self.tick('invalid_headers_or_nonfinite_inputs')
+        # Native read reports zero frames for an invalid block: no earlier
+        # valid channel/frame may leak into the borrowed output buffer.
+        # The C probe also verifies that the error latches on the next read.
+        for title, code, big, words, expected_diag in (
+            ('late-nan-f64', 'f64', False, [
+                0x3fd0000000000000, 0xbfd0000000000000,
+                0x3fe0000000000000, 0x7ff8000000000001], 'frame 1 channel 1'),
+            ('late-nan-f64-rifx', 'f64', True, [
+                0x3fd0000000000000, 0xbfd0000000000000,
+                0x3fe0000000000000, 0x7ff8000000000001], 'frame 1 channel 1'),
+            ('late-snan-f32', 'f32', False, [
+                0x3e800000, 0xbe800000,
+                0x3f000000, 0x7f800001], 'frame 1 channel 1'),
+            ('late-snan-f32-rifx', 'f32', True, [
+                0x3e800000, 0xbe800000,
+                0x3f000000, 0x7f800001], 'frame 1 channel 1')):
+            if code == 'f32' and not self.native_dsp:
+                self.gates['float32_block_atomic_refusal'] = self.native_unavailable()
+                continue
+            payload = enc_float_words(words, 64 if code == 'f64' else 32, big)
+            candidate = self.file(title+'.wav',wave_bytes(payload,channels=2,code=code,big=big))
+            self.reject(['dump',candidate,4],label=title,stderr_contains=expected_diag)
+            self.invoke(['reject-buffer',candidate],label=title+'-output-unchanged')
+            self.tick('nonfinite_read_output_buffer_integrity')
+        self.gates['float64_block_atomic_refusal'] = 'PASS'
+        if self.native_dsp:
+            self.gates['float32_block_atomic_refusal'] = 'PASS'
         # FLOAT32 nonfinite input with channel-indexed failure, separately
         # from FLOAT64 and with a format parser not derived from libSoX.
         f32_bad=self.file('nonfinite-f32.wav',wave_bytes(

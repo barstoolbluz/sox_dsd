@@ -2433,37 +2433,51 @@ pcm_f64_progress lsx_wav_native_read(sox_format_t *ft, pcm_f64_output out)
         "native WAV input truncated or failed mid-frame/block");
     have+=n;
   }
-  /* Classification before any arithmetic or publication. */
-  for (frame=0; frame<frames; ++frame) for (chan=0; chan<f.stream.channels; ++chan) {
-    const unsigned char *b = w->native_scratch + frame*align + chan*bytes;
-    uint64_t u = native_word(b,bytes,f.big_endian);
-    double d;
-    if (f.encoding == SOX_ENCODING_FLOAT && bytes == 8) {
-      if ((u & UINT64_C(0x7ff0000000000000)) == UINT64_C(0x7ff0000000000000)) {
+  /* Reject an entire malformed FLOAT32/FLOAT64 block before publishing
+   * even its first valid sample into the caller's output view.  Classify
+   * raw IEEE words without evaluating a signaling NaN or changing fenv. */
+  if (f.encoding == SOX_ENCODING_FLOAT) {
+    /* The exponent's most-significant byte and remaining high bits alone
+     * identify infinity/NaN, without unpacking every word twice. */
+    unsigned hi = f.big_endian ? 0 : bytes - 1;
+    unsigned next = f.big_endian ? 1 : bytes - 2;
+    unsigned next_mask = bytes == 8 ? 0xf0u : 0x80u;
+    for (frame=0; frame<frames; ++frame) for (chan=0; chan<f.stream.channels; ++chan) {
+      const unsigned char *b = w->native_scratch + frame*align + chan*bytes;
+      if ((b[hi] & 0x7fu) == 0x7fu && (b[next] & next_mask) == next_mask) {
         lsx_fail_errno(ft, SOX_EOF, "nonfinite WAV at frame %" PRIu64 " channel %zu",
             w->native_frames_done+frame,chan);
         w->native_failed = true; p.status=PCM_F64_NUMERIC; return p;
       }
-      memcpy(&d,&u,sizeof(d));
-    } else if (f.encoding == SOX_ENCODING_FLOAT) {
-      uint32_t word = (uint32_t)u;
-      float single;
-      if ((word & UINT32_C(0x7f800000)) == UINT32_C(0x7f800000)) {
-        lsx_fail_errno(ft, SOX_EOF, "nonfinite WAV at frame %" PRIu64 " channel %zu",
-            w->native_frames_done+frame,chan);
-        w->native_failed = true; p.status=PCM_F64_NUMERIC; return p;
-      }
-      memcpy(&single,&word,sizeof(single));
-      d=(double)single;
-    } else if (bytes == 1) {
-      pcm_f64_normalize_u8((uint8_t)u,&d);
-    } else {
-      int64_t signed_code = (int64_t)u;
-      if (u & (UINT64_C(1) << (f.container_bits-1)))
-        signed_code -= (int64_t)(UINT64_C(1) << f.container_bits);
-      pcm_f64_normalize_signed((int32_t)signed_code,f.container_bits,&d);
     }
-    out.data[frame*f.stream.channels+chan] = d;
+  }
+  /* Native-endian binary64 is already the exact caller representation.
+   * After block validation, a bulk copy avoids decoding every word twice. */
+  if (f.encoding == SOX_ENCODING_FLOAT && bytes == 8 &&
+      f.big_endian == MACHINE_IS_BIGENDIAN) {
+    memcpy(out.data, w->native_scratch, nbytes);
+  } else {
+    for (frame=0; frame<frames; ++frame) for (chan=0; chan<f.stream.channels; ++chan) {
+      const unsigned char *b = w->native_scratch + frame*align + chan*bytes;
+      uint64_t u = native_word(b,bytes,f.big_endian);
+      double d;
+      if (f.encoding == SOX_ENCODING_FLOAT && bytes == 8) {
+        memcpy(&d,&u,sizeof(d));
+      } else if (f.encoding == SOX_ENCODING_FLOAT) {
+        uint32_t word = (uint32_t)u;
+        float single;
+        memcpy(&single,&word,sizeof(single));
+        d=(double)single;
+      } else if (bytes == 1) {
+        pcm_f64_normalize_u8((uint8_t)u,&d);
+      } else {
+        int64_t signed_code = (int64_t)u;
+        if (u & (UINT64_C(1) << (f.container_bits-1)))
+          signed_code -= (int64_t)(UINT64_C(1) << f.container_bits);
+        pcm_f64_normalize_signed((int32_t)signed_code,f.container_bits,&d);
+      }
+      out.data[frame*f.stream.channels+chan] = d;
+    }
   }
   w->native_access = 2;
   w->native_frames_done += frames;

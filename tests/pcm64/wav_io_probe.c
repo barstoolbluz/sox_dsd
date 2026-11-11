@@ -236,6 +236,34 @@ static int run(int argc,char **argv)
       if (p.produced_frames!=1 || memcmp(first,second,
             facts.stream.channels*sizeof(double))) goto finish;
       rc=0;
+    } else if (!strcmp(mode,"reject-buffer")) {
+      /* A failed native read must not publish part of an invalid frame/block. */
+      size_t i, bytes;
+      if (argc != 3 || facts.stream.total_frames < 1 ||
+          facts.stream.total_frames > 257) goto finish;
+      n=(size_t)facts.stream.total_frames;
+      bytes=n*facts.stream.channels*sizeof(double);
+      memset(samples,0xa5,bytes);
+      p=lsx_pcm_f64_wav_read(in,(pcm_f64_output){samples,n});
+      if (p.status != PCM_F64_NUMERIC || p.produced_frames || p.consumed_frames) {
+        fprintf(stderr,"failed malformed read wrong status/count: %s %zu\n",
+            pcm_f64_status_name(p.status),p.produced_frames);
+        goto finish;
+      }
+      for (i=0;i<bytes;++i) if (((unsigned char *)samples)[i]!=0xa5) {
+        fprintf(stderr,"failed malformed read mutated caller-owned buffer byte %zu\n",i);
+        goto finish;
+      }
+      p=lsx_pcm_f64_wav_read(in,(pcm_f64_output){samples,n});
+      if (p.status != PCM_F64_IO || p.produced_frames || p.consumed_frames) {
+        fprintf(stderr,"failed malformed read did not latch\n");
+        goto finish;
+      }
+      for (i=0;i<bytes;++i) if (((unsigned char *)samples)[i]!=0xa5) {
+        fprintf(stderr,"latched malformed read mutated caller-owned buffer byte %zu\n",i);
+        goto finish;
+      }
+      rc=0;
     } else if (!strcmp(mode,"daz")) {
       /* A test-only, in-process MXCSR check: assert both the first refusal
        * and its latch, without publishing even a partial decoded block. */
