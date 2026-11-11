@@ -17,6 +17,8 @@
 
 #include "sox_i.h"
 
+#include "pcm_f64_io.h"
+
 #include <FLAC/all.h>
 
 #define MAX_COMPRESSION 8
@@ -49,6 +51,48 @@ typedef struct {
   unsigned num_metadata;
 } priv_t;
 
+
+/* Native introspection uses STREAMINFO and the actual decoder, not file
+ * extension, override metadata or a second FLAC parser.  The established
+ * decoder/read callbacks are unchanged, including all legacy FLAC routes. */
+pcm_f64_status lsx_flac_native_facts(const sox_format_t *ft,
+    lsx_pcm_f64_flac_facts *facts)
+{
+  const priv_t *p;
+  pcm_f64_status status;
+  if (!ft || !facts || ft->mode != 'r' || !ft->priv)
+    return PCM_F64_ARGUMENT;
+  p = (const priv_t *)ft->priv;
+  if (!p->decoder || !p->channels || p->channels > 64 || !p->sample_rate ||
+      (p->bits_per_sample != 8 && p->bits_per_sample != 16 &&
+       p->bits_per_sample != 24 && p->bits_per_sample != 32) ||
+      p->total_samples > UINT64_MAX / p->channels ||
+      ft->signal.channels != p->channels ||
+      ft->signal.rate != p->sample_rate ||
+      ft->encoding.encoding != SOX_ENCODING_FLAC ||
+      ft->encoding.bits_per_sample != p->bits_per_sample ||
+      ft->signal.length != p->total_samples * p->channels)
+    return PCM_F64_UNSUPPORTED;
+  status = pcm_f64_format_init(&facts->stream, p->sample_rate,
+      p->channels, p->total_samples != 0, p->total_samples);
+  if (status == PCM_F64_OK) facts->bits_per_sample = p->bits_per_sample;
+  return status;
+}
+
+pcm_f64_status lsx_flac_native_decoder_state(const sox_format_t *ft,
+    bool *at_eof)
+{
+  FLAC__StreamDecoderState state;
+  const priv_t *p;
+  if (!ft || !at_eof || !ft->priv || ft->mode != 'r')
+    return PCM_F64_ARGUMENT;
+  p = (const priv_t *)ft->priv;
+  if (!p->decoder || ft->sox_errno) return PCM_F64_IO;
+  state = FLAC__stream_decoder_get_state(p->decoder);
+  *at_eof = state == FLAC__STREAM_DECODER_END_OF_STREAM;
+  return state > FLAC__STREAM_DECODER_END_OF_STREAM ?
+      PCM_F64_IO : PCM_F64_OK;
+}
 
 static FLAC__StreamDecoderReadStatus decoder_read_callback(FLAC__StreamDecoder const* decoder UNUSED, FLAC__byte buffer[], size_t* bytes, void* ft_data)
 {

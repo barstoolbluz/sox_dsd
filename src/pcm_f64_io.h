@@ -25,6 +25,26 @@ pcm_f64_status lsx_pcm_f64_wav_query(const sox_format_t *ft,
 pcm_f64_progress lsx_pcm_f64_wav_read(sox_format_t *ft, pcm_f64_output out);
 pcm_f64_progress lsx_pcm_f64_wav_write(sox_format_t *ft, pcm_f64_input in);
 
+/* Phase 02B: built-in FLAC decoder integer ingress.  These are private
+ * adapters, not a new FLAC format/parser or public sample representation.
+ * Dynamic FLAC plugins are deliberately ineligible, even when they can be
+ * opened by the legacy libSoX format registry. */
+typedef struct {
+  pcm_f64_format stream;
+  unsigned bits_per_sample;     /* actual FLAC STREAMINFO width */
+} lsx_pcm_f64_flac_facts;
+
+pcm_f64_status lsx_pcm_f64_flac_query(const sox_format_t *ft,
+    lsx_pcm_f64_flac_facts *facts);
+pcm_f64_progress lsx_pcm_f64_flac_read(sox_format_t *ft, pcm_f64_output out);
+
+/* FLAC handler-private, defined only when its built-in identity is linked.
+ * The adapter guards both calls with formats.h's built-in FLAC condition. */
+pcm_f64_status lsx_flac_native_facts(const sox_format_t *ft,
+    lsx_pcm_f64_flac_facts *facts);
+pcm_f64_status lsx_flac_native_decoder_state(const sox_format_t *ft,
+    bool *at_eof);
+
 /* Exact known-length, small RIFF/RIFX output ONLY. The writer is not exposed
  * to the CLI until the phase-specific qualification and native coordinator.
  * source and raw_source (if supplied) are checked against the actual
