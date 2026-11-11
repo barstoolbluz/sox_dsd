@@ -59,7 +59,7 @@ SoX DSD retains the original SoX noise shapers, but uses a qualified eighth-orde
 
 Eighth-order noise shapers have a known limitation, however: they can become unstable with unusually demanding, sustained signals, such as near-full-scale DC or high-level test tones. This behavior has also been [documented in earlier DSD-capable SoX builds](https://archimago.blogspot.com/2021/10/measurements-look-at-dsd-and-using-sox.html).
 
-To operate within its qualified limits, the default encoder applies approximately 0.9 dB of additional headroom. This maps full-scale PCM to approximately 45%, rather than the SACD reference level of 50%, of theoretical maximum DSD modulation. **The adjustment lowers the overall signal level without compressing the music's dynamics.**
+To operate within its qualified limits, the default encoder applies 0.915 dB of additional headroom. This maps full-scale PCM to approximately 45%, rather than the SACD reference level of 50%, of theoretical maximum DSD modulation. **The adjustment lowers the overall signal level without compressing the music's dynamics.**
 
 Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates exceptionally low noise with the default SDM-8-based mastering encoder within the audio band: At DSD64, the default encoder's in-band noise floor is about 141 dB below full scale (121 dB below a −20 dBFS test tone), comparable to 23-bit PCM. At higher DSD rates, the measured signal-to-noise ratio was substantially greater, eventually reaching the limits of the experiment's 32-bit signal path. If interpolated peaks still exceed the encoder's limit, SoX DSD clips them and issues a warning. Separate safeguards detect modulator instability.
 
@@ -67,7 +67,7 @@ Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstra
 - `--auto-headroom` measures the full interpolated signal and chooses the smallest non-amplifying, shared multichannel cut that stays within the warning ceiling. It needs additional passes and temporary storage.
 - `--dsd-clip error` rejects overloads instead of clipping. Its default gain differs by rate/profile; strict mode does **not** universally mean unity gain. Modulator state and numerical guards remain active under every policy.
 
-If retaining source level or avoiding clipping is important, choose the headroom policy explicitly. In particular, high-rate mastering v1 with `--headroom 0` is **not** guaranteed stable for full-scale inputs. The [user guide](docs/dsd/USING_SOX_DSD.md) explains the policies and their limits.
+If retaining source level or avoiding clipping is important, choose the headroom policy explicitly. The default headroom exists for a reason. In testing without it, at unity gain, we encoded 200 real music tracks at DSD64, DSD128 and DSD256, each once at its original level and once normalized to a 0 dBFS peak. Six of those 1,200 encodes, all at DSD256, drove the SDM-8-based encoder unstable. In each case SoX DSD detected the instability and stopped with an error instead of writing a damaged file. With the default 0.915 dB cut, all 1,200 encodes completed. At DSD512 and DSD1024, the SDM-8-based encoder with `--headroom 0` is likewise **not** guaranteed stable for full-scale inputs. The [user guide](docs/dsd/USING_SOX_DSD.md) explains the policies and their limits.
 
 ## Start converting
 
