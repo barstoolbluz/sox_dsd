@@ -224,6 +224,9 @@ class CaseRunner:
 
     def invoke(self,args,*,expect=0,env=None,output=None,stdin=None,preexec_fn=None, label=None, stdout_pipe=False):
         command=[str(self.probe)]+[str(x) for x in args]
+        # Snapshot the invoked executable before launch, including subprocess
+        # timeout/failure paths that still produce a FAIL receipt.
+        self.record_binary(self.probe)
         started=time.perf_counter()
         runenv=os.environ.copy()
         if env: runenv.update({str(k):str(v) for k,v in env.items()})
@@ -246,7 +249,6 @@ class CaseRunner:
                 'stderr':p.stderr.decode('utf-8','replace')[:4096],
                 'env':{k:v for k,v in (env or {}).items() if k.startswith('PCM64_')}}
         self.commands.append(record)
-        self.record_binary(self.probe)
         insist((p.returncode==0) == (expect==0),
                f'command {label or args[0]} unexpected exit {p.returncode}, expected {expect}; '
                f'arguments={command} stderr={record["stderr"]}')
@@ -644,11 +646,11 @@ class CaseRunner:
         # The stdout FILE* path may be used only when the exact descriptor is
         # an inspectable regular file. Verify no second path-open is involved.
         stdfile=self.root/'stdout-regular.wav'
+        self.record_binary(self.probe)
         with stdfile.open('wb') as fout:
             proc=subprocess.run([str(self.probe),'generate',str(raw),'-',
                                  'f64','L','1','44100','1','1'],stdout=fout,
                                 stderr=subprocess.PIPE,timeout=15)
-        self.record_binary(self.probe)
         insist(proc.returncode==0 and parse_wave(stdfile)['data']==struct.pack('<d',0.5),
                'stdout regular file denied or corrupted')
         self.tick('stdout_regular_descriptor_checks')
@@ -665,11 +667,11 @@ class CaseRunner:
             target.write_bytes(original)
             command=[str(self.probe),'generate',str(raw),'-',
                      'f64','L','1','44100','1','1']
+            self.record_binary(self.probe)
             with target.open(mode) as fout:
                 proc=subprocess.run(command,stdout=fout,stderr=subprocess.PIPE,
                                     timeout=15,cwd=self.root)
             stderr=proc.stderr.decode('utf-8','replace')
-            self.record_binary(self.probe)
             self.commands.append({'label':'stdout-'+label,'argv':command,
                                   'exit':proc.returncode,'stderr':stderr[:4096],
                                   'destination_sha256':digest(target)})
@@ -1039,9 +1041,9 @@ class CaseRunner:
         stdin=self.file('legacy-normal.wav',wave_bytes(struct.pack('<h',1234)*53,
                               channels=1,code='i16'))
         target=self.root/'legacy-output.wav'
+        self.record_binary(self.sox)
         p=subprocess.run([str(self.sox),str(stdin),str(target)],
                          stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20)
-        self.record_binary(self.sox)
         self.commands.append({'label':'legacy-sox-wav-copy',
                               'argv':[str(self.sox),str(stdin),str(target)],
                               'exit':p.returncode,'stderr':p.stderr.decode('utf-8','replace')[:2000]})
