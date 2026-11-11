@@ -16,6 +16,8 @@ upstream audio formats, effects, libraries and build system.
   and high-rate default changes.
 - [Qualification and tests](QUALIFICATION.md): checks, test inputs and evidence
   publication boundaries.
+- [Noise-shaper bench](NOISE_SHAPER_BENCH_2026-11-07.md): every shaper and the
+  default encoder measured through the real conversion chain at all five rates.
 
 ## Technical references
 
@@ -43,8 +45,9 @@ receipts, checksum inventories and numerical experiment outputs belong to the
 asset (`SoX_DSD_1.1.1_Evidence_2026-11-09.tar.zst`). It preserves the original
 repository-relative paths, lists source and published SHA-256 values, and
 records host-path redactions. It is not required to build or run the project.
-The scripts and policy under `scripts/` explain how that asset was made and
-how the repository history is rewritten.
+The tools that built that asset and rewrote the repository history are a
+second asset on the same release
+(`SoX_DSD_1.1.1_Cleanup_Tools_2026-11-10.tar.zst`).
 
 SoX DSD remains a fork intended to merge upstream SoX-NG releases. Upstream
 files and project build conventions have not been reorganized.

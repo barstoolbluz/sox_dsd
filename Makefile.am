@@ -46,7 +46,7 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt libsox_ng.txt \
   tests/dsd/qualification/review_p21_offsets.py tests/dsd/checks/test_p21_reader_regression.py \
   tests/dsd/checks/test_v2_pin_111.py tests/dsd/checks/test_v2_110_compat.py docs/dsd/USING_SOX_DSD.md \
   docs/dsd/CLI_USABILITY_DESIGN.md docs/dsd/RELEASE_NOTES_1.1.1.md \
-  docs/dsd/UNIFIED_DECODER_2026-11-09.md
+  docs/dsd/UNIFIED_DECODER_2026-11-09.md docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md
 
 # Repository cleanup tools are distributed beside the evidence archive, not in-tree.
 
