@@ -230,8 +230,9 @@ def run_all(sox: Path, probe: Path, results: Path, executed: dict[str, str]):
     counts["halfstep_negative_controls"] = 2
     zero = run_test([str(probe), "--stream"], input_text="")
     unknown = run_test([str(probe), "--no-such-mode"])
-    assert_true(zero.returncode != 0 and unknown.returncode != 0,
-                "probe accepted empty input or unknown suite")
+    assert_true(zero.returncode == 2 and unknown.returncode == 2,
+                f"probe refusal exit mismatch: empty={zero.returncode}, unknown={unknown.returncode}; "
+                "expected 2 (not an unrelated failure or signal)")
     counts["fail_closed_negative_controls"] = 2
 
     source = Path(__file__).resolve().parents[2]

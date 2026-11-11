@@ -64,5 +64,39 @@ class CommandRefusalAccounting(unittest.TestCase):
         self.run_command('kill -TERM $$', 1, False)
 
 
+class ExactMetadataAccounting(unittest.TestCase):
+    def test_exact_metadata(self):
+        with tempfile.TemporaryDirectory(prefix='io-wav-metadata-') as tmp:
+            root=Path(tmp)
+            probe=root/'unused-probe'
+            runner=CaseRunner(probe,probe,root)
+            values={'rate':'44100','channels':'2','frames':'10','bits':'64',
+                    'valid':'64','mask':'00000003','ext':'1','big':'0',
+                    'bytes':'160'}
+            def exercise(fields, passes):
+                runner.invoke=lambda *a, **kw: (
+                    (' '.join(f'{k}={v}' for k,v in fields.items())+'\n').encode(), b'')
+                if passes:
+                    runner.query(root/'fixture.wav',frames=10,channels=2,bits=64,
+                                 mask=3,ext=True)
+                else:
+                    with self.assertRaisesRegex(AssertionError,'metadata mismatch'):
+                        runner.query(root/'fixture.wav',frames=10,channels=2,bits=64,
+                                     mask=3,ext=True)
+            exercise(values,True)
+            for key,wrong in (('rate','48000'),('channels','20'),
+                              ('frames','100'),('bits','640'),('valid','32'),
+                              ('mask','000000030'),('ext','0'),('big','01'),
+                              ('bytes','1600')):
+                with self.subTest(key=key):
+                    exercise({**values,key:wrong},False)
+            # A duplicate key cannot be silently overwritten by dict().
+            runner.invoke=lambda *a, **kw: (
+                (' '.join(f'{k}={v}' for k,v in values.items())+' frames=10\n').encode(),b'')
+            with self.assertRaisesRegex(AssertionError,'metadata mismatch'):
+                runner.query(root/'fixture.wav',frames=10,channels=2,bits=64,
+                             mask=3,ext=True)
+
+
 if __name__ == '__main__':
     unittest.main()

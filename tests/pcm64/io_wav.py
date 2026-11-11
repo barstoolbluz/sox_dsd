@@ -297,13 +297,21 @@ class CaseRunner:
         self.tick('refusals')
         return err
 
-    def query(self,file,*,frames,channels,bits,big=False,mask=None):
+    def query(self,file,*,frames,channels,bits,big=False,mask=0,rate=44100,ext=False):
         stdout,_=self.invoke(['query',file],label='query-'+file.name)
-        s=stdout.decode()
-        for label,v in {'frames':frames,'channels':channels,'bits':bits,'big':int(big)}.items():
-            insist(f'{label}={v}' in s,f'query did not report {label}={v}: {s}')
-        if mask is not None:
-            insist(f'mask={mask:08x}' in s, f'query lost mask {mask:x}: {s}')
+        # Compare complete key/value fields, not substrings: frames=10 must
+        # never match frames=100, and duplicate or missing fields must fail.
+        fields=stdout.decode('ascii').split()
+        insist(all(part.count('=')==1 for part in fields),
+               f'malformed native WAV metadata: {fields!r}')
+        reported=dict(part.split('=',1) for part in fields)
+        expected={'rate':str(rate),'channels':str(channels),
+                  'frames':str(frames),'bits':str(bits),'valid':str(bits),
+                  'mask':f'{mask:08x}','ext':str(int(ext)),
+                  'big':str(int(big)),
+                  'bytes':str(frames*channels*(bits//8))}
+        insist(len(fields)==len(reported) and reported==expected,
+               f'native WAV metadata mismatch: expected {expected}, got {reported}')
         self.tick('metadata_queries')
 
     def dump(self,file,count,expected_words,*,block=23):
@@ -341,7 +349,7 @@ class CaseRunner:
                           wave_bytes(data,channels=ch,code='f64',big=big,
                                      extensible=ext,mask=0x3f if ch==6 else (3 if ext else 0),extra=True))
             self.query(src,frames=n//ch,channels=ch,bits=64,big=big,
-                       mask=0x3f if ch==6 else (3 if ext else 0))
+                       mask=0x3f if ch==6 else (3 if ext else 0),ext=ext)
             for block in (1,7,257):
                 self.dump(src,n,chosen,block=block)
             dst=self.root/f'f64-copy-{ch}-{int(big)}-{int(ext)}.wav'
@@ -375,7 +383,8 @@ class CaseRunner:
                           wave_bytes(data,channels=ch,code='f32',big=big,
                                      extensible=ext,mask=0x3f if ext else 0,extra=True))
             want=[ieee_f64_bits(struct.unpack('<f',struct.pack('<I',w))[0]) for w in words32]
-            self.query(src,frames=len(words32)//ch,channels=ch,bits=32,big=big)
+            self.query(src,frames=len(words32)//ch,channels=ch,bits=32,big=big,
+                       ext=ext,mask=0x3f if ext else 0)
             self.dump(src,len(words32),want,block=1)
             out=self.root/f'f32-copy-{ch}.wav'
             parsed=self.native_copy(src,out,'f32',not big,block=7)
@@ -397,7 +406,8 @@ class CaseRunner:
                 source=self.file(name,wave_bytes(integer_bytes(encoded,bits,big),channels=ch,
                          code=f'i{bits}',big=big,extensible=ext,mask=0x3f if ext else 0,extra=True))
                 want=[ieee_f64_bits(float(Fraction(q,scale))) for q in codes]
-                self.query(source,frames=len(codes)//ch,channels=ch,bits=bits,big=big)
+                self.query(source,frames=len(codes)//ch,channels=ch,bits=bits,big=big,
+                           ext=ext,mask=0x3f if ext else 0)
                 self.dump(source,len(codes),want,block=7)
                 dst=self.root/f'i{bits}-copy-{ch}-{int(big)}.wav'
                 parsed=self.native_copy(source,dst,f'i{bits}',not big,block=1)
@@ -696,7 +706,7 @@ class CaseRunner:
             self.commands.append({'label':'stdout-'+label,'argv':command,
                                   'exit':proc.returncode,'stderr':stderr[:4096],
                                   'destination_sha256':digest(target)})
-            insist(proc.returncode != 0 and
+            insist(proc.returncode == 1 and
                    'stdout requires an empty non-append regular file' in stderr,
                    f'stdout-{label} did not refuse at descriptor admission: {stderr}')
             insist(target.read_bytes()==original,
