@@ -198,6 +198,12 @@ def run_all(sox: Path, probe: Path, results: Path):
         "x87_control_mutations": ("PASS" if fields["x87"] == "PASS"
                                   else "NOT_RUN: x86 SSE2 register checks not compiled"),
     }
+    if fields["status"] == "UNSUPPORTED":
+        assert_true(fields["workers"] == "UNSUPPORTED" and
+                    fields["mxcsr"] == "NOT_RUN",
+                    "compiled-out native DSP guard cannot qualify environment gates")
+        gates = {name: "NOT_RUN: native binary64 DSP guard unavailable"
+                 for name in gates}
     assert_true(counts["environment_assertions"] >= 18,
                 "fenv controls not sufficiently exercised")
     jobs = generate_jobs(counts)

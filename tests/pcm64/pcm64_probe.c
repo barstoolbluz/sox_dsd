@@ -268,14 +268,22 @@ static int environment_test(void)
       CHECK(pthread_create(&worker_ids[i],NULL,worker,&worker_rc[i])==0);
       CHECK(pthread_join(worker_ids[i],NULL)==0 && worker_rc[i]==0);
     }
+#if PCM_F64_NATIVE_ENABLED
     printf("ENV workers=3 ");
+#else
+    /* Worker threads ran, but the compiled-out native guard cannot be
+     * qualified by a refusal that is unconditional in this build. */
+    printf("ENV workers=UNSUPPORTED ");
+#endif
   }
 #else
   printf("ENV workers=UNSUPPORTED ");
 #endif
-#if PCM64_PROBE_HAS_X86_REGISTERS
+#if PCM_F64_NATIVE_ENABLED && PCM64_PROBE_HAS_X86_REGISTERS
   printf("mxcsr=PASS x87=PASS ");
 #else
+  /* Mutating registers is not evidence of guard detection when the guard
+   * itself is compiled out, even if the mutations were exercised. */
   printf("mxcsr=NOT_RUN x87=NOT_RUN ");
 #endif
   rc=pcm_f64_check_dsp_env();
