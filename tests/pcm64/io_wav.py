@@ -47,6 +47,23 @@ def insist(condition, detail):
         raise AssertionError(detail)
 
 
+def classify_native_capability(build, host, status):
+    # Only a disabled build or an independently unsupported host can skip
+    # arithmetic tests. A supported, enabled build with a bad runtime guard
+    # must fail the suite rather than silently lose ten qualification gates.
+    insist(build in ('ENABLED', 'DISABLED') and
+           host in ('SUPPORTED', 'UNSUPPORTED') and
+           status in ('OK', 'UNSUPPORTED', 'NUMERIC'),
+           'invalid native arithmetic capability report')
+    if build == 'DISABLED' or host == 'UNSUPPORTED':
+        insist(status == 'UNSUPPORTED',
+               f'native arithmetic guard contradicts {build} build / {host} host: {status}')
+        return False
+    insist(status == 'OK',
+           f'native arithmetic guard failed in enabled, supported build: {status}')
+    return True
+
+
 def fmt_code(code):
     return (3 if code in ('f32', 'f64') else 1,
             int(code[1:]) if code.startswith('i') else int(code[1:]))
@@ -201,6 +218,8 @@ class CaseRunner:
         self.gates={}
         self.native_dsp=None
         self.native_dsp_status=None
+        self.native_build=None
+        self.native_host=None
         self.executed_binary_sha256={}
         self.rng=random.Random(SEED)
 
@@ -249,7 +268,9 @@ class CaseRunner:
                 'stderr':p.stderr.decode('utf-8','replace')[:4096],
                 'env':{k:v for k,v in (env or {}).items() if k.startswith('PCM64_')}}
         self.commands.append(record)
-        insist((p.returncode==0) == (expect==0),
+        # Distinguish the specified refusal from wrong errors, crashes and
+        # signals: any nonzero exit is not evidence of correct rejection.
+        insist(p.returncode == expect,
                f'command {label or args[0]} unexpected exit {p.returncode}, expected {expect}; '
                f'arguments={command} stderr={record["stderr"]}')
         return stdout,p.stderr.decode('utf-8','replace')
@@ -883,6 +904,36 @@ class CaseRunner:
         self.gates['source_environment_preflight']='PASS'
         self.gates['writer_environment_preflight']='PASS'
 
+    def unavailable_arithmetic_destination_integrity(self):
+        # Even when arithmetic is compiled out (or this host cannot support
+        # it), rejection must never truncate an existing destination or
+        # create a new one. This is a filesystem test, not a claim that the
+        # unavailable arithmetic or FP-environment gates ran.
+        if self.native_dsp:
+            return
+        raw=self.file('unavailable-writer-input.raw64',raw_double_words([
+            ieee_f64_bits(0.25),ieee_f64_bits(-0.25)]))
+        source=self.root/'unavailable-writer-input.wav'
+        self.native_generate(raw,source,'f64',False,1,48000,2)
+        for mode in ('generate','copy'):
+            for code in ('f32','i8','i16','i24','i32'):
+                for state in ('existing','absent'):
+                    dest=self.root/f'unavailable-{mode}-{code}-{state}.wav'
+                    sentinel=b'UNTOUCHED-DESTINATION'*7
+                    if state=='existing':
+                        dest.write_bytes(sentinel)
+                    else:
+                        dest.unlink(missing_ok=True)
+                    args=(['generate',raw,dest,code,'L',1,48000,2,2]
+                          if mode=='generate' else ['copy',source,dest,code,'L'])
+                    self.reject(args,label=f'unavailable-{mode}-{code}-{state}',
+                                sentinels=(dest,) if state=='existing' else (),
+                                stderr_contains='native WAV arithmetic environment unsupported')
+                    insist(state=='existing' or not dest.exists(),
+                           f'unavailable arithmetic created a destination: {mode}/{code}')
+                    self.tick('unavailable_arithmetic_destination_refusals')
+        self.gates['unavailable_arithmetic_destination_integrity']='PASS'
+
     def preopen_input_checks(self):
         # Argument errors and physical source exhaustion are known before
         # sample transfer.  Neither may acquire or alter an output pathname.
@@ -1085,11 +1136,20 @@ class CaseRunner:
     def execute(self):
         insist(self.sox.is_file() and self.probe.is_file(),'missing binaries')
         capability,_=self.invoke(['capabilities'],label='native-dsp-capabilities')
-        status=capability.decode('ascii').strip()
-        insist(status in ('native_dsp=OK','native_dsp=UNSUPPORTED','native_dsp=NUMERIC'),
-               'invalid native DSP capability result: '+repr(status))
-        self.native_dsp_status=status.split('=',1)[1]
-        self.native_dsp=(self.native_dsp_status=='OK')
+        fields=capability.decode('ascii').splitlines()
+        insist(len(fields)==3 and all('=' in line for line in fields),
+               'invalid native DSP capability result: '+repr(fields))
+        reported=dict(line.split('=',1) for line in fields)
+        insist(len(reported)==3 and set(reported)==
+               {'native_build','native_host','native_dsp'},
+               'missing or duplicate native DSP capability fields: '+repr(fields))
+        self.native_build=reported['native_build']
+        self.native_host=reported['native_host']
+        self.native_dsp_status=reported['native_dsp']
+        self.native_dsp=classify_native_capability(
+            self.native_build,self.native_host,self.native_dsp_status)
+        self.gates['native_arithmetic_capability']=(
+            'PASS' if self.native_dsp else self.native_unavailable())
         self.prepare_shim()
         self.formats()
         self.daz_guard()
@@ -1097,6 +1157,7 @@ class CaseRunner:
         self.malformed()
         self.safety()
         self.writer_environment()
+        self.unavailable_arithmetic_destination_integrity()
         self.preopen_input_checks()
         self.streaming()
         self.compatibility()
@@ -1112,6 +1173,8 @@ class CaseRunner:
                    Path(__file__).with_name('wav_fault_shim.c')]},
             'executed_binary_sha256':dict(self.executed_binary_sha256),
             'native_dsp_status':self.native_dsp_status,
+            'native_build':self.native_build,
+            'native_host':self.native_host,
             'seed':SEED,
             'oracles':'independent Python struct RIFF+RIFX parser/writer and Fraction rational nearest ties-away',
             'checks':self.counts,
@@ -1165,6 +1228,8 @@ def main():
                 'gate_execution':runner.gates,
                 'commands':runner.commands,
                 'native_dsp_status':runner.native_dsp_status,
+                'native_build':runner.native_build,
+                'native_host':runner.native_host,
                 'executed_binary_sha256':dict(runner.executed_binary_sha256),
                 'source_and_binary_sha256':dict(runner.executed_binary_sha256)}
         receipt.write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')

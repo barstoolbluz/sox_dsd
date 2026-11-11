@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <float.h>
 #if defined(HAVE_UNISTD_H) && !defined(_WIN32)
 #include <sys/stat.h>
 #include <unistd.h>
@@ -127,6 +128,18 @@ static int run(int argc,char **argv)
    * A disabled/unsupported arithmetic backend must not turn a platform gate
    * into an apparent conformance failure. */
   if (argc == 2 && !strcmp(argv[1], "capabilities")) {
+    /* Distinguish configured-out arithmetic, an unsupported host and a
+     * broken runtime guard. A supported native build must never turn
+     * NUMERIC/UNSUPPORTED into a qualification NOT_RUN. */
+    printf("native_build=%s\n", PCM_F64_NATIVE_ENABLED ? "ENABLED" : "DISABLED");
+#if defined(FLT_EVAL_METHOD) && FLT_EVAL_METHOD == 0 && \
+    (((defined(__i386__) || defined(__x86_64__)) && defined(__SSE2__)) || \
+     (defined(__aarch64__) && (defined(__GNUC__) || defined(__clang__))))
+    printf("native_host=%s\n", pcm_f64_check_ieee_storage() == PCM_F64_OK ?
+        "SUPPORTED" : "UNSUPPORTED");
+#else
+    printf("native_host=UNSUPPORTED\n");
+#endif
     printf("native_dsp=%s\n", pcm_f64_status_name(pcm_f64_check_dsp_env()));
     return 0;
   }
