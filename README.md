@@ -53,7 +53,11 @@ A *qualified* profile has passed the project's release-authorization checks for 
 
 ### Clipping and headroom
 
-PCM can overshoot between samples after interpolation. For PCM-to-DSD conversions, the normal fast path applies a **0.9 linear gain** (approximately **-0.91515 dB**) even to quiet input, then clips residual interpolated peaks above its 0.45 modulator-unit warning ceiling and reports the clipping. This is a deliberate, audible-level-affecting default, not transparent gain preservation.
+Converting PCM to DSD necessarily changes how the audio is represented. DSD has its own reference level and requires sufficient headroom for reliable encoding. SoX DSD provides this headroom by reducing the input level by approximately 0.9 dB by default. This small, uniform adjustment preserves the music's relative dynamics and does not itself introduce distortion.
+
+SoX DSD uses an eighth-order noise shaper that delivers exceptionally low noise within the audible frequency range. Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) found it to be the strongest overall choice for in-band noise performance across DSD64 through DSD1024, although other designs can produce less ultrasonic noise.
+
+Eighth-order noise shapers have a known limitation: they can become unstable with unusually demanding, sustained signals, such as strong DC offsets or high-level test tones. This behavior has been [documented in earlier DSD-capable SoX builds](https://archimago.blogspot.com/2021/10/measurements-look-at-dsd-and-using-sox.html). SoX DSD 1.1.1 addresses the risk through qualified operating levels and safeguards that detect modulator instability. Its qualification tests also include real music, not just synthetic signals.
 
 - `--headroom DB` replaces the implicit cut with an explicit fixed attenuation.
 - `--auto-headroom` measures the full interpolated signal and chooses the smallest non-amplifying, shared multichannel cut that stays within the warning ceiling. It needs additional passes and temporary storage.
