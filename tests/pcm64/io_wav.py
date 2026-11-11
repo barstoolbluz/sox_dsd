@@ -17,7 +17,10 @@ import os
 import platform
 from pathlib import Path
 import random
-import resource
+try:
+    import resource
+except ImportError:  # Windows and other hosts without POSIX resource limits
+    resource = None
 import shutil
 import stat
 import struct
@@ -557,6 +560,9 @@ class CaseRunner:
         self.reject(['generate',raw,self.root,'f64','L',1,44100,1,1],label='directory-refusal')
         if Path('/dev/null').exists():
             self.reject(['generate',raw,'/dev/null','f64','L',1,44100,1,1],label='device-refusal')
+            self.gates['device_refusal']='PASS'
+        else:
+            self.gates['device_refusal']='NOT_RUN: /dev/null unavailable'
         dangling=self.root/'dangling-link.wav'
         dangling.symlink_to(self.root/'uncreated')
         self.reject(['generate',raw,dangling,'f64','L',1,44100,1,1],label='dangling-refusal')
@@ -647,6 +653,7 @@ class CaseRunner:
                              'PCM64_TEST_TARGET':str(lateclose)},label='late-close-failure',
                         trace_event='C')
             self.tick('late_write_or_close_failure',2)
+            self.gates['fd_fault_injection']='PASS'
         self.permission_denial()
         insist(prior==b'SENTINEL-preserve-original-bytes-'*10,'internal test sentinel mutation')
 
@@ -835,6 +842,54 @@ class CaseRunner:
         # Deliberately mismatching declared and supplied writer frames remains
         # a *runtime* writer-count error, not a preflight rejection.
         self.gates['preopen_input_argument_validation']='PASS'
+        self.generate_input_aliases()
+
+    def generate_input_aliases(self):
+        # A raw FILE* is not a WAV format handle. Verify generate's own
+        # identity preflight, including descriptors reached via /dev/stdin.
+        # Both a late short-read case and the formerly successful two-frame
+        # header-as-samples case must be rejected without touching the file.
+        for alias_kind in ('same-path','hardlink','symlink','stdin'):
+            if alias_kind == 'stdin' and (os.name != 'posix' or
+                                           not Path('/dev/stdin').exists()):
+                self.gates['generate_alias_stdin']='NOT_RUN: /dev/stdin unavailable'
+                continue
+            for count in (100,2):
+                destination=self.root/f'generate-alias-{alias_kind}-{count}.wav'
+                original=bytes(range(256))*3 + bytes(range(32))  # 800 bytes
+                destination.write_bytes(original)
+                link=self.root/f'generate-alias-input-{alias_kind}-{count}'
+                if alias_kind=='hardlink':
+                    os.link(destination,link)
+                    source=link
+                elif alias_kind=='symlink':
+                    link.symlink_to(destination)
+                    source=link
+                elif alias_kind=='stdin':
+                    source=Path('/dev/stdin')
+                else:
+                    source=destination
+                args=['generate',source,destination,'f64','L',1,48000,count,count]
+                if alias_kind=='stdin':
+                    with destination.open('rb') as input_fd:
+                        _,error=self.invoke(args,expect=1,stdin=input_fd,
+                                            label=f'generate-alias-{alias_kind}-{count}')
+                else:
+                    _,error=self.invoke(args,expect=1,
+                                        label=f'generate-alias-{alias_kind}-{count}')
+                insist('raw input aliases destination' in error,
+                       f'{alias_kind}/{count} did not identify the input/output alias: {error}')
+                insist(destination.read_bytes()==original,
+                       f'{alias_kind}/{count} modified the raw-input destination')
+                if alias_kind in ('hardlink','symlink'):
+                    insist(link.exists(),f'{alias_kind}/{count} removed the input alias')
+                    if alias_kind=='symlink':
+                        insist(link.is_symlink(),f'{alias_kind}/{count} replaced the input symlink')
+                    else:
+                        insist(os.stat(link).st_ino==os.stat(destination).st_ino,
+                               f'{alias_kind}/{count} broke the input hardlink')
+                self.tick('generate_input_destination_alias_refusals')
+            self.gates[f'generate_alias_{alias_kind.replace("-","_")}']='PASS'
 
     def streaming(self):
         # A duration-independent heap limit: 350k x 6 frames with a 96 MiB
@@ -851,17 +906,23 @@ class CaseRunner:
             f.write(raw_double_words(pattern)*(frames%1024))
         out=self.root/'stream-output.wav'
         lim=96*1024*1024
-        def capped():
-            resource.setrlimit(resource.RLIMIT_AS,(lim,lim))
-        self.invoke(['generate',raw,out,'f64','L',ch,44100,frames,frames],
-                    preexec_fn=capped,label='long-stream-96MiB-address-space')
+        if sys.platform == 'linux' and resource is not None and hasattr(resource,'RLIMIT_AS'):
+            def capped():
+                resource.setrlimit(resource.RLIMIT_AS,(lim,lim))
+            self.invoke(['generate',raw,out,'f64','L',ch,44100,frames,frames],
+                        preexec_fn=capped,label='long-stream-96MiB-address-space')
+            self.gates['streaming_address_space_cap']='PASS'
+            self.tick('streaming_address_space_cap_mib',96)
+        else:
+            self.gates['streaming_address_space_cap']='NOT_RUN: Linux RLIMIT_AS required'
+            self.invoke(['generate',raw,out,'f64','L',ch,44100,frames,frames],
+                        label='long-stream-without-address-space-cap')
         parsed=parse_wave(out)
         insist(len(parsed['data'])==frames*ch*8 and
                hashlib.sha256(parsed['data']).hexdigest()==digest(raw),
                'long streaming writer altered binary64 words')
         self.tick('streaming_frames',frames)
         self.tick('streaming_samples',frames*ch)
-        self.tick('streaming_address_space_cap_mib',96)
         self.tick('streaming_bytes',frames*ch*8)
 
     def compatibility(self):
@@ -883,7 +944,9 @@ class CaseRunner:
     def prepare_shim(self):
         source=Path(__file__).with_name('wav_fault_shim.c')
         if sys.platform!='linux':
-            raise AssertionError('02A deterministic FD fault gates require Linux host')
+            self.gates['fd_fault_injection']='NOT_RUN: Linux LD_PRELOAD fault shim required'
+            self.gates['fenv_preload_build']='NOT_RUN: Linux LD_PRELOAD required'
+            return
         so=subprocess.run(['cc','-shared','-fPIC','-O2','-Wall','-Wextra',
                            '-o',str(self.root/'libwav_fault.so'),str(source),'-ldl'],
                           capture_output=True,text=True)
@@ -898,6 +961,10 @@ class CaseRunner:
             insist(so.returncode==0,f'fenv preload could not compile: {so.stderr}')
             self.fenv=self.root/'libwav_fenv.so'
             self.tick('fenv_shim_builds')
+            self.gates['fenv_preload_build']='PASS'
+
+        else:
+            self.gates['fenv_preload_build']='NOT_RUN: requires x86 SSE2 preload support'
 
     def execute(self):
         insist(self.sox.is_file() and self.probe.is_file(),'missing binaries')

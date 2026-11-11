@@ -56,6 +56,39 @@ static bool raw_has_frames(FILE *raw, uint32_t channels, uint64_t frames)
 #endif
 }
 
+/* generate accepts a raw FILE* rather than a WAV format handle, so the
+ * native writer cannot inspect this input itself.  Compare kernel file
+ * identities (not spellings) before the output writer may acquire it. */
+static bool raw_distinct_from_destination(FILE *raw, const char *destination)
+{
+#if defined(HAVE_UNISTD_H) && !defined(_WIN32)
+  struct stat input, output;
+  if (!raw || fstat(fileno(raw), &input)) {
+    perror("raw input identity preflight");
+    return false;
+  }
+  if (!strcmp(destination, "-")) {
+    if (fstat(fileno(stdout), &output)) {
+      perror("output identity preflight");
+      return false;
+    }
+  } else if (stat(destination, &output)) {
+    if (errno == ENOENT) return true; /* writer handles exclusive creation */
+    perror("output identity preflight");
+    return false;
+  }
+  if (input.st_dev == output.st_dev && input.st_ino == output.st_ino) {
+    fprintf(stderr, "raw input aliases destination before native output\n");
+    return false;
+  }
+  return true;
+#else
+  (void)raw; (void)destination;
+  fprintf(stderr,"raw input identity preflight is unavailable on this host\n");
+  return false;
+#endif
+}
+
 static int code(const char *arg,sox_encoding_t *encoding,unsigned *bits)
 {
   if (!strcmp(arg,"f64")) { *encoding=SOX_ENCODING_FLOAT;*bits=64; }
@@ -114,7 +147,8 @@ static int run(int argc,char **argv)
            (uint32_t)channels_arg,true,frames)!=PCM_F64_OK) goto finish;
     raw=fopen(argv[2],"rb");
     if (!raw) { perror("raw input");goto finish; }
-    if (!raw_has_frames(raw,fmt.channels,to_write)) goto finish;
+    if (!raw_has_frames(raw,fmt.channels,to_write) ||
+        !raw_distinct_from_destination(raw,argv[3])) goto finish;
     out=lsx_pcm_f64_wav_open_write(argv[3],&fmt,encoding,bits,big,NULL,NULL,
         argc>11 ? argv[11] : NULL,argc>10 && !strcmp(argv[10],"deny") ? decline : NULL);
     if (!out) { fail("safe open",NULL);goto finish; }

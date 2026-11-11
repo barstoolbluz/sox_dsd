@@ -13,10 +13,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(HAVE_PTHREAD_H)
+/* Optional test-only switches allow verification of NOT_RUN accounting on
+ * an x86 host, without falsely claiming that the disabled checks executed. */
+#if defined(HAVE_PTHREAD_H) && !defined(PCM64_PROBE_SKIP_WORKER_TESTS)
+#define PCM64_PROBE_HAS_WORKERS 1
+#else
+#define PCM64_PROBE_HAS_WORKERS 0
+#endif
+#if (defined(__i386__) || defined(__x86_64__)) && defined(__SSE2__) && \
+    !defined(PCM64_PROBE_SKIP_X86_TESTS)
+#define PCM64_PROBE_HAS_X86_REGISTERS 1
+#else
+#define PCM64_PROBE_HAS_X86_REGISTERS 0
+#endif
+
+#if PCM64_PROBE_HAS_WORKERS
 #include <pthread.h>
 #endif
-#if (defined(__i386__) || defined(__x86_64__)) && defined(__SSE2__)
+#if PCM64_PROBE_HAS_X86_REGISTERS
 #include <xmmintrin.h>
 #endif
 
@@ -157,7 +171,7 @@ static int verify_environment_here(void)
   pcm_f64_status initial = pcm_f64_check_dsp_env();
   fenv_t saved;
   int original_round;
-#if (defined(__i386__) || defined(__x86_64__)) && defined(__SSE2__)
+#if PCM64_PROBE_HAS_X86_REGISTERS
   unsigned int csr_original = _mm_getcsr(), csr;
   unsigned short cw_original, cw;
   __asm__ __volatile__("fnstcw %0" : "=m"(cw_original));
@@ -180,7 +194,7 @@ static int verify_environment_here(void)
   CHECK(fegetround()==FE_TOWARDZERO);
   CHECK(fesetenv(&saved)==0);
   CHECK(fegetround()==original_round);
-#if (defined(__i386__) || defined(__x86_64__)) && defined(__SSE2__)
+#if PCM64_PROBE_HAS_X86_REGISTERS
   /* Tests are host-specific; skip direct register mutations elsewhere rather
    * than pretending that portable fenv exposes FTZ/DAZ/trap-enable bits. */
   csr = csr_original | 0x8000u;  /* flush-to-zero */
@@ -211,7 +225,7 @@ static int verify_environment_here(void)
   CHECK(feraiseexcept(FE_INEXACT | FE_UNDERFLOW)==0);
   CHECK(pcm_f64_check_dsp_env()==initial);
   CHECK(fesetenv(&saved)==0);
-#if (defined(__i386__) || defined(__x86_64__)) && defined(__SSE2__)
+#if PCM64_PROBE_HAS_X86_REGISTERS
   CHECK(_mm_getcsr()==csr_original);
   __asm__ __volatile__("fnstcw %0" : "=m"(cw));
   CHECK(cw==cw_original);
@@ -230,7 +244,7 @@ static int verify_environment_here(void)
   return 0;
 }
 
-#if defined(HAVE_PTHREAD_H)
+#if PCM64_PROBE_HAS_WORKERS
 static void *worker(void *arg)
 {
   int *rc = (int *)arg;
@@ -243,7 +257,7 @@ static int environment_test(void)
 {
   int rc;
   CHECK(verify_environment_here()==0);
-#if defined(HAVE_PTHREAD_H)
+#if PCM64_PROBE_HAS_WORKERS
   {
     pthread_t worker_ids[3];
     int worker_rc[3]={-1,-1,-1};
@@ -258,6 +272,11 @@ static int environment_test(void)
   }
 #else
   printf("ENV workers=UNSUPPORTED ");
+#endif
+#if PCM64_PROBE_HAS_X86_REGISTERS
+  printf("mxcsr=PASS x87=PASS ");
+#else
+  printf("mxcsr=NOT_RUN x87=NOT_RUN ");
 #endif
   rc=pcm_f64_check_dsp_env();
   printf("status=%s assertions=%u\n",pcm_f64_status_name(rc),checks);

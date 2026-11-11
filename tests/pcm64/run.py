@@ -177,7 +177,27 @@ def run_all(sox: Path, probe: Path, results: Path):
     env = run([str(probe), "--environment"])
     assert_true(env.returncode == 0 and "ENV workers=" in env.stdout,
                 f"fenv/worker test failed: rc={env.returncode} {env.stderr} {env.stdout}")
-    counts["environment_assertions"] = int(env.stdout.split("assertions=")[1].split()[0])
+    fields = dict(part.split("=", 1) for part in env.stdout.split() if "=" in part)
+    assert_true(set(fields) == {"workers", "mxcsr", "x87", "status", "assertions"},
+                f"environment probe did not report every gate: {env.stdout!r}")
+    counts["environment_assertions"] = int(fields["assertions"])
+    assert_true(fields["status"] in ("OK", "UNSUPPORTED"),
+                f"unexpected environment status: {fields['status']}")
+    assert_true(fields["workers"] in ("3", "UNSUPPORTED") and
+                fields["mxcsr"] in ("PASS", "NOT_RUN") and
+                fields["x87"] in ("PASS", "NOT_RUN"),
+                f"invalid environment qualification: {env.stdout!r}")
+    assert_true(fields["mxcsr"] == fields["x87"],
+                "register checks must run or be omitted together")
+    gates = {
+        "portable_fenv_rounding": "PASS",
+        "worker_fenv_isolation": ("PASS" if fields["workers"] == "3"
+                                  else "NOT_RUN: pthread worker checks not compiled"),
+        "mxcsr_control_mutations": ("PASS" if fields["mxcsr"] == "PASS"
+                                    else "NOT_RUN: x86 SSE2 register checks not compiled"),
+        "x87_control_mutations": ("PASS" if fields["x87"] == "PASS"
+                                  else "NOT_RUN: x86 SSE2 register checks not compiled"),
+    }
     assert_true(counts["environment_assertions"] >= 18,
                 "fenv controls not sufficiently exercised")
     jobs = generate_jobs(counts)
@@ -201,6 +221,7 @@ def run_all(sox: Path, probe: Path, results: Path):
 
     source = Path(__file__).resolve().parents[2]
     core_paths = [source / "src/pcm_f64.c", source / "src/pcm_f64.h",
+                  source / "tests/pcm64/pcm64_probe.c", source / "tests/pcm64/run.py",
                   source / "configure.ac", source / "src/Makefile.am",
                   source / "test/Makefile.am", source / "Makefile.am",
                   source / "test/pcm64_probe", source / "src/sox"]
@@ -212,7 +233,9 @@ def run_all(sox: Path, probe: Path, results: Path):
         revision = subprocess.CompletedProcess([], 127, "", "git not installed")
     record = {
         "suite": "foundation",
-        "status": "PASS",
+        "status": ("PASS_WITH_NOT_RUN" if any(v.startswith("NOT_RUN")
+                   for v in gates.values()) else "PASS"),
+        "gate_execution": gates,
         "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "source_directory": str(source),
         "source_git_commit": revision.stdout.strip() if revision.returncode == 0 else None,
@@ -269,7 +292,7 @@ def main():
         print(f"FAIL foundation: {failure['error']}", file=sys.stderr)
         return 1
     output.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
-    print(f"PASS foundation: {record['actual_checks']}; bound to {record['source_git_commit']}")
+    print(f"{record['status']} foundation: {record['actual_checks']}; bound to {record['source_git_commit']}")
     return 0
 
 
