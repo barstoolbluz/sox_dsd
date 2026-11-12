@@ -243,6 +243,13 @@ class CaseRunner:
 
     def invoke(self,args,*,expect=0,env=None,output=None,stdin=None,preexec_fn=None, label=None, stdout_pipe=False):
         command=[str(self.probe)]+[str(x) for x in args]
+        # LD_PRELOAD helpers are executable code too: include their actual
+        # contents in all receipts, including failures during the invocation.
+        if env and env.get('LD_PRELOAD'):
+            for candidate in env['LD_PRELOAD'].replace(':', ' ').split():
+                loaded = Path(candidate)
+                if loaded.is_file():
+                    self.record_binary(loaded)
         # Snapshot the invoked executable before launch, including subprocess
         # timeout/failure paths that still produce a FAIL receipt.
         self.record_binary(self.probe)
@@ -947,6 +954,8 @@ class CaseRunner:
         # create a new one. This is a filesystem test, not a claim that the
         # unavailable arithmetic or FP-environment gates ran.
         if self.native_dsp:
+            self.gates['unavailable_arithmetic_destination_integrity'] = (
+                'NOT_RUN: native arithmetic is enabled; disabled-native refusal is inapplicable')
             return
         raw=self.file('unavailable-writer-input.raw64',raw_double_words([
             ieee_f64_bits(0.25),ieee_f64_bits(-0.25)]))
@@ -1207,7 +1216,8 @@ class CaseRunner:
             'source_and_binary_sha256':{
                 str(x):digest(x) for x in [self.sox,self.probe,
                    Path(__file__),Path(__file__).with_name('wav_io_probe.c'),
-                   Path(__file__).with_name('wav_fault_shim.c')]},
+                   Path(__file__).with_name('wav_fault_shim.c'),
+                   Path(__file__).with_name('wav_fenv_preload.c')]},
             'executed_binary_sha256':dict(self.executed_binary_sha256),
             'native_dsp_status':self.native_dsp_status,
             'native_build':self.native_build,

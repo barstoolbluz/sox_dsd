@@ -286,6 +286,68 @@ def io_main_wrapper(io_main, args):
         sys.argv = previous
 
 
+def flac_main_wrapper(flac_main, args):
+    previous = sys.argv
+    try:
+        sys.argv = [str(Path(__file__).with_name("io_flac.py")),
+                    "--sox", str(args.sox),
+                    "--probe", str(Path(args.probe).with_name("pcm64_flac_probe")),
+                    "--results", str(args.results)]
+        return flac_main()
+    finally:
+        sys.argv = previous
+
+
+def aggregate_io(args, results, output):
+    # Persist independent suite results first.  A child's NOT_RUN or FAIL
+    # cannot be converted to PASS by an unrelated successful child.
+    children = []
+    for suite in ("io-wav", "io-flac"):
+        command = [sys.executable, str(Path(__file__).resolve()), "--suite", suite,
+                   "--sox", str(args.sox), "--probe", str(args.probe),
+                   "--results", str(results)]
+        cp = run(command)
+        path = results / (suite + ".json")
+        try:
+            receipt = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError) as exc:
+            receipt = {"suite":suite,"status":"FAIL",
+                       "error":f"child receipt unavailable: {exc}"}
+        children.append({"suite":suite,"returncode":cp.returncode,
+                         "status":receipt.get("status"),
+                         "stdout":cp.stdout[-4000:],"stderr":cp.stderr[-4000:],
+                         "receipt":receipt})
+    ok = all(c["returncode"] == 0 or
+             (c["returncode"] == 2 and c["status"] == "NOT_RUN")
+             for c in children)
+    ok &= all(c["status"] in ("PASS", "PASS_WITH_NOT_RUN", "NOT_RUN")
+              for c in children)
+    skipped = any(c["status"] != "PASS" for c in children)
+    executed = {}
+    inputs = {}
+    for c in children:
+        executed.update(c["receipt"].get("executed_binary_sha256", {}))
+        inputs.update(c["receipt"].get("source_and_binary_sha256", {}))
+    record = {
+        "suite":"io", "status":("FAIL" if not ok else
+                 "PASS_WITH_NOT_RUN" if skipped else "PASS"),
+        "utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "source_git_commit":run(["git", "-C", str(Path(__file__).resolve().parents[2]),
+                                 "rev-parse", "HEAD"]).stdout.strip(),
+        "children": [{k:v for k,v in c.items() if k != "receipt"} for c in children],
+        "gate_execution": {f"{c['suite']}.{name}": value for c in children
+                           for name,value in c["receipt"].get("gate_execution", {}).items()},
+        "checks":{c["suite"]:c["receipt"].get("checks", c["receipt"].get("completed_checks", {}))
+                  for c in children},
+        "executed_binary_sha256":executed,
+        "source_and_binary_sha256":inputs,
+    }
+    output.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+    print(f"{record['status']} io: " + ", ".join(
+        c['suite'] + "=" + str(c['status']) for c in children))
+    return 0 if ok else 1
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--suite", required=True)
@@ -297,11 +359,16 @@ def main():
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite not in ("foundation", "io-wav"):
+    if args.suite not in ("foundation", "io-wav", "io-flac", "io"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
+    if args.suite == "io":
+        return aggregate_io(args, results, output)
     if args.suite == "io-wav":
         from io_wav import main as io_main
         return io_main_wrapper(io_main, args)
+    if args.suite == "io-flac":
+        from io_flac import main as flac_main
+        return flac_main_wrapper(flac_main, args)
     executed: dict[str, str] = {}
     try:
         record = run_all(args.sox.resolve(), args.probe.resolve(), results, executed)
