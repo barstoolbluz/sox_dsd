@@ -2,6 +2,42 @@
 #define SOX_WAV_SIZE_H
 
 #include <stdint.h>
+#include <stdbool.h>
+
+
+/* Private native PCM frame planner (EBU Tech 3306 v1.1, 2009, sections
+ * 3.4-3.5).  No floating-point durations or lossy 32-bit sentinels enter
+ * this calculation.  A RIFF/RIFX size of FFFFFFFF is reserved by RF64.
+ * The supplied fmt size is the body size, and fact is a 4-byte body.
+ * On little-endian output a fixed 36-byte JUNK/ds64 reservation is first.
+ * No allocations, independent of stream duration. */
+typedef struct {
+  uint64_t frames, data_bytes, riff_bytes, file_bytes;
+  uint32_t header_bytes;
+  bool rf64;
+} lsx_wav_native_sizes_t;
+
+static inline bool lsx_wav_native_sizes(uint64_t frames,
+    uint32_t block_align, uint16_t fmt_bytes, bool fact,
+    bool big_endian, lsx_wav_native_sizes_t *out)
+{
+  uint64_t header, data, payload;
+  if (!out || !block_align || !fmt_bytes) return false;
+  header = UINT64_C(12) + (big_endian ? 0 : UINT64_C(36)) +
+      UINT64_C(8) + fmt_bytes + (fact ? UINT64_C(12) : 0) + UINT64_C(8);
+  if (frames > (UINT64_MAX - header - 1) / block_align) return false;
+  data = frames * (uint64_t)block_align;
+  payload = data + (data & 1);
+  if (payload > UINT64_MAX - header) return false;
+  out->frames = frames;
+  out->data_bytes = data;
+  out->header_bytes = (uint32_t)header;
+  out->file_bytes = header + payload;
+  out->riff_bytes = out->file_bytes - 8;
+  out->rf64 = out->riff_bytes >= UINT32_MAX || data >= UINT32_MAX ||
+      (fact && frames >= UINT32_MAX);
+  return !(big_endian && out->rf64);
+}
 
 /* SoX's established WAV read-to-EOF sentinel. */
 #define LSX_WAV_MS_UNSPEC UINT32_C(0x7ffff000)

@@ -65,6 +65,10 @@ pcm_f64_status lsx_wav_native_facts(const sox_format_t *,
     lsx_pcm_f64_wav_facts *);
 pcm_f64_progress lsx_wav_native_read(sox_format_t *, pcm_f64_output);
 pcm_f64_progress lsx_wav_native_write(sox_format_t *, pcm_f64_input);
-pcm_f64_status lsx_wav_native_prepare_write(sox_format_t *, uint64_t, bool, uint32_t);
+/* Private zero-run sparse emission for bounded 4 GiB qualification on
+ * seekable outputs. This is not part of libSoX's public ABI or CLI. */
+pcm_f64_status lsx_wav_native_sparse_zero_frames(sox_format_t *, uint64_t);
+
+pcm_f64_status lsx_wav_native_prepare_write(sox_format_t *, uint64_t, bool length_known, bool keep_mask, uint32_t);
 
 #endif
