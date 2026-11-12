@@ -63,7 +63,7 @@ PCM-to-DSD conversion normally leaves headroom: the [HQPlayer user manual](https
 
 ### Encoding headroom and clipping
 
-SoX DSD retains the original SoX noise shapers, but uses a qualified eighth-order mastering encoder based on SDM-8 by default at all five DSD rates. [Empirical research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates that SDM-8 delivers best-in-class in-band noise performance, outperforming all alternatives on this measure.
+By default, SoX DSD uses a qualified eighth-order mastering encoder based on SDM-8 at all five DSD rates. [Empirical research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates that SDM-8 delivers best-in-class in-band noise performance, outperforming all alternatives on this measure. The original SoX noise shapers (`sdm-4` to `sdm-8` and `clans-4` to `clans-8`) remain available; see the last item in the list below.
 
 Eighth-order noise shapers have a known Achilles heel, however: they can become unstable with unusually demanding, sustained signals, such as near-full-scale DC or high-level test tones. This behavior is mostly confined to the test bench—in point of fact, near-full-scale DC is uncommon in real-world music—and has been [documented in combination with earlier DSD-capable SoX builds](https://archimago.blogspot.com/2021/10/measurements-look-at-dsd-and-using-sox.html). However, empirical testing shows that it can and does occur with real-world music, too.
 
@@ -78,6 +78,11 @@ To avoid clipping across an album, choose one fixed cut with `--headroom DB` and
 - `--headroom DB` replaces the implicit cut with an explicit fixed attenuation.
 - `--auto-headroom` measures the full interpolated signal and chooses, for each file, the smallest non-amplifying, shared multichannel cut that stays within the warning ceiling. It needs additional passes and temporary storage.
 - `--dsd-clip error` rejects overloads instead of clipping. Its default gain differs by rate/profile; strict mode does **not** universally mean unity gain. Modulator state and numerical guards remain active under every policy.
+- The original SoX noise shapers are selected with the effects `rate -v RATE sdm -f NAME`, placed after the output file. NAME is a shaper such as `clans-7`; RATE is the DSD rate in Hz (2822400 for DSD64, 5644800 for DSD128, and so on) and must match the output rate given with `-r`. For example: `sox master.wav -r dsd128 master.dsf gain -2 rate -v 5644800 sdm -f clans-7`. This route bypasses the default encoder and its safeguards:
+  - It applies no default cut: PCM full scale maps to 0 dB SACD. To attenuate, put `gain -DB` before `rate`; the example lowers the level by 2 dB. SoX DSD added `--headroom` and `--auto-headroom` to set the level of its own default encoder. The original SoX `sdm` effect has no such controls, so SoX stops with an error if you give either option on this route.
+  - The `rate` effect clips interpolated peaks above PCM full scale and reports them with SoX's ordinary "rate clipped" warning. `--dsd-clip error` has no effect.
+  - It does not check for modulator instability unless you pass `--sdm-guard=on` before the input file.
+  - The shapers were designed for DSD64, DSD128 and DSD256. At DSD512 and DSD1024, this route uses their DSD256 coefficients.
 
 The stability margin is backed by real-music testing. Without it, at unity gain, we encoded the same 200 tracks at DSD64, DSD128 and DSD256, each once at its original level and once normalized to a 0 dBFS peak. Six of those 1,200 encodes, all at DSD256, drove the SDM-8-based encoder unstable. In each case SoX DSD detected the instability and stopped with an error instead of writing a damaged file. With the 0.915 dB cut, all 1,200 encodes completed. At DSD512 and DSD1024, the SDM-8-based encoder with `--headroom 0` is likewise **not** guaranteed stable for full-scale inputs. `--headroom 0` also clips more, not less, because it raises the level against the same ceiling. The [user guide](docs/dsd/USING_SOX_DSD.md) explains the policies and their limits.
 
