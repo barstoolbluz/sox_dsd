@@ -21,6 +21,7 @@ import sys
 import tempfile
 import time
 from binary_receipts import executable_libraries
+from flac_fixtures import codes as flac_codes, raw_pcm as flac_raw_pcm, name as flac_name
 
 
 def sha(path):
@@ -170,8 +171,7 @@ def main():
             for value in (0x7ffff000,0x7fffffff,0xffffffff):
                 path=work/f'legacy-ds64-{value:08x}.wav'
                 sparse_rf64(path,value)
-                cp=run(f'legacy-ds64-exact-{value:08x}',['-s',path],0,
-                       program=sox.parent/'soxi')
+                cp=run(f'legacy-ds64-exact-{value:08x}',['--i','-s',path],0)
                 check(cp.stdout.strip()==str(value).encode(),
                       f'ds64 {value:#x}: reported {cp.stdout!r} instead of exact size')
                 checks[f'legacy_ds64_exact_{value:08x}']='PASS'
@@ -331,6 +331,65 @@ def main():
             check(p['precision']['input_normalization'][0]['source_decode_exact'] is True,
                   '24-bit integer PCM should be exact in signed int32 carrier')
             checks['legacy_integer24_source_decode_exact']='PASS'
+            # D-04: lossless FLAC integer values are exact on the selected
+            # historical int32 path, even if the native FLAC adapter is not
+            # eligible (for example when FLAC is a libtool plugin). Test real
+            # checked-in FLAC words against an independent integer oracle and
+            # corresponding WAV, not against the planner's claim alone.
+            supported_formats=run('flac-format-availability',['--help'])
+            help_output=(supported_formats.stdout+supported_formats.stderr).decode('utf-8','replace')
+            format_lines=[line for line in help_output.splitlines()
+                          if line.startswith('AUDIO FILE FORMATS:')]
+            flac_available=any('flac' in line.split(':',1)[1].split()
+                               for line in format_lines)
+            if flac_available:
+                for bits,channels,frames in ((16,1,191),(24,2,4973)):
+                    flac=source/'tests/pcm64/fixtures'/flac_name(bits,channels,frames)
+                    check(flac.is_file(),'missing FLAC exactness fixture: '+str(flac))
+                    raw=flac_raw_pcm(bits,flac_codes(bits,channels,frames))
+                    width=bits//8
+                    fmt=struct.pack('<HHIIHH',1,channels,48000,
+                                    48000*channels*width,channels*width,bits)
+                    wave_body=(b'fmt '+struct.pack('<I',len(fmt))+fmt+
+                               b'data'+struct.pack('<I',len(raw))+raw)
+                    wave=work/('flac-oracle-'+str(bits)+'.wav')
+                    wave.write_bytes(b'RIFF'+struct.pack('<I',len(wave_body)+4)+
+                                     b'WAVE'+wave_body)
+                    args=['-R','-D',wave,'-t','raw','-e','signed-integer',
+                          '-b',str(bits),'-']
+                    decoded_wave=run('integer-wav-raw-'+str(bits),args,0)
+                    check(decoded_wave.stdout==raw,
+                          'independent WAV decoded codes mismatch: '+str(bits))
+                    for policy in ('auto','32'):
+                        p=plan('flac-exact-plan-'+str(bits)+'-'+policy,
+                               ['--precision',policy,'-D',flac,'-b',str(bits),output],
+                               policy=policy,pcm=True)
+                        normalization=p['precision']['input_normalization'][0]
+                        check(normalization['source_decode_exact'] is True and
+                              'exactly represented' in normalization['normalization'] and
+                              p['precision']['actual_pcm_engine']=='sox_sample_t.int32',
+                              'lossless FLAC integer source incorrectly reported inexact: '+
+                              str(bits)+' '+policy)
+                        converted=run('flac-raw-'+str(bits)+'-'+policy,
+                                     ['--precision',policy,'-R','-D',flac,
+                                      '-t','raw','-e','signed-integer','-b',str(bits),'-'],0)
+                        check(converted.stdout==raw and converted.stdout==decoded_wave.stdout,
+                              'FLAC/WAV decoded source samples differ: '+str(bits)+' '+policy)
+                        checks['flac_integer_exact_'+str(bits)+'_'+policy]='PASS'
+                    report=work/('flac-dsd-'+str(bits)+'.json')
+                    run('flac-dsd-report-'+str(bits),
+                        ['--precision','32','-R','-D','--report',report,
+                         flac,work/('flac-to-dsd-'+str(bits)+'.dsf')],0)
+                    r=json.loads(report.read_text())['precision']
+                    check(r['input_normalization'][0]['source_decode_exact'] is True and
+                          'exactly represented' in r['input_normalization'][0]['normalization'] and
+                          r['actual_pcm_engine']=='sox_sample_t.int32' and
+                          r['binary64_pcm_processing'] is False,
+                          'FLAC executed report misstates source exactness: '+str(bits))
+                    checks['flac_dsd_report_exact_'+str(bits)]='PASS'
+                gates['flac_legacy_integer_exactness']='PASS'
+            else:
+                gates['flac_legacy_integer_exactness']='NOT_RUN: FLAC reader not available in this build'
             # Effect-free 24-to-16 auto-dither still executes identically under
             # the three historical policy spellings.
             for label,policy in [('default',[]),('32',['--precision','32']),
