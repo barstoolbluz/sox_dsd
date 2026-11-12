@@ -20,6 +20,11 @@ typedef struct {
 
 /* Queries the actual WAV handler state, never the filename extension or a
  * user-supplied encoding override. A successful query does not consume data. */
+/* Static capability only. Never claims descriptor seekability or commits a
+ * header; accepts the selected built-in handler rather than a filename. */
+bool lsx_pcm_f64_wav_static_write_capable(const sox_format_handler_t *handler,
+    uint32_t rate, unsigned channels, sox_encoding_t encoding, unsigned bits);
+
 pcm_f64_status lsx_pcm_f64_wav_query(const sox_format_t *ft,
     lsx_pcm_f64_wav_facts *facts);
 pcm_f64_progress lsx_pcm_f64_wav_read(sox_format_t *ft, pcm_f64_output out);

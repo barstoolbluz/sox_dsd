@@ -122,6 +122,10 @@ typedef struct {
   int output_dop_capable;
   int output_is_null;
   int output_pcm64_wav_capable; /* Identity of actual compiled WAV writer. */
+  int output_native64_dsd_capable; /* DSF/DFF only, no WSD output. */
+  int output_path_native_eligible; /* Static classification; not FD check. */
+  const char *output_path_status;
+  int output_wav_header_feasible; /* Rate/layout/encoding, not final extent. */
   int arithmetic_compiled_capable;
   int output_has_explicit_encoding;
   sox_encoding_t fallback_encoding;
@@ -180,6 +184,7 @@ typedef struct {
   const char *precision_reason, *precision_route, *precision_engine;
   const char *precision_endpoint_quantization;
   const char *precision_descriptor_status;
+  int precision_header_feasible;
 } lsx_dsd_plan;
 
 /* Private rate x endpoint x operation authorization. P21 permits the

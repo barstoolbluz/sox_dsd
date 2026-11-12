@@ -1,6 +1,7 @@
 /* Private dispatch: accept the actual compiled WAV handler only. */
 #include "sox_i.h"
 #include "pcm_f64_io.h"
+#include "wav-size.h"
 
 sox_format_handler_t const *lsx_wav_format_fn(void);
 
@@ -10,6 +11,31 @@ static bool is_wav(const sox_format_t *ft)
   return ft && ft->handler.startread == wav->startread &&
       ft->handler.startwrite == wav->startwrite &&
       ft->handler.priv_size == wav->priv_size;
+}
+
+bool lsx_pcm_f64_wav_static_write_capable(const sox_format_handler_t *handler,
+    uint32_t rate, unsigned channels, sox_encoding_t encoding, unsigned bits)
+{
+  const sox_format_handler_t *wav=lsx_wav_format_fn();
+  lsx_wav_native_sizes_t sizes;
+  unsigned block_align;
+  bool extensible, fact;
+  if (!handler || !wav || handler->startwrite!=wav->startwrite ||
+      handler->priv_size!=wav->priv_size ||
+      !rate || !channels || channels>64 ||
+      pcm_f64_check_ieee_storage()!=PCM_F64_OK ||
+      (encoding==SOX_ENCODING_FLOAT ? (bits!=32 && bits!=64) :
+       encoding==SOX_ENCODING_UNSIGNED ? bits!=8 :
+       encoding==SOX_ENCODING_SIGN2 ? (bits!=16 && bits!=24 && bits!=32) : true))
+    return false;
+  block_align=channels*(bits/8);
+  extensible=((encoding==SOX_ENCODING_SIGN2 ||
+      encoding==SOX_ENCODING_UNSIGNED) && (bits>16 || channels>2));
+  fact=extensible || encoding==SOX_ENCODING_FLOAT;
+  return block_align<=UINT16_MAX && (uint64_t)rate*block_align<=UINT32_MAX &&
+      lsx_wav_native_sizes(0,block_align,
+          extensible?40:encoding==SOX_ENCODING_FLOAT?18:16,
+          fact,false,&sizes);
 }
 
 pcm_f64_status lsx_pcm_f64_wav_query(const sox_format_t *ft,

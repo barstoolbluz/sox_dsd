@@ -2717,6 +2717,27 @@ static void preflight_dsd(void)
         handler->priv_size==wav->priv_size;
   }
   spec.output_native_capable=!strcmp(kind,"dsf") || !strcmp(kind,"dff") || !strcmp(kind,"wsd");
+  spec.output_native64_dsd_capable=!strcmp(kind,"dsf") || !strcmp(kind,"dff");
+  spec.output_path_native_eligible=1;
+  spec.output_path_status="actual output descriptor not acquired";
+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
+  if (ofile->filename && strcmp(ofile->filename,"-")) {
+    struct stat lst, target;
+    if (lstat(ofile->filename,&lst)==0) {
+      if (stat(ofile->filename,&target) || !S_ISREG(target.st_mode)) {
+        spec.output_path_native_eligible=0;
+        spec.output_path_status="existing destination is not a regular file (or symlink is dangling)";
+      } else spec.output_path_status=S_ISLNK(lst.st_mode)?
+          "symlink to regular file: target and descriptor still unresolved":
+          "existing regular file: actual descriptor still unresolved";
+    } else if (errno==ENOENT) {
+      spec.output_path_status="new regular-file candidate: actual descriptor unresolved";
+    } else {
+      spec.output_path_native_eligible=0;
+      spec.output_path_status="destination pathname could not be inspected";
+    }
+  }
+#endif
   spec.output_is_null=!strcmp(kind,"null");
   sox_init_encodinginfo(&test_enc);
   /* Prefer signed 24-bit.  For a PCM-only codec, select another ordinary
@@ -2855,6 +2876,16 @@ static void preflight_dsd(void)
         lsx_fail("DSD routing, segment %lu: %s",(unsigned long)i,error);
         dsd_free_sequence(series,segments);free(input);free(effect);exit(2);
       }
+      if (series[i].output_domain==LSX_PCM_AUDIO) {
+        uint32_t hz;
+        if (!series[i].output_bits) {
+          series[i].output_bits=ofile->encoding.bits_per_sample;
+          series[i].output_encoding=ofile->encoding.encoding;
+        }
+        part.output_wav_header_feasible=lsx_dsd_integer_rate(series[i].output_rate,&hz) &&
+            lsx_pcm_f64_wav_static_write_capable(handler,hz,
+                series[i].output_channels,series[i].output_encoding,series[i].output_bits);
+      }
       lsx_dsd_precision_resolve(&part,&series[i]);
       if (i && output_method!=sox_multiple &&
           (series[i].output_rate!=series[0].output_rate ||
@@ -2880,7 +2911,19 @@ static void preflight_dsd(void)
       lsx_dsd_plan_free(&plan);free(input);free(effect);exit(2);
     }
   }
-  if (!series) lsx_dsd_precision_resolve(&spec,&plan);
+  if (!series) {
+    if (plan.output_domain==LSX_PCM_AUDIO) {
+      uint32_t hz;
+      if (!plan.output_bits) {
+        plan.output_bits=ofile->encoding.bits_per_sample;
+        plan.output_encoding=ofile->encoding.encoding;
+      }
+      spec.output_wav_header_feasible=lsx_dsd_integer_rate(plan.output_rate,&hz) &&
+          lsx_pcm_f64_wav_static_write_capable(handler,hz,
+              plan.output_channels,plan.output_encoding,plan.output_bits);
+    }
+    lsx_dsd_precision_resolve(&spec,&plan);
+  }
   /* An explicit profile cannot be silently ignored by native repacking,
    * DoP, or a conversion that has no matching reconstruction/encoding. */
   for (i=0;i<(series?segments:1);i++) {

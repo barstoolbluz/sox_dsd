@@ -1002,13 +1002,17 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
     has_dsd=1;
   p->precision_has_dsd=has_dsd;
   p->precision_pcm_present=pcm;
+  p->precision_header_feasible=p->output_domain!=LSX_PCM_AUDIO ||
+      spec->output_wav_header_feasible;
   p->precision_endpoint_quantization=p->output_domain==LSX_DSD_NATIVE?
       (p->encode_count?"one-bit DSD modulation":"none (native DSD bit preservation)"):
       p->output_domain==LSX_DOP_TRANSPORT?"none (DoP transport)":
       p->output_encoding==SOX_ENCODING_FLOAT?
       (p->output_bits==64?"binary64 WAV endpoint":"binary32 WAV rounding"):
       "integer PCM endpoint quantization";
-  p->precision_descriptor_status="not acquired; actual descriptor and seekability unresolved";
+  p->precision_descriptor_status=spec->output_path_status?
+      spec->output_path_status:
+      "not acquired; actual descriptor and seekability unresolved";
   p->precision_route=pcm?"legacy-effects":"legacy-bitstream";
   p->precision_engine=pcm?"sox_sample_t.int32":"none";
   /* Source order is the domain planner's order; derive gain properties
@@ -1031,8 +1035,8 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
     p->precision_reason="no PCM arithmetic: native DSD/DoP bit-domain route retained";
     return; /* An unused strict binary64 request is not an error. */
   }
-  if (spec->input_count!=1 || spec->combine!=LSX_DSD_COMBINE_SEQUENCE &&
-      spec->combine!=LSX_DSD_COMBINE_CONCAT)
+  if (spec->input_count!=1 || (spec->combine!=LSX_DSD_COMBINE_SEQUENCE &&
+      spec->combine!=LSX_DSD_COMBINE_CONCAT))
     why="binary64 requires exactly one input and no combiner";
   else if (spec->policy.guarded || spec->policy.normalizing)
     why="-G/--norm requires the conventional gain/normalization graph";
@@ -1044,6 +1048,13 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
   else if (!spec->output_pcm64_wav_capable &&
       p->output_domain==LSX_PCM_AUDIO)
     why="native PCM output requires the built-in WAV handler";
+  else if (p->output_domain==LSX_PCM_AUDIO && !spec->output_wav_header_feasible)
+    why="native WAV header/rate/layout or output encoding is unsupported";
+  else if (!spec->output_path_native_eligible)
+    why="named FIFO, device, dangling symlink or unreadable destination is native-ineligible";
+  else if (p->output_domain==LSX_DSD_NATIVE &&
+      !spec->output_native64_dsd_capable)
+    why="native binary64 DSD output requires DSF or DFF";
   else if (p->output_domain==LSX_DOP_TRANSPORT)
     why="binary64 graph cannot terminate in DoP transport";
   else if (p->encode_count && p->native_output_hz!=2822400u &&
@@ -1080,7 +1091,7 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
       p->output_encoding!=SOX_ENCODING_FLOAT)
     why="native WAV output encoding is unsupported";
   if (!why && p->output_domain==LSX_PCM_AUDIO && transformed &&
-      p->output_encoding!=SOX_ENCODING_FLOAT && p->output_bits<24 &&
+      p->output_encoding!=SOX_ENCODING_FLOAT && p->output_bits && p->output_bits<24 &&
       !spec->policy.dither_disabled)
     why="transformed integer output below 24 bits needs -D (automatic dither)";
   if (!why && !spec->arithmetic_compiled_capable)
@@ -1117,6 +1128,8 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
   if (p->precision_reason) json_string(fp,p->precision_reason); else fputs("null",fp);
   fputs(",\"endpoint_quantization\":",fp);
   json_string(fp,p->precision_endpoint_quantization?p->precision_endpoint_quantization:"unknown");
+  fprintf(fp,",\"static_header_feasible\":%s",
+      p->precision_header_feasible?"true":"false");
   fputs(",\"output_descriptor\":",fp);
   json_string(fp,p->precision_descriptor_status?p->precision_descriptor_status:"unresolved");
   fputs(",\"numeric_identity\":",fp);
