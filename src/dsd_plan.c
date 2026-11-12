@@ -1094,10 +1094,13 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
       p->output_encoding!=SOX_ENCODING_FLOAT && p->output_bits && p->output_bits<24 &&
       !spec->policy.dither_disabled)
     why="transformed integer output below 24 bits needs -D (automatic dither)";
-  if (!why && !spec->arithmetic_compiled_capable)
-    why="binary64 arithmetic/backend capability is unavailable";
+  /* Graph shape, compiled arithmetic and runner availability are three
+   * independent facts. An arithmetic-disabled build does not make an
+   * otherwise supported graph structurally ineligible. */
   p->precision_graph_eligible=why==NULL;
-  p->precision_reason=why?why:"native binary64 runner unavailable in Phase 04";
+  p->precision_reason=why?why:!spec->arithmetic_compiled_capable?
+      "binary64 arithmetic/backend capability is unavailable":
+      "native binary64 runner unavailable in Phase 04";
   /* Legacy-auto is a deliberate product policy, not a failed native attempt.
    * No owner-approved release activation or executable native runner exists. */
   if (spec->precision==LSX_PRECISION_AUTO)
