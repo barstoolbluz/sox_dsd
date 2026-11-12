@@ -100,6 +100,10 @@ typedef struct {
     uint64_t       ds64_dataSize;   /* Size of data chunk from ds64 header */
     uint64_t       native_rf64_riff_size, native_rf64_frames;
     bool native_rf64_valid, native_rf64_bad, native_data_was_sentinel;
+    bool native_rf64_checked;
+    off_t native_ds64_body_offset;
+    uint64_t native_ds64_body_length;
+    uint32_t native_rf64_riff32;
     bool native_fact_present, native_fact_bad;
     uint32_t native_fact_frames;
 
@@ -854,6 +858,7 @@ static int startread_wav(sox_format_t * ft)
     uint64_t    len;
 
     /* wave file characteristics */
+    uint64_t      qwRiffLength;
     uint32_t      dwRiffLength_tmp;
     unsigned short wChannels;       /* number of channels */
     uint32_t      dwSamplesPerSecond; /* samples per second per channel */
@@ -904,35 +909,29 @@ static int startread_wav(sox_format_t * ft)
         return SOX_EOF;
     }
 
+    qwRiffLength = dwRiffLength_tmp;
+
     if (lsx_reads(ft, magic, (size_t)4) == SOX_EOF || strncmp("WAVE", magic, (size_t)4))
     {
         lsx_fail_errno(ft,SOX_EHDR,"header not found");
         return SOX_EOF;
     }
 
-    if (wav->isRF64) {
-        uint64_t ds_riff, ds_frames;
-        uint32_t table_count;
-        off_t ds_chunk_start=lsx_tell(ft);
-        if (dwRiffLength_tmp!=UINT32_MAX) wav->native_rf64_bad=true;
-        if (findChunk(ft,"ds64",&len)==SOX_EOF) {
-            lsx_fail_errno(ft,SOX_EHDR,"RF64 requires a ds64 chunk");
-            return SOX_EOF;
+    /* Keep the ordinary RF64 reader's historical short/missing ds64
+     * behavior. The native-only query validates the complete 28-byte ds64
+     * payload independently, without imposing its admission rules here. */
+    if (wav->isRF64 && findChunk(ft, "ds64", &len) != SOX_EOF) {
+        wav->native_ds64_body_offset = lsx_tell(ft);
+        wav->native_ds64_body_length = len;
+        wav->native_rf64_riff32 = dwRiffLength_tmp;
+        lsx_debug("Found ds64 header");
+        if (dwRiffLength_tmp == UINT32_MAX) {
+            if (lsx_readqw(ft, &qwRiffLength)) read_error();
+        } else {
+            if (lsx_skipbytes(ft, (size_t)8)) read_error();
         }
-        if (ds_chunk_start<0 || lsx_tell(ft)!=ds_chunk_start+8 ||
-            len!=28) wav->native_rf64_bad=true;
-        if (len<28 || lsx_readqw(ft,&ds_riff) ||
-            lsx_readqw(ft,&wav->ds64_dataSize) ||
-            lsx_readqw(ft,&ds_frames) || lsx_readdw(ft,&table_count))
-            read_error();
-        if (table_count!=0 || ds_riff < 12 ||
-            ds_riff > (uint64_t)INT64_MAX-8 ||
-            ds_frames > UINT64_MAX/2)
-            wav->native_rf64_bad=true;
-        wav->native_rf64_riff_size=ds_riff;
-        wav->native_rf64_frames=ds_frames;
-        wav->native_rf64_valid=true;
-        if (len>28 && lsx_skipbytes(ft,(size_t)(len-28))) read_error();
+        if (lsx_readqw(ft, &wav->ds64_dataSize) ||
+            lsx_skipbytes(ft, (size_t)len-16)) read_error();
     }
 
     /* Now look for the format chunk */
@@ -1295,10 +1294,9 @@ static int startread_wav(sox_format_t * ft)
     qwDataLength = len;
     wav->native_data_size = qwDataLength;
     /* XXX - does MS_UNSPEC apply to RF64 files? */
-    if (!wav->isRF64 &&
-        (qwDataLength == 0x7FFFFFFF ||  /* LAME */
+    if (qwDataLength == 0x7FFFFFFF ||  /* LAME */
          qwDataLength == 0xFFFFFFFF ||  /* FFMPEG and madplay */
-         qwDataLength == MS_UNSPEC)) {  /* SoX only, apparently */
+         qwDataLength == MS_UNSPEC) {   /* SoX only, apparently */
       wav->ignoreSize = 1;
       /* This is to be expected when reading from a pipe */
       if (ft->seekable)
@@ -2437,6 +2435,36 @@ static void native_put_word(unsigned char *b, uint64_t u, unsigned bytes, bool b
 
 /* Available only for unambiguous RIFF/RIFX full-container formats.  The
  * ordinary WAV reader deliberately keeps accepting its historical variants. */
+/* Only native RF64 admission needs exact ds64 facts. Do not let this
+ * validation narrow the legacy libsox WAV reader: it must still decode its
+ * historical short ds64 variants and retain the same errors on missing ones.
+ * This is a single fixed-size read from the existing format FILE, not a
+ * second chunk walker or a duration-proportional allocation. */
+static void native_check_rf64_ds64(sox_format_t *ft, priv_t *w)
+{
+  unsigned char body[28];
+  FILE *fp = (FILE *)ft->fp;
+  off_t saved;
+  bool read_ok;
+  if (w->native_rf64_checked) return;
+  w->native_rf64_checked = true;
+  if (!ft->seekable || !fp || w->native_ds64_body_offset < 12 ||
+      w->native_ds64_body_length != sizeof(body) ||
+      w->native_rf64_riff32 != UINT32_MAX ||
+      (saved = ftello(fp)) < 0) return;
+  read_ok = fseeko(fp, w->native_ds64_body_offset, SEEK_SET) == 0 &&
+      fread(body, 1, sizeof(body), fp) == sizeof(body);
+  if (fseeko(fp, saved, SEEK_SET)) return;
+  if (!read_ok) return;
+  w->native_rf64_riff_size = native_word(body, 8, false);
+  w->native_rf64_frames = native_word(body + 16, 8, false);
+  w->native_rf64_bad = native_word(body + 24, 4, false) != 0 ||
+      w->native_rf64_riff_size < 12 ||
+      w->native_rf64_riff_size > (uint64_t)INT64_MAX-8 ||
+      w->native_rf64_frames > UINT64_MAX / 2;
+  w->native_rf64_valid = true;
+}
+
 pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
     lsx_pcm_f64_wav_facts *facts)
 {
@@ -2487,6 +2515,7 @@ pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
       return PCM_F64_UNSUPPORTED;
     frames = w->native_data_size / w->native_block_align;
     if (w->isRF64) {
+      native_check_rf64_ds64((sox_format_t *)ft, w);
       /* Native RF64 requires a self-consistent ds64, sentinel data and an
        * actual, seekable regular-file extent. Legacy parsing remains open
        * to other historical RF64 variants. A 32-bit fact sentinel is
