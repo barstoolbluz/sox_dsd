@@ -542,6 +542,143 @@ def main():
             check(p['precision']['actual_pcm_engine']=='sox_sample_t.int32',
                   '-b 64 mistakenly selected binary64 graph execution')
             checks['b64_not_processing_precision']='PASS'
+            # D-07: explicit auto/32 must never route ordinary PCM through
+            # the DSD conversion planner or its post-open equality gate.
+            # Compare actual output bytes, not merely successful exit codes.
+            pcm_workflows=[
+                ('wav-copy',wav,'.wav',[]),
+                ('wav-gain',wav,'.wav',['gain','-3']),
+                ('wav-rate',wav,'.wav',['rate','48000']),
+                ('wav-chain',wav,'.wav',['gain','-3','rate','48000','gain','-1']),
+                ('wav-to-aiff',wav,'.aiff',[]),
+                ('wav-to-sox',wav,'.sox',[]),
+                ('wav-to-aiff-gain',wav,'.aiff',['gain','-3']),
+                ('null-synth',None,'.wav',['synth','0.01','sine','440']),
+            ]
+            if flac_available:
+                pcm_workflows.extend([
+                    ('wav-to-flac',wav,'.flac',[]),
+                    ('wav-to-flac-gain',wav,'.flac',['gain','-3']),
+                ])
+                pcm_workflows.extend([
+                    ('flac-to-wav-'+str(bits),
+                     source/'tests/pcm64/fixtures'/flac_name(bits,channels,frames),
+                     '.wav',[])
+                    for bits,channels,frames in ((16,1,191),(24,2,4973),(32,2,5193))
+                ])
+            for label,src,extension,effects in pcm_workflows:
+                hashes=[]
+                for policy in (None,'auto','32'):
+                    tag=policy or 'default'
+                    dest=work/('compat-'+label+'-'+tag+extension)
+                    start=(['-n','-r','44100','-c','2'] if src is None else [src])
+                    args=([*(['--precision',policy] if policy else []),
+                           '-R','-D',*start,dest,*effects])
+                    run('compat-'+label+'-'+tag,args,0)
+                    check(dest.is_file() and dest.stat().st_size>0,
+                          label+': output missing under '+tag)
+                    actual_hash=sha(dest)
+                    commands[-1]['output_sha256']=actual_hash
+                    hashes.append(actual_hash)
+                check(len(set(hashes))==1,
+                      label+': default/auto/32 ordinary PCM bytes differ')
+                checks['pcm_legacy_precision_'+label]='PASS'
+            # Plan-only non-WAV PCM endpoints must remain legitimate legacy
+            # routes rather than going through the limited DSD codec table.
+            for extension in ('.sox','.aiff'):
+                for policy in ('auto','32','64'):
+                    dest=work/('pcm-endpoint-'+policy+extension)
+                    obj=plan('pcm-nonnative-plan-'+extension+'-'+policy,
+                             ['--precision',policy,'-D',wav,dest],
+                             policy=policy,eligible=False,
+                             reason='built-in WAV handler' if policy=='64' else None)
+                    check(obj['precision']['actual_pcm_engine']==
+                          ('none' if policy=='64' else 'sox_sample_t.int32') and
+                          not dest.exists(),
+                          'legacy non-WAV capability plan created output or misidentified engine')
+                    checks['legacy_pcm_plan_'+extension+'_'+policy]='PASS'
+            # The earlier failing path could remove a pre-existing WAV after
+            # the output opened. Test an ordinary successful overwrite and a
+            # separate strict64 refusal, not a new no-clobber policy.
+            for policy in ('auto','32'):
+                dest=work/('pcm-existing-'+policy+'.wav')
+                dest.write_bytes(b'prior playable-file sentinel')
+                run('legacy-existing-output-'+policy,
+                    ['--precision',policy,'-R','-D',wav,dest],0)
+                check(dest.is_file() and dest.read_bytes()[:4]==b'RIFF',
+                      'ordinary PCM overwrite failed after opening: '+policy)
+                commands[-1]['output_sha256']=sha(dest)
+                checks['legacy_pcm_existing_output_'+policy]='PASS'
+            preserved=work/'strict64-existing.wav'
+            preserved.write_bytes(b'pre-existing PCM output must survive strict64 refusal')
+            original=sha(preserved)
+            refused=run('strict64-existing-output',
+                        ['--precision','64','-R','-D',wav,preserved],2)
+            check(sha(preserved)==original and b'no output created' in refused.stderr,
+                  'strict64 refusal altered the existing destination')
+            commands[-1]['preserved_destination_sha256']=sha(preserved)
+            checks['strict64_pcm_existing_output_preserved']='PASS'
+            # D-08: the built-in WAV writer selects the source's ordinary
+            # integer precision when a FLAC input supplies no -b option.
+            if flac_available:
+                for bits,channels,frames in ((16,1,191),(24,2,4973),(32,2,5193)):
+                    src=source/'tests/pcm64/fixtures'/flac_name(bits,channels,frames)
+                    for output_bits in (None,bits):
+                        label=str(bits)+'-'+('default' if output_bits is None else 'explicit')
+                        dest=work/('flac-plan-'+label+'.wav')
+                        options=[] if output_bits is None else ['-b',str(output_bits)]
+                        for policy in ('auto','32','64'):
+                            p64=plan('flac-wav-plan-'+label+'-'+policy,
+                                     ['--precision',policy,'-D',src,*options,dest],
+                                     policy=policy)
+                            reader_eligible=p64['inputs'][0]['pcm64_reader_eligible']
+                            check(p64['precision']['graph_eligible'] is reader_eligible,
+                                  'native eligibility must follow the actual FLAC reader, not its extension')
+                            check(p64['output']['bits_per_sample']==bits and
+                                  p64['output']['encoding']==1,
+                                  'FLAC source WAV default encoding mismatch: '+label+' '+policy)
+                            check(not dest.exists(),'--plan created a WAV output: '+label)
+                        run('flac-wav-actual-'+label,['-R','-D',src,*options,dest],0)
+                        commands[-1]['output_sha256']=sha(dest)
+                        info=run('flac-wav-inspect-'+label,['--i','-b',dest],0)
+                        check(int(info.stdout.strip())==bits,
+                              'FLAC plan and actual WAV writer differ: '+label)
+                        checks['flac_wav_default_plan_'+label]='PASS'
+                # Reproduce the reported destructive P08 path with a valid
+                # pre-existing WAV, and real FLAC ingress rather than WAV.
+                src=source/'tests/pcm64/fixtures'/flac_name(24,2,4973)
+                for policy in ('auto','32'):
+                    dest=work/('flac-overwrite-'+policy+'.wav')
+                    little_wave(dest)
+                    prior=sha(dest)
+                    run('flac-existing-wav-'+policy,
+                        ['--precision',policy,'-R','-D',src,dest],0)
+                    check(dest.exists() and dest.read_bytes()[:4]==b'RIFF' and
+                          sha(dest)!=prior,
+                          'FLAC ingress destroyed or failed to overwrite WAV: '+policy)
+                    commands[-1]['previous_destination_sha256']=prior
+                    commands[-1]['output_sha256']=sha(dest)
+                    checks['flac_existing_pcm_output_'+policy]='PASS'
+                strict_flac=work/'strict-native-flac-existing.flac'
+                strict_flac.write_bytes(src.read_bytes())
+                previous_flac=sha(strict_flac)
+                run('strict-native-flac-existing',
+                    ['--precision','64','-R','-D',wav,strict_flac],2)
+                check(strict_flac.exists() and sha(strict_flac)==previous_flac,
+                      'unsupported native FLAC output altered existing file')
+                checks['strict64_flac_destination_preserved']='PASS'
+                for policy in ('auto','32','64'):
+                    dest=work/('pcm-flac-plan-'+policy+'.flac')
+                    obj=plan('pcm-flac-plan-'+policy,
+                             ['--precision',policy,'-D',wav,dest],
+                             policy=policy,eligible=False,
+                             reason='built-in WAV handler' if policy=='64' else None)
+                    check(obj['precision']['actual_route'] != 'native-binary64' and
+                          not dest.exists() and obj['output']['encoding'] != 1,
+                          'PCM FLAC plan lied about the endpoint or wrote audio')
+                    checks['pcm_flac_plan_'+policy]='PASS'
+            else:
+                gates['d07_d08_flac_topologies']='NOT_RUN: no FLAC reader/writer in this build'
             # The static decision is not a descriptor validation. Native PCM
             # writer cannot be exercised by --precision64 in Phase04.
             gates['native_actual_descriptor_precommit']='NOT_RUN: required64 PCM runner intentionally unavailable until Phase05'
