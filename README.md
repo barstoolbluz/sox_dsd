@@ -55,13 +55,13 @@ A *qualified* profile has passed the project's release-authorization checks for 
 
 PCM and DSD use different level conventions. Under the [SACD standard](https://www.sonicstudio.com/pdf/dsd/SACD_SignalPropertiesV13.pdf), 0 dB SACD corresponds to 50% of the theoretical maximum DSD signal amplitude, while peaks may reach approximately 71.4% of that maximum (+3.1 dB SACD).
 
-When encoding, SoX DSD follows this reference convention at all supported DSD rates: it maps PCM full scale (0 dBFS) to 0 dB SACD (50% of the theoretical maximum DSD amplitude) before applying the default attenuation described under [Encoding headroom and clipping](#encoding-headroom-and-clipping) below.
+When encoding, SoX DSD follows this reference convention at all supported DSD rates: it maps PCM full scale (0 dBFS) to 0 dB SACD (50% of the theoretical maximum DSD amplitude) before applying the default attenuation described under [Default encoder and stability](#default-encoder-and-stability) below.
 
 DSD and PCM converters adjust level in both directions as part of a mastering workflow.
 
 PCM-to-DSD conversion normally leaves headroom: the [HQPlayer user manual](https://sonore.us/HQPlayer-manual.pdf) (version 3.14), for example, recommends a volume of −3 dB or lower to avoid overloading the modulator. A decoder that maps the full 100% DSD amplitude to PCM full scale reproduces 0 dB SACD at −6.02 dBFS, so DSD-to-PCM conversion or playback workflows often add 6.02 dB of gain to restore PCM-equivalent loudness. During decodes, SoX DSD adds 6.02 dB _only_ if you pass `--dsd-level sacd`. **Note:** Many SACDs peak _above_ 0 dB SACD, up to and sometimes beyond the +3.1 dB SACD limit (−2.92 dBFS PCM), which results in clipping when used with `--dsd-level sacd`. SoX DSD warns when it clips, or stops instead with `--dsd-clip error`.
 
-### Encoding headroom and clipping
+### Default encoder and stability
 
 By default, SoX DSD uses a qualified eighth-order mastering encoder based on SDM-8 at all five DSD rates. [Empirical research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates that SDM-8 delivers best-in-class in-band noise performance, outperforming all alternatives on this measure. The original SoX noise shapers (`sdm-4` to `sdm-8` and `clans-4` to `clans-8`) remain available; see the last item in the list below.
 
@@ -71,7 +71,11 @@ By default, then, SoX DSD maps full-scale PCM to 45% of theoretical maximum DSD 
 
 Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates exceptionally low noise with the default SDM-8-based mastering encoder within the audio band: At DSD64, the default encoder's in-band noise floor is about 141 dB below full scale (121 dB below a −20 dBFS test tone), comparable to 23-bit PCM. At higher DSD rates, the measured signal-to-noise ratio was substantially greater, eventually reaching the limits of the experiment's 32-bit signal path.
 
+The stability margin is backed by real-music testing. Without it, at unity gain, we encoded the same 200 tracks at DSD64, DSD128 and DSD256, each once at its original level and once normalized to a 0 dBFS peak. Six of those 1,200 encodes, all at DSD256, drove the SDM-8-based encoder unstable. In each case SoX DSD detected the instability and stopped with an error instead of writing a damaged file. With the 0.915 dB cut, all 1,200 encodes completed. At DSD512 and DSD1024, the SDM-8-based encoder with `--headroom 0` is likewise **not** guaranteed stable for full-scale inputs. `--headroom 0` also clips more, not less, because it raises the level against the same ceiling. The [user guide](docs/dsd/USING_SOX_DSD.md) explains the policies and their limits.
+
 The cut is a stability margin, not clipping protection. A PCM file can stay below 0 dBFS at every stored sample yet overshoot between samples once it is upsampled, and with ordinary masters this is common. In our 200-track test set, 62 tracks (31%) clipped at their original level: 48 of 100 CD tracks and 14 of 100 hi-res tracks. Normalized to a 0 dBFS sample peak, 190 of 200 clipped. By default SoX DSD clips those peaks and issues a warning; separate safeguards detect modulator instability.
+
+### Controlling headroom and clipping
 
 To avoid clipping across an album, choose one fixed cut with `--headroom DB` and use it for every track. This overrides the default 0.915 dB cut rather than adding to it, so `--headroom 2` means 2 dB in total. The `--auto-headroom` switch also avoids clipping, but it measures each file on its own and gives each its own cut, which changes the levels of tracks relative to one another. Use it for single tracks. To find an album's cut, run each track once with `--auto-headroom --report FILE` at the target rate and take the largest `headroom_applied_db`. If none exceeds 0.915 dB, the default cut already avoids clipping. The [user guide](docs/dsd/USING_SOX_DSD.md#encoding-an-album) shows the commands.
 
