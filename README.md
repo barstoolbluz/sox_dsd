@@ -88,8 +88,6 @@ To avoid clipping across an album, choose one fixed cut with `--headroom DB` and
   - It does not check for modulator instability unless you pass `--sdm-guard=on` before the input file.
   - The shapers were designed for DSD64, DSD128 and DSD256. At DSD512 and DSD1024, this route uses their DSD256 coefficients.
 
-The stability margin is backed by real-music testing. Without it, at unity gain, we encoded the same 200 tracks at DSD64, DSD128 and DSD256, each once at its original level and once normalized to a 0 dBFS peak. Six of those 1,200 encodes, all at DSD256, drove the SDM-8-based encoder unstable. In each case SoX DSD detected the instability and stopped with an error instead of writing a damaged file. With the 0.915 dB cut, all 1,200 encodes completed. At DSD512 and DSD1024, the SDM-8-based encoder with `--headroom 0` is likewise **not** guaranteed stable for full-scale inputs. `--headroom 0` also clips more, not less, because it raises the level against the same ceiling. The [user guide](docs/dsd/USING_SOX_DSD.md) explains the policies and their limits.
-
 ## Start converting
 
 SoX DSD retains the ordinary SoX command structure:
