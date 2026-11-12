@@ -868,6 +868,16 @@ EXTRA_DIST += \
   src/resonator/dsd128/proofs/certificate.json src/resonator/dsd128/proofs/check_certificate.py \
   src/resonator/dsd128/proofs/emit_header.py src/resonator/dsd128/results/proof.json
 
+EXTRA_DIST += tests/pcm64/routing.py \
+  tests/pcm64/fixtures/phase04/short-dsd64-stereo.dsf \
+  tests/pcm64/fixtures/phase04/libsndfile-float32.rf64 \
+  tests/pcm64/fixtures/phase04/libsndfile-float32.wav \
+  tests/pcm64/fixtures/phase04/rf64-pcm-ds64-table-entry.wav \
+  tests/pcm64/fixtures/phase04/riff-pcm-table-case-same-audio.wav \
+  tests/pcm64/fixtures/phase04/rf64-pcm-nofact-ds64count0.wav \
+  tests/pcm64/fixtures/phase04/rf64-pcm-nofact-ds64count8.wav \
+  tests/pcm64/fixtures/phase04/riff-pcm-same-audio.wav
+
 # Phase 01: stable, failure-sensitive private suite entry point. Selection of a
 # later unimplemented suite must fail, not falsely pass by running zero cases.
 PCM64_SUITE = foundation

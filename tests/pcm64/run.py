@@ -369,10 +369,13 @@ def main():
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav"):
+    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
     if args.suite == "io":
         return aggregate_io(args, results, output)
+    if args.suite == "routing":
+        from routing import main as routing_main
+        return io_main_wrapper(routing_main, args)
     if args.suite == "io-wav":
         from io_wav import main as io_main
         return io_main_wrapper(io_main, args)
