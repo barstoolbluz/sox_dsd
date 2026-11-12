@@ -633,10 +633,15 @@ class CaseRunner:
         existing=self.file('safety-existing.wav',b'SENTINEL-preserve-original-bytes-'*10)
         prior=existing.read_bytes()
         # All these errors must occur before any open/truncation.
-        self.reject(['generate',raw,existing,'f64','L',1,44100,UINT64_MAX,1],
-                    sentinels=(existing,),label='unknown-length')
-        self.reject(['generate',raw,existing,'f64','L',1,44100,1<<35,1],
-                    sentinels=(existing,),label='RF64-refusal')
+        # Unknown-length files are now admitted, but not stdout pipes.
+        unknown=self.root/'unknown-seekable.wav'
+        self.native_generate(raw,unknown,'f64',False,1,44100,UINT64_MAX,1)
+        insist(parse_wave(unknown)['data']==struct.pack('<d',0.5),
+               'unknown-length seekable WAV was not correctly finalized')
+        self.tick('unknown_length_seekable')
+        # Oversized big-endian RIFX is still refused before destructive open.
+        self.reject(['generate',raw,existing,'f64','B',1,44100,1<<35,1],
+                    sentinels=(existing,),label='large-RIFX-refusal')
         self.reject(['generate',raw,existing,'f64','L',1,44100,1,1,'deny'],
                     sentinels=(existing,),label='overwrite-denial')
         self.reject(['generate',raw,existing,'f64','L',1,44100,1,1,'allow',existing],
@@ -647,8 +652,8 @@ class CaseRunner:
                     sentinels=(existing,report_hardlink),label='report-hardlink-alias')
         self.reject(['generate',raw,existing,'f64','L',1,4294967295,1,1],
                     sentinels=(existing,),label='byte-rate-overflow')
-        self.reject(['generate',raw,existing,'i8','L',1,44100,1<<32,1],
-                    sentinels=(existing,),label='fact/RIFF-overflow')
+        self.reject(['generate',raw,existing,'i8','B',1,44100,1<<32,1],
+                    sentinels=(existing,),label='large-RIFX-payload-refusal')
         # Existing hardlink alias to input must fail with original bytes intact.
         self.reject(['copy',source,source,'f64','L'],
                     sentinels=(source,),label='source-same-path-alias')
@@ -745,14 +750,24 @@ class CaseRunner:
                                   'exit':proc.returncode,'stderr':stderr[:4096],
                                   'destination_sha256':digest(target)})
             insist(proc.returncode == 1 and
-                   'stdout requires an empty non-append regular file' in stderr,
+                   'stdout requires an empty regular file or a known-length pipe' in stderr,
                    f'stdout-{label} did not refuse at descriptor admission: {stderr}')
             insist(target.read_bytes()==original,
                    f'stdout-{label} modified the pre-existing destination')
             self.tick('stdout_unsafe_descriptor_refusals')
         self.gates['stdout_regular_descriptor_integrity']='PASS'
-        # Pipes are not qualified as native Phase 02A WAV destinations.
-        self.reject(['generate',raw,'-','f64','L',1,44100,1,1],label='stdout-pipe-refusal',stdout_pipe=True)
+        # Known-length anonymous stdout pipes are now qualified; no seek-back.
+        wire,_=self.invoke(['generate',raw,'-','f64','L',1,44100,1,1],
+                           stdout_pipe=True,label='stdout-pipe-known')
+        pipe_file=self.file('known-pipe.wav',wire)
+        insist(parse_wave(pipe_file)['data']==struct.pack('<d',0.5),
+               'known-length stdout pipe produced an invalid header')
+        self.tick('known_length_stdout_pipe')
+        output,error=self.invoke(['generate',raw,'-','f64','L',1,44100,UINT64_MAX,1],
+                                 expect=1,stdout_pipe=True,label='stdout-pipe-unknown')
+        insist(output==b'' and 'known-length pipe' in error.lower(),
+               'unknown-length pipe admission mutated stdout or hid the reason')
+        self.tick('unknown_length_stdout_pipe_refusal')
         # Inject failure at exact descriptor handoff, before existing-file truncate.
         if self.shim:
             preload={'LD_PRELOAD':str(self.shim)}

@@ -2,6 +2,7 @@
  * This executable is not linked into the production command frontend. */
 #include "sox_i.h"
 #include "pcm_f64_io.h"
+#include "wav-size.h"
 #include <signal.h>
 #include <inttypes.h>
 #include <string.h>
@@ -143,10 +144,61 @@ static int run(int argc,char **argv)
     printf("native_dsp=%s\n", pcm_f64_status_name(pcm_f64_check_dsp_env()));
     return 0;
   }
-  if (argc<3) { fprintf(stderr,"usage: probe capabilities|query|dump|copy|generate|mixed ...\n");return 2; }
+  /* Check the native planner at astronomical counts without allocating
+   * files. This executable links exactly the same checked C function as
+   * the actual writer. Python supplies an independent integer oracle. */
+  if (argc==7 && !strcmp(argv[1],"plan")) {
+    uint64_t fr=number(argv[2]);
+    uint64_t ch=number(argv[3]);
+    uint64_t bits_arg=number(argv[4]);
+    bool ext=!strcmp(argv[6],"1");
+    bool floating=!strcmp(argv[5],"float");
+    bool big=!strcmp(argv[5],"big");
+    lsx_wav_native_sizes_t sizes;
+    uint16_t fmt=(uint16_t)(ext ? 40 : floating ? 18 : 16);
+    bool fact=ext || floating;
+    if (ch<1 || ch>64 || bits_arg<8 || bits_arg>64 || bits_arg%8 ||
+        ch*(bits_arg/8)>UINT16_MAX ||
+        !lsx_wav_native_sizes(fr,(uint32_t)(ch*(bits_arg/8)),fmt,fact,big,&sizes)) {
+      puts("REFUSED");return 0;
+    }
+    printf("frames=%" PRIu64 " data=%" PRIu64 " riff=%" PRIu64
+           " file=%" PRIu64 " header=%u rf64=%u\n",fr,sizes.data_bytes,
+           sizes.riff_bytes,sizes.file_bytes,sizes.header_bytes,(unsigned)sizes.rf64);
+    return 0;
+  }
+  if (argc<3) { fprintf(stderr,"usage: probe capabilities|query|dump|copy|generate|sparse-zero|plan|mixed ...\n");return 2; }
   mode=argv[1];
   if (sox_init()!=SOX_SUCCESS) { fprintf(stderr,"sox_init failed\n");return 2; }
-  if (!strcmp(mode,"generate")) {
+  if (!strcmp(mode,"sparse-zero")) {
+    /* sparse-zero out type L|B channels rate declared_frames actual_frames.
+     * UINT64_MAX indicates unknown declared length; all frames are zeros.
+     * The actual WAV handler creates, sizes and finalizes the sparse file. */
+    if (argc!=9 || !code(argv[3],&encoding,&bits) ||
+        (strcmp(argv[4],"L") && strcmp(argv[4],"B"))) {
+      rc=2;goto finish;
+    }
+    big=!strcmp(argv[4],"B");
+    channels_arg=number(argv[5]);
+    rate_arg=number(argv[6]);
+    frames=number(argv[7]);
+    to_write=number(argv[8]);
+    if (channels_arg>UINT32_MAX || rate_arg>UINT32_MAX) { rc=2;goto finish; }
+    if (frames==UINT64_MAX) {
+      if (pcm_f64_format_init(&fmt,(uint32_t)rate_arg,(uint32_t)channels_arg,
+                              false,0)!=PCM_F64_OK) goto finish;
+    } else if (pcm_f64_format_init(&fmt,(uint32_t)rate_arg,
+               (uint32_t)channels_arg,true,frames)!=PCM_F64_OK) goto finish;
+    out=lsx_pcm_f64_wav_open_write(argv[2],&fmt,encoding,bits,big,NULL,NULL,NULL,
+                                   NULL,NULL);
+    if (!out) { fail("sparse safe open",NULL);goto finish; }
+    status=lsx_wav_native_sparse_zero_frames(out,to_write);
+    if (status!=PCM_F64_OK) {
+      fprintf(stderr,"FAIL native sparse zero run: %s\n",pcm_f64_status_name(status));
+      goto finish;
+    }
+    rc=0;
+  } else if (!strcmp(mode,"generate")) {
     /* generate raw64 out type L|B channels rate declared_frames to_write
      *          [allow|deny] [report_path] */
     if (argc < 10 || argc > 12 || !code(argv[4],&encoding,&bits) ||

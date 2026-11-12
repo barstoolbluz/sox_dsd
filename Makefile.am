@@ -43,7 +43,7 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
              tests/dsd/test_cli_usability.py tests/dsd/test_loud_encode.py \
              docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md \
              docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md \
-             tests/pcm64/run.py tests/pcm64/pcm64_probe.c tests/pcm64/wav_io_probe.c tests/pcm64/wav_fault_shim.c tests/pcm64/wav_fenv_preload.c tests/pcm64/io_wav.py tests/pcm64/test_io_wav_harness.py tests/pcm64/binary_receipts.py tests/pcm64/io_flac.py tests/pcm64/flac_io_probe.c tests/pcm64/flac_fixtures.py \
+             tests/pcm64/run.py tests/pcm64/pcm64_probe.c tests/pcm64/wav_io_probe.c tests/pcm64/wav_fault_shim.c tests/pcm64/wav_fenv_preload.c tests/pcm64/io_wav.py tests/pcm64/test_io_wav_harness.py tests/pcm64/binary_receipts.py tests/pcm64/io_flac.py tests/pcm64/flac_io_probe.c tests/pcm64/flac_fixtures.py tests/pcm64/test_binary_receipts.py tests/pcm64/large_wav.py \
              tests/pcm64/fixtures/signed-8bit-1ch-127frames.flac \
              tests/pcm64/fixtures/signed-8bit-2ch-5073frames.flac \
              tests/pcm64/fixtures/signed-16bit-1ch-191frames.flac \
@@ -876,7 +876,12 @@ PCM64_RESULTS = $(abs_top_builddir)/evidence/phase01
 check-pcm64: all
 	$(MAKE) -C test pcm64_probe pcm64_wav_probe pcm64_flac_probe
 	python3 '$(abs_top_srcdir)/tests/pcm64/test_io_wav_harness.py'
+	python3 '$(abs_top_srcdir)/tests/pcm64/test_binary_receipts.py'
 	python3 '$(abs_top_srcdir)/tests/pcm64/run.py' --suite '$(PCM64_SUITE)' \
 	  --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' \
 	  --probe '$(abs_top_builddir)/test/pcm64_probe$(EXEEXT)' \
 	  --results '$(PCM64_RESULTS)'
+
+# Small, dependency-free receipt self-test runs in ordinary make check too.
+check-local:
+	python3 '$(abs_top_srcdir)/tests/pcm64/test_binary_receipts.py'

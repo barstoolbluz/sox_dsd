@@ -36,6 +36,15 @@ def digest(path: Path) -> str:
     return h.hexdigest()
 
 
+def source_git_head(source: Path) -> str | None:
+    try:
+        result = subprocess.run(['git', '-C', str(source), 'rev-parse', 'HEAD'],
+                                capture_output=True, text=True)
+        return result.stdout.strip() if result.returncode == 0 else None
+    except (FileNotFoundError, OSError):
+        return None
+
+
 class Runner:
     def __init__(self, sox: Path, probe: Path, results: Path):
         self.sox = sox.resolve()
@@ -103,12 +112,16 @@ class Runner:
         insist(self.linkage in ('builtin','plugin','absent') and
                self.native in ('OK','UNSUPPORTED','NUMERIC'), 'invalid native status')
         self.gates['actual_handler_linkage']='PASS'
+        if self.linkage == 'builtin' and self.native == 'NUMERIC':
+            self.gates['built_in_integer_flac']='FAIL: arithmetic environment rejected by required runtime guard'
+            raise AssertionError('built-in FLAC native arithmetic environment guard rejected the runtime')
         if self.linkage != 'builtin' or self.native == 'UNSUPPORTED':
             reason = (f'actual linkage={self.linkage}, native arithmetic={self.native}')
             # A hostile runtime fenv on an otherwise supported built-in
             # build is a failed guard, not a skip. Disabled native builds
             # cannot run positive ingress tests by design.
             if self.native == 'NUMERIC' and self.linkage == 'builtin':
+                self.gates['built_in_integer_flac'] = 'FAIL: runtime arithmetic guard refused'
                 raise AssertionError('enabled built-in native arithmetic guard refused runtime')
             self.status = 'NOT_RUN: '+reason
             self.gates['built_in_integer_flac']='NOT_RUN: '+reason
@@ -139,7 +152,7 @@ class Runner:
                 self.gates['plugin_native_rejection']='NOT_RUN: built-in FLAC, no plugin'
         else:
             self.status = 'OK'
-            self.gates['built_in_integer_flac']='PASS'
+            self.gates['built_in_integer_flac']='PENDING: native fixture qualification'
             self.gates['plugin_loaded_binary_identity']='NOT_RUN: built-in codec, not a plugin'
             self.gates['plugin_native_rejection']='NOT_RUN: built-in FLAC, not a plugin build'
 
@@ -150,10 +163,26 @@ class Runner:
     def fixtures(self) -> None:
         if self.status != 'OK':
             for name_ in ('exact_integer_words','boundaries_and_channels',
-                          'decoder_eof_and_short_output','legacy_integer_transport',
-                          'stream_corruption_refusals','short_pipe_io',
-                          'flac_ingest_performance'):
+                          'decoder_eof_and_short_output','stream_corruption_refusals',
+                          'short_pipe_io','flac_ingest_performance'):
                 self.gates[name_] = self.status
+            if self.linkage != 'absent':
+                for bits, channels, frames in SPECS:
+                    f = self.fixture(bits, channels, frames)
+                    expected = codes(bits, channels, frames)
+                    raw = self.invoke(['legacy',f,257], label=f'legacy-fallback-{f.name}')
+                    truth = b''.join(struct.pack('<i',q << (32-bits)) for q in expected)
+                    insist(raw == truth, f'legacy codec regressed: {f.name}')
+                    probe = self.invoke(['capability',f], label=f'capability-refused-{f.name}')
+                    insist(probe.strip() == b'status=UNSUPPORTED',
+                           f'native admission unexpectedly succeeded: {f.name}: {probe!r}')
+                    self.tick('legacy_integer_samples',len(expected))
+                    self.tick('ineligible_native_refusal_fixtures')
+                self.gates['legacy_integer_transport']='PASS'
+                self.gates['ineligible_native_refusal_all_fixtures']='PASS'
+            else:
+                self.gates['legacy_integer_transport']=self.status
+                self.gates['ineligible_native_refusal_all_fixtures']=self.status
             return
         for bits, channels, frames in SPECS:
             f = self.fixture(bits, channels, frames)
@@ -186,16 +215,21 @@ class Runner:
         self.gates['boundaries_and_channels']='PASS'
         self.gates['decoder_eof_and_short_output']='PASS'
         self.gates['legacy_integer_transport']='PASS'
-        # A real negative control: the old INT32_MAX divisor changes even
-        # sample 1 at 32 bits. Do not count a self-equality as a mutation test.
-        q = 1
-        actual = struct.pack('<d',float(Fraction(q, 1 << 31)))
-        mutant = struct.pack('<d',float(Fraction(q, (1 << 31)-1)))
-        insist(actual != mutant,'INT32_MAX denominator mutation not detected')
-        self.tick('int32max_mutant_negative_controls')
+        # Run an actual compiled C mutant through the same binary probe,
+        # compare its output bits to an independent Fraction oracle, and
+        # reject it only when its arithmetic demonstrably differs.
+        for q in (1,-1,(1<<31)-1,-(1<<31)):
+            mutated_word = int(self.invoke(['mutant-int32max',q],
+                        label=f'compiled-int32max-mutant-{q}').decode('ascii').strip(),16)
+            truth = struct.unpack('<Q',struct.pack('<d', float(Fraction(q,1<<31))))[0]
+            insist(mutated_word!=truth,
+                   f'executed INT32_MAX mutant escaped detection at {q}')
+            self.tick('int32max_mutant_negative_controls')
         self.corruption()
         self.pipe_io()
         self.benchmark()
+        # Completion, not just capability, authorizes PASS.
+        self.gates['built_in_integer_flac']='PASS'
 
     def corruption(self) -> None:
         original = self.fixture(32,2,5193).read_bytes()
@@ -287,13 +321,9 @@ class Runner:
         self.capability()
         self.fixtures()
         if self.status != 'OK' and self.linkage == 'plugin':
-            # An installed plugin may still be used via ordinary libSoX.
-            # Test read only where the plugin is actually available to loader.
-            f=self.fixture(*SPECS[-2])
-            data=self.invoke(['legacy',f,128],label='legacy-plugin-transport')
-            codes32=codes(*SPECS[-2])
-            insist(data == b''.join(struct.pack('<i',q) for q in codes32),
-                   'legacy plugin PCM changed')
+            insist(self.gates.get('legacy_integer_transport') == 'PASS' and
+                   self.counts.get('ineligible_native_refusal_fixtures')==len(SPECS),
+                   'plugin fallback did not complete all fixture checks')
             self.gates['legacy_plugin_transport']='PASS'
         elif self.linkage == 'absent':
             self.gates['legacy_plugin_transport']='NOT_RUN: codec unavailable'
@@ -305,8 +335,7 @@ class Runner:
             'status':'PASS_WITH_NOT_RUN' if any(v.startswith('NOT_RUN') for v in
                                           self.gates.values()) else 'PASS',
             'utc':dt.datetime.now(dt.timezone.utc).isoformat(),
-            'git_commit':subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],
-                          capture_output=True,text=True).stdout.strip(),
+            'git_commit':source_git_head(source),
             'linkage':self.linkage, 'native_dsp':self.native,
             'checks':self.counts, 'gate_execution':self.gates,
             'performance':self.performance,

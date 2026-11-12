@@ -301,6 +301,14 @@ def flac_main_wrapper(flac_main, args):
         sys.argv = previous
 
 
+def safe_git_head(source):
+    try:
+        result = run(["git", "-C", str(source), "rev-parse", "HEAD"])
+        return result.stdout.strip() if result.returncode == 0 else None
+    except (FileNotFoundError, OSError):
+        return None
+
+
 def aggregate_io(args, results, output):
     # Persist independent suite results first.  A child's NOT_RUN or FAIL
     # cannot be converted to PASS by an unrelated successful child.
@@ -335,8 +343,7 @@ def aggregate_io(args, results, output):
         "suite":"io", "status":("FAIL" if not ok else
                  "PASS_WITH_NOT_RUN" if skipped else "PASS"),
         "utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        "source_git_commit":run(["git", "-C", str(Path(__file__).resolve().parents[2]),
-                                 "rev-parse", "HEAD"]).stdout.strip(),
+        "source_git_commit":safe_git_head(Path(__file__).resolve().parents[2]),
         "children": [{k:v for k,v in c.items() if k != "receipt"} for c in children],
         "gate_execution": {f"{c['suite']}.{name}": value for c in children
                            for name,value in c["receipt"].get("gate_execution", {}).items()},
@@ -362,13 +369,16 @@ def main():
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite not in ("foundation", "io-wav", "io-flac", "io"):
+    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
     if args.suite == "io":
         return aggregate_io(args, results, output)
     if args.suite == "io-wav":
         from io_wav import main as io_main
         return io_main_wrapper(io_main, args)
+    if args.suite == "large-wav":
+        from large_wav import main as large_wav_main
+        return io_main_wrapper(large_wav_main, args)
     if args.suite == "io-flac":
         from io_flac import main as flac_main
         return flac_main_wrapper(flac_main, args)

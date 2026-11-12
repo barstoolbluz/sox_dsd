@@ -27,6 +27,7 @@ static void trace_event(char c)
   if (fd>=0) { (void)write(fd,&c,1); close(fd); }
 }
 
+static int in_rewrite=0;
 static int matches(FILE *stream)
 {
   char probe[128], resolved[4096];
@@ -117,9 +118,21 @@ size_t fwrite(const void *ptr,size_t size,size_t nmemb,FILE *stream)
   const char *short_write=getenv("PCM64_SHORT_WRITE");
   const char *off=getenv("PCM64_DATA_OFFSET");
   if (!real_fwrite) real_fwrite=dlsym(RTLD_NEXT,"fwrite");
-  if (short_write && matches(stream) && off && ftello(stream)>=atoll(off) &&
+  static size_t stdout_written=0;
+  const char *stdout_limit=getenv("PCM64_FAIL_STDOUT_PAYLOAD_WRITE");
+  if (stdout_limit && fileno(stream)==STDOUT_FILENO && size==1 && nmemb>7 &&
+      stdout_written >= (size_t)atoll(stdout_limit)) {
+    trace_event('P');nmemb=7;
+  } else if (getenv("PCM64_FAIL_REWRITE_WRITE") && in_rewrite &&
+      matches(stream) && size==1 && nmemb>7) {
+    trace_event('J');nmemb=7;
+  } else if (short_write && matches(stream) && off && ftello(stream)>=atoll(off) &&
       size==1 && nmemb>7) { trace_event('W');nmemb=7; }
-  return real_fwrite(ptr,size,nmemb,stream);
+  {
+    size_t written=real_fwrite(ptr,size,nmemb,stream);
+    if (fileno(stream)==STDOUT_FILENO) stdout_written+=written*size;
+    return written;
+  }
 }
 
 int fclose(FILE *stream)
@@ -131,4 +144,35 @@ int fclose(FILE *stream)
   rc=real_fclose(stream);
   if (inject) {trace_event('C');errno=EIO;return EOF;}
   return rc;
+}
+
+/* Phase 03 finalization fault points. No production source is instrumented.
+ * Each site checks the actual retained descriptor rather than a path name,
+ * and leaves a trace so an untriggered interposer cannot claim success. */
+int fseeko(FILE *stream,off_t offset,int whence)
+{
+  static int (*real_seek)(FILE *,off_t,int)=NULL;
+  off_t old;
+  if (!real_seek) real_seek=dlsym(RTLD_NEXT,"fseeko");
+  old=ftello(stream);
+  if (matches(stream) && whence==SEEK_SET && offset==0 && old>0) {
+    if (getenv("PCM64_FAIL_REWRITE_SEEK")) {
+      trace_event('H');errno=EIO;return -1;
+    }
+    in_rewrite=1;
+  }
+  if (matches(stream) && getenv("PCM64_FAIL_SPARSE_TAIL") &&
+      whence==SEEK_CUR && offset==-1) {
+    trace_event('Z');errno=EIO;return -1;
+  }
+  return real_seek(stream,offset,whence);
+}
+int fflush(FILE *stream)
+{
+  static int (*real_flush)(FILE *)=NULL;
+  if (!real_flush) real_flush=dlsym(RTLD_NEXT,"fflush");
+  if (matches(stream) && getenv("PCM64_FAIL_FINAL_FLUSH")) {
+    trace_event('F');errno=EIO;return EOF;
+  }
+  return real_flush(stream);
 }

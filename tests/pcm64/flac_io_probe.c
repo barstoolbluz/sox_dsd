@@ -31,6 +31,20 @@ int main(int argc, char **argv)
   int rc = 1;
   if (argc < 2) return 2;
   mode = argv[1];
+  if (!strcmp(mode,"mutant-int32max")) {
+    char *end;
+    long long integer;
+    double wrong;
+    uint64_t bits;
+    if (argc!=3) return 2;
+    errno=0;
+    integer=strtoll(argv[2],&end,10);
+    if (errno || *end || integer < INT32_MIN || integer > INT32_MAX) return 2;
+    wrong=(double)integer/(double)INT32_MAX;
+    memcpy(&bits,&wrong,sizeof(bits));
+    printf("%016" PRIx64 "\n",bits);
+    return 0;
+  }
   if (!strcmp(mode, "capabilities")) {
 #if defined(HAVE_FLAC) && (defined(STATIC_FLAC) || !defined(HAVE_LIBLTDL))
     puts("linkage=builtin");
