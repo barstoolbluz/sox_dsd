@@ -117,7 +117,7 @@ static int run(int argc,char **argv)
   sox_encoding_t encoding=SOX_ENCODING_UNKNOWN;
   unsigned bits=0;
   bool big=false;
-  uint64_t frames,to_write=0,read_frames=0,written_frames=0;
+  uint64_t frames,to_write=0,read_frames=0,written_frames=0,native_tail=0;
   uint64_t channels_arg,rate_arg;
   size_t block=23, n;
   double samples[64*257];
@@ -171,10 +171,12 @@ static int run(int argc,char **argv)
   mode=argv[1];
   if (sox_init()!=SOX_SUCCESS) { fprintf(stderr,"sox_init failed\n");return 2; }
   if (!strcmp(mode,"sparse-zero")) {
-    /* sparse-zero out type L|B channels rate declared_frames actual_frames.
-     * UINT64_MAX indicates unknown declared length; all frames are zeros.
-     * The actual WAV handler creates, sizes and finalizes the sparse file. */
-    if (argc!=9 || !code(argv[3],&encoding,&bits) ||
+    /* sparse-zero out type L|B channels rate declared_frames sparse_frames
+     *             [native_tail_frames].
+     * UINT64_MAX indicates unknown declared length. Optional real native
+     * samples are appended after the sparse zero extent, allowing one test
+     * to cross 4 GiB using the normal sample-writing path at bounded cost. */
+    if ((argc!=9 && argc!=10) || !code(argv[3],&encoding,&bits) ||
         (strcmp(argv[4],"L") && strcmp(argv[4],"B"))) {
       rc=2;goto finish;
     }
@@ -183,7 +185,11 @@ static int run(int argc,char **argv)
     rate_arg=number(argv[6]);
     frames=number(argv[7]);
     to_write=number(argv[8]);
-    if (channels_arg>UINT32_MAX || rate_arg>UINT32_MAX) { rc=2;goto finish; }
+    native_tail=argc==10 ? number(argv[9]) : 0;
+    if (channels_arg>UINT32_MAX || rate_arg>UINT32_MAX || native_tail>257 ||
+        (native_tail && (encoding!=SOX_ENCODING_FLOAT || bits!=64))) {
+      rc=2;goto finish;
+    }
     if (frames==UINT64_MAX) {
       if (pcm_f64_format_init(&fmt,(uint32_t)rate_arg,(uint32_t)channels_arg,
                               false,0)!=PCM_F64_OK) goto finish;
@@ -196,6 +202,19 @@ static int run(int argc,char **argv)
     if (status!=PCM_F64_OK) {
       fprintf(stderr,"FAIL native sparse zero run: %s\n",pcm_f64_status_name(status));
       goto finish;
+    }
+    if (native_tail) {
+      size_t frame_index, channel_index;
+      for (frame_index=0; frame_index<native_tail; ++frame_index)
+        for (channel_index=0; channel_index<fmt.channels; ++channel_index)
+          samples[frame_index*fmt.channels+channel_index]=
+              (frame_index+1)*0.125*(channel_index%2 ? -1. : 1.);
+      p=lsx_pcm_f64_wav_write(out,(pcm_f64_input){samples,(size_t)native_tail});
+      if (p.status!=PCM_F64_OK || p.consumed_frames!=native_tail) {
+        fprintf(stderr,"FAIL native samples after sparse extent: %s %zu\n",
+                pcm_f64_status_name(p.status),p.consumed_frames);
+        goto finish;
+      }
     }
     rc=0;
   } else if (!strcmp(mode,"generate")) {

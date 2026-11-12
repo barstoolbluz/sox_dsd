@@ -2,8 +2,9 @@
 """Phase 03 native WAV qualification: independent RIFF/RF64 oracle.
 
 Header parser uses Python's struct and checked file offsets, not libSoX.
-Actual 4 GiB cases use seekable zero-filled sparse extents emitted by the
-real native writer; only small byte ranges are read into memory. No enormous
+Actual 4 GiB cases use seekable zero-filled sparse extents and a native
+sample-writing tail crossing the boundary. Only small byte ranges are read.
+No enormous
 raw PCM fixture, fake header success, or float-duration count oracle.
 """
 from __future__ import annotations
@@ -489,6 +490,42 @@ class LargeWav:
             self.tick('real_sparsed_4gib_cases')
             self.sparse_files.append(str(target))
             target.unlink()
+        if self.native_integer_available:
+            # A sparse prefix establishes the actual file position, then
+            # three nonzero frames pass through the ordinary native writer
+            # across RIFF's 32-bit size boundary. Verify the written tail,
+            # the sparse prefix and the finalized RF64 counts independently.
+            target=self.dir/'native-samples-cross-4g.wav'
+            prefix=baseline-1
+            tail=3
+            self.command(['sparse-zero',target,'f64','L',2,176400,
+                          prefix+tail,prefix,tail],
+                         label='real-native-write-across-4g',limit_memory=True)
+            h=parse_wave_file(target)
+            st=target.stat()
+            expected=b''.join(struct.pack('<dd',i*0.125,-i*0.125)
+                              for i in range(1,tail+1))
+            insist(h['kind']=='RF64' and h['frames']==prefix+tail and
+                   h['data_offset']==initial_header and
+                   h['data_size']==(prefix+tail)*align and
+                   st.st_blocks*512 <= 4<<20,
+                   'normal native sample write did not cross 4 GiB correctly')
+            with target.open('rb') as f:
+                insist(read_at(f,h['data_offset']+prefix*align,len(expected))==expected,
+                       'native sample payload after 4 GiB mismatch')
+                insist(read_at(f,h['data_offset']+prefix*align-1024,1024)==b'\0'*1024,
+                       'sparse prefix before real native frames changed')
+            self.case('real-native-write-across-4g',header=h,
+                      prefix_frames=prefix,native_written_frames=tail,
+                      native_written_tail_sha256=hashlib.sha256(expected).hexdigest(),
+                      allocated_disk_bytes=st.st_blocks*512)
+            self.tick('real_native_write_4g_crossings')
+            self.gates['real_native_write_4g_crossing']='PASS'
+            self.sparse_files.append(str(target))
+            target.unlink()
+        else:
+            self.gates['real_native_write_4g_crossing']=(
+                'NOT_RUN: arithmetic-dependent native sample writer disabled')
         self.performance['four_sparse_gib_header_and_finalize_seconds']=round(
             time.perf_counter()-start,6)
         self.performance['four_sparse_gib_payload_bytes_written_physically']=0
@@ -800,7 +837,8 @@ class LargeWav:
                       'RIFF/RF64 seek-only parser and raw IEEE word buffers'),
             'sparse_io_explanation':(
                 'The private native WAV writer creates real sparse file extents '
-                'containing zeros, then executes its normal close/RIFF-to-RF64 '
+                'containing zeros, appends actual native-written samples across '
+                'the 4GiB boundary and executes the normal close/RIFF-to-RF64 '
                 'header rewrite. No entire 4GiB region is allocated or read. '
                 'Individual byte ranges at several offsets and source byte '
                 'payload hashes are checked independently.'),
