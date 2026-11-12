@@ -53,21 +53,25 @@ A *qualified* profile has passed the project's release-authorization checks for 
 
 ### Clipping and headroom
 
-PCM and DSD use different level conventions. Under the [SACD standard](https://www.sonicstudio.com/pdf/dsd/SACD_SignalPropertiesV13.pdf), 0 dB SACD corresponds to 50% of the theoretical maximum DSD signal amplitude. SoX DSD follows this reference convention at all supported DSD rates.
+PCM and DSD use different level conventions. Under the [SACD standard](https://www.sonicstudio.com/pdf/dsd/SACD_SignalPropertiesV13.pdf), 0 dB SACD corresponds to 50% of the theoretical maximum DSD signal amplitude, with peaks permitted up to about 71% (+3.1 dB). SoX DSD follows this reference convention at all supported DSD rates. Converters adjust level in both directions as a matter of course. PCM-to-DSD conversion normally leaves headroom: the [HQPlayer user manual](https://sonore.us/HQPlayer-manual.pdf) (version 3.14), for example, recommends a volume of −3 dB or lower to avoid overloading the modulator. DSD-to-PCM playback often adds 6 dB of gain to restore CD-like loudness.
 
 SoX DSD retains the original SoX noise shapers, but uses a qualified eighth-order mastering encoder based on SDM-8 by default at all five DSD rates. Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) found that SDM-8 delivers exceptional in-band noise performance, outperforming the alternatives overall on that measure, although other designs can produce less ultrasonic noise.
 
 Eighth-order noise shapers have a known limitation, however: they can become unstable with unusually demanding, sustained signals, such as near-full-scale DC or high-level test tones. This behavior has also been [documented in earlier DSD-capable SoX builds](https://archimago.blogspot.com/2021/10/measurements-look-at-dsd-and-using-sox.html).
 
-To operate within its qualified limits, the default encoder applies 0.915 dB of additional headroom. This maps full-scale PCM to approximately 45%, rather than the SACD reference level of 50%, of theoretical maximum DSD modulation. **The adjustment lowers the overall signal level without compressing the music's dynamics.**
+The default encoder therefore maps full-scale PCM to 45% of theoretical maximum DSD modulation, rather than 50%. This 0.915 dB cut keeps SDM-8 within its qualified operating range. **It lowers the overall signal level without compressing the music's dynamics, and SDM-8 more than recovers it:** its in-band noise floor is lower than every other shaper's at every DSD rate, by at least 5 dB at DSD64 and about 15 dB from DSD256 up. Even after the cut, the default encoder has more in-band dynamic range than any alternative.
 
-Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates exceptionally low noise with the default SDM-8-based mastering encoder within the audio band: At DSD64, the default encoder's in-band noise floor is about 141 dB below full scale (121 dB below a −20 dBFS test tone), comparable to 23-bit PCM. At higher DSD rates, the measured signal-to-noise ratio was substantially greater, eventually reaching the limits of the experiment's 32-bit signal path. If interpolated peaks still exceed the encoder's limit, SoX DSD clips them and issues a warning. Separate safeguards detect modulator instability.
+Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates exceptionally low noise with the default SDM-8-based mastering encoder within the audio band: At DSD64, the default encoder's in-band noise floor is about 141 dB below full scale (121 dB below a −20 dBFS test tone), comparable to 23-bit PCM. At higher DSD rates, the measured signal-to-noise ratio was substantially greater, eventually reaching the limits of the experiment's 32-bit signal path.
+
+The cut is a stability margin, not clipping protection. A PCM file can stay below 0 dBFS at every stored sample yet overshoot between samples once it is upsampled, and with ordinary masters this is common. In our 200-track test set, 62 tracks (31%) clipped at their original level: 48 of 100 CD tracks and 14 of 100 hi-res tracks. Normalized to a 0 dBFS sample peak, 190 of 200 clipped. By default SoX DSD clips those peaks and issues a warning; separate safeguards detect modulator instability.
+
+To avoid clipping across an album, choose one fixed cut with `--headroom DB` and use it for every track. It replaces the default 0.915 dB cut rather than adding to it, so `--headroom 2` means 2 dB in total. `--auto-headroom` also avoids clipping, but it measures each file on its own and gives each its own cut, which changes the levels of tracks relative to one another. Use it for single tracks. To find an album's cut, run each track once with `--auto-headroom --report FILE` at the target rate and take the largest `headroom_applied_db`. If none exceeds 0.915 dB, the default cut already avoids clipping. The [user guide](docs/dsd/USING_SOX_DSD.md#encoding-an-album) shows the commands.
 
 - `--headroom DB` replaces the implicit cut with an explicit fixed attenuation.
-- `--auto-headroom` measures the full interpolated signal and chooses the smallest non-amplifying, shared multichannel cut that stays within the warning ceiling. It needs additional passes and temporary storage.
+- `--auto-headroom` measures the full interpolated signal and chooses, for each file, the smallest non-amplifying, shared multichannel cut that stays within the warning ceiling. It needs additional passes and temporary storage.
 - `--dsd-clip error` rejects overloads instead of clipping. Its default gain differs by rate/profile; strict mode does **not** universally mean unity gain. Modulator state and numerical guards remain active under every policy.
 
-If retaining source level or avoiding clipping is important, choose the headroom policy explicitly. The default headroom exists for a reason. In testing without it, at unity gain, we encoded 200 real music tracks at DSD64, DSD128 and DSD256, each once at its original level and once normalized to a 0 dBFS peak. Six of those 1,200 encodes, all at DSD256, drove the SDM-8-based encoder unstable. In each case SoX DSD detected the instability and stopped with an error instead of writing a damaged file. With the default 0.915 dB cut, all 1,200 encodes completed. At DSD512 and DSD1024, the SDM-8-based encoder with `--headroom 0` is likewise **not** guaranteed stable for full-scale inputs. The [user guide](docs/dsd/USING_SOX_DSD.md) explains the policies and their limits.
+The stability margin is backed by real-music testing. Without it, at unity gain, we encoded the same 200 tracks at DSD64, DSD128 and DSD256, each once at its original level and once normalized to a 0 dBFS peak. Six of those 1,200 encodes, all at DSD256, drove the SDM-8-based encoder unstable. In each case SoX DSD detected the instability and stopped with an error instead of writing a damaged file. With the 0.915 dB cut, all 1,200 encodes completed. At DSD512 and DSD1024, the SDM-8-based encoder with `--headroom 0` is likewise **not** guaranteed stable for full-scale inputs. `--headroom 0` also clips more, not less, because it raises the level against the same ceiling. The [user guide](docs/dsd/USING_SOX_DSD.md) explains the policies and their limits.
 
 ## Start converting
 
@@ -92,8 +96,11 @@ sox concert.dsf concert.dff
 # Package native DSD as DoP in a 24-bit WAV carrier
 sox --dop concert.dsf concert-dop.wav
 
-# Measure interpolated peaks and apply only the required headroom
+# Measure one track's interpolated peaks and apply only the cut it needs
 sox --auto-headroom master.wav -r dsd256 master.dsf
+
+# Encode an album with one fixed cut (1.8 dB in total, replacing the default)
+for f in album/*.wav; do sox --headroom 1.8 "$f" -r dsd256 "${f%.wav}.dsf"; done
 
 # Inspect the intended DSD processing graph without writing audio
 sox --plan concert.dsf concert.wav

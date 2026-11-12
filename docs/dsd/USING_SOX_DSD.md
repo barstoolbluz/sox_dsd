@@ -32,7 +32,8 @@ SoX DSD normally decides whether to reconstruct, encode, or preserve native bits
 | Convert uncompressed DSDIFF to PCM | `sox music.dff -r 176400 music.wav` |
 | Encode WAV to DSD64 | `sox master.wav master.dsf` |
 | Encode to DSD128 | `sox master.wav -r dsd128 master.dsf` |
-| Encode to DSD512 with measured headroom | `sox --auto-headroom master.wav -r dsd512 master.dsf` |
+| Encode one track to DSD512 with measured headroom | `sox --auto-headroom master.wav -r dsd512 master.dsf` |
+| Encode an album to DSD512 with one fixed cut ([how to choose it](#encoding-an-album)) | `sox --headroom 1.8 track.wav -r dsd512 track.dsf`, same value for every track |
 | Change DSF container to DSDIFF, keeping native bits | `sox music.dsf music.dff` |
 | Convert DSD64 to DSD128 (not bit-preserving) | `sox music64.dsf -r dsd128 music128.dsf` |
 | Package DSD into a DoP WAV | `sox --dop music.dsf transport.wav` |
@@ -333,18 +334,18 @@ The fixed 0.9 gain applies even to quiet recordings. It is **not** an automatic 
 | Goal | Example | Behavior |
 |---|---|---|
 | Fast default | `sox in.wav -r dsd128 out.dsf` | One pass; 0.9 gain, warn and clip above 0.45 |
-| Known fixed attenuation | `sox --headroom 2 in.wav -r dsd128 out.dsf` | Exactly 2 dB cut **instead of** the implicit 0.9 gain |
-| Avoid clipping while retaining the greatest safe level | `sox --auto-headroom in.wav -r dsd128 out.dsf` | Full interpolated-peak scan; shared cut only if needed |
+| Known fixed attenuation, or one cut for a whole album | `sox --headroom 2 in.wav -r dsd128 out.dsf` | Exactly 2 dB cut **instead of** the implicit 0.9 gain |
+| Avoid clipping on a single track while retaining the greatest safe level | `sox --auto-headroom in.wav -r dsd128 out.dsf` | Full interpolated-peak scan; cut chosen for this file, only if needed |
 | Refuse clipping | `sox --dsd-clip error in.wav -r dsd128 out.dsf` | Strict bound of 0.5; unity gain at DSD128 (but high-rate v1 retains 0.9) |
 | Measured headroom plus strict checking | `sox --auto-headroom --dsd-clip error in.wav -r dsd128 out.dsf` | Scan, apply a shared cut, and fail if the final strict check rejects input |
 
 `--headroom` accepts an attenuation from **0 to 120 dB**, not a signed gain or a target peak level. **`--headroom 0` explicitly requests unity gain**; it does not mean the implicit default. A fixed cut may still leave peaks above the warning ceiling, so it does not by itself guarantee zero clipped interpolated samples.
 
-`--auto-headroom` measures the interpolated signal, including the finite tail, then chooses a **single gain across all channels** so their balance does not change. It never boosts quiet material, uses bounded RAM with temporary storage, and takes an additional measurement pass with more I/O. Its target is the **0.45 warning ceiling**, even when combined with strict checking. The scan does not substitute a different mastering profile.
+`--auto-headroom` measures the interpolated signal, including the finite tail, then chooses a **single gain across all channels** so their balance does not change. It never boosts quiet material, uses bounded RAM with temporary storage, and takes an additional measurement pass with more I/O. Its target is the **0.45 warning ceiling**, even when combined with strict checking. The scan does not substitute a different mastering profile. It measures each file on its own, so the tracks of an album can receive different cuts; see [Encoding an album](#encoding-an-album).
 
 `--dsd-clip error` without explicit headroom uses a **0.5 strict input envelope**, rather than the default warning ceiling of 0.45; it rejects overshoots rather than clipping them. **The applied gain depends on the encoder**: DSD64/128/256 v1 and explicitly pinned high-rate v2 use **unity gain**; **high-rate v1 retains its implicit 0.9 gain even in strict mode**. This protects its qualified operating point, but it does not make an arbitrary input safe. An explicit `--headroom DB` replaces that implicit gain. DSD-origin re-encoding uses a different amplitude reference and is not covered by PCM-origin peak thresholds. The modulator's separate state guards apply in either mode. `--headroom` and `--auto-headroom` are mutually exclusive; both control the qualified **composite encoder**, not conventional PCM output processing or native repacking.
 
-For level-sensitive masters, prefer **`--auto-headroom`** when its extra pass and temporary-file I/O are acceptable. For high-throughput conversion where the fixed reduction and possible clipping warnings are understood, the ordinary one-pass default may be preferable.
+For a single level-sensitive track, prefer **`--auto-headroom`** when its extra pass and temporary-file I/O are acceptable. For an album, use one fixed `--headroom` for every track so the tracks keep their relative levels. For high-throughput conversion where the fixed reduction and possible clipping warnings are understood, the ordinary one-pass default may be preferable.
 
 **What the music qualification establishes:** The separate high-rate v1 test build completed 800 real-track encodes at DSD512/1024, including sample-peak-raised copies. However, the 1.1.1 release documentation records **194 input-stage clipping warnings among 400 peak-raised runs**. Those are distinct from the composite encoder's 0.45 modulator warnings. Completion shows that the tested encoder did not abort; it does **not** prove the peak-raising command preserved the source waveform. Avoid unnecessary upstream `-v` amplification when waveform preservation is the goal. The benchmark's no-clipping statement applies to its separate 27-job rerun, not to these peak-raised real tracks.
 
@@ -356,6 +357,27 @@ sox --auto-headroom --report encode.json master.wav -r dsd128 output.dsf
 ```
 
 The plan identifies the headroom mode but cannot know the final measured cut before processing. The completed report exposes applied headroom and per-channel interpolated clip counts, plus clipping aggregates. Review those results and stderr warnings; do not infer "no clipping" solely from exit code zero.
+
+### Encoding an album
+
+`--auto-headroom` gives each file its own cut, which changes the levels of an album's tracks relative to one another. To keep them, measure every track, then encode them all with the same fixed cut:
+
+```bash
+# 1. Measure each track at the target rate; the audio is discarded
+for f in album/*.wav; do
+  sox --auto-headroom --report "${f%.wav}.json" "$f" -r dsd128 -t dsf /dev/null
+done
+
+# 2. Find the largest cut any track needs
+jq -s '[.[].processing.encoder[].headroom_applied_db] | max' album/*.json
+
+# 3. Encode every track with that cut, rounded up (here 1.8 dB)
+for f in album/*.wav; do
+  sox --headroom 1.8 "$f" -r dsd128 "${f%.wav}.dsf"
+done
+```
+
+`--headroom` replaces the implicit 0.9 gain rather than adding to it, so `--headroom 1.8` is a 1.8 dB cut in total. If no track needs more than 0.915 dB, the default already avoids clipping, and step 3 can use the plain command. The measurement in step 1 costs a full encode per track.
 
 ## 6. Preserve native DSD, change rates, or use DoP
 
@@ -497,7 +519,7 @@ The ordinary conversion syntax requires none of these. Place global options befo
 | `--dsd-level preserve\|sacd` | Default level convention, or +6.0206 dB SACD convention on reconstruction |
 | `--dsd-clip warn\|error` | Clip excess interpolated encoder samples and warn (default), or fail on overload |
 | `--headroom DB` | Fixed composite encoder attenuation of 0-120 dB, replacing implicit 0.9 gain |
-| `--auto-headroom` | Measure full interpolated peak and apply a shared cut before encoding |
+| `--auto-headroom` | Measure the file's full interpolated peak and apply the cut it needs before encoding; per file, so for albums see [Encoding an album](#encoding-an-album) |
 | `--dop` | Package native DSD into an exact 24-bit DoP PCM carrier |
 | `--plan` | JSON preflight; do not create audio |
 | `--report PATH` | JSON conversion result or named preflight record |
