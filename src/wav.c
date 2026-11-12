@@ -2454,7 +2454,6 @@ static void native_check_rf64_ds64(const sox_format_t *ft, priv_t *w)
   w->native_rf64_checked = true;
   if (!ft->seekable || !fp || w->native_ds64_body_offset != 20 ||
       w->native_ds64_body_length != sizeof(body) ||
-      w->native_rf64_riff32 != UINT32_MAX ||
       (saved = ftello(fp)) < 0) return;
   read_ok = fseeko(fp, w->native_ds64_body_offset, SEEK_SET) == 0 &&
       fread(body, 1, sizeof(body), fp) == sizeof(body);
@@ -2472,17 +2471,27 @@ static void native_check_rf64_ds64(const sox_format_t *ft, priv_t *w)
 pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
     lsx_pcm_f64_wav_facts *facts)
 {
-  const priv_t *w;
+  priv_t *w;
   unsigned bits;
   sox_encoding_t enc;
   uint64_t frames;
   pcm_f64_status rc;
+  bool rf64_legacy_unspecified_data32;
   if (!ft || !facts || !ft->priv) return PCM_F64_ARGUMENT;
-  w = (const priv_t *)ft->priv;
+  /* Native-only ds64 validation caches its facts in the WAV instance. */
+  w = (priv_t *)ft->priv;
   if (pcm_f64_check_ieee_storage() != PCM_F64_OK)
     return PCM_F64_UNSUPPORTED;
   if (ft->mode == 'r') {
-    if (w->ignoreSize || w->native_bad_fmt_extent ||
+    /* The legacy reader treats these two 32-bit data lengths as an
+     * unspecified length. RF64 defines them as exact unless the field is
+     * UINT32_MAX; only native admission restores that distinction. */
+    rf64_legacy_unspecified_data32 = w->isRF64 &&
+        !w->native_data_was_sentinel &&
+        (w->native_data_size == UINT32_C(0x7fffffff) ||
+         w->native_data_size == MS_UNSPEC);
+    if ((w->ignoreSize && !rf64_legacy_unspecified_data32) ||
+        w->native_bad_fmt_extent ||
         !w->native_channels || !w->native_rate ||
         !w->native_bits || w->native_bits != w->native_valid_bits ||
         w->native_bits % 8 || w->native_bits > 64 ||
@@ -2520,15 +2529,15 @@ pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
     frames = w->native_data_size / w->native_block_align;
     if (w->isRF64) {
       native_check_rf64_ds64(ft, w);
-      /* Native RF64 requires a self-consistent ds64, sentinel data and an
-       * actual, seekable regular-file extent. Legacy parsing remains open
-       * to other historical RF64 variants. Fact is optional for PCM (also
-       * extensible PCM); when present its size is exact or a 32-bit sentinel. */
+      /* Native RF64 requires a structurally valid ds64 and an exact,
+       * seekable regular-file extent. Each 32-bit size is authoritative
+       * unless it is UINT32_MAX, when the ds64 replacement applies.
+       * Legacy reading remains unchanged. Fact is optional for PCM (also
+       * extensible PCM); when present it is exact or a 32-bit sentinel. */
       struct stat st;
       int fd=ft->fp ? fileno((FILE*)ft->fp) : -1;
       uint64_t start=ft->data_start;
-      if (!w->native_rf64_valid || w->native_rf64_bad ||
-          !w->native_data_was_sentinel || w->native_big ||
+      if (!w->native_rf64_valid || w->native_rf64_bad || w->native_big ||
           (w->native_fact_present &&
            (w->native_fact_bad ||
             (w->native_fact_frames != UINT32_MAX &&
@@ -2538,7 +2547,9 @@ pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
           (w->formatTag != WAVE_FORMAT_PCM && !w->native_fact_present) ||
           frames!=w->native_rf64_frames ||
           fd<0 || fstat(fd,&st) || !S_ISREG(st.st_mode) || st.st_size<8 ||
-          w->native_rf64_riff_size!=(uint64_t)st.st_size-8 ||
+          (w->native_rf64_riff32 == UINT32_MAX ?
+           w->native_rf64_riff_size : (uint64_t)w->native_rf64_riff32) !=
+              (uint64_t)st.st_size-8 ||
           start>(uint64_t)st.st_size ||
           w->native_data_size>(uint64_t)st.st_size-start ||
           (w->native_data_size&1 &&
@@ -2547,7 +2558,8 @@ pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
     }
     if (frames != w->originalSamples ||
         frames > UINT64_MAX / w->native_channels ||
-        ft->signal.length != frames * w->native_channels)
+        (ft->signal.length != frames * w->native_channels &&
+         !(rf64_legacy_unspecified_data32 && ft->signal.length == SOX_UNSPEC)))
       return PCM_F64_UNSUPPORTED;
   } else if (ft->mode == 'w' && w->native_writer) {
     enc = ft->encoding.encoding;

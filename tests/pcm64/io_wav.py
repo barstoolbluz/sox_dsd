@@ -33,6 +33,7 @@ from binary_receipts import executable_libraries
 
 SEED = 0x2026110902
 GUID_TAIL = bytes.fromhex('000000001000800000aa00389b71')
+UINT32_MAX = (1 << 32) - 1
 UINT64_MAX = (1 << 64) - 1
 
 
@@ -1151,6 +1152,91 @@ class CaseRunner:
         self.tick('streaming_samples',frames*ch)
         self.tick('streaming_bytes',frames*ch*8)
 
+    def rf64_32bit_precedence(self):
+        # EBU RF64: each 32-bit chunk size is authoritative unless it is
+        # 0xffffffff. Build fixtures without the SoX WAV writer or parser.
+        codes=[100,-100,101,-101,102,-102,103,-103]
+        data=struct.pack('<8h',*codes)
+        fmt=struct.pack('<HHIIHH',1,2,44100,176400,4,16)
+        frames=len(codes)//2
+        riff_size=4+(8+28)+(8+len(fmt))+(8+len(data))
+
+        def rf64(riff32, data32, *, riff64=riff_size,
+                 data64=len(data), sample64=frames):
+            ds64=struct.pack('<QQQI',riff64,data64,sample64,0)
+            return (b'RF64'+struct.pack('<I',riff32)+b'WAVE'+
+                    b'ds64'+struct.pack('<I',len(ds64))+ds64+
+                    b'fmt '+struct.pack('<I',len(fmt))+fmt+
+                    b'data'+struct.pack('<I',data32)+data)
+
+        want=[ieee_f64_bits(value / 32768) for value in codes]
+        reference=self.file('rf64-32bit-riff-reference.wav',
+                            wave_bytes(data,channels=2,code='i16'))
+        self.query(reference,frames=frames,channels=2,bits=16)
+        if self.native_dsp:
+            self.dump(reference,len(codes),want)
+        for riff32,data32,label in (
+                (UINT32_MAX,UINT32_MAX,'both-sentinel'),
+                (riff_size,UINT32_MAX,'exact-riff'),
+                (UINT32_MAX,len(data),'exact-data'),
+                (riff_size,len(data),'both-exact')):
+            candidate=self.file('rf64-32bit-'+label+'.wav',rf64(riff32,data32))
+            self.query(candidate,frames=frames,channels=2,bits=16)
+            if self.native_dsp:
+                self.dump(candidate,len(codes),want)
+            self.tick('rf64_32bit_valid_cases')
+
+        # The fallback ds64 sizes cannot override an exact 32-bit size.
+        fallback=self.file('rf64-32bit-ignored-ds64-sizes.wav',
+                           rf64(riff_size,len(data),riff64=riff_size+2,
+                                data64=len(data)+4))
+        self.query(fallback,frames=frames,channels=2,bits=16)
+        if self.native_dsp:
+            self.dump(fallback,len(codes),want)
+        self.tick('rf64_32bit_valid_cases')
+
+        # A bad authoritative size or sample count must still refuse.
+        for label,blob in (
+                ('incorrect-riff32',rf64(riff_size-2,len(data))),
+                ('incorrect-data32',rf64(riff_size,len(data)-4)),
+                ('incorrect-ds64-frames',rf64(riff_size,len(data),sample64=frames+1)),
+                ('incorrect-sentinel-riff64',rf64(UINT32_MAX,len(data),riff64=riff_size+2)),
+                ('incorrect-sentinel-data64',rf64(riff_size,UINT32_MAX,data64=len(data)+4))):
+            candidate=self.file('rf64-32bit-'+label+'.wav',blob)
+            self.reject(['query',candidate],label='rf64-32bit-'+label,
+                        stderr_contains='native WAV unsupported')
+            self.tick('rf64_32bit_invalid_cases')
+        self.gates['rf64_32bit_native_metadata']='PASS'
+        self.gates['rf64_32bit_native_decode']=('PASS' if self.native_dsp
+            else self.native_unavailable())
+
+        # These exact data sizes happen to be legacy WAV's unspecified-size
+        # markers. Sparse fixtures make the native 2 GiB admission check real
+        # without reading or allocating a multi-gigabyte payload.
+        if sys.platform == 'linux':
+            mono_fmt=struct.pack('<HHIIHH',1,1,44100,44100,1,8)
+            for size in (0x7ffff000,0x7fffffff):
+                extent=80+size+(size&1)
+                ds64=struct.pack('<QQQI',extent-8,size,size,0)
+                header=(b'RF64'+struct.pack('<I',UINT32_MAX)+b'WAVE'+
+                        b'ds64'+struct.pack('<I',28)+ds64+
+                        b'fmt '+struct.pack('<I',len(mono_fmt))+mono_fmt+
+                        b'data'+struct.pack('<I',size))
+                insist(len(header)==80,'incorrect sparse RF64 header length')
+                candidate=self.root/f'rf64-32bit-sparse-{size:08x}.wav'
+                with candidate.open('wb') as f:
+                    f.write(header)
+                    f.seek(extent-1)
+                    f.write(b'\0')
+                st=candidate.stat()
+                insist(st.st_size==extent and st.st_blocks*512<1<<20,
+                       'sparse RF64 fixture allocated unexpectedly')
+                self.query(candidate,frames=size,channels=1,bits=8)
+                self.tick('rf64_32bit_sparse_cases')
+            self.gates['rf64_32bit_sparse_metadata']='PASS'
+        else:
+            self.gates['rf64_32bit_sparse_metadata']='NOT_RUN: Linux sparse files required'
+
     def compatibility(self):
         # Check that a normal CLI WAV writer still uses the original public
         # route and that an ordinary WAV roundtrip remains functional.
@@ -1220,6 +1306,7 @@ class CaseRunner:
         self.daz_guard()
         self.quantization()
         self.malformed()
+        self.rf64_32bit_precedence()
         self.safety()
         self.writer_environment()
         self.unavailable_arithmetic_destination_integrity()

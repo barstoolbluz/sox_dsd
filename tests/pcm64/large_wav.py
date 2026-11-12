@@ -695,8 +695,27 @@ class LargeWav:
         mutate('data-length-disagrees',28,struct.pack('<Q',h['data_size']+1))
         mutate('frame-count-disagrees',36,struct.pack('<Q',4))
         mutate('bad-fact-count',fact_offset,struct.pack('<I',2))
-        mutate('bad-data-sentinel',data_size_offset,struct.pack('<I',h['data_size']))
-        mutate('bad-top-riff-sentinel',4,struct.pack('<I',len(data)-8))
+        # Exact 32-bit RF64 sizes are valid (Tech 3306, section 3.4).
+        # Previously these were mislabeled as malformed sentinels.
+        decoded,_=self.command(['dump',val],label='RF64-dump-original')
+        insist(decoded==struct.pack('<3d',0.125,0.125,0.125),
+               'RF64 baseline decoded unexpected PCM')
+        for name,fields in (
+                ('exact-data',((data_size_offset,h['data_size']),)),
+                ('exact-riff',((4,len(data)-8),)),
+                ('both-exact',((data_size_offset,h['data_size']),
+                               (4,len(data)-8)))):
+            b=bytearray(data)
+            for offset,value in fields:
+                b[offset:offset+4]=struct.pack('<I',value)
+            path=self.file('valid-rf64-'+name+'.wav',b)
+            query,_=self.command(['query',path],label='valid-rf64-'+name)
+            got,_=self.command(['dump',path],label='valid-rf64-dump-'+name)
+            insist(query==r and got==decoded,
+                   f'RF64 {name} size field changed native metadata or audio')
+            self.case('RF64-32bit-'+name+'-valid',
+                      query=query.decode('ascii').strip())
+            self.tick('valid_RF64_exact_32bit_sizes')
         for name,b in variants.items():
             path=self.file('bad-rf64-'+name+'.wav',b)
             _,error=self.command(['query',path],exit=1,label='bad-rf64-'+name)
