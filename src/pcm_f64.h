@@ -83,6 +83,8 @@ const char *pcm_f64_status_name(pcm_f64_status status);
  * inside per-sample numerical primitives. No caller FP controls are changed.
  * Copy-only finite word transfer does not require compatible DSP controls. */
 pcm_f64_status pcm_f64_check_dsp_env(void);
+/* Library-owned entry point for the CLI in shared/export-filtered builds. */
+pcm_f64_status lsx_pcm_f64_check_dsp_env(void);
 pcm_f64_status pcm_f64_check_ieee_storage(void);
 
 /* Classification examines raw bits, including signaling NaNs, without FP ops.

@@ -1148,6 +1148,18 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
   }
 }
 
+/* Legacy integer file handlers deliver PCM codes without numerical loss in
+ * sox_sample_t. FLAC's decoder uses the same left-aligned int32 carrier for
+ * its supported depths; this is distinct from native binary64 eligibility. */
+static int legacy_source_integer_exact(const lsx_dsd_plan_input *in)
+{
+  unsigned bits=in->source_precision;
+  if (in->source_encoding==SOX_ENCODING_FLAC)
+    return bits==8 || bits==16 || bits==24 || bits==32;
+  return (in->source_encoding==SOX_ENCODING_SIGN2 ||
+      in->source_encoding==SOX_ENCODING_UNSIGNED) && bits>0 && bits<=32;
+}
+
 void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
     lsx_precision_policy policy)
 {
@@ -1183,9 +1195,7 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
       json_string(fp,"DSD reconstruction by legacy decoder; no exact PCM source-code identity");
     else if (in->source_encoding==SOX_ENCODING_FLOAT)
       json_string(fp,"IEEE float through legacy signed int32: quantization, clipping and signed-zero loss possible");
-    else if ((in->source_encoding==SOX_ENCODING_SIGN2 ||
-              in->source_encoding==SOX_ENCODING_UNSIGNED) &&
-             in->source_precision>0 && in->source_precision<=32)
+    else if (legacy_source_integer_exact(in))
       json_string(fp,"input integer PCM codes exactly represented in legacy signed int32 carrier");
     else
       json_string(fp,"legacy signed int32 decode; original source exactness not established");
@@ -1195,9 +1205,7 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
     else if (in->native_domain==LSX_DSD_NATIVE ||
              in->source_encoding==SOX_ENCODING_FLOAT)
       fputs("false",fp);
-    else fputs(((in->source_encoding==SOX_ENCODING_SIGN2 ||
-                 in->source_encoding==SOX_ENCODING_UNSIGNED) &&
-                in->source_precision>0 && in->source_precision<=32)?"true":"false",fp);
+    else fputs(legacy_source_integer_exact(in)?"true":"false",fp);
     fprintf(fp,",\"volume_factor\":%.17g,\"volume_consumed_by_decoder\":%s}",
         in->volume,in->volume_consumed_by_decoder?"true":"false");
   }

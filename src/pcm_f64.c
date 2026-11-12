@@ -194,6 +194,12 @@ pcm_f64_status pcm_f64_check_dsp_env(void)
 #endif
 }
 
+/* The CLI cannot link to pcm_f64_* when libtool filters shared exports. */
+pcm_f64_status lsx_pcm_f64_check_dsp_env(void)
+{
+  return pcm_f64_check_dsp_env();
+}
+
 pcm_f64_status pcm_f64_classify(const double *value, pcm_f64_word_class *kind)
 {
   uint64_t bits, exponent, fraction;

@@ -2694,7 +2694,7 @@ static void preflight_dsd(void)
   memset(&plan,0,sizeof(plan));
   spec.policy=dsd_policy;
   spec.precision=precision_requested;
-  spec.arithmetic_compiled_capable=pcm_f64_check_dsp_env()==PCM_F64_OK;
+  spec.arithmetic_compiled_capable=lsx_pcm_f64_check_dsp_env()==PCM_F64_OK;
   spec.combine=(lsx_dsd_combine)combine_method;
   spec.effect_chain_count=eff_chain_count;
   input=lsx_calloc(input_count,sizeof(*input));
