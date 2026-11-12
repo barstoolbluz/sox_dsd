@@ -75,9 +75,9 @@ pcm_f64_progress lsx_pcm_f64_flac_read(sox_format_t *ft, pcm_f64_output out)
   lsx_pcm_f64_flac_facts facts;
   uint64_t already, remaining;
   bool eof = false;
-  /* Fixed 32 KiB, at most 128 frames for each of 64 channels.  The caller
-   * owns the double view; memory does not grow with track duration. */
-  sox_sample_t words[128 * 64];
+  /* Borrow up to 4096 frames of codec integer words, retained by the FLAC
+   * reader across calls. Bounded by libFLAC's eight-channel maximum; avoids
+   * repeated decoder leftover allocations without a large stack frame. */
   if (!ft || ft->mode != 'r') {
     result.status = PCM_F64_ARGUMENT;
     return result;
@@ -111,14 +111,20 @@ pcm_f64_progress lsx_pcm_f64_flac_read(sox_format_t *ft, pcm_f64_output out)
       remaining > facts.stream.total_frames - already)
     remaining = facts.stream.total_frames - already;
   while (remaining) {
-    size_t frames = (size_t)min(remaining, UINT64_C(128));
+    size_t frames = (size_t)min(remaining, UINT64_C(4096));
     size_t requested = frames * facts.stream.channels;
     size_t got, i;
+    sox_sample_t *words;
     /* sox_read is the existing built-in FLAC decoder and transports exact
      * left-aligned signed integer PCM, not float-quantized audio.  Each
      * codec code is mapped to its 32-bit SoX carrier without rounding. */
     if (pcm_f64_check_dsp_env() != PCM_F64_OK) {
       result.status = PCM_F64_UNSUPPORTED;
+      return result;
+    }
+    words = lsx_flac_native_scratch(ft, requested);
+    if (!words) {
+      result.status = PCM_F64_IO;
       return result;
     }
     got = sox_read(ft, words, requested);

@@ -44,6 +44,9 @@ pcm_f64_status lsx_flac_native_facts(const sox_format_t *ft,
     lsx_pcm_f64_flac_facts *facts);
 pcm_f64_status lsx_flac_native_decoder_state(const sox_format_t *ft,
     bool *at_eof);
+/* Reader-owned, bounded scratch. Built-in only; may grow once per capacity.
+ * The returned buffer remains valid until the next growth or close. */
+sox_sample_t *lsx_flac_native_scratch(sox_format_t *ft, size_t samples);
 
 /* Exact known-length, small RIFF/RIFX output ONLY. The writer is not exposed
  * to the CLI until the phase-specific qualification and native coordinator.

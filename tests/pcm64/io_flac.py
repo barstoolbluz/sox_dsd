@@ -274,9 +274,11 @@ class Runner:
                     durations.append(time.perf_counter()-begin)
                 durations.sort()
                 results[label+'_'+mode+'_median_seconds']=round(durations[2],6)
-        results['native_adapter_scratch_bytes_upper_bound']=128*64*4
-        results['native_adapter_dynamic_allocations_per_call']=0
-        results['allocation_count_note']='source-visible adapter has no malloc/calloc/realloc; libFLAC decoder allocations not counted by this probe'
+        results['native_adapter_cached_heap_bytes_upper_bound']=4096*8*4
+        results['native_adapter_allocation_note']=(
+            'one reader-owned buffer, grows on demand up to 128KiB; no per-sample '
+            'allocation. Decoder allocations are not counted by this microprobe; '
+            'see independent allocation/RSS measurements in phase02b/performance')
         results['wall_clock_includes_subprocess_startup']=True
         self.performance=results
         self.gates['flac_ingest_performance']='PASS'

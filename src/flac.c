@@ -36,6 +36,12 @@ typedef struct {
   size_t number_of_requested_samples;
   sox_sample_t *leftover_buf; /* heap */
   unsigned number_of_leftover_samples;
+#if defined(STATIC_FLAC) || !defined(HAVE_LIBLTDL)
+  /* Native-only, bounded PCM scratch: one growth allocation per capacity,
+   * retained across reads, never present in a dynamically loaded plugin. */
+  sox_sample_t *native_scratch;
+  size_t native_scratch_samples;
+#endif
 
   FLAC__StreamDecoder * decoder;
   FLAC__bool eof;
@@ -68,7 +74,7 @@ pcm_f64_status lsx_flac_native_facts(const sox_format_t *ft,
   if (!ft || !facts || ft->mode != 'r' || !ft->priv)
     return PCM_F64_ARGUMENT;
   p = (const priv_t *)ft->priv;
-  if (!p->decoder || !p->channels || p->channels > 64 || !p->sample_rate ||
+  if (!p->decoder || !p->channels || p->channels > FLAC__MAX_CHANNELS || !p->sample_rate ||
       (p->bits_per_sample != 8 && p->bits_per_sample != 16 &&
        p->bits_per_sample != 24 && p->bits_per_sample != 32) ||
       p->total_samples > UINT64_MAX / p->channels ||
@@ -97,6 +103,31 @@ pcm_f64_status lsx_flac_native_decoder_state(const sox_format_t *ft,
   *at_eof = state == FLAC__STREAM_DECODER_END_OF_STREAM;
   return state > FLAC__STREAM_DECODER_END_OF_STREAM ?
       PCM_F64_IO : PCM_F64_OK;
+}
+
+/* Borrowed scratch follows this reader's lifetime.  Typical FLAC frames
+ * contain 4096 samples per channel; requesting complete frames avoids the
+ * per-decoder-frame leftover buffer allocation incurred by 128-frame reads.
+ * Only native reads allocate this buffer. Legacy paths remain unchanged. */
+sox_sample_t *lsx_flac_native_scratch(sox_format_t *ft, size_t required)
+{
+  priv_t *p;
+  sox_sample_t *next;
+  if (!ft || !ft->priv || ft->mode != 'r' || !required ||
+      required > (size_t)4096 * FLAC__MAX_CHANNELS)
+    return NULL;
+  p = (priv_t *)ft->priv;
+  if (!p->decoder || ft->sox_errno) return NULL;
+  if (required > p->native_scratch_samples) {
+    next = realloc(p->native_scratch, required * sizeof(*next));
+    if (!next) {
+      lsx_fail_errno(ft, SOX_ENOMEM, "native FLAC scratch allocation failed");
+      return NULL;
+    }
+    p->native_scratch = next;
+    p->native_scratch_samples = required;
+  }
+  return p->native_scratch;
 }
 
 #endif /* built-in FLAC native hook */
@@ -390,6 +421,11 @@ static int stop_read(sox_format_t * const ft)
   free(p->leftover_buf);
   p->leftover_buf = NULL;
   p->number_of_leftover_samples = 0;
+#if defined(STATIC_FLAC) || !defined(HAVE_LIBLTDL)
+  free(p->native_scratch);
+  p->native_scratch = NULL;
+  p->native_scratch_samples = 0;
+#endif
   return SOX_SUCCESS;
 }
 
