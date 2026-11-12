@@ -2439,14 +2439,12 @@ static void native_put_word(unsigned char *b, uint64_t u, unsigned bytes, bool b
   }
 }
 
-/* Available only for unambiguous RIFF/RIFX full-container formats.  The
- * ordinary WAV reader deliberately keeps accepting its historical variants. */
 /* Only native RF64 admission needs exact ds64 facts. Do not let this
  * validation narrow the legacy libsox WAV reader: it must still decode its
  * historical short ds64 variants and retain the same errors on missing ones.
  * This is a single fixed-size read from the existing format FILE, not a
  * second chunk walker or a duration-proportional allocation. */
-static void native_check_rf64_ds64(sox_format_t *ft, priv_t *w)
+static void native_check_rf64_ds64(const sox_format_t *ft, priv_t *w)
 {
   unsigned char body[28];
   FILE *fp = (FILE *)ft->fp;
@@ -2454,7 +2452,7 @@ static void native_check_rf64_ds64(sox_format_t *ft, priv_t *w)
   bool read_ok;
   if (w->native_rf64_checked) return;
   w->native_rf64_checked = true;
-  if (!ft->seekable || !fp || w->native_ds64_body_offset < 12 ||
+  if (!ft->seekable || !fp || w->native_ds64_body_offset != 20 ||
       w->native_ds64_body_length != sizeof(body) ||
       w->native_rf64_riff32 != UINT32_MAX ||
       (saved = ftello(fp)) < 0) return;
@@ -2521,19 +2519,23 @@ pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
       return PCM_F64_UNSUPPORTED;
     frames = w->native_data_size / w->native_block_align;
     if (w->isRF64) {
-      native_check_rf64_ds64((sox_format_t *)ft, w);
+      native_check_rf64_ds64(ft, w);
       /* Native RF64 requires a self-consistent ds64, sentinel data and an
        * actual, seekable regular-file extent. Legacy parsing remains open
-       * to other historical RF64 variants. A 32-bit fact sentinel is
-       * prescribed by EBU Tech 3306 for large non-PCM payloads. */
+       * to other historical RF64 variants. Fact is optional for PCM (also
+       * extensible PCM); when present its size is exact or a 32-bit sentinel. */
       struct stat st;
       int fd=ft->fp ? fileno((FILE*)ft->fp) : -1;
       uint64_t start=ft->data_start;
       if (!w->native_rf64_valid || w->native_rf64_bad ||
           !w->native_data_was_sentinel || w->native_big ||
-          (w->native_fact_present && w->native_fact_bad) ||
-          (w->native_header_tag!=WAVE_FORMAT_PCM &&
-           (!w->native_fact_present || w->native_fact_frames!=UINT32_MAX)) ||
+          (w->native_fact_present &&
+           (w->native_fact_bad ||
+            (w->native_fact_frames != UINT32_MAX &&
+             (frames > UINT32_MAX || w->native_fact_frames != frames)))) ||
+          /* Extensible PCM retains a PCM subformat despite the outer
+           * 0xfffe tag. Its fact chunk is optional, as in RIFF/WAVE. */
+          (w->formatTag != WAVE_FORMAT_PCM && !w->native_fact_present) ||
           frames!=w->native_rf64_frames ||
           fd<0 || fstat(fd,&st) || !S_ISREG(st.st_mode) || st.st_size<8 ||
           w->native_rf64_riff_size!=(uint64_t)st.st_size-8 ||
