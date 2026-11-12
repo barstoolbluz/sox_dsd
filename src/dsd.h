@@ -146,6 +146,8 @@ typedef struct {
   double decoder_gain;
   int pcm64_reader_eligible;
   char const *pcm64_source_kind;
+  sox_encoding_t source_encoding; /* Opened input, independent of native64 capability. */
+  unsigned source_precision; /* Input reader's PCM precision for legacy int32 facts. */
 } lsx_dsd_plan_input;
 
 typedef struct {

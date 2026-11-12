@@ -246,6 +246,8 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
     in->volume=src->input_volume;
     in->pcm64_reader_eligible=src->pcm64_reader_eligible;
     in->pcm64_source_kind=src->pcm64_source_kind;
+    in->source_encoding=src->encoding;
+    in->source_precision=src->native_signal.precision;
     if (!isfinite(in->volume)) return fail(error,n,"invalid input gain at input %lu",(unsigned long)i);
     if (!in->channels || !isfinite(in->native_rate) || in->native_rate<=0)
       return fail(error,n,"invalid input signal at index %lu",(unsigned long)i);
@@ -1062,6 +1064,10 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
     why="-G/--norm requires the conventional gain/normalization graph";
   else if (p->input_decode_count+p->graph_decode_count>1 || p->encode_count>1)
     why="binary64 supports at most one decoder and one composite encoder";
+  else if ((p->input_decode_count || p->graph_decode_count) &&
+      spec->inputs[0].encoding==SOX_ENCODING_DSD &&
+      p->inputs[0].native_rate!=2822400. && p->inputs[0].native_rate!=5644800.)
+    why="binary64 DSD decoder qualified only at DSD64 and DSD128";
   else if (spec->inputs[0].encoding!=SOX_ENCODING_DSD &&
       !spec->inputs[0].pcm64_reader_eligible)
     why="actual input handler/header has no native binary64 PCM capability";
@@ -1112,10 +1118,13 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
       p->output_encoding!=SOX_ENCODING_UNSIGNED &&
       p->output_encoding!=SOX_ENCODING_FLOAT)
     why="native WAV output encoding is unsupported";
-  if (!why && p->output_domain==LSX_PCM_AUDIO && transformed &&
+  /* The legacy effects builder also inserts dither for an effect-free
+   * precision reduction; no named plan step records that conversion. */
+  if (!why && p->output_domain==LSX_PCM_AUDIO &&
       p->output_encoding!=SOX_ENCODING_FLOAT && p->output_bits && p->output_bits<24 &&
-      !spec->policy.dither_disabled)
-    why="transformed integer output below 24 bits needs -D (automatic dither)";
+      !spec->policy.dither_disabled &&
+      (transformed || spec->inputs[0].native_signal.precision>p->output_bits))
+    why="implicit automatic dither is unsupported; use -D for integer output below 24 bits";
   /* Graph shape, compiled arithmetic and runner availability are three
    * independent facts. An arithmetic-disabled build does not make an
    * otherwise supported graph structurally ineligible. */
@@ -1166,15 +1175,29 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
     fputs("{\"source_kind\":",fp);
     json_string(fp,in->pcm64_source_kind?in->pcm64_source_kind:"unknown");
     fputs(",\"normalization\":",fp);
-    json_string(fp,in->native_domain==LSX_DSD_NATIVE?
-        "DSD reconstruction reference scaling, not PCM integer normalization":
-        in->pcm64_source_kind && strstr(in->pcm64_source_kind,"integer")?
-        "exact power-of-two normalization of integer codes":
-        "IEEE float value preserved (no integer normalization)");
+    if (p->precision_refused)
+      json_string(fp,"not executed (pre-output refusal); native reader capability only");
+    else if (!p->precision_pcm_present)
+      json_string(fp,"not applicable: native DSD/DoP bits preserved without PCM decode");
+    else if (in->native_domain==LSX_DSD_NATIVE)
+      json_string(fp,"DSD reconstruction by legacy decoder; no exact PCM source-code identity");
+    else if (in->source_encoding==SOX_ENCODING_FLOAT)
+      json_string(fp,"IEEE float through legacy signed int32: quantization, clipping and signed-zero loss possible");
+    else if ((in->source_encoding==SOX_ENCODING_SIGN2 ||
+              in->source_encoding==SOX_ENCODING_UNSIGNED) &&
+             in->source_precision>0 && in->source_precision<=32)
+      json_string(fp,"input integer PCM codes exactly represented in legacy signed int32 carrier");
+    else
+      json_string(fp,"legacy signed int32 decode; original source exactness not established");
     fputs(",\"source_decode_exact\":",fp);
-    if (in->native_domain==LSX_DSD_NATIVE)
-      fputs(p->precision_pcm_present?"false":"null",fp);
-    else fputs(in->pcm64_reader_eligible?"true":"false",fp);
+    if (p->precision_refused || !p->precision_pcm_present)
+      fputs("null",fp);
+    else if (in->native_domain==LSX_DSD_NATIVE ||
+             in->source_encoding==SOX_ENCODING_FLOAT)
+      fputs("false",fp);
+    else fputs(((in->source_encoding==SOX_ENCODING_SIGN2 ||
+                 in->source_encoding==SOX_ENCODING_UNSIGNED) &&
+                in->source_precision>0 && in->source_precision<=32)?"true":"false",fp);
     fprintf(fp,",\"volume_factor\":%.17g,\"volume_consumed_by_decoder\":%s}",
         in->volume,in->volume_consumed_by_decoder?"true":"false");
   }
