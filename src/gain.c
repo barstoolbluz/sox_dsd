@@ -17,6 +17,7 @@
 
 #define LSX_EFF_ALIAS
 #include "sox_i.h"
+#include "dsd_f64.h"
 #include <ctype.h>
 
 typedef struct {
@@ -251,6 +252,21 @@ sox_effect_handler_t const * lsx_gain_effect_fn(void)
   };
 
   return &handler;
+}
+
+/* The Phase 04 planner reads the same state produced by getopts; it never
+ * reparses arguments, copies priv_t or calls start_gain. */
+int lsx_gain_plain_fixed(const sox_effect_t *effect, double *factor)
+{
+  const priv_t *p;
+  if (!effect || !factor || !effect->priv || !effect->handler.name ||
+      strcmp(effect->handler.name,"gain")) return 0;
+  p=(const priv_t *)effect->priv;
+  if (p->do_equalize || p->do_balance || p->do_balance_no_clip ||
+      p->do_limiter || p->do_restore || p->make_headroom ||
+      p->do_normalize || p->do_scan || !isfinite(p->fixed_gain)) return 0;
+  *factor=p->fixed_gain;
+  return 1;
 }
 
 /*------------------ emulation of the old `normalize' effect -----------------*/

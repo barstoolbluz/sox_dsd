@@ -28,6 +28,7 @@
 #include "pcmdsd.h"
 #include "sdm.h"
 #include "dsd_stats.h"
+#include "pcm_f64_io.h"
 #include "dsd_layout_query.h"
 #include "util.h"
 #include "softvol.h"
@@ -254,6 +255,8 @@ static lsx_dsd_policy dsd_policy = {
   .bandwidth=LSX_DSD_BANDWIDTH_ADAPT
 };
 static sox_bool dsd_mode_explicit = sox_false, dsd_plan_only = sox_false;
+static lsx_precision_policy precision_requested = LSX_PRECISION_AUTO;
+static sox_bool precision_explicit = sox_false;
 static sox_bool dsd_dop_requested = sox_false;
 static sox_bool dsd_new_policy_explicit = sox_false;
 static char *dsd_report_path = NULL;
@@ -273,6 +276,7 @@ static int dsd_observe_input(file_t *f,const sox_sample_t *samples,size_t n);
 static sox_bool dsd_preflight_enabled(void)
 {
   return dsd_plan_only || dsd_mode_explicit || dsd_new_policy_explicit ||
+      precision_explicit ||
       dsd_report_path != NULL;
 }
 
@@ -2689,6 +2693,8 @@ static void preflight_dsd(void)
   memset(&spec,0,sizeof(spec));
   memset(&plan,0,sizeof(plan));
   spec.policy=dsd_policy;
+  spec.precision=precision_requested;
+  spec.arithmetic_compiled_capable=pcm_f64_check_dsp_env()==PCM_F64_OK;
   spec.combine=(lsx_dsd_combine)combine_method;
   input=lsx_calloc(input_count,sizeof(*input));
   effect=lsx_calloc(nuser_effects[current_eff_chain]+1,sizeof(*effect));
@@ -2704,6 +2710,12 @@ static void preflight_dsd(void)
   handler=sox_write_handler(ofile->filename,ofile->filetype,NULL);
   if (!handler) {lsx_fail("P05: cannot resolve output handler before header open");exit(2);}
   kind=handler->names[0];
+  {
+    const sox_format_handler_t *wav=lsx_wav_format_fn();
+    spec.output_pcm64_wav_capable=wav &&
+        handler->startwrite==wav->startwrite &&
+        handler->priv_size==wav->priv_size;
+  }
   spec.output_native_capable=!strcmp(kind,"dsf") || !strcmp(kind,"dff") || !strcmp(kind,"wsd");
   spec.output_is_null=!strcmp(kind,"null");
   sox_init_encodinginfo(&test_enc);
@@ -2740,6 +2752,21 @@ static void preflight_dsd(void)
     if (f->replay_gain!=HUGE_VAL)
       input[i].input_volume*=pow(10.,f->replay_gain/20.);
     input[i].layout_known=1;
+    if (input[i].encoding==SOX_ENCODING_DSD) {
+      input[i].pcm64_reader_eligible=1;
+      input[i].pcm64_source_kind="native DSD bits";
+    } else {
+      lsx_pcm_f64_wav_facts wav_facts;
+      lsx_pcm_f64_flac_facts flac_facts;
+      if (lsx_pcm_f64_wav_query(f->ft,&wav_facts)==PCM_F64_OK) {
+        input[i].pcm64_reader_eligible=1;
+        input[i].pcm64_source_kind=wav_facts.encoding==SOX_ENCODING_FLOAT?
+            "WAV IEEE float exact": "WAV integer exact power-of-two normalization";
+      } else if (lsx_pcm_f64_flac_query(f->ft,&flac_facts)==PCM_F64_OK) {
+        input[i].pcm64_reader_eligible=1;
+        input[i].pcm64_source_kind="built-in FLAC integer exact power-of-two normalization";
+      } else input[i].pcm64_source_kind="unsupported handler or header";
+    }
     if (input[i].encoding==SOX_ENCODING_DSD) {
       has_dsd_input=1;
       input[i].layout_known=sox_dsd_get_layout(f->ft,&layout)==SOX_DSD_OK;
@@ -2790,7 +2817,7 @@ static void preflight_dsd(void)
   }
   if (!has_dsd_input && !spec.output_native_capable && !has_new_effect &&
       !dsd_plan_only && !dsd_report_path &&
-      spec.policy.headroom==LSX_DSD_HEADROOM_NONE) {
+      spec.policy.headroom==LSX_DSD_HEADROOM_NONE && !precision_explicit) {
     free(input);free(effect);return;
   }
   for (i=0;i<spec.effect_count;i++) {
@@ -2801,6 +2828,8 @@ static void preflight_dsd(void)
     effect[i].out_channels=e->out_signal.channels;
     effect[i].dsd=lsx_dsd_effect_get_options(e);
     effect[i].dither_precision_one=lsx_dither_explicit_one_bit(e);
+    if (!strcmp(e->handler.name,"gain"))
+      effect[i].plain_fixed_gain=lsx_gain_plain_fixed(e,&effect[i].gain_factor);
     if (!strcmp(e->handler.name,"sdm"))
       effect[i].sdm_filter_name=lsx_sdm_effect_filter_name(e);
     if (!strcmp(e->handler.name,"remix") && e->out_signal.channels &&
@@ -2826,6 +2855,7 @@ static void preflight_dsd(void)
         lsx_fail("DSD routing, segment %lu: %s",(unsigned long)i,error);
         dsd_free_sequence(series,segments);free(input);free(effect);exit(2);
       }
+      lsx_dsd_precision_resolve(&part,&series[i]);
       if (i && output_method!=sox_multiple &&
           (series[i].output_rate!=series[0].output_rate ||
            series[i].output_channels!=series[0].output_channels ||
@@ -2850,6 +2880,7 @@ static void preflight_dsd(void)
       lsx_dsd_plan_free(&plan);free(input);free(effect);exit(2);
     }
   }
+  if (!series) lsx_dsd_precision_resolve(&spec,&plan);
   /* An explicit profile cannot be silently ignored by native repacking,
    * DoP, or a conversion that has no matching reconstruction/encoding. */
   for (i=0;i<(series?segments:1);i++) {
@@ -2939,6 +2970,13 @@ static void preflight_dsd(void)
     else lsx_dsd_plan_free(&plan);
     free(input);free(effect);
     success=1;exit(0);
+  }
+  if (active->precision_refused) {
+    lsx_fail("--precision 64 unavailable: %s; no output created",
+        active->precision_reason?active->precision_reason:"native binary64 runner unavailable");
+    if (series) dsd_free_sequence(series,segments);
+    else lsx_dsd_plan_free(&plan);
+    free(input);free(effect);exit(2);
   }
   if (!active->executable) {
     lsx_fail("DSD conversion unavailable: %s; inspect with --plan (no output created)",
@@ -3388,6 +3426,7 @@ static void display_dsd_help(void)
        "  sox input.dsf output.dff               Repack native DSD bits\n"
        "  sox --dop input.dsf output.wav        Package DSD over PCM (24-bit)\n"
        "  sox --plan input.dsf output.wav       Inspect the processing graph\n"
+       "  sox --precision 64 input.dsf output.wav  Require native64 (unavailable in Phase 04)\n"
        "  sox --report run.json input.dsf output.wav  Convert and report\n"
        "\n"
        "Automatic decoding uses qualified mastering v2 filters. For advanced\n"
@@ -3430,6 +3469,7 @@ static void usage(void)
 "--dsd-layout ROLES       Comma-separated output role assignment: FL,FR,FC,LFE,BL,BR,SL,SR,MONO",
 "--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
 "--dsd-mode auto|native|legacy  DSD planning is mandatory in all modes; native forbids PCM",
+"--precision auto|64|32 Native PCM precision policy; -b remains file encoding",
 "--sdm-guard on|off       Fail-closed legacy 1-bit modulator check; costs CPU (default off)",
 "--decode mastering|conservative|wideband|decode.mastering.vN.dsdNNN",
 "                         DSD reconstruction profile (default mastering v2; conservative is v1)",
@@ -3762,6 +3802,7 @@ static lsx_option_t const long_options[] = {
   {"pla"             , lsx_option_arg_required, NULL, 0}, /* 40: play-rate-arg */
   {"headroom"        , lsx_option_arg_required, NULL, 0}, /* 41 */
   {"auto-headroom"   , lsx_option_arg_none    , NULL, 0}, /* 42 */
+  {"precision"       , lsx_option_arg_required, NULL, 0}, /* 43 */
 
   /*
    * These instead are indexed by their letters, which limits the
@@ -4003,6 +4044,13 @@ static char parse_gopts_and_fopts(file_t * f)
         if (!strcmp(optstate.arg,"error"))dsd_layout_loss_warn=sox_false;
         else if (!strcmp(optstate.arg,"warn"))dsd_layout_loss_warn=sox_true;
         else {lsx_fail("--dsd-layout-loss must be error or warn");exit(1);}
+        break;
+      case 43:
+        if (!strcmp(optstate.arg,"auto")) precision_requested=LSX_PRECISION_AUTO;
+        else if (!strcmp(optstate.arg,"64")) precision_requested=LSX_PRECISION_64;
+        else if (!strcmp(optstate.arg,"32")) precision_requested=LSX_PRECISION_32;
+        else {lsx_fail("--precision must be auto, 64 or 32");exit(1);}
+        precision_explicit=sox_true;
         break;
       case 28:
         if (!strcmp(optstate.arg,"auto"))dsd_policy.mode=LSX_DSD_MODE_AUTO;

@@ -49,6 +49,7 @@ static int append(lsx_dsd_plan *p, char const *name, lsx_dsd_domain before,
   s->rate_before=inrate; s->rate_after=outrate;
   s->channels_before=inchan; s->channels_after=outchan;
   s->implicit=implicit; s->input_index=input_index; s->reference=ref;
+  s->gain_factor=1.;
   return 1;
 }
 
@@ -243,6 +244,8 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
     in->effective_domain=in->native_domain;
     in->reference=in->native_domain==LSX_DSD_NATIVE?1.:.5;
     in->volume=src->input_volume;
+    in->pcm64_reader_eligible=src->pcm64_reader_eligible;
+    in->pcm64_source_kind=src->pcm64_source_kind;
     if (!isfinite(in->volume)) return fail(error,n,"invalid input gain at input %lu",(unsigned long)i);
     if (!in->channels || !isfinite(in->native_rate) || in->native_rate<=0)
       return fail(error,n,"invalid input signal at index %lu",(unsigned long)i);
@@ -847,7 +850,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   fprintf(fp,"{\n  \"schema\": \"sox.dsd.plan.v1\",\n  \"mode\": ");
   json_string(fp,mode);
   fprintf(fp,",\n  \"executable\": %s,\n  \"needs_unimplemented_dsp\": %s,\n  \"unavailable_reason\": ",
-      p->executable?"true":"false",p->needs_unimplemented_dsp?"true":"false");
+      (p->executable && !p->precision_refused)?"true":"false",p->needs_unimplemented_dsp?"true":"false");
   if (p->unavailable_reason) json_string(fp,p->unavailable_reason); else fputs("null",fp);
   fprintf(fp,",\n  \"policy\": {\"decode\": ");
   json_string(fp,spec->policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":
@@ -937,7 +940,9 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
       p->trim_native_seek?"true":"false",p->layout_identity_preserved?"true":"false");
   fprintf(fp,"  \"input_decoder_count\": %d,\n  \"graph_decoder_count\": %d,\n  \"encoder_count\": %d,\n  \"dop_count\": %d,\n",
       p->input_decode_count,p->graph_decode_count,p->encode_count,p->dop_count);
-  fputs("  \"inputs\": [\n",fp);
+  fputs("  \"precision\": ",fp);
+  lsx_dsd_precision_json(fp,p,spec->precision);
+  fputs(",\n  \"inputs\": [\n",fp);
   for (i=0;i<p->input_count;i++) {
     lsx_dsd_plan_input const *in=&p->inputs[i];
     fprintf(fp,"    {\"index\": %lu, \"native_domain\": ",(unsigned long)i);
@@ -947,6 +952,10 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
     fprintf(fp,", \"native_rate_hz\": %.9g, \"effective_rate_hz\": %.9g, \"channels\": %u, \"volume\": %.17g, \"reference\": %.17g, \"decoder_gain\": %.17g, \"decoder_id\": ",
         in->native_rate,in->effective_rate,in->channels,in->volume,in->reference,in->decoder_gain);
     if (in->decoder_id) json_string(fp,in->decoder_id); else fputs("null",fp);
+    fputs(", \"pcm64_source\": ",fp);
+    if (in->pcm64_source_kind) json_string(fp,in->pcm64_source_kind);
+    else fputs("null",fp);
+    fprintf(fp,", \"pcm64_reader_eligible\": %s",in->pcm64_reader_eligible?"true":"false");
     fprintf(fp,", \"decoder_pass_hz\": %.9g, \"decoder_stop_hz\": %.9g, \"effective_bandwidth_hz\": %.9g, \"decoder_before_combiner\": %s, \"volume_consumed_by_decoder\": %s}%s\n",
         in->decoder_pass_hz,in->decoder_stop_hz,in->effective_bandwidth_hz,
         in->decoder_before_combiner?"true":"false",
@@ -958,10 +967,176 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
     fputs("    {\"name\": ",fp);json_string(fp,s->name);
     fputs(", \"before\": ",fp);json_string(fp,lsx_dsd_domain_name(s->before));
     fputs(", \"after\": ",fp);json_string(fp,lsx_dsd_domain_name(s->after));
-    fprintf(fp,", \"rate_in_hz\": %.9g, \"rate_out_hz\": %.9g, \"channels_in\": %u, \"channels_out\": %u, \"implicit\": %s, \"input_index\": %d, \"reference\": %.17g}%s\n",
+    fprintf(fp,", \"rate_in_hz\": %.9g, \"rate_out_hz\": %.9g, \"channels_in\": %u, \"channels_out\": %u, \"implicit\": %s, \"input_index\": %d, \"reference\": %.17g, \"plain_fixed_gain\": %s, \"gain_factor\": ",
         s->rate_before,s->rate_after,s->channels_before,s->channels_after,
         s->implicit?"true":"false",s->input_index,s->reference,
-        i+1==p->step_count?"":",");
+        s->plain_fixed_gain?"true":"false");
+    if (s->plain_fixed_gain) fprintf(fp,"%.17g",s->gain_factor); else fputs("null",fp);
+    fprintf(fp,"}%s\n",i+1==p->step_count?"":",");
   }
   fputs("  ]\n}\n",fp);
+}
+
+/* Phase 04 resolution is a nonexecuting capability decision. Never equate
+ * structural eligibility with a compiled/qualified runner. In particular,
+ * --precision=auto may not silently cross onto an unimplemented path. */
+void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
+{
+  size_t i, next_effect=0;
+  const char *why=NULL;
+  int has_dsd=0, pcm=0, transformed=0;
+  if (!spec || !p) return;
+  p->precision_requested=spec->precision;
+  p->precision_compiled_capable=spec->arithmetic_compiled_capable;
+  p->precision_runner_available=0; /* Phase 05 must change this with real runner. */
+  for (i=0;i<spec->input_count;i++) {
+    if (spec->inputs[i].encoding==SOX_ENCODING_DSD) has_dsd=1;
+    else pcm=1;
+    if (spec->inputs[i].input_volume!=1.) transformed=1;
+  }
+  if (p->input_decode_count || p->graph_decode_count || p->encode_count) {
+    pcm=1;
+    transformed=1;
+  }
+  if (p->output_domain==LSX_DSD_NATIVE || p->output_domain==LSX_DOP_TRANSPORT)
+    has_dsd=1;
+  p->precision_has_dsd=has_dsd;
+  p->precision_pcm_present=pcm;
+  p->precision_endpoint_quantization=p->output_domain==LSX_DSD_NATIVE?
+      (p->encode_count?"one-bit DSD modulation":"none (native DSD bit preservation)"):
+      p->output_domain==LSX_DOP_TRANSPORT?"none (DoP transport)":
+      p->output_encoding==SOX_ENCODING_FLOAT?
+      (p->output_bits==64?"binary64 WAV endpoint":"binary32 WAV rounding"):
+      "integer PCM endpoint quantization";
+  p->precision_descriptor_status="not acquired; actual descriptor and seekability unresolved";
+  p->precision_route=pcm?"legacy-effects":"legacy-bitstream";
+  p->precision_engine=pcm?"sox_sample_t.int32":"none";
+  /* Source order is the domain planner's order; derive gain properties
+   * from the original parsed effect occurrences, never combine their values. */
+  for (i=0;i<p->step_count;i++) {
+    lsx_dsd_plan_step *step=&p->steps[i];
+    if (!step->implicit && step->input_index == -1) {
+      while (next_effect<spec->effect_count &&
+          !is(step->name,spec->effects[next_effect].name)) ++next_effect;
+      if (next_effect<spec->effect_count) {
+        step->plain_fixed_gain=spec->effects[next_effect].plain_fixed_gain;
+        step->gain_factor=spec->effects[next_effect].gain_factor;
+        ++next_effect;
+      }
+    }
+    if (is(step->name,"gain")) transformed=1;
+  }
+  if (!pcm) {
+    p->precision_graph_eligible=1;
+    p->precision_reason="no PCM arithmetic: native DSD/DoP bit-domain route retained";
+    return; /* An unused strict binary64 request is not an error. */
+  }
+  if (spec->input_count!=1 || spec->combine!=LSX_DSD_COMBINE_SEQUENCE &&
+      spec->combine!=LSX_DSD_COMBINE_CONCAT)
+    why="binary64 requires exactly one input and no combiner";
+  else if (spec->policy.guarded || spec->policy.normalizing)
+    why="-G/--norm requires the conventional gain/normalization graph";
+  else if (p->input_decode_count+p->graph_decode_count>1 || p->encode_count>1)
+    why="binary64 supports at most one decoder and one composite encoder";
+  else if (spec->inputs[0].encoding!=SOX_ENCODING_DSD &&
+      !spec->inputs[0].pcm64_reader_eligible)
+    why="actual input handler/header has no native binary64 PCM capability";
+  else if (!spec->output_pcm64_wav_capable &&
+      p->output_domain==LSX_PCM_AUDIO)
+    why="native PCM output requires the built-in WAV handler";
+  else if (p->output_domain==LSX_DOP_TRANSPORT)
+    why="binary64 graph cannot terminate in DoP transport";
+  else if (p->encode_count && p->native_output_hz!=2822400u &&
+      p->native_output_hz!=5644800u)
+    why="binary64 composite encoder is qualified only at DSD64 and DSD128";
+  else if (p->output_domain==LSX_DSD_NATIVE && !p->encode_count)
+    why="native DSD output requires a terminal composite encoder";
+  else if (p->output_channels!=p->inputs[0].channels)
+    why="binary64 channel remixing is not supported";
+  for (i=0;!why && i<p->step_count;i++) {
+    lsx_dsd_plan_step *step=&p->steps[i];
+    const char *name=step->name;
+    if (is(name,"implicit_pcm_rate")) why="implicit_pcm_rate is not a native binary64 SRC";
+    else if (is(name,"implicit_pcm_channels")) why="implicit_pcm_channels remixes channels";
+    else if (is(name,"gain") && !step->plain_fixed_gain)
+      why="gain requires scanning, limiting or a non-finite factor";
+    else if (is(name,"gain") && (!isfinite(step->gain_factor) || step->gain_factor<0))
+      why="gain factor is not finite and nonnegative";
+    else if (is(name,"remix") || is(name,"channels")) {
+      /* Only output-role mapping, and only as the final user operation. */
+      if (i+1<p->step_count && !is(p->steps[i+1].name,"implicit_pcmdsd"))
+        why="channel operations require the terminal output-role mapping";
+      else if (step->channels_before!=step->channels_after)
+        why="binary64 channel remixing is not supported";
+    } else if (!is(name,"gain") && !is(name,"dsdpcm") &&
+        !is(name,"implicit_dsdpcm") && !is(name,"input_dsdpcm") && !is(name,"pcmdsd") &&
+        !is(name,"implicit_pcmdsd") && !is(name,"remix") &&
+        !is(name,"channels"))
+      why="conventional or unsupported effect in binary64 graph";
+  }
+  if (!why && p->output_domain==LSX_PCM_AUDIO &&
+      p->output_encoding!=SOX_ENCODING_SIGN2 &&
+      p->output_encoding!=SOX_ENCODING_UNSIGNED &&
+      p->output_encoding!=SOX_ENCODING_FLOAT)
+    why="native WAV output encoding is unsupported";
+  if (!why && p->output_domain==LSX_PCM_AUDIO && transformed &&
+      p->output_encoding!=SOX_ENCODING_FLOAT && p->output_bits<24 &&
+      !spec->policy.dither_disabled)
+    why="transformed integer output below 24 bits needs -D (automatic dither)";
+  if (!why && !spec->arithmetic_compiled_capable)
+    why="binary64 arithmetic/backend capability is unavailable";
+  p->precision_graph_eligible=why==NULL;
+  p->precision_reason=why?why:"native binary64 runner unavailable in Phase 04";
+  if (spec->precision==LSX_PRECISION_32)
+    p->precision_reason="explicit 32-bit legacy PCM policy";
+  if (spec->precision==LSX_PRECISION_64) {
+    p->precision_refused=1;
+    p->precision_route="refused-before-output";
+    p->precision_engine="none";
+    /* No native runner exists in Phase 04, regardless of graph feasibility. */
+  }
+}
+
+void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
+    lsx_precision_policy policy)
+{
+  size_t i;
+  fputs("{\"requested\":",fp);
+  json_string(fp,policy==LSX_PRECISION_64?"64":
+      policy==LSX_PRECISION_32?"32":"auto");
+  fprintf(fp,",\"pcm_present\":%s,\"graph_eligible\":%s,"
+      "\"arithmetic_capable\":%s,\"runner_available\":%s,\"refused\":%s,",
+      p->precision_pcm_present?"true":"false",
+      p->precision_graph_eligible?"true":"false",
+      p->precision_compiled_capable?"true":"false",
+      p->precision_runner_available?"true":"false",
+      p->precision_refused?"true":"false");
+  fputs("\"actual_route\":",fp);json_string(fp,p->precision_route?p->precision_route:"legacy-effects");
+  fputs(",\"actual_pcm_engine\":",fp);json_string(fp,p->precision_engine?p->precision_engine:"sox_sample_t.int32");
+  fputs(",\"fallback_or_refusal_reason\":",fp);
+  if (p->precision_reason) json_string(fp,p->precision_reason); else fputs("null",fp);
+  fputs(",\"endpoint_quantization\":",fp);
+  json_string(fp,p->precision_endpoint_quantization?p->precision_endpoint_quantization:"unknown");
+  fputs(",\"output_descriptor\":",fp);
+  json_string(fp,p->precision_descriptor_status?p->precision_descriptor_status:"unresolved");
+  fputs(",\"numeric_identity\":",fp);
+  json_string(fp,p->precision_refused?"refused: no PCM engine executed":
+      p->precision_pcm_present?"legacy int32 boundaries; no binary64 identity claim":
+      "PCM processing absent: exact DSD/DoP bit-domain transport");
+  fputs(",\"available_backend\":",fp);
+  json_string(fp,p->precision_compiled_capable?"ieee754 binary64 CPU (not selected)":"unavailable");
+  fputs(",\"ordered_boundaries\":[",fp);
+  for (i=0;i<p->step_count;i++) {
+    const lsx_dsd_plan_step *s=&p->steps[i];
+    if (i) fputc(',',fp);
+    fputs("{\"name\":",fp);json_string(fp,s->name);
+    fputs(",\"engine\":",fp);
+    json_string(fp,(s->before==LSX_PCM_AUDIO || s->after==LSX_PCM_AUDIO)?
+        "legacy int32 interface":"native bit symbols");
+    fputs(",\"gain_factor\":",fp);
+    if (is(s->name,"gain") && s->plain_fixed_gain) fprintf(fp,"%.17g",s->gain_factor);
+    else fputs("null",fp);
+    fputc('}',fp);
+  }
+  fputs("]}",fp);
 }

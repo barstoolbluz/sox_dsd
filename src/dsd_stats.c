@@ -609,7 +609,10 @@ void lsx_dsd_report_json(FILE *f,const lsx_dsd_report_context *r,
   if(plan && plan->output_domain==LSX_DSD_NATIVE)jint(f,output_frames);else fputs("null",f);
   fputs(",\"transport_frames\":",f);
   if(plan && plan->output_domain==LSX_DOP_TRANSPORT)jint(f,output_frames);else fputs("null",f);
-  fputs("},\n  \"processing\":{\"requested_passband_hz\":",f);
+  fputs("},\n  \"precision\":",f);
+  if (plan) lsx_dsd_precision_json(f,plan,plan->precision_requested);
+  else fputs("null",f);
+  fputs(",\n  \"processing\":{\"requested_passband_hz\":",f);
   if(plan && plan->decoder_pass_hz)jnumber(f,plan->decoder_pass_hz);else fputs("null",f);
   fputs(",\"effective_passband_hz\":",f);
   if(plan && plan->effective_bandwidth_hz)jnumber(f,plan->effective_bandwidth_hz);else fputs("null",f);

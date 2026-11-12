@@ -7,6 +7,7 @@
 
 #include "sox_ng.h"
 #include "sox_dsd.h"
+#include "dsd_f64.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -86,6 +87,8 @@ typedef struct {
   sox_encoding_t encoding;
   double input_volume;            /* Includes -v and replay-gain, pre-combiner. */
   int layout_known;
+  int pcm64_reader_eligible; /* Checked actual opened handler and header. */
+  char const *pcm64_source_kind; /* Exact float, normalized integer, DSD bits. */
 } lsx_dsd_input_spec;
 
 typedef struct {
@@ -95,12 +98,15 @@ typedef struct {
   unsigned out_channels;          /* getopts hint, may be zero. */
   int native_permutation;         /* Verified private remix map. */
   int dither_precision_one;       /* Query of getopts state, not start(). */
+  int plain_fixed_gain;           /* Query of gain.c getopts-populated state. */
+  double gain_factor;             /* Finite, source-ordered, never combined. */
   char const *sdm_filter_name;    /* Borrowed low-level -f option (nullable). */
   lsx_dsd_effect_options dsd;     /* Parsed and validated explicit options. */
 } lsx_dsd_effect_spec;
 
 typedef struct {
   lsx_dsd_policy policy;
+  lsx_precision_policy precision;
   lsx_dsd_combine combine;
   lsx_dsd_input_spec const *inputs;
   size_t input_count;
@@ -115,6 +121,8 @@ typedef struct {
   int output_pcm_capable;
   int output_dop_capable;
   int output_is_null;
+  int output_pcm64_wav_capable; /* Identity of actual compiled WAV writer. */
+  int arithmetic_compiled_capable;
   int output_has_explicit_encoding;
   sox_encoding_t fallback_encoding;
   unsigned fallback_bits;
@@ -129,6 +137,8 @@ typedef struct {
   char const *decoder_id;
   double decoder_pass_hz, decoder_stop_hz, effective_bandwidth_hz;
   double decoder_gain;
+  int pcm64_reader_eligible;
+  char const *pcm64_source_kind;
 } lsx_dsd_plan_input;
 
 typedef struct {
@@ -139,6 +149,8 @@ typedef struct {
   int implicit;
   int input_index; /* -1 for chain nodes */
   double reference;
+  int plain_fixed_gain;
+  double gain_factor;
 } lsx_dsd_plan_step;
 
 typedef struct {
@@ -159,6 +171,15 @@ typedef struct {
   char const *unavailable_reason;
   char const *decoder_id, *encoder_id;
   char const *encoder_filter_name; /* Low-level SDM selection; not mastering. */
+  /* Independent capability/route facts; native execution is disabled until
+   * Phase 05 and separate owner release approval. No false 64-bit route. */
+  lsx_precision_policy precision_requested;
+  int precision_pcm_present, precision_graph_eligible;
+  int precision_compiled_capable, precision_runner_available;
+  int precision_refused, precision_has_dsd;
+  const char *precision_reason, *precision_route, *precision_engine;
+  const char *precision_endpoint_quantization;
+  const char *precision_descriptor_status;
 } lsx_dsd_plan;
 
 /* Private rate x endpoint x operation authorization. P21 permits the
@@ -218,6 +239,8 @@ char const *lsx_dsd_domain_name(lsx_dsd_domain domain);
 
 int lsx_dsd_plan_build(lsx_dsd_plan_spec const *, lsx_dsd_plan *, char *error, size_t error_len);
 void lsx_dsd_plan_free(lsx_dsd_plan *);
+void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *, lsx_dsd_plan *);
+void lsx_dsd_precision_json(FILE *, const lsx_dsd_plan *, lsx_precision_policy);
 void lsx_dsd_plan_json(FILE *, lsx_dsd_plan_spec const *, lsx_dsd_plan const *);
 
 /* Per-channel adapter owns its decoder only after start, since effects.c
