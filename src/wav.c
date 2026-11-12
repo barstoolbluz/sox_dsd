@@ -1293,10 +1293,16 @@ static int startread_wav(sox_format_t * ft)
     /* ds64 size will have been applied in findChunk */
     qwDataLength = len;
     wav->native_data_size = qwDataLength;
-    /* XXX - does MS_UNSPEC apply to RF64 files? */
-    if (qwDataLength == 0x7FFFFFFF ||  /* LAME */
+    /* The sole intentional legacy RF64 read exception: when the RF64 data
+     * chunk carries its 0xffffffff size marker, the ds64 value is exact,
+     * including values that are legacy RIFF read-to-EOF sentinels. A data
+     * chunk's OWN 32-bit length keeps its historical unspecified semantics. */
+    if (!(wav->isRF64 && wav->native_data_was_sentinel &&
+          (qwDataLength == 0x7FFFFFFF || qwDataLength == 0xFFFFFFFF ||
+           qwDataLength == MS_UNSPEC)) &&
+        (qwDataLength == 0x7FFFFFFF ||  /* LAME */
          qwDataLength == 0xFFFFFFFF ||  /* FFMPEG and madplay */
-         qwDataLength == MS_UNSPEC) {   /* SoX only, apparently */
+         qwDataLength == MS_UNSPEC)) {  /* SoX only, apparently */
       wav->ignoreSize = 1;
       /* This is to be expected when reading from a pipe */
       if (ft->seekable)
