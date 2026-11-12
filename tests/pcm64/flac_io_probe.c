@@ -25,7 +25,7 @@ int main(int argc, char **argv)
   lsx_pcm_f64_flac_facts f;
   pcm_f64_progress p;
   const char *mode;
-  size_t block = 31, n, total = 0, i;
+  size_t block = 31, n, total = 0;
   sox_sample_t legacy[4096 * 8];
   double output[4096 * 8];
   int rc = 1;

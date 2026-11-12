@@ -228,14 +228,14 @@ pcm64_probe_CFLAGS = $(WARN_CFLAGS) $(PCM_F64_STRICT_CFLAGS)
 
 # Phase 02A, private only. Link actual compiled WAV handler through libSoX.
 EXTRA_PROGRAMS += pcm64_wav_probe
-pcm64_wav_probe_SOURCES = ../tests/pcm64/wav_io_probe.c
+pcm64_wav_probe_SOURCES = ../tests/pcm64/wav_io_probe.c ../src/pcm_f64.c
 pcm64_wav_probe_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src
 pcm64_wav_probe_CFLAGS = $(WARN_CFLAGS) $(PCM_F64_STRICT_CFLAGS)
 pcm64_wav_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)
 
 # Phase 02B: private built-in FLAC read adapter. Also builds without FLAC.
 EXTRA_PROGRAMS += pcm64_flac_probe
-pcm64_flac_probe_SOURCES = ../tests/pcm64/flac_io_probe.c
+pcm64_flac_probe_SOURCES = ../tests/pcm64/flac_io_probe.c ../src/pcm_f64.c
 pcm64_flac_probe_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src
 pcm64_flac_probe_CFLAGS = $(WARN_CFLAGS) $(PCM_F64_STRICT_CFLAGS)
 pcm64_flac_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)
