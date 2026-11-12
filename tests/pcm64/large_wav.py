@@ -597,6 +597,55 @@ class LargeWav:
         insist(r.decode('ascii').strip().startswith('rate=48000 channels=1 frames=3'),
                f'valid RF64 reader failed to disclose three exact frames: {r!r}')
         self.case('valid-RF64-native-facts',query=r.decode('ascii').strip())
+        # The 32-bit fact field may also hold the exact count when it fits.
+        # A valid exact count is not a malformed sentinel.
+        exact_fact=bytearray(data)
+        exact_fact[fact_offset:fact_offset+4]=struct.pack('<I',3)
+        exact_path=self.file('rf64-valid-exact-fact.wav',exact_fact)
+        exact,_=self.command(['query',exact_path],label='RF64-exact-fact-count')
+        insist(exact==r, 'RF64 exact fact lost declared frame count')
+        self.case('valid-RF64-exact-fact',query=exact.decode('ascii').strip())
+        # Extensible PCM, including what ffmpeg 7.x emits for 24-bit stereo,
+        # does not require a fact chunk. Build a format-extensible RF64 and
+        # its byte-identical RIFF analogue without using the writer under
+        # test. Validate BOTH admission and decoded contents via native dump.
+        if self.native_integer_available:
+            from io_wav import wave_bytes
+            for channels,mask in ((2,0x3),(6,0x3f)):
+                words=[(-0x400000+(i%8)*0x100011) for i in range(channels*4)]
+                payload=b''.join(int(word).to_bytes(3,'little',signed=True)
+                                 for word in words)
+                riff=bytearray(wave_bytes(payload,channels=channels,rate=48000,
+                    code='i24',extensible=True,mask=mask))
+                start=riff.index(b'fact')
+                insist(riff[start+4:start+8]==struct.pack('<I',4),
+                       'unexpected fact fixture from independent RIFF builder')
+                del riff[start:start+12]
+                riff[4:8]=struct.pack('<I',len(riff)-8)
+                riff_path=self.file(f'extensible-pcm-{channels}-riff.wav',riff)
+                native_body=bytearray(riff[12:])
+                at=native_body.index(b'data')+4
+                native_body[at:at+4]=struct.pack('<I',U32)
+                total=12+36+len(native_body)
+                rf64=(b'RF64'+struct.pack('<I',U32)+b'WAVE'+
+                      b'ds64'+struct.pack('<IQQQI',28,total-8,len(payload),4,0)+
+                      native_body)
+                rf64_path=self.file(f'extensible-pcm-{channels}-rf64-no-fact.wav',rf64)
+                a,_=self.command(['query',riff_path],label=f'RIFF-PCM-{channels}-no-fact')
+                b,_=self.command(['query',rf64_path],label=f'RF64-PCM-{channels}-no-fact')
+                insist(a==b and b'frames=4' in b,
+                       'RF64/RIFF native query mismatch for fact-optional PCM')
+                x,_=self.command(['dump',riff_path],label=f'RIFF-dump-{channels}-no-fact')
+                y,_=self.command(['dump',rf64_path],label=f'RF64-dump-{channels}-no-fact')
+                insist(x==y and len(y)==channels*4*8,
+                       'RF64/RIFF native PCM samples disagree')
+                self.case(f'RF64-extensible-{channels}-channel-without-fact',
+                          query=b.decode('ascii').strip(),
+                          decoded_sha256=hashlib.sha256(y).hexdigest())
+            self.gates['valid_fact_optional_extensible_PCM_RF64']='PASS'
+        else:
+            self.gates['valid_fact_optional_extensible_PCM_RF64']=(
+                'NOT_RUN: native integer arithmetic disabled')
         variants={}
         def mutate(name,offset,blob):
             b=bytearray(data)
@@ -608,7 +657,7 @@ class LargeWav:
         mutate('riff-length-disagrees',20,struct.pack('<Q',len(data)-7))
         mutate('data-length-disagrees',28,struct.pack('<Q',h['data_size']+1))
         mutate('frame-count-disagrees',36,struct.pack('<Q',4))
-        mutate('bad-fact-sentinel',fact_offset,struct.pack('<I',3))
+        mutate('bad-fact-count',fact_offset,struct.pack('<I',2))
         mutate('bad-data-sentinel',data_size_offset,struct.pack('<I',h['data_size']))
         mutate('bad-top-riff-sentinel',4,struct.pack('<I',len(data)-8))
         for name,b in variants.items():
