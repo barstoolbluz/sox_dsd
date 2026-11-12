@@ -2639,6 +2639,34 @@ static void dsd_free_sequence(lsx_dsd_plan *series, size_t count)
   free(series);
 }
 
+/* Resolve the ordinary WAV default needed by a nonexecuting PCM plan.
+ * The output writer has not been opened, but the effects combiner already
+ * carries the source precision and the legacy output encoding options.
+ * Do not use the DSD 24-bit preference for PCM-only input such as FLAC. */
+static void pcm_plan_wav_encoding(sox_encodinginfo_t *result,
+    sox_format_handler_t const *handler)
+{
+  const sox_format_handler_t *wav=lsx_wav_format_fn();
+  unsigned precision=ofile->signal.precision;
+  sox_encoding_t encoding;
+  if (!wav || handler->startwrite!=wav->startwrite ||
+      handler->priv_size!=wav->priv_size) return;
+  *result=ofile->encoding;
+  if (result->encoding && result->bits_per_sample) return;
+  encoding=result->encoding;
+  if (!encoding || encoding==SOX_ENCODING_SIGN2) {
+    if (!encoding && precision<=8) {
+      result->encoding=SOX_ENCODING_UNSIGNED;
+      result->bits_per_sample=8;
+    } else {
+      result->encoding=SOX_ENCODING_SIGN2;
+      result->bits_per_sample=precision<=16?16:precision<=24?24:32;
+    }
+  } else if (encoding==SOX_ENCODING_FLOAT) {
+    result->bits_per_sample=precision<=25?32:64;
+  }
+}
+
 /* P05 preflight snapshots metadata before open_output_file().  Effect getopts
  * has already run, but no effect start() has run.  In native-only mode the
  * existing (unmodified) flow graph remains responsible for sample I/O.
@@ -2762,6 +2790,18 @@ static void preflight_dsd(void)
       }
     }
   }
+  /* The DSD fallback table above intentionally is not a generic SoX codec
+   * list. A PCM-only --plan can report a valid legacy writer even when that
+   * writer uses an encoding such as FLAC rather than signed PCM. Native64
+   * eligibility remains independently restricted to the WAV handler. */
+  if (!spec.output_pcm_capable && handler->write_formats &&
+      !spec.output_native_capable && !has_new_effect) {
+    sox_bool pcm_only=sox_true;
+    for (i=0;i<input_count;i++)
+      if (files[i]->ft->encoding.encoding==SOX_ENCODING_DSD)
+        pcm_only=sox_false;
+    if (pcm_only) spec.output_pcm_capable=1;
+  }
   spec.output_dop_capable=spec.output_pcm_capable &&
       spec.fallback_encoding==SOX_ENCODING_SIGN2 &&
       spec.fallback_bits==24 && !spec.output_is_null;
@@ -2837,9 +2877,13 @@ static void preflight_dsd(void)
     lsx_fail("--decode/--encode require a DSD reconstruction or encoding operation");
     free(input);free(effect);exit(2);
   }
+  /* An explicit auto/32 choice does not turn ordinary PCM into a DSD
+   * conversion. Keep the historical codec negotiation and output-open path;
+   * only strict64 and --plan require the PCM capability resolver. */
   if (!has_dsd_input && !spec.output_native_capable && !has_new_effect &&
       !dsd_plan_only && !dsd_report_path &&
-      spec.policy.headroom==LSX_DSD_HEADROOM_NONE && !precision_explicit) {
+      spec.policy.headroom==LSX_DSD_HEADROOM_NONE &&
+      precision_requested!=LSX_PRECISION_64) {
     free(input);free(effect);return;
   }
   for (i=0;i<spec.effect_count;i++) {
@@ -2884,8 +2928,11 @@ static void preflight_dsd(void)
       if (series[i].output_domain==LSX_PCM_AUDIO) {
         uint32_t hz;
         if (!series[i].output_bits) {
-          series[i].output_bits=ofile->encoding.bits_per_sample;
-          series[i].output_encoding=ofile->encoding.encoding;
+          sox_encodinginfo_t chosen=ofile->encoding;
+          if (!has_dsd_input && !has_new_effect)
+            pcm_plan_wav_encoding(&chosen,handler);
+          series[i].output_bits=chosen.bits_per_sample;
+          if (chosen.encoding) series[i].output_encoding=chosen.encoding;
         }
         part.output_wav_header_feasible=lsx_dsd_integer_rate(series[i].output_rate,&hz) &&
             lsx_pcm_f64_wav_static_write_capable(handler,hz,
@@ -2920,12 +2967,29 @@ static void preflight_dsd(void)
     if (plan.output_domain==LSX_PCM_AUDIO) {
       uint32_t hz;
       if (!plan.output_bits) {
-        plan.output_bits=ofile->encoding.bits_per_sample;
-        plan.output_encoding=ofile->encoding.encoding;
+        sox_encodinginfo_t chosen=ofile->encoding;
+        if (!has_dsd_input && !has_new_effect)
+          pcm_plan_wav_encoding(&chosen,handler);
+        plan.output_bits=chosen.bits_per_sample;
+        if (chosen.encoding) plan.output_encoding=chosen.encoding;
       }
       spec.output_wav_header_feasible=lsx_dsd_integer_rate(plan.output_rate,&hz) &&
           lsx_pcm_f64_wav_static_write_capable(handler,hz,
               plan.output_channels,plan.output_encoding,plan.output_bits);
+    }
+    if (!has_dsd_input && !has_new_effect && !spec.output_native_capable &&
+        !spec.output_pcm64_wav_capable && !strcmp(kind,"flac")) {
+      sox_encodinginfo_t chosen=ofile->encoding;
+      if (!chosen.encoding) chosen.encoding=SOX_ENCODING_FLAC;
+      if (!chosen.bits_per_sample) {
+        unsigned precision=ofile->signal.precision;
+        chosen.bits_per_sample=precision<=8?8:precision<=16?16:24;
+      }
+      if (chosen.encoding==SOX_ENCODING_FLAC &&
+          sox_format_supports_encoding(ofile->filename,ofile->filetype,&chosen)) {
+        plan.output_encoding=chosen.encoding;
+        plan.output_bits=chosen.bits_per_sample;
+      }
     }
     lsx_dsd_precision_resolve(&spec,&plan);
   }
