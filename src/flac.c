@@ -52,6 +52,11 @@ typedef struct {
 } priv_t;
 
 
+/* A dynamically loaded codec module cannot call private libSoX PCM64
+ * routines: the module is not admitted to native FLAC ingress, and shared
+ * libSoX is not required to export these internal symbols.  These hooks
+ * must exist only in the compiled-in FLAC handler, matching formats.h. */
+#if defined(STATIC_FLAC) || !defined(HAVE_LIBLTDL)
 /* Native introspection uses STREAMINFO and the actual decoder, not file
  * extension, override metadata or a second FLAC parser.  The established
  * decoder/read callbacks are unchanged, including all legacy FLAC routes. */
@@ -93,6 +98,8 @@ pcm_f64_status lsx_flac_native_decoder_state(const sox_format_t *ft,
   return state > FLAC__STREAM_DECODER_END_OF_STREAM ?
       PCM_F64_IO : PCM_F64_OK;
 }
+
+#endif /* built-in FLAC native hook */
 
 static FLAC__StreamDecoderReadStatus decoder_read_callback(FLAC__StreamDecoder const* decoder UNUSED, FLAC__byte buffer[], size_t* bytes, void* ft_data)
 {
