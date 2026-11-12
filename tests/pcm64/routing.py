@@ -74,6 +74,8 @@ def main():
     check(caps.returncode==0,f'native probe capability failed: {caps.stderr}')
     capabilities=dict(x.split('=',1) for x in caps.stdout.splitlines() if '=' in x)
     native_ready=capabilities.get('native_build')=='ENABLED' and capabilities.get('native_dsp')=='OK'
+    if capabilities.get('native_build')=='ENABLED' and capabilities.get('native_host')=='SUPPORTED':
+        check(native_ready,'enabled/supported native arithmetic guard failed (must not silently skip)')
     gates['native_probe_capability']=capabilities
     try:
         with tempfile.TemporaryDirectory(prefix='pcm64-phase04-') as tmp:
@@ -171,6 +173,13 @@ def main():
                   and math.isclose(factors[1],10**(-6/20),rel_tol=1e-14),
                   f'gain factors were changed or folded: {factors}')
             checks['separate_ordered_gain_factors']='PASS'
+            vol=plan('dsd-input-volume',['--precision','64','-D','-v','0.5',dsd,
+                       '-b','24',output],policy='64',pcm=True)
+            check(math.isclose(vol['inputs'][0]['volume'],0.5,rel_tol=0,abs_tol=1e-16),
+                  'source volume not retained at original position')
+            check(vol['input_decoder_count']+vol['graph_decoder_count']==1,
+                  'input decode must not be counted twice')
+            checks['volume_decode_once']='PASS'
             p=plan('pcm-copy',['--precision','64',wav,'-b','24',output],policy='64',eligible=True,steps=[],pcm=True)
             p=plan('pcm-gain',['--precision','64','-D',wav,'-b','24',output,'gain','-3'],
                    policy='64',eligible=True,steps=['gain'])
@@ -271,6 +280,28 @@ def main():
             hashes=[sha(work/('legacy-'+x+'.wav')) for x in ('default','explicit32','explicit_auto')]
             check(len(set(hashes))==1,f'legacy PCM output changed with policy: {hashes}')
             checks['legacy_pcm_default_32_auto_bit_identical']='PASS'
+            dsd_outputs=[]
+            for label,policy in (('default',[]),('explicit32',['--precision','32']),
+                                 ('explicit-auto',['--precision','auto'])):
+                dest=work/('dsd-legacy-'+label+'.wav')
+                rpt=work/('dsd-legacy-'+label+'.json')
+                argv=['-R','-D',*policy,'--report',rpt,dsd,'-b','24',dest,
+                      'dsdpcm','88200']
+                run('legacy-dsd-audio-'+label,argv,0)
+                check(rpt.exists() and dest.exists(), 'DSD report/audio missing')
+                r=json.loads(rpt.read_text())
+                check(r['precision']['actual_pcm_engine']=='sox_sample_t.int32'
+                      and r['precision']['binary64_pcm_processing'] is False and
+                      r['precision']['runner_available'] is False,
+                      'DSD execution report falsely identifies native binary64')
+                check(r['precision']['requested']==(policy[1] if policy else 'auto'),
+                      'report policy does not match CLI request')
+                commands[-1]['parsed_report']=r
+                commands[-1]['output_sha256']=sha(dest)
+                dsd_outputs.append(sha(dest))
+            check(len(set(dsd_outputs))==1,
+                  'DSD auto / explicit32 outputs or report enabled routes differ')
+            checks['legacy_dsd_default_auto_32_audio_and_reports_equal']='PASS'
             # Encoder + decoder remain structurally visible, but still no
             # executable PCM64 coordinator, and old graph executes on auto/32.
             enc=plan('dsd-encoder',['--precision','64','-D',wav,work/'encode.dsf'],policy='64',pcm=True)
@@ -279,6 +310,36 @@ def main():
             check(dec['graph_decoder_count']+dec['input_decoder_count']==1,
                   'decoder count missing')
             checks['decoder_encoder_counts']='PASS'
+            # Preserve only exact, proven permutations as role maps. A weighted
+            # remix has the same channel count and is NOT a permutation.
+            good=plan('pure-channel-role-map',['--precision','64','-D',wav,'-b','24',output,
+                       'remix','2','1'],policy='64',eligible=True,steps=['remix'])
+            check(good['steps'][0]['native_permutation'] and
+                  good['steps'][0]['native_permutation_map']==[1,0],
+                  'correct source-order mapping missing')
+            checks['pure_role_map_order']='PASS'
+            for label,arguments in (('weighted',['1v0.5','2v0.5']),
+                                    ('combined',['1,2','1,2'])):
+                invalid=plan('nonpermutation-'+label,['--precision','64','-D',wav,
+                             '-b','24',output,'remix',*arguments],policy='64',
+                             eligible=False,reason='pure output-role permutation')
+                check(invalid['steps'][0]['native_permutation'] is False,
+                      'weighted channel mixing was certified as a pure map')
+                checks['nonpermutation_'+label]='PASS'
+            p=plan('role-map-not-terminal',['--precision','64','-D',wav,
+                   '-b','24',output,'remix','2','1','gain','-3'],
+                   policy='64',eligible=False,reason='terminal output-role mapping')
+            checks['role_mapping_must_be_terminal']='PASS'
+            for name,op in (('restart','restart'),('newfile','newfile'),('colon',':')):
+                p=plan('multiple-effects-chains-'+name,['--precision','64','-D',wav,
+                       '-b','24',output,'gain','-3',op,'gain','-6'],policy='64',
+                       eligible=False,reason='one effects chain')
+                checks['multiple_effects_chains_'+name]='PASS'
+            p=plan('pcm64-encoding-not-engine',['--precision','auto','-D',wav,
+                   '-e','floating-point','-b','64',output,'gain','-3'],policy='auto')
+            check(p['precision']['actual_pcm_engine']=='sox_sample_t.int32',
+                  '-b 64 mistakenly selected binary64 graph execution')
+            checks['b64_not_processing_precision']='PASS'
             # The static decision is not a descriptor validation. Native PCM
             # writer cannot be exercised by --precision64 in Phase04.
             gates['native_actual_descriptor_precommit']='NOT_RUN: required64 PCM runner intentionally unavailable until Phase05'

@@ -972,6 +972,18 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
         s->implicit?"true":"false",s->input_index,s->reference,
         s->plain_fixed_gain?"true":"false");
     if (s->plain_fixed_gain) fprintf(fp,"%.17g",s->gain_factor); else fputs("null",fp);
+    /* Native role mapping is a parser-proven property, not a guess from
+     * unchanged channel counts. Do not promote a weighted remix. */
+    fprintf(fp,", \"native_permutation\": %s",s->native_permutation?"true":"false");
+    fputs(", \"native_permutation_map\": [",fp);
+    if (s->native_permutation) {
+      unsigned k;
+      for (k=0;k<s->native_map_count;k++) {
+        if (k) fputc(',',fp);
+        fprintf(fp,"%u",s->native_map[k]);
+      }
+    }
+    fputc(']',fp);
     fprintf(fp,"}%s\n",i+1==p->step_count?"":",");
   }
   fputs("  ]\n}\n",fp);
@@ -1025,6 +1037,12 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
       if (next_effect<spec->effect_count) {
         step->plain_fixed_gain=spec->effects[next_effect].plain_fixed_gain;
         step->gain_factor=spec->effects[next_effect].gain_factor;
+        step->native_permutation=spec->effects[next_effect].native_permutation;
+        if (step->native_permutation) {
+          step->native_map_count=spec->effects[next_effect].native_map_count;
+          memcpy(step->native_map,spec->effects[next_effect].native_map,
+              step->native_map_count*sizeof(step->native_map[0]));
+        }
         ++next_effect;
       }
     }
@@ -1035,7 +1053,9 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
     p->precision_reason="no PCM arithmetic: native DSD/DoP bit-domain route retained";
     return; /* An unused strict binary64 request is not an error. */
   }
-  if (spec->input_count!=1 || (spec->combine!=LSX_DSD_COMBINE_SEQUENCE &&
+  if (spec->effect_chain_count>1)
+    why="native binary64 requires one effects chain, no restart/newfile";
+  else if (spec->input_count!=1 || (spec->combine!=LSX_DSD_COMBINE_SEQUENCE &&
       spec->combine!=LSX_DSD_COMBINE_CONCAT))
     why="binary64 requires exactly one input and no combiner";
   else if (spec->policy.guarded || spec->policy.normalizing)
@@ -1079,6 +1099,8 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
         why="channel operations require the terminal output-role mapping";
       else if (step->channels_before!=step->channels_after)
         why="binary64 channel remixing is not supported";
+      else if (is(name,"remix") && !step->native_permutation)
+        why="remix must be a proven, pure output-role permutation";
     } else if (!is(name,"gain") && !is(name,"dsdpcm") &&
         !is(name,"implicit_dsdpcm") && !is(name,"input_dsdpcm") && !is(name,"pcmdsd") &&
         !is(name,"implicit_pcmdsd") && !is(name,"remix") &&

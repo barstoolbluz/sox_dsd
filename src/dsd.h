@@ -97,6 +97,8 @@ typedef struct {
   double out_rate;                /* getopts hint, may be zero. */
   unsigned out_channels;          /* getopts hint, may be zero. */
   int native_permutation;         /* Verified private remix map. */
+  unsigned native_map_count;
+  unsigned native_map[32]; /* Zero-based, immutable after parsed getopts. */
   int dither_precision_one;       /* Query of getopts state, not start(). */
   int plain_fixed_gain;           /* Query of gain.c getopts-populated state. */
   double gain_factor;             /* Finite, source-ordered, never combined. */
@@ -108,6 +110,7 @@ typedef struct {
   lsx_dsd_policy policy;
   lsx_precision_policy precision;
   lsx_dsd_combine combine;
+  size_t effect_chain_count; /* Entire CLI invocation, not just active chain. */
   lsx_dsd_input_spec const *inputs;
   size_t input_count;
   lsx_dsd_effect_spec const *effects;
@@ -155,6 +158,9 @@ typedef struct {
   double reference;
   int plain_fixed_gain;
   double gain_factor;
+  int native_permutation; /* True only for proven pure user remix role map. */
+  unsigned native_map_count;
+  unsigned native_map[32];
 } lsx_dsd_plan_step;
 
 typedef struct {

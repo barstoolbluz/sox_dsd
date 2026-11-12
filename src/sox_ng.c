@@ -2696,6 +2696,7 @@ static void preflight_dsd(void)
   spec.precision=precision_requested;
   spec.arithmetic_compiled_capable=pcm_f64_check_dsp_env()==PCM_F64_OK;
   spec.combine=(lsx_dsd_combine)combine_method;
+  spec.effect_chain_count=eff_chain_count;
   input=lsx_calloc(input_count,sizeof(*input));
   effect=lsx_calloc(nuser_effects[current_eff_chain]+1,sizeof(*effect));
   spec.inputs=input;spec.input_count=input_count;
@@ -2858,6 +2859,10 @@ static void preflight_dsd(void)
       unsigned count=e->out_signal.channels, *map=lsx_calloc(count,sizeof(*map));
       effect[i].native_permutation=lsx_remix_pure_map(e,
           (i?effect[i-1].out_channels:input[0].native_signal.channels),map,count);
+      if (effect[i].native_permutation) {
+        effect[i].native_map_count=count;
+        memcpy(effect[i].native_map,map,count*sizeof(*map));
+      }
       free(map);
     }
   }
