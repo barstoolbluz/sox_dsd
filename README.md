@@ -55,7 +55,7 @@ A *qualified* profile has passed the project's release-authorization checks for 
 
 PCM and DSD use different level conventions. Under the [SACD standard](https://www.sonicstudio.com/pdf/dsd/SACD_SignalPropertiesV13.pdf), 0 dB SACD corresponds to 50% of the theoretical maximum DSD signal amplitude, while peaks may reach approximately 71.4% of that maximum (+3.1 dB SACD).
 
-When encoding, SoX DSD follows this reference convention at all supported DSD rates: it maps PCM full scale (0 dBFS) to 0 dB SACD (50% of the theoretical maximum DSD amplitude) before applying the default attenuation described under **Encoding headroom and clipping** below.
+When encoding, SoX DSD follows this reference convention at all supported DSD rates: it maps PCM full scale (0 dBFS) to 0 dB SACD (50% of the theoretical maximum DSD amplitude) before applying the default attenuation described under [Encoding headroom and clipping](#encoding-headroom-and-clipping) below.
 
 DSD and PCM converters adjust level in both directions as part of a mastering workflow.
 
@@ -67,7 +67,7 @@ SoX DSD retains the original SoX noise shapers, but uses a qualified eighth-orde
 
 Eighth-order noise shapers have a known Achilles heel, however: they can become unstable with unusually demanding, sustained signals, such as near-full-scale DC or high-level test tones. This behavior is mostly confined to the test bench—in point of fact, near-full-scale DC is uncommon in real-world music—and has been [documented in combination with earlier DSD-capable SoX builds](https://archimago.blogspot.com/2021/10/measurements-look-at-dsd-and-using-sox.html). However, empirical testing shows that it can and does occur with real-world music, too.
 
-By default, then, SoX DSD maps full-scale PCM to 45% of theoretical maximum DSD modulation (equivalent to −6.935 dBFS PCM), rather than 50%. This 0.915 dB cut keeps SDM-8 within its qualified operating range. **In the first place, it lowers the overall signal level without compressing the music's dynamics; in the second, SDM-8 more than recovers it:** its in-band noise floor is lower than every other shaper's at every DSD rate, by at least 5 dB at DSD64 and about 15 dB from DSD256 up. Even after the cut, the default encoder has more in-band dynamic range than any alternative. Full stop.
+By default, then, SoX DSD maps full-scale PCM to 45% of theoretical maximum DSD modulation (equivalent to −6.936 dBFS PCM), rather than 50%. This 0.915 dB cut keeps SDM-8 within its qualified operating range. **In the first place, it lowers the overall signal level without compressing the music's dynamics; in the second, SDM-8 more than recovers it:** its in-band noise floor is lower than every other shaper's at every DSD rate, by at least 5 dB at DSD64 and about 15 dB from DSD256 up. Even after the cut, the default encoder has more in-band dynamic range than any alternative. Full stop.
 
 Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates exceptionally low noise with the default SDM-8-based mastering encoder within the audio band: At DSD64, the default encoder's in-band noise floor is about 141 dB below full scale (121 dB below a −20 dBFS test tone), comparable to 23-bit PCM. At higher DSD rates, the measured signal-to-noise ratio was substantially greater, eventually reaching the limits of the experiment's 32-bit signal path.
 
