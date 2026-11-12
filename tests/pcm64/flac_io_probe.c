@@ -31,6 +31,8 @@ int main(int argc, char **argv)
   int rc = 1;
   if (argc < 2) return 2;
   mode = argv[1];
+  /* Standalone reference failure, never a substitute for mutating the
+   * SoX FLAC read path. Kept outside any open/read to avoid false coverage. */
   if (!strcmp(mode,"mutant-int32max")) {
     char *end;
     long long integer;

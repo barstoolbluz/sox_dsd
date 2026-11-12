@@ -2364,14 +2364,19 @@ int sox_format_init(void) /* Find & load format handlers.  */
     {
       char *ld_library_path = getenv("LD_LIBRARY_PATH");
       if (ld_library_path) {
-        char *colonp;
+        char *end;
 
-        /* We mustn't modify the process environment */
+        /* Libtool prefixes the uninstalled library directory whether or
+         * not LD_LIBRARY_PATH was originally set. With an empty inherited
+         * value it strips the trailing colon, leaving exactly /.../.libs.
+         * Accept both forms without changing installed-plugin discovery. */
         copy = lsx_strdup(ld_library_path);
-        colonp = strchr(copy, ':');
-        if (colonp && colonp - copy >= 6 &&
-            !(*colonp = '\0', strcmp(colonp-6, "/.libs")))
+        end = strchr(copy, ':');
+        if (!end) end = copy + strlen(copy);
+        if (end - copy >= 6 && !memcmp(end - 6, "/.libs", 6)) {
+          *end = '\0';
           pkglibdir = copy;
+        }
       }
     }
 

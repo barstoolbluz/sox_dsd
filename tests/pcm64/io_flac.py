@@ -144,17 +144,40 @@ class Runner:
                 insist(check.strip() == b'status=UNSUPPORTED',
                        f'plugin incorrectly admitted to native FLAC: {check!r}')
                 self.gates['plugin_native_rejection']='PASS'
+                # Libtool removes the trailing colon from its wrapper path
+                # when the inherited LD_LIBRARY_PATH is empty. Verify actual
+                # plugin decoding, not just the wrapper or capability string,
+                # under all three inherited environment states.
+                baseline = None
+                for state, inherited in (('unset', None), ('empty', ''),
+                                         ('nonempty', '/tmp')):
+                    trial = os.environ.copy()
+                    if inherited is None:
+                        trial.pop('LD_LIBRARY_PATH', None)
+                    else:
+                        trial['LD_LIBRARY_PATH'] = inherited
+                    decoded = self.invoke(['legacy', fixture, 257], env=trial,
+                        label=f'plugin-LD_LIBRARY_PATH-{state}-legacy-read')
+                    self.commands[-1]['inherited_ld_library_path_state'] = state
+                    if baseline is None:
+                        baseline = decoded
+                    insist(decoded == baseline and len(decoded) > 0,
+                        f'plugin FLAC decode differs with LD_LIBRARY_PATH {state}')
+                self.gates['uninstalled_plugin_LD_LIBRARY_PATH_invariance']='PASS'
             elif self.linkage == 'absent':
                 self.gates['plugin_loaded_binary_identity']='NOT_RUN: no FLAC plugin'
                 self.gates['plugin_native_rejection']='NOT_RUN: no FLAC plugin configured'
+                self.gates['uninstalled_plugin_LD_LIBRARY_PATH_invariance']='NOT_RUN: codec unavailable'
             else:
                 self.gates['plugin_loaded_binary_identity']='NOT_RUN: built-in codec, not a plugin'
                 self.gates['plugin_native_rejection']='NOT_RUN: built-in FLAC, no plugin'
+                self.gates['uninstalled_plugin_LD_LIBRARY_PATH_invariance']='NOT_RUN: not a plugin build'
         else:
             self.status = 'OK'
             self.gates['built_in_integer_flac']='PENDING: native fixture qualification'
             self.gates['plugin_loaded_binary_identity']='NOT_RUN: built-in codec, not a plugin'
             self.gates['plugin_native_rejection']='NOT_RUN: built-in FLAC, not a plugin build'
+            self.gates['uninstalled_plugin_LD_LIBRARY_PATH_invariance']='NOT_RUN: not a plugin build'
 
     def oracle(self, values: list[int], bits: int) -> bytes:
         scale = 1 << (bits-1)
@@ -215,16 +238,19 @@ class Runner:
         self.gates['boundaries_and_channels']='PASS'
         self.gates['decoder_eof_and_short_output']='PASS'
         self.gates['legacy_integer_transport']='PASS'
-        # Run an actual compiled C mutant through the same binary probe,
-        # compare its output bits to an independent Fraction oracle, and
-        # reject it only when its arithmetic demonstrably differs.
+        # A standalone compiled C calculation provides a divisor-error
+        # negative control for the independent Fraction oracle. It does NOT
+        # mutate or execute the native SoX FLAC reader. Native reader fidelity
+        # is independently covered by the exact fixture comparisons above.
         for q in (1,-1,(1<<31)-1,-(1<<31)):
             mutated_word = int(self.invoke(['mutant-int32max',q],
-                        label=f'compiled-int32max-mutant-{q}').decode('ascii').strip(),16)
+                        label=f'standalone-int32max-divisor-control-{q}').decode('ascii').strip(),16)
             truth = struct.unpack('<Q',struct.pack('<d', float(Fraction(q,1<<31))))[0]
             insist(mutated_word!=truth,
-                   f'executed INT32_MAX mutant escaped detection at {q}')
-            self.tick('int32max_mutant_negative_controls')
+                   f'standalone INT32_MAX arithmetic escaped oracle at {q}')
+            self.tick('standalone_divisor_negative_controls')
+        self.gates['standalone_divisor_negative_control']=(
+            'PASS: C arithmetic fixture only, not a mutated SoX reader')
         self.corruption()
         self.pipe_io()
         self.benchmark()
