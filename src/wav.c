@@ -2453,7 +2453,7 @@ static void native_check_rf64_ds64(const sox_format_t *ft, priv_t *w)
   if (w->native_rf64_checked) return;
   w->native_rf64_checked = true;
   if (!ft->seekable || !fp || w->native_ds64_body_offset != 20 ||
-      w->native_ds64_body_length != sizeof(body) ||
+      w->native_ds64_body_length < sizeof(body) ||
       (saved = ftello(fp)) < 0) return;
   read_ok = fseeko(fp, w->native_ds64_body_offset, SEEK_SET) == 0 &&
       fread(body, 1, sizeof(body), fp) == sizeof(body);
@@ -2461,7 +2461,13 @@ static void native_check_rf64_ds64(const sox_format_t *ft, priv_t *w)
   if (!read_ok) return;
   w->native_rf64_riff_size = native_word(body, 8, false);
   w->native_rf64_frames = native_word(body + 16, 8, false);
-  w->native_rf64_bad = native_word(body + 24, 4, false) != 0 ||
+  /* The ds64 table may contain other chunk sizes. Validate its exact
+   * declared extent without allocating, traversing or interpreting the
+   * optional entries: the actual PCM data length has its own ds64 field. */
+  w->native_rf64_bad =
+      (uint64_t)native_word(body + 24, 4, false) !=
+        (w->native_ds64_body_length - sizeof(body)) / 12 ||
+      (w->native_ds64_body_length - sizeof(body)) % 12 != 0 ||
       w->native_rf64_riff_size < 12 ||
       w->native_rf64_riff_size > (uint64_t)INT64_MAX-8 ||
       w->native_rf64_frames > UINT64_MAX / 2;
@@ -2542,10 +2548,11 @@ pcm_f64_status lsx_wav_native_facts(const sox_format_t *ft,
            (w->native_fact_bad ||
             (w->native_fact_frames != UINT32_MAX &&
              (frames > UINT32_MAX || w->native_fact_frames != frames)))) ||
-          /* Extensible PCM retains a PCM subformat despite the outer
-           * 0xfffe tag. Its fact chunk is optional, as in RIFF/WAVE. */
-          (w->formatTag != WAVE_FORMAT_PCM && !w->native_fact_present) ||
-          frames!=w->native_rf64_frames ||
+          /* A fact chunk is not required for native read: the PCM frame
+           * extent is independently checked against the data chunk. Float
+           * RIFF without fact is accepted by the same reader. A zero ds64
+           * sample count denotes unspecified, not an empty audio payload. */
+          (w->native_rf64_frames && frames!=w->native_rf64_frames) ||
           fd<0 || fstat(fd,&st) || !S_ISREG(st.st_mode) || st.st_size<8 ||
           (w->native_rf64_riff32 == UINT32_MAX ?
            w->native_rf64_riff_size : (uint64_t)w->native_rf64_riff32) !=
