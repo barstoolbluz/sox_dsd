@@ -45,6 +45,28 @@ def little_wave(path, frames=71, bits=24, channels=2):
     path.write_bytes(b'RIFF'+struct.pack('<I',len(body)+4)+b'WAVE'+body)
 
 
+def float64_wave(path):
+    """Valid WAVEFORMATEX IEEE FLOAT64 with cbSize=0 and fact chunk."""
+    samples=(2.**-40, 0.1, -0.0, 1.2, 0.5)
+    fmt=struct.pack('<HHIIHHH',3,1,44100,44100*8,8,64,0)
+    raw=struct.pack('<5d',*samples)
+    body=(b'fmt '+struct.pack('<I',len(fmt))+fmt+
+          b'fact'+struct.pack('<II',4,len(samples))+
+          b'data'+struct.pack('<I',len(raw))+raw)
+    path.write_bytes(b'RIFF'+struct.pack('<I',len(body)+4)+b'WAVE'+body)
+    return samples
+
+
+def dsf_at_rate(src,dst,from_hz,to_hz):
+    """Change only the standard DSF fmt sample-clock field (offset 56)."""
+    data=bytearray(src.read_bytes())
+    check(data[:4]==b'DSD ' and data[28:32]==b'fmt ' and
+          struct.unpack_from('<I',data,56)[0]==from_hz,
+          'DSF source metadata unexpected')
+    struct.pack_into('<I',data,56,to_hz)
+    dst.write_bytes(data)
+
+
 def sparse_rf64(path, data_bytes):
     fmt=struct.pack('<HHIIHH',1,1,8000,8000,1,8)
     ds64=struct.pack('<QQQI',data_bytes+72,data_bytes,data_bytes,0)
@@ -199,6 +221,127 @@ def main():
             check(pure.is_file() and pure.stat().st_size>0,'bit copy produced no DFF')
             commands[-1]['output_sha256']=sha(pure)
             checks['pure_dsd_bit_domain_execution']='PASS'
+            # Corrective D-01: input decoder clock, not only encoder output,
+            # governs native graph eligibility. A bit-only repack is exempt.
+            high_fixture=source/'tests/dsd/fixtures/p18'
+            dsd128=work/'derived-dsd128.dsf'
+            dsd256=work/'derived-dsd256.dsf'
+            dsf_at_rate(dsd,dsd128,2822400,5644800)
+            dsf_at_rate(high_fixture/'p18-22579200-dsf-1-2-17.dsf',
+                        dsd256,22579200,11289600)
+            rate_cases=[('64',dsd,True),('128',dsd128,True),
+                        ('256',dsd256,False),
+                        ('512',high_fixture/'p18-22579200-dsf-1-2-17.dsf',False),
+                        ('1024',high_fixture/'p18-45158400-dsf-1-1-1.dsf',False)]
+            for label,src,eligible in rate_cases:
+                p=plan('dsd-input-clock-'+label,
+                       ['--precision','64','-D',src,'-b','24',output],
+                       policy='64',eligible=eligible,pcm=True,
+                       reason=None if eligible else 'decoder qualified only at DSD64 and DSD128')
+                check(p['input_decoder_count']+p['graph_decoder_count']==1,
+                      'decoder not present: '+label)
+                check(p['precision']['refused'] and
+                      p['precision']['actual_pcm_engine']=='none',
+                      'strict64 PCM route must still refuse: '+label)
+                checks['dsd_decoder_input_rate_'+label]='PASS'
+            for label,src in [('512',rate_cases[3][1]),('1024',rate_cases[4][1])]:
+                dest=work/('pure-high-rate-'+label+'.dff')
+                p=plan('dsd-high-rate-bit-only-'+label,
+                       ['--precision','64',src,dest],policy='64',eligible=True,pcm=False)
+                check(not p['precision']['refused'] and
+                      p['precision']['actual_pcm_engine']=='none' and
+                      p['precision']['actual_route']=='legacy-bitstream',
+                      'DSD repack incorrectly acquired PCM route: '+label)
+                run('dsd-high-rate-repack-'+label,['--precision','64',src,dest],0)
+                check(dest.stat().st_size>0,'DSD high-rate repack empty: '+label)
+                checks['high_rate_bit_repack_'+label]='PASS'
+            # Corrective D-02: the legacy builder inserts automatic dither for
+            # an effect-free precision reduction, invisible in plan steps.
+            wav16=work/'source16.wav';little_wave(wav16,bits=16)
+            for label,src in [('integer24',wav)]:
+                p=plan('implicit-dither-'+label,['--precision','64',src,'-b','16',output],
+                       policy='64',eligible=False,steps=[],reason='implicit automatic dither')
+                checks['effect_free_dither_refusal_'+label]='PASS'
+                plan('no-auto-dither-'+label,['--precision','64','-D',src,'-b','16',output],
+                     policy='64',eligible=True,steps=[])
+                checks['effect_free_dither_disabled_'+label]='PASS'
+            plan('pcm16-identity',['--precision','64',wav16,'-b','16',output],
+                 policy='64',eligible=True,steps=[])
+            checks['pcm16_identity_eligible']='PASS'
+            # Corrective D-03: native reader capability does not imply that
+            # the selected legacy signed-int32 execution preserves float64.
+            f64=work/'valid-float64.wav';samples=float64_wave(f64)
+            for policy in ('32','auto'):
+                p=plan('float64-legacy-'+policy,
+                       ['--precision',policy,'-D',f64,'-e','floating-point','-b','64',output],
+                       policy=policy,pcm=True)
+                norm=p['precision']['input_normalization'][0]
+                check(p['inputs'][0]['pcm64_reader_eligible'] is True and
+                      norm['source_decode_exact'] is False and
+                      'legacy signed int32' in norm['normalization'] and
+                      'preserved' not in norm['normalization'] and
+                      p['precision']['actual_pcm_engine']=='sox_sample_t.int32' and
+                      p['precision']['binary64_pcm_processing'] is False,
+                      'legacy FLOAT64 erroneously claimed exact: '+policy)
+                checks['float64_legacy_plan_'+policy]='PASS'
+            p=plan('float64-strict-refused',['--precision','64','-D',f64,
+                   '-e','floating-point','-b','64',output],policy='64',eligible=True)
+            check(p['precision']['input_normalization'][0]['source_decode_exact'] is None and
+                  'not executed' in p['precision']['input_normalization'][0]['normalization'] and
+                  p['precision']['actual_pcm_engine']=='none',
+                  'strict refusal falsely claims a decode occurred')
+            checks['float64_strict_not_executed']='PASS'
+            for label,src in [('float64',f64)]:
+                plan('float64-auto-dither',['--precision','64',src,'-b','16',output],
+                     policy='64',eligible=False,steps=[],reason='implicit automatic dither')
+                plan('float64-no-dither',['--precision','64','-D',src,'-b','16',output],
+                     policy='64',eligible=True,steps=[])
+                checks['float64_dither_policy']='PASS'
+            for policy in ('32','auto'):
+                dest=work/('legacy-float-'+policy+'.wav')
+                run('float64-executed-'+policy,
+                    ['--precision',policy,'-R','-D',f64,'-e','floating-point','-b','64',dest],0)
+                data=dest.read_bytes();pos=data.find(b'data')
+                check(pos>=0,'legacy FLOAT64 WAV output missing data chunk')
+                copied=struct.unpack_from('<5d',data,pos+8)
+                check(copied[0]==0. and copied[1]!=samples[1] and
+                      math.copysign(1.,copied[2])>0. and copied[3]<1.,
+                      f'FLOAT64 legacy quantization expectations changed: {copied}')
+                commands[-1]['output_sha256']=sha(dest)
+                checks['float64_actual_legacy_quantization_'+policy]='PASS'
+            check(sha(work/'legacy-float-32.wav')==sha(work/'legacy-float-auto.wav'),
+                  'legacy float64 audio differs between explicit32 and auto')
+            checks['float64_legacy_audio_32_auto_identical']='PASS'
+            # Reports from a successful DSD conversion must use the same
+            # actual int32 facts as plans, not potential native reader facts.
+            rpt=work/'float64-to-dsd-report.json'
+            run('float64-dsd-executed-report',
+                ['--precision','32','-R','-D','--report',rpt,f64,work/'float64.dsf'],0)
+            reported=json.loads(rpt.read_text())
+            observed=reported['precision']['input_normalization'][0]
+            check(observed['source_decode_exact'] is False and
+                  'legacy signed int32' in observed['normalization'] and
+                  reported['precision']['actual_pcm_engine']=='sox_sample_t.int32' and
+                  reported['precision']['binary64_pcm_processing'] is False,
+                  'success report claims legacy FLOAT64 PCM is exact')
+            checks['float64_successful_dsd_report_truth']='PASS'
+            # True exactness of simple integer inputs remains visible.
+            p=plan('integer24-actual-exact',['--precision','32','-D',wav,'-b','24',output],
+                   policy='32')
+            check(p['precision']['input_normalization'][0]['source_decode_exact'] is True,
+                  '24-bit integer PCM should be exact in signed int32 carrier')
+            checks['legacy_integer24_source_decode_exact']='PASS'
+            # Effect-free 24-to-16 auto-dither still executes identically under
+            # the three historical policy spellings.
+            for label,policy in [('default',[]),('32',['--precision','32']),
+                                 ('auto',['--precision','auto'])]:
+                dest=work/('dither-legacy-'+label+'.wav')
+                run('legacy-implicit-dither-'+label,[*policy,'-R',wav,'-b','16',dest],0)
+                commands[-1]['output_sha256']=sha(dest)
+            check(len({sha(work/('dither-legacy-'+n+'.wav')) for n in
+                       ('default','32','auto')})==1,
+                  'legacy automatic dither audio changed with precision policy')
+            checks['implicit_dither_default_32_auto_audio_equal']='PASS'
             refusals=[
                 ('unsupported-rate',['--precision','64','-D',wav,'-r','48000',output],'implicit_pcm_rate'),
                 ('conventional-effect',['--precision','64','-D',wav,output,'highpass','300'],'conventional'),
