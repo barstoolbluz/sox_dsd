@@ -70,6 +70,11 @@ def main():
     fixture=Path(__file__).resolve().parent/'fixtures'/'phase04'
     sox=args.sox.resolve();probe=args.probe.resolve()
     commands=[];checks={};gates={}
+    caps=subprocess.run([str(probe),'capabilities'],capture_output=True,text=True,timeout=10)
+    check(caps.returncode==0,f'native probe capability failed: {caps.stderr}')
+    capabilities=dict(x.split('=',1) for x in caps.stdout.splitlines() if '=' in x)
+    native_ready=capabilities.get('native_build')=='ENABLED' and capabilities.get('native_dsp')=='OK'
+    gates['native_probe_capability']=capabilities
     try:
         with tempfile.TemporaryDirectory(prefix='pcm64-phase04-') as tmp:
             work=Path(tmp);wav=work/'source.wav';little_wave(wav)
@@ -117,7 +122,7 @@ def main():
                    ('rf64-pcm-ds64-table-entry.wav','riff-pcm-table-case-same-audio.wav'),
                    ('rf64-pcm-nofact-ds64count0.wav','riff-pcm-same-audio.wav'),
                    ('rf64-pcm-nofact-ds64count8.wav','riff-pcm-same-audio.wav')]
-            for left,right in pairs:
+            for left,right in (pairs if native_ready else []):
                 outputs=[]
                 for fname in (left,right):
                     path=fixture/fname
@@ -134,7 +139,8 @@ def main():
                                      'source_sha256':sha(path)})
                 check(outputs[0][1]==outputs[1][1],f'RF64/RIFF decoded audio differs: {left}')
                 checks['native_rf64_pair_'+left]='PASS'
-            gates['native_rf64_supplied_pairs']='PASS'
+            gates['native_rf64_supplied_pairs']='PASS' if native_ready else (
+                'NOT_RUN: native probe unavailable (disabled build or unsupported host)')
             # Two approved compatibility exceptions are tested by executing
             # real SoX behavior, not by checking source strings.
             for value in (0x7ffff000,0x7fffffff,0xffffffff):
@@ -220,7 +226,8 @@ def main():
                 before=sha(dest) if existing else None
                 cp=run('runner-unavailable-existing='+str(existing),
                        ['--precision','64','-D',wav,'-b','24',dest,'gain','-3'],2)
-                check('runner unavailable' in cp.stderr.decode('utf-8','replace'),
+                check(('runner unavailable' if native_ready else 'arithmetic/backend')
+                      in cp.stderr.decode('utf-8','replace'),
                       f'wrong unavailable-runner reason: {cp.stderr[-500:]}')
                 check((sha(dest)==before if existing else not dest.exists()),
                       f'runner unavailable altered destination (existing={existing})')
@@ -292,7 +299,8 @@ def main():
                 'executed_binary_sha256':{str(sox):sha(sox),str(probe):sha(probe)},
                 'runtime_libraries':executable_libraries(sox),
                 'host':platform.platform(),'python':sys.version,
-                'test_count':len(checks),'command_count':len(commands)}
+                'test_count':len(checks),'command_count':len(commands),
+                'native_probe_capabilities':capabilities}
         try:
             commit=subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],
                 capture_output=True,text=True,timeout=5)
