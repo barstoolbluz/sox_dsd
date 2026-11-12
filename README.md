@@ -53,13 +53,13 @@ A *qualified* profile has passed the project's release-authorization checks for 
 
 ### Level conventions and conversion gain
 
-PCM and DSD use different level conventions. Under the [SACD standard](https://www.sonicstudio.com/pdf/dsd/SACD_SignalPropertiesV13.pdf), 0 dB SACD corresponds to 50% of the theoretical maximum DSD signal amplitude, while peaks may reach approximately 71.4% of that maximum (+3.1 dB SACD).
+PCM and DSD use different level conventions. Under the [SACD standard](https://www.sonicstudio.com/pdf/dsd/SACD_SignalPropertiesV13.pdf), 0 dB SACD corresponds to 50% of the theoretical maximum DSD signal amplitude, while peaks may reach approximately 71.4% of that maximum (+3.1 dB SACD; −2.92 dBFS PCM).
 
 When encoding, SoX DSD follows this reference convention at all supported DSD rates: it maps PCM full scale (0 dBFS) to 0 dB SACD (50% of the theoretical maximum DSD amplitude) before applying the default attenuation described under [Default encoder and stability](#default-encoder-and-stability) below.
 
 DSD and PCM converters adjust level in both directions as part of a mastering workflow.
 
-PCM-to-DSD conversion normally leaves headroom: the [HQPlayer user manual](https://sonore.us/HQPlayer-manual.pdf) (version 3.14), for example, recommends a volume of −3 dB or lower to avoid overloading the modulator. A decoder that maps the full 100% DSD amplitude to PCM full scale reproduces 0 dB SACD at −6.02 dBFS, so DSD-to-PCM conversion or playback workflows often add 6.02 dB of gain to restore PCM-equivalent loudness. During decodes, SoX DSD adds 6.02 dB _only_ if you pass `--dsd-level sacd`. **Note:** Many SACDs peak _above_ 0 dB SACD, up to and sometimes beyond the +3.1 dB SACD limit (−2.92 dBFS PCM), which results in clipping when used with `--dsd-level sacd`. SoX DSD warns when it clips, or stops instead with `--dsd-clip error`.
+PCM-to-DSD conversion normally leaves headroom: the [HQPlayer user manual](https://sonore.us/HQPlayer-manual.pdf) (version 3.14), for example, recommends a volume of −3 dB or lower to avoid overloading the modulator. A decoder that maps the full 100% DSD amplitude to PCM full scale reproduces 0 dB SACD at −6.02 dBFS, so DSD-to-PCM conversion or playback workflows often add 6.02 dB of gain to restore PCM-equivalent loudness. During decodes, SoX DSD adds 6.02 dB _only_ if you pass `--dsd-level sacd`. **Note:** Many SACDs peak _above_ 0 dB SACD, up to and sometimes beyond the +3.1 dB SACD limit, which results in clipping when used with `--dsd-level sacd`. SoX DSD warns when it clips, or stops instead with `--dsd-clip error`.
 
 ### Default encoder and stability
 
