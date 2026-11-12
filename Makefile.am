@@ -43,7 +43,7 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt \
              tests/dsd/test_cli_usability.py tests/dsd/test_loud_encode.py \
              docs/dsd/USING_SOX_DSD.md docs/dsd/CLI_USABILITY_DESIGN.md \
              docs/dsd/LOUD_PCM_ENCODE_2026-11-04.md \
-             tests/pcm64/run.py tests/pcm64/pcm64_probe.c tests/pcm64/wav_io_probe.c tests/pcm64/wav_fault_shim.c tests/pcm64/wav_fenv_preload.c tests/pcm64/io_wav.py tests/pcm64/test_io_wav_harness.py tests/pcm64/io_flac.py tests/pcm64/flac_io_probe.c tests/pcm64/flac_fixtures.py \
+             tests/pcm64/run.py tests/pcm64/pcm64_probe.c tests/pcm64/wav_io_probe.c tests/pcm64/wav_fault_shim.c tests/pcm64/wav_fenv_preload.c tests/pcm64/io_wav.py tests/pcm64/test_io_wav_harness.py tests/pcm64/binary_receipts.py tests/pcm64/io_flac.py tests/pcm64/flac_io_probe.c tests/pcm64/flac_fixtures.py \
              tests/pcm64/fixtures/signed-8bit-1ch-127frames.flac \
              tests/pcm64/fixtures/signed-8bit-2ch-5073frames.flac \
              tests/pcm64/fixtures/signed-16bit-1ch-191frames.flac \

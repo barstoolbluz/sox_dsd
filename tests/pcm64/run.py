@@ -18,6 +18,7 @@ import struct
 import subprocess
 import sys
 from fractions import Fraction
+from binary_receipts import executable_libraries
 
 SEED = 0x2026110901
 
@@ -173,8 +174,9 @@ def run_all(sox: Path, probe: Path, results: Path, executed: dict[str, str]):
         # Bind the exact executable selected by --probe, not a same-named
         # binary in the source tree. Retain identities even on suite failure.
         path = Path(command[0])
-        if path in (probe, sox):
+        if path in (probe, sox) and str(path) not in executed:
             executed[str(path)] = sha256(path)
+            executed.update(executable_libraries(path))
         return run(command, input_text=input_text)
 
     counts: dict[str, int] = {}
@@ -238,6 +240,7 @@ def run_all(sox: Path, probe: Path, results: Path, executed: dict[str, str]):
     source = Path(__file__).resolve().parents[2]
     core_paths = [source / "src/pcm_f64.c", source / "src/pcm_f64.h",
                   source / "tests/pcm64/pcm64_probe.c", source / "tests/pcm64/run.py",
+                  source / "tests/pcm64/binary_receipts.py",
                   source / "configure.ac", source / "src/Makefile.am",
                   source / "test/Makefile.am", source / "Makefile.am"]
     for path in core_paths:

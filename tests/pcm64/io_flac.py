@@ -13,7 +13,6 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import shutil
 import struct
 import subprocess
 import sys
@@ -21,6 +20,7 @@ import tempfile
 import time
 
 from flac_fixtures import SPECS, RATE, codes, name
+from binary_receipts import executable_libraries
 
 
 def insist(ok: bool, message: str) -> None:
@@ -34,30 +34,6 @@ def digest(path: Path) -> str:
         for chunk in iter(lambda: f.read(1 << 20), b''):
             h.update(chunk)
     return h.hexdigest()
-
-
-def executable_libraries(program: Path) -> dict[str, str]:
-    """Hash currently resolved loader dependencies, not merely source names.
-
-    Also record the library identity for failed invocations. Dynamically
-    opened format plugins are handled separately only if they are used.
-    """
-    result = {}
-    if sys.platform != 'linux' or shutil.which('ldd') is None:
-        return result
-    run = subprocess.run(['ldd', str(program)], capture_output=True,
-                         text=True, timeout=10)
-    if run.returncode:
-        return result
-    for line in run.stdout.splitlines():
-        fields = line.strip().replace('=>', ' ').split()
-        if not fields:
-            continue
-        path = next((Path(field) for field in fields if field.startswith('/') and
-                     Path(field).is_file()), None)
-        if path is not None:
-            result[str(path.resolve())] = digest(path.resolve())
-    return result
 
 
 class Runner:
@@ -139,17 +115,32 @@ class Runner:
             if self.linkage == 'plugin':
                 # Plugin is an eligible legacy format, never a native adapter.
                 fixture = self.fixture(*SPECS[-2])
+                if sys.platform == 'linux':
+                    raw_module = self.invoke(['module', fixture], label='plugin-dlopen-module')
+                    data = raw_module.decode('utf-8').strip()
+                    insist(data.startswith('module='), 'plugin did not report its loaded module')
+                    plugin = Path(data.split('=',1)[1]).resolve()
+                    insist(plugin.is_file() and 'fmt_flac.so' in plugin.name,
+                           f'dlopen FLAC identity missing: {plugin}')
+                    self.record_exe(plugin)
+                    self.gates['plugin_loaded_binary_identity']='PASS'
+                else:
+                    self.gates['plugin_loaded_binary_identity']=(
+                        'NOT_RUN: Linux /proc/self/maps module observation unavailable')
                 check = self.invoke(['capability',fixture],expect=0,label='plugin-native-refusal')
                 insist(check.strip() == b'status=UNSUPPORTED',
                        f'plugin incorrectly admitted to native FLAC: {check!r}')
                 self.gates['plugin_native_rejection']='PASS'
             elif self.linkage == 'absent':
+                self.gates['plugin_loaded_binary_identity']='NOT_RUN: no FLAC plugin'
                 self.gates['plugin_native_rejection']='NOT_RUN: no FLAC plugin configured'
             else:
+                self.gates['plugin_loaded_binary_identity']='NOT_RUN: built-in codec, not a plugin'
                 self.gates['plugin_native_rejection']='NOT_RUN: built-in FLAC, no plugin'
         else:
             self.status = 'OK'
             self.gates['built_in_integer_flac']='PASS'
+            self.gates['plugin_loaded_binary_identity']='NOT_RUN: built-in codec, not a plugin'
             self.gates['plugin_native_rejection']='NOT_RUN: built-in FLAC, not a plugin build'
 
     def oracle(self, values: list[int], bits: int) -> bytes:
@@ -325,7 +316,8 @@ class Runner:
                 [source/'src/flac.c',source/'src/pcm_f64_io.c',
                  source/'src/pcm_f64_io.h',source/'tests/pcm64/io_flac.py',
                  source/'tests/pcm64/flac_fixtures.py',
-                 source/'tests/pcm64/flac_io_probe.c']},
+                 source/'tests/pcm64/flac_io_probe.c',
+                 source/'tests/pcm64/binary_receipts.py']},
             'platform':sys.platform,
             'oracle':'original signed raw integer code / 2^(bit_depth-1), Fraction to IEEE binary64',
         }

@@ -50,6 +50,30 @@ int main(int argc, char **argv)
     fprintf(stderr, "FLAC open failed\n");
     goto done;
   }
+  if (!strcmp(mode, "module")) {
+#if defined(__linux__)
+    /* Observe the module that was actually dlopened for this read.  A plugin
+     * is not a program dependency in ldd output. Linux maps are observation
+     * only; they do not affect codec selection or native admission. */
+    FILE *maps = fopen("/proc/self/maps", "r");
+    char line[8192];
+    if (!maps) goto done;
+    while (fgets(line, sizeof(line), maps)) {
+      char *path = strchr(line, '/');
+      if (path && strstr(path, "libsox_ng_fmt_flac.so")) {
+        path[strcspn(path, "\r\n")] = '\0';
+        printf("module=%s\n", path);
+        rc = 0;
+        break;
+      }
+    }
+    fclose(maps);
+#else
+    puts("module=NOT_RUN: Linux procfs is unavailable");
+    rc = 0;
+#endif
+    goto done;
+  }
   if (!strcmp(mode, "legacy")) {
     size_t ch = in->signal.channels;
     size_t count = block * ch;

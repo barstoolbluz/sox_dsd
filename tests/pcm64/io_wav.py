@@ -29,6 +29,8 @@ import sys
 import tempfile
 import time
 
+from binary_receipts import executable_libraries
+
 SEED = 0x2026110902
 GUID_TAIL = bytes.fromhex('000000001000800000aa00389b71')
 UINT64_MAX = (1 << 64) - 1
@@ -227,7 +229,9 @@ class CaseRunner:
         # Store the content of the executable actually selected, including
         # when a later assertion turns this suite receipt into FAIL.
         path=Path(path).resolve()
-        self.executed_binary_sha256[str(path)]=digest(path)
+        if str(path) not in self.executed_binary_sha256:
+            self.executed_binary_sha256[str(path)]=digest(path)
+            self.executed_binary_sha256.update(executable_libraries(path))
 
     def native_unavailable(self):
         return 'NOT_RUN: native binary64 arithmetic unavailable (' + self.native_dsp_status + ')'
@@ -1217,7 +1221,8 @@ class CaseRunner:
                 str(x):digest(x) for x in [self.sox,self.probe,
                    Path(__file__),Path(__file__).with_name('wav_io_probe.c'),
                    Path(__file__).with_name('wav_fault_shim.c'),
-                   Path(__file__).with_name('wav_fenv_preload.c')]},
+                   Path(__file__).with_name('wav_fenv_preload.c'),
+                   Path(__file__).with_name('binary_receipts.py')]},
             'executed_binary_sha256':dict(self.executed_binary_sha256),
             'native_dsp_status':self.native_dsp_status,
             'native_build':self.native_build,
