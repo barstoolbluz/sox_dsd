@@ -262,6 +262,10 @@ class LargeWav:
                 ('f64-1-rifx','f64','B',1,3,3),
                 ('i8-1-odd','i8','L',1,3,3),
                 ('i8-1-rifx','i8','B',1,3,3)):
+            if typ!='f64' and not self.native_integer_available:
+                self.gates['integer_pcm64_writes']=(
+                    'NOT_RUN: arithmetic conversion disabled at configure time')
+                continue
             target=self.dir/(name+'.wav')
             self.command(['generate',raw,target,typ,endian,ch,44100,declared,actual],
                          label=name)
@@ -489,24 +493,29 @@ class LargeWav:
             time.perf_counter()-start,6)
         self.performance['four_sparse_gib_payload_bytes_written_physically']=0
         self.performance['writer_sparse_runtime_rss_limit_bytes']=96<<20
-        # 0xffffffff EXACT payload bytes is possible for signed 8-bit PCM,
-        # even though the RIFF extent must already be RF64. Pad is excluded
-        # from ds64 data size and included in riff size.
-        n=U32
-        target=self.dir/'exact-u32-data.wav'
-        self.command(['sparse-zero',target,'i8','L',1,48000,n,n],
-                     label='real-sparse-exact-u32-payload',limit_memory=True)
-        h=parse_wave_file(target)
-        insist(h['kind']=='RF64' and h['data_size']==U32 and
-               h['frames']==U32 and h['file_size']==h['data_offset']+U32+1,
-               'exact 0xffffffff payload or odd pad counted incorrectly')
-        with target.open('rb') as f:
-            insist(read_at(f,h['data_offset']+U32,1)==b'\0',
-                   'odd padding after huge data not physically written')
-        self.case('real-sparse-exact-u32-payload-and-odd-pad',header=h)
-        self.tick('real_sparsed_4gib_cases')
-        self.sparse_files.append(str(target))
-        target.unlink()
+        if self.native_integer_available:
+            # 0xffffffff EXACT payload bytes is possible for signed 8-bit PCM,
+            # even though the RIFF extent must already be RF64. Pad is excluded
+            # from ds64 data size and included in riff size.
+            n=U32
+            target=self.dir/'exact-u32-data.wav'
+            self.command(['sparse-zero',target,'i8','L',1,48000,n,n],
+                         label='real-sparse-exact-u32-payload',limit_memory=True)
+            h=parse_wave_file(target)
+            insist(h['kind']=='RF64' and h['data_size']==U32 and
+                   h['frames']==U32 and h['file_size']==h['data_offset']+U32+1,
+                   'exact 0xffffffff payload or odd pad counted incorrectly')
+            with target.open('rb') as f:
+                insist(read_at(f,h['data_offset']+U32,1)==b'\0',
+                       'odd padding after huge data not physically written')
+            self.case('real-sparse-exact-u32-payload-and-odd-pad',header=h)
+            self.tick('real_sparsed_4gib_cases')
+            self.sparse_files.append(str(target))
+            target.unlink()
+            self.gates['real_sparse_odd_u32_data']='PASS'
+        else:
+            self.gates['real_sparse_odd_u32_data']=(
+                'NOT_RUN: arithmetic-dependent 8-bit native writer disabled')
         self.gates['real_4gib_sparse_file']='PASS'
         self.gates['sparse_data_offset_stability']='PASS'
 
@@ -675,7 +684,43 @@ class LargeWav:
     def execute(self):
         insist(self.sox.is_file() and self.probe.is_file(),
                'missing built SoX or native WAV probe binary')
-        for phase in (self.planner,self.small,self.stdout,self.refusals,
+        raw,_=self.command(['capabilities'],label='native-build-capability')
+        lines=raw.decode('ascii').splitlines()
+        insist(len(lines)==3 and all('=' in line for line in lines),
+               f'invalid native capability output: {raw!r}')
+        capabilities=dict(line.split('=',1) for line in lines)
+        insist(len(capabilities)==3 and set(capabilities)==
+               {'native_build','native_host','native_dsp'} and
+               capabilities['native_build'] in ('ENABLED','DISABLED') and
+               capabilities['native_host'] in ('SUPPORTED','UNSUPPORTED') and
+               capabilities['native_dsp'] in ('OK','UNSUPPORTED','NUMERIC'),
+               f'incomplete or invalid native capability: {capabilities!r}')
+        self.capabilities=capabilities
+        # The compile-time arithmetic flag does NOT disable binary64 identity
+        # transport. Exercise its full RF64/sparse/fault matrix in every build;
+        # only integer quantization and the 8-bit odd-payload example need
+        # native DSP. An unsafe runtime guard in an enabled build is a FAIL.
+        self.native_integer_available=(capabilities['native_build']=='ENABLED')
+        if capabilities['native_host']!='SUPPORTED' or (
+                self.native_integer_available and capabilities['native_dsp']!='OK'):
+            self.gates['native_writer_eligibility']=(
+                'FAIL: enabled native arithmetic or IEEE storage precondition: '+
+                str(capabilities))
+            raise AssertionError(self.gates['native_writer_eligibility'])
+        self.gates['native_writer_eligibility']='PASS: binary64 identity path'
+        self.planner()
+        if not self.native_integer_available:
+            self.gates['native_integer_arithmetic']=(
+                'NOT_RUN: --disable-native-f64')
+            source=self.file('disabled-raw.raw64',struct.pack('<d',0.25))
+            dest=self.file('disabled-precommit-sentinel.wav',b'UNCHANGED-SENTINEL')
+            self.command(['generate',source,dest,'i8','L',1,48000,1,1],
+                         exit=1,label='native-disabled-integer-refusal')
+            insist(dest.read_bytes()==b'UNCHANGED-SENTINEL',
+                   'disabled native integer writer mutated an existing destination')
+            self.case('native-disabled-integer-precommit-refusal')
+            self.gates['native_disabled_integer_refusal']='PASS'
+        for phase in (self.small,self.stdout,self.refusals,
                       self.rf64_read_validation,self.failures,self.sparse):
             phase()
         self.gates['header_parser_independent']='PASS'
@@ -691,6 +736,7 @@ class LargeWav:
             'utc':dt.datetime.now(dt.timezone.utc).isoformat(),
             'source_git_commit':source_git_head(source),
             'checks':self.counts,'gate_execution':self.gates,
+            'native_capabilities':self.capabilities,
             'case_results':self.cases,'commands':self.commands,
             'performance':self.performance,
             'executed_binary_sha256':self.executed,
