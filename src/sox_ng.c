@@ -1652,8 +1652,11 @@ static void add_effects(sox_effects_chain_t *chain)
       continue;
     }
     if (add_effect(chain, user_efftab[i], &signal, &ofile->ft->signal,
-          &guard) != SOX_SUCCESS)
+          &guard) != SOX_SUCCESS) {
+      /* sox_add_effect() has already freed a rejected start object. */
+      user_efftab[i] = NULL;
       exit(2); /* Effects chain should have displayed an error message */
+    }
     /* An explicitly requested dsdpcm is also a domain boundary.  It must
      * execute before automatic gain, just like an implicit decoder. */
     if (dsd_runtime_active && is_guarded && guard < 0 &&
@@ -1706,8 +1709,11 @@ static void add_effects(sox_effects_chain_t *chain)
     dsd_insert_encoder(chain,&signal,&guard,i,&p10_normalized);
     dsd_prepare_explicit_encoder(chain,&signal,&guard,i,&p10_normalized);
     if (add_effect(chain, user_efftab[i], &signal, &ofile->ft->signal,
-          &guard) != SOX_SUCCESS)
+          &guard) != SOX_SUCCESS) {
+      /* sox_add_effect() has already freed a rejected start object. */
+      user_efftab[i] = NULL;
       exit(2); /* Effects chain should have displayed an error message */
+    }
     free(user_efftab[i]);
     user_efftab[i] = NULL;
   }

@@ -254,8 +254,17 @@ class Test:
                 self.run(['--precision','64',src,'-e','signed-integer','-b','24',
                           shuffled,'remix','2','1','3','4','5','6'])
                 _,reordered,rd=wav_contents(shuffled)
-                require(reordered[5]==mask and rd==payload,
-                        'known-role permutation failed canonical output-order restoration')
+                # The historical D-02 fixture assumed that P04 canonical
+                # speaker sorting would undo the user's remix.  The Phase 05A
+                # return explicitly requires the audio samples to match the
+                # ordinary executed SoX remix, not that obsolete expectation.
+                legacy_remix=self.root/'known-six-remix-legacy.wav'
+                self.run([src,'-e','signed-integer','-b','24',
+                          legacy_remix,'remix','2','1','3','4','5','6'])
+                _,legacy_fmt,legacy_payload=wav_contents(legacy_remix)
+                require(reordered[5]==mask and reordered[2]==n and
+                        legacy_fmt[2]==n and rd==legacy_payload and rd!=payload,
+                        'known-role remix did not reorder samples as legacy SoX does')
                 self.count('known_role_permutation_cases')
                 sentinel=self.root/'known-mask-wavpcm-sentinel.wav'
                 sentinel.write_bytes(b'PRESERVE KNOWN LAYOUT' * 7)
