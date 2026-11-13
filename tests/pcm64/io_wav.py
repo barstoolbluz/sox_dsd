@@ -1307,6 +1307,8 @@ class CaseRunner:
         self.quantization()
         self.malformed()
         self.rf64_32bit_precedence()
+        from rf64_table import verify as verify_rf64_table
+        verify_rf64_table(self)
         self.safety()
         self.writer_environment()
         self.unavailable_arithmetic_destination_integrity()

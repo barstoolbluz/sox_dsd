@@ -265,8 +265,8 @@ static int run(int argc,char **argv)
     sox_signalinfo_t override={0};
     if (!strcmp(mode,"query") && argc>3)
       override.rate=(sox_rate_t)number(argv[3]);
-    in=sox_open_read(argv[2],argc>3 && !strcmp(mode,"query") ? &override : NULL,
-        NULL,"wav");
+    in=lsx_pcm_f64_wav_open_read(argv[2],
+        argc>3 && !strcmp(mode,"query") ? &override : NULL);
     if (!in) { fail("open input",NULL);goto finish; }
     status=lsx_pcm_f64_wav_query(in,&facts);
     if (status!=PCM_F64_OK) {
