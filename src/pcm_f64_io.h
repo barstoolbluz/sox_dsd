@@ -38,6 +38,9 @@ bool lsx_pcm_f64_wav_static_write_capable(const sox_format_handler_t *handler,
 
 pcm_f64_status lsx_pcm_f64_wav_query(const sox_format_t *ft,
     lsx_pcm_f64_wav_facts *facts);
+/* Read-only, metadata/FD-only query. The writer uses the same extent and
+ * regular-file rules before its retained-descriptor commit. NULL is ready. */
+const char *lsx_pcm_f64_source_precommit_issue(const sox_format_t *ft);
 pcm_f64_progress lsx_pcm_f64_wav_read(sox_format_t *ft, pcm_f64_output out);
 pcm_f64_progress lsx_pcm_f64_wav_write(sox_format_t *ft, pcm_f64_input in);
 

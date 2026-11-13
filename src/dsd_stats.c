@@ -44,6 +44,8 @@ struct lsx_dsd_report_context {
   encode_record *enc; size_t nencs;
   lsx_dsd_stats *effect_stat; /* most recent dsdstat; channels ordered */
   unsigned out_of_memory;
+  char *warnings[64]; size_t nwarnings, warnings_omitted;
+  char *failure_reason; /* first emitted cause, not a later cleanup symptom */
 };
 static lsx_dsd_report_context *current_report;
 
@@ -339,8 +341,33 @@ lsx_dsd_report_context *lsx_dsd_report_create(void)
 {return calloc(1,sizeof(lsx_dsd_report_context));}
 void lsx_dsd_report_enable(lsx_dsd_report_context *s) {current_report=s;}
 void lsx_dsd_report_disable(void) {current_report=NULL;}
+void lsx_dsd_report_note_message(unsigned level,const char *fmt,va_list args)
+{
+  lsx_dsd_report_context *r=current_report;
+  char message[1024], *copy;
+  va_list ap;
+  int n;
+  if (!r || (level!=1 && level!=2) || !fmt) return;
+  if (level==1 && r->failure_reason) return;
+  if (level==2 && r->nwarnings==sizeof(r->warnings)/sizeof(r->warnings[0])) {
+    ++r->warnings_omitted;
+    return;
+  }
+  va_copy(ap,args);
+  n=vsnprintf(message,sizeof(message),fmt,ap);
+  va_end(ap);
+  if (n<0) {r->out_of_memory=1;return;}
+  copy=malloc(strlen(message)+1);
+  if (!copy) {r->out_of_memory=1;return;}
+  strcpy(copy,message);
+  if (level==1) r->failure_reason=copy;
+  else r->warnings[r->nwarnings++]=copy;
+}
+
 void lsx_dsd_report_destroy(lsx_dsd_report_context *s)
-{if(s){if(current_report==s)current_report=NULL;free(s->dec);free(s->enc);
+{if(s){size_t i;if(current_report==s)current_report=NULL;
+    for(i=0;i<s->nwarnings;i++)free(s->warnings[i]);
+    free(s->failure_reason);free(s->dec);free(s->enc);
     lsx_dsd_stats_destroy(s->effect_stat);free(s);}}
 static lsx_dsd_stats *stats_copy(const lsx_dsd_stats *s)
 {
@@ -625,12 +652,24 @@ void lsx_dsd_report_json(FILE *f,const lsx_dsd_report_context *r,
   fputs(",\"input_adapter\":",f);jint(f,adapter_clips);
   fputs(",\"combiner\":",f);jint(f,mixing_clips);
   fputs(",\"encoder_interpolation\":",f);jint(f,encoder_clips);
-  fputs("},\n  \"warnings\":[",f);
-  if (encoder_clips)
+  fputs("},\n  \"failure_reason\":",f);
+  if (status && strcmp(status,"complete") && r && r->failure_reason)
+    jstr(f,r->failure_reason);
+  else fputs("null",f);
+  fputs(",\n  \"warnings\":[",f);
+  for (i=0;r && i<r->nwarnings;i++) {
+    if (i) fputc(',',f);
+    jstr(f,r->warnings[i]);
+  }
+  if (encoder_clips) {
+    if (r && r->nwarnings) fputc(',',f);
     jstr(f,"PCM-to-DSD interpolation clipped; see per-channel encoder counts");
-  if(r && r->out_of_memory) {
-    if (encoder_clips) fputc(',',f);
-    jstr(f,"report evidence incomplete: allocation failure");
+  }
+  if(r && (r->out_of_memory || r->warnings_omitted)) {
+    if (r->nwarnings || encoder_clips) fputc(',',f);
+    jstr(f,r->warnings_omitted ?
+        "additional warnings omitted from bounded report" :
+        "report evidence incomplete: allocation failure");
   }
   fputs("]\n}\n",f);
 }

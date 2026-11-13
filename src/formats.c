@@ -1673,6 +1673,23 @@ static sox_bool native_source_extent_complete(const sox_format_t *source,
       facts->data_bytes <= (uint64_t)st.st_size-start;
 }
 
+const char *lsx_pcm_f64_source_precommit_issue(const sox_format_t *source)
+{
+  lsx_pcm_f64_wav_facts wav;
+  lsx_pcm_f64_flac_facts flac;
+  struct stat st;
+  if (lsx_pcm_f64_wav_query(source,&wav)==PCM_F64_OK)
+    return native_source_extent_complete(source,&wav)?NULL:
+        "WAV source needs a complete, regular input descriptor";
+  if (lsx_pcm_f64_flac_query(source,&flac)==PCM_F64_OK) {
+    if (!source->fp || fileno((FILE *)source->fp)<0 ||
+        fstat(fileno((FILE *)source->fp),&st) || !S_ISREG(st.st_mode))
+      return "FLAC source needs a regular input descriptor";
+    return NULL;
+  }
+  return "actual input handler/header has no native binary64 PCM capability";
+}
+
 static sox_bool aliases_report(const struct stat *output,
     const char *report_path)
 {

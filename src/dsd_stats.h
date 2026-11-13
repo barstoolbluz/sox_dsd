@@ -6,6 +6,7 @@
 #include "pcmdsd.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 typedef struct lsx_dsd_stats lsx_dsd_stats;
 typedef struct lsx_dsd_report_context lsx_dsd_report_context;
@@ -32,6 +33,9 @@ void lsx_dsd_report_note_decode(const sox_dsd_decoder_t *,
     lsx_dsd_decode profile, lsx_dsd_level level, uint64_t graph_clips,
     double peak);
 void lsx_dsd_report_note_encode(const lsx_pcmdsd *);
+/* Capture messages actually emitted while a CLI report is active, without
+ * intercepting, mutating or double-printing the library's message stream. */
+void lsx_dsd_report_note_message(unsigned level,const char *fmt,va_list args);
 /* This is a private CLI JSON renderer, not an installed ABI. */
 void lsx_dsd_report_json(FILE *, const lsx_dsd_report_context *,
     const lsx_dsd_plan *, const lsx_dsd_stats *const *sources, size_t nsrc,

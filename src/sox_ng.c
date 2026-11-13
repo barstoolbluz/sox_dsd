@@ -265,6 +265,21 @@ static lsx_dsd_report_context *dsd_report_ctx;
 static lsx_dsd_plan dsd_report_plan; /* NATIVE-mode plan, not active routing. */
 static sox_bool dsd_report_active, dsd_report_published;
 static uint64_t dsd_adapter_clips_total, dsd_output_clip_total;
+static sox_output_message_handler_t dsd_report_previous_message_handler;
+static char dsd_report_actual_descriptor[160];
+static void dsd_report_message(unsigned level,const char *file,
+    const char *fmt,va_list args)
+{
+  va_list copy;
+  if (level<=sox_get_globals()->verbosity) {
+    va_copy(copy,args);
+    lsx_dsd_report_note_message(level,fmt,copy);
+    va_end(copy);
+  }
+  if (dsd_report_previous_message_handler)
+    dsd_report_previous_message_handler(level,file,fmt,args);
+}
+
 static int dsd_report_publish(char const *status);
 static void dsd_report_validate_destination(void);
 static void dsd_report_preflight_destination(void);
@@ -292,6 +307,30 @@ static sox_bool dsd_native_pcm_active = sox_false; /* 05A PCM-only strict64 */
 static size_t *dsd_decode_before;
 static size_t *dsd_encode_before; /* planned step index + 1, not a guessed encoder */
 static sox_bool dsd_consume_leading;
+static void dsd_report_observe_output(const sox_format_t *ft)
+{
+  struct stat st;
+  const char *kind="uninspectable", *seek="unknown seekability";
+  int fd;
+  if (!dsd_report_active || !ft) return;
+  if (ft->io_type!=lsx_io_file || !ft->fp) {
+    snprintf(dsd_report_actual_descriptor,sizeof(dsd_report_actual_descriptor),
+        "actual handler-managed output descriptor");
+    dsd_report_plan.precision_descriptor_status=dsd_report_actual_descriptor;
+    dsd_runtime_plan.precision_descriptor_status=dsd_report_actual_descriptor;
+    return;
+  }
+  fd=fileno((FILE *)ft->fp);
+  if (fd>=0 && !fstat(fd,&st)) {
+    kind=S_ISREG(st.st_mode)?"regular-file":
+        S_ISFIFO(st.st_mode)?"pipe":"other";
+    seek=ft->seekable?"seekable":"nonseekable";
+  }
+  snprintf(dsd_report_actual_descriptor,sizeof(dsd_report_actual_descriptor),
+      "actual retained %s descriptor, %s",kind,seek);
+  dsd_report_plan.precision_descriptor_status=dsd_report_actual_descriptor;
+  dsd_runtime_plan.precision_descriptor_status=dsd_report_actual_descriptor;
+}
 
 
 /* Flowing */
@@ -358,6 +397,10 @@ static void cleanup(void)
   if (dsd_report_publish(user_abort?"cancelled":success?"complete":"failed")!=SOX_SUCCESS)
     lsx_fail("--report publication failed");
   lsx_dsd_report_disable();
+  if (dsd_report_previous_message_handler) {
+    sox_get_globals()->output_message_handler=dsd_report_previous_message_handler;
+    dsd_report_previous_message_handler=NULL;
+  }
   lsx_dsd_report_destroy(dsd_report_ctx);dsd_report_ctx=NULL;
   lsx_dsd_plan_free(&dsd_runtime_plan);
   lsx_dsd_plan_free(&dsd_report_plan);
@@ -2839,15 +2882,17 @@ static void preflight_dsd(void)
     } else {
       lsx_pcm_f64_wav_facts wav_facts;
       lsx_pcm_f64_flac_facts flac_facts;
+      const char *issue=lsx_pcm_f64_source_precommit_issue(f->ft);
       if (lsx_pcm_f64_wav_query(f->ft,&wav_facts)==PCM_F64_OK) {
-        input[i].pcm64_reader_eligible=1;
+        input[i].pcm64_reader_eligible=issue==NULL;
         input[i].pcm64_container_bits=wav_facts.container_bits;
-        input[i].pcm64_source_kind=wav_facts.encoding==SOX_ENCODING_FLOAT?
+        input[i].pcm64_source_kind=issue?issue:wav_facts.encoding==SOX_ENCODING_FLOAT?
             "WAV IEEE float exact": "WAV integer exact power-of-two normalization";
       } else if (lsx_pcm_f64_flac_query(f->ft,&flac_facts)==PCM_F64_OK) {
-        input[i].pcm64_reader_eligible=1;
-        input[i].pcm64_source_kind="built-in FLAC integer exact power-of-two normalization";
-      } else input[i].pcm64_source_kind="unsupported handler or header";
+        input[i].pcm64_reader_eligible=issue==NULL;
+        input[i].pcm64_source_kind=issue?issue:
+            "built-in FLAC integer exact power-of-two normalization";
+      } else input[i].pcm64_source_kind=issue;
     }
     if (input[i].encoding==SOX_ENCODING_DSD) {
       has_dsd_input=1;
@@ -3315,14 +3360,59 @@ static void dsd_report_validate_destination(void)
   }
 }
 
+static void dsd_report_preflight_writable(void)
+{
+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
+  struct stat st;
+  int fd;
+  char *probe, *slash;
+  size_t size;
+  if (!dsd_report_path || !strcmp(dsd_report_path,"-")) return;
+  if (!lstat(dsd_report_path,&st)) {
+    if (stat(dsd_report_path,&st) || !S_ISREG(st.st_mode) ||
+        !(st.st_mode & 0222)) {
+      lsx_fail("--report destination is not a writable regular file"); exit(2);
+    }
+    fd=open(dsd_report_path,O_WRONLY|O_NONBLOCK);
+    if (fd<0) {
+      lsx_fail("--report destination cannot be opened for writing: %s",strerror(errno));
+      exit(2);
+    }
+    close(fd);
+    return;
+  }
+  if (errno!=ENOENT) {
+    lsx_fail("--report destination cannot be inspected: %s",strerror(errno));exit(2);
+  }
+  /* A missing report is checked by creating an unrelated sibling and
+   * unlinking it immediately. Never touch the requested report pathname. */
+  size=strlen(dsd_report_path)+40;
+  probe=malloc(size);
+  if (!probe) {lsx_fail("--report preflight allocation failed");exit(2);}
+  strcpy(probe,dsd_report_path);
+  slash=strrchr(probe,'/');
+  if (slash) strcpy(slash+1,".sox-report-XXXXXX");
+  else strcpy(probe,".sox-report-XXXXXX");
+  fd=mkstemp(probe);
+  if (fd<0) {
+    lsx_fail("--report parent directory cannot create report: %s",strerror(errno));
+    free(probe);exit(2);
+  }
+  close(fd);unlink(probe);free(probe);
+#endif
+}
+
 static void dsd_report_preflight_destination(void)
 {
   if (!dsd_report_path || dsd_report_active) return;
   dsd_report_validate_destination();
+  if (!dsd_plan_only) dsd_report_preflight_writable();
   dsd_report_ctx=lsx_dsd_report_create();
   if (!dsd_report_ctx) {lsx_fail("cannot allocate --report context");exit(2);}
   lsx_dsd_report_enable(dsd_report_ctx);
   dsd_report_active=sox_true;
+  dsd_report_previous_message_handler=sox_get_globals()->output_message_handler;
+  sox_get_globals()->output_message_handler=dsd_report_message;
 }
 
 /* In an ordinary command the output is opened only after P05 planning.
@@ -3519,6 +3609,7 @@ static int dsd_run_native_pcm(void)
       subtype,layout,source,NULL,dsd_report_path,overwrite_permitted);
   }
   if (!ofile->ft) goto done;
+  dsd_report_observe_output(ofile->ft);
   if (show_progress==sox_option_default) show_progress=sox_option_no;
   if (show_progress) {
     input_wide_samples=input_format.length_known?input_format.total_frames:0;
@@ -3651,6 +3742,7 @@ static int process(void)
     return result;
   }
   open_output_file();
+  dsd_report_observe_output(ofile->ft);
   dsd_report_check_open_output_alias();
   if (dsd_runtime_active &&
       (ofile->ft->signal.rate!=dsd_runtime_plan.output_rate ||

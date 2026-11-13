@@ -1118,7 +1118,8 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
     why="binary64 DSD decoder qualified only at DSD64 and DSD128";
   else if (spec->inputs[0].encoding!=SOX_ENCODING_DSD &&
       !spec->inputs[0].pcm64_reader_eligible)
-    why="actual input handler/header has no native binary64 PCM capability";
+    why=spec->inputs[0].pcm64_source_kind?spec->inputs[0].pcm64_source_kind:
+        "actual input handler/header has no native binary64 PCM capability";
   else if (!spec->output_pcm64_wav_capable &&
       p->output_domain==LSX_PCM_AUDIO)
     why="native PCM output requires the built-in WAV handler";
