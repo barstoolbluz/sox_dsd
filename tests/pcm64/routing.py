@@ -677,6 +677,50 @@ def main():
                           not dest.exists() and obj['output']['encoding'] != 1,
                           'PCM FLAC plan lied about the endpoint or wrote audio')
                     checks['pcm_flac_plan_'+policy]='PASS'
+                # Residual D-08: unsupported FLAC coding/depth requests must
+                # describe the actual legacy writer fallback, not the request.
+                # Plan never opens its destination. Execute only legacy routes
+                # and compare decoded endpoint facts and byte identity.
+                fallback_cases=(
+                    ('8', ['-b','8'],8),
+                    ('16', ['-b','16'],16),
+                    ('24', ['-b','24'],24),
+                    ('32-fallback', ['-b','32'],24),
+                    ('signed-24', ['-e','signed-integer','-b','24'],24),
+                    ('float-32-fallback', ['-e','floating-point','-b','32'],24),
+                )
+                for label,options,expected_bits in fallback_cases:
+                    hashes=[]
+                    for policy in ('auto','32','64'):
+                        dest=work/('flac-effective-plan-'+label+'-'+policy+'.flac')
+                        obj=plan('flac-effective-plan-'+label+'-'+policy,
+                                 ['--precision',policy,'-R','-D',wav,*options,dest],
+                                 policy=policy,eligible=False,
+                                 reason='built-in WAV handler' if policy=='64' else None)
+                        check(obj['output']['encoding']==5 and
+                              obj['output']['bits_per_sample']==expected_bits,
+                              'FLAC effective format does not match legacy fallback: '+
+                              label+' '+policy+': '+str(obj['output']))
+                        check(not dest.exists(),'FLAC plan opened output: '+label+' '+policy)
+                    for policy in ('default','auto','32'):
+                        dest=work/('flac-effective-run-'+label+'-'+policy+'.flac')
+                        args=([*(['--precision',policy] if policy!='default' else []),
+                               '-R','-D',wav,*options,dest])
+                        run('flac-effective-run-'+label+'-'+policy,args,0)
+                        check(dest.is_file(),'FLAC output missing: '+label+' '+policy)
+                        digest=sha(dest);hashes.append(digest)
+                        commands[-1]['output_sha256']=digest
+                        depth=run('flac-effective-depth-'+label+'-'+policy,
+                                  ['--i','-b',dest],0)
+                        coding=run('flac-effective-codec-'+label+'-'+policy,
+                                   ['--i','-e',dest],0)
+                        check(depth.stdout.strip()==str(expected_bits).encode() and
+                              coding.stdout.strip()==b'FLAC',
+                              'FLAC writer disagrees with reported format: '+label+' '+policy)
+                    check(len(set(hashes))==1,
+                          'FLAC audio differs between default/auto/32: '+label)
+                    checks['flac_effective_output_'+label]='PASS'
+                gates['d08_flac_writer_fallback']='PASS'
             else:
                 gates['d07_d08_flac_topologies']='NOT_RUN: no FLAC reader/writer in this build'
             # The static decision is not a descriptor validation. Native PCM
