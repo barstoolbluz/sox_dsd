@@ -288,6 +288,7 @@ static unsigned dsd_output_permutation_count = 0;
  * The planner owns no effect instances and its names are static handlers. */
 static lsx_dsd_plan dsd_runtime_plan;
 static sox_bool dsd_runtime_active = sox_false;
+static sox_bool dsd_native_pcm_active = sox_false; /* 05A PCM-only strict64 */
 static size_t *dsd_decode_before;
 static size_t *dsd_encode_before; /* planned step index + 1, not a guessed encoder */
 static sox_bool dsd_consume_leading;
@@ -2225,8 +2226,20 @@ static sox_dsd_layout_t *dsd_plan_output(char const *path,
   native_input = files[0]->ft->encoding.encoding == SOX_ENCODING_DSD;
   /* P04 is a DSD provenance bridge, not a change of policy for ordinary
    * PCM-to-PCM processing, including a WAV source with an extensible mask. */
-  if (!native_input && !native_output && !dsd_layout_assignment)
+  if (!native_input && !native_output && !dsd_layout_assignment &&
+      !dsd_native_pcm_active)
     return NULL;
+  /* With no source WAV speaker mask, PCM output must remain unassigned.
+   * A pure remix still changes the *audio* stream (handled by the native
+   * coordinator), but it does not invent an extensible WAV role assignment.
+   * A present mask, including a nonstandard unrecognized mask, remains in
+   * the native WAV writer’s raw-mask preservation path. */
+  if (dsd_native_pcm_active && !native_input && !dsd_layout_assignment) {
+    lsx_pcm_f64_wav_facts facts;
+    if (lsx_pcm_f64_wav_query(files[0]->ft,&facts)!=PCM_F64_OK ||
+        !facts.has_speaker_mask)
+      return NULL;
+  }
   if (sox_dsd_get_layout(files[0]->ft,&layout) != SOX_DSD_OK)
     layout = NULL;
   if (!layout && native_output)
@@ -2242,6 +2255,12 @@ static sox_dsd_layout_t *dsd_plan_output(char const *path,
     replacement = dsd_default_layout(combiner_signal.channels);
     sox_dsd_layout_free(layout);
     layout = replacement;
+  }
+  if (!layout && dsd_native_pcm_active && !native_input) {
+    lsx_pcm_f64_wav_facts facts;
+    if (lsx_pcm_f64_wav_query(files[0]->ft,&facts)==PCM_F64_OK &&
+        facts.has_speaker_mask)
+      layout=sox_dsd_layout_new(combiner_signal.channels);
   }
   if (!layout && !dsd_layout_assignment)return NULL;
 
@@ -2334,7 +2353,7 @@ static sox_dsd_layout_t *dsd_plan_output(char const *path,
     sox_dsd_layout_free(layout);
     return NULL;
   }
-  if (!native_output && !native_input && !has_identity) {
+  if (!dsd_native_pcm_active && !native_output && !native_input && !has_identity) {
     /* Do not rewrite ordinary PCM files simply for an unknown layout. */
     sox_dsd_layout_free(layout);
     return NULL;
@@ -2652,6 +2671,14 @@ static void pcm_plan_wav_encoding(sox_encodinginfo_t *result,
   if (!wav || handler->startwrite!=wav->startwrite ||
       handler->priv_size!=wav->priv_size) return;
   *result=ofile->encoding;
+  /* The WAV writer permits unsigned PCM only at 8 bits. Unsupported
+   * explicit depths are warned/downgraded by ordinary execution; a plan
+   * must report that same effective output rather than a nonexistent 16-bit
+   * unsigned WAV. This also covers -e unsigned without -b. */
+  if (result->encoding==SOX_ENCODING_UNSIGNED) {
+    result->bits_per_sample=8;
+    return;
+  }
   if (result->encoding && result->bits_per_sample) return;
   encoding=result->encoding;
   if (!encoding || encoding==SOX_ENCODING_SIGN2) {
@@ -2689,6 +2716,7 @@ static void preflight_dsd(void)
 
   lsx_dsd_plan_free(&dsd_runtime_plan);
   dsd_runtime_active=sox_false;
+  dsd_native_pcm_active=sox_false;
   free(dsd_decode_before);
   dsd_decode_before=NULL;
   free(dsd_encode_before);
@@ -2736,6 +2764,24 @@ static void preflight_dsd(void)
   spec.requested_encoding=ofile_encoding_options;
   spec.output_path=ofile->filename;
   spec.output_type=ofile->filetype;
+  /* The historical PCM-only open path owns its own codec-not-found error.
+   * Explicit auto/32 must not turn it into a Phase 04 preflight error. */
+  if (!has_new_effect && !dsd_plan_only && !dsd_report_path &&
+      spec.policy.headroom==LSX_DSD_HEADROOM_NONE &&
+      precision_requested!=LSX_PRECISION_64) {
+    sox_bool pcm_only=sox_true;
+    for (i=0;i<input_count;i++)
+      if (files[i]->ft->encoding.encoding==SOX_ENCODING_DSD)
+        pcm_only=sox_false;
+    if (pcm_only) {
+      sox_format_handler_t const *candidate=sox_write_handler(
+          ofile->filename,ofile->filetype,NULL);
+      if (!candidate || (strcmp(candidate->names[0],"dsf") &&
+          strcmp(candidate->names[0],"dff") && strcmp(candidate->names[0],"wsd"))) {
+        free(input);free(effect);return;
+      }
+    }
+  }
   handler=sox_write_handler(ofile->filename,ofile->filetype,NULL);
   if (!handler) {lsx_fail("P05: cannot resolve output handler before header open");exit(2);}
   kind=handler->names[0];
@@ -2822,6 +2868,7 @@ static void preflight_dsd(void)
       lsx_pcm_f64_flac_facts flac_facts;
       if (lsx_pcm_f64_wav_query(f->ft,&wav_facts)==PCM_F64_OK) {
         input[i].pcm64_reader_eligible=1;
+        input[i].pcm64_container_bits=wav_facts.container_bits;
         input[i].pcm64_source_kind=wav_facts.encoding==SOX_ENCODING_FLOAT?
             "WAV IEEE float exact": "WAV integer exact power-of-two normalization";
       } else if (lsx_pcm_f64_flac_query(f->ft,&flac_facts)==PCM_F64_OK) {
@@ -2866,7 +2913,7 @@ static void preflight_dsd(void)
   }
   /* The report is for DSD operations; it cannot change a PCM-only route. */
   if (dsd_report_path && !has_dsd_input && !spec.output_native_capable &&
-      !has_new_effect) {
+      !has_new_effect && precision_requested!=LSX_PRECISION_64) {
     lsx_fail("--report applies to DSD conversions; omit it for PCM-only audio");
     free(input);free(effect);exit(2);
   }
@@ -2875,6 +2922,13 @@ static void preflight_dsd(void)
   if (!has_dsd_input && !spec.output_native_capable && !has_new_effect &&
       (spec.policy.decode_specified || spec.policy.encode_specified)) {
     lsx_fail("--decode/--encode require a DSD reconstruction or encoding operation");
+    free(input);free(effect);exit(2);
+  }
+  /* Restore the historical PCM-only headroom refusal precedence. The
+   * proposed encoder-only headroom has no DSD endpoint here. */
+  if (!has_dsd_input && !spec.output_native_capable && !has_new_effect &&
+      spec.policy.headroom!=LSX_DSD_HEADROOM_NONE) {
+    lsx_fail("DSD routing: destination cannot encode the selected DSD/PCM format");
     free(input);free(effect);exit(2);
   }
   /* An explicit auto/32 choice does not turn ordinary PCM into a DSD
@@ -2927,7 +2981,8 @@ static void preflight_dsd(void)
       }
       if (series[i].output_domain==LSX_PCM_AUDIO) {
         uint32_t hz;
-        if (!series[i].output_bits) {
+        if (!series[i].output_bits ||
+            (!has_dsd_input && !has_new_effect && spec.output_pcm64_wav_capable)) {
           sox_encodinginfo_t chosen=ofile->encoding;
           if (!has_dsd_input && !has_new_effect)
             pcm_plan_wav_encoding(&chosen,handler);
@@ -2966,7 +3021,8 @@ static void preflight_dsd(void)
   if (!series) {
     if (plan.output_domain==LSX_PCM_AUDIO) {
       uint32_t hz;
-      if (!plan.output_bits) {
+      if (!plan.output_bits ||
+          (!has_dsd_input && !has_new_effect && spec.output_pcm64_wav_capable)) {
         sox_encodinginfo_t chosen=ofile->encoding;
         if (!has_dsd_input && !has_new_effect)
           pcm_plan_wav_encoding(&chosen,handler);
@@ -3126,7 +3182,19 @@ static void preflight_dsd(void)
   }
   /* Transfer the executable plan, not a second independently guessed graph.
    * Keep the source format's native signal/encoding untouched. */
-  if (dsd_policy.mode!=LSX_DSD_MODE_NATIVE) {
+  if (precision_requested==LSX_PRECISION_64 &&
+      active->precision_runner_available &&
+      active->precision_route &&
+      !strcmp(active->precision_route,"native-binary64-pcm")) {
+    dsd_native_pcm_active=sox_true;
+    dsd_runtime_plan=*active;
+    memset(active,0,sizeof(*active));
+    dsd_runtime_active=sox_true;
+    ofile->signal.rate=dsd_runtime_plan.output_rate;
+    ofile->signal.channels=dsd_runtime_plan.output_channels;
+    ofile->encoding.encoding=dsd_runtime_plan.output_encoding;
+    ofile->encoding.bits_per_sample=dsd_runtime_plan.output_bits;
+  } else if (dsd_policy.mode!=LSX_DSD_MODE_NATIVE) {
     size_t k=0,j;
     dsd_runtime_plan=*active;
     memset(active,0,sizeof(*active));
@@ -3340,6 +3408,221 @@ static int dsd_report_publish(char const *status)
   return ok;
 }
 
+/* Phase 05A bridge: one input, an ordered finite PCM64 stream and one native
+ * WAV sink. Preflight has proved the fixed graph shape and selected the
+ * private runner; no legacy int32 effects-chain object is constructed. */
+static int dsd_run_native_pcm(void)
+{
+  sox_format_t *source=files[0]->ft;
+  lsx_pcm_f64_wav_facts wav_facts;
+  lsx_pcm_f64_flac_facts flac_facts;
+  pcm_f64_format input_format;
+  lsx_dsd_f64_stream engine={0};
+  lsx_dsd_plan const *plan=&dsd_runtime_plan;
+  sox_dsd_layout_t *layout=NULL;
+  double *input=NULL,*output=NULL,*factors=NULL;
+  size_t factor_count=0, max_factors, i, capacity=4096, words, bytes;
+  unsigned channels, map[64], composed[64];
+  uint64_t nominal_clips=0;
+  int wav_input, finished=0, rc=LSX_EFF_FATAL;
+  pcm_f64_status status;
+  struct timeval status_then={0};
+  if (lsx_pcm_f64_wav_query(source,&wav_facts)==PCM_F64_OK) {
+    input_format=wav_facts.stream;
+    wav_input=1;
+  } else if (lsx_pcm_f64_flac_query(source,&flac_facts)==PCM_F64_OK) {
+    input_format=flac_facts.stream;
+    wav_input=0;
+  } else {
+    lsx_fail("native PCM64: actual input handler/header is unsupported");
+    return rc;
+  }
+  channels=input_format.channels;
+  if (!channels || channels>64 || plan->input_count!=1 ||
+      plan->output_rate!=(double)input_format.rate_hz ||
+      plan->output_channels!=channels ||
+      plan->output_domain!=LSX_PCM_AUDIO ||
+      plan->encode_count || plan->graph_decode_count || plan->input_decode_count ||
+      pcm_f64_frame_storage(capacity,channels,&words,&bytes)!=PCM_F64_OK ||
+      plan->step_count>SIZE_MAX/sizeof(double)-1) {
+    lsx_fail("native PCM64: resolved shape or frame arithmetic is invalid");
+    return rc;
+  }
+  max_factors=plan->step_count+1;
+  factors=calloc(max_factors,sizeof(*factors));
+  input=malloc(bytes);
+  output=malloc(bytes);
+  if (!factors || !input || !output) {
+    lsx_fail("native PCM64: bounded stream allocation failed");
+    goto done;
+  }
+  /* The planner's volume is already the single resolved product of -v and
+   * replay-gain. It precedes each independent, parsed gain occurrence. */
+  factors[factor_count++]=plan->inputs[0].volume;
+  for (i=0;i<channels;i++) map[i]=i;
+  for (i=0;i<plan->step_count;i++) {
+    const lsx_dsd_plan_step *step=&plan->steps[i];
+    if (!strcmp(step->name,"gain")) {
+      if (!step->plain_fixed_gain) {
+        lsx_fail("native PCM64: non-fixed gain passed preflight");
+        goto done;
+      }
+      factors[factor_count++]=step->gain_factor;
+    } else if (!strcmp(step->name,"remix")) {
+      size_t k;
+      if (!step->native_permutation || step->native_map_count!=channels) {
+        lsx_fail("native PCM64: unqualified channel remap");
+        goto done;
+      }
+      for (k=0;k<channels;k++) {
+        if (step->native_map[k]>=channels) goto done;
+        composed[k]=map[step->native_map[k]];
+      }
+      memcpy(map,composed,channels*sizeof(*map));
+    } else if (strcmp(step->name,"channels")) {
+      lsx_fail("native PCM64: unsupported effect escaped eligibility: %s",step->name);
+      goto done;
+    }
+  }
+  /* Phase 01's runtime arithmetic guard is precommit for ALL numerical
+   * operations. FLOAT64 identity without arithmetic accepts hostile fenv. */
+  if ((!wav_input || wav_facts.encoding!=SOX_ENCODING_FLOAT ||
+       wav_facts.container_bits!=64 ||
+       plan->output_encoding!=SOX_ENCODING_FLOAT || plan->output_bits!=64) &&
+      lsx_pcm_f64_check_dsp_env()!=PCM_F64_OK) {
+    lsx_fail("native PCM64: arithmetic environment is unsupported before output");
+    goto done;
+  }
+  status=lsx_dsd_f64_init(&engine,&input_format,factors,factor_count,map);
+  if (status!=PCM_F64_OK) {
+    lsx_fail("native PCM64: stream init: %s",pcm_f64_status_name(status));
+    goto done;
+  }
+  /* The layout helper computes the last legal WAV mask-order permutation.
+   * Construct the final map before opening the single retained descriptor. */
+  layout=dsd_plan_output(ofile->filename,ofile->filetype);
+  if (dsd_output_permutation_count) {
+    if (dsd_output_permutation_count!=channels) goto done;
+    for (i=0;i<channels;i++) {
+      if (dsd_output_permutation[i]>=channels) goto done;
+      composed[i]=engine.role_map[dsd_output_permutation[i]];
+    }
+    memcpy(engine.role_map,composed,channels*sizeof(*composed));
+  }
+  free(dsd_output_permutation);
+  dsd_output_permutation=NULL;
+  dsd_output_permutation_count=0;
+  /* Existing descriptor-preserving Phase 02A/03 safe-open function is the
+   * ONLY writer acquisition. All static input arithmetic/format rejection
+   * and alias/no-clobber/report checks occur before its commit boundary. */
+  ofile->ft=lsx_pcm_f64_wav_open_write(ofile->filename,&input_format,
+      plan->output_encoding,plan->output_bits,sox_false,layout,source,NULL,
+      dsd_report_path,overwrite_permitted);
+  if (!ofile->ft) goto done;
+  if (show_progress==sox_option_default) show_progress=sox_option_no;
+  if (show_progress) {
+    input_wide_samples=input_format.length_known?input_format.total_frames:0;
+    read_wide_samples=0;
+  }
+  report_file_info(ofile);
+  /* SIGTERM/SIGINT are sampled between bounded frame blocks. */
+  setsig(SIGTERM,sigint);
+  setsig(SIGINT,sigint);
+  for (;;) {
+    pcm_f64_progress read_result;
+    size_t consumed=0;
+    if (user_abort || user_skip) {
+      lsx_fail("native PCM64: conversion cancelled");
+      goto done;
+    }
+    read_result=wav_input?
+        lsx_pcm_f64_wav_read(source,(pcm_f64_output){input,capacity}):
+        lsx_pcm_f64_flac_read(source,(pcm_f64_output){input,capacity});
+    if (pcm_f64_is_failure(read_result.status) ||
+        read_result.produced_frames>capacity) {
+      lsx_fail("native PCM64: input read failed: %s",
+          pcm_f64_status_name(read_result.status));
+      goto done;
+    }
+    while (consumed<read_result.produced_frames) {
+      pcm_f64_progress compute, write;
+      size_t frame, ch;
+      compute=lsx_dsd_f64_process(&engine,
+          (pcm_f64_input){input+consumed*channels,
+              read_result.produced_frames-consumed},
+          (pcm_f64_output){output,capacity});
+      if (pcm_f64_is_failure(compute.status) || !compute.consumed_frames ||
+          compute.produced_frames!=compute.consumed_frames) {
+        lsx_fail("native PCM64: DSP failed: %s",pcm_f64_status_name(compute.status));
+        goto done;
+      }
+      /* Explicit nominal excursion is separate from target saturation. */
+      if (plan->output_encoding!=SOX_ENCODING_FLOAT) {
+        for (frame=0;frame<compute.produced_frames;frame++)
+          for (ch=0;ch<channels;ch++) {
+            double v=output[frame*channels+ch];
+            if (v>=1. || v < -1.) {
+              if (dsd_policy.clip==LSX_DSD_CLIP_ERROR) {
+                lsx_fail("native PCM64: --dsd-clip error, nominal PCM excursion at frame %" PRIu64 " channel %zu",
+                    engine.output_frames-compute.produced_frames+frame,ch);
+                goto done;
+              }
+              if (nominal_clips!=UINT64_MAX) ++nominal_clips;
+            }
+          }
+      }
+      write=lsx_pcm_f64_wav_write(ofile->ft,
+          (pcm_f64_input){output,compute.produced_frames});
+      if (write.consumed_frames > compute.produced_frames ||
+          pcm_f64_is_failure(write.status) ||
+          write.consumed_frames != compute.produced_frames) {
+        lsx_fail("native PCM64: short or failed physical output write (%zu/%zu frames): %s",
+            write.consumed_frames,compute.produced_frames,
+            pcm_f64_status_name(write.status));
+        goto done;
+      }
+      output_samples+=write.consumed_frames;
+      read_wide_samples+=compute.consumed_frames;
+      consumed+=compute.consumed_frames;
+    }
+    if (show_progress && since(&status_then,.1,sox_false)) {
+      double percent=input_wide_samples?
+          100.*read_wide_samples/input_wide_samples:0.;
+      fprintf(stderr,"\rNative PCM64: %.1f%%, %" PRIu64 " frames written",
+          percent,(uint64_t)output_samples);
+      fflush(stderr);
+    }
+    if (read_result.status==PCM_F64_DONE) {
+      pcm_f64_progress end=lsx_dsd_f64_finish(&engine,(pcm_f64_output){NULL,0});
+      if (end.status!=PCM_F64_DONE || end.produced_frames) {
+        lsx_fail("native PCM64: finish failed: %s",pcm_f64_status_name(end.status));
+        goto done;
+      }
+      finished=1;
+      break;
+    }
+    if (!read_result.produced_frames) {
+      /* Zero output from a decoder is not EOF. Without a ready frame or a
+       * DONE signal, no source progress can be verified. Fail, not spin. */
+      lsx_fail("native PCM64: reader made no progress without EOF");
+      goto done;
+    }
+  }
+  if (show_progress)
+    fprintf(stderr,"\rNative PCM64: 100.0%%, %" PRIu64 " frames written\n",
+        (uint64_t)output_samples);
+  if (nominal_clips)
+    lsx_warn("native PCM64: %" PRIu64 " nominal PCM excursions (clipped/quantized only at integer endpoint)",nominal_clips);
+  rc=SOX_EOF;
+
+done:
+  if (!finished && rc!=SOX_EOF) output_eof=sox_true;
+  lsx_dsd_f64_destroy(&engine);
+  sox_dsd_layout_free(layout);
+  free(factors);free(input);free(output);
+  return rc;
+}
+
 static int process(void)
 {         /* Input(s) -> Balancing -> Combiner -> Effects -> Output */
   int flow_status;
@@ -3351,6 +3634,8 @@ static int process(void)
   calculate_output_signal_parameters();
   preflight_dsd();
   dsd_report_preflight_destination();
+  if (dsd_native_pcm_active)
+    return dsd_run_native_pcm();
   open_output_file();
   dsd_report_check_open_output_alias();
   if (dsd_runtime_active &&
@@ -3554,7 +3839,7 @@ static void display_dsd_help(void)
        "  sox input.dsf output.dff               Repack native DSD bits\n"
        "  sox --dop input.dsf output.wav        Package DSD over PCM (24-bit)\n"
        "  sox --plan input.dsf output.wav       Inspect the processing graph\n"
-       "  sox --precision 64 input.dsf output.wav  Require native64 (unavailable in Phase 04)\n"
+       "  sox --precision 64 input.dsf output.wav  Require native64 (PCM identity/gain in Phase 05A; DSD in 05B)\n"
        "  sox --report run.json input.dsf output.wav  Convert and report\n"
        "\n"
        "Automatic decoding uses qualified mastering v2 filters. For advanced\n"
@@ -4970,7 +5255,21 @@ int main(int argc, char **argv)
         f->encoding = files[1]->encoding;
       }
     }
-    files[j]->ft = sox_open_read(f->filename, &f->signal, &f->encoding, f->filetype);
+    /* Phase 05A may need native RF64 table semantics before its precision
+     * preflight; only explicit64 and positively recognized WAV inputs use
+     * the private reader. Ordinary commands retain sox_open_read exactly. */
+    if (precision_requested==LSX_PRECISION_64 && f->filename &&
+        strcmp(f->filename,"-") &&
+        ((!f->filetype &&
+          ((strrchr(f->filename,'.') &&
+            (!strcasecmp(strrchr(f->filename,'.'),".wav") ||
+             !strcasecmp(strrchr(f->filename,'.'),".wave") ||
+             !strcasecmp(strrchr(f->filename,'.'),".rf64"))))) ||
+         (f->filetype && !strcmp(f->filetype,"wav"))) &&
+        !f->encoding.encoding && !f->encoding.bits_per_sample)
+      files[j]->ft=lsx_pcm_f64_wav_open_read(f->filename,&f->signal);
+    else
+      files[j]->ft = sox_open_read(f->filename, &f->signal, &f->encoding, f->filetype);
     if (!files[j]->ft)
       /* sox_open_read() will call lsx_warn for most errors.
        * Rely on that printing something. */
@@ -5057,7 +5356,7 @@ int main(int argc, char **argv)
       }
     }
     if (user_abort) finalization_failed = 1;
-    sox_delete_effects_chain(effects_chain);
+    if (effects_chain) sox_delete_effects_chain(effects_chain);
     effects_chain = NULL;
     if (finalization_failed) {
       delete_eff_chains();

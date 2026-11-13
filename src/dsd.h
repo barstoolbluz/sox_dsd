@@ -88,6 +88,7 @@ typedef struct {
   double input_volume;            /* Includes -v and replay-gain, pre-combiner. */
   int layout_known;
   int pcm64_reader_eligible; /* Checked actual opened handler and header. */
+  unsigned pcm64_container_bits; /* Actual WAV header, not sox_precision(). */
   char const *pcm64_source_kind; /* Exact float, normalized integer, DSD bits. */
 } lsx_dsd_input_spec;
 
@@ -193,6 +194,7 @@ typedef struct {
   const char *precision_endpoint_quantization;
   const char *precision_descriptor_status;
   int precision_header_feasible;
+  int precision_exact_identity; /* raw F64 words, no arithmetic or role reordering */
 } lsx_dsd_plan;
 
 /* Private rate x endpoint x operation authorization. P21 permits the

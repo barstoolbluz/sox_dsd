@@ -226,6 +226,12 @@ pcm64_probe_SOURCES = ../tests/pcm64/pcm64_probe.c ../src/pcm_f64.c
 pcm64_probe_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src
 pcm64_probe_CFLAGS = $(WARN_CFLAGS) $(PCM_F64_STRICT_CFLAGS)
 
+# Phase 05A: production coordinator and numerical sources without SoX int32.
+EXTRA_PROGRAMS += pcm64_coordinator_probe
+pcm64_coordinator_probe_SOURCES = ../tests/pcm64/coordinator_probe.c ../src/dsd_f64.c ../src/pcm_f64.c
+pcm64_coordinator_probe_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src
+pcm64_coordinator_probe_CFLAGS = $(WARN_CFLAGS) $(PCM_F64_STRICT_CFLAGS)
+
 # Phase 02A, private only. Link actual compiled WAV handler through libSoX.
 EXTRA_PROGRAMS += pcm64_wav_probe
 pcm64_wav_probe_SOURCES = ../tests/pcm64/wav_io_probe.c ../src/pcm_f64.c

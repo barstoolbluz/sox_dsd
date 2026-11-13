@@ -35,7 +35,7 @@ pcm_f64_status lsx_dsd_f64_init(lsx_dsd_f64_stream *s,
     if (from>=f->channels) return PCM_F64_ARGUMENT;
     for (j=0;j<i;j++) if (s->role_map[j]==from) return PCM_F64_ARGUMENT;
     s->role_map[i]=from;
-    if (from!=i) s->transformed=true;
+    if (from!=i) s->transformed=s->permuted=true;
   }
   /* Every source gain stays in order; no factor multiplication/fusion. */
   if (n) {
@@ -98,7 +98,7 @@ pcm_f64_progress lsx_dsd_f64_process(lsx_dsd_f64_stream *s,
     if (rc!=PCM_F64_OK) return failure(s,rc);
   }
   /* Fixed-size stack scratch: no per-frame/per-sample heap operations. */
-  for (frame=0;frame<frames;frame++) {
+  if (s->permuted) for (frame=0;frame<frames;frame++) {
     double slots[64];
     for (channel=0;channel<s->format.channels;channel++)
       memcpy(&slots[channel],out.data+frame*s->format.channels+

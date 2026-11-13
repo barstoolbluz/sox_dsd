@@ -1671,7 +1671,8 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
   uint64_t samples;
   bool stdout_pipe = false;
   lsx_pcm_f64_wav_facts source_facts;
-  bool have_source_facts=false;
+  lsx_pcm_f64_flac_facts flac_facts;
+  bool have_source_facts=false, have_flac_facts=false;
   unsigned align;
   int fd = -1;
   FILE *stream = NULL;
@@ -1719,9 +1720,23 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
   }
   have_source_facts = source &&
       lsx_pcm_f64_wav_query(source,&source_facts)==PCM_F64_OK;
-  if (source && !have_source_facts) {
-    lsx_fail("native WAV: source header is ineligible for native access");
+  have_flac_facts = source && !have_source_facts &&
+      lsx_pcm_f64_flac_query(source,&flac_facts)==PCM_F64_OK;
+  if (source && !have_source_facts && !have_flac_facts) {
+    lsx_fail("native WAV: source handler/header is ineligible for native access");
     return NULL;
+  }
+  /* The FLAC adapter exposes the actual opened decoder, not the filename.
+   * Its source descriptor must also be inspectable before a destination is
+   * destructively committed; payload decode failures remain runtime errors. */
+  if (have_flac_facts) {
+    struct stat input_st;
+    if (!source->fp || fileno((FILE *)source->fp)<0 ||
+        fstat(fileno((FILE *)source->fp),&input_st) ||
+        !S_ISREG(input_st.st_mode)) {
+      lsx_fail("native WAV: FLAC input descriptor is not a regular file");
+      return NULL;
+    }
   }
   if (have_source_facts && !native_source_extent_complete(source,&source_facts)) {
     lsx_fail("native WAV: source data extent exceeds the available regular input");

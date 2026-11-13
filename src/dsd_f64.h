@@ -17,7 +17,7 @@ typedef struct {
   double *gains;               /* one factor per operation, in source order */
   size_t gain_count;
   unsigned role_map[64];       /* output slot -> input slot */
-  bool transformed, finished;
+  bool transformed, permuted, finished;
 } lsx_dsd_f64_stream;
 
 /* The first factor, when present, is the resolved input volume/replay gain.

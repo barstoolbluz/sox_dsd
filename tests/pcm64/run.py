@@ -301,6 +301,18 @@ def flac_main_wrapper(flac_main, args):
         sys.argv = previous
 
 
+def pcm_identity_wrapper(native_main, args):
+    previous=sys.argv
+    try:
+        sys.argv=[str(Path(__file__).with_name("pcm_identity.py")),
+                  "--sox",str(args.sox),
+                  "--probe",str(Path(args.probe).with_name("pcm64_coordinator_probe")),
+                  "--results",str(args.results)]
+        return native_main()
+    finally:
+        sys.argv=previous
+
+
 def safe_git_head(source):
     try:
         result = run(["git", "-C", str(source), "rev-parse", "HEAD"])
@@ -369,8 +381,11 @@ def main():
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing"):
+    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
+    if args.suite == "pcm-identity":
+        from pcm_identity import main as native_main
+        return pcm_identity_wrapper(native_main,args)
     if args.suite == "io":
         return aggregate_io(args, results, output)
     if args.suite == "routing":

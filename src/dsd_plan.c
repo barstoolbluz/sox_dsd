@@ -998,11 +998,11 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
 {
   size_t i, next_effect=0;
   const char *why=NULL;
-  int has_dsd=0, pcm=0, transformed=0;
+  int has_dsd=0, pcm=0, transformed=0, arithmetic=0, permuted=0;
   if (!spec || !p) return;
   p->precision_requested=spec->precision;
   p->precision_compiled_capable=spec->arithmetic_compiled_capable;
-  p->precision_runner_available=0; /* Phase 05 must change this with real runner. */
+  p->precision_runner_available=0; /* Set only for the PCM-only 05A shape. */
   for (i=0;i<spec->input_count;i++) {
     if (spec->inputs[i].encoding==SOX_ENCODING_DSD) has_dsd=1;
     else pcm=1;
@@ -1022,7 +1022,9 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
       (p->encode_count?"one-bit DSD modulation":"none (native DSD bit preservation)"):
       p->output_domain==LSX_DOP_TRANSPORT?"none (DoP transport)":
       p->output_encoding==SOX_ENCODING_FLOAT?
-      (p->output_bits==64?"binary64 WAV endpoint":"binary32 WAV rounding"):
+      (p->output_bits==64?
+        (spec->output_pcm64_wav_capable?"binary64 WAV endpoint":"binary64 floating-point endpoint"):
+        (spec->output_pcm64_wav_capable?"binary32 WAV rounding":"binary32 floating-point endpoint rounding")):
       "integer PCM endpoint quantization";
   p->precision_descriptor_status=spec->output_path_status?
       spec->output_path_status:
@@ -1041,6 +1043,9 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
         step->gain_factor=spec->effects[next_effect].gain_factor;
         step->native_permutation=spec->effects[next_effect].native_permutation;
         if (step->native_permutation) {
+          size_t j;
+          for (j=0;j<spec->effects[next_effect].native_map_count;j++)
+            if (spec->effects[next_effect].native_map[j]!=j) permuted=1;
           step->native_map_count=spec->effects[next_effect].native_map_count;
           memcpy(step->native_map,spec->effects[next_effect].native_map,
               step->native_map_count*sizeof(step->native_map[0]));
@@ -1129,9 +1134,28 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
    * independent facts. An arithmetic-disabled build does not make an
    * otherwise supported graph structurally ineligible. */
   p->precision_graph_eligible=why==NULL;
-  p->precision_reason=why?why:!spec->arithmetic_compiled_capable?
-      "binary64 arithmetic/backend capability is unavailable":
-      "native binary64 runner unavailable in Phase 04";
+  /* Phase 05A: no decoder, encoder, SRC or generic effects may enter the
+   * actual private stream. Arithmetic capability is unnecessary ONLY when
+   * both adapters and every graph step can transfer raw FLOAT64 words. */
+  if (spec->input_count==1 && spec->inputs[0].encoding==SOX_ENCODING_FLOAT &&
+      spec->inputs[0].pcm64_container_bits==64 &&
+      spec->inputs[0].input_volume==1. &&
+      p->output_encoding==SOX_ENCODING_FLOAT && p->output_bits==64)
+    arithmetic=0;
+  else arithmetic=1;
+  for (i=0;i<p->step_count;i++)
+    if (is(p->steps[i].name,"gain") &&
+        (!p->steps[i].plain_fixed_gain || p->steps[i].gain_factor!=1.))
+      arithmetic=1;
+  p->precision_exact_identity=!arithmetic && !permuted;
+  p->precision_runner_available=!why && !has_dsd &&
+      p->output_domain==LSX_PCM_AUDIO && spec->output_pcm64_wav_capable &&
+      spec->input_count==1 && !p->input_decode_count &&
+      !p->graph_decode_count && !p->encode_count &&
+      (spec->arithmetic_compiled_capable || !arithmetic);
+  p->precision_reason=why?why:!p->precision_runner_available?
+      "native binary64 runner or required arithmetic capability is unavailable":
+      "native binary64 PCM identity/fixed-gain runner available";
   /* Legacy-auto is a deliberate product policy, not a failed native attempt.
    * No owner-approved release activation or executable native runner exists. */
   if (spec->precision==LSX_PRECISION_AUTO)
@@ -1141,10 +1165,15 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
   if (spec->precision==LSX_PRECISION_32)
     p->precision_reason="explicit 32-bit legacy PCM policy";
   if (spec->precision==LSX_PRECISION_64) {
-    p->precision_refused=1;
-    p->precision_route="refused-before-output";
-    p->precision_engine="none";
-    /* No native runner exists in Phase 04, regardless of graph feasibility. */
+    p->precision_refused=!p->precision_runner_available;
+    if (p->precision_refused) {
+      p->precision_route="refused-before-output";
+      p->precision_engine="none";
+    } else {
+      p->precision_route="native-binary64-pcm";
+      p->precision_engine="ieee754.binary64";
+      p->precision_reason=NULL;
+    }
   }
 }
 
@@ -1178,8 +1207,11 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
   fputs(",\"actual_pcm_engine\":",fp);json_string(fp,p->precision_engine?p->precision_engine:"sox_sample_t.int32");
   fputs(",\"fallback_or_refusal_reason\":",fp);
   if (p->precision_reason) json_string(fp,p->precision_reason); else fputs("null",fp);
-  fprintf(fp,",\"binary64_pcm_processing\":false,\"bit_exact_interchange\":%s",
-      !p->precision_pcm_present ? "true":"false");
+  fprintf(fp,",\"binary64_pcm_processing\":%s,\"bit_exact_interchange\":%s",
+      !p->precision_refused && !strcmp(p->precision_engine?p->precision_engine:"", "ieee754.binary64") ? "true":"false",
+      !p->precision_pcm_present || (!p->precision_refused &&
+          p->precision_exact_identity &&
+          !strcmp(p->precision_engine?p->precision_engine:"", "ieee754.binary64")) ? "true":"false");
   fputs(",\"input_normalization\":[",fp);
   for (i=0;i<p->input_count;i++) {
     const lsx_dsd_plan_input *in=&p->inputs[i];
@@ -1189,6 +1221,10 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
     fputs(",\"normalization\":",fp);
     if (p->precision_refused)
       json_string(fp,"not executed (pre-output refusal); native reader capability only");
+    else if (p->precision_engine && !strcmp(p->precision_engine,"ieee754.binary64"))
+      json_string(fp,in->source_encoding==SOX_ENCODING_FLOAT ?
+          "native IEEE float binary64 words (FLOAT32 exactly widened)" :
+          "native integer code normalized once by exact power-of-two scaling");
     else if (!p->precision_pcm_present)
       json_string(fp,"not applicable: native DSD/DoP bits preserved without PCM decode");
     else if (in->native_domain==LSX_DSD_NATIVE)
@@ -1202,6 +1238,8 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
     fputs(",\"source_decode_exact\":",fp);
     if (p->precision_refused || !p->precision_pcm_present)
       fputs("null",fp);
+    else if (p->precision_engine && !strcmp(p->precision_engine,"ieee754.binary64"))
+      fputs("true",fp);
     else if (in->native_domain==LSX_DSD_NATIVE ||
              in->source_encoding==SOX_ENCODING_FLOAT)
       fputs("false",fp);
@@ -1218,12 +1256,17 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
   json_string(fp,p->precision_descriptor_status?p->precision_descriptor_status:"unresolved");
   fputs(",\"numeric_identity\":",fp);
   json_string(fp,p->precision_refused?"refused: no PCM engine executed":
+      p->precision_engine && !strcmp(p->precision_engine,"ieee754.binary64")?
+        (p->precision_exact_identity?"binary64 word-exact PCM identity":"binary64 ordered PCM transformations; no original-word identity claim"):
       p->precision_pcm_present?"legacy int32 boundaries; no binary64 identity claim":
       "PCM processing absent: exact DSD/DoP bit-domain transport");
   fputs(",\"available_backend\":",fp);
-  json_string(fp,p->precision_compiled_capable?"ieee754 binary64 CPU (not selected)":"unavailable");
+  json_string(fp,p->precision_compiled_capable?"ieee754 binary64 CPU":
+      "identity-only binary64 word copy (arithmetic unavailable)");
   fputs(",\"selected_arithmetic_identity\":",fp);
   json_string(fp,p->precision_refused?"none (refused before output)":
+      p->precision_engine && !strcmp(p->precision_engine,"ieee754.binary64")?
+          "IEEE754 binary64 native interleaved PCM; no int32 interface":
       p->precision_pcm_present?"sox_sample_t signed int32 with historical effects":
       "none (bit-domain stream)");
   fputs(",\"ordered_boundaries\":[",fp);
@@ -1233,6 +1276,8 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
     fputs("{\"name\":",fp);json_string(fp,s->name);
     fputs(",\"engine\":",fp);
     json_string(fp,p->precision_refused?"not executed (pre-output refusal)":
+        p->precision_engine && !strcmp(p->precision_engine,"ieee754.binary64")?
+          "native interleaved IEEE754 binary64":
         (s->before==LSX_PCM_AUDIO || s->after==LSX_PCM_AUDIO)?
         "legacy int32 interface":"native bit symbols");
     fputs(",\"gain_factor\":",fp);
