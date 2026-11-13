@@ -293,7 +293,18 @@ class Suite:
                   legacy_known,'remix','2','1'], 'legacy-known-mask-remix')
         known_fmt,known_raw=parse_wav_bytes(known_out.read_bytes())
         legacy_fmt,legacy_raw=parse_wav_bytes(legacy_known.read_bytes())
-        check(f64_words(known_raw)==expect and known_raw==legacy_raw and
+        legacy_identity=self.root/'legacy-known-stereo-identity.wav'
+        self.run([known,'-e','floating-point','-b','64',legacy_identity],
+                 'legacy-known-mask-identity')
+        _,legacy_original=parse_wav_bytes(legacy_identity.read_bytes())
+        original_legacy_words=f64_words(legacy_original)
+        swapped_legacy=[w for j in range(0,len(original_legacy_words),2)
+                        for w in (original_legacy_words[j+1],original_legacy_words[j])]
+        # Legacy FLOAT64 ingress uses signed int32 and can round low bits.
+        # Compare each execution's channel order against its own unremixed
+        # words; native values retain the bits that legacy discards.
+        check(f64_words(known_raw)==expect and
+              f64_words(legacy_raw)==swapped_legacy and
               known_fmt[4]==legacy_fmt[4]==0x3,
               'known-mask remix differs from default SoX channel order')
         self.gates['pure_remix_and_channels_noop']='PASS'
