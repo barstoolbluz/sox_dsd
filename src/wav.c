@@ -104,7 +104,7 @@ typedef struct {
     off_t native_ds64_body_offset;
     uint64_t native_ds64_body_length;
     uint32_t native_rf64_riff32;
-    uint32_t native_ds64_table_next; /* next sentinel-sized ancillary entry */
+    unsigned char *native_ds64_table_used; /* consumed native ds64 entries */
     bool native_fact_present, native_fact_bad;
     uint32_t native_fact_frames;
 
@@ -856,7 +856,7 @@ static const char read_error_msg[] = "file is truncated";
  *      size and encoding of samples,
  *      mono/stereo/quad.
  */
-static int startread_wav(sox_format_t * ft)
+static int startread_wav_impl(sox_format_t * ft)
 {
     priv_t *       wav = (priv_t *) ft->priv;
     char        magic[5];
@@ -1635,6 +1635,18 @@ static size_t read_samples_wav(sox_format_t * ft, sox_sample_t *buf, size_t len)
         return done;
 }
 
+/* Failed native header admission still owns any ds64 lookup state. */
+static int startread_wav(sox_format_t *ft)
+{
+    int result = startread_wav_impl(ft);
+    if (result != SOX_SUCCESS) {
+        priv_t *wav = (priv_t *)ft->priv;
+        free(wav->native_ds64_table_used);
+        wav->native_ds64_table_used = NULL;
+    }
+    return result;
+}
+
 /*
  * Do anything required when you stop reading samples.
  * Don't close input file!
@@ -1651,6 +1663,8 @@ static int stopread_wav(sox_format_t * ft)
     free(wav->ms_adpcm_data);
     free(wav->comment);
     free(wav->native_scratch);
+    free(wav->native_ds64_table_used);
+    wav->native_ds64_table_used = NULL;
     wav->native_scratch = NULL;
     wav->comment = NULL;
 
@@ -2474,16 +2488,20 @@ static int native_rf64_ancillary_size(sox_format_t *ft,
       fread(count_bytes, 1, sizeof(count_bytes), fp) != sizeof(count_bytes))
     goto restore;
   count = (uint32_t)native_word(count_bytes, 4, false);
-  if (count != (w->native_ds64_body_length-28)/12 ||
-      w->native_ds64_table_next >= count ||
-      fseeko(fp, w->native_ds64_body_offset+28+
-          (off_t)w->native_ds64_table_next*12, SEEK_SET))
+  if (count != (w->native_ds64_body_length-28)/12 || !count ||
+      fseeko(fp, w->native_ds64_body_offset+28, SEEK_SET))
     goto restore;
-  for (i=w->native_ds64_table_next; i<count; ++i) {
+  if (!w->native_ds64_table_used) {
+    size_t bytes = (size_t)count/8 + ((count & 7u) != 0);
+    w->native_ds64_table_used = calloc(bytes, 1);
+    if (!w->native_ds64_table_used) goto restore;
+  }
+  for (i=0; i<count; ++i) {
     if (fread(entry, 1, sizeof(entry), fp) != sizeof(entry)) break;
-    if (!memcmp(entry, fourcc, 4)) {
+    if (!memcmp(entry, fourcc, 4) &&
+        !(w->native_ds64_table_used[i/8] & (1u << (i & 7u)))) {
       *length = native_word(entry+4, 8, false);
-      w->native_ds64_table_next = i+1;
+      w->native_ds64_table_used[i/8] |= (unsigned char)(1u << (i & 7u));
       result = SOX_SUCCESS;
       break;
     }
