@@ -5,6 +5,11 @@
 #include "sox_ng.h"
 #include "sox_dsd.h"
 sox_format_handler_t const *lsx_wav_format_fn(void);
+/* Metadata-only output negotiation: the actual legacy handler's selection,
+ * without opening a destination or invoking the writer. */
+bool lsx_pcm_f64_resolve_output(const sox_format_handler_t *handler,
+    const char *filename, sox_signalinfo_t *signal,
+    sox_encodinginfo_t *encoding);
 /* Private, read-side WAV parse mode. Never propagated to a public format handler. */
 #define LSX_WAV_NATIVE_RF64_TABLE 0x80000000u
 /* Native-only open: permits ds64 sizes for ancillary sentinel-sized chunks.
@@ -66,7 +71,7 @@ sox_sample_t *lsx_flac_native_scratch(sox_format_t *ft, size_t samples);
  * checked for aliasing. Layout ownership remains with the WAV handler. */
 sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     const pcm_f64_format *format, sox_encoding_t encoding, unsigned bits,
-    bool big_endian, const sox_dsd_layout_t *layout,
+    bool big_endian, const char *filetype, const sox_dsd_layout_t *layout,
     const sox_format_t *source, FILE *raw_source, const char *report_path,
     sox_bool (*overwrite_permitted)(const char *filename));
 

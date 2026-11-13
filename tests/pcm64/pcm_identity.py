@@ -464,7 +464,11 @@ class Suite:
                                       self.root/('float'+extension)],
                                      'nonwav-float-plan-'+extension).stdout)
             text=plan['precision']['endpoint_quantization']
-            check('WAV' not in text and 'floating-point' in text,
+            # AIFF has no IEEE float writer: ordinary SoX warns and selects
+            # signed PCM32. The plan must report that *actual* fallback, not
+            # repeat the unsupported -e argument as the output encoding.
+            expected='integer PCM' if extension=='.aiff' else 'floating-point'
+            check('WAV' not in text and expected in text,
                   f'non-WAV precision plan mislabels endpoint {extension}: {text}')
         # A FLOAT64 source and an explicit output -b historically caused the
         # Phase04 plan to discard the bit depth when FLOAT64 at that width is

@@ -1350,6 +1350,26 @@ static void set_output_format(sox_format_t * ft)
   #undef enc_arg
 }
 
+/* Share the one real output negotiator with Phase 05A preflight.  It uses
+ * the selected handler's advertised formats/fallback rules on stack-only
+ * metadata, without opening, creating or truncating a pathname. */
+bool lsx_pcm_f64_resolve_output(const sox_format_handler_t *handler,
+    const char *filename, sox_signalinfo_t *signal,
+    sox_encodinginfo_t *encoding)
+{
+  sox_format_t ft = {0};
+  if (!handler || !signal || !encoding) return false;
+  ft.handler = *handler;
+  ft.filename = (char *)filename;
+  ft.signal = *signal;
+  ft.encoding = *encoding;
+  set_endiannesses(&ft);
+  set_output_format(&ft);
+  *signal = ft.signal;
+  *encoding = ft.encoding;
+  return true;
+}
+
 sox_format_handler_t const * sox_write_handler(
     char               const * path,
     char               const * filetype,
@@ -1657,7 +1677,7 @@ static sox_bool aliases_report(const struct stat *output,
 
 sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     const pcm_f64_format *format, sox_encoding_t encoding, unsigned bits,
-    bool big_endian, const sox_dsd_layout_t *layout,
+    bool big_endian, const char *filetype, const sox_dsd_layout_t *layout,
     const sox_format_t *source, FILE *raw_source, const char *report_path,
     sox_bool (*overwrite_permitted)(const char *filename))
 {
@@ -1673,6 +1693,7 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
   lsx_pcm_f64_wav_facts source_facts;
   lsx_pcm_f64_flac_facts flac_facts;
   bool have_source_facts=false, have_flac_facts=false;
+  bool classic=filetype && !strcmp(filetype,"wavpcm");
   unsigned align;
   int fd = -1;
   FILE *stream = NULL;
@@ -1703,9 +1724,9 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
   }
   samples = format->total_frames * format->channels;
   align = format->channels * (bits/8);
-  extensible = ((encoding == SOX_ENCODING_SIGN2 ||
+  extensible = !classic && (((encoding == SOX_ENCODING_SIGN2 ||
       encoding == SOX_ENCODING_UNSIGNED) && (bits > 16 || format->channels > 2)) ||
-      layout != NULL;
+      layout != NULL);
   fact = extensible || encoding == SOX_ENCODING_FLOAT;
   /* The real output still uses the existing WAV fmt/fact serializer. This
    * planner only checks exact header/data/file extents before any open. */
@@ -1760,6 +1781,11 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
       source_facts.stream.channels != format->channels) {
     lsx_fail("native WAV: source layout channel mismatch"); return NULL;
   }
+  if (classic && ((have_source_facts && source_facts.has_speaker_mask) ||
+      (layout && !lsx_dsd_layout_wav_without_assignment(layout)))) {
+    lsx_fail("native WAV: wavpcm cannot preserve a known speaker assignment");
+    return NULL;
+  }
   if (report_path && (!strcmp(path,report_path) ||
       (!strcmp(path,"-") && !strcmp(report_path,"-")))) {
     lsx_fail("native WAV: report path aliases output");
@@ -1770,7 +1796,7 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
   ft = lsx_calloc(1,sizeof(*ft));
   ft->handler = *handler;
   ft->mode = 'w';
-  ft->filetype = lsx_strdup("wav");
+  ft->filetype = lsx_strdup(filetype ? filetype : "wav");
   ft->filename = lsx_strdup(path);
   ft->signal.rate = format->rate_hz;
   ft->signal.channels = format->channels;
@@ -1949,6 +1975,7 @@ failure:
 sox_format_t *lsx_pcm_f64_wav_open_write(const char *path UNUSED,
     const pcm_f64_format *format UNUSED, sox_encoding_t encoding UNUSED,
     unsigned bits UNUSED, bool big_endian UNUSED,
+    const char *filetype UNUSED,
     const sox_dsd_layout_t *layout UNUSED, const sox_format_t *source UNUSED,
     FILE *raw_source UNUSED, const char *report_path UNUSED,
     sox_bool (*overwrite_permitted)(const char *filename) UNUSED)

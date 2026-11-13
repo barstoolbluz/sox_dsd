@@ -2081,7 +2081,7 @@ static int wavwritehdr(sox_format_t * ft, int second_header)
               &dwChannelMask, NULL, 0) != SOX_DSD_OK)
           dwChannelMask = 0; /* Unknown identity is not an angle guess. */
       }
-      else if (strcmp(ft->filetype, "amb")) {
+      else if (!wav->native_writer && strcmp(ft->filetype, "amb")) {
         if      (wChannels == 1) dwChannelMask = 0x4;     /* 1 channel (mono) = FC */
         else if (wChannels == 2) dwChannelMask = 0x3;     /* 2 channels (stereo) = FL, FR */
         else if (wChannels == 4) dwChannelMask = 0x33;    /* 4 channels (quad) = FL, FR, BL, BR */
@@ -2220,11 +2220,12 @@ static int stopwrite_wav(sox_format_t * ft)
             int result = SOX_SUCCESS;
             bool do_rewrite=ft->seekable;
             lsx_wav_native_sizes_t ns;
-            uint16_t fmt_size = (uint16_t)(wav->native_writer_mask_present ||
+            uint16_t fmt_size = (uint16_t)((wav->native_writer_mask_present ||
                 wav->metadata.layout ||
                 ((ft->encoding.encoding == SOX_ENCODING_UNSIGNED ||
                   ft->encoding.encoding == SOX_ENCODING_SIGN2) &&
-                  (ft->encoding.bits_per_sample>16 || ft->signal.channels>2)) ?
+                  (ft->encoding.bits_per_sample>16 || ft->signal.channels>2))) &&
+                strcmp(ft->filetype,"wavpcm") ?
                 40 : ft->encoding.encoding == SOX_ENCODING_FLOAT ? 18 : 16);
             bool fact = fmt_size==40 || ft->encoding.encoding==SOX_ENCODING_FLOAT;
             bool big=ft->encoding.reverse_bytes==MACHINE_IS_LITTLEENDIAN;
@@ -2829,9 +2830,10 @@ pcm_f64_progress lsx_wav_native_write(sox_format_t *ft, pcm_f64_input in)
   {
     lsx_wav_native_sizes_t ns;
     uint64_t next=w->native_frames_done+(uint64_t)in.frames;
-    bool extensible = w->native_writer_mask_present || w->metadata.layout ||
+    bool extensible = (w->native_writer_mask_present || w->metadata.layout ||
         ((f.encoding==SOX_ENCODING_SIGN2 || f.encoding==SOX_ENCODING_UNSIGNED) &&
-         (f.container_bits>16 || f.stream.channels>2));
+         (f.container_bits>16 || f.stream.channels>2))) &&
+        strcmp(ft->filetype,"wavpcm");
     uint16_t fmt_size = extensible ? 40 :
         f.encoding==SOX_ENCODING_FLOAT ? 18 : 16;
     bool fact = extensible || f.encoding==SOX_ENCODING_FLOAT;
@@ -2943,9 +2945,10 @@ pcm_f64_status lsx_wav_native_sparse_zero_frames(sox_format_t *ft,
         frames>w->native_frames_expected-w->native_frames_done)))
     return PCM_F64_LIMIT;
   next=w->native_frames_done+frames;
-  extensible=w->native_writer_mask_present || w->metadata.layout ||
+  extensible=(w->native_writer_mask_present || w->metadata.layout ||
       ((f.encoding==SOX_ENCODING_SIGN2 || f.encoding==SOX_ENCODING_UNSIGNED) &&
-       (f.container_bits>16 || f.stream.channels>2));
+       (f.container_bits>16 || f.stream.channels>2))) &&
+      strcmp(ft->filetype,"wavpcm");
   fmt_size=extensible ? 40 : f.encoding==SOX_ENCODING_FLOAT ? 18 : 16;
   fact=extensible || f.encoding==SOX_ENCODING_FLOAT;
   if (!lsx_wav_native_sizes(next,f.stream.channels*(f.container_bits/8),

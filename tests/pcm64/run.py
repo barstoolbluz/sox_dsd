@@ -381,8 +381,17 @@ def main():
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity"):
+    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
+    if args.suite == "output-formats":
+        from output_formats import main as output_formats_main
+        previous=sys.argv
+        try:
+            sys.argv=[str(Path(__file__).with_name("output_formats.py")),
+                      "--sox",str(args.sox),"--results",str(args.results)]
+            return output_formats_main()
+        finally:
+            sys.argv=previous
     if args.suite == "pcm-identity":
         from pcm_identity import main as native_main
         return pcm_identity_wrapper(native_main,args)
