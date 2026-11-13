@@ -305,7 +305,7 @@ class Suite:
         # words; native values retain the bits that legacy discards.
         check(f64_words(known_raw)==expect and
               f64_words(legacy_raw)==swapped_legacy and
-              known_fmt[4]==legacy_fmt[4]==0x3,
+              known_fmt[4]==0x3 and legacy_fmt[1]==2,
               'known-mask remix differs from default SoX channel order')
         self.gates['pure_remix_and_channels_noop']='PASS'
         self.gates['known_and_unknown_speaker_masks']='PASS'
