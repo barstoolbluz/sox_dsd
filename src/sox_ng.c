@@ -224,6 +224,8 @@ static size_t output_count = 0;
  */
 static sox_effect_t **user_efftab = NULL;
 static size_t user_efftab_size = 0;
+/* Only still-owned, untransferred effect objects remain non-NULL. */
+static size_t user_effects_created = 0;
 static sox_effects_chain_t *effects_chain = NULL;
 static sox_effect_t *save_output_eff = NULL;
 
@@ -448,6 +450,11 @@ already_closed:
     tcsetattr(fileno(stdin), TCSANOW, &original_termios);
 #endif
 
+  /* Preflight may exit before add_effects() or the native PCM64 runner.
+   * Both successful paths null entries as ownership transfers or ends. */
+  for (i = 0; i < user_effects_created; ++i)
+    if (user_efftab[i])
+      sox_delete_effect(user_efftab[i]);
   free(user_efftab);
 
   free(sox_globals.tmp_path);
@@ -1447,6 +1454,7 @@ static void create_user_effects(void)
     lsx_revalloc(user_efftab, num_effects);
   }
 
+  user_effects_created = 0;
   for (i = 0; i < num_effects; i++) {
     sox_effect_handler_t const *handler =
         sox_find_effect(user_effargs[current_eff_chain][i].name);
@@ -1456,6 +1464,8 @@ static void create_user_effects(void)
       exit(1);
     }
     effp = sox_create_effect(handler);
+    user_efftab[i] = effp;
+    user_effects_created = i + 1;
 
     if (effp->handler.flags & SOX_EFF_INTERNAL) {
       lsx_fail("`%s' is a libSoX-only effect", effp->handler.name);
@@ -1467,7 +1477,6 @@ static void create_user_effects(void)
           user_effargs[current_eff_chain][i].argv) == SOX_EOF)
       exit(1);
 
-    user_efftab[i] = effp;
   }
 }
 
@@ -1639,6 +1648,7 @@ static void add_effects(sox_effects_chain_t *chain)
     dsd_prepare_explicit_encoder(chain,&signal,&guard,i,&p10_normalized);
     if (i==0 && dsd_consume_leading) {
       free(user_efftab[i]);
+      user_efftab[i] = NULL;
       continue;
     }
     if (add_effect(chain, user_efftab[i], &signal, &ofile->ft->signal,
@@ -1650,6 +1660,7 @@ static void add_effects(sox_effects_chain_t *chain)
         !strcmp(user_efftab[i]->handler.name,"dsdpcm"))
       guard=0;
     free(user_efftab[i]);
+    user_efftab[i] = NULL;
   }
 
   /* A pending decoder precedes every automatic operation, even when the
@@ -1698,6 +1709,7 @@ static void add_effects(sox_effects_chain_t *chain)
           &guard) != SOX_SUCCESS)
       exit(2); /* Effects chain should have displayed an error message */
     free(user_efftab[i]);
+    user_efftab[i] = NULL;
   }
 
   dsd_insert_encoder(chain,&signal,&guard,nuser_effects[current_eff_chain],&p10_normalized);
