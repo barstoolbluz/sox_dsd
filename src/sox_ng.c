@@ -2680,6 +2680,18 @@ static void pcm_plan_wav_encoding(sox_encodinginfo_t *result,
     return;
   }
   if (result->encoding && result->bits_per_sample) return;
+  /* An explicit -b without -e can leave the output encoding unset when
+   * source FLOAT64 at the requested width is unsupported (e.g. -b 16).
+   * The ordinary WAV writer then selects integer PCM at that width; do
+   * not discard the user's bit depth when predicting the native endpoint.
+   * A supported float depth has already been inherited above. */
+  if (!result->encoding &&
+      (result->bits_per_sample==8 || result->bits_per_sample==16 ||
+       result->bits_per_sample==24 || result->bits_per_sample==32)) {
+    result->encoding=result->bits_per_sample==8?
+        SOX_ENCODING_UNSIGNED:SOX_ENCODING_SIGN2;
+    return;
+  }
   encoding=result->encoding;
   if (!encoding || encoding==SOX_ENCODING_SIGN2) {
     if (!encoding && precision<=8) {

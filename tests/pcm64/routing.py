@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Phase 04: executable pre-output precision decisions, legacy preservation,
-RF64 native parity, and both deliberately approved legacy exceptions.
+"""Phase 04 routing and Phase 05A native PCM compatibility regression.
 
-A command succeeds only when the checked actual process/JSON/bytes do; source
-text is never substituted for a runtime test. Descriptor-dependent native
-writer assertions remain NOT_RUN until a native runner is implemented.
+Prove precise plan/execution routing: the new native PCM identity/gain path
+is limited to supported required64 shapes, while the legacy, DSD, RF64,
+and approved compatibility-exception behavior remains intact.
 """
 from __future__ import annotations
 import argparse
@@ -132,9 +131,23 @@ def main():
                     f'{name}: wrong first refusal: {prec}')
                 if steps is not None:check([s['name'] for s in obj['steps']]==steps,
                     f'{name}: wrong ordered steps: {[s["name"] for s in obj["steps"]]}')
-                check(prec['runner_available'] is False,'Phase04 must not claim runner')
-                check(prec['actual_pcm_engine'] != 'binary64',
-                      'Phase04 must not claim actual binary64 engine')
+                if prec['actual_route']=='native-binary64-pcm':
+                    check(prec['runner_available'],f'{name}: native execution with no runner')
+                    check(prec['requested']=='64' and
+                          prec['actual_route']=='native-binary64-pcm' and
+                          prec['actual_pcm_engine']=='ieee754.binary64' and
+                          prec['binary64_pcm_processing'] is True and
+                          prec['refused'] is False and
+                          obj['combiner']['domain']=='PCM_AUDIO' and
+                          obj['output']['domain']=='PCM_AUDIO' and
+                          obj['encoder_count']==0 and
+                          obj['input_decoder_count']==0 and
+                          obj['graph_decoder_count']==0,
+                          f'{name}: unexpected native runner or hidden DSD: {prec}')
+                else:
+                    check(prec['actual_pcm_engine']!='ieee754.binary64' and
+                          prec['binary64_pcm_processing'] is False,
+                          f'{name}: unavailable runner claims native processing: {prec}')
                 check('actual descriptor' in prec['output_descriptor'] or
                       'descriptor' in prec['output_descriptor'] or
                       'symlink' in prec['output_descriptor'] or
@@ -284,13 +297,14 @@ def main():
                       p['precision']['binary64_pcm_processing'] is False,
                       'legacy FLOAT64 erroneously claimed exact: '+policy)
                 checks['float64_legacy_plan_'+policy]='PASS'
-            p=plan('float64-strict-refused',['--precision','64','-D',f64,
+            p=plan('float64-strict-native',['--precision','64','-D',f64,
                    '-e','floating-point','-b','64',output],policy='64',eligible=True)
-            check(p['precision']['input_normalization'][0]['source_decode_exact'] is None and
-                  'not executed' in p['precision']['input_normalization'][0]['normalization'] and
-                  p['precision']['actual_pcm_engine']=='none',
-                  'strict refusal falsely claims a decode occurred')
-            checks['float64_strict_not_executed']='PASS'
+            check(p['precision']['input_normalization'][0]['source_decode_exact'] is True and
+                  p['precision']['bit_exact_interchange'] is True and
+                  p['precision']['actual_pcm_engine']=='ieee754.binary64' and
+                  p['precision']['runner_available'] is True,
+                  'native strict FLOAT64 plan does not claim real exact ingress')
+            checks['float64_strict_exact_native_plan']='PASS'
             for label,src in [('float64',f64)]:
                 plan('float64-auto-dither',['--precision','64',src,'-b','16',output],
                      policy='64',eligible=False,steps=[],reason='implicit automatic dither')
@@ -429,20 +443,19 @@ def main():
                 commands[-1]['destination_sha256_before_after']=before
                 checks['strict_refusal_'+name]='PASS'
                 target.unlink()
-            # Eligible-but-unimplemented refusal before output, for both
-            # existing and nonexistent destinations (no destructive write).
+            # An unsupported SRC must fail at planning/preflight even when
+            # the native coordinator is installed, for both destination states.
             for existing in (False,True):
                 dest=work/('strict-existing.wav' if existing else 'strict-new.wav')
                 if existing:dest.write_bytes(b'PRESERVE-STRICT-PCM')
                 before=sha(dest) if existing else None
-                cp=run('runner-unavailable-existing='+str(existing),
-                       ['--precision','64','-D',wav,'-b','24',dest,'gain','-3'],2)
-                check(('runner unavailable' if native_ready else 'arithmetic/backend')
-                      in cp.stderr.decode('utf-8','replace'),
-                      f'wrong unavailable-runner reason: {cp.stderr[-500:]}')
+                cp=run('unsupported-src-existing='+str(existing),
+                       ['--precision','64','-D',wav,'-r','48000',dest,'gain','-3'],2)
+                check('implicit_pcm_rate' in cp.stderr.decode('utf-8','replace'),
+                      f'wrong preflight SRC refusal: {cp.stderr[-500:]}')
                 check((sha(dest)==before if existing else not dest.exists()),
-                      f'runner unavailable altered destination (existing={existing})')
-                checks['strict_runner_unavailable_existing='+str(existing)]='PASS'
+                      f'unsupported SRC altered destination (existing={existing})')
+                checks['strict_unsupported_src_preserves_existing='+str(existing)]='PASS'
             # Path inspection must be static and must not claim fstat/seek.
             if hasattr(os,'mkfifo'):
                 fifo=work/'sink.fifo';os.mkfifo(fifo)
@@ -612,12 +625,12 @@ def main():
             preserved=work/'strict64-existing.wav'
             preserved.write_bytes(b'pre-existing PCM output must survive strict64 refusal')
             original=sha(preserved)
-            refused=run('strict64-existing-output',
-                        ['--precision','64','-R','-D',wav,preserved],2)
+            refused=run('strict64-existing-output-unsupported-src',
+                        ['--precision','64','-R','-D',wav,'-r','48000',preserved],2)
             check(sha(preserved)==original and b'no output created' in refused.stderr,
-                  'strict64 refusal altered the existing destination')
+                  'strict64 unsupported-src refusal altered the existing destination')
             commands[-1]['preserved_destination_sha256']=sha(preserved)
-            checks['strict64_pcm_existing_output_preserved']='PASS'
+            checks['strict64_src_existing_output_preserved']='PASS'
             # D-08: the built-in WAV writer selects the source's ordinary
             # integer precision when a FLAC input supplies no -b option.
             if flac_available:
@@ -723,11 +736,11 @@ def main():
                 gates['d08_flac_writer_fallback']='PASS'
             else:
                 gates['d07_d08_flac_topologies']='NOT_RUN: no FLAC reader/writer in this build'
-            # The static decision is not a descriptor validation. Native PCM
-            # writer cannot be exercised by --precision64 in Phase04.
-            gates['native_actual_descriptor_precommit']='NOT_RUN: required64 PCM runner intentionally unavailable until Phase05'
-            gates['native_symlink_retarget_hardlink_alias_stdout_pipe']='NOT_RUN: native PCM runner intentionally unavailable until Phase05'
-            gates['native_report_actual_execution']='NOT_RUN: native PCM runner intentionally unavailable until Phase05'
+            # The Phase05A pcm-identity suite now exercises retained-descriptor
+            # commits, symlink/alias/stdout and post-write report outcomes. Do
+            # not relabel the old Phase04 placeholders as completed test gates.
+            gates['phase05a_native_descriptor_coverage']='SEE pcm-identity receipt: retained descriptor and alias scenarios'
+            gates['phase05a_native_report_coverage']='SEE pcm-identity receipt: plan/report/observed bytes'
             gates['legacy_pcm_byte_compatibility']='PASS'
             gates['strict_static_refusals_and_sentinels']='PASS'
         status='PASS_WITH_NOT_RUN' if any(str(x).startswith('NOT_RUN') for x in gates.values()) else 'PASS'
