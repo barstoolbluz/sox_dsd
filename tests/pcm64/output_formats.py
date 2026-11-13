@@ -514,7 +514,7 @@ class Test:
         self.cvsd_writer_endpoints()
         return {'suite':'output-formats',
                 'status':('PASS_WITH_NOT_RUN' if any(v.startswith('NOT_RUN') for v in self.gates.values()) else 'PASS'),
-                'source_git_commit':subprocess.run(['git','-C',str(SOURCE),'rev-parse','HEAD'],capture_output=True,text=True).stdout.strip(),
+                'source_git_commit':safe_git_head(SOURCE),
                 'executed_binary_sha256':{str(self.binary):sha256(self.binary)},
                 'source_and_binary_sha256':{str(p.relative_to(SOURCE)):sha256(p) for p in
                     (SOURCE/'tests/pcm64/output_formats.py',SOURCE/'src/formats.c',
@@ -533,14 +533,33 @@ def main():
     test=Test(args.sox,args.results)
     path=args.results/'output-formats.json'
     path.unlink(missing_ok=True)
+    if not native_dsp_compiled(args.sox):
+        source=test.root/'disabled_input.wav'
+        destination=test.root/'disabled_output.wav'
+        wav(source,[0,1234,-1234],bits=16)
+        destination.write_bytes(b'SENTINEL')
+        cp=test.run(['--precision','64',source,destination],expect=False)
+        plan=test.run(['--precision','64','--plan',source,destination],expect=False)
+        ok=(cp.returncode!=0 and destination.read_bytes()==b'SENTINEL' and
+            plan.returncode==0 and b'refused-before-output' in plan.stdout)
+        record={'suite':'output-formats',
+                'status':'PASS_WITH_NOT_RUN' if ok else 'FAIL',
+                'gate_execution':{'disabled_native_refusal':'PASS' if ok else 'FAIL',
+                    'native_output_format_matrix':'NOT_RUN: --disable-native-f64'},
+                'source_git_commit':safe_git_head(SOURCE),
+                'executed_binary_sha256':{str(args.sox):sha256(args.sox)},
+                'actual_checks':{'disabled_refusal_commands':2},
+                'commands_executed':test.commands}
+        path.write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
+        print(record['status']+' output-formats: disabled native DSP capability')
+        return 0 if ok else 1
     try:
         receipt=test.execute()
     except BaseException as exc:
         receipt={'suite':'output-formats','status':'FAIL','error':f'{type(exc).__name__}: {exc}',
                  'actual_checks':test.counters,'gate_execution':test.gates,
                  'commands_executed':test.commands,
-                 'source_git_commit':subprocess.run(['git','-C',str(SOURCE),'rev-parse','HEAD'],
-                     capture_output=True,text=True).stdout.strip()}
+                 'source_git_commit':safe_git_head(SOURCE)}
         path.write_text(json.dumps(receipt,sort_keys=True,indent=2)+'\n')
         print(f'FAIL output-formats: {exc}',file=sys.stderr)
         return 1

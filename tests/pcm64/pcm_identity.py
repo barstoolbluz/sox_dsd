@@ -23,7 +23,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from binary_receipts import executable_libraries
+from binary_receipts import executable_libraries, safe_git_head, native_dsp_compiled
 from flac_fixtures import RATE as FLAC_RATE, SPECS as FLAC_SPECS, codes as flac_codes, name as flac_name
 
 SOURCE = Path(__file__).resolve().parents[2]
@@ -672,8 +672,7 @@ class Suite:
 
     def receipt(self,status,error=None):
         data={'suite':'pcm-identity','status':status,'error':error,
-              'source_git_commit':subprocess.run(['git','-C',str(SOURCE),'rev-parse','HEAD'],
-                  capture_output=True,text=True).stdout.strip() or None,
+              'source_git_commit':safe_git_head(SOURCE),
               'seed':SEED,'actual_checks':self.counts,'gate_execution':self.gates,
               'performance':self.time_checks,'commands':self.commands,
               'executed_binary_sha256':self.binary_hashes,
@@ -698,6 +697,31 @@ def main():
     args=parser.parse_args()
     results=args.results.resolve();results.mkdir(parents=True,exist_ok=True)
     receipt=results/'pcm-identity.json';receipt.unlink(missing_ok=True)
+    if not native_dsp_compiled(args.sox):
+        source=results/'pcm64_disabled_input.wav'
+        destination=results/'pcm64_disabled_output.wav'
+        source.write_bytes(b'RIFF'+struct.pack('<I',38)+b'WAVEfmt '+
+            struct.pack('<IHHIIHH',16,1,1,48000,96000,2,16)+
+            b'data'+struct.pack('<Ih',2,0))
+        destination.write_bytes(b'SENTINEL')
+        cp=subprocess.run([str(args.sox),'--precision','64',str(source),str(destination)],
+            capture_output=True,text=True)
+        plan=subprocess.run([str(args.sox),'--precision','64','--plan',
+            str(source),str(destination)],capture_output=True,text=True)
+        ok=(cp.returncode!=0 and destination.read_bytes()==b'SENTINEL' and
+            plan.returncode==0 and 'refused-before-output' in plan.stdout)
+        record={'suite':'pcm-identity',
+            'status':'PASS_WITH_NOT_RUN' if ok else 'FAIL',
+            'gate_execution':{
+                'disabled_native_refusal':'PASS' if ok else 'FAIL',
+                'native_numeric_and_stream_gates':'NOT_RUN: --disable-native-f64'},
+            'source_git_commit':safe_git_head(SOURCE),
+            'executed_binary_sha256':{str(args.sox):sha(args.sox)},
+            'actual_checks':{'disabled_refusal_commands':2},
+            'error':None if ok else 'strict64 disabled build did not refuse without output modification'}
+        receipt.write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')
+        print(record['status']+' pcm-identity: disabled native DSP capability')
+        return 0 if ok else 1
     suite=Suite(args.sox,args.probe,results)
     try:
         suite.record_binary(suite.probe)
