@@ -404,6 +404,105 @@ class Test:
             self.count('implicit_plan_steps',len(planned))
         self.gates['ordered_automatic_PCM_endpoints_match_executed_chain']='PASS'
 
+    def cvsd_writer_endpoints(self):
+        """The CVSD/DVMS writer chooses bitrate before setting PCM rate to 8k.
+
+        Compare the metadata-only plan to the actual -V3 processing chain;
+        also require byte identity among omitted/auto/32 precision routes.
+        """
+        traces=re.compile(r'effects chain:\s+(\w+)\s+([0-9.]+)Hz\s+(\d+) channels')
+        rate_report=re.compile(r'cvsd: bit rate (\d+)bit/s')
+        for in_channels in (1,2):
+            src=self.root/f'cvsd-source-{in_channels}ch.wav'
+            samples=[((i*1477)%55000)-27500 for i in range(7200*in_channels)]
+            wav(src,samples,16,1,in_channels)
+            for typ in ('cvs','cvsd','dvms','vms'):
+                for requested in (None,16000,32000):
+                    options=['-r',str(requested)] if requested else []
+                    target=self.root/f'cvsd-{in_channels}ch-{typ}-{requested}.{typ}'
+                    args=[src,*options,target]
+                    sentinel=b'PRESERVE CVSD PLAN TARGET' * 3
+                    target.write_bytes(sentinel)
+                    plan=json.loads(self.run(['--plan',*args]).stdout)
+                    require(target.read_bytes()==sentinel,
+                            f'{typ}: --plan modified existing destination')
+                    target.unlink()
+                    self.run(['--plan',*args])
+                    require(not target.exists(),f'{typ}: --plan created destination')
+                    self.count('cvsd_plan_no_mutation_cases')
+                    declared=plan['output']
+                    require((declared['rate_hz'],declared['channels'],
+                             declared['encoding'],declared['bits_per_sample'])==
+                            (8000,1,28,1),
+                            f'{typ}: wrong effective CVSD endpoint {declared}')
+                    require(declared['requested_rate_hz']==requested,
+                            f'{typ}: requested rate overwritten: {declared}')
+                    expected_names=(('channels','rate') if in_channels==2
+                                    else ('rate',))
+                    expected_steps=[]
+                    rate=48000;channels=in_channels
+                    if in_channels==2:
+                        expected_steps.append(('channels',48000,2,48000,1))
+                        channels=1
+                    expected_steps.append(('rate',rate,channels,8000,1))
+                    planned=[(step['name'].replace('implicit_pcm_',''),
+                              step['rate_in_hz'],step['channels_in'],
+                              step['rate_out_hz'],step['channels_out'])
+                             for step in plan['steps']
+                             if step['name'].startswith('implicit_pcm_')]
+                    require(tuple(s[0] for s in planned)==expected_names and
+                            planned==expected_steps,
+                            f'{typ}: wrong planned auto steps {planned}, expected {expected_steps}')
+                    execution=self.run(['-R','-V3',*args])
+                    detail=execution.stderr.decode(errors='replace')
+                    chain=[(name,float(hz),int(ch)) for name,hz,ch
+                           in traces.findall(detail)]
+                    require(chain and chain[0][0]=='input' and
+                            chain[-1]==('output',8000.,1),
+                            f'{typ}: missing executed chain {detail[-1500:]}')
+                    actual=[];before=chain[0][1:]
+                    for name,hz,ch in chain[1:]:
+                        if name in ('channels','rate'):
+                            actual.append((name,*before,hz,ch))
+                        before=(hz,ch)
+                    require(actual==planned,
+                            f'{typ}: planned {planned}, executed {actual}')
+                    bitrates=rate_report.findall(detail)
+                    expected_bitrate=16000 if requested==16000 else 32000
+                    require(bitrates and int(bitrates[-1])==expected_bitrate,
+                            f'{typ}: CVSD bitrate selection changed: {detail[-1500:]}')
+                    baseline_bytes=target.read_bytes()
+                    for precision in ('auto','32'):
+                        target.unlink()
+                        self.run(['-R','--precision',precision,*args])
+                        require(target.read_bytes()==baseline_bytes,
+                                f'{typ}: {precision} changed CVSD/DVMS output bytes')
+                        self.count('cvsd_auto32_byte_compat_cases')
+                    self.count('cvsd_plan_execution_pairs')
+                    self.count(f'cvsd_{expected_bitrate}_bps_cases')
+        # CVU shares CVSD encoding, but does NOT use the CVSD/DVMS writer.
+        cvu=self.root/'cvsd-control-unfiltered.cvu'
+        src=self.root/'cvsd-source-1ch.wav'
+        cvu_plan=self.plan([src,'-r','16000','-t','cvu',cvu])
+        require((cvu_plan['rate_hz'],cvu_plan['channels'])==(16000,1),
+                'unrelated CVU writer erroneously forced to 8 kHz')
+        self.gates['CVSD_DVMS_writer_endpoint_plans_and_bitrate_selection']='PASS'
+        self.gates['CVSD_DVMS_legacy_auto32_byte_identical']='PASS'
+        # Strict64 cannot use CVSD/DVMS output: refuse before any write.
+        for typ in ('cvs','cvsd','dvms','vms'):
+            target=self.root/f'cvsd-strict64-refusal.{typ}'
+            sentinel=b'NO NATIVE CVSD OUTPUT' * 7
+            target.write_bytes(sentinel)
+            requested=['--precision','64',src,target]
+            info=json.loads(self.run(['--plan',*requested]).stdout)
+            require(info['precision']['actual_route']=='refused-before-output',
+                    f'{typ}: strict64 unexpectedly eligible')
+            result=self.run(requested,expect=False)
+            require(result.returncode!=0 and target.read_bytes()==sentinel,
+                    f'{typ}: strict64 touched destination or unexpectedly succeeded')
+            self.count('cvsd_strict64_precommit_refusals')
+        self.gates['CVSD_DVMS_not_eligible_for_native_PCM64']='PASS'
+
     def execute(self):
         inputs=self.matrix()
         self.strict64(inputs[0])
@@ -411,6 +510,7 @@ class Test:
         self.endianness_and_subtype()
         self.auto32(inputs[1])
         self.implicit_endpoints()
+        self.cvsd_writer_endpoints()
         return {'suite':'output-formats',
                 'status':('PASS_WITH_NOT_RUN' if any(v.startswith('NOT_RUN') for v in self.gates.values()) else 'PASS'),
                 'source_git_commit':subprocess.run(['git','-C',str(SOURCE),'rev-parse','HEAD'],capture_output=True,text=True).stdout.strip(),

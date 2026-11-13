@@ -32,6 +32,7 @@
 #include "dsd.h"
 #include "pcm_f64_io.h"
 #include "wav-size.h"
+#include "cvsd.h"
 
 #include <ctype.h>
 #include <fcntl.h>
@@ -1365,6 +1366,14 @@ bool lsx_pcm_f64_resolve_output(const sox_format_handler_t *handler,
   ft.encoding = *encoding;
   set_endiannesses(&ft);
   set_output_format(&ft);
+  /* CVSD/DVMS startwrite selects its 16/32 kbit/s stream rate from the
+   * incoming rate, then changes the PCM endpoint to 8 kHz.  Model only
+   * that final endpoint here, on the local metadata copy.  The live writer
+   * must continue receiving its negotiated incoming rate for bitstream
+   * compatibility.  This is not the similarly named CVU writer. */
+  if (ft.handler.startwrite == lsx_cvsdstartwrite ||
+      ft.handler.startwrite == lsx_dvmsstartwrite)
+    ft.signal.rate = 8000;
   *signal = ft.signal;
   *encoding = ft.encoding;
   return true;
