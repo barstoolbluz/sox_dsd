@@ -2780,6 +2780,7 @@ static void preflight_dsd(void)
    * Explicit auto/32 must not turn it into a Phase 04 preflight error. */
   if (!has_new_effect && !dsd_plan_only && !dsd_report_path &&
       spec.policy.headroom==LSX_DSD_HEADROOM_NONE &&
+      !spec.policy.decode_specified && !spec.policy.encode_specified &&
       precision_requested!=LSX_PRECISION_64) {
     sox_bool pcm_only=sox_true;
     for (i=0;i<input_count;i++)
