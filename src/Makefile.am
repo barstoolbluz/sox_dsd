@@ -220,7 +220,7 @@ libsox_ng_la_LIBADD += @GOMP_LIBS@
 
 libsox_ng_la_CFLAGS = @WARN_CFLAGS@
 libsox_ng_la_LDFLAGS = @APP_LDFLAGS@ -version-info @SHLIB_VERSION@ \
-  -export-symbols-regex '^((sox|lsx)_.*|create_lpc10_(en|de)coder_state|lpc10_(en|de)code|gsm_(create|destroy|encode|decode))$$'
+  -export-symbols-regex '^((sox|lsx)_.*|create_lpc10_(en|de)coder_state|lpc10_(en|de)code|gsm_(create|destroy|encode|decode)|pcm_f64_(frame_storage|is_failure|status_name))$$'
 
 if HAVE_WIN32_LTDL
   libsox_ng_la_SOURCES += win32-ltdl.c win32-ltdl.h
