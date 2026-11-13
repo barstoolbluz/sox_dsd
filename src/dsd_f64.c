@@ -45,7 +45,7 @@ pcm_f64_status lsx_dsd_f64_init(lsx_dsd_f64_stream *s,
     for (k=0;k<n;k++) {
       pcm_f64_word_class kind;
       if (pcm_f64_classify(&gains[k],&kind)!=PCM_F64_OK ||
-          kind!=PCM_F64_WORD_FINITE || gains[k]<0) {
+          kind!=PCM_F64_WORD_FINITE) {
         lsx_dsd_f64_destroy(s);
         return PCM_F64_NUMERIC;
       }

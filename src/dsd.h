@@ -99,7 +99,7 @@ typedef struct {
   unsigned out_channels;          /* getopts hint, may be zero. */
   int native_permutation;         /* Verified private remix map. */
   unsigned native_map_count;
-  unsigned native_map[32]; /* Zero-based, immutable after parsed getopts. */
+  unsigned native_map[64]; /* Zero-based, immutable after parsed getopts. */
   int dither_precision_one;       /* Query of getopts state, not start(). */
   int plain_fixed_gain;           /* Query of gain.c getopts-populated state. */
   double gain_factor;             /* Finite, source-ordered, never combined. */
@@ -167,7 +167,7 @@ typedef struct {
   double gain_factor;
   int native_permutation; /* True only for proven pure user remix role map. */
   unsigned native_map_count;
-  unsigned native_map[32];
+  unsigned native_map[64];
 } lsx_dsd_plan_step;
 
 typedef struct {

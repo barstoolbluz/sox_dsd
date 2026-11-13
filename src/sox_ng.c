@@ -2293,6 +2293,10 @@ static sox_dsd_layout_t *dsd_plan_output(char const *path,
   channels=sox_dsd_layout_channels(layout);
   for (i=0;layout && i<nuser_effects[current_eff_chain];++i) {
     sox_effect_t *effect=user_efftab[i];
+    /* A PCM-only native user remix acts on samples, just as legacy SoX
+     * does. Its source layout is metadata, not an instruction to undo the
+     * requested sample order by canonically sorting speaker roles again. */
+    if (dsd_native_pcm_active && !dsd_layout_assignment) continue;
     if (effect->handler.flags & SOX_EFF_CHAN) {
       /* channels N returns SOX_EFF_NULL for input N: there is no map or mix.
        * The effect has not started yet, so the planned channel count is its
@@ -2946,6 +2950,8 @@ static void preflight_dsd(void)
         pcm_strict_options_supported=sox_false;
     }
   }
+  {
+    unsigned current_channels=input_count?input[0].native_signal.channels:0;
   for (i=0;i<spec.effect_count;i++) {
     sox_effect_t *e=user_efftab[i];
     effect[i].name=e->handler.name;
@@ -2959,16 +2965,18 @@ static void preflight_dsd(void)
     if (!strcmp(e->handler.name,"sdm"))
       effect[i].sdm_filter_name=lsx_sdm_effect_filter_name(e);
     if (!strcmp(e->handler.name,"remix") && e->out_signal.channels &&
-        e->out_signal.channels <= 32) {
+        e->out_signal.channels <= 64) {
       unsigned count=e->out_signal.channels, *map=lsx_calloc(count,sizeof(*map));
       effect[i].native_permutation=lsx_remix_pure_map(e,
-          (i?effect[i-1].out_channels:input[0].native_signal.channels),map,count);
+          current_channels,map,count);
       if (effect[i].native_permutation) {
         effect[i].native_map_count=count;
         memcpy(effect[i].native_map,map,count*sizeof(*map));
       }
       free(map);
     }
+    if (e->out_signal.channels) current_channels=e->out_signal.channels;
+  }
   }
   /* DSD endpoints always follow the executable plan, including in explicit
    * legacy mode.  Only PCM-only commands take the ordinary SoX path above.
@@ -3568,9 +3576,13 @@ static int dsd_run_native_pcm(void)
       if (write.consumed_frames > compute.produced_frames ||
           pcm_f64_is_failure(write.status) ||
           write.consumed_frames != compute.produced_frames) {
-        lsx_fail("native PCM64: short or failed physical output write (%zu/%zu frames): %s",
-            write.consumed_frames,compute.produced_frames,
-            pcm_f64_status_name(write.status));
+        if (write.status==PCM_F64_NUMERIC)
+          lsx_fail("native PCM64: numeric output cannot be represented at the selected endpoint (%zu/%zu frames)",
+              write.consumed_frames,compute.produced_frames);
+        else
+          lsx_fail("native PCM64: short or failed physical output write (%zu/%zu frames): %s",
+              write.consumed_frames,compute.produced_frames,
+              pcm_f64_status_name(write.status));
         goto done;
       }
       output_samples+=write.consumed_frames;
@@ -3608,7 +3620,10 @@ static int dsd_run_native_pcm(void)
   rc=SOX_EOF;
 
 done:
-  if (!finished && rc!=SOX_EOF) output_eof=sox_true;
+  if (!finished && rc!=SOX_EOF) {
+    output_eof=sox_true;
+    rc=LSX_EFF_FATAL;
+  }
   lsx_dsd_f64_destroy(&engine);
   sox_dsd_layout_free(layout);
   free(factors);free(input);free(output);
@@ -3626,8 +3641,15 @@ static int process(void)
   calculate_output_signal_parameters();
   preflight_dsd();
   dsd_report_preflight_destination();
-  if (dsd_native_pcm_active)
-    return dsd_run_native_pcm();
+  if (dsd_native_pcm_active) {
+    int result=dsd_run_native_pcm();
+    size_t i;
+    for (i=0;i<nuser_effects[current_eff_chain];i++) {
+      sox_delete_effect(user_efftab[i]);
+      user_efftab[i]=NULL;
+    }
+    return result;
+  }
   open_output_file();
   dsd_report_check_open_output_alias();
   if (dsd_runtime_active &&
