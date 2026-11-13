@@ -191,6 +191,9 @@ static int kill_remix(sox_effect_t * effp)
 {
   priv_t * p = (priv_t *)effp->priv;
   unsigned i;
+  /* A preflight refusal deletes the parsed but never-started channels
+   * alias.  Its option parser sets a count but allocates no out_specs. */
+  if (!p->out_specs) return SOX_SUCCESS;
   for (i = 0; i < p->num_out_channels; ++i) {
     free(p->out_specs[i].str);
     free(p->out_specs[i].in_specs);

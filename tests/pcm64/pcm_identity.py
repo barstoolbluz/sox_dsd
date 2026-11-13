@@ -280,17 +280,22 @@ class Suite:
                  'channels-noop')
         check(parse_wav_bytes(noop.read_bytes())[1]==inraw,
               'same channel count changed PCM data')
-        # With known FL/FR roles, the final WAV writer restores canonical
-        # speaker order after the requested role permutation. With unknown
-        # roles (above), it swaps physical audio without inventing a mask.
+        # Known FL/FR roles cannot cancel an explicitly requested remix.
+        # The wire-order samples must match ordinary SoX processing, while
+        # the existing WAV header mask policy remains unchanged.
         known=self.root/'known-stereo-mask.wav'
         pack_wav(known,inraw,64,FLOAT32,channels=2,mask=0x3)
         known_out=self.root/'known-stereo-remix.wav'
         self.run(['--precision','64',known,'-e','floating-point','-b','64',
                   known_out,'remix','2','1'], 'known-mask-remix')
+        legacy_known=self.root/'legacy-known-stereo-remix.wav'
+        self.run([known,'-e','floating-point','-b','64',
+                  legacy_known,'remix','2','1'], 'legacy-known-mask-remix')
         known_fmt,known_raw=parse_wav_bytes(known_out.read_bytes())
-        check(f64_words(known_raw)==words and known_fmt[4]==0x3,
-              'known canonical FL/FR mask or role normalization lost')
+        legacy_fmt,legacy_raw=parse_wav_bytes(legacy_known.read_bytes())
+        check(f64_words(known_raw)==expect and known_raw==legacy_raw and
+              known_fmt[4]==legacy_fmt[4]==0x3,
+              'known-mask remix differs from default SoX channel order')
         self.gates['pure_remix_and_channels_noop']='PASS'
         self.gates['known_and_unknown_speaker_masks']='PASS'
 
