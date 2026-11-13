@@ -16,6 +16,7 @@ import struct
 import subprocess
 import sys
 from pathlib import Path
+from binary_receipts import safe_git_head, native_dsp_compiled
 
 SOURCE = Path(__file__).resolve().parents[2]
 ENCODING_BY_NAME = {

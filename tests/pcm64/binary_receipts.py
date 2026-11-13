@@ -78,3 +78,29 @@ def executable_libraries(program: Path) -> dict[str, str]:
             resolved = path.resolve()
             libraries[str(resolved)] = digest(resolved)
     return libraries
+
+
+def safe_git_head(source):
+    """Missing git is an unavailable provenance field, not a test crash."""
+    import subprocess
+    try:
+        result = subprocess.run(['git', '-C', str(source), 'rev-parse', 'HEAD'],
+                                capture_output=True, text=True, timeout=5)
+        return result.stdout.strip() if result.returncode == 0 else None
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+
+
+def native_dsp_compiled(sox):
+    """Build-local configure fact, independent of the host source Git tree."""
+    import re
+    from pathlib import Path
+    header = Path(sox).resolve().parent / 'soxconfig.h'
+    try:
+        data = header.read_text()
+    except OSError:
+        # Installed binaries and unusual build layouts have no reliable
+        # source-side compile switch. Do not falsely label them disabled.
+        return True
+    match = re.search(r'^#define PCM_F64_NATIVE_ENABLED ([01])$', data, re.M)
+    return match is None or match.group(1) == '1'
