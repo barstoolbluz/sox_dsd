@@ -73,16 +73,31 @@ def verify(runner):
     runner.tick('rf64_table_legacy_pair_checks')
 
     variants = (
-        ('zero', []),
-        ('one-normal', [(b'JUNK', b'abcde', False)]),
-        ('one-sentinel', [(b'JUNK', b'abcde', True)]),
-        ('two-sentinel', [(b'JUNK', b'abcde', True), (b'LIST', b'xyz1234', True)]),
-        ('repeated-id', [(b'JUNK', b'abcde', True), (b'JUNK', b'abcdef', True)]),
+        ('zero', [], None),
+        ('one-normal', [(b'JUNK', b'abcde', False)], None),
+        ('one-sentinel', [(b'JUNK', b'abcde', True)], None),
+        ('two-sentinel', [(b'JUNK', b'abcde', True), (b'LIST', b'xyz1234', True)], None),
+        ('repeated-id', [(b'JUNK', b'abcde', True), (b'JUNK', b'abcdef', True)], None),
         ('three-mixed', [(b'JUNK', b'abcde', True), (b'LIST', b'\x01', False),
-                         (b'NOTE', b'01234567', True)]),
+                         (b'NOTE', b'01234567', True)], None),
+        # The table orders entries by FourCC, not necessarily by file chunk
+        # order. Occurrences of the SAME FourCC still retain their order.
+        ('reversed-distinct', [(b'JUNK', b'abcde', True),
+                               (b'LIST', b'xyz1234', True)],
+         [(b'LIST', 7), (b'JUNK', 5)]),
+        ('grouped-repeated', [(b'JUNK', b'abcde', True),
+                              (b'LIST', b'one', True),
+                              (b'JUNK', b'012345678', True),
+                              (b'LIST', b'xyz1234', True)],
+         [(b'JUNK', 5), (b'JUNK', 9), (b'LIST', 3), (b'LIST', 7)]),
+        ('interleaved-table', [(b'JUNK', b'abcde', True),
+                               (b'LIST', b'one', True),
+                               (b'JUNK', b'012345678', True),
+                               (b'LIST', b'xyz1234', True)],
+         [(b'LIST', 3), (b'JUNK', 5), (b'LIST', 7), (b'JUNK', 9)]),
     )
-    for name, extra in variants:
-        riff, rf64 = make_pair(extra)
+    for name, extra, table in variants:
+        riff, rf64 = make_pair(extra, table=table)
         rp = runner.file('rf64-table-'+name+'-riff.wav', riff)
         fp = runner.file('rf64-table-'+name+'-rf64.wav', rf64)
         for f in (rp, fp):
