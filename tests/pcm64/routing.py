@@ -339,6 +339,33 @@ def main():
                   reported['precision']['binary64_pcm_processing'] is False,
                   'success report claims legacy FLOAT64 PCM is exact')
             checks['float64_successful_dsd_report_truth']='PASS'
+            # Negative semantic mutation of a *real executed* SoX report.
+            # A legacy graph must never acquire an IEEE binary64 execution
+            # identity just because its input file uses FLOAT64 storage.
+            def validate_executed_engine(document):
+                precision=document['precision']
+                is_native=precision['actual_route']=='native-binary64-pcm'
+                claimed_native=(precision['actual_pcm_engine']=='ieee754.binary64' or
+                                precision['binary64_pcm_processing'] is True)
+                check(is_native == claimed_native,
+                      'execution route contradicts reported binary64 engine')
+                check(precision['actual_pcm_engine']!='ieee754.binary64' or
+                      precision['binary64_pcm_processing'] is True,
+                      'binary64 processing field contradicts engine')
+            validate_executed_engine(reported)
+            negative=json.loads(rpt.read_text())
+            check(negative['precision']['actual_route']!='native-binary64-pcm',
+                  'negative semantic control must start from executed legacy SoX')
+            negative['precision']['actual_pcm_engine']='ieee754.binary64'
+            negative['precision']['binary64_pcm_processing']=True
+            rejected=False
+            try:
+                validate_executed_engine(negative)
+            except AssertionError:
+                rejected=True
+            check(rejected,'falsely labeling actual legacy execution binary64 passed semantic gate')
+            checks['negative_legacy_executed_report_false_binary64_label']='PASS'
+            gates['negative_semantic_legacy_engine_mutant']='PASS'
             # True exactness of simple integer inputs remains visible.
             p=plan('integer24-actual-exact',['--precision','32','-D',wav,'-b','24',output],
                    policy='32')
