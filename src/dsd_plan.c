@@ -53,6 +53,34 @@ static int append(lsx_dsd_plan *p, char const *name, lsx_dsd_domain before,
   return 1;
 }
 
+/* Reproduce add_effects() endpoint conversions without starting any effect.
+ * For ordinary PCM downmix, convert channels before sample rate; upmix does
+ * the reverse. DSD graphs retain their historical rate-first planning. */
+static int append_pcm_output_auto(lsx_dsd_plan *p, lsx_dsd_domain domain,
+    double *rate, unsigned *channels, double target_rate,
+    unsigned target_channels, double ref, int downmix_first)
+{
+  if (downmix_first && target_channels && target_channels < *channels) {
+    if (!append(p,"implicit_pcm_channels",domain,domain,*rate,*rate,
+          *channels,target_channels,1,-1,ref)) return 0;
+    *channels=target_channels;
+    p->layout_identity_preserved=0;
+  }
+  if (target_rate && *rate != target_rate) {
+    if (!append(p,"implicit_pcm_rate",domain,domain,*rate,target_rate,
+          *channels,*channels,1,-1,ref)) return 0;
+    *rate=target_rate;
+    p->trim_native_seek=0;
+  }
+  if (target_channels && target_channels != *channels) {
+    if (!append(p,"implicit_pcm_channels",domain,domain,*rate,*rate,
+          *channels,target_channels,1,-1,ref)) return 0;
+    *channels=target_channels;
+    p->layout_identity_preserved=0;
+  }
+  return 1;
+}
+
 void lsx_dsd_plan_free(lsx_dsd_plan *p)
 {
   if (p) {
@@ -206,6 +234,9 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   uint32_t native_rate=0, output_hz=0;
   unsigned channels=0;
   double rate=0, common_pcm_rate=0, largest_r=0, ref=.5;
+  double pcm_target_rate=0;
+  unsigned pcm_target_channels=0;
+  int pcm_auto_before_dither=0;
   lsx_dsd_domain domain, requested_domain;
   lsx_dsd_decode decoder;
   lsx_dsd_level level;
@@ -320,6 +351,14 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   else requested_domain=has_dop?LSX_DOP_TRANSPORT:LSX_PCM_AUDIO;
   if (has_dop && requested_domain!=LSX_DOP_TRANSPORT)
     return fail(error,n,"DoP requires a PCM transport output, not a native DSD container");
+  if (!any_native && requested_domain==LSX_PCM_AUDIO) {
+    /* These targets come from the selected writer's metadata-only format
+     * resolution. The distinct requested_* fields still mean user options. */
+    pcm_target_rate=spec->effective_pcm_output_rate?
+        spec->effective_pcm_output_rate:spec->requested_output_rate;
+    pcm_target_channels=spec->effective_pcm_output_channels?
+        spec->effective_pcm_output_channels:spec->requested_output_channels;
+  }
   if (!spec->output_native_capable && !spec->output_pcm_capable && !spec->output_is_null)
     return fail(error,n,"destination cannot encode the selected DSD/PCM format");
   if (requested_domain==LSX_PCM_AUDIO || spec->policy.normalizing ||
@@ -452,6 +491,16 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
     unsigned old_channels=channels;
     lsx_dsd_domain old_domain=domain;
     if (i==0 && leading_consumed) continue;
+    /* add_effects() inserts automatic channels/rate before the first user
+     * dither; that dither must see the final PCM clock and channel count. */
+    if (!any_native && requested_domain==LSX_PCM_AUDIO &&
+        is(e->name,"dither") && !pcm_auto_before_dither) {
+      if (!append_pcm_output_auto(p,domain,&rate,&channels,pcm_target_rate,
+            pcm_target_channels,ref,1))
+        return fail(error,n,"preflight step capacity exceeded");
+      pcm_auto_before_dither=1;
+      before=rate;old_channels=channels;
+    }
     /* SoX inserts automatic gain before explicit dither.  A modulator which
      * will not be followed by explicit reconstruction must also see the
      * requested PCM normalization before converting to one-bit samples.
@@ -706,6 +755,8 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
     p->output_bits=24;
     p->output_encoding=SOX_ENCODING_SIGN2;
   } else {
+    double target_rate=any_native?spec->requested_output_rate:pcm_target_rate;
+    unsigned target_channels=any_native?spec->requested_output_channels:pcm_target_channels;
     if (domain==LSX_DSD_NATIVE) {
       double dest=spec->requested_output_rate;
       if (p->encode_count) return fail(error,n,
@@ -731,24 +782,16 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
       p->trim_native_seek=0;
     } else if (domain==LSX_DOP_TRANSPORT)
       return fail(error,n,"DoP output requires a lossless transport endpoint");
-    if (spec->requested_output_rate && rate != spec->requested_output_rate) {
-      if (any_native) {
-        uint32_t pcm_rate;
-        if (!lsx_dsd_integer_rate(spec->requested_output_rate,&pcm_rate) ||
-            !lsx_dsd_pcm_rate_supported(pcm_rate))
-          return fail(error,n,"requested PCM output rate is not a supported integer Hz");
-      }
-      append(p,"implicit_pcm_rate",domain,domain,rate,
-          spec->requested_output_rate,channels,channels,1,-1,ref);
-      rate=spec->requested_output_rate;
-      p->trim_native_seek=0;
+    if (target_rate && rate != target_rate && any_native) {
+      uint32_t pcm_rate;
+      if (!lsx_dsd_integer_rate(target_rate,&pcm_rate) ||
+          !lsx_dsd_pcm_rate_supported(pcm_rate))
+        return fail(error,n,"requested PCM output rate is not a supported integer Hz");
     }
-    if (spec->requested_output_channels && spec->requested_output_channels!=channels) {
-      append(p,"implicit_pcm_channels",domain,domain,rate,rate,channels,
-          spec->requested_output_channels,1,-1,ref);
-      channels=spec->requested_output_channels;
-      p->layout_identity_preserved=0;
-    }
+    if (!pcm_auto_before_dither &&
+        !append_pcm_output_auto(p,domain,&rate,&channels,target_rate,
+            target_channels,ref,!any_native))
+      return fail(error,n,"preflight step capacity exceeded");
     if (spec->policy.normalizing && !norm_inserted) {
       if (!append_norm(spec,p,&domain,&rate,&ref,channels,decoder,level,
             error,n)) return 0;

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Phase 05A D-01..D-03: real writer negotiation, masks and WAV options.
+"""Phase 05A D-01..D-04: output negotiation and ordered PCM graph plans.
 
 Compares *executed* headers (SoX's separate input probe and independently
 parsed WAV bytes) with the precommit plan. No mock of set_output_format().
@@ -11,6 +11,7 @@ import datetime
 import hashlib
 import json
 import random
+import re
 import struct
 import subprocess
 import sys
@@ -326,19 +327,98 @@ class Test:
                 self.count('legacy_byte_compat_cases')
         self.gates['auto32_and_legacy_output_bytes']='PASS'
 
+    def implicit_endpoints(self):
+        """Compare ordered plan steps against SoX's real -V3 effects chain.
+
+        Input is a 48 kHz stereo WAV. Forced mono/rate formats, requested
+        fallbacks, downmix/upmix and explicit effects are all ordinary PCM.
+        """
+        src=self.root/'implicit-48000-stereo.wav'
+        wav(src,[((i*97)%32000)-16000 for i in range(2*7200)],16,1,2)
+        # case: label, extension, output options, user effects, expected
+        # ordered conversion names, final rate/channels, requested rate.
+        cases=(
+            ('cdr-selected-rate','cdr',(),(),('rate',),44100,2,None),
+            ('wve-selected-rate-mono','wve',(),(),('channels','rate'),8000,1,None),
+            ('prc-selected-rate-mono','prc',(),(),('channels','rate'),8000,1,None),
+            ('lpc10-selected-rate-mono','lpc10',(),(),('channels','rate'),8000,1,None),
+            ('hcom-selected-rate-mono','hcom',(),(),('channels','rate'),22050,1,None),
+            ('gsm-explicit-rate-overridden','gsm',('-r','44100'),(),('rate',),8000,2,44100),
+            ('wav-downmix-before-rate','wav',('-r','8000','-c','1'),(),('channels','rate'),8000,1,8000),
+            ('wav-upmix-after-rate','wav',('-r','8000','-c','4'),(),('rate','channels'),8000,4,8000),
+            ('wav-no-change','wav',(),(),(),48000,2,None),
+            ('wav-explicit-same-endpoints','wav',('-r','48000','-c','2'),(),(),48000,2,48000),
+            ('wav-only-rate','wav',('-r','44100'),(),('rate',),44100,2,44100),
+            ('wav-only-downmix','wav',('-c','1'),(),('channels',),48000,1,None),
+            ('wav-user-rate','wav',(),('rate','8000'),('rate',),8000,2,None),
+            ('wav-user-channels','wav',(),('channels','1'),('channels',),48000,1,None),
+            ('wav-user-channels-then-rate','wav',(),('channels','1','rate','8000'),('channels','rate'),8000,1,None),
+            ('wav-user-rate-then-channels','wav',(),('rate','8000','channels','1'),('rate','channels'),8000,1,None),
+            ('wav-gain-then-auto','wav',('-r','8000','-c','1'),('gain','-6'),('channels','rate'),8000,1,8000),
+            ('wav-auto-before-user-dither','wav',('-r','8000','-c','1'),('dither',),('channels','rate'),8000,1,8000),
+        )
+        trace=re.compile(r'effects chain:\s+(\w+)\s+([0-9.]+)Hz\s+(\d+) channels')
+        for name,typ,options,effects,expected,rate,channels,requested in cases:
+            dst=self.root/f'implicit-{name}.{typ}'
+            args=[src,*options,dst,*effects]
+            planning=self.run(['--plan',*args])
+            declared=json.loads(planning.stdout)
+            execution=self.run(['-V3',*args])
+            actual_trace=[(n,float(r),int(c)) for n,r,c in trace.findall(
+                execution.stderr.decode(errors='replace'))]
+            require(actual_trace and actual_trace[0][0]=='input' and
+                    actual_trace[-1][0]=='output',
+                    f'{name}: missing actual input/output effects chain: {execution.stderr[-1200:]}')
+            actual=[]
+            previous=actual_trace[0][1:]
+            for n,out_rate,out_channels in actual_trace[1:]:
+                if n in ('rate','channels'):
+                    actual.append((n,*previous,out_rate,out_channels))
+                previous=(out_rate,out_channels)
+            planned=[]
+            for step in declared['steps']:
+                if step['name'] in ('rate','channels','implicit_pcm_rate','implicit_pcm_channels'):
+                    n=step['name'].replace('implicit_pcm_','')
+                    planned.append((n,step['rate_in_hz'],step['channels_in'],
+                                    step['rate_out_hz'],step['channels_out']))
+            require(tuple(s[0] for s in actual)==expected,
+                    f'{name}: unexpected actual chain {actual}; expected {expected}')
+            require(planned==actual,
+                    f'{name}: planned conversions {planned} != executed chain {actual}')
+            require((declared['output']['rate_hz'],declared['output']['channels'])==
+                    (rate,channels)==actual_trace[-1][1:],
+                    f'{name}: incorrect final endpoint vs output effect')
+            require(declared['output']['requested_rate_hz']==requested,
+                    f'{name}: requested_rate_hz not preserved: {declared["output"]}')
+            if 'dither' in effects:
+                dither_step=next((i for i,step in enumerate(declared['steps'])
+                    if step['name']=='dither'),None)
+                require(dither_step is not None and all(i<dither_step for i,step in
+                    enumerate(declared['steps']) if step['name'].startswith('implicit_pcm_')),
+                    f'{name}: automatic endpoint step placed after explicit dither')
+            if effects and effects[0] in ('rate','channels'):
+                require(sum(not step['implicit'] for step in declared['steps']
+                    if step['name'] in ('rate','channels'))>=1,
+                    f'{name}: explicit conversion misidentified as automatic')
+            self.count('implicit_plan_execution_pairs')
+            self.count('implicit_plan_steps',len(planned))
+        self.gates['ordered_automatic_PCM_endpoints_match_executed_chain']='PASS'
+
     def execute(self):
         inputs=self.matrix()
         self.strict64(inputs[0])
         self.layout()
         self.endianness_and_subtype()
         self.auto32(inputs[1])
+        self.implicit_endpoints()
         return {'suite':'output-formats',
                 'status':('PASS_WITH_NOT_RUN' if any(v.startswith('NOT_RUN') for v in self.gates.values()) else 'PASS'),
                 'source_git_commit':subprocess.run(['git','-C',str(SOURCE),'rev-parse','HEAD'],capture_output=True,text=True).stdout.strip(),
                 'executed_binary_sha256':{str(self.binary):sha256(self.binary)},
                 'source_and_binary_sha256':{str(p.relative_to(SOURCE)):sha256(p) for p in
                     (SOURCE/'tests/pcm64/output_formats.py',SOURCE/'src/formats.c',
-                     SOURCE/'src/sox_ng.c',SOURCE/'src/wav.c',SOURCE/'src/pcm_f64_io.h')},
+                     SOURCE/'src/sox_ng.c',SOURCE/'src/dsd_plan.c',SOURCE/'src/dsd.h',
+                     SOURCE/'src/wav.c',SOURCE/'src/pcm_f64_io.h')},
                 'actual_checks':self.counters,'gate_execution':self.gates,
                 'not_run_reasons':self.skips,'commands_executed':self.commands,
                 'utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}

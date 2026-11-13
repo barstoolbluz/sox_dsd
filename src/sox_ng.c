@@ -2924,6 +2924,10 @@ static void preflight_dsd(void)
       free(input);free(effect);exit(2);
     }
     pcm_output_resolved=sox_true;
+    /* The PCM graph must use the same endpoint that the selected writer
+     * will use. Keep the original -r/-c options for requested_* reporting. */
+    spec.effective_pcm_output_rate=pcm_output_signal.rate;
+    spec.effective_pcm_output_channels=pcm_output_signal.channels;
     pcm_strict_options_supported=
         (!ofile_encoding_options.encoding ||
           ofile_encoding_options.encoding==pcm_output_encoding.encoding) &&

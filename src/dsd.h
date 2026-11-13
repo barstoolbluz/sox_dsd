@@ -118,6 +118,10 @@ typedef struct {
   size_t effect_count;
   double requested_output_rate;   /* Zero if not supplied, no rounding. */
   unsigned requested_output_channels;
+  /* PCM-only: handler-negotiated endpoint, separate from user requests.
+   * Zero when no metadata-only output resolver has run. */
+  double effective_pcm_output_rate;
+  unsigned effective_pcm_output_channels;
   sox_encodinginfo_t requested_encoding;
   char const *output_path;
   char const *output_type;
