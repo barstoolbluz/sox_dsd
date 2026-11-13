@@ -577,6 +577,11 @@ void sox_delete_effect(sox_effect_t *effp)
       /* May or may not indicate a problem; it is normal if the user aborted
          processing, or if an effect like "trim" stopped early. */
   effp->handler.kill(effp); /* N.B. only one kill; not one per flow */
+  /* Preflight/native PCM64 can delete an options-parsed effect before its
+   * start callback has established any flows. Its initial priv still belongs
+   * to the effect and must be released exactly once. */
+  if (!effp->flows)
+    free(effp->priv);
   for (f = 0; f < effp->flows; ++f)
     free(effp[f].priv);
   free(effp->obuf);
