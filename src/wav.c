@@ -104,6 +104,7 @@ typedef struct {
     off_t native_ds64_body_offset;
     uint64_t native_ds64_body_length;
     uint32_t native_rf64_riff32;
+    uint32_t native_ds64_table_next; /* next sentinel-sized ancillary entry */
     bool native_fact_present, native_fact_bad;
     uint32_t native_fact_frames;
 
@@ -458,6 +459,8 @@ static int sndfile_workaround(uint64_t *len, sox_format_t *ft) {
     return SOX_SUCCESS;
 }
 
+static int native_rf64_ancillary_size(sox_format_t *, const char *, uint64_t *);
+
 static int findChunk(sox_format_t * ft, const char *Label, uint64_t *len)
 {
     char magic[5];
@@ -490,9 +493,11 @@ static int findChunk(sox_format_t * ft, const char *Label, uint64_t *len)
             {
                 *len = wav->ds64_dataSize;
             }
-            else
+            else if (!(ft->handler.flags & LSX_WAV_NATIVE_RF64_TABLE) ||
+                     native_rf64_ancillary_size(ft, magic, len) != SOX_SUCCESS)
             {
-                lsx_fail_errno(ft, SOX_EHDR, "cannot yet read block sizes of arbitrary RF64 chunks, cannot find chunk '%s'", Label);
+                lsx_fail_errno(ft, SOX_EHDR,
+                    "cannot read RF64 ancillary chunk size from ds64 table");
                 return SOX_EOF;
             }
         }
@@ -2444,6 +2449,50 @@ static void native_put_word(unsigned char *b, uint64_t u, unsigned bytes, bool b
  * historical short ds64 variants and retain the same errors on missing ones.
  * This is a single fixed-size read from the existing format FILE, not a
  * second chunk walker or a duration-proportional allocation. */
+/* Resolve only native-read ancillary size sentinels. The ds64 table
+ * contains 12-byte (FourCC, uint64 size) entries; its declared count must
+ * describe the complete payload. Read on demand, without unbounded storage
+ * and without affecting ordinary sox_open_read(). Entries for repeated IDs
+ * are consumed in their recorded order. */
+static int native_rf64_ancillary_size(sox_format_t *ft,
+    const char *fourcc, uint64_t *length)
+{
+  priv_t *w = (priv_t *)ft->priv;
+  FILE *fp = (FILE *)ft->fp;
+  unsigned char count_bytes[4], entry[12];
+  uint32_t count, i;
+  off_t saved;
+  int result = SOX_EOF;
+  if (!ft->seekable || !fp || !w || !w->native_ds64_body_offset ||
+      w->native_ds64_body_length < 28 ||
+      (w->native_ds64_body_length-28) % 12 ||
+      (w->native_ds64_body_length-28)/12 > UINT32_MAX ||
+      w->native_ds64_body_length > (uint64_t)INT64_MAX-20 ||
+      (saved = ftello(fp)) < 0)
+    return SOX_EOF;
+  if (fseeko(fp, w->native_ds64_body_offset+24, SEEK_SET) ||
+      fread(count_bytes, 1, sizeof(count_bytes), fp) != sizeof(count_bytes))
+    goto restore;
+  count = (uint32_t)native_word(count_bytes, 4, false);
+  if (count != (w->native_ds64_body_length-28)/12 ||
+      w->native_ds64_table_next >= count ||
+      fseeko(fp, w->native_ds64_body_offset+28+
+          (off_t)w->native_ds64_table_next*12, SEEK_SET))
+    goto restore;
+  for (i=w->native_ds64_table_next; i<count; ++i) {
+    if (fread(entry, 1, sizeof(entry), fp) != sizeof(entry)) break;
+    if (!memcmp(entry, fourcc, 4)) {
+      *length = native_word(entry+4, 8, false);
+      w->native_ds64_table_next = i+1;
+      result = SOX_SUCCESS;
+      break;
+    }
+  }
+restore:
+  if (fseeko(fp, saved, SEEK_SET)) return SOX_EOF;
+  return result;
+}
+
 static void native_check_rf64_ds64(const sox_format_t *ft, priv_t *w)
 {
   unsigned char body[28];

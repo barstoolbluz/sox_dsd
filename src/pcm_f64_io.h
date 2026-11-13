@@ -5,6 +5,12 @@
 #include "sox_ng.h"
 #include "sox_dsd.h"
 sox_format_handler_t const *lsx_wav_format_fn(void);
+/* Private, read-side WAV parse mode. Never propagated to a public format handler. */
+#define LSX_WAV_NATIVE_RF64_TABLE 0x80000000u
+/* Native-only open: permits ds64 sizes for ancillary sentinel-sized chunks.
+ * Ordinary sox_open_read() retains its historical RF64 parsing contract. */
+sox_format_t *lsx_pcm_f64_wav_open_read(const char *path,
+    const sox_signalinfo_t *signal);
 
 typedef struct {
   pcm_f64_format stream;

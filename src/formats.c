@@ -968,7 +968,8 @@ static sox_format_t * open_read(
     size_t                     buffer_size UNUSED,
     sox_signalinfo_t   const * signal,
     sox_encodinginfo_t const * encoding,
-    char               const * filetype)
+    char               const * filetype,
+    bool native_wav_rf64_table)
 {
   sox_format_t * ft = lsx_calloc(1, sizeof(*ft));
   sox_format_handler_t const * handler;
@@ -1053,6 +1054,17 @@ static sox_format_t * open_read(
     goto error;
   }
 
+  /* Mark this single opened handler, never the global registry or ordinary
+   * reader. The WAV parser uses the flag only for native ds64 table sizes. */
+  if (native_wav_rf64_table) {
+    const sox_format_handler_t *wav = lsx_wav_format_fn();
+    if (ft->handler.startread != wav->startread ||
+        ft->handler.priv_size != wav->priv_size) {
+      lsx_fail("native RF64 table mode requires the WAV handler");
+      goto error;
+    }
+    ft->handler.flags |= LSX_WAV_NATIVE_RF64_TABLE;
+  }
   ft->mode = 'r';
   ft->filetype = lsx_strdup(filetype);
   ft->filename = lsx_strdup(path);
@@ -1114,7 +1126,13 @@ sox_format_t * sox_open_read(
     sox_encodinginfo_t const * encoding,
     char               const * filetype)
 {
-  return open_read(path, NULL, (size_t)0, signal, encoding, filetype);
+  return open_read(path, NULL, (size_t)0, signal, encoding, filetype, false);
+}
+
+sox_format_t *lsx_pcm_f64_wav_open_read(const char *path,
+    const sox_signalinfo_t *signal)
+{
+  return open_read(path, NULL, (size_t)0, signal, NULL, "wav", true);
 }
 
 sox_format_t * sox_open_mem_read(
@@ -1125,7 +1143,7 @@ sox_format_t * sox_open_mem_read(
     char               const * filetype)
 {
   if (!buffer || !buffer_size) return NULL;
-  return open_read("", buffer, buffer_size, signal,encoding,filetype);
+  return open_read("", buffer, buffer_size, signal,encoding,filetype, false);
 }
 
 sox_bool sox_format_supports_encoding(
