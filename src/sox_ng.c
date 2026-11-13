@@ -2979,16 +2979,32 @@ static void preflight_dsd(void)
     }
     if (!has_dsd_input && !has_new_effect && !spec.output_native_capable &&
         !spec.output_pcm64_wav_capable && !strcmp(kind,"flac")) {
-      sox_encodinginfo_t chosen=ofile->encoding;
-      if (!chosen.encoding) chosen.encoding=SOX_ENCODING_FLAC;
-      if (!chosen.bits_per_sample) {
-        unsigned precision=ofile->signal.precision;
-        chosen.bits_per_sample=precision<=8?8:precision<=16?16:24;
+      /* Mirror the legacy FLAC writer's fallback without opening the output:
+       * an unsupported requested coding is discarded, a supported requested
+       * depth is retained, otherwise choose the smallest supported depth
+       * covering the signal precision (or the largest available depth).
+       * FLAC's handler advertises 8/16/24-bit integer samples only. */
+      static unsigned const depths[]={8,16,24};
+      sox_encodinginfo_t candidate=ofile->encoding;
+      unsigned selected=0,largest=0;
+      size_t k;
+      candidate.encoding=SOX_ENCODING_FLAC;
+      for (k=0;k<sizeof(depths)/sizeof(depths[0]);k++) {
+        candidate.bits_per_sample=depths[k];
+        if (!sox_format_supports_encoding(ofile->filename,ofile->filetype,&candidate))
+          continue;
+        largest=depths[k];
+        if (ofile->encoding.bits_per_sample==depths[k]) {
+          selected=depths[k];
+          break;
+        }
+        if (!selected && sox_precision(SOX_ENCODING_FLAC,depths[k])>=ofile->signal.precision)
+          selected=depths[k];
       }
-      if (chosen.encoding==SOX_ENCODING_FLAC &&
-          sox_format_supports_encoding(ofile->filename,ofile->filetype,&chosen)) {
-        plan.output_encoding=chosen.encoding;
-        plan.output_bits=chosen.bits_per_sample;
+      if (!selected) selected=largest;
+      if (selected) {
+        plan.output_encoding=SOX_ENCODING_FLAC;
+        plan.output_bits=selected;
       }
     }
     lsx_dsd_precision_resolve(&spec,&plan);
