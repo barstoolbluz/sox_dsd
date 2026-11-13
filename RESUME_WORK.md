@@ -25,16 +25,17 @@ Implemented at this checkpoint:
   compatibility, PCM-only headroom refusal, WAV unsigned bits and non-WAV
   floating endpoint label.
 - Independent direct buffer probe: 7,023 assertions passed.
-- CLI `pcm-identity` suite initial PASS_WITH_NOT_RUN (built-in FLAC development
-  headers absent in first no-FLAC build): raw sample identity, 32/24/16/8
-  normalization, ordered gain, target integer and FLOAT32 quantization,
+- CLI `pcm-identity` suite PASS in a second local built-in FLAC 1.5.0 build,
+  compiled offline from the immutable Phase04 vendored FLAC/ogg input. Nine
+  independent FLAC code fixtures checked 121,387 exact F64 values; 25 gate
+  groups. First no-FLAC build is still available as an optional topology.
+  Coverage: raw sample identity, 32/24/16/8 normalization, ordered gain,
+  target integer and FLOAT32 quantization,
   channel/no-op, alias/sentinel, hostile fenv, injected writer close/write,
   stdout and report, plan overhead/throughput. Receipt in ../accept-05a/.
 
-**Next before finish**: investigate FLAC library/header availability and run
-built-in FLAC qualification if possible; rerun suite and predecessor suites
-against final tree; run CLI and make check; inspect abnormal signal, report
-failure, truncation, unknown layout and source/header hazards; commit fixes;
+**Next before finish**: rerun predecessor suites in built-in FLAC topology;
+run CLI and make check; check signal and reporter receipts against final code;
 create full delivery including all immutable Phase04 evidence/inputs;
 checksum, fresh extract, git replay and rebuild before claiming acceptance.
 
@@ -43,3 +44,8 @@ Reproduce initial acceptance:
   make -j8 && make check-pcm64 PCM64_SUITE=pcm-identity PCM64_RESULTS=/mnt/data/sox_phase05a_work/accept-05a
 
 Current status: RUNNING/UNVERIFIED until all tests rerun on final commit.
+
+2026-11-13 18:02 UTC: Phase04 routing suite PASS_WITH_NOT_RUN (108 checks,
+256 commands) in built-in FLAC and 79 checks in no-FLAC; native 05A suite
+PASS 25 groups including SIGINT after committed header and writer-clip
+accounting. DSD CLI and make check still UNRUN on final changes.

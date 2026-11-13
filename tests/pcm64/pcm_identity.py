@@ -24,6 +24,7 @@ import sys
 import tempfile
 import time
 from binary_receipts import executable_libraries
+from flac_fixtures import RATE as FLAC_RATE, SPECS as FLAC_SPECS, codes as flac_codes, name as flac_name
 
 SOURCE = Path(__file__).resolve().parents[2]
 SEED = 0x5A05A20261113
@@ -225,7 +226,6 @@ class Suite:
         pack_wav(src,b''.join(struct.pack('<d',v) for v in vals),64,FLOAT32,channels=1)
         db=(-3.0,4.0,-1.0)
         steps=['gain','-3','gain','4','gain','-1']
-        plan=self.plan(src,dest,other=['-v','0.75'],extras=['-e','floating-point','-b','64']) if False else None
         # -v belongs to this input's options; the actual planner must state the
         # resolved pre-effects source volume and the independent gain factors.
         argv=['--precision','64','-v','0.75',src,'-e','floating-point','-b','64',dest]+steps
@@ -280,7 +280,19 @@ class Suite:
                  'channels-noop')
         check(parse_wav_bytes(noop.read_bytes())[1]==inraw,
               'same channel count changed PCM data')
+        # With known FL/FR roles, the final WAV writer restores canonical
+        # speaker order after the requested role permutation. With unknown
+        # roles (above), it swaps physical audio without inventing a mask.
+        known=self.root/'known-stereo-mask.wav'
+        pack_wav(known,inraw,64,FLOAT32,channels=2,mask=0x3)
+        known_out=self.root/'known-stereo-remix.wav'
+        self.run(['--precision','64',known,'-e','floating-point','-b','64',
+                  known_out,'remix','2','1'], 'known-mask-remix')
+        known_fmt,known_raw=parse_wav_bytes(known_out.read_bytes())
+        check(f64_words(known_raw)==words and known_fmt[4]==0x3,
+              'known canonical FL/FR mask or role normalization lost')
         self.gates['pure_remix_and_channels_noop']='PASS'
+        self.gates['known_and_unknown_speaker_masks']='PASS'
 
     def narrowing_and_quantization(self):
         src=self.root/'narrow-input.wav'
@@ -297,7 +309,6 @@ class Suite:
         self.count('f32_narrow_samples',len(vals))
         # Exact integer tie semantics: the private Phase01 quantizer uses
         # nearest, with exactly halfway magnitudes away from zero.
-        quant=[]
         for bits in (16,24,32):
             half=Fraction(1,1<<bits)
             vals=[0.,-0.,float(half),-float(half),float(3*half),-float(3*half),
@@ -347,6 +358,12 @@ class Suite:
         self.run(['--clobber','--precision','64',src,'-b','64','-e','floating-point',hard],
                  'source-hardlink-alias',expect='fail')
         check(src.read_bytes()==untouched,'source hardlink was changed')
+        # A genuine declined overwrite must retain the same source bytes and
+        # destination sentinel, without creating an alternative writer path.
+        declined=self.root/'declined-overwrite.wav';declined.write_bytes(payload)
+        self.run(['--no-clobber','--precision','64',src,'-e','floating-point','-b','64',declined],
+                 'no-clobber-decline',expect='fail',stdin=b'n\n')
+        check(declined.read_bytes()==payload,'no-clobber refusal damaged destination')
         # Unsupported non-identity and preflight arithmetic rejects precede
         # the destructive destination commit.
         dest=self.root/'unsupported-sentinel.wav';dest.write_bytes(payload)
@@ -388,14 +405,37 @@ class Suite:
                  'native-success-report')
         reportdata=json.loads(report.read_text())
         # The report has a nested plan as a sibling of its lifecycle summary.
-        check('ieee754.binary64' in report.read_text(),
-              'native report mislabels actual PCM arithmetic')
-        check('complete' in report.read_text(), 'native report lacks completion')
+        check(reportdata['precision']['actual_pcm_engine']=='ieee754.binary64' and
+              reportdata['precision']['bit_exact_interchange'] is True and
+              reportdata['status']=='complete' and
+              int(reportdata['output']['frames_written'])==256,
+              'native success report differs from observed conversion')
+        # Saturation is a physical quantizer property. -1.0 is exact at the
+        # negative endpoint; +1.0 saturates at the positive target maximum.
+        values=(1.0,1.25,-1.25,-1.0,-0.5)
+        clip_in=self.root/'writer-clips-in.wav';clip_out=self.root/'writer-clips-out.wav'
+        clip_report=self.root/'writer-clips-report.json'
+        pack_wav(clip_in,b''.join(struct.pack('<d',v) for v in values),64,FLOAT32,channels=1)
+        self.run(['--precision','64','-D','--report',clip_report,clip_in,
+                  '-e','signed-integer','-b','16',clip_out], 'native-target-saturation')
+        observed=json.loads(clip_report.read_text())
+        check(observed['status']=='complete' and
+              int(observed['clipping']['output_writer'])==3,
+              f'physical writer saturation count incorrect: {observed["clipping"]}')
+        strict_report=self.root/'strict-clip-report.json'
+        self.run(['--precision','64','-D','--dsd-clip','error','--report',strict_report,
+                  clip_in,'-e','signed-integer','-b','16',
+                  self.root/'strict-clip-output.wav'],
+                 'native-strict-nominal-excursion',expect='fail')
+        check(not strict_report.exists() or
+              json.loads(strict_report.read_text()).get('status')!='complete',
+              'strict clip failure published complete report')
         self.gates['stdout_pipe_and_regular']='PASS'
         self.gates['native_report_truthfulness']='PASS'
+        self.gates['target_saturation_and_nominal_clip_policy']='PASS'
 
     def compatibility_plans(self):
-        src=self.root/'identity-7.wav';orig=self.root/'compat-default.wav'
+        src=self.root/'identity-7.wav'
         for selector in ([],['--precision','auto'],['--precision','32']):
             out=self.root/('compat-' + ('default' if not selector else selector[-1]) + '.wav')
             self.run(selector+[src,'-e','floating-point','-b','64',out],
@@ -426,8 +466,26 @@ class Suite:
             text=plan['precision']['endpoint_quantization']
             check('WAV' not in text and 'floating-point' in text,
                   f'non-WAV precision plan mislabels endpoint {extension}: {text}')
+        # A FLOAT64 source and an explicit output -b historically caused the
+        # Phase04 plan to discard the bit depth when FLOAT64 at that width is
+        # unavailable. The declared native quantizer must match real WAV bytes.
+        for bits in (8,16,24,32):
+            out=self.root/f'float64-explicit-bits-{bits}.wav'
+            # A Float32 endpoint correctly rejects 64-bit finite values too
+            # large for its exponent range; use a bounded Float64 source.
+            chosen_src=self.root/'gain-input.wav' if bits==32 else src
+            args=['--precision','64','-D',chosen_src,'-b',str(bits),out]
+            declared=json.loads(self.run(['--plan',*args],
+                f'explicit-bits-plan-{bits}').stdout)
+            self.run(args,f'explicit-bits-run-{bits}')
+            fmt,raw=parse_wav_bytes(out.read_bytes())
+            check(declared['output']['bits_per_sample']==bits and fmt[3]==bits and
+                  declared['output']['encoding']==(2 if bits==8 else 3 if bits==32 else 1) and
+                  fmt[0]==(PCM if bits!=32 else FLOAT32),
+                  f'WAV output -b {bits} plan disagrees with writer')
         self.gates['ordinary_auto32_and_handler_errors']='PASS'
         self.gates['plan_unsigned_and_nonwav_float']='PASS'
+        self.gates['float64_explicit_integer_endpoint_bits']='PASS'
 
     def flac_status(self):
         # Built-in adapter requires static FLAC with headers at configure time.
@@ -441,18 +499,28 @@ class Suite:
             self.gates['built_in_flac_pcm64_ingress']=('NOT_RUN: '+
                 f"compiled linkage={linkage.get('linkage')}; this environment has no libFLAC development headers")
             return
-        src=SOURCE/'tests/pcm64/fixtures/signed-24bit-2ch-4973frames.flac'
-        check(src.is_file(),'missing built-in FLAC fixture')
-        self.fixture_hashes[str(src.relative_to(SOURCE))]=sha(src)
-        out=self.root/'native-flac-ingress.wav'
-        self.run(['--precision','64',src,'-e','floating-point','-b','64',out],
-                 'builtin-flac-ingress')
-        fmt,data=parse_wav_bytes(out.read_bytes())
-        check(fmt[:4]==(FLOAT32,2,44100,64) or (fmt[0]==FLOAT32 and fmt[3]==64),
-              'FLAC ingress writer format wrong')
-        check(len(data)>0,'FLAC ingress decoded zero frames')
-        # Existing independent Phase02B corpus supplies an exact per-code
-        # oracle; require its separate io-flac suite in verification too.
+        # Verify exact scalar words from independently generated PCM codes,
+        # not merely that the decoder returns nonempty audio. Cover short and
+        # multi-block FLAC, mono/stereo/six-channel, high and low code bits.
+        for bits,channels,frames in FLAC_SPECS:
+            src=SOURCE/'tests/pcm64/fixtures'/flac_name(bits,channels,frames)
+            check(src.is_file(),'missing built-in FLAC fixture '+src.name)
+            self.fixture_hashes[str(src.relative_to(SOURCE))]=sha(src)
+            out=self.root/f'native-flac-{bits}-{channels}-{frames}.wav'
+            p=self.plan(src,out,extras=['-e','floating-point','-b','64'])
+            check(p['inputs'][0]['pcm64_reader_eligible'] is True and
+                  p['precision']['actual_pcm_engine']=='ieee754.binary64',
+                  'FLAC plan did not select native reader')
+            self.run(['--precision','64',src,'-e','floating-point','-b','64',out],
+                     f'builtin-flac-ingress-{bits}-{channels}-{frames}')
+            fmt,data=parse_wav_bytes(out.read_bytes())
+            check(fmt[:4]==(FLOAT32,channels,FLAC_RATE,64),
+                  f'FLAC ingress WAV encoding/rate wrong: {fmt}')
+            oracle=f64_payload([f64_word(math.ldexp(float(code),-(bits-1)))
+                               for code in flac_codes(bits,channels,frames)])
+            check(data==oracle,
+                  f'FLAC {bits}-bit {channels}-channel native PCM differs from independent code oracle')
+            self.count('flac_exact_integer_words',frames*channels)
         self.gates['built_in_flac_pcm64_ingress']='PASS'
 
     def native_fenv(self):
@@ -508,6 +576,61 @@ class Suite:
         self.gates['hostile_copy_and_numeric_refusal']='PASS'
         self.gates['short_write_close_errors_no_success']='PASS'
 
+    def signal_cancellation(self):
+        if not hasattr(signal,'SIGINT') or sys.platform=='win32':
+            self.gates['sigint_after_commit_no_success']='NOT_RUN: needs POSIX SIGINT'
+            return
+        # A sparse WAV avoids materializing ~1 GiB of test data. Its declared
+        # length gives the sink a valid exact-size header. On some filesystems
+        # stat size stays at the header until close despite subsequent writes;
+        # the committed header is enough to establish a post-commit signal.
+        src=self.root/'signal-sparse-source.wav'
+        payload_size=1<<30
+        fmt=struct.pack('<HHIIHH',3,1,44100,44100*8,8,64)+b'\0\0'
+        header=(b'RIFF'+struct.pack('<I',0)+b'WAVE'+
+                b'fmt '+struct.pack('<I',len(fmt))+fmt+
+                b'fact'+struct.pack('<II',4,payload_size//8)+
+                b'data'+struct.pack('<I',payload_size))
+        # RIFF length is total file length minus the initial eight bytes.
+        header=header[:4]+struct.pack('<I',len(header)-8+payload_size)+header[8:]
+        with open(src,'wb') as f:
+            f.write(header)
+            f.truncate(len(header)+payload_size)
+        out=self.root/'signal-partial-out.wav'
+        report=self.root/'signal-partial-report.json'
+        cmd=[str(self.sox),'--precision','64','--report',str(report),
+             str(src),'-e','floating-point','-b','64',str(out)]
+        self.record_binary(self.sox)
+        proc=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        signalled=False
+        try:
+            deadline=time.monotonic()+8
+            while time.monotonic()<deadline and proc.poll() is None:
+                if out.exists() and out.stat().st_size>=len(header):
+                    time.sleep(.01)
+                    proc.send_signal(signal.SIGINT)
+                    signalled=True
+                    break
+                time.sleep(.002)
+            if not signalled and proc.poll() is None:
+                proc.send_signal(signal.SIGINT)
+            stdout,stderr=proc.communicate(timeout=20)
+            check(signalled and proc.returncode!=0,
+                  f'post-commit SIGINT must stop with nonzero status: signalled={signalled}, rc={proc.returncode}')
+            check(not report.exists() or
+                  json.loads(report.read_text()).get('status')!='complete',
+                  'cancelled output published complete report')
+            self.commands.append({'label':'post-commit-SIGINT','argv':cmd,
+                'exit':proc.returncode,'signal_after_audio_committed':signalled,
+                'stderr':stderr.decode('utf-8','replace')[-900:]})
+            self.gates['sigint_after_commit_no_success']='PASS'
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+                proc.communicate()
+            src.unlink(missing_ok=True)
+            out.unlink(missing_ok=True)
+
     def planning_performance(self):
         src=self.root/'identity-7.wav'; dest=self.root/'timed.wav'
         argv=['--precision','64','--plan',str(src),'-e','floating-point','-b','64',str(dest)]
@@ -527,10 +650,7 @@ class Suite:
         # 1 Mi frames, stereo: 16 MiB input audio, ~16 MiB output audio.
         frames=1<<20
         pattern=f64_payload([f64_word(-0.0),f64_word(0.1),f64_word(0.25),f64_word(2**-40)])
-        with open(src,'wb') as f:
-            # For raw data generation, stream the complete generator through a
-            # temporary payload file to keep the test harness itself bounded.
-            payload=pattern*(frames//2)
+        payload=pattern*(frames//2)
         pack_wav(src,payload,64,FLOAT32,channels=2)
         before=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
         cp=self.run(['--precision','64',src,'-e','floating-point','-b','64',dest],
@@ -592,6 +712,7 @@ def main():
         suite.compatibility_plans()
         suite.flac_status()
         suite.native_fenv()
+        suite.signal_cancellation()
         suite.planning_performance()
         suite.performance()
         record=suite.receipt('PASS_WITH_NOT_RUN' if any(str(x).startswith('NOT_RUN')

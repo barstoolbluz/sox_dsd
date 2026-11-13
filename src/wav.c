@@ -2854,6 +2854,7 @@ pcm_f64_progress lsx_wav_native_write(sox_format_t *ft, pcm_f64_input in)
   p.status=native_scratch(ft,w,align);
   if (p.status!=PCM_F64_OK) return native_failed(ft,w,p.status,"native WAV scratch unavailable");
   for (offset=0;offset<in.frames;offset+=take) {
+    uint64_t saturated_in_chunk=0;
     take=min(in.frames-offset,w->native_scratch_capacity/align);
     for (i=0;i<take*f.stream.channels;++i) {
       const double *value = &in.data[(offset*f.stream.channels)+i];
@@ -2883,6 +2884,7 @@ pcm_f64_progress lsx_wav_native_write(sox_format_t *ft, pcm_f64_input in)
         bool saturated;
         pcm_f64_status rc=pcm_f64_quantize_int(*value,f.container_bits,&aligned,&saturated);
         if (rc!=PCM_F64_OK) return native_failed(ft,w,rc,"native WAV quantization failed");
+        if (saturated) ++saturated_in_chunk;
         code=(int64_t)aligned / (INT64_C(1)<<(32-f.container_bits));
         word=(uint32_t)(code + (bytes==1 ? 128 : 0));
       }
@@ -2902,6 +2904,11 @@ pcm_f64_progress lsx_wav_native_write(sox_format_t *ft, pcm_f64_input in)
         p.status=PCM_F64_IO;
         return p;
       }
+      /* The report's physical writer-clips counter is target saturation,
+       * separate from the CLI's nominal PCM excursion count. Only a fully
+       * committed block contributes to this successful-output counter. */
+      ft->clips=UINT64_MAX-ft->clips<saturated_in_chunk?
+          UINT64_MAX:ft->clips+saturated_in_chunk;
     }
   }
   p.status=PCM_F64_OK;
