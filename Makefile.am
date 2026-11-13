@@ -869,6 +869,7 @@ EXTRA_DIST += \
   src/resonator/dsd128/proofs/emit_header.py src/resonator/dsd128/results/proof.json
 
 EXTRA_DIST += tests/pcm64/output_formats.py tests/pcm64/routing.py \
+  tests/pcm64/return_acceptance.py \
   tests/pcm64/fixtures/phase04/short-dsd64-stereo.dsf \
   tests/pcm64/fixtures/phase04/libsndfile-float32.rf64 \
   tests/pcm64/fixtures/phase04/libsndfile-float32.wav \
