@@ -1801,7 +1801,9 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     lsx_fail("native WAV: source arithmetic environment unsupported");
     return NULL;
   }
-  if (have_source_facts && source_facts.has_speaker_mask && !layout) {
+  /* Classic wavpcm deliberately discards source speaker metadata, exactly
+   * as its ordinary writer does. It must not require a retained layout. */
+  if (!classic && have_source_facts && source_facts.has_speaker_mask && !layout) {
     lsx_fail("native WAV: explicit source channel mask requires a retained layout");
     return NULL;
   }
