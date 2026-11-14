@@ -5520,6 +5520,11 @@ int main(int argc, char **argv)
     exit(1);
   }
 
+  /* File-option failures are reported before input acquisition. The report
+   * destination and parsed filenames are available after the input guard. */
+  if (precision_requested==LSX_PRECISION_64 && dsd_report_path && !dsd_plan_only)
+    dsd_report_preflight_destination();
+
   /* Readable DSD names are output selection, not input clock overrides. */
   for (i=0;i<input_count;i++)
     if (files[i]->named_dsd_rate) {
@@ -5552,11 +5557,6 @@ int main(int argc, char **argv)
     lsx_fail("--ignore-length can only be given for an input file");
     exit(1);
   }
-
-  /* Input acquisition can fail before process() begins. Attach the existing
-   * report observer now, after parsing and validating the file arguments. */
-  if (precision_requested==LSX_PRECISION_64 && dsd_report_path && !dsd_plan_only)
-    dsd_report_preflight_destination();
 
   for (i = 0; i < input_count; i++) {
     size_t j;

@@ -268,6 +268,36 @@ class Case:
                         f'second input failure lost partial acquisition: {sources}')
         self.gate('input_open_failure_reports_and_untouched_output',3)
 
+    def file_option_failure_reports(self):
+        # File-specific option validation exits before input acquisition.
+        # The report must capture the original diagnostic without opening
+        # or modifying the requested audio destination.
+        src=self.root/'option-error-input.wav';wav(src,[100,-200,300,-400],16)
+        cases=[('volume',lambda out:[src,'-v','0.5',out],
+                b'-v can only be given for an input file'),
+               ('ignore-length',lambda out:[src,'--ignore-length',out],
+                b'--ignore-length can only be given for an input file'),
+               ('compression',lambda out:['-C','5',src,out],
+                b'a compression factor can be given only for an output file')]
+        for tag,command,cause in cases:
+            report=self.root/f'option-error-{tag}.json';report.unlink(missing_ok=True)
+            output=self.root/f'option-error-{tag}-output.wav'
+            output.write_bytes(b'SENTINEL')
+            args=command(output)
+            ordinary=self.call(args,success=False)
+            cp=self.call(['--precision','64','--report',report,*args],success=False)
+            require(cp.returncode==ordinary.returncode==1 and
+                    cp.stderr==ordinary.stderr and cause in cp.stderr and
+                    cp.stdout==ordinary.stdout==b'',
+                    f'{tag}: exit status or terminal diagnostic changed: {cp.stderr}')
+            require(report.is_file(),f'{tag}: missing failure report')
+            doc=json.loads(report.read_text())
+            require(doc['status']=='failed' and
+                    cause.decode() in (doc.get('failure_reason') or '') and
+                    output.read_bytes()==b'SENTINEL',
+                    f'{tag}: wrong failure reason or output changed: {doc}')
+        self.gate('file_option_failure_reports',len(cases))
+
     def missing_report_aliases(self):
         src=self.root/'alias-report-source.wav';wav(src,[200,-300,400,-500],16)
         sub=self.root/'alias-report-subdir';sub.mkdir(exist_ok=True)
@@ -482,6 +512,7 @@ class Case:
         self.gate('stdout_execution_descriptor',1)
         self.returned_regressions()
         self.early_input_failure_reports()
+        self.file_option_failure_reports()
         self.missing_report_aliases()
         self.quiet_failure_reports()
 
