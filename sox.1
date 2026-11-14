@@ -1460,41 +1460,32 @@ conversions.
 Display a short set of DSD examples and commonly used advanced controls.
 .TP
 .B \-\-decode mastering|wideband|ID
-Select a reconstruction profile when processing DSD as PCM.  The
-automatic default and
+Select a DSD reconstruction profile. The default and
 .B mastering
-both select qualified mastering v1, matched to the native DSD input
-clock.
+use the source-rate mastering filter;
 .B wideband
-selects the qualified wideband-v1 alternative.  Explicit immutable IDs
-such as
-.B decode.mastering.v1.dsd64
-or
-.B decode.wideband.v1.dsd128
-pin both the bank and the native input clock, so a clock mismatch
-is an error.  The previous decoder-v2 bank and the decoder spellings
-.B conservative
+selects the alternative. Exact IDs such as
+.B decode.mastering.dsd64
 and
-.B legacy
-are no longer supported.  This does not affect the high-rate v2 encoder.
+.B decode.wideband.dsd128
+pin both the filter and native DSD input clock. A mismatch is rejected.
+Obsolete versioned identifiers and retired decoder aliases are unavailable.
 .TP
-.B \-\-encode mastering|ID
-Select a qualified PCM-to-DSD modulator.  The default
+.B \-\-encode mastering|legacy|ID
+Select PCM-to-DSD modulation. The default
 .B mastering
-selects encode.mastering.v1.dsd64/128/256/512/1024, depending on output clock.
-An explicit ID such as
-.B encode.mastering.v1.dsd128
-pins the DSD output clock.  The qualified high-rate v2 alternatives remain
-available by their original exact IDs,
-.B encode.mastering.v2.dsd512
+uses eighth-order SDM-8 at all five native clocks. An exact ID such as
+.B encode.mastering.dsd512
+pins the output rate. DSD512 and DSD1024 use rate-specific SDM-8 coefficients.
+.B legacy
+names the original SoX low-level
+.B sdm
+effect; it requires an explicit
+.B rate
 and
-.BR encode.mastering.v2.dsd1024 ;
-these do not change the default or the meaning of
-.B mastering
-(v1).  In strict mode high-rate v2 retains unity gain, as in 1.1.0.
-Out-of-range modulation fails rather than
-silently clipping; lower the PCM input level and retry.  The legacy and
-experimental selectors do not authorize unqualified composite encoding.
+.B sdm
+effect chain. This selector alone cannot run the composite encoder.
+Retired high-rate alternatives and experimental encoder options are unavailable.
 .TP
 .B \-\-dsd\-mode auto|native|legacy
 Advanced domain policy.  Automatic routing is the default for DSD
@@ -1526,28 +1517,20 @@ uses unity gain.  The
 mode applies a factor of two (+6.0206 dB).  Neither normalizes audio.
 .TP
 .B \-\-dsd\-clip warn|error
-Choose warning and clipping (default), or fatal rejection, for
-reconstructed PCM graph-boundary overshoots and interpolated PCM-to-DSD
-modulator input overshoots.  In warning mode, the mastering encoder
-applies a fixed 0.9 linear gain (-0.91515 dB) at every DSD rate before
-clamping residual interpolated peaks above 0.45.  Clipped native samples are
-counted and warned about.  The default cut protects normal PCM from
-hard-clipping at the lowered ceiling but changes level even on quiet
-programmes.  This is a constant linear attenuation, not a time-varying
-limiter; it is a tested operational measure, not a proof of indefinite
-modulator stability.  Nonfinite samples and modulator-state guard
-violations remain fatal in either mode.  On decode, strict mode rejects
-reconstructed PCM at +1.0 or above, or below -1.0 (the signed PCM bounds),
-without clipping.  On encode, strict mode uses unity gain at DSD64/128/256
-and for an explicitly selected high-rate mastering v2; the default high-rate
-mastering v1 retains 0.9, with which it was qualified.  For PCM-origin input
-only, high-rate v1's 0.9 gain permits a pre-gain interpolated peak up to about
-1.111 times full-scale PCM (+0.91515 dB) before the 0.5 modulator envelope
-is exceeded.  This is not permission for input samples above full scale;
-DSD-origin reconstruction uses a different reference scale.  State guards
-stay active.  Explicit
-.B \-\-headroom
-replaces the implicit gain, not the overload ceiling or state guards.
+Choose the treatment of interpolated PCM-to-DSD peaks and out-of-range
+reconstructed PCM. The mastering encoder applies its fixed 0.9 linear gain
+(about -0.91515 dB) at every DSD rate in both modes, unless an explicit
+.B \--headroom
+or
+.B \--auto\-headroom
+setting replaces it. Warn mode (default) clips residual interpolated peaks
+above 0.45 modulator units, reports the count, and retains numerical/state
+guards. Error mode refuses interpolated overload above 0.5 instead of clipping;
+it does not remove the default 0.9 gain. Decoded PCM outside the representable
+full-scale range is likewise refused in error mode. The low-level
+.B sdm
+effect never receives the composite mastering gain or clip policy.
+The default cut is an operating margin, not a proof of unlimited stability.
 .TP
 .B \-\-headroom DB
 For PCM-to-DSD encoding, cut the level by the specified nonnegative
@@ -1564,7 +1547,7 @@ the 0.45 ceiling, with a warning.  With
 they are not clipped: only peaks above 0.5 are refused, and at DSD512 and
 DSD1024 a full-scale DC test with
 .B --headroom 0
-has stopped the v1 encoder on the state guard, even without breaching the
+has stopped the mastering encoder on the state guard, even without breaching the
 0.5 interpolation envelope.  Other cuts below 0.91515 dB exceed the
 qualification mapping but were not proven to fail; neither they nor the
 tested mapping guarantee unrestricted stability.  The overload diagnostic suggests retrying with
@@ -1644,7 +1627,7 @@ Examples:
    sox --dop input.dsf output.wav
    sox --plan input.dsf output.wav
    sox --report report.json input.dsf output.wav
-   sox --decode decode.mastering.v1.dsd64 input.dsf old-v1.wav
+   sox --decode decode.mastering.dsd64 input.dsf pinned.wav
 .XX
 .SH EFFECTS
 In addition to converting, playing and recording audio files, SoX can

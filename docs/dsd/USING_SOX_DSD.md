@@ -75,20 +75,21 @@ A native DSD signal has one bit per sample per channel. Its rate is a **bit cloc
 
 ### Default profiles for DSD reconstruction and encoding
 
-SoX DSD selects a profile from the conversion direction and DSD clock. **Reconstruction and encoding use independent algorithm families; their version numbers are not paired.**
+SoX DSD selects its reconstruction filter or encoder from the conversion direction and DSD bit clock. Decoder and encoder profiles describe separate algorithms.
 
-- **Reconstruction (DSD → PCM):** the default at every DSD clock is **mastering v1**. `--decode mastering` selects the same qualified filter bank. `--decode wideband` is the separate qualified wideband-v1 alternative. The mastering-v2 *decoder* found in 1.1.0 was removed from 1.1.1.
-- **Encoding (PCM → DSD):** the default at every DSD clock is the qualified **eighth-order mastering v1** composite encoder. At DSD512 and DSD1024 only, qualified **seventh-order CLANS-7 mastering v2** remains available by exact encoder ID; it is no longer the default.
+- **DSD to PCM:** `mastering` is the default reconstruction filter at every clock; `wideband` is the optional alternative.
+- **PCM to DSD:** the eighth-order SDM-8 `mastering` composite encoder is the only mastering encoder at every clock. DSD512 and DSD1024 use new, rate-specific SDM-8 coefficient tables.
+- **Legacy route:** the original SoX `sdm` effect supports `sdm-4`–`sdm-8` and `clans-4`–`clans-8`. Explicit `rate -v RATE sdm -f NAME` effects are required; the `--encode legacy` selector alone does not insert them.
 
-| DSD clock | Default reconstruction | Default composite encoder | Optional encoder |
+| DSD clock | Default reconstruction | Mastering encoder | Legacy route |
 |---|---|---|---|
-| DSD64 | mastering v1 | mastering v1 (eighth-order) | — |
-| DSD128 | mastering v1 | mastering v1 (eighth-order) | — |
-| DSD256 | mastering v1 | mastering v1 (eighth-order) | — |
-| DSD512 | mastering v1 | mastering v1 (eighth-order) | mastering v2 (CLANS-7) |
-| DSD1024 | mastering v1 | mastering v1 (eighth-order) | mastering v2 (CLANS-7) |
+| DSD64 | mastering | SDM-8 | explicit `rate` + `sdm` |
+| DSD128 | mastering | SDM-8 | explicit `rate` + `sdm` |
+| DSD256 | mastering | SDM-8 | explicit `rate` + `sdm` |
+| DSD512 | mastering | SDM-8, rate-specific zeros | explicit `rate` + `sdm` |
+| DSD1024 | mastering | SDM-8, rate-specific zeros | explicit `rate` + `sdm` |
 
-The mastering-v1 encoder descends from the sigma-delta modulation work of **Måns Rullgård** in SoX-NG, used here within SoX DSD's own qualified interpolation chain and numerical/state guards. The reconstruction FIR filters are separate SoX DSD designs. A v2 **encoder** does not imply a v2 **decoder** or a wider decoder passband.
+The mastering SDM-8 encoder descends from sigma-delta modulation work by **Måns Rullgård** in SoX-NG. It combines SoX DSD's interpolation chain, input-level policy, and numerical/state checks. The reconstruction FIR filters are separate designs.
 
 *Qualified* means that a profile passed the release-authorization checks for its documented rate, gain mapping, and use. It does not mean perfect stability for all possible inputs, a guarantee of audible superiority, or universal device support. Section 4 explains the choices, and the separate [noise-shaper measurement report](NOISE_SHAPER_BENCH_2026-11-07.md) provides detailed test data.
 
@@ -153,7 +154,7 @@ The read/write rates in the table describe SoX DSD 1.1.1 capabilities, not guara
 
 ## 3. Reconstruct DSD to PCM
 
-A normal DSD-to-PCM command inserts the source-matched qualified reconstruction filter automatically. You do not need to name `dsdpcm` or a particular version unless you want to override the default.
+A normal DSD-to-PCM command inserts the source-matched qualified reconstruction filter automatically. You do not need to name `dsdpcm` or a particular profile unless you want to override the default.
 
 ```bash
 # Default output: 88.2 kHz for DSD64, 176.4 kHz for higher DSD rates.
@@ -188,13 +189,13 @@ sox --dsd-level sacd source.dsf sacd-level.wav
 
 ## 4. Reconstruction, encoding profiles, and measured tradeoffs
 
-**Separate the two DSP directions.** A DSD-to-PCM *decoder* applies reconstruction FIR filters. A PCM-to-DSD *encoder* interpolates PCM and operates a one-bit noise-shaping modulator. Profile versions refer to designs inside each direction, not to the product version or a matched decoder/encoder pair.
+**Separate the two DSP directions.** A DSD-to-PCM *decoder* applies reconstruction FIR filters. A PCM-to-DSD *encoder* interpolates PCM and operates a one-bit noise-shaping modulator. Each profile selects a particular filter or modulator for the relevant native clock.
 
-### 4.1 Reconstruction: the mastering v1 default
+### 4.1 Reconstruction: the mastering default
 
 A one-bit DSD signal carries shaped quantization noise, much of it ultrasonic. The mastering reconstruction filter retains its specified passband and suppresses unwanted high-frequency content. More output samples do not automatically increase the decoder's chosen source bandwidth.
 
-| Native input | Mastering v1 rated passband | Stopband begins | Intermediate PCM clock |
+| Native input | Mastering rated passband | Stopband begins | Intermediate PCM clock |
 |---|---:|---:|---:|
 | DSD64 | 20 kHz | 40 kHz | 88.2 kHz |
 | DSD128 | 30 kHz | 60 kHz | 176.4 kHz |
@@ -204,40 +205,40 @@ A one-bit DSD signal carries shaped quantization noise, much of it ultrasonic. T
 
 The passband edge marks the last frequency covered by the specified flat-response region; the stopband edge marks where specified attenuation begins. Neither is a brick-wall cutoff or a listening-quality ranking. The design's transfer-function targets are described in [DSD design](DSD_DESIGN.md).
 
-**Historical compatibility:** In 1.1.0, mastering v2 decoding was the default, with nominal passbands of 25 kHz for DSD64, 48 kHz for DSD128, and 66 kHz for DSD256 and above. **Those v2 decoder banks and IDs are no longer available in 1.1.1.** The retained v2 *encoder* is a different algorithm. Existing render comparisons must identify the SoX DSD version as well as their encoder and decoder IDs.
+Compared with earlier releases, the default reconstruction filter may have a different passband. Record the product release and the selected decoder when comparing rendered PCM.
 
 ### 4.2 Selecting a decoder in 1.1.1
 
 | Request | Result |
 |---|---|
-| No `--decode` | Qualified mastering v1 for the source DSD clock |
-| `--decode mastering` | The same mastering v1 decoder |
-| `--decode wideband` | Qualified wideband v1 for the source DSD clock |
-| `--decode decode.mastering.v1.dsd128` | Exact mastering v1 bank; DSD128 source required |
-| `--decode decode.wideband.v1.dsd256` | Exact wideband v1 bank; DSD256 source required |
-| `--decode conservative` or `--decode legacy` | **Rejected** (retired 1.1.0 selectors) |
-| `--decode decode.mastering.v2.dsd128` | **Rejected** (v2 decoder removed) |
+| No `--decode` | Mastering filter for the native DSD clock |
+| `--decode mastering` | The same mastering filter |
+| `--decode wideband` | Wideband reconstruction filter for the native DSD clock |
+| `--decode decode.mastering.dsd128` | Exact mastering bank; DSD128 input required |
+| `--decode decode.wideband.dsd256` | Exact wideband bank; DSD256 input required |
+| `--decode conservative` or `--decode legacy` | Rejected obsolete selector |
+| Obsolete versioned ID | Rejected |
 
 ```bash
-# Automatic and explicit mastering-v1 reconstruction select the same filter.
-sox source64.dsf -r 176400 default-v1.wav
-sox --decode mastering source64.dsf -r 176400 mastering-v1.wav
+# Default and explicit mastering select the same filter.
+sox source64.dsf -r 176400 default.wav
+sox --decode mastering source64.dsf -r 176400 mastering.wav
 
-# Pin the released DSD128 mastering decoder.
-sox --decode decode.mastering.v1.dsd128 source128.dsf \
-    -r 176400 pinned-v1.wav
+# Pin the DSD128 mastering decoder.
+sox --decode decode.mastering.dsd128 source128.dsf \
+    -r 176400 pinned.wav
 
-# Choose the qualified wideband alternative.
+# Choose the wideband alternative.
 sox --decode wideband source128.dsf -r 352800 wideband.wav
 ```
 
 To compare mastering and wideband, render the **same source** with the **same final PCM rate and level**. The distinct passbands may pass different amounts of shaped ultrasonic noise. These differences cannot be inferred just from source DSD clock.
 
-### 4.3 Wideband v1: a deliberate alternative
+### 4.3 Wideband: a deliberate alternative
 
-`--decode wideband` retains a much broader DSD spectrum than mastering v1:
+`--decode wideband` retains a much broader DSD spectrum than mastering:
 
-| Input | Wideband v1 passband | Stopband begins | Intermediate PCM clock |
+| Input | Wideband passband | Stopband begins | Intermediate PCM clock |
 |---|---:|---:|---:|
 | DSD64 | 35.28 kHz | 44.1 kHz | 88.2 kHz |
 | DSD128 | 70.56 kHz | 88.2 kHz | 176.4 kHz |
@@ -245,14 +246,14 @@ To compare mastering and wideband, render the **same source** with the **same fi
 | DSD512 | 282.24 kHz | 352.8 kHz | 705.6 kHz |
 | DSD1024 | 564.48 kHz | 705.6 kHz | 1,411.2 kHz |
 
-This can help specialist measurement or deliberately broad-spectrum work, but it can also retain considerably more shaped ultrasonic noise. It is not a mastering-v2 alias.
+This can help specialist measurement or deliberately broad-spectrum work, but it can also retain considerably more shaped ultrasonic noise. It uses a different reconstruction bank from mastering.
 
 ### 4.4 Output-rate policy: `adapt` versus `strict`
 
 The destination PCM clock may be unable to represent the selected filter's full passband. `--dsd-bandwidth adapt` (default) allows a narrower effective result. `--dsd-bandwidth strict` rejects a route that cannot preserve it.
 
 ```bash
-# DSD128 mastering v1 has a 30 kHz passband; 44.1 kHz PCM cannot retain it.
+# DSD128 mastering has a 30 kHz passband; 44.1 kHz PCM cannot retain it.
 sox source128.dsf -r 44100 adapted.wav
 
 # The strict request is expected to fail on the same input and output clock.
@@ -262,54 +263,40 @@ sox --dsd-bandwidth strict source128.dsf -r 44100 refused.wav
 sox --dsd-bandwidth strict source128.dsf -r 88200 strict-ok.wav
 ```
 
-A 44.1 kHz destination is not inherently invalid for every mastering-v1 source: for DSD64 the selected passband is 20 kHz. The compatibility decision depends on the *selected filter* and the *destination rate*, not on a blanket rule about 44.1 kHz.
+A 44.1 kHz destination is not inherently invalid for every mastering source: for DSD64 the selected passband is 20 kHz. The compatibility decision depends on the *selected filter* and the *destination rate*, not on a blanket rule about 44.1 kHz.
 
-### 4.5 Encoding: mastering v1 is standard at every rate
+### 4.5 Encoding: one mastering encoder at every rate
 
-The qualified composite PCM-to-DSD encoder combines interpolation and one-bit noise shaping. In **1.1.1**, the eighth-order mastering-v1 design is the default at all native DSD clocks. The **seventh-order CLANS-7 mastering-v2** design remains an explicit, qualified option only at DSD512 and DSD1024.
+The mastering composite encoder interpolates PCM and applies eighth-order SDM-8 noise shaping. The five native clocks have five rate-pinned IDs, with one authorized encoder per clock.
 
-| Output clock | Default encoder ID | Additional qualified encoder ID |
+| Output clock | Mastering encoder ID | Coefficients |
 |---|---|---|
-| DSD64 | `encode.mastering.v1.dsd64` | — |
-| DSD128 | `encode.mastering.v1.dsd128` | — |
-| DSD256 | `encode.mastering.v1.dsd256` | — |
-| DSD512 | `encode.mastering.v1.dsd512` | `encode.mastering.v2.dsd512` |
-| DSD1024 | `encode.mastering.v1.dsd1024` | `encode.mastering.v2.dsd1024` |
-
-The high-rate v1 designs had failed earlier qualification checks at a higher **0.5** modulator mapping, including sustained DC and nominal-soak conditions. They subsequently passed the release's tested checks with the **0.9 implicit gain** and **0.45 clipping ceiling**. This qualification applies to that documented policy. Explicit unity input mapping at full-scale sustained DC can still trip a high-rate v1 state guard, particularly with `--headroom 0 --dsd-clip error`. A qualified profile does **not** mean unrestricted level tolerance.
+| DSD64 | `encode.mastering.dsd64` | SDM-8 |
+| DSD128 | `encode.mastering.dsd128` | SDM-8 |
+| DSD256 | `encode.mastering.dsd256` | SDM-8 |
+| DSD512 | `encode.mastering.dsd512` | SDM-8 with rate-specific zeros (`xz-k1p75`) |
+| DSD1024 | `encode.mastering.dsd1024` | SDM-8 with rate-specific zeros (`xz-k2`) |
 
 ```bash
-# Standard 1.1.1 mastering-v1 encoding.
 sox master.wav -r dsd256 master256.dsf
-sox master.wav -r dsd1024 master1024-v1.dsf
-
-# Pin the qualified high-rate v2 CLANS-7 encoder when explicitly wanted.
-sox --encode encode.mastering.v2.dsd512 master.wav -r dsd512 master512-v2.dsf
-sox --encode encode.mastering.v2.dsd1024 master.wav -r dsd1024 master1024-v2.dsf
+sox --encode mastering master.wav -r dsd1024 master1024.dsf
+sox --encode encode.mastering.dsd512 master.wav -r dsd512 pinned512.dsf
 ```
 
-`--encode mastering` means v1 at **all five rates**, not the former 1.1.0 high-rate v2 default. Exact IDs must match the destination DSD clock. The terms `sdm-8` in the **low-level legacy effect** and *eighth-order mastering v1* in the **qualified composite encoder** do not designate identical high-rate processing routes. Their coefficient selection, interpolation path, gain and guard behavior differ; see Section 9.
+The explicit encoder ID must match the requested destination clock. Obsolete versioned identifiers and `experimental` do not select an alternative encoder. `pcmdsd -p` accepts only mastering or its exact-rate IDs.
 
-### 4.6 What the noise-shaper study found
+The 0.9 linear mastering gain is applied at every rate in warn and strict mode, unless a fixed or measured headroom setting replaces it. The input mapping and state guards still limit which material can be encoded safely. Full-scale sustained DC with `--headroom 0` has previously stopped the high-rate modulator; a successful bounded test is not an arbitrary-duration stability proof.
 
-The standalone [noise-shaper bench report](NOISE_SHAPER_BENCH_2026-11-07.md) compares the legacy shapers, the 1.1.0 high-rate v2 default, and the 1.1.1 high-rate v1 default **through their real encoding paths**, not from abstract filter plots. **It does not compare DSD-to-PCM reconstruction filters** or resurrect the removed v2 decoder. Its 1.1.0 experiments used 18 signals/excerpts per rate, except nine at DSD1024; the 1.1.1 tagged rerun added **27 default-route jobs** across DSD512 and DSD1024. The high-rate v1 real-music completion study used a separate **1.1.0-based test build with v1 selected**, not the final 1.1.1 release binary.
+### 4.6 Noise-shaper measurements and their limits
 
-The most useful high-rate comparison, copied from the report's tables, is:
+The [historical noise-shaper study](NOISE_SHAPER_BENCH_2026-11-07.md) compares the legacy shapers with earlier mastering tables. The subsequent round03 rerun measured the **selected** mastering tables at DSD512 and DSD1024. Its results are in the handoff's `observed/round03/shaper-bench/`; the dated research report has intentionally not been rewritten as part of this change.
 
-| Tested route | Music-notch in-band median (dBFS) | 20–50 kHz energy (dBFS) | 100 kHz–1 MHz energy (dBFS) |
+| Current mastering rate | Unwindowed in-band noise (dBFS) | Music-notch median (dBFS) | 20–50 kHz energy (dBFS) |
 |---|---:|---:|---:|
-| DSD512, v1 default (1.1.1) | −197.3 | −209.2 | −15.5 |
-| DSD512, v2 option (1.1.0 default) | −195.1 | −176.9 | −26.7 |
-| DSD1024, v1 default (1.1.1) | −198.9 | −209.4 | −28.1 |
-| DSD1024, v2 option (1.1.0 default) | −197.4 | −199.5 | −43.8 |
+| DSD512 | −261.8 | −197.3 (12 excerpts) | −208.1 |
+| DSD1024 | below bench floor | −198.9 (3 excerpts) | −209.4 |
 
-The music-notch medians use **12 excerpts at DSD512 but only three at DSD1024**. The ultrasonic figures use the study's **−20 dBFS sine**, not the music excerpts. A more negative dBFS reading indicates less measured energy in the stated band. The benchmark's absolute 32-bit reference level depends on source rate and its test chain; the comparison does **not** certify a universal noise floor for all possible inputs or processing paths.
-
-**Interpretation:** The 1.1.1 v1 default has lower measured in-band noise and less energy immediately above 20 kHz in these tests. It also has **more** energy in the 100 kHz–1 MHz band: **11.2 dB at DSD512 and 15.7 dB at DSD1024** relative to v2. A user cannot infer the analog output or listening result from either band without measuring the player, DAC, and analog reconstruction chain.
-
-The report's synthetic distortion estimator was **not calibrated**. Its 32-bit reference signals already contain periodic quantization products. The report judged several v2 excesses significant by its own rule but found **no established excess** for the 1.1.1 v1 default at the high rates. That is **not** a claim of zero v1 distortion or a statistically established ranking in every situation.
-
-**The useful practical conclusion:** The qualified v1 default is a sensible starting point. Select high-rate v2 when a specific need warrants it, such as matching 1.1.0 encoder output or comparing the higher-frequency noise spectrum against the requirements of your playback chain. Neither profile has a demonstrated universal listening advantage. For controlled comparisons, hold source, input level, DSD clock, headroom/clip policy, and measurement bandwidth constant. Read the [complete report](NOISE_SHAPER_BENCH_2026-11-07.md) for the synthetic stimuli, observed noise, distortion-verdict method, ultrasonic tradeoff, and limitations.
+The digital reference and finite-bit-depth path limit these measurements. The music-notch numbers especially approach the source/reference floor; they cannot establish an unbounded signal-to-noise advantage or predict the output of a particular DAC. The tables are rate-specific production choices backed by the attached screening, DC and corpus evidence; earlier qualification certificates cover the algorithms and test conditions stated in those historical records. They do not independently certify every new coefficient word for arbitrary content. The new high-rate profiles report `certificate_sha256: null` in plans and `coefficient_certificate_sha256: null` in runtime receipts rather than attaching the previous tables' digest.
 
 ## 5. Encoding levels, clipping, and headroom
 
@@ -336,18 +323,20 @@ The fixed 0.9 gain applies even to quiet recordings. It is **not** an automatic 
 | Fast default | `sox in.wav -r dsd128 out.dsf` | One pass; 0.9 gain, warn and clip above 0.45 |
 | Known fixed attenuation, or one cut for a whole album | `sox --headroom 2 in.wav -r dsd128 out.dsf` | Exactly 2 dB cut **instead of** the implicit 0.9 gain |
 | Avoid clipping on a single track while retaining the greatest safe level | `sox --auto-headroom in.wav -r dsd128 out.dsf` | Full interpolated-peak scan; cut chosen for this file, only if needed |
-| Refuse clipping | `sox --dsd-clip error in.wav -r dsd128 out.dsf` | Strict bound of 0.5; unity gain at DSD128 (but high-rate v1 retains 0.9) |
+| Refuse clipping | `sox --dsd-clip error in.wav -r dsd128 out.dsf` | Strict bound of 0.5; default 0.9 mastering gain retained |
 | Measured headroom plus strict checking | `sox --auto-headroom --dsd-clip error in.wav -r dsd128 out.dsf` | Scan, apply a shared cut, and fail if the final strict check rejects input |
 
 `--headroom` accepts an attenuation from **0 to 120 dB**, not a signed gain or a target peak level. **`--headroom 0` explicitly requests unity gain**; it does not mean the implicit default. A fixed cut may still leave peaks above the warning ceiling, so it does not by itself guarantee zero clipped interpolated samples.
 
 `--auto-headroom` measures the interpolated signal, including the finite tail, then chooses a **single gain across all channels** so their balance does not change. It never boosts quiet material, uses bounded RAM with temporary storage, and takes an additional measurement pass with more I/O. Its target is the **0.45 warning ceiling**, even when combined with strict checking. The scan does not substitute a different mastering profile. It measures each file on its own, so the tracks of an album can receive different cuts; see [Encoding an album](#encoding-an-album).
 
-`--dsd-clip error` without explicit headroom uses a **0.5 strict input envelope**, rather than the default warning ceiling of 0.45; it rejects overshoots rather than clipping them. **The applied gain depends on the encoder**: DSD64/128/256 v1 and explicitly pinned high-rate v2 use **unity gain**; **high-rate v1 retains its implicit 0.9 gain even in strict mode**. This protects its qualified operating point, but it does not make an arbitrary input safe. An explicit `--headroom DB` replaces that implicit gain. DSD-origin re-encoding uses a different amplitude reference and is not covered by PCM-origin peak thresholds. The modulator's separate state guards apply in either mode. `--headroom` and `--auto-headroom` are mutually exclusive; both control the qualified **composite encoder**, not conventional PCM output processing or native repacking.
+`--dsd-clip error` uses a **0.5 strict input envelope**, rather than the default warning ceiling of 0.45. It rejects overloads rather than clipping them. The **mastering encoder retains its 0.9 gain at all five native rates** under this policy, just as in warn mode. `--headroom DB` or `--auto-headroom` replaces the default gain, including for strict runs. DSD-origin re-encoding has a different amplitude reference; the PCM-origin peak bound cannot simply be transferred to that path. The separate modulator-state guards apply in either mode.
+
+`--headroom` and `--auto-headroom` are mutually exclusive and apply only to mastering's composite encoder. They have no effect on the legacy low-level `sdm` route, bit-preserving native repacking, or ordinary PCM-only operations.
 
 For a single level-sensitive track, prefer **`--auto-headroom`** when its extra pass and temporary-file I/O are acceptable. For an album, use one fixed `--headroom` for every track so the tracks keep their relative levels. For high-throughput conversion where the fixed reduction and possible clipping warnings are understood, the ordinary one-pass default may be preferable.
 
-**What the music qualification establishes:** The separate high-rate v1 test build completed 800 real-track encodes at DSD512/1024, including sample-peak-raised copies. However, the 1.1.1 release documentation records **194 input-stage clipping warnings among 400 peak-raised runs**. Those are distinct from the composite encoder's 0.45 modulator warnings. Completion shows that the tested encoder did not abort; it does **not** prove the peak-raising command preserved the source waveform. Avoid unnecessary upstream `-v` amplification when waveform preservation is the goal. The benchmark's no-clipping statement applies to its separate 27-job rerun, not to these peak-raised real tracks.
+**What the prior music tests establish:** A separate high-rate test build completed 800 real-track encodes at DSD512/1024, including sample-peak-raised copies. However, the 1.1.1 release documentation records **194 input-stage clipping warnings among 400 peak-raised runs**. Those are distinct from the composite encoder's 0.45 modulator warnings. Completion shows that the tested encoder did not abort; it does **not** prove the peak-raising command preserved the source waveform. Avoid unnecessary upstream `-v` amplification when waveform preservation is the goal. The no-clipping conclusion from the earlier 27-job benchmark is specific to those fixtures and settings.
 
 ### See the actual applied gain and clip count
 
@@ -512,8 +501,8 @@ The ordinary conversion syntax requires none of these. Place global options befo
 |---|---|
 | `--help-dsd` | Show short built-in DSD examples |
 | `-r dsd64` through `-r dsd1024` | Set native DSF/DSDIFF **output** DSD bit clock |
-| `--decode PROFILE` | `mastering` (v1 default), `wideband` (v1), or an exact qualified v1 decoder ID; older v2 and `conservative`/`legacy` decoder names are rejected |
-| `--encode PROFILE` | `mastering` (v1 at all five rates) or an exact qualified encoder ID; only DSD512/1024 have an optional v2 CLANS-7 ID |
+| `--decode PROFILE` | `mastering`, `wideband`, or an exact native-rate decoder ID; obsolete versioned IDs and `conservative`/`legacy` are rejected |
+| `--encode PROFILE` | `mastering`, `legacy` (explicit `rate` + `sdm` effects only), or an exact mastering encoder ID |
 | `--dsd-mode auto\|native\|legacy` | `auto` selects normal routing; `native` requires bit-preserving native processing; `legacy` is an advanced named policy but **does not bypass DSD planning** |
 | `--dsd-bandwidth adapt\|strict` | Permit output-rate bandwidth adaptation (default), or reject loss of the selected decoder's passband |
 | `--dsd-level preserve\|sacd` | Default level convention, or +6.0206 dB SACD convention on reconstruction |
@@ -544,7 +533,7 @@ Effects appear **after** the output filename. They are advanced controls; use th
 ```bash
 # Explicit, pinned DSD64 reconstruction.
 sox input64.dsf -r 176400 decoded.wav \
-    dsdpcm -p decode.mastering.v1.dsd64 -l preserve 176400
+    dsdpcm -p decode.mastering.dsd64 -l preserve 176400
 
 # Qualified composite encoding with an explicit PCM reference.
 sox master.wav -r dsd128 encoded.dsf \
@@ -559,7 +548,7 @@ The `pcmdsd --reference` selector controls which amplitude convention enters the
 
 **Do not confuse `sdm` with `pcmdsd`.** `sdm` operates at its actual input clock using an explicitly selected low-level filter. It does not create the complete qualified multistage interpolation chain, nor does `--sdm-guard` replace composite encoder clipping and numerical checks. This effect is mainly for specialized experiments.
 
-The noise-shaper study exercised the low-level legacy route `rate -v RATE sdm -f NAME` with the ten `sdm-4`–`sdm-8` and `clans-4`–`clans-8` selectors. At **DSD512 and DSD1024**, that legacy route reuses the **DSD256 low-level coefficient tables**; it does not become the qualified high-rate v1 composite encoder. The separate `rate` stage reached about **4.27 GB peak RSS at DSD512** and **8.54 GB at DSD1024** for some benchmark inputs. The 1.1.0 composite path used approximately 10 MB there; its 1.1.1 memory peak was **not measured** in this report. This is one-host, input-dependent evidence, not a universal memory guarantee. Normal users should retain the qualified composite route rather than forcing `rate` plus legacy `sdm` to reproduce a mastering profile.
+The noise-shaper study exercised the low-level legacy route `rate -v RATE sdm -f NAME` with the ten `sdm-4`–`sdm-8` and `clans-4`–`clans-8` selectors. At **DSD512 and DSD1024**, that legacy route reuses the **DSD256 low-level coefficient tables**; it does not become the rate-specific high-rate mastering encoder. The separate `rate` stage reached about **4.27 GB peak RSS at DSD512** and **8.54 GB at DSD1024** for some benchmark inputs. The 1.1.0 composite path used approximately 10 MB there; its 1.1.1 memory peak was **not measured** in this report. This is one-host, input-dependent evidence, not a universal memory guarantee. Normal users should retain the qualified composite route rather than forcing `rate` plus legacy `sdm` to reproduce a mastering profile.
 
 ## 10. Troubleshooting and verification
 
@@ -567,13 +556,13 @@ The noise-shaper study exercised the low-level legacy route `rate -v RATE sdm -f
 |---|---|
 | DSD source shows a sample rate in the millions | `soxi` reports its **native one-bit clock**, correctly |
 | An ordinary DSD-to-WAV command produces an unexpectedly low PCM rate | Check the default reconstruction clock; supply explicit `-r 96k`, `-r 192k`, etc. if desired |
-| `--decode conservative` or a mastering-v2 decoder ID is rejected | 1.1.1 retains mastering v1 and wideband v1 reconstruction; old decoder names and banks were removed |
+| `--decode conservative` or a versioned decoder ID is rejected | Use mastering, wideband, or a current rate-pinned ID |
 | `--decode wideband` retains unexpected ultrasonic noise | This profile deliberately preserves a broader upper-frequency spectrum |
 | `--dsd-bandwidth strict` refuses a conversion | Requested PCM output clock cannot keep the decoder profile's passband; choose a higher supported rate or `adapt` |
-| An exact profile ID is rejected | Versioned IDs are tied to a specific input DSD clock (decoder) or output DSD clock (encoder) |
-| The DSD512/1024 default differs from a 1.1.0 DSD master | 1.1.1 defaults to v1 at high rates; the old v2 CLANS-7 encoder remains selectable with an exact ID |
+| An exact profile ID is rejected | Current exact IDs are tied to the input DSD clock (decoder) or output DSD clock (encoder) |
+| The DSD512/1024 default differs from a 1.1.0 DSD master | Current mastering uses a single SDM-8 encoder with rate-specific high-rate coefficients; output is not expected to match older releases |
 | A fast PCM-to-DSD conversion warns about clipping | Remaining interpolated peaks exceeded the 0.45 warning ceiling; inspect the report and consider measured headroom |
-| `--dsd-clip error` fails where default encoding succeeds | Strict mode refuses input overload; gain is unity at lower rates and for high-rate v2, but high-rate v1 retains 0.9. Use adequate headroom or `--auto-headroom` |
+| `--dsd-clip error` fails where default encoding succeeds | Strict mode refuses interpolated overload and keeps the mastering 0.9 gain at every rate. Use adequate headroom or `--auto-headroom` |
 | `--headroom 0` gives a different level from no option | Zero is an explicit unity setting; the implicit one-pass default uses 0.9 |
 | `--auto-headroom` needs time and scratch space | Its full interpolated-peak measurement requires another pass and temporary storage |
 | `--dsd-mode native` rejects an effect or rate change | These need PCM reconstruction and possibly re-encoding; omit native-only policy |
@@ -599,16 +588,16 @@ For encoding, choose the clipping/headroom policy **before** running the convers
 The source of truth for 1.1.1 behavior is the checked-in implementation. The key files and supporting documents are:
 
 - `src/sox_ng.c`: CLI syntax, selector defaults, headroom, plans, and reporting.
-- `src/dsd.c`: **current mastering-v1 and wideband-v1 decoder banks**, passband/stopband edges and clocks; no v2 mastering decoder exists here.
-- `src/pcmdsd.c`: qualified **mastering-v1 encoder profiles at all five rates**, optional high-rate v2 pins, default 0.9 gain, and strict-mode gain selection.
-- `src/dsd_plan.c`, `src/dsdpcm.c`, `src/sdm.c`, `src/dsdstat.c`: route planning, explicit reconstruction, low-level experimental modulation, and native statistics.
+- `src/dsd.c`: **mastering and wideband decoder banks**, passband/stopband edges and clocks.
+- `src/pcmdsd.c`: **mastering encoder profiles at all five rates**, rate-specific high-rate SDM-8 tables, and the default 0.9 gain in both clip modes.
+- `src/dsd_plan.c`, `src/dsdpcm.c`, `src/sdm.c`, `src/dsdstat.c`: route planning, explicit reconstruction, low-level legacy modulation, and native statistics.
 - [1.1.1 release notes](RELEASE_NOTES_1.1.1.md): current defaults, strict-mode behavior, and release-evidence limits.
-- [High-rate v1 qualification](V1_HIGH_RATE_ENCODE_2026-11-07.md): history of the failed 0.5 mapping and the qualification evidence for the 0.9/0.45 operating point.
-- [Unified decoder notes](UNIFIED_DECODER_2026-11-09.md): mastering-v2 decoder removal and the remaining v1 decoder identities.
+- [High-rate qualification history](V1_HIGH_RATE_ENCODE_2026-11-07.md): earlier table testing and the 0.9/0.45 operating point.
+- [Decoder consolidation history](UNIFIED_DECODER_2026-11-09.md): prior decoder-profile changes.
 - [DSD design](DSD_DESIGN.md) and [qualification](QUALIFICATION.md): architecture, response design, and test context. Historical design proposals do not override current release behavior.
 - [Real-chain noise-shaper benchmark (2026-11-07; updated 2026-11-10)](NOISE_SHAPER_BENCH_2026-11-07.md): experimental methods, measured in-band and ultrasonic performance, results, and limitations. It is a measurement study, not part of the release specification.
 
-**Validation boundary:** This guide updates the earlier 1.1.0 user document against the 1.1.1 source and integrates selected results from the noise-shaper report. The spectral tables were checked for internal consistency with the report; the underlying `results.jsonl`, `combined.jsonl`, and `derived.txt` benchmark evidence is not published with the repository. No listening tests, analog output measurements, every-device DoP checks, or exhaustive level-stability proof are claimed.
+**Validation boundary:** This guide describes the updated 1.1.1 source and distinguishes the new round03 high-rate measurements from older research. The original benchmark inputs and detailed outputs are provided separately in the handoff; the dated noise-shaper report remains unchanged. No listening tests, analog output measurements, every-device DoP checks, or exhaustive level-stability proof are claimed.
 
 For ordinary PCM operations, consult the existing SoX/SoX-NG manuals. This document deliberately covers **only SoX DSD-specific functionality**.
 

@@ -3685,67 +3685,46 @@ effect or to legacy routing.  See the DSD section of
 .BR sox (1).
 .TP
 .B dsdpcm [\-p PROFILE] [\-l preserve|sacd] [rate]
-Reconstruct native DSD to PCM with the profile's source-rate filter and
-binary64 DSP.  Without
-.BR \-p ,
-mastering v1 is selected according to the input DSD clock.  For DSD64,
-128, 256, 512, and 1024, v1 passbands are respectively 20, 30, 40, 40,
-and 40 kHz.  The only other reconstruction profile is qualified
+Reconstruct native DSD to PCM with the source-rate mastering FIR (default) or
+qualified
 .B wideband
-(v1).  With no requested
-.IR rate ,
-use the profile's intermediate PCM clock (for mastering v1,
-88200 Hz for DSD64 and 176400 Hz for the other rates).  The effective bandwidth depends
-on both the selected profile and the output PCM rate.
-.SP
-Explicit
+alternative. Mastering passbands are 20, 30, 40, 40 and 40 kHz for DSD64,
+128, 256, 512 and 1024. When no output
+.I rate
+is given, mastering uses 88200 Hz for DSD64 and 176400 Hz otherwise.
 .B \-p mastering
-selects the standard v1 decoder;
+or
 .B \-p wideband
-selects the qualified wideband-v1 alternative.  Pinned IDs such as
-.B decode.mastering.v1.dsd128
+selects a filter. Exact native-clock IDs include
+.B decode.mastering.dsd128
 and
-.B decode.wideband.v1.dsd256
-select the bank and native input clock.  A clock mismatch fails.
-Decoder-v2 IDs and the obsolete decoder spellings
-.B conservative
-and
-.B legacy
-are rejected.
+.B decode.wideband.dsd256 ;
+rate mismatches are rejected. Obsolete versioned IDs and retired aliases
+are unavailable.
 .B \-l sacd
 applies +6.0206 dB; the default
 .B preserve
-uses unity reference.  The global
-.B \-\-dsd\-bandwidth
-and
-.B \-\-dsd\-clip
-options govern bandwidth and graph-boundary clipping.
+uses unity reference. Global bandwidth and clipping policies still apply.
 .TP
 .B pcmdsd [\-p PROFILE] [\-\-reference auto|pcm|dsd] rate
-Encode PCM to native DSD using the composite modulator at the specified
-native DSD bit clock.  The default,
-.BR mastering ,
-uses the qualified mastering v1 encoder at every rate.
-Versioned selectors such as
-.B encode.mastering.v1.dsd128
-pin their output rate.  The still-qualified v2 CLANS-7 encoders at DSD512 and DSD1024 can be
-selected explicitly by their exact IDs
-.B encode.mastering.v2.dsd512
-and
-.BR encode.mastering.v2.dsd1024 .
-These are separate from decoder versions.  Explicit legacy and
-experimental selections are distinct from qualified mastering; they do
-not enable an unqualified composite modulator.
+Encode PCM to native DSD using eighth-order SDM-8 with the composite
+interpolation chain. The sole mastering encoder is chosen for the specified
+native rate; DSD512 and DSD1024 have new rate-specific tables. The
+.B mastering
+option is the default; IDs such as
+.B encode.mastering.dsd128
+pin the DSD output clock. This composite effect does not accept the legacy
+.B sdm
+route or retired experimental encoder choices.
 .SP
 The
 .B \-\-reference
-option chooses the default reference, PCM full-scale reference, or the
-in-process reconstructed DSD reference.  PCM-origin mastering uses a
-0.5 reference scale.  Mastering checks interpolation overloads and
-modulator state and refuses unsafe output instead of silently clipping
-or writing a failed encode.  These checks do not depend on
-.BR \-\-sdm\-guard ,
-which only controls the older low-level
+option selects the automatic, PCM full-scale, or in-process DSD reference.
+Mastering applies a fixed 0.9 linear gain at every rate in both warning and
+strict clip modes unless explicit fixed or measured headroom replaces it.
+It rejects unsafe numerical or state behavior. The independent
+.B \-\-sdm\-guard
+control applies only to the legacy low-level
 .B sdm
 effect and implicit one-bit dithering.
 .TP

@@ -4,7 +4,7 @@
 
 SoX DSD is an independently versioned fork of [SoX-NG](https://codeberg.org/sox_ng/sox_ng), itself a continuation of [SoX](https://sox.sourceforge.net/). It keeps SoX's general-purpose audio conversion, effects, formats, command-line model, and library interfaces. The additional work concentrates on native DSD, controlled DSD/PCM conversion, and measurable numerical quality.
 
-**Current version: 1.1.1**, based on **SoX-NG 14.8.1**. This is the behavior of the 1.1.1 release and the current `main` branch as of November 2026. The commits after the release tag reorganize tests and repository evidence without changing the audio engine.
+**Current version: 1.1.1**, based on **SoX-NG 14.8.1**. This is the behavior of the 1.1.1 release and the current `main` branch as of November 2026.
 
 ## Why this fork exists
 
@@ -13,7 +13,7 @@ SoX already handles a wide range of audio tasks. SoX DSD builds on that foundati
 | Area | What SoX DSD adds |
 | --- | --- |
 | **Native DSD** | DSF and DSDIFF read/write at DSD64, DSD128, DSD256, DSD512, and DSD1024, with native-bitstream repacking when no audio processing is required. |
-| **DSD reconstruction and encoding** | Qualified, rate-specific reconstruction filters and noise-shaping encoders with explicit, versioned profile identities. |
+| **DSD reconstruction and encoding** | Qualified, rate-specific reconstruction filters and noise-shaping encoders with explicit, rate-pinned profile identities. |
 | **Transport** | DSD-over-PCM (DoP) packaging without reconstructing audio PCM; native WSD input is also supported. |
 | **Predictable routing** | DSD-aware planning distinguishes native repacking from operations that need PCM reconstruction, processing, and re-encoding. |
 | **Headroom and diagnostics** | Interpolated-peak handling, explicit and measured headroom, strict clipping policy, JSON preflight plans, and execution reports. |
@@ -40,14 +40,11 @@ The project also pursues better numerical results in conventional PCM processing
 
 ### Reconstruction and modulation profiles
 
-**Decoder and encoder versions refer to different algorithms.** They are not a matched v1/v2 pair.
+- **DSD to PCM:** the default is the qualified **mastering decoder** at every native clock. `--decode mastering` selects the same bank. Its rated passband is 20 kHz for DSD64, 30 kHz for DSD128, and 40 kHz for DSD256 and above. `--decode wideband` selects the qualified **wideband** alternative, subject to the selected PCM output rate and bandwidth policy.
+- **PCM to DSD:** the default is the qualified **eighth-order mastering encoder** at all five rates, with its own coefficient tables at DSD512 and DSD1024. `--encode mastering` selects it explicitly.
+- **Exact IDs** such as `decode.mastering.dsd64` and `encode.mastering.dsd256` pin a qualified profile to a native rate. An incompatible pin is rejected rather than silently substituted.
 
-- **DSD to PCM:** the default is the qualified **mastering v1 decoder** at every native clock. `--decode mastering` selects the same bank. Its rated passband is 20 kHz for DSD64, 30 kHz for DSD128, and 40 kHz for DSD256 and above. `--decode wideband` selects the qualified **wideband v1** alternative, subject to the selected PCM output rate and bandwidth policy.
-- **PCM to DSD:** the default is the qualified **eighth-order mastering v1 encoder** at all five rates. `--encode mastering` selects it explicitly.
-- **Optional high-rate encoder:** `encode.mastering.v2.dsd512` and `encode.mastering.v2.dsd1024` select the distinct qualified **seventh-order CLANS-7** encoder, retained for explicit compatibility with 1.1.0 output. These are **encoder** profiles; there is no mastering v2 decoder in 1.1.1.
-- **Exact IDs** such as `decode.mastering.v1.dsd64` and `encode.mastering.v1.dsd256` pin a qualified profile to a native rate. An incompatible pin is rejected rather than silently substituted.
-
-Compared with **1.1.0**, 1.1.1 selects mastering **v1**, not mastering v2, as its standard decoder. Default decoded PCM can therefore differ between those releases. The older `--decode conservative` and `--decode legacy` aliases and mastering-v2 decoder IDs are no longer supported. The separately named high-rate v2 *encoder* remains available.
+Compared with **1.1.0**, 1.1.1 uses a different standard decoder, so default decoded PCM can differ between those releases. It also replaces 1.1.0's seventh-order CLANS-7 encoder at DSD512 and DSD1024 with the eighth-order mastering encoder. The older `--decode conservative` and `--decode legacy` aliases, the CLANS-7 encoder, and the versioned profile IDs of earlier releases are no longer supported.
 
 A *qualified* profile has passed the project's release-authorization checks for its stated scope. The term does not promise universal hardware compatibility, unconditional modulator stability, or superiority for every recording. See the [1.1.1 release notes](docs/dsd/RELEASE_NOTES_1.1.1.md).
 
@@ -69,9 +66,9 @@ By default, SoX DSD uses a qualified eighth-order mastering encoder based on SDM
 
 Eighth-order noise shapers have a known Achilles heel, however: they can become unstable with unusually demanding, sustained signals, such as near-full-scale DC or high-level test tones. This behavior is mostly confined to the test bench—in point of fact, near-full-scale DC is uncommon in real-world music—and has been [documented in combination with earlier DSD-capable SoX builds](https://archimago.blogspot.com/2021/10/measurements-look-at-dsd-and-using-sox.html). However, empirical testing shows that it can and does occur with real-world music, too.
 
-By default, then, SoX DSD maps full-scale PCM to 45% of theoretical maximum DSD modulation (equivalent to −6.936 dBFS PCM), rather than 50%. This 0.915 dB cut keeps SDM-8 within its qualified operating range. **In the first place, it lowers the overall signal level without compressing the music's dynamics; in the second, SDM-8 more than recovers it:** its in-band noise floor is lower than every other shaper's at every DSD rate, by at least 5 dB at DSD64 and about 15 dB from DSD256 up. Even after the cut, the default encoder has more in-band dynamic range than any alternative. Full stop.
+By default, then, SoX DSD maps full-scale PCM to 45% of theoretical maximum DSD modulation (equivalent to −6.936 dBFS PCM), rather than 50%. This 0.915 dB cut keeps SDM-8 within its qualified operating range. **In the first place, it lowers the overall signal level without compressing the music's dynamics; in the second, SDM-8 more than recovers it:** its in-band noise floor is lower than every other shaper's at every DSD rate, by at least 5 dB at DSD64 and at least 15 dB from DSD256 up. Even after the cut, the default encoder has more in-band dynamic range than any alternative. Full stop.
 
-Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates exceptionally low noise with the default SDM-8-based mastering encoder within the audio band: At DSD64, the default encoder's in-band noise floor is about 141 dB below full scale (121 dB below a −20 dBFS test tone), comparable to 23-bit PCM. At higher DSD rates, the measured signal-to-noise ratio was substantially greater, eventually reaching the limits of the experiment's 32-bit signal path.
+Our [noise-shaper research](docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md) demonstrates exceptionally low noise with the default SDM-8-based mastering encoder within the audio band: At DSD64, the default encoder's in-band noise floor is about 141 dB below full scale (121 dB below a −20 dBFS test tone), comparable to 23-bit PCM. At higher DSD rates, the measured signal-to-noise ratio was substantially greater, eventually reaching the limits of the experiment's 32-bit signal path. The DSD512 and DSD1024 coefficient tables added in November 2026 lowered the default encoder's noise on digital silence further, from −252.3 to −261.8 dBFS at DSD512 and from −256.7 to −302.8 dBFS at DSD1024; with music or test tones it still reaches that 32-bit limit.
 
 The stability margin is backed by real-music testing. Without it, at unity gain, we encoded the same 200 tracks at DSD64, DSD128 and DSD256, each once at its original level and once normalized to a 0 dBFS peak. Six of those 1,200 encodes, all at DSD256, drove the SDM-8-based encoder unstable. In each case SoX DSD detected the instability and stopped with an error instead of writing a damaged file. With the 0.915 dB cut, all 1,200 encodes completed. At DSD512 and DSD1024, the SDM-8-based encoder with `--headroom 0` is likewise **not** guaranteed stable for full-scale inputs. `--headroom 0` also clips more, not less, because it raises the level against the same ceiling. The [user guide](docs/dsd/USING_SOX_DSD.md) explains the policies and their limits.
 
@@ -83,7 +80,7 @@ To avoid clipping across an album, choose one fixed cut with `--headroom DB` and
 
 - `--headroom DB` replaces the implicit cut with an explicit fixed attenuation.
 - `--auto-headroom` measures the full interpolated signal and chooses, for each file, the smallest non-amplifying, shared multichannel cut that stays within the warning ceiling. It needs additional passes and temporary storage.
-- `--dsd-clip error` rejects overloads instead of clipping. Its default gain differs by rate/profile; strict mode does **not** universally mean unity gain. Modulator state and numerical guards remain active under every policy.
+- `--dsd-clip error` rejects overloads instead of clipping. It keeps the same 0.915 dB default cut at every rate. Modulator state and numerical guards remain active under every policy.
 - The original SoX noise shapers are selected with the effects `rate -v RATE sdm -f NAME`, placed after the output file. NAME is a shaper such as `clans-7`; RATE is the DSD rate in Hz (2822400 for DSD64, 5644800 for DSD128, and so on) and must match the output rate given with `-r`. For example: `sox master.wav -r dsd128 master.dsf gain -2 rate -v 5644800 sdm -f clans-7`. This route bypasses the default encoder and its safeguards:
   - It applies no default cut: PCM full scale maps to 0 dB SACD. To attenuate, put `gain -DB` before `rate`; the example lowers the level by 2 dB. SoX DSD added `--headroom` and `--auto-headroom` to set the level of its own default encoder. The original SoX `sdm` effect has no such controls, so SoX stops with an error if you give either option on this route.
   - The `rate` effect clips interpolated peaks above PCM full scale and reports them with SoX's ordinary "rate clipped" warning. `--dsd-clip error` has no effect.
@@ -132,8 +129,8 @@ For advanced selection:
 # Choose qualified wideband reconstruction
 sox --decode wideband concert.dsf -r 176400 wideband.wav
 
-# Pin the optional 1.1.0-compatible high-rate v2 encoder
-sox --encode encode.mastering.v2.dsd512 master.wav -r dsd512 v2.dsf
+# Pin the mastering encoder to DSD512
+sox --encode encode.mastering.dsd512 master.wav -r dsd512 pinned.dsf
 
 # Reject interpolated overload rather than clipping it
 sox --dsd-clip error --auto-headroom master.wav -r dsd128 strict.dsf
