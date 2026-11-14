@@ -9,21 +9,28 @@ This report describes two pieces of work on SoX DSD 1.1.0 (commit `27b17b93e`, t
   - The default profiles at DSD64, DSD128 and DSD256 are unchanged, so their default rows are also the 1.1.1 default.
 - Evidence for the rerun is under `results-1.1.1/`. These **27 tagged-1.1.1 benchmark jobs** are distinct from the **800 DSD512/DSD1024 real-track encodes in Run C** (§1), which used an altered 1.1.0 test build rather than the released 1.1.1 executable. Their results should not be described as the same test population.
 
+**Updated 2026-11-13 for rate-specific DSD512 and DSD1024 tables.**
+- The eighth-order tables that 1.1.1 first bound at DSD512 and DSD1024 are the DSD256 SDM-8 coefficients run on faster clocks, so their noise-transfer zeros sit at 2 and 4 times their DSD256 frequencies. Round03 re-placed the zeros for each rate, and the 1.1.1 source revised on 2026-11-13 binds `xz-k1p75` at DSD512 and `xz-k2` at DSD1024 (§5). The version number is unchanged; 1.1.1 source from before that revision, including the `sox_dsd-1.1.1` tag as released on 2026-11-09, binds the first tables.
+- The same change removed the optional CLANS-7 encoder (this report's "1.1.0 default encoder (v2)") and the v1/v2 labels from the program. The labels stay in this report where they name what was measured.
+- The bench's default route was rerun at DSD512 and DSD1024 with the new tables (§2, "Round03 rerun"). Its rows are added to the DSD512 and DSD1024 tables as "1.1.1 default, round03 tables", and finding 5 covers them. The rows labelled "1.1.1 default encoder (v1)" now describe the first 1.1.1 tables, which the revised source no longer uses.
+- Nothing else in the encoder paths measured here changed. The patch leaves the legacy filter tables untouched, and on our identity checks the default at DSD64, DSD128 and DSD256 produces the same bits as before (§5).
+
 ## Background: what SoX DSD 1.1.0 uses at each rate
 
 - `sox in.wav -r RATE out.dsf` uses the qualified `pcmdsd` encoder: `encode.mastering.v1.*` (the sdm-8 filter) at DSD64, DSD128 and DSD256, and `encode.mastering.v2.*` (a CLANS-7 recurrence) at DSD512 and DSD1024. It scales input by 0.9 (−0.915 dB) and clips interpolated overs at 0.45 in modulator units (0.5 = 0 dBFS), with a warning.
 - The **individual low-level filters compared in this bench** are selected through the legacy route `sox in.wav -t dsf -r RATE out.dsf rate -v RATE sdm -f NAME`, where NAME is `sdm-4`…`sdm-8` or `clans-4`…`clans-8`. Users can separately select a **qualified composite encoder profile** with `--encode PROFILE` or `pcmdsd -p PROFILE`; that is not selection of an arbitrary low-level `sdm` filter. The legacy filters' coefficient tables were designed for DSD64, DSD128 and DSD256. At DSD512 and DSD1024 the legacy route uses the DSD256 tables (`sdm_find_filter` in `src/sdm.c` picks the highest design rate at or below the output rate). The legacy route runs without the state guard by default.
-- In the source, the unqualified `encode.mastering.v1.dsd512` and `v1.dsd1024` profiles (P17 candidate tables, not the legacy tables above) are annotated: "v1.dsd512 failed the sustained nominal gate at min28 6, and v1.dsd1024 is the defective eighth order" (`src/pcmdsd.c`).
+- In the source, the unqualified `encode.mastering.v1.dsd512` and `v1.dsd1024` profiles (P17 candidate tables: the legacy DSD256 sdm-8 coefficients bound to the faster clocks) are annotated: "v1.dsd512 failed the sustained nominal gate at min28 6, and v1.dsd1024 is the defective eighth order" (`src/pcmdsd.c`).
 - **In 1.1.1** those two v1 profiles were qualified under the default 0.9 gain and 0.45 clip, and bound as the default at DSD512 and DSD1024. This makes the eighth-order v1 the default at all five rates. Run C below was part of that qualification; see `docs/dsd/V1_HIGH_RATE_ENCODE_2026-11-07.md` in the source.
-  - The v2 CLANS-7 profiles remain qualified and can be selected by exact ID with `--encode`.
+  - The v2 CLANS-7 profiles remained qualified and selectable by exact ID with `--encode`, until the 2026-11-13 revision removed them.
   - The default path's 0.9 gain and 0.45 clip ceiling are unchanged, and so is the legacy route.
   - One gain change does not affect the bench: in strict mode (`--dsd-clip error`), 1.1.1 keeps the 0.9 gain for the v1 default at DSD512 and DSD1024, where 1.1.0's strict mode used unity gain.
+- **Since 2026-11-13** the revised 1.1.1 source has one composite encoder, SDM-8 `mastering`, at all five rates, with rate-specific tables at DSD512 and DSD1024 (§5). Strict mode now keeps the 0.9 gain at every rate. The bench uses the default warn mode, so this does not affect it either. The legacy route is unchanged.
 
 ## 1. Real-music stability runs
 
 **Inputs.** 200 tracks: 100 CD at 44.1 kHz and 100 hi-res (34 at 96 kHz, 66 at 192 kHz). The source records are in `<local>/sox_dsd-rate-passband/cli-transient-2026-10-30/real/`.
 
-**Command.** `sox [-v G] in.wav -r RATE` with DSF output. Run A wrote DSF files. Run C, and run B after its first 41 tracks, encoded to `-t dsf /dev/null`.
+**Command.** `sox [-v G] in.wav -r RATE` with DSF output. Run A wrote DSF files. Runs C and D, and run B after its first 41 tracks, encoded to `-t dsf /dev/null`.
 
 **Levels.** Each track was encoded twice: as decoded (`asis`), and raised with `-v` so its **sample** peak is 0 dBFS (`peak0`). Sample-peak scaling does not measure intersample peaks, and completion of this step does not establish that the original PCM waveform was preserved.
 
@@ -32,9 +39,11 @@ This report describes two pieces of work on SoX DSD 1.1.0 (commit `27b17b93e`, t
 | A | pre-release head `6e511ee` (`<local>/sox_dsd-guard-qual/logs/head.txt`). Per git, it differs from 1.1.0 only in the clip ceiling and gain at the other three rates. | DSD128, DSD256 | 800 | 0 | `<local>/sox_dsd-guard-qual/real-default/results.jsonl` (86b6a11f960853ca) |
 | B | 1.1.0 | DSD64, DSD512, DSD1024 | 1,200 | 0 | `<local>/sox_dsd-allrate-qual/real-default/results.jsonl` (57cd4e41174a869f) |
 | C | local test build: tag `sox_dsd-1.1.0` plus an uncommitted diff that binds `encode.mastering.v1.dsd512/1024` (sdm-8 order, P17 tables) by default instead of v2. Not for release; diff in `<local>/sox_dsd-sdm8-high-qual/build.txt`. | DSD512, DSD1024 | 800 | 0 | `<local>/sox_dsd-sdm8-high-qual/real-default/results.jsonl` (58444d497a2d350d) |
+| D | round03 corpus build B2, a local test build that binds `xz-k1p75` at DSD512 and `xz-k2` at DSD1024 (§5). Not for release. | DSD512, DSD1024 | 800 | 0 | `<local>/sox_dsd-rate-passband/round03-highrate/corpus/results.jsonl` (f9f4cc58ddf18e81), configs `sdm8-k1p75@512` and `sdm8-k2@1024` |
 
 - No run reported a non-zero exit. This establishes completion under the tested conditions, not unconditional modulator stability or preservation of input peaks.
 - **Interpolated-sample clipping in the qualified encoder** is warned and clamped at the 0.45 modulator-unit ceiling. The number of tracks that hit this ceiling is the same at every rate: 62 of 200 `asis`. At `peak0` it is 160 (DSD64), 172 (DSD128) and 186 (DSD256, DSD512, DSD1024). The DSD512 and DSD1024 counts pool runs B and C, whose interpolated clip counts are identical (next item). The worst single channel is 68,678,220 clipped interpolated samples, at DSD1024 `peak0`.
+- Run D's interpolated clip counts and `-v` gains equal Run C's on all 800 matching runs, and SoX's `balancing clipped` warning appears in 194 of its 400 `peak0` encodes and none of its `asis` encodes, the count Run C reports (last item). Both are set ahead of the modulator, so the new tables do not change them.
 - Run C's interpolated clip counts equal Run B's on all 800 matching runs. Both use the same gain and 0.45 ceiling ahead of their different modulators. Matching counts do not establish that the modulators produce identical bitstreams.
 - **Separate input-stage clipping:** The high-rate qualification record (`docs/dsd/V1_HIGH_RATE_ENCODE_2026-11-07.md`, “Real tracks”) reports SoX's `balancing clipped` warning in **194 of Run C's 400 `peak0` encodes**, with 1–3,936 clipped *input* samples per affected run. Those events occur upstream of `pcmdsd`; they are not the interpolated-sample counts above. The 800 successful Run C encodes therefore cannot demonstrate lossless preservation of the peak-raised source waveform.
 
@@ -48,9 +57,14 @@ This report describes two pieces of work on SoX DSD 1.1.0 (commit `27b17b93e`, t
 **Rates.** All five, except that DSD1024 music was trimmed to 3 tracks to keep the run short: `023f1618…` (192 kHz), `058059e2…` (96 kHz) and `fb82c06c…` (44.1 kHz). DSD1024 music figures therefore cover a different track set from the other rates (§3.1). All 972 jobs in the final results exited 0.
 
 **1.1.1 rerun (2026-11-10).**
-- **What ran:** only the default route, at DSD512 and DSD1024, on the `sox_dsd-1.1.1` tag. Its `src/` tree is `e0080b63`, identical to the released commit `90fe3df68`.
+- **What ran:** only the default route, at DSD512 and DSD1024, on the `sox_dsd-1.1.1` tag as released on 2026-11-09. Its `src/` tree is `e0080b63`, identical to the released commit (`90fe3df68` before the 2026-11-10 history rewrite, `5aa805eed` after).
 - **Same as the original:** host, tools, inputs and the DSD1024 music subset: 27 jobs (18 at DSD512 and 9 at DSD1024).
 - **Outcome:** all 27 exited 0. The only warning was the WAV-header note that every original job also printed; no input-clipping warning was observed in these jobs.
+
+**Round03 rerun (2026-11-13).**
+- **What ran:** the same 27 default-route jobs, on a local test build of `main` at `e38519b94` with the two round03 tables bound (`results-r03/command.txt`; the build is described in `results-r03/identity-final/README.txt`).
+- **The revised 1.1.1 source gives the same bits.** We encoded all 27 jobs' inputs with that build and with the revised source (git tree `88a27418…`), and the DSF files were identical in every case (§5).
+- **Outcome:** all 27 exited 0, with only the WAV-header warning.
 
 **Inputs.**
 - Synthetic signals, 44.1 kHz mono, 8 s, analysed from 1 s to 7 s:
@@ -126,10 +140,16 @@ This report describes two pieces of work on SoX DSD 1.1.0 (commit `27b17b93e`, t
   - Also: `host.txt`, and the log `../logs/bench-1.1.1.log`.
   - The one-job smoke run before the rerun is in `../smoke-1.1.1/results.jsonl`.
   - Figures cited as `results-1.1.1/derived.txt` come from there. Otherwise § references are to the original `derived.txt`.
+- **Round03 rerun** (`results-r03/`):
+  - `results.jsonl` (sha256 f52ce62b25d02f7f…) holds the 27 new rows.
+  - `combined.jsonl` (sha256 7dfc095e26fc2e95…) is the 999 rows of `results-1.1.1/combined.jsonl` plus the 27 new ones. The earlier default rows at DSD512 and DSD1024 are renamed `default-1.1.0` and `default-1.1.1` there.
+  - `derived.txt` and `tables.txt` come from the unmodified `derive.py` and `report.py` run on `combined.jsonl`. `report.py` prints values below −299 dBFS as `<fl`; the table below gives the value from `results.jsonl`.
+  - The log is `../logs/bench-r03.log`, and the one-job smoke run is in `../smoke-r03/results.jsonl`.
+  - Figures cited as `results-r03/derived.txt` come from there.
 
 ### Results
 
-At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 default (unchanged profiles). At DSD512 and DSD1024 the 1.1.0 row now describes the optional v2 encoder, and the "1.1.1 default encoder" row is the default.
+At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 default (unchanged profiles). At DSD512 and DSD1024 the 1.1.0 row describes the CLANS-7 encoder, which the revised 1.1.1 source no longer has. The "1.1.1 default encoder (v1)" row describes the first 1.1.1 tables, and the "1.1.1 default, round03 tables" row is the current default.
 
 ### DSD64 (2822400 Hz)
 
@@ -198,6 +218,7 @@ At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 de
 | clans-4 | -155.2 | -154.1 | 12 | -152.6 | -159.2 | -155.2 | -170.8 | -161.2 | -149.0 | -145.9 | -109.7 | -27.0 |
 | 1.1.0 default encoder (v2) | -195.1 | -194.0 | 12 | -203.1 | -194.0 | -200.7 | -214.7 | -206.3 | -187.1 | -176.9 | -118.7 | -26.7 |
 | 1.1.1 default encoder (v1) | -197.3 | -195.7 | 12 | -252.3 | -195.5 | -204.4 | -215.7 | -217.9 | -194.0 | -209.2 | -151.9 | -15.5 |
+| 1.1.1 default, round03 tables | -197.3 | -195.7 | 12 | -261.8 | -195.5 | -204.4 | -215.7 | -218.0 | -194.0 | -208.1 | -150.8 | -15.6 |
 | no shaper (32-bit chain floor) | -196.5 | -194.8 | 12 | — | -194.6 | -204.4 | -215.1 | -220.4 | -193.9 | -209.0 | -217.9 | -204.6 |
 
 ### DSD1024 (45158400 Hz)
@@ -216,6 +237,7 @@ At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 de
 | clans-4 | -156.3 | -155.2 | 3 | -152.7 | -159.8 | -154.9 | — | -161.1 | -146.5 | -161.6 | -145.5 | -46.0 |
 | 1.1.0 default encoder (v2) | -197.4 | -194.9 | 3 | -205.5 | -194.5 | -202.9 | -216.0 | -198.4 | -189.9 | -199.5 | -177.5 | -43.8 |
 | 1.1.1 default encoder (v1) | -198.9 | -195.8 | 3 | -256.7 | -195.5 | -204.4 | -215.7 | -217.9 | -194.0 | -209.4 | -221.7 | -28.1 |
+| 1.1.1 default, round03 tables | -198.9 | -195.8 | 3 | -302.8 | -195.5 | -204.4 | -215.7 | -218.0 | -194.0 | -209.4 | -202.5 | -28.2 |
 | no shaper (32-bit chain floor) | -198.2 | -194.9 | 3 | — | -194.6 | -204.4 | -215.4 | -220.5 | -193.9 | -209.1 | -221.0 | -206.8 |
 
 "silence noise" for `ref` is "—" because the 32-bit path carries digital silence as exact zeros.
@@ -260,7 +282,7 @@ At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 de
        - THD, by 1.0 to 1.7 dB;
        - DIN, by 0.9 and 2.0 dB;
        - one harmonic at −60 dBFS (the third at DSD256 and DSD512, the second at DSD1024), by 1.6 to 3.6 dB.
-4. **At DSD512 and DSD1024 the 1.1.0 default (v2 CLANS-7) sits 1.5 and 0.9 dB above the floor on the music median, and up to 3.65 dB on single tracks, rising with the source rate. It also adds distortion products.** In 1.1.1 this encoder is no longer the default but remains selectable by exact ID, so this finding now describes that option. Finding 5 covers the 1.1.1 default.
+4. **At DSD512 and DSD1024 the 1.1.0 default (v2 CLANS-7) sits 1.5 and 0.9 dB above the floor on the music median, and up to 3.65 dB on single tracks, rising with the source rate. It also adds distortion products.** The first 1.1.1 release kept this encoder as an option selectable by exact ID; the 2026-11-13 revision removed it. Finding 5 covers the 1.1.1 default.
    - **Noise.**
      - Music-notch median: −195.1 vs −196.5 at DSD512 and −197.4 vs −198.2 at DSD1024. Computed from unrounded values, that is 1.5 and 0.9 dB above `ref` in absolute terms (`derived.txt` §A).
      - Relative to its 0.92 dB lower signal, the gaps are 2.4 and 1.8 dB on music, and 1.5 and 1.0 dB on the −20 dBFS sine.
@@ -291,7 +313,7 @@ At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 de
      - the third harmonic on the −20 dBFS sine at DSD512, 2.7 dB below, where `ref`'s product has a margin of 4.4 dB, under the 5 dB threshold.
    - At DSD256, §H's only distortion excess for the default is CCIF d3, 3.0 dB above `ref`. It is not established: the margin is −7.5, and its 20–50 kHz density is 41.8 dB above in-band.
    - Through the legacy route, sdm-8 and clans-8 match `ref` within 0.8 dB on the CCIF d3, DIN and −1 dBFS THD columns at these rates.
-5. **In 1.1.1 the default (eighth-order v1) sits on the experiment's 32-bit floor at DSD512 and DSD1024, as it already did at DSD256, and has no distortion excess established by this report's detection rule.**
+5. **In 1.1.1 the default (eighth-order SDM-8, first tables and round03 tables alike) sits on the experiment's 32-bit floor at DSD512 and DSD1024, as it already did at DSD256, and has no distortion excess established by this report's detection rule.**
    - **Noise** (`results-1.1.1/derived.txt` §A):
      - Relative to the signal it matches `ref` within 0.01 dB on the −20 dBFS sine.
      - On the music median it is within +0.15 dB (DSD512) and +0.26 dB (DSD1024).
@@ -306,12 +328,17 @@ At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 de
    - **On silence** it matches legacy sdm-8: −252.3 vs −252.3 dBFS at DSD512 and −256.7 vs −256.8 at DSD1024.
    - **Just above the audio band** it is far quieter than the 1.1.0 default: −209.2 and −209.4 dBFS in 20–50 kHz, against −176.9 and −199.5.
    - **Above 100 kHz** it carries more energy than the 1.1.0 default (finding 6).
+   - **With the round03 tables** (`results-r03/`), the default reads the same in-band as with the first 1.1.1 tables whenever a signal is present, lower on silence, and differently above the band:
+     - **With a signal:** every §A and §E2 figure is unchanged at both rates. Every distortion field in §C is within 0.4 dB of the first tables' reading. CCIF d3 is +2.4 and +2.5 dB above `ref`, still not established (margin −7.6 dB, §H).
+     - **On silence:** −261.8 dBFS at DSD512 and −302.8 at DSD1024 (as computed; `report.py` prints values below −299 as `<fl`), against −252.3 and −256.7 with the first tables. Both are below every legacy shaper's silence floor (sdm-8: −252.3 and −256.8).
+     - **Above the band:** 20–50 kHz on the −20 dBFS sine reads −208.1 at DSD512, against −209.2 with the first tables and −209.0 for `ref`. 50–100 kHz reads −150.8 and −202.5, against −151.9 and −221.7. We read the 19.2 dB rise at DSD1024 as the cost of moving the zeros down from 4 to 2 times their DSD256 frequencies, which lifts the shaped noise sooner above the audio band; we have not checked this against the transfer function. The band is still far below the 0.1–1 MHz energy (finding 6).
 6. **Ultrasonic energy.**
    - At DSD512 and DSD1024, sdm-8 puts the most energy in 0.1–1 MHz of any legacy route: −15.5 and −28.1 dBFS, against −26.7 and −43.8 for the 1.1.0 default.
    - The 1.1.1 default reads the same as sdm-8 there: −15.5 and −28.1 dBFS, which is 11.2 and 15.7 dB more than the 1.1.0 default.
+   - The round03 tables do not change this: −15.6 and −28.2 dBFS (`results-r03/`). We expected this: every zero sits at k times its DSD256 frequency, the highest of which is 21.2 kHz (`zeros_hz` of the k = 1 design in the coefficient JSON, §5), so no table here has a zero above about 85 kHz. The measured change in this band is 0.06 dB at DSD512 and 0.03 dB at DSD1024.
    - This agrees with the 2026-10-23 DSD1024 audit (`tests/dsd/ntf_dsd1024/ADVERSARIAL_AUDIT_R1_2026-10-23.md`), which measured SDM-8 at 14.94 dB more raw power than CLANS-7 in 0.5–1 MHz. That audit tested the research SDM-8, not these tables (§4), so the two agree only in direction.
    - At DSD64 to DSD256 the 0.1–1 MHz figures of all shaper routes and the default lie within 4 dB of each other.
-   - In-band rank does not predict ultrasonic rank: clans-8 is on the floor in-band at DSD1024, yet reads −46.6 dBFS in 0.1–1 MHz, less than either default.
+   - In-band rank does not predict ultrasonic rank: clans-8 is on the floor in-band at DSD1024, yet reads −46.6 dBFS in 0.1–1 MHz, less than any default row.
    - At DSD64, sdm-8 and the default have the most noise just above the audio band: −49.9 and −50.0 dBFS in 20–50 kHz, against −57.3 to −63.3 for the other shapers.
 7. **No shaper failed on any input in the final results.** That includes the 12 loud music excerpts at a −1 dBFS peak, at every rate.
    - Because the legacy route runs unguarded, a clean exit alone would not prove stability. The notch floors show no sign of divergence.
@@ -327,7 +354,7 @@ At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 de
 
 ## 4. Limits
 
-- This is one host. The bench used one build (1.1.0), plus 1.1.1 for the default route at DSD512 and DSD1024 only; the stability runs used three builds (§1). The bench used 12 music excerpts (3 at DSD1024), and the stability runs 200 tracks.
+- This is one host. The bench used one build (1.1.0), plus 1.1.1 and a round03 test build for the default route at DSD512 and DSD1024 only; the stability runs used four builds (§1). The bench used 12 music excerpts (3 at DSD1024), and the stability runs 200 tracks.
 - No DAC or analog filter was measured. Whether noise above 100 kHz matters depends on hardware we have not characterised.
 - **Narrowband lines.** The bench records the largest in-band line relative to the median noise. These readings appear in `results.jsonl`, but we have not investigated them:
   - On silence, low-order shapers show lines well above their own noise. clans-4 reads 29.6 dB (1044 Hz, −156.1 dBFS) at DSD256, 33.4 dB (2110 Hz) at DSD512 and 25.2 dB (4237 Hz) at DSD1024. clans-6 reads 23.7 dB (323 Hz) at DSD256 and 17.9 dB (684 Hz) at DSD512. sdm-4 reads 21.9 dB (334 Hz) at DSD512.
@@ -337,4 +364,44 @@ At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 de
     - We have not separated DC from any line in that window.
   - The detector's search starts at 16.1 Hz, below the band edge. The only records centred there are the five `ref` silence runs. Their spectrum is all zeros, so they carry no reading.
 - The distortion estimator was not calibrated. The synthetic inputs were rounded to 32 bits without dither, so `ref`'s distortion readings are the input's own rounding lines. Every route is compared against those lines, not against a clean input (§2).
-- The legacy shapers at DSD512 and DSD1024 run the DSD256 tables. Run C's sdm-8-order profiles are different tables (P17 candidates). Neither is the research SDM-8 the audit tested. Results for one do not transfer to the others without checking.
+- The legacy shapers at DSD512 and DSD1024 run the DSD256 tables. Run C's sdm-8-order profiles use the same coefficients (the P17 candidate tables are the legacy DSD256 sdm-8 words), and Run D's are the round03 tables (§5). None of them is the research SDM-8 the audit tested. Results for one do not transfer to the others without checking.
+- The round03 stability evidence (§5) is one-hour DC soaks at the operating level, short DC runs and 400 real-track encodes per rate (200 tracks at two levels). Four-hour soaks at the operating level and one-hour noise soaks of the finalists were started and stopped after a few minutes, before any finished; we decided not to run them. As with the first 1.1.1 tables, this shows bounded behaviour under tested conditions, not stability for any duration or signal. No coefficient certificate covers the new tables, and SoX's plan and report output give `null` for it at DSD512 and DSD1024.
+
+## 5. Round03: rate-specific SDM-8 tables at DSD512 and DSD1024 (2026-11-11 to 2026-11-13)
+
+Evidence is under `<local>/sox_dsd-rate-passband/round03-highrate/` unless another path is given. The research harness labels the candidates "screening" and "unqualified"; they describe the harness's own status, and nothing below is a formal qualification of the tables (§4).
+
+**Design.** Each candidate keeps the DSD256 SDM-8 feedback coefficients `a` and multiplies every resonator coefficient `g` by (k/m)², where m is the clock's ratio to DSD256 (2 at DSD512, 4 at DSD1024). That places the noise-transfer zeros at k times their DSD256 frequencies. The first 1.1.1 tables are the case k = m, labelled `base`. k ran from 1 to 3 at DSD512 and from 1 to 3.5 at DSD1024. The chosen tables are `xz-k1p75` at DSD512 and `xz-k2` at DSD1024; their coefficient hashes are 07f187c77d15c886… and 777f361c07376cff…, the sha256 of Python's `json.dumps` of `a` and `g` as hex strings and `order` as an integer, with sorted keys and default separators (`<local>/sox_dsd-rate-passband/research/tests/dsd/shaper_optimization/stagec_sdm8_zero_rescale.json`). Rescaled CLANS-7 tables were screened alongside.
+
+**Native screen** (`summary/stage1-table.txt`, from `summary/cells-*.json`). The harness drives the modulator directly at its native rate, with no PCM chain, so its figures are not comparable with §2's. Its readings cluster at about −287.7 dBFS, which we take to be its floor.
+- In-band noise, in dBFS, up to 22.05 kHz, 40 kHz and 48 kHz:
+
+| table | DSD512 22.05k | 40k | 48k | DSD1024 22.05k | 40k | 48k |
+|---|---|---|---|---|---|---|
+| `base` (first 1.1.1 tables) | −252.1 | −248.9 | −233.2 | −256.5 | −252.2 | −252.0 |
+| `xz-k1` | −287.4 | −226.3 | −210.9 | −287.7 | −276.9 | −261.7 |
+| `xz-k1p75` | −261.6 | −251.2 | −223.5 | −287.7 | −287.8 | −273.8 |
+| `xz-k2` | (= `base`) | | | −287.6 | −287.7 | −282.3 |
+
+- At DSD1024, `xz-k2` is within 0.1 dB of the harness floor to 40 kHz and lowest of all candidates to 48 kHz.
+- At DSD512 no candidate is lowest in every cell. `xz-k1` is lowest to 22.05 and 24 kHz, `xz-k1p75` to 40 kHz, and `xz-k2p5` to 48 kHz (−233.4), with `base` at −233.2. `xz-k1p75` is 9.7 dB noisier than `base` to 48 kHz.
+- In every cell the best SDM-8 candidate reads lower than the best CLANS-7 candidate.
+- The screen's stress programmes failed once each for DSD512 `xz-k2p5` and DSD1024 `xz-k3p5`, and never for the chosen tables.
+
+**Short DC runs** (`probes/dc-ensemble/`). Each run is 1.6 s of DC at ±0.9, ±0.95, ±0.99, ±0.999, ±0.9999, ±0.99999999995595 or ±1.0, with fade-ins of 0, 0.05 or 0.1 s: 42 runs per table. On this scale ±0.9 is 0.45 modulator units, where full-scale PCM lands after the 0.915 dB cut.
+- At ±0.9, none of the 108 runs across the 18 SDM-8 tables in the ensemble (the 16 screened above plus two `opt-global-b15` tables outside this design) failed or left the 28-sample ones-density bounds. At ±0.95, 2 of 108 failed.
+- Counting failures and density excursions, with the two separate ±1.0 probe runs in `native/` added (44 runs per table), `xz-k1p75` misbehaved in 7 of 44 runs at DSD512 and `xz-k2` in 8 of 44 at DSD1024, against 10 and 11 for `base`. All of them were at ±0.99 or above.
+
+**One-hour soaks at the operating level** (`<local>/sox_dsd-rate-passband/logs/round03-soak-op-1h.log`). DC at ±0.9 for one hour of native time, in each polarity.
+- DSD512: `xz-k1`, `xz-k1p75` and `xz-k2p5` completed both polarities. `base` failed on negative DC after 19.4 minutes of native time, and `xz-k1p25`, `xz-k1p5` and `xz-k3` each failed one polarity.
+- DSD1024: `base`, `xz-k1` to `xz-k2` and `xz-k3` completed both polarities. `xz-k2p5` failed positive at 55.0 minutes and `xz-k3p5` negative at 5.8 minutes.
+- At ±0.9999, above the operating level, one-hour soaks of `xz-k1`, `xz-k1p75`, `xz-k2` and `base` all failed within 6.3 s of native time (`<local>/sox_dsd-rate-passband/logs/round03-soak-final-policy*.log`). That is expected: the 0.915 dB cut exists because SDM-8 is not run there.
+- Failure is not monotonic in k. One hour per polarity is a short test; it does not rank the tables that passed.
+
+**Real music** (Run D, §1). Nine configurations, five of them CLANS-7, each encoded the 200 tracks at both levels: 3,600 runs on three local test builds, all with exit 0 (`corpus/results.jsonl`, `corpus/configs.json`). The two chosen tables account for 800 of them. The corpus did not separate the candidates.
+
+**Choice.** We bound `xz-k2` at DSD1024 on the native screen. At DSD512 the choice between `xz-k1` and `xz-k1p75` was a judgment: `xz-k1` is quieter in the audio band and misbehaved in fewer short DC runs (2 of 44 against 7), `xz-k1p75` is quieter to 40 kHz, and both passed their operating-level soaks and the corpus.
+
+**Integration** (`final-source/`). The revised 1.1.1 source (git tree `88a27418…`) binds the two tables in their own header. On our host it passed `make check-dsd-cli` and a strict `make check-dsd` (`build.txt`).
+- The 27 default-route bench jobs give bit-identical DSF files from the final source and from the build §2 measured (`results-r03/identity-final/` in the bench directory).
+- At DSD64, DSD128 and DSD256 in warn mode, and through the legacy `rate … sdm -f clans-7` route at DSD64 (with `--encode legacy` on the revised source), the revised source matched the earlier build bit for bit on a synthetic stereo signal. The patch leaves the legacy filter tables in `src/sdm.c` untouched.
