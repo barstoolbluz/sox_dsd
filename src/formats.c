@@ -1807,9 +1807,8 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
       source_facts.stream.channels != format->channels) {
     lsx_fail("native WAV: source layout channel mismatch"); return NULL;
   }
-  if (classic && ((have_source_facts && source_facts.has_speaker_mask) ||
-      (layout && !lsx_dsd_layout_wav_without_assignment(layout)))) {
-    lsx_fail("native WAV: wavpcm cannot preserve a known speaker assignment");
+  if (classic && layout && !lsx_dsd_layout_wav_without_assignment(layout)) {
+    lsx_fail("native WAV: wavpcm cannot carry an explicitly assigned speaker layout");
     return NULL;
   }
   if (report_path && (!strcmp(path,report_path) ||
@@ -1959,8 +1958,8 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     }
   }
   if (lsx_wav_native_prepare_write(ft,format->total_frames,format->length_known,
-         have_source_facts && source_facts.has_speaker_mask,
-         have_source_facts ? source_facts.speaker_mask : 0)!=PCM_F64_OK ||
+         !classic && have_source_facts && source_facts.has_speaker_mask,
+         !classic && have_source_facts ? source_facts.speaker_mask : 0)!=PCM_F64_OK ||
       sox_checkformat(ft)!=SOX_SUCCESS) {
     lsx_fail("native WAV: handler preparation failed before commit");
     goto failure;

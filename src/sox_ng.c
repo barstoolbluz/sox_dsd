@@ -2302,6 +2302,12 @@ static sox_dsd_layout_t *dsd_plan_output(char const *path,
   if (!native_input && !native_output && !dsd_layout_assignment &&
       !dsd_native_pcm_active)
     return NULL;
+  /* wavpcm is explicitly a classic, unassigned WAV header. It cannot
+   * preserve input speaker metadata; the native writer keeps audio order
+   * and drops metadata in the same manner as the ordinary wavpcm route. */
+  if (dsd_native_pcm_active && !native_input && !dsd_layout_assignment &&
+      type && !strcasecmp(type,"wavpcm"))
+    return NULL;
   /* With no source WAV speaker mask, PCM output must remain unassigned.
    * A pure remix still changes the *audio* stream (handled by the native
    * coordinator), but it does not invent an extensible WAV role assignment.
@@ -3015,13 +3021,9 @@ static void preflight_dsd(void)
     if (spec.output_pcm64_wav_capable) {
       /* Classic wavpcm cannot encode a known speaker assignment. Unlike
        * generic WAV, that conflict must be rejected before output commit. */
-      lsx_pcm_f64_wav_facts facts;
       const char *type=ofile->filetype ? ofile->filetype :
           lsx_find_file_extension(ofile->filename);
-      if (type && !strcasecmp(type,"wavpcm") &&
-          (dsd_layout_assignment ||
-          (lsx_pcm_f64_wav_query(files[0]->ft,&facts)==PCM_F64_OK &&
-           facts.has_speaker_mask)))
+      if (type && !strcasecmp(type,"wavpcm") && dsd_layout_assignment)
         pcm_strict_options_supported=sox_false;
     }
   }
@@ -3657,25 +3659,30 @@ static int dsd_run_native_pcm(void)
     lsx_fail("native PCM64: arithmetic environment is unsupported before output");
     goto done;
   }
+  /* Compose the output role-order permutation BEFORE initializing the
+   * coordinator. Changing role_map after init bypasses its permuted flag,
+   * leaving the samples in their original order under --dsd-layout. */
+  layout=dsd_plan_output(ofile->filename,ofile->filetype);
+  if (dsd_output_permutation_count) {
+    if (dsd_output_permutation_count!=channels) {
+      lsx_fail("native PCM64: output role map length mismatch"); goto done;
+    }
+    for (i=0;i<channels;i++) {
+      if (dsd_output_permutation[i]>=channels) {
+        lsx_fail("native PCM64: invalid output role map"); goto done;
+      }
+      composed[i]=map[dsd_output_permutation[i]];
+    }
+    memcpy(map,composed,channels*sizeof(*map));
+  }
+  free(dsd_output_permutation);
+  dsd_output_permutation=NULL;
+  dsd_output_permutation_count=0;
   status=lsx_dsd_f64_init(&engine,&input_format,factors,factor_count,map);
   if (status!=PCM_F64_OK) {
     lsx_fail("native PCM64: stream init: %s",pcm_f64_status_name(status));
     goto done;
   }
-  /* The layout helper computes the last legal WAV mask-order permutation.
-   * Construct the final map before opening the single retained descriptor. */
-  layout=dsd_plan_output(ofile->filename,ofile->filetype);
-  if (dsd_output_permutation_count) {
-    if (dsd_output_permutation_count!=channels) goto done;
-    for (i=0;i<channels;i++) {
-      if (dsd_output_permutation[i]>=channels) goto done;
-      composed[i]=engine.role_map[dsd_output_permutation[i]];
-    }
-    memcpy(engine.role_map,composed,channels*sizeof(*composed));
-  }
-  free(dsd_output_permutation);
-  dsd_output_permutation=NULL;
-  dsd_output_permutation_count=0;
   /* Existing descriptor-preserving Phase 02A/03 safe-open function is the
    * ONLY writer acquisition. All static input arithmetic/format rejection
    * and alias/no-clobber/report checks occur before its commit boundary. */
