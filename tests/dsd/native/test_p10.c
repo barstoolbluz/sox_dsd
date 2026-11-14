@@ -32,7 +32,7 @@ static void envelope(void)
   double x[32]={0};
   size_t i,n,m;
   sdm_normal_t s;
-  const sdm_profile_t *profile=sdm_profile_find("encode.mastering.v1.dsd64",rates[0]);
+  const sdm_profile_t *profile=sdm_profile_find("encode.mastering.dsd64",rates[0]);
   int bit=91;unsigned coordinate=99;
   double bounds[8]={.1,.1,.1,.1,.1,.1,.1,.1};
   for (i=0;i<3;i++) {
@@ -48,64 +48,26 @@ static void envelope(void)
     lsx_pcmdsd_destroy(p);p=NULL;
   }
   p=(void *)1;
-  /* v1 binds DSD512 again (2026-11-07); the regular constructor and the
-   * private candidate constructor must both default to that row. */
-  CHECK(lsx_pcmdsd_create(48000,22579200,.5,0,&p)==SOX_DSD_OK && p);
-  CHECK(!strcmp(lsx_pcmdsd_profile_of(p)->id,"encode.mastering.v1.dsd512"));
-  lsx_pcmdsd_destroy(p);p=NULL;
-  CHECK(lsx_pcmdsd_candidate_create(48000,22579200,.5,0,NULL,NULL,&p)==SOX_DSD_OK && p);
-  CHECK(!strcmp(lsx_pcmdsd_profile_of(p)->id,"encode.mastering.v1.dsd512"));
-  lsx_pcmdsd_destroy(p);p=NULL;
-  /* Both v1 and v2 are still addressable independently by exact candidate ID. */
-  {
-    const char *id="encode.mastering.v2.dsd512";
-    const lsx_pcmdsd_profile *v2=lsx_pcmdsd_profile_find_id(22579200,id);
-    const sdm_profile_t *ctl=sdm_profile_find(id,22579200);
+  /* Both high-rate constructors select the only production SDM-8
+   * profile. The retired seventh-order variants are not selectable. */
+  for (i=0;i<2;i++) {
+    uint32_t hz=i?45158400:22579200;
+    const char *name=i?"encode.mastering.dsd1024":"encode.mastering.dsd512";
+    const lsx_pcmdsd_profile *selected=lsx_pcmdsd_profile_find(hz);
+    const sdm_profile_t *control=sdm_profile_find(name,hz);
     const double *a,*g;unsigned order;
-    const char *old_id="encode.mastering.v1.dsd512";
-    const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(22579200,old_id);
-    const sdm_profile_t *old_control=sdm_profile_find(old_id,22579200);
-    CHECK(lsx_pcmdsd_profile_find(22579200)==v1);
-    CHECK(v2 && v2->qualified && v2->certificate_sha256 && v2->bounds);
-    CHECK(v1 && v1->qualified && v1->certificate_sha256 && old_control);
-    CHECK(ctl && sdm_profile_rate(ctl)==22579200);
-    CHECK(!sdm_profile_coefficients(ctl,&a,&g,&order) && order==7);
-    CHECK(!sdm_profile_coefficients(old_control,&a,&g,&order) && order==8);
-    CHECK(lsx_pcmdsd_create(176400,22579200,.5,0,&p)==SOX_DSD_OK && p);
-    CHECK(lsx_pcmdsd_profile_of(p)==v1);
+    CHECK(selected && selected->qualified && selected->bounds);
+    CHECK(selected->certificate_sha256==NULL);
+    CHECK(!strcmp(selected->id,name));
+    CHECK(control && !sdm_profile_coefficients(control,&a,&g,&order) && order==8);
+    CHECK(lsx_pcmdsd_create(48000,hz,.5,0,&p)==SOX_DSD_OK && p);
+    CHECK(lsx_pcmdsd_profile_of(p)==selected);
     lsx_pcmdsd_destroy(p);p=NULL;
-    CHECK(lsx_pcmdsd_candidate_create(176400,22579200,.5,0,ctl,v2->bounds,&p)==SOX_DSD_OK && p);
-    CHECK(lsx_pcmdsd_profile_of(p)==v2);
+    CHECK(lsx_pcmdsd_candidate_create(48000,hz,.5,0,NULL,NULL,&p)==SOX_DSD_OK && p);
+    CHECK(lsx_pcmdsd_profile_of(p)==selected);
     lsx_pcmdsd_destroy(p);p=NULL;
-    CHECK(lsx_pcmdsd_candidate_create(176400,22579200,.5,0,old_control,v1->bounds,&p)==SOX_DSD_OK && p);
-    CHECK(lsx_pcmdsd_profile_of(p)==v1);
-    lsx_pcmdsd_destroy(p);p=NULL;
-  }
-  /* v1 binds DSD1024 again (2026-11-07). P19's v2 candidate stays qualified
-   * and reachable by exact name. */
-  {
-    const char *v2_id="encode.mastering.v2.dsd1024";
-    const lsx_pcmdsd_profile *v2=lsx_pcmdsd_profile_find_id(45158400,v2_id);
-    const sdm_profile_t *control=sdm_profile_find(v2_id,45158400);
-    const double *a,*g;unsigned order;
-    const char *old_id="encode.mastering.v1.dsd1024";
-    const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(45158400,old_id);
-    const sdm_profile_t *old_control=sdm_profile_find(old_id,45158400);
-    CHECK(lsx_pcmdsd_profile_find(45158400)==v1);
-    CHECK(v2 && v2->qualified && v2->certificate_sha256 && v2->bounds);
-    CHECK(v1 && v1->qualified && v1->certificate_sha256 && old_control);
-    CHECK(control && sdm_profile_rate(control)==45158400);
-    CHECK(!sdm_profile_coefficients(control,&a,&g,&order) && order==7);
-    CHECK(!sdm_profile_coefficients(old_control,&a,&g,&order) && order==8);
-    CHECK(lsx_pcmdsd_create(176400,45158400,.5,0,&p)==SOX_DSD_OK && p);
-    CHECK(lsx_pcmdsd_profile_of(p)==v1);
-    lsx_pcmdsd_destroy(p);p=NULL;
-    CHECK(lsx_pcmdsd_candidate_create(176400,45158400,.5,0,control,v2->bounds,&p)==SOX_DSD_OK && p);
-    CHECK(lsx_pcmdsd_profile_of(p)==v2);
-    lsx_pcmdsd_destroy(p);p=NULL;
-    CHECK(lsx_pcmdsd_candidate_create(176400,45158400,.5,0,old_control,v1->bounds,&p)==SOX_DSD_OK && p);
-    CHECK(lsx_pcmdsd_profile_of(p)==v1);
-    lsx_pcmdsd_destroy(p);p=NULL;
+    CHECK(!lsx_pcmdsd_profile_find_id(hz,i?
+        "encode.mastering.v2.dsd1024":"encode.mastering.v2.dsd512"));
   }
   CHECK(lsx_pcmdsd_candidate_create(0,2822400,.5,0,NULL,NULL,&p)==SOX_DSD_BAD_ARGUMENT && !p);
   CHECK(lsx_pcmdsd_candidate_create(48000,5644800,.5,0,profile,NULL,&p)==SOX_DSD_UNSUPPORTED && !p);
@@ -293,7 +255,7 @@ static int render(int argc,char **argv)
   /* guarded-cli: the CLI default's gain after interpolation and warning
    * clip, as pcmdsd's effect_start applies them without --headroom. */
   if (!strcmp(mode,"guarded-cli")) {
-    lsx_pcmdsd_set_gain(p,lsx_pcmdsd_default_warn_gain(native));
+    lsx_pcmdsd_set_gain(p,lsx_pcmdsd_default_gain(native));
     lsx_pcmdsd_set_clip(p,1);
   }
   in=!strcmp(argv[7],"-")?stdin:fopen(argv[7],"rb");out=fopen(argv[8],"wb");
@@ -398,20 +360,9 @@ static int save_soak_state(const char *path,lsx_pcmdsd *p,uint64_t bits_hash)
 }
 static int soak(int argc,char **argv)
 {
-  int d1024_v2=!strcmp(argv[1],"--soak-dsd1024-v2") ||
-      !strcmp(argv[1],"--soak-nominal-dsd1024-v2");
-  int d512_v2=!strcmp(argv[1],"--soak-dsd512-v2") ||
-      !strcmp(argv[1],"--soak-nominal-dsd512-v2");
-  int corrected=d1024_v2||d512_v2;
-  int nominal_v2=!strcmp(argv[1],"--soak-nominal-v2") ||
-      !strcmp(argv[1],"--soak-nominal-dsd1024-v2") ||
-      !strcmp(argv[1],"--soak-nominal-dsd512-v2");
   uint32_t native=(uint32_t)strtoul(argv[2],NULL,10);
   uint64_t seconds=strtoull(argv[3],NULL,10),segment=strtoull(argv[4],NULL,10);
-  const lsx_pcmdsd_profile *profile=d1024_v2?
-      lsx_pcmdsd_profile_find_id(native,"encode.mastering.v2.dsd1024"):
-      d512_v2?lsx_pcmdsd_profile_find_id(native,"encode.mastering.v2.dsd512"):
-      lsx_pcmdsd_profile_find(native);
+  const lsx_pcmdsd_profile *profile=lsx_pcmdsd_profile_find(native);
   const char *prefix=argv[5];
   double input[4096];sox_sample_t output[8192];lsx_pcmdsd *p=NULL;
   uint64_t accepted=0,target,next,sequence=0,hash=UINT64_C(14695981039346656037);
@@ -421,12 +372,12 @@ static int soak(int argc,char **argv)
   if(!path||!profile||!seconds||!segment||segment>seconds||seconds>86400)goto done;
   target=seconds*profile->working_hz;next=segment*profile->working_hz;
   status=lsx_pcmdsd_candidate_create(profile->working_hz,native,.5,0,
-      corrected?sdm_profile_find(profile->id,native):NULL,profile->bounds,&p);
+      NULL,profile->bounds,&p);
   if(status!=SOX_DSD_OK)goto done;
   while(accepted<target) {
     size_t i,available=(size_t)min((uint64_t)array_length(input),target-accepted),used=0;
     uint64_t base=accepted;
-    for(i=0;i<available;i++)input[i]=soak_source_version(base+i,profile->working_hz,nominal_v2);
+    for(i=0;i<available;i++)input[i]=soak_source_version(base+i,profile->working_hz,0);
     while(used<available) {
       size_t n=available-used,m=array_length(output);
       status=lsx_pcmdsd_process(p,input+used,&n,output,&m);
@@ -460,7 +411,7 @@ report:
   }
   snprintf(path,pathlen,"%s-result.json",prefix);
   if(write_report(path,p,status,profile->working_hz,native,profile->id,
-      nominal_v2?"soak-nominal-v2":"soak",
+      "soak",
       (double)(clock()-start)/CLOCKS_PER_SEC))rc=1;
 done:
   lsx_pcmdsd_destroy(p);free(path);return rc;
@@ -624,15 +575,10 @@ int main(int argc,char **argv)
   if (argc==2 && !strcmp(argv[1],"--unit")) {
     envelope();failed_block_commit();stream_tests();printf("{\"assertions\":%lu,\"failures\":0}\n",checks);rc=0;
   } else if (argc>=10 && argc<=12 && !strcmp(argv[1],"--render")) rc=render(argc,argv);
-  else if (argc==6 && (!strcmp(argv[1],"--soak") ||
-      !strcmp(argv[1],"--soak-nominal-v2") ||
-      !strcmp(argv[1],"--soak-dsd1024-v2") ||
-      !strcmp(argv[1],"--soak-nominal-dsd1024-v2") ||
-      !strcmp(argv[1],"--soak-dsd512-v2") ||
-      !strcmp(argv[1],"--soak-nominal-dsd512-v2"))) rc=soak(argc,argv);
+  else if (argc==6 && !strcmp(argv[1],"--soak")) rc=soak(argc,argv);
   else if (argc==6 && !strcmp(argv[1],"--stage-probe")) rc=stage_probe(argc,argv);
   else if (argc==5 && !strcmp(argv[1],"--state-bench"))
     rc=state_bench((unsigned)strtoul(argv[2],NULL,10),strtoul(argv[3],NULL,10),argv[4]);
-  else fprintf(stderr,"usage: %s --unit | --render sourceHz nativeHz profile scale training|guarded|guarded-cli input.f64le bits report.json [inputBatch outputBatch] | --soak[-nominal-v2] nativeHz seconds segmentSeconds prefix\n",argv[0]);
+  else fprintf(stderr,"usage: %s --unit | --render sourceHz nativeHz profile scale training|guarded|guarded-cli input.f64le bits report.json [inputBatch outputBatch] | --soak nativeHz seconds segmentSeconds prefix\n",argv[0]);
   sox_quit();return rc;
 }

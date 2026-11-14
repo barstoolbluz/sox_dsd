@@ -89,7 +89,7 @@ def main():
         # selection without assuming that preflight passes imply spectra pass.
         for rate,source in dsd.items():
             for profile in ('mastering','wideband'):
-                ident=f'decode.{profile}.v1.dsd{rate//44100}'
+                ident=f'decode.{profile}.dsd{rate//44100}'
                 for hz in PCM:
                     def decode_plan(rate=rate,source=source,profile=profile,ident=ident,hz=hz):
                         p=plan('--decode',ident,source,'-r',hz,t/'plan.wav')
@@ -131,7 +131,7 @@ def main():
                 case(f'human_versioned_parity_{rate//44100}_{profile}',equivalent)
                 def wrong_clock(rate=rate,source=source,profile=profile):
                     other=next(x for x in RATES if x!=rate)
-                    ident=f'decode.{profile}.v1.dsd{other//44100}'
+                    ident=f'decode.{profile}.dsd{other//44100}'
                     cp=run('--plan','--decode',ident,source,t/'bad.wav')
                     expected(cp.returncode!=0,'wrong native clock accepted')
                     expected('different native DSD clock' in cp.stderr,cp.stderr[:350])
@@ -140,7 +140,7 @@ def main():
                 case(f'versioned_decode_wrong_clock_{rate//44100}_{profile}',wrong_clock)
 
         for rate in RATES:
-            ident=f'encode.mastering.v1.dsd{rate//44100}'
+            ident=f'encode.mastering.dsd{rate//44100}'
             def encode_plan(rate=rate,ident=ident):
                 p=plan('--encode',ident,wav,'-r',rate,t/'planned.dsf')
                 expected(p['encoder']['id']==ident,'wrong versioned encoder identity')
@@ -168,7 +168,7 @@ def main():
             case(f'versioned_encode_audio_{rate//44100}',encode_audio)
             def wrong_encode(rate=rate):
                 other=next(x for x in RATES if x!=rate)
-                ident=f'encode.mastering.v1.dsd{other//44100}'
+                ident=f'encode.mastering.dsd{other//44100}'
                 cp=run('--plan','--encode',ident,wav,'-r',rate,t/'bad.dsf')
                 expected(cp.returncode!=0,'wrong encoder rate accepted')
                 expected('different native DSD clock' in cp.stderr,cp.stderr[:400])
@@ -184,17 +184,17 @@ def main():
                 return dict(id=decode_id,exit=cp.returncode)
             case('unknown_decode_'+decode_id,bad_id)
         def conflict():
-            cp=run('--plan','--decode','decode.mastering.v1.dsd64',dsd[RATES[0]],t/'bad.wav',
-                   'dsdpcm','-p','decode.wideband.v1.dsd64')
+            cp=run('--plan','--decode','decode.mastering.dsd64',dsd[RATES[0]],t/'bad.wav',
+                   'dsdpcm','-p','decode.wideband.dsd64')
             expected(cp.returncode!=0,'opposed explicit profiles accepted')
             expected('conflicting' in cp.stderr,cp.stderr[:350])
             return dict(exit=cp.returncode)
         case('conflicting_versioned_decoder_options',conflict)
         def different_pins():
-            cp=run('--plan','--decode','decode.mastering.v1.dsd64',dsd[RATES[0]],t/'bad.wav',
-                   'dsdpcm','-p','decode.mastering.v1.dsd128')
+            cp=run('--plan','--decode','decode.mastering.dsd64',dsd[RATES[0]],t/'bad.wav',
+                   'dsdpcm','-p','decode.mastering.dsd128')
             expected(cp.returncode!=0,'conflicting clock pins accepted')
-            expected('conflicting versioned' in cp.stderr,cp.stderr[:350])
+            expected('conflicting exact' in cp.stderr,cp.stderr[:350])
             return dict(exit=cp.returncode)
         case('conflicting_versioned_decoder_clocks',different_pins)
 
@@ -208,7 +208,7 @@ def main():
         case('default_native_repack_equals_explicit_legacy',legacy_repack)
 
         def default_qualified_pcm():
-            # The default and named mastering decoder both select v1.
+            # The default and named mastering decoder are the same decoder.
             source=dsd[RATES[0]];dest=t/'default.wav';pinned=t/'mastering.wav'
             common=('-D',source,'-r',88200,'-e','signed-integer','-b',32)
             a=run(*common,dest,'rate','-v')

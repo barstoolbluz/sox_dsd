@@ -29,8 +29,8 @@
 } while (0)
 
 static const char * const selected_ids[4] = {
-  "encode.legacy.v1", "encode.mastering.v1",
-  "encode.diagnostic.sdm6.v1", "encode.diagnostic.clans8.v1"
+  "encode.legacy", "encode.mastering",
+  "encode.diagnostic.sdm6", "encode.diagnostic.clans8"
 };
 static const char * const names[4] = {"clans-4", "sdm-8", "sdm-6", "clans-8"};
 static const unsigned rates[3] = { 2822400, 5644800, 11289600 };
@@ -43,9 +43,9 @@ static int units(void)
 {
   unsigned j,k,i, checks=0;
   CHECK(sdm_profile_find(NULL,rates[0]) == NULL);
-  CHECK(sdm_profile_find("encode.mastering.v1.dsd64",0) == NULL);
-  CHECK(sdm_profile_find("encode.mastering.v1.dsd64",22579200) == NULL);
-  CHECK(sdm_profile_find("encode.mastering.v1.dsd64",rates[1]) == NULL);
+  CHECK(sdm_profile_find("encode.mastering.dsd64",0) == NULL);
+  CHECK(sdm_profile_find("encode.mastering.dsd64",22579200) == NULL);
+  CHECK(sdm_profile_find("encode.mastering.dsd64",rates[1]) == NULL);
   CHECK(sdm_normal_decision(-0.) == -1);
   CHECK(sdm_normal_decision(+0.) == 1);
   for (j=0;j<3;j++) for (k=0;k<4;k++) {
@@ -75,7 +75,7 @@ static int units(void)
   }
   /* Independent recurrence computation, reading only the published a/g. */
   {
-    const sdm_profile_t *p=sdm_profile_find("encode.mastering.v1.dsd64",rates[0]);
+    const sdm_profile_t *p=sdm_profile_find("encode.mastering.dsd64",rates[0]);
     sdm_normal_t normal;
     double old[8]={0}, next[8]={0}, prev=0;
     const double *a,*g;
@@ -109,7 +109,7 @@ static int units(void)
   {
     sdm_normal_t one,many;
     sdm_normal_monitor_t m0,m1;
-    const sdm_profile_t *p=sdm_profile_find("encode.mastering.v1.dsd64",rates[0]);
+    const sdm_profile_t *p=sdm_profile_find("encode.mastering.dsd64",rates[0]);
     CHECK(sdm_normal_init(&one,p)==0 && sdm_normal_init(&many,p)==0);
     sdm_normal_monitor_init(&m0); sdm_normal_monitor_init(&m1);
     sdm_normal_attach_monitor(&one,&m0);

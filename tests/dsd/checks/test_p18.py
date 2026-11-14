@@ -246,9 +246,9 @@ def main():
                 store(name,'PASS' if okay else 'FAIL',dict(output=got,reported_rate=seen,
                     reference_sha256=sha(source.read_bytes()),
                     expected=f'WSD read accepted and reported at {native} Hz'))
-        # The remaining v1 decoder must work in the planned CLI path.
+        # The mastering decoder must work in the planned CLI path.
         for native in RATES:
-            key=f'auto-decode-v1-{native}'
+            key=f'auto-decode-mastering-{native}'
             if key in old:report['cases'].append(old[key]);continue
             inp=VECTORS/f'p18-{native}-dsf-1-2-32769.dsf'
             dst=work/f'auto-decode-{native}.wav'
@@ -263,16 +263,16 @@ def main():
                     okay=(details['rate']==176400 and details['channels']==2
                           and details['frames']>0)
             store(key,'PASS' if okay else 'FAIL',dict(output=got,
-                expected='planned high-rate v1 native-to-PCM decode',reference=details))
-        # Production v2 encoder selection, native rate preservation and plan
+                expected='planned high-rate mastering native-to-PCM decode',reference=details))
+        # Production mastering selection, native rate preservation and plan
         # reporting must agree on both DSF and DSDIFF destinations.
-        source_pcm=work/'auto-v2-source.wav'
+        source_pcm=work/'mastering-source.wav'
         with wave.open(str(source_pcm),'wb') as encoded:
             encoded.setparams((2,2,176400,4096,'NONE','not compressed'))
             encoded.writeframes(b'\0\0'*2*4096)
         for native in RATES:
             for ext in ('dsf','dff'):
-                key=f'auto-encode-v2-{native}-{ext}'
+                key=f'auto-encode-mastering-{native}-{ext}'
                 if key in old:report['cases'].append(old[key]);continue
                 dst=work/f'auto-encode-{native}.{ext}'
                 cmd=[args.sox,'-V2','--dsd-mode','auto','-D',source_pcm,
@@ -295,9 +295,9 @@ def main():
                         output_sha256=sha(raw))
                     okay=(desc['rate']==native and desc['channels']==2 and
                           desc['frames']>0 and
-                          chosen==f'encode.mastering.v1.dsd{native//44100}')
+                          chosen==f'encode.mastering.dsd{native//44100}')
                 store(key,'PASS' if okay else 'FAIL',dict(output=got,
-                    expected='qualified v1 encoder, declared in plan and on disk',
+                    expected='mastering encoder, declared in plan and on disk',
                     reference=ref))
         # P21 does not authorize the gaps between canonical high rates.
         # Syntactically valid headers must be refused by every native reader.
@@ -337,18 +337,20 @@ def main():
                     store(key,'PASS' if okay else 'FAIL',dict(output=got,
                         expected='reject before opening/truncating destination',
                         destination_preserved=kept))
-        key='versioned-encoder-help'
+        key='one-encoder-help'
         if key in old:report['cases'].append(old[key])
         else:
             got=command_result([args.sox,'--help'],environment)
             proc=subprocess.run([str(args.sox),'--help'],cwd=ROOT,env=environment,
                 stdin=subprocess.DEVNULL,capture_output=True,timeout=45)
-            # Help names the v1 pattern and the two exact v2 encoder pins.
-            matches=(b'encode.mastering.v1.dsdNNN' in proc.stdout and
-                     b'encode.mastering.v2.dsd512|dsd1024' in proc.stdout)
+            # The help must describe one encoder and no retired selectors.
+            matches=(b'encode.mastering.dsdNNN' in proc.stdout and
+                     b'encode.mastering.v1' not in proc.stdout and
+                     b'encode.mastering.v2' not in proc.stdout and
+                     b'experimental' not in proc.stdout)
             store(key,'PASS' if got['exit']==0 and matches else 'FAIL',
-                dict(output=got,expected='v1 and v2 explicit encoder IDs in CLI help',
-                    contains_versioned_id=matches))
+                dict(output=got,expected='only unversioned mastering encoder IDs in CLI help',
+                    contains_one_encoder_id=matches))
         # A refusal that is NOT P18 and must survive its removal: native mode
         # moves native bits and cannot change DSD rate without reconstruction.
         # The source here is DSD64, so asking for 512/1024 in native mode is

@@ -121,7 +121,7 @@ def main():
                 raw=tmp/'reference.f64le';raw.write_bytes(samples.astype('<f8').tobytes())
                 packed=tmp/'reference.bits';report=tmp/'reference.json'
                 check=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                    'encode.mastering.v1.dsd64',str(scale),'guarded-cli',str(raw),str(packed),str(report)],
+                    'encode.mastering.dsd64',str(scale),'guarded-cli',str(raw),str(packed),str(report)],
                     capture_output=True,text=True,timeout=120)
                 assert check.returncode==0,check.stderr
                 actual=read_dsf(destination)
@@ -196,11 +196,11 @@ def main():
         #
         # They were written when the DSD64 mastering encoder was unqualified and
         # the release gate refused it. 6c2f949fb promoted v2 to default and
-        # activated the encoder, so encode.mastering.v1.dsd64 carries qualified=1
+        # activated the encoder, so encode.mastering.dsd64 carries qualified=1
         # and the gate correctly accepts both automatic and explicit DSD64
         # encoding. Asserting refusal here would assert behaviour the project
         # deliberately changed at P15. Refusal remains covered by the
-        # experimental arm, which still resolves no qualified composite.
+        # experimental arm: the selection is retired, so pcmdsd rejects it.
         for mode in ('auto','explicit','experimental'):
             def gate(mode=mode):
                 dst=tmp/f'public-{mode}.dsf'
@@ -208,8 +208,7 @@ def main():
                 extra=() if mode=='auto' else ('pcmdsd',*(['-p','experimental'] if mode=='experimental' else []),'2822400')
                 cp=encode(pcm,dst,extra=extra,exe=a.sox,ok=not refused)
                 if refused:
-                    assert ('unqualified' in cp.stderr or 'unavailable' in cp.stderr
-                        or 'no qualified composite' in cp.stderr),cp.stderr
+                    assert 'invalid pcmdsd options' in cp.stderr,cp.stderr
                     return dict(exit_code=cp.returncode,output_created=False,
                         refused=True,diagnostic=clean(cp.stderr))
                 assert 'unqualified' not in cp.stderr,cp.stderr
@@ -234,34 +233,39 @@ def main():
             # carry the coefficient certificate that qualification rests on.
             encoder=data['encoder']
             assert encoder['qualified'] is True,data
-            assert encoder['id']=='encode.mastering.v1.dsd64',data
+            assert encoder['id']=='encode.mastering.dsd64',data
             assert encoder['prefilter_design_hz']==88200,data
             assert isinstance(encoder.get('certificate_sha256'),str) and encoder['certificate_sha256'],data
             return dict(plan=json.loads(clean(json.dumps(data))))
         record('release_plan_discloses_unqualified_profile',plan)
-        def high_rate_v2_selectable():
-            """The high-rate CLANS-7 v2 *encoders* are qualified exact pins.
+        def high_rate_mastering():
+            """Both high native clocks have one rate-specific SDM-8 encoder.
 
-            v1 remains the default; v2 is available at its own native clock.
-            The former `unbound_qualified_profile_unselectable` assertion
-            became obsolete when patch 0009 bound the two v2 encoder IDs.
+            The retired seventh-order exact pins cannot be selected.
             """
             rows=[]
-            for ident,rate in (('encode.mastering.v2.dsd512','22579200'),
-                               ('encode.mastering.v2.dsd1024','45158400')):
-                dst=tmp/f'selectable-{ident}.dsf'
-                report=tmp/f'selectable-{ident}.json'
-                cp=invoke(['--encode',ident,'--report',report,'-D',pcm,'-r',rate,dst],exe=a.sox)
+            for native in (22579200,45158400):
+                ident=f'encode.mastering.dsd{native//44100}'
+                dst=tmp/f'selectable-{native}.dsf'
+                report=tmp/f'selectable-{native}.json'
+                cp=invoke(['--encode',ident,'--report',report,'-D',pcm,
+                           '-r',native,dst],exe=a.sox)
                 assert cp.returncode==0 and dst.is_file() and report.is_file(),(
                     ident,cp.returncode,cp.stderr[-800:])
                 parsed=read_dsf(dst)
-                assert parsed['rate']==int(rate) and parsed['frames']>0,ident
+                assert parsed['rate']==native and parsed['frames']>0,ident
                 records=json.loads(report.read_text())['processing']['encoder']
                 assert records and all(row['profile_id']==ident for row in records),records
-                rows.append(dict(id=ident,native_hz=int(rate),exit_code=cp.returncode,
-                                 output_created=True,reported_profile_id=records[0]['profile_id']))
-            return dict(selectable=rows)
-        record('high_rate_v2_encoder_selectable',high_rate_v2_selectable)
+                assert all(row['coefficient_certificate_sha256'] is None for row in records)
+                rows.append(dict(id=ident,native_hz=native,exit_code=cp.returncode,
+                                 bitstream_sha256=parsed['chronological_bits_sha256']))
+                forbidden=tmp/f'retired-{native}.dsf'
+                retired=f'encode.mastering.v2.dsd{native//44100}'
+                rejected=invoke(['--encode',retired,'-D',pcm,'-r',native,forbidden],
+                                exe=a.sox)
+                assert rejected.returncode!=0 and not forbidden.exists(),retired
+            return dict(mastering=rows)
+        record('high_rate_mastering_only',high_rate_mastering)
         # Reconstruct a candidate tone, then independently re-encode those graph
         # samples with the resolved inverse decoder reference. This checks the
         # DSD provenance scale, not just two spellings of automatic routing.
@@ -278,7 +282,7 @@ def main():
                     f64.write_bytes(values.astype('<f8').tobytes())
                     packed=tmp/(prefix+'.bits');report=tmp/(prefix+'.json')
                     p=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                        'encode.mastering.v1.dsd64',str(scale),'guarded-cli',str(f64),str(packed),str(report)],
+                        'encode.mastering.dsd64',str(scale),'guarded-cli',str(f64),str(packed),str(report)],
                         capture_output=True,text=True,timeout=120)
                     assert p.returncode==0,p.stderr
                     out=tmp/(prefix+'.dsf');encode(base,out,extra=gain_args,glob=('-D',*flags))
@@ -298,7 +302,7 @@ def main():
             raw.write_bytes(values.astype('<f8').tobytes())
             packed=tmp/'mixed-reference.bits';report=tmp/'mixed-reference.json'
             check=subprocess.run([str(ROOT/'test/dsd_test_p10'),'--render','88200','2822400',
-                'encode.mastering.v1.dsd64','.5','guarded-cli',str(raw),str(packed),str(report)],
+                'encode.mastering.dsd64','.5','guarded-cli',str(raw),str(packed),str(report)],
                 capture_output=True,text=True,timeout=120)
             assert check.returncode==0,check.stderr
             dst=tmp/'mixed-reference.dsf'

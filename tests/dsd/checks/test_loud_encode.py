@@ -156,7 +156,7 @@ def main():
                                                 'error', hot, '-r', rate, output),
                                               'strict plan').stdout)
             assert strict_plan['encoder']['warning_clip_ceiling'] is None
-            assert strict_plan['encoder']['planned_linear_gain'] == 1
+            assert abs(strict_plan['encoder']['planned_linear_gain'] - 0.9) < 1e-14
             unavailable = json.loads(accepted(run(sox, '--plan', '--encode',
                                                   'legacy', hot, '-r', rate,
                                                   output), 'legacy plan').stdout)
@@ -215,7 +215,7 @@ def main():
             assert digest(hot) == source_hash, 'scanning modified the input'
             print(f'PASS DSD{native}: clip/warn, refusal, fixed, stereo measured, report invariance')
 
-        # The high clocks share the default policy. Their eighth-order v1
+        # The high clocks share the default policy. Their eighth-order mastering
         # encoder is qualified only with the 0.9 gain, so strict refusal keeps
         # it there; an explicit --headroom still replaces it.
         for native in (512, 1024):
@@ -304,7 +304,7 @@ def main():
             assert digest(plain) == digest(scan), f'short EOF mismatch at {frames}'
         print('PASS empty, single-frame and non-block-aligned EOF streams')
 
-        # Both high-rate v2 profiles also have to clip and measure actual
+        # Both high-rate mastering profiles also have to clip and measure actual
         # inter-sample overloads, not just accept silent input.
         short = root/'highrate-hot.wav'
         with wave.open(str(hot), 'rb') as src:

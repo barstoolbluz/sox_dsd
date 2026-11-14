@@ -184,11 +184,11 @@ def main() -> int:
                                         ('master256',ds256,176400,256)):
             run(name,[src,'@OUT@'],inspect=expect(executable=True,needs_unimplemented_dsp=False,
                 decoder__intermediate_hz=expected,
-                decoder__id=f'decode.mastering.v1.dsd{clock}',
+                decoder__id=f'decode.mastering.dsd{clock}',
                 output__bits_per_sample=24,
                 graph_decoder_count=1))
         run('wideband256',['--decode','wideband',ds256,'@OUT@'],
-            inspect=expect(decoder__id='decode.wideband.v1.dsd256',decoder__pass_hz=141120,
+            inspect=expect(decoder__id='decode.wideband.dsd256',decoder__pass_hz=141120,
                 decoder__stop_hz=176400,decoder__intermediate_hz=352800,output__rate_hz=352800))
         for removed in ('legacy','conservative','decode.mastering.v2.dsd64'):
             run('removed_decoder_'+removed,['--decode',removed,ds,'@OUT@'],
@@ -204,16 +204,16 @@ def main() -> int:
         run('strict_bandwidth',['--decode','wideband','--dsd-bandwidth','strict',ds,
             '-r','44100','@OUT@'],ok=False,error='strict bandwidth')
         run('explicit_dsdpcm',[ds,'@OUT@','dsdpcm','-p','wideband','176400'],
-            inspect=expect(graph_decoder_count=1,decoder__id='decode.wideband.v1.dsd64',
+            inspect=expect(graph_decoder_count=1,decoder__id='decode.wideband.dsd64',
                            decoder__effective_bandwidth_hz=35280))
-        run('explicit_versioned',[ds,'@OUT@','dsdpcm','-p','decode.mastering.v1.dsd64'],
-            inspect=expect(decoder__id='decode.mastering.v1.dsd64'))
-        run('mismatched_profile',[ds,'@OUT@','dsdpcm','-p','decode.mastering.v1.dsd128'],
+        run('explicit_versioned',[ds,'@OUT@','dsdpcm','-p','decode.mastering.dsd64'],
+            inspect=expect(decoder__id='decode.mastering.dsd64'))
+        run('mismatched_profile',[ds,'@OUT@','dsdpcm','-p','decode.mastering.dsd128'],
             ok=False,error='different native DSD clock')
         run('profile_precedence',['--decode','wideband',ds,'@OUT@','dsdpcm','-p','mastering'],
             ok=False,error='conflicting')
         run('profile_inherit',['--decode','wideband',ds,'@OUT@','dsdpcm'],
-            inspect=expect(decoder__id='decode.wideband.v1.dsd64'))
+            inspect=expect(decoder__id='decode.wideband.dsd64'))
         run('sacd_precedence',['--dsd-level','sacd',ds,'@OUT@','dsdpcm','-l','preserve'],
             ok=False,error='conflicting')
         run('bad_fraction_pcm',[ds,'@OUT@','dsdpcm','88200.5'],ok=False,error='invalid dsdpcm')
@@ -252,8 +252,8 @@ def main() -> int:
             run('combine_'+c,['--combine',c,ds,ds,'@OUT@'],inspect=per_input)
         run('mixed_dsd_clocks',['--combine','mix',ds,ds128,'@OUT@'],
             inspect=expect(input_decoder_count=2,combiner__rate_hz=176400,
-                inputs__0__decoder_id='decode.mastering.v1.dsd64',
-                inputs__1__decoder_id='decode.mastering.v1.dsd128'))
+                inputs__0__decoder_id='decode.mastering.dsd64',
+                inputs__1__decoder_id='decode.mastering.dsd128'))
         run('mixed_dsd_clocks_native_ambiguous',['--combine','mix',ds,ds128,'@OUT@'],
             ok=False,error='explicit native output rate',suffix='.dsf')
         run('mixed_dsd_clocks_native_pinned',['--combine','mix',ds,ds128,
@@ -335,14 +335,14 @@ def main() -> int:
                 inputs__0__volume=.5,inputs__0__volume_consumed_by_decoder=True))
         run('leading_preinput_profile',['-v','0.5',ds,'@OUT@','dsdpcm','-p','wideband','-l','sacd','96000'],
             inspect=expect(input_decoder_count=1,graph_decoder_count=0,
-                inputs__0__decoder_id='decode.wideband.v1.dsd64',inputs__0__decoder_gain=2.,
+                inputs__0__decoder_id='decode.wideband.dsd64',inputs__0__decoder_gain=2.,
                 inputs__0__effective_rate_hz=96000))
         run('leading_preinput_pinned',['-v','0.5',ds,'@OUT@','dsdpcm',
-            '-p','decode.mastering.v1.dsd64'],
+            '-p','decode.mastering.dsd64'],
             inspect=expect(input_decoder_count=1,graph_decoder_count=0,
-                inputs__0__decoder_id='decode.mastering.v1.dsd64'))
+                inputs__0__decoder_id='decode.mastering.dsd64'))
         run('leading_preinput_bad_pin',['-v','0.5',ds,'@OUT@','dsdpcm',
-            '-p','decode.mastering.v1.dsd128'],ok=False,error='different native DSD clock')
+            '-p','decode.mastering.dsd128'],ok=False,error='different native DSD clock')
         run('leading_preinput_conflict',['--decode','mastering','-v','0.5',
             ds,'@OUT@','dsdpcm','-p','wideband'],ok=False,error='conflicting')
         run('leading_mix_native',['--combine','mix',ds,ds,'@OUT@','dsdpcm','96000'],
@@ -355,7 +355,7 @@ def main() -> int:
             'dsdpcm','-p','wideband'],
             inspect=expect(input_decoder_count=2,combiner__rate_hz=352800))
         run('leading_mix_bad_pin',['--combine','mix',ds,ds128,'@OUT@',
-            'dsdpcm','-p','decode.mastering.v1.dsd64'],ok=False,
+            'dsdpcm','-p','decode.mastering.dsd64'],ok=False,
             error='different native DSD clock')
         run('leading_mix_pcm',['--combine','mix',ds,w96,'@OUT@','dsdpcm','96000'],
             inspect=expect(input_decoder_count=1,graph_decoder_count=0,
@@ -372,20 +372,20 @@ def main() -> int:
         run('mod_decode_gain',[w88,'@OUT@','pcmdsd','2822400',
             'dsdpcm','88200','gain','-3'],
             inspect=check_steps('pcmdsd','dsdpcm','gain',encoder_count=1,
-                graph_decoder_count=1,decoder__id='decode.mastering.v1.dsd64'))
+                graph_decoder_count=1,decoder__id='decode.mastering.dsd64'))
         run('mod_decode_wrong_pin',[w88,'@OUT@','pcmdsd','2822400',
-            'dsdpcm','-p','decode.mastering.v1.dsd128'],ok=False,
+            'dsdpcm','-p','decode.mastering.dsd128'],ok=False,
             error='different native DSD clock')
         run('mod_to_128_decode',[w88,'@OUT@','pcmdsd','5644800','dsdpcm','176400'],
             inspect=expect(encoder_count=1,graph_decoder_count=1,
-                decoder__id='decode.mastering.v1.dsd128',decoder__intermediate_hz=176400))
+                decoder__id='decode.mastering.dsd128',decoder__intermediate_hz=176400))
         run('mod64_decode_mod128_decode',[ds,'@OUT@','dsdpcm','88200',
             'pcmdsd','5644800','dsdpcm','176400'],
             inspect=expect(encoder_count=1,graph_decoder_count=2,
-                decoder__id='decode.mastering.v1.dsd128'))
+                decoder__id='decode.mastering.dsd128'))
         run('mod64_decode_mod128_wideband_pin',[ds,'@OUT@','dsdpcm','88200',
-            'pcmdsd','5644800','dsdpcm','-p','decode.wideband.v1.dsd128'],
-            inspect=expect(decoder__id='decode.wideband.v1.dsd128'))
+            'pcmdsd','5644800','dsdpcm','-p','decode.wideband.dsd128'],
+            inspect=expect(decoder__id='decode.wideband.dsd128'))
         run('mod_mod_rejected',[w88,'-r','2822400','@OUT@',
             'pcmdsd','2822400','pcmdsd','2822400'],ok=False,error='duplicates',suffix='.dsf')
         run('mod_native_noop',[w88,'-r','2822400','@OUT@','pcmdsd','2822400',

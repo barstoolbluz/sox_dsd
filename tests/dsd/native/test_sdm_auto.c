@@ -219,27 +219,26 @@ static void compare_long(const lsx_dsd_kernel *tier,
 static void test_exact(void)
 {
   static const char *ids[]={
-    "encode.mastering.v1.dsd64", "encode.mastering.v1.dsd128",
-    "encode.mastering.v1.dsd256", "encode.mastering.v2.dsd512",
-    "encode.mastering.v2.dsd1024", "encode.mastering.v1.dsd512",
-    "encode.mastering.v1.dsd1024", "encode.legacy.v1.dsd64",
-    "encode.legacy.v1.dsd128", "encode.legacy.v1.dsd256",
-    "encode.diagnostic.sdm6.v1.dsd64","encode.diagnostic.sdm6.v1.dsd128",
-    "encode.diagnostic.sdm6.v1.dsd256","encode.diagnostic.clans8.v1.dsd64",
-    "encode.diagnostic.clans8.v1.dsd128","encode.diagnostic.clans8.v1.dsd256"};
+    "encode.mastering.dsd64", "encode.mastering.dsd128",
+    "encode.mastering.dsd256", "encode.mastering.dsd512",
+    "encode.mastering.dsd1024", "encode.legacy.dsd64",
+    "encode.legacy.dsd128", "encode.legacy.dsd256",
+    "encode.diagnostic.sdm6.dsd64","encode.diagnostic.sdm6.dsd128",
+    "encode.diagnostic.sdm6.dsd256","encode.diagnostic.clans8.dsd64",
+    "encode.diagnostic.clans8.dsd128","encode.diagnostic.clans8.dsd256"};
   static const unsigned rates[]={2822400u,5644800u,11289600u,
-    22579200u,45158400u,22579200u,45158400u,
+    22579200u,45158400u,
     2822400u,5644800u,11289600u,2822400u,5644800u,11289600u,
     2822400u,5644800u,11289600u};
   unsigned i,k,scenario;
-  for(k=0;k<tier_count;++k) for(i=0;i<16;++i) {
+  for(k=0;k<tier_count;++k) for(i=0;i<sizeof(ids)/sizeof(ids[0]);++i) {
     const sdm_profile_t *profile=sdm_profile_find(ids[i],rates[i]);
     VERIFY(profile);
     compare_long(tiers[k],profile);
     for(scenario=0;scenario<24;++scenario)
       try_case(tiers[k],profile,scenario);
   }
-  printf("PASS bitwise scalar oracle, %u tiers x 16 profiles x 24 adverse cases, monitor and dual-bank states\n",tier_count);
+  printf("PASS bitwise scalar oracle, %u tiers x 14 profiles x 24 adverse cases, monitor and dual-bank states\n",tier_count);
 }
 
 static void override(const char *name,const char *value)

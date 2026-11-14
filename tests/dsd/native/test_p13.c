@@ -199,9 +199,9 @@ static int fir(const lsx_dsd_kernel *k)
 
 static int sdm(const lsx_dsd_kernel *k)
 {
-  static const char *ids[]={"encode.mastering.v1.dsd64",
-    "encode.mastering.v1.dsd128","encode.mastering.v1.dsd256",
-    "encode.diagnostic.sdm6.v1.dsd64","encode.diagnostic.clans8.v1.dsd64"};
+  static const char *ids[]={"encode.mastering.dsd64",
+    "encode.mastering.dsd128","encode.mastering.dsd256",
+    "encode.diagnostic.sdm6.dsd64","encode.diagnostic.clans8.dsd64"};
   static const unsigned rates[]={2822400,5644800,11289600,2822400,2822400};
   double x[1024],bounds[8];
   sox_sample_t whole[1024],parts[1024];

@@ -318,9 +318,9 @@ static void test_fir(const lsx_dsd_kernel *k)
 static void test_sdm(const lsx_dsd_kernel *k)
 {
   static const char *ids[]={
-    "encode.mastering.v1.dsd64","encode.mastering.v1.dsd128",
-    "encode.mastering.v1.dsd256","encode.diagnostic.sdm6.v1.dsd64",
-    "encode.diagnostic.clans8.v1.dsd64"};
+    "encode.mastering.dsd64","encode.mastering.dsd128",
+    "encode.mastering.dsd256","encode.diagnostic.sdm6.dsd64",
+    "encode.diagnostic.clans8.dsd64"};
   static const unsigned rates[]={2822400,5644800,11289600,2822400,2822400};
   const size_t n=8192;
   double input[8192], small_bounds[8];
@@ -478,7 +478,7 @@ static int bench(const char *tier, const char *mode, size_t frames)
   clock_t before,after;
   size_t i,j,done;
   int fir,rc;
-  const sdm_profile_t *profile=sdm_profile_find("encode.mastering.v1.dsd64",2822400);
+  const sdm_profile_t *profile=sdm_profile_find("encode.mastering.dsd64",2822400);
   for(i=0;i<sizeof(bench_fir_cases)/sizeof(*bench_fir_cases);++i)
     if(!strcmp(mode,bench_fir_cases[i].name)) {work=&bench_fir_cases[i];break;}
   fir=work!=NULL;
@@ -532,7 +532,7 @@ static int bench(const char *tier, const char *mode, size_t frames)
          "\"halfband\":%s,\"frame_unit\":\"%s\",\"state_bounds\":\"%s\"}\n",
          tier,mode,frames,cpu_time,1e9*cpu_time/frames,checksum,
          fir?"false":"true",fir?"false":"true",
-         fir?work->bank:"encode.mastering.v1.dsd64",fir?work->taps:0,
+         fir?work->bank:"encode.mastering.dsd64",fir?work->taps:0,
          fir?work->stride:0,fir && work->halfband?"true":"false",
          fir?"FIR output":"native SDM output",fir?"not applicable":"synthetic 1e18");
   return 0;

@@ -113,7 +113,7 @@ def execute(sox, ref, root):
                                start, .5, 120, report)
         require(rc == 0, f'{n}ch SoX decode failed: {err}')
         decoder = json.loads(report.read_text())['processing']['decoder']
-        expected = f'decode.mastering.v1.dsd{hz//44100}'
+        expected = f'decode.mastering.dsd{hz//44100}'
         require(len(decoder) == n and all(x['profile_id'] == expected for x in decoder),
                 f'{n}ch wrong runtime decoder rows: {decoder}')
         rc, err = decode_reference(ref, samples[0], out_hz, n, ref_pcm,

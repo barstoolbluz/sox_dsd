@@ -36,22 +36,20 @@ typedef struct {
 } fixture;
 
 static const struct { const char *id; unsigned rate; } profiles[]={
-  {"encode.mastering.v1.dsd64",2822400u},
-  {"encode.mastering.v1.dsd128",5644800u},
-  {"encode.mastering.v1.dsd256",11289600u},
-  {"encode.mastering.v2.dsd512",22579200u},
-  {"encode.mastering.v2.dsd1024",45158400u},
-  {"encode.mastering.v1.dsd512",22579200u},
-  {"encode.mastering.v1.dsd1024",45158400u},
-  {"encode.legacy.v1.dsd64",2822400u},
-  {"encode.legacy.v1.dsd128",5644800u},
-  {"encode.legacy.v1.dsd256",11289600u},
-  {"encode.diagnostic.sdm6.v1.dsd64",2822400u},
-  {"encode.diagnostic.sdm6.v1.dsd128",5644800u},
-  {"encode.diagnostic.sdm6.v1.dsd256",11289600u},
-  {"encode.diagnostic.clans8.v1.dsd64",2822400u},
-  {"encode.diagnostic.clans8.v1.dsd128",5644800u},
-  {"encode.diagnostic.clans8.v1.dsd256",11289600u}
+  {"encode.mastering.dsd64",2822400u},
+  {"encode.mastering.dsd128",5644800u},
+  {"encode.mastering.dsd256",11289600u},
+  {"encode.mastering.dsd512",22579200u},
+  {"encode.mastering.dsd1024",45158400u},
+  {"encode.legacy.dsd64",2822400u},
+  {"encode.legacy.dsd128",5644800u},
+  {"encode.legacy.dsd256",11289600u},
+  {"encode.diagnostic.sdm6.dsd64",2822400u},
+  {"encode.diagnostic.sdm6.dsd128",5644800u},
+  {"encode.diagnostic.sdm6.dsd256",11289600u},
+  {"encode.diagnostic.clans8.dsd64",2822400u},
+  {"encode.diagnostic.clans8.dsd128",5644800u},
+  {"encode.diagnostic.clans8.dsd256",11289600u}
 };
 static const uint64_t patterns[]={
   UINT64_C(0), UINT64_C(0x8000000000000000),

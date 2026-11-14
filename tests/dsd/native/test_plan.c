@@ -113,7 +113,7 @@ static void numeric(void)
   CLOSE(pass,70560);CLOSE(stop,88200);CLOSE(r,176400);
   CHECK(lsx_dsd_profile_edges(11289600,LSX_DSD_PROFILE_WIDEBAND,&pass,&stop,&r));
   CLOSE(pass,141120);CLOSE(stop,176400);CLOSE(r,352800);
-  /* These v1 high-rate DSP edges remain fixed despite P21 authorization. */
+  /* These high-rate DSP edges remain fixed despite P21 authorization. */
   CHECK(lsx_dsd_profile_edges(22579200,LSX_DSD_PROFILE_MASTERING,&pass,&stop,&r));
   CLOSE(pass,40000);CLOSE(stop,80000);CLOSE(r,176400);
   CHECK(lsx_dsd_profile_edges(45158400,LSX_DSD_PROFILE_MASTERING,&pass,&stop,&r));
@@ -298,7 +298,7 @@ static void corrective(void)
   CHECK(build(&spec,&p));
   CHECK(p.encode_count==1 && p.graph_decode_count==1);
   CHECK(p.steps[0].rate_after==5644800 && p.steps[1].rate_before==5644800);
-  CHECK(p.decoder_id && !strcmp(p.decoder_id,"decode.mastering.v1.dsd128"));
+  CHECK(p.decoder_id && !strcmp(p.decoder_id,"decode.mastering.dsd128"));
   lsx_dsd_plan_free(&p);
   eff[1].dsd.pinned_native_hz=2822400;
   CHECK(!build(&spec,&p));lsx_dsd_plan_free(&p);

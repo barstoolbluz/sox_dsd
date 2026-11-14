@@ -454,7 +454,7 @@ def main():
             facts=enc[0]
             require(facts['sdm_kernel_actual']=='scalar',
                     f'forced scalar SDM misreported: {facts["sdm_kernel_actual"]}')
-            require(facts['profile_id']=='encode.mastering.v1.dsd64','wrong encoder ID')
+            require(facts['profile_id']=='encode.mastering.dsd64','wrong encoder ID')
             require(len(facts['coefficient_certificate_sha256'])==64,'missing certificate')
             require(facts['committed_native_frames']==str(frames*32),'encoder output count')
             require(facts['monitor']['first_overload_frame'] is None,'fabricated overload')

@@ -26,8 +26,8 @@ def main():
     args=ap.parse_args();args.results.mkdir(parents=True,exist_ok=True)
     expected=json.loads((ROOT/'tests/dsd/reference/p09_original_coefficients.json').read_text())
     records=[]
-    kind_map={'clans-4':'legacy.v1', 'sdm-8':'mastering.v1',
-              'sdm-6':'diagnostic.sdm6.v1','clans-8':'diagnostic.clans8.v1'}
+    kind_map={'clans-4':'legacy', 'sdm-8':'mastering',
+              'sdm-6':'diagnostic.sdm6','clans-8':'diagnostic.clans8'}
     with tempfile.TemporaryDirectory() as temp:
         for e in expected['entries']:
             if e['filter'] not in kind_map:continue

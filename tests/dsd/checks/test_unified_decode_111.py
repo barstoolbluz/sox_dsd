@@ -73,14 +73,14 @@ def test(sox, root):
         enc = invoke(sox, '-D', source, '-r', native, dsd)
         check(enc.returncode == 0 and dsd.exists(), f'fixture DSD{suffix} failed', enc)
         out_hz = 88200 if suffix == 64 else 176400
-        default_id = f'decode.mastering.v1.dsd{suffix}'
+        default_id = f'decode.mastering.dsd{suffix}'
         canonical = None
         for label, selectors, expected in (
                 ('default', (), default_id),
                 ('mastering', ('--decode', 'mastering'), default_id),
                 ('pinned', ('--decode', default_id), default_id),
                 ('wideband', ('--decode', 'wideband'),
-                 f'decode.wideband.v1.dsd{suffix}')):
+                 f'decode.wideband.dsd{suffix}')):
             dest = root / f'{suffix}-{label}.f64'
             report = root / f'{suffix}-{label}.json'
             args = (*selectors, '--report', report, '-D', dsd,
@@ -114,7 +114,7 @@ def test(sox, root):
                              output_sha256=digest, result='PASS'))
 
         # An explicit effect-local mastering request must inherit global
-        # defaults and execute the same bank, never silently substitute v2.
+        # defaults and execute the same bank, never silently substitute a retired decoder.
         for label, selectors, effects in (
                 ('effect-local', (), ('dsdpcm', '-p', 'mastering', str(out_hz))),
                 ('effect-inherited', ('--decode', 'mastering'),
@@ -147,7 +147,7 @@ def test(sox, root):
                                  selected=removed, exit_code=p.returncode, result='PASS'))
         wrong = 128 if suffix == 64 else 64
         dest = root / f'{suffix}-reject-wrong-clock.f64'
-        p = invoke(sox, '--decode', f'decode.mastering.v1.dsd{wrong}',
+        p = invoke(sox, '--decode', f'decode.mastering.dsd{wrong}',
                    '-D', dsd, '-t', 'f64', '-r', out_hz, dest)
         check(p.returncode != 0 and not dest.exists(),
               f'DSD{suffix}: mismatched native decoder pin accepted', p)

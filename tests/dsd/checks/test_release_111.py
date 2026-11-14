@@ -96,37 +96,31 @@ def run():
                   'limited997': pcm(limited, 'limited997'),
                   'quiet': pcm(quiet, 'quiet')}
 
-        # The lower rate is intentionally different: strict mode there uses
-        # unity gain, whereas high-rate v1 retains 0.9. Compare actual DSD
-        # run reports, not the declarative plan alone.
+        # The same mastering gain applies under strict mode at every rate.
+        # Assert the gain in the executable report as well as in --plan.
         for rate in RATES:
             report = root / f'strict-{rate}.json'
             dst = root / f'strict-{rate}.dsf'
             opts = ('--dsd-clip', 'error', '--report', report,
                     limited, '-r', rate, dst)
             p = command(sox, *opts)
-            if rate == 11289600:
-                require(p.returncode != 0 and 'interpolation overload' in p.stderr,
-                        f'DSD256 strict must reject the clipped 997-Hz sine', p)
-                require(not dst.exists(), 'partial regular DSD256 file not removed')
-                record(f'limited_strict_{rate}', p, expected='overload / unity gain')
-            else:
-                require(p.returncode == 0, f'DSD{rate // 44100} strict rejected test', p)
-                data = json.loads(report.read_text())
-                enc = data['processing']['encoder']
-                require(len(enc) == 1, 'expected one runtime encoder channel')
-                actual = enc[0]
-                require(actual['profile_id'] == f'encode.mastering.v1.dsd{rate // 44100}',
-                        f'wrong actual v1 profile at {rate}')
-                require(abs(float(actual['headroom_applied_db']) - GAIN_DB) < 1e-9,
-                        f'wrong actual strict gain at {rate}: {actual}')
-                require(int(actual['clipped_interpolated_samples']) == 0,
-                        'strict unexpectedly clipped interpolated samples')
-                record(f'limited_strict_{rate}', p,
-                       runtime_profile_id=actual['profile_id'],
-                       runtime_headroom_db=float(actual['headroom_applied_db']),
-                       clipped_interpolated_samples=actual['clipped_interpolated_samples'],
-                       output_sha256=hashlib.sha256(dst.read_bytes()).hexdigest())
+            require(p.returncode == 0 and dst.is_file(),
+                    f'DSD{rate // 44100} strict rejected the limited fixture', p)
+            data = json.loads(report.read_text())
+            enc = data['processing']['encoder']
+            require(len(enc) == 1, 'expected one runtime encoder channel')
+            actual = enc[0]
+            require(actual['profile_id'] == f'encode.mastering.dsd{rate // 44100}',
+                    f'wrong mastering profile at {rate}')
+            require(abs(float(actual['headroom_applied_db']) - GAIN_DB) < 1e-9,
+                    f'wrong actual strict gain at {rate}: {actual}')
+            require(int(actual['clipped_interpolated_samples']) == 0,
+                    'strict unexpectedly clipped interpolated samples')
+            record(f'limited_strict_{rate}', p,
+                   runtime_profile_id=actual['profile_id'],
+                   runtime_headroom_db=float(actual['headroom_applied_db']),
+                   clipped_interpolated_samples=actual['clipped_interpolated_samples'],
+                   output_sha256=hashlib.sha256(dst.read_bytes()).hexdigest())
 
         # The first detected overshoot constrains absolute --headroom, not
         # how much EXTRA gain must be removed from the current mapping.
@@ -146,7 +140,7 @@ def run():
                     'overload message does not suggest --auto-headroom', p)
             value = abs(float(bad.group(1)))
             suggested = float(hint.group(1))
-            old_gain_db = GAIN_DB if cut is None and rate >= 22579200 else (cut or 0.)
+            old_gain_db = GAIN_DB if cut is None else cut
             expected = old_gain_db + 20 * math.log10(value / .5)
             require(abs(suggested - expected) < 1e-7,
                     f'wrong replacement-headroom hint: {suggested} vs {expected}', p)
@@ -173,27 +167,6 @@ def run():
                     'strict --auto-headroom applied no cut')
             record(f'strict_auto_headroom_{rate}', p,
                    runtime_headroom_db=float(enc[0]['headroom_applied_db']),
-                   output_sha256=hashlib.sha256(dst.read_bytes()).hexdigest())
-
-        # The original 1.1.0 exact v2 pins are qualified and executable.
-        # Strict v2 uses unity gain even though v1 strict keeps 0.9.
-        # Verify the actual encoder report, not just accepted spelling.
-        for rate in (22579200, 45158400):
-            ident = f'encode.mastering.v2.dsd{rate // 44100}'
-            dst = root / f'pin-{rate}.dsf'
-            report = root / f'pin-{rate}.json'
-            p = command(sox, '--dsd-clip', 'error', '--encode', ident,
-                        '--report', report, quiet, '-r', rate, dst)
-            require(p.returncode == 0 and dst.is_file(),
-                    f'qualified v2 pin was rejected: {ident}', p)
-            data = json.loads(report.read_text())
-            encoders = data['processing']['encoder']
-            require(len(encoders) == 1 and encoders[0]['profile_id'] == ident,
-                    f'v2 pin did not execute the selected profile: {ident}')
-            require(abs(float(encoders[0]['headroom_applied_db'])) < 1e-9,
-                    f'v2 strict did not retain unity gain: {ident}')
-            record(f'v2_pin_strict_{rate}', p, profile_id=ident,
-                   runtime_gain_db=float(encoders[0]['headroom_applied_db']),
                    output_sha256=hashlib.sha256(dst.read_bytes()).hexdigest())
 
         receipt = dict(schema='sox-dsd-1.1.1-review-strict/1',

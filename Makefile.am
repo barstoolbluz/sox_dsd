@@ -44,7 +44,10 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt libsox_ng.txt \
   tests/dsd/checks/test_reader_gate.py tests/dsd/phases/p17_media_qualification.py \
   tests/dsd/support/fake_decoder.py tests/dsd/support/fake_p17_probe.py tests/dsd/support/mutation-shim.py \
   tests/dsd/qualification/review_p21_offsets.py tests/dsd/checks/test_p21_reader_regression.py \
-  tests/dsd/checks/test_v2_pin_111.py tests/dsd/checks/test_v2_110_compat.py docs/dsd/USING_SOX_DSD.md \
+  tests/dsd/checks/test_one_encoder_111.py \
+  tests/dsd/checks/test_mastering_coefficients_111.py \
+  tests/dsd/checks/test_mastering_baseline_identity_111.py \
+  docs/dsd/USING_SOX_DSD.md \
   docs/dsd/CLI_USABILITY_DESIGN.md docs/dsd/RELEASE_NOTES_1.1.1.md \
   docs/dsd/UNIFIED_DECODER_2026-11-09.md docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md
 
@@ -246,8 +249,9 @@ check-dsd-cli: all
 check-dsd-release-111: all
 	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/checks/test_release_111.py" \
 	  --sox "$(abs_builddir)/src/sox"
-	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/checks/test_v2_pin_111.py" \
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/checks/test_one_encoder_111.py" \
 	  --sox "$(abs_builddir)/src/sox"
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/checks/test_mastering_coefficients_111.py"
 	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/checks/test_unified_decode_111.py" \
 	  --sox "$(abs_builddir)/src/sox"
 	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/checks/test_111_receipt_redaction.py"
@@ -842,9 +846,6 @@ EXTRA_DIST += tests/dsd/benchmarks/bench_dsd256_2x.py \
   tests/dsd/checks/test_p17_dsf_probe.py \
   tests/dsd/checks/test_p17_long_dsf_stream.py \
   tests/dsd/checks/test_p17_qualification_registry.py \
-  tests/dsd/checks/test_p19_cross_isa.py \
-  tests/dsd/checks/test_p20_bitstream_oracle.py \
-  tests/dsd/checks/test_p20_cross_isa.py \
   tests/dsd/checks/test_residual_asymmetry.py \
   tests/dsd/generators/generate_p17_qualification_certificates.py \
   tests/dsd/generators/generate_p19_candidate_certificate.py \

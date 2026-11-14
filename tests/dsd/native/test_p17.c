@@ -9,8 +9,6 @@
 #include "dsd.h"
 #include "pcmdsd.h"
 #include "pcmdsd_guards.h"
-#include "pcmdsd_p20_guards.h"
-#include "pcmdsd_v2_guards.h"
 #include "sdm.h"
 #include "dsd_kernels.h"
 #include <stdint.h>
@@ -126,19 +124,15 @@ static void unit(void)
     CHECK(rate && rate->capabilities!=0);
     CHECK(rate->decode_mastering_id && rate->decode_wideband_id && rate->encode_mastering_id);
     CHECK(master && wide && encoder && sdm);
-    /* the rate binds to v1 (2026-11-07); the v2 CLANS-7 row behind it stays
-     * qualified and reachable by exact id */
-    CHECK(encoder->qualified==1 && encoder->certificate_sha256!=NULL);
-    CHECK(!strcmp(encoder->id,i?"encode.mastering.v1.dsd1024":"encode.mastering.v1.dsd512"));
+    /* The one mastering encoder is bound to the rate-specific SDM-8
+     * coefficients. Historic candidate certificates remain unchanged. */
+    /* New high-rate table choices have no inherited coefficient certificate. */
+    CHECK(encoder->qualified==1 && encoder->certificate_sha256==NULL);
+    CHECK(!strcmp(encoder->id,i?"encode.mastering.dsd1024":"encode.mastering.dsd512"));
     for(unsigned coord=0;coord<8;coord++)
       CHECK(encoder->bounds[coord]==lsx_pcmdsd_guards[i+3][coord]);
-    {
-      const lsx_pcmdsd_profile *v2=lsx_pcmdsd_profile_find_id(hz,
-          i?"encode.mastering.v2.dsd1024":"encode.mastering.v2.dsd512");
-      CHECK(v2 && v2->qualified==1 && v2->certificate_sha256!=NULL);
-      for(unsigned coord=0;coord<8;coord++)
-        CHECK(v2->bounds[coord]==(i?lsx_pcmdsd_v2_guards:lsx_pcmdsd_p20_guards)[coord]);
-    }
+    CHECK(!lsx_pcmdsd_profile_find_id(hz,i?
+        "encode.mastering.v2.dsd1024":"encode.mastering.v2.dsd512"));
     CHECK(encoder->bounds!=NULL);
     CHECK(lsx_pcmdsd_qualified(hz));
     CHECK(master->intermediate_hz==176400 && master->pass_hz==40000 && master->stop_hz==80000);
@@ -157,7 +151,7 @@ static void unit(void)
       CHECK(info.phases[j]==((info.delay_native_frames>>j)&1u));
     lsx_dsd_reconstruction_destroy(d);
     CHECK(sdm_profile_rate(sdm)==hz && sdm_profile_working_rate(sdm)==176400);
-    CHECK(!sdm_profile_find("encode.mastering.v1.dsd256",hz));
+    CHECK(!sdm_profile_find("encode.mastering.dsd256",hz));
     CHECK(!sdm_profile_find(encoder->id,11289600));
     CHECK(!sdm_profile_find(encoder->id,hz/2));
     CHECK(lsx_dsd_effective_bandwidth(wide->pass_hz,wide->intermediate_hz,705600)
@@ -181,25 +175,36 @@ static void unit(void)
   CHECK(lsx_dsd_count_convert(32,45158400,705600,&count) && count==1);
   CHECK(lsx_dsd_count_convert(0,45158400,705600,&count) && count==0);
   CHECK(!lsx_dsd_frontend_profile_find(33000000,LSX_DSD_PROFILE_MASTERING));
-  /* Normalized recurrence and state scaling: for the SAME input sequence, the
-   * candidate has identical bit decisions and state across physical clocks. */
-  {const sdm_profile_t *base=sdm_profile_find("encode.mastering.v1.dsd256",11289600);
-   CHECK(base);
-   for(size_t i=0;i<2;i++){
-     const sdm_profile_t *candidate=sdm_profile_find(i?
-       "encode.mastering.v1.dsd1024":"encode.mastering.v1.dsd512",high_rates[i]);
-     sdm_normal_t a,b;int x,y;
-     CHECK(candidate && sdm_normal_init(&a,base)==0);
-     CHECK(sdm_normal_init(&b,candidate)==0);
-     for(unsigned n=0;n<4096;n++){
-       double value=.21*sin((double)n*.011)+.13*cos((double)n*.049);
-       CHECK(sdm_normal_step(&a,value,&x)==0);
-       CHECK(sdm_normal_step(&b,value,&y)==0);
-       CHECK(x==y);
-       CHECK(isfinite(b.state[b.bank][0]));
-     }
-     CHECK(!memcmp(a.state,b.state,sizeof(a.state)));
-   }
+  /* Production high-rate zeros are rate specific. Check independent
+   * selected hex words, original feedback a, and old P17 nonselection. */
+  {
+    static const double zeros[2][8]={
+      {0x1.045e7add55492p-18,0,0x1.0b20f18f227f8p-15,0,
+       0x1.32ed6143a4873p-14,0,0x1.bdf1b3c55cfdap-14,0},
+      {0x1.5412e99e79d7bp-20,0,0x1.5ce71c28aa725p-17,0,
+       0x1.90e274970b238p-16,0,0x1.233a94bf958b8p-15,0}
+    };
+    const sdm_profile_t *base=sdm_profile_find("encode.mastering.dsd256",11289600);
+    const double *a0=NULL,*g0=NULL;
+    unsigned order=0;
+    CHECK(base && !sdm_profile_coefficients(base,&a0,&g0,&order) && order==8);
+    for(size_t k=0;k<2;k++){
+      const sdm_profile_t *selected=sdm_profile_find(k?
+        "encode.mastering.dsd1024":"encode.mastering.dsd512",high_rates[k]);
+      const double *a=NULL,*g=NULL;
+      CHECK(selected && !sdm_profile_coefficients(selected,&a,&g,&order) && order==8);
+      for(unsigned c=0;c<8;c++) {
+        CHECK(a[c]==a0[c]);
+        CHECK(g[c]==zeros[k][c]);
+      }
+      sdm_normal_t state;int bit;
+      CHECK(sdm_normal_init(&state,selected)==0);
+      for(unsigned n=0;n<4096;n++) {
+        const double input=.21*sin((double)n*.011)+.13*cos((double)n*.049);
+        CHECK(sdm_normal_step(&state,input,&bit)==0);
+        CHECK((bit==-1||bit==1) && isfinite(state.state[state.bank][0]));
+      }
+    }
   }
   printf("P17 unit PASS checks=%" PRIu64 "\n",checks);
 }
@@ -410,7 +415,7 @@ static void bench(uint32_t hz,int profile,unsigned channels,int packed,double du
     "\"wall_seconds\":%.9f,\"input_payload_bytes\":%" PRIu64 ","
     "\"pcm_digest_fnv64\":\"%016" PRIx64 "\"}\n",
     hz,channels,profile,packed,frames,pcmframes,t1-t0,
-    packed?((frames+7)/8)*channels:frames*channels*4ULL,hash);
+    (uint64_t)(packed?((frames+7)/8)*channels:frames*channels*4ULL),hash);
   sox_dsd_decoder_destroy(ctx);free(expanded);free(f.owned);free(out);
 }
 

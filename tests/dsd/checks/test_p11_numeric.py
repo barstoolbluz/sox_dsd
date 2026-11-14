@@ -111,7 +111,7 @@ def main():
     tiers=a.tiers
     for rate in a.rates:
       results={}
-      profile=f'encode.mastering.v1.dsd{rate//44100}'
+      profile=f'encode.mastering.dsd{rate//44100}'
       for tier in tiers:
         command=[str(a.unit),'--render',tier,profile,str(rate),str(a.frequency),
                  str(a.dbfs),str(a.duration)]
