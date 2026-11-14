@@ -228,6 +228,20 @@ class Case:
                 f'refused report omitted real outcome: {str(doc)[:1500]}')
         self.gate('refused_report_status_route_reason_sentinel',1)
 
+        # A getopts failure happens before a plan can exist. It must still
+        # publish the parser's actual failure and may not claim it ran.
+        early=self.root/'getopts-failed-report.json'
+        early.unlink(missing_ok=True)
+        cp=self.call(['--precision','64','--report',early,src,rout,
+                      'delay','abc'],success=False)
+        doc=json.loads(early.read_text())
+        require(cp.returncode==1 and doc['status']=='failed' and
+                doc['executable'] is False and doc['precision'] is None and
+                'cannot parse position' in (doc['failure_reason'] or '') and
+                rout.read_bytes()==b'SENTINEL',
+                f'getopts failure report claims a plan or loses error: {doc}')
+        self.gate('preplan_getopts_failure_report',1)
+
     def run(self):
         self.ordinary_effect_lifetimes()
         if not native_dsp_compiled(self.exe):
