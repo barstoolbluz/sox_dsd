@@ -262,6 +262,9 @@ static sox_bool precision_explicit = sox_false;
 static sox_bool dsd_dop_requested = sox_false;
 static sox_bool dsd_new_policy_explicit = sox_false;
 static char *dsd_report_path = NULL;
+/* A FIFO's reader would see EOF if we closed its only writer after probing
+ * it. Retain nonregular report streams until the report is published. */
+static FILE *dsd_report_retained_stream = NULL;
 /* CLI-owned, opt-in evidence collection. A report is never an audio sink. */
 static lsx_dsd_report_context *dsd_report_ctx;
 static lsx_dsd_plan dsd_report_plan; /* NATIVE-mode plan, not active routing. */
@@ -414,6 +417,10 @@ static void cleanup(void)
   if (dsd_report_publish(user_abort?"cancelled":success?"complete":
       dsd_report_refused?"refused":"failed")!=SOX_SUCCESS)
     lsx_fail("--report publication failed");
+  if (dsd_report_retained_stream) {
+    fclose(dsd_report_retained_stream);
+    dsd_report_retained_stream=NULL;
+  }
   lsx_dsd_report_disable();
   if (dsd_report_previous_message_handler) {
     sox_get_globals()->output_message_handler=dsd_report_previous_message_handler;
@@ -2874,6 +2881,12 @@ static void preflight_dsd(void)
           spec.output_path_native_eligible=0;
           spec.output_path_status="destination is not readable and writable";
         }
+        /* A noninteractive --no-clobber run refuses before writer commit.
+         * Make its metadata-only plan reach the same conclusion. */
+        if (no_clobber && !stdin_is_a_tty) {
+          spec.output_path_native_eligible=0;
+          spec.output_path_status="--no-clobber refuses existing destination";
+        }
         for (source_index=0;source_index<input_count;source_index++) {
           struct stat source_st;
           const sox_format_t *source=files[source_index]->ft;
@@ -3595,7 +3608,16 @@ static void dsd_report_preflight_writable(void)
       lsx_fail("--report destination cannot be opened for writing: %s",strerror(errno));
       exit(2);
     }
-    close(fd);
+    if (S_ISFIFO(st.st_mode) || S_ISCHR(st.st_mode)) {
+      int flags=fcntl(fd,F_GETFL);
+      if (flags<0 || fcntl(fd,F_SETFL,flags & ~O_NONBLOCK)<0 ||
+          !(dsd_report_retained_stream=fdopen(fd,"w"))) {
+        int saved=errno;
+        close(fd);
+        lsx_fail("--report destination cannot retain writer: %s",strerror(saved));
+        exit(2);
+      }
+    } else close(fd);
     return;
   }
   if (errno!=ENOENT) {
@@ -3671,7 +3693,8 @@ static int dsd_report_publish(char const *status)
     }
   }
   if (ofile->ft) writer_clips=ofile->ft->clips;
-  out=!strcmp(dsd_report_path,"-")?stdout:lsx_fopen(dsd_report_path,"w");
+  out=dsd_report_retained_stream ? dsd_report_retained_stream :
+      !strcmp(dsd_report_path,"-")?stdout:lsx_fopen(dsd_report_path,"w");
   if (!out) {
     lsx_fail("cannot open --report destination: %s",strerror(errno));
     ok=SOX_EOF;
@@ -3684,7 +3707,10 @@ static int dsd_report_publish(char const *status)
     ok=ferror(out)?SOX_EOF:SOX_SUCCESS;
     if (out==stdout) {
       if (fflush(out)) ok=SOX_EOF;
-    } else if (fclose(out)) ok=SOX_EOF;
+    } else {
+      if (dsd_report_retained_stream==out) dsd_report_retained_stream=NULL;
+      if (fclose(out)) ok=SOX_EOF;
+    }
     if (ok!=SOX_SUCCESS)
       lsx_fail("failed to write --report destination");
   }

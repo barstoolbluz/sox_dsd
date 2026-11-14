@@ -1718,6 +1718,7 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
   lsx_wav_native_sizes_t planned;
   uint64_t samples;
   bool stdout_pipe = false;
+  bool prefer_layout_mask = false;
   lsx_pcm_f64_wav_facts source_facts;
   lsx_pcm_f64_flac_facts flac_facts;
   bool have_source_facts=false, have_flac_facts=false;
@@ -1811,6 +1812,14 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
       source_facts.stream.channels != format->channels) {
     lsx_fail("native WAV: source layout channel mismatch"); return NULL;
   }
+  /* A representable assigned output layout takes precedence over the
+   * source's advisory mask. An unknown role layout retains the original
+   * raw-mask preservation behavior, including atypical source masks. */
+  if (layout && !lsx_dsd_layout_wav_without_assignment(layout)) {
+    uint32_t assigned_mask;
+    prefer_layout_mask=sox_dsd_layout_wav_mask(layout,&assigned_mask,
+        NULL,0)==SOX_DSD_OK;
+  }
   if (classic && layout && !lsx_dsd_layout_wav_without_assignment(layout)) {
     lsx_fail("native WAV: wavpcm cannot carry an explicitly assigned speaker layout");
     return NULL;
@@ -1881,10 +1890,10 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     }
     /* stdout remains borrowed. Distinguish its actual descriptor: a
      * redirected regular file must be empty and non-appending; an actual
-     * stdout pipe is eligible ONLY for a known, representable final length.
+     * stdout pipe or character device is eligible only for a known length.
      * A named FIFO path is never accepted by this special case. */
     flags=fcntl(fd,F_GETFL);
-    stdout_pipe=S_ISFIFO(after.st_mode);
+    stdout_pipe=S_ISFIFO(after.st_mode) || S_ISCHR(after.st_mode);
     if (flags<0 || (flags & O_APPEND) ||
         (flags & O_ACCMODE)==O_RDONLY ||
         (!S_ISREG(after.st_mode) && !stdout_pipe) ||
@@ -1962,7 +1971,7 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     }
   }
   if (lsx_wav_native_prepare_write(ft,format->total_frames,format->length_known,
-         !classic && have_source_facts && source_facts.has_speaker_mask,
+         !classic && !prefer_layout_mask && have_source_facts && source_facts.has_speaker_mask,
          !classic && have_source_facts ? source_facts.speaker_mask : 0)!=PCM_F64_OK ||
       sox_checkformat(ft)!=SOX_SUCCESS) {
     lsx_fail("native WAV: handler preparation failed before commit");
