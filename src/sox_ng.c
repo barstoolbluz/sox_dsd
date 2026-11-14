@@ -275,7 +275,8 @@ static void dsd_report_message(unsigned level,const char *file,
     const char *fmt,va_list args)
 {
   va_list copy;
-  if (level<=sox_get_globals()->verbosity) {
+  /* Terminal verbosity does not gate the error cause in a requested report. */
+  if (level==1 || level<=sox_get_globals()->verbosity) {
     va_copy(copy,args);
     lsx_dsd_report_note_message(level,fmt,copy);
     va_end(copy);
@@ -3415,6 +3416,9 @@ static int dsd_path_is_stdout(const char *path)
 
 /* Destination validation is shared by P05 plan-only JSON and P14 execution
  * JSON.  It deliberately does not activate a runtime observer or open files. */
+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
+static sox_bool dsd_report_missing_paths_alias(const char *,const char *);
+#endif
 static void dsd_report_validate_destination(void)
 {
   struct stat target,source;
@@ -3427,12 +3431,18 @@ static void dsd_report_validate_destination(void)
     exit(2);
   }
   if (!strcmp(dsd_report_path,"-")) return; /* JSON to stdout. */
+  for (i=0;i<input_count;i++)
+    if (files[i]->filename && !strcmp(dsd_report_path,files[i]->filename)) {
+      lsx_fail("--report cannot overwrite an input carrier");exit(2);
+    }
   if (ofile->filename && !strcmp(dsd_report_path,ofile->filename)) {
     lsx_fail("--report cannot replace the audio output");exit(2);
   }
   if (!lsx_stat(dsd_report_path,&target)) {
     for (i=0;i<input_count;i++)
-      if (files[i]->ft && !lsx_stat(files[i]->ft->filename,&source) &&
+      if (((files[i]->ft && files[i]->ft->filename &&
+            !lsx_stat(files[i]->ft->filename,&source)) ||
+           (files[i]->filename && !lsx_stat(files[i]->filename,&source))) &&
           source.st_dev==target.st_dev && source.st_ino==target.st_ino) {
         lsx_fail("--report cannot overwrite an input carrier");exit(2);
       }
@@ -3444,6 +3454,19 @@ static void dsd_report_validate_destination(void)
       lsx_fail("--report overwrite refused");exit(2);
     }
   }
+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
+  /* No inode exists yet. Resolve dangling links and parent directories to
+   * reject an alias before the plan or failure cleanup can create audio. */
+  if (ofile->filename && dsd_report_missing_paths_alias(
+          dsd_report_path,ofile->filename)) {
+    lsx_fail("--report cannot replace the audio output (aliased destination)");exit(2);
+  }
+  for (i=0;i<input_count;i++)
+    if (files[i]->filename && dsd_report_missing_paths_alias(
+            dsd_report_path,files[i]->filename)) {
+      lsx_fail("--report cannot overwrite an input carrier");exit(2);
+    }
+#endif
 }
 
 #if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
@@ -3482,6 +3505,49 @@ static char *dsd_report_missing_target(const char *name)
     free(target);free(path);path=next;
   }
   free(path);errno=ELOOP;return NULL;
+}
+
+/* For an absent file, resolve symlinks at the leaf and in its existing
+ * parent. The basename is kept intact; neither destination is opened. */
+static char *dsd_report_normalized_missing(const char *name)
+{
+  char *missing=dsd_report_missing_target(name), *parent, *slash, *dir, *full;
+  const char *base;
+  size_t size;
+  if (!missing) return NULL;
+  slash=strrchr(missing,'/');
+  if (slash) {
+    parent=lsx_strdup(missing);
+    parent[slash==missing?1:(size_t)(slash-missing)]=0;
+    base=slash+1;
+  } else {
+    parent=lsx_strdup(".");
+    base=missing;
+  }
+  dir=realpath(parent,NULL);
+  free(parent);
+  if (!dir) {free(missing);return NULL;}
+  size=strlen(dir)+strlen(base)+2;
+  full=lsx_malloc(size);
+  snprintf(full,size,"%s/%s",dir,base);
+  free(dir);free(missing);
+  return full;
+}
+
+static sox_bool dsd_report_missing_paths_alias(const char *report,
+    const char *other)
+{
+  struct stat st;
+  char *a, *b;
+  sox_bool alias;
+  if (!report || !other || !strcmp(other,"-")) return sox_false;
+  if (!lsx_stat(report,&st) || errno!=ENOENT ||
+      !lsx_stat(other,&st) || errno!=ENOENT) return sox_false;
+  a=dsd_report_normalized_missing(report);
+  b=dsd_report_normalized_missing(other);
+  alias=a && b && !strcmp(a,b);
+  free(a);free(b);
+  return alias;
 }
 
 static void dsd_report_probe_parent(const char *name)
@@ -5486,6 +5552,11 @@ int main(int argc, char **argv)
     lsx_fail("--ignore-length can only be given for an input file");
     exit(1);
   }
+
+  /* Input acquisition can fail before process() begins. Attach the existing
+   * report observer now, after parsing and validating the file arguments. */
+  if (precision_requested==LSX_PRECISION_64 && dsd_report_path && !dsd_plan_only)
+    dsd_report_preflight_destination();
 
   for (i = 0; i < input_count; i++) {
     size_t j;
