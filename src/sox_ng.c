@@ -3265,6 +3265,7 @@ static void preflight_dsd(void)
    * owned annotations in the report until cleanup publishes the refusal. */
   if (dsd_report_active && !dsd_plan_only &&
       (active->precision_refused || !active->executable)) {
+    dsd_report_refused=precision_requested==LSX_PRECISION_64;
     dsd_report_plan=*active;
     memset(active,0,sizeof(*active));
     active=&dsd_report_plan;
@@ -3868,7 +3869,6 @@ static int process(void)
    * strict64 graph produces a truthful refusal receipt. Report preflight
    * never touches the audio output, and remains idempotent below. */
   if (precision_requested==LSX_PRECISION_64 && dsd_report_path && !dsd_plan_only) {
-    dsd_report_refused=sox_true;
     dsd_report_preflight_destination();
   }
   create_user_effects();

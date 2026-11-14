@@ -8,6 +8,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import struct
 import subprocess
@@ -53,7 +54,182 @@ class Case:
     def gate(self,name,cases):
         self.gates[name]='PASS';self.counts[name]=cases
 
+    def ordinary_effect_lifetimes(self):
+        # These are ordinary SoX commands. A failed getopts/start must not
+        # call a chain-owned stop() or release a private pointer twice.
+        src=self.root/'ordinary-input.wav'
+        wav(src,[1500,-3000,4000,-5000,6000,-7000],16,1,2)
+        cases=[(('delay','abc'),1,b'cannot parse position'),
+               (('delay','1x'),1,b'cannot parse position'),
+               (('synth','1e999','sine','440'),1,b'cannot parse length'),
+               (('stretch','1.1','1e999'),2,b'malloc size overflow')]
+        for i,(fx,rc,reason) in enumerate(cases):
+            dest=self.root/f'ordinary-error-{i}.wav'
+            cp=self.call([src,dest,*fx],success=None)
+            require(cp.returncode==rc and reason in cp.stderr,
+                    f'ordinary effect {fx}: expected rc={rc} and {reason!r}; '
+                    f'got {cp.returncode}, {cp.stderr[-400:]}')
+        self.gate('ordinary_getopts_and_start_failures',len(cases))
+
+    def returned_regressions(self):
+        # WAVEFORMATEXTENSIBLE speaker masks are advisory. The native reader
+        # must not require that bit count equals the actual channel count.
+        cases=[('mask-stereo-one',2,0x4,24,1),
+               ('mask-stereo-three',2,0x7,24,1),
+               ('mask-six-two',6,0x3,24,1),
+               ('mask-f64-high',2,0x80000000,64,3)]
+        for name,channels,mask,bits,encoding in cases:
+            if encoding==3:
+                vals=[0.5 if j%2==0 else -0.25 for j in range(channels*9)]
+            else:
+                vals=[((j*38341)%2000000)-1000000 for j in range(channels*9)]
+            src=self.root/f'{name}.wav';wav(src,vals,bits,encoding,channels,mask)
+            for effect in ([],['remix','2','1',*map(str,range(3,channels+1))],
+                           ['channels',str(channels)],
+                           ['gain','-3','remix','2','1',*map(str,range(3,channels+1))]):
+                if effect and effect[0]=='channels' and encoding==3:continue
+                suffix='-'.join(effect)[:45] or 'copy'
+                nat=self.root/f'native-{name}-{suffix}.wav'
+                leg=self.root/f'legacy-{name}-{suffix}.wav'
+                opts=['-D','-b','24']
+                args=[src,*opts,nat,*effect]
+                route=self.plan(['--precision','64',*args])['precision']
+                require(route['actual_route']=='native-binary64-pcm',
+                        f'{name} {effect}: native plan rejected: {route}')
+                self.call(['--precision','64',*args])
+                self.call(['-D',src,*opts,leg,*effect])
+                nf,ns,np=wav_contents(nat);lf,ls,lp=wav_contents(leg)
+                require(ns[2:5]==ls[2:5] and len(np)==len(lp),
+                        f'{name} {effect}: channel/header/sample length disagrees')
+                # Without gain, both routes represent the same integer audio
+                # and are required to preserve each channel's sample order.
+                if not effect or effect[0] in ('remix','channels'):
+                    require(np==lp,f'{name} {effect}: channel payload differs from default route')
+                else:
+                    # Both paths apply the same gain, but a legacy int32
+                    # boundary can differ by a least significant output bit.
+                    n=[int.from_bytes(np[k:k+3],'little',signed=True) for k in range(0,len(np),3)]
+                    l=[int.from_bytes(lp[k:k+3],'little',signed=True) for k in range(0,len(lp),3)]
+                    require(all(abs(a-b)<=3 for a,b in zip(n,l)),
+                            f'{name} {effect}: gained samples differ materially from default')
+        self.gate('odd_speaker_mask_audio_and_terminal_operations',len(cases)*4-1)
+
+        # Layout is an *audio* permutation in addition to WAV metadata. Test
+        # two and six distinct samples per frame against default SoX.
+        for channels,roles in ((2,'FR,FL'),(6,'FR,FL,FC,LFE,BL,BR')):
+            samples=[(j*12361)%2000000-1000000 for j in range(5*channels)]
+            src=self.root/f'role-input-{channels}.wav';wav(src,samples,24,1,channels)
+            nat=self.root/f'role-native-{channels}.wav';leg=self.root/f'role-legacy-{channels}.wav'
+            args=['--dsd-layout',roles,src,'-D','-b','24',nat]
+            route=self.plan(['--precision','64',*args])['precision']
+            require(route['actual_route']=='native-binary64-pcm',f'{channels}: refused layout')
+            self.call(['--precision','64',*args]);self.call(['--dsd-layout',roles,src,'-D','-b','24',leg])
+            actual=wav_contents(nat)[2];expected=wav_contents(leg)[2]
+            require(actual==expected and actual!=wav_contents(src)[2],
+                    f'{channels}: binary64 role assignment did not reorder audio as legacy')
+        self.gate('explicit_role_mapping_matches_legacy_audio',2)
+
+        # Classic wavpcm deliberately has no speaker mask, including when its
+        # extensible source had no mask or an inconsistent one.
+        for mask in (0,0x4):
+            src=self.root/f'wavpcm-extensible-mask{mask}.wav'
+            wav(src,[v*1000 for v in (1,-2,3,-4,5,-6)],24,1,2,mask)
+            nat=self.root/f'wavpcm-native-{mask}.wav'
+            leg=self.root/f'wavpcm-legacy-{mask}.wav'
+            args=[src,'-D','-t','wavpcm',nat]
+            route=self.plan(['--precision','64',*args])['precision']
+            require(route['actual_route']=='native-binary64-pcm',
+                    f'wavpcm mask={mask}: plan rejected {route}')
+            self.call(['--precision','64',*args])
+            self.call([src,'-D','-t','wavpcm',leg])
+            require(wav_contents(nat)[2]==wav_contents(leg)[2] and
+                    wav_contents(nat)[1][0]!=0xfffe,
+                    f'wavpcm mask={mask}: output payload or classic header wrong')
+        self.gate('wavpcm_extensible_sources',2)
+
+        # Known 64-channel bound must be named in the refusal; generic
+        # handler errors obscure the actual Phase 05A native-reader limit.
+        src=self.root/'input-65ch.wav';wav(src,list(range(65*3)),16,1,65)
+        out=self.root/'rejected-65ch.wav';out.write_bytes(b'SENTINEL')
+        args=['--precision','64',src,out]
+        p=self.plan(args)['precision'];reason=p['fallback_or_refusal_reason'] or ''
+        require(p['actual_route']=='refused-before-output' and '64 channels' in reason,
+                f'65-channel limit incorrectly reported: {reason}')
+        cp=self.call(args,success=False)
+        require(reason.encode() in cp.stderr and out.read_bytes()==b'SENTINEL',
+                '65-channel runtime disagreeing with plan or clobbering destination')
+        self.gate('reader_64_channel_limit_diagnostic',1)
+
+        # Symlink to an uncreated report target and /dev/stdout into a pipe
+        # are valid report destinations, independent from the audio stream.
+        src=self.root/'report-valid-in.wav';wav(src,[200,-300,400,-500],16,1,2)
+        out=self.root/'report-valid-output.wav'
+        link=self.root/'report-dangling-link.json';target=self.root/'report-created-target.json'
+        link.unlink(missing_ok=True);target.unlink(missing_ok=True)
+        link.symlink_to(target.name)
+        self.call(['--precision','64','--report',link,src,out])
+        require(link.is_symlink() and target.is_file() and
+                json.loads(target.read_text())['status']=='complete',
+                'report symlink to uncreated target was not followed')
+        if Path('/dev/stdout').exists():
+            cp=self.call(['--precision','64','--report','/dev/stdout',src,out])
+            require(json.loads(cp.stdout)['status']=='complete',
+                    '/dev/stdout into a pipe did not receive valid JSON')
+        self.gate('report_valid_symlink_and_stdout_pipe',2)
+
+        # Planner may inspect metadata but must never open or alter the
+        # output; output acquisition repeats the same alias/access checks.
+        inp=self.root/'alias-original.wav';wav(inp,[100,-100,200,-200],16,1,2)
+        before=inp.read_bytes()
+        hard=self.root/'alias-hard.wav';soft=self.root/'alias-soft.wav'
+        hard.unlink(missing_ok=True);soft.unlink(missing_ok=True)
+        os.link(inp,hard);soft.symlink_to(inp.name)
+        readonly=self.root/'output-readonly.wav';readonly.write_bytes(b'SENTINEL')
+        readonly.chmod(0o444)
+        rodir=self.root/'directory-readonly';rodir.mkdir(exist_ok=True);rodir.chmod(0o555)
+        nodir=self.root/'directory-not-created'/'out.wav'
+        cases=[(inp,inp,'aliases input'),(inp,hard,'aliases input'),
+               (inp,soft,'aliases input'),(inp,readonly,'not readable and writable'),
+               (inp,rodir/'out.wav','not writable'),
+               (inp,nodir,'does not exist')]
+        try:
+            for source,dest,phrase in cases:
+                before_dest=dest.read_bytes() if dest.exists() else None
+                args=['--precision','64',source,dest]
+                precision=self.plan(args)['precision']
+                reason=precision['fallback_or_refusal_reason'] or ''
+                require(precision['actual_route']=='refused-before-output' and phrase in reason,
+                        f'{dest}: plan incorrectly accepted or wrong refusal: {reason}')
+                require((dest.read_bytes() if dest.exists() else None)==before_dest,
+                        f'{dest}: plan unexpectedly changed output')
+                cp=self.call(args,success=False)
+                require(reason.encode() in cp.stderr,
+                        f'{dest}: run refusal differs from plan: {cp.stderr}')
+                require((dest.read_bytes() if dest.exists() else None)==before_dest and
+                        inp.read_bytes()==before,
+                        f'{dest}: failed run destroyed an existing destination')
+        finally:
+            rodir.chmod(0o755);readonly.chmod(0o644)
+        self.gate('planner_output_alias_permission_and_parent_refusals',len(cases))
+
+        # A planner refusal is not an incomplete or claimed executable run.
+        rpt=self.root/'refused-report.json';rout=self.root/'refused-output.wav'
+        rpt.unlink(missing_ok=True);rout.write_bytes(b'SENTINEL')
+        cp=self.call(['--precision','64','--report',rpt,src,rout,'vol','0.5'],success=False)
+        doc=json.loads(rpt.read_text())
+        reason=doc['precision']['fallback_or_refusal_reason']
+        require(doc['status']=='refused' and doc['executable'] is False and
+                doc['precision']['refused'] and
+                doc['precision']['actual_route']=='refused-before-output' and
+                'unsupported effect' in reason and
+                reason.encode() in cp.stderr and
+                doc['failure_reason'] and reason in doc['failure_reason'] and
+                rout.read_bytes()==b'SENTINEL',
+                f'refused report omitted real outcome: {str(doc)[:1500]}')
+        self.gate('refused_report_status_route_reason_sentinel',1)
+
     def run(self):
+        self.ordinary_effect_lifetimes()
         if not native_dsp_compiled(self.exe):
             src=self.root/'disabled-in.wav';dst=self.root/'disabled-out.wav'
             wav(src,[0,1,-1],16);dst.write_bytes(b'SENTINEL')
@@ -173,6 +349,7 @@ class Case:
                 wav_contents_bytes(cp.stdout),
                 'successful streaming report advertises a provisional descriptor')
         self.gate('stdout_execution_descriptor',1)
+        self.returned_regressions()
 
 
 def wav_contents_bytes(data):
