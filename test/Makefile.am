@@ -245,3 +245,9 @@ pcm64_flac_probe_SOURCES = ../tests/pcm64/flac_io_probe.c ../src/pcm_f64.c
 pcm64_flac_probe_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src
 pcm64_flac_probe_CFLAGS = $(WARN_CFLAGS) $(PCM_F64_STRICT_CFLAGS)
 pcm64_flac_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)
+
+# Phase 05B independent public-API bit-word oracle; never linked into SoX.
+EXTRA_PROGRAMS += pcm64_decode_api_oracle
+pcm64_decode_api_oracle_SOURCES = ../tests/pcm64/decode/api_oracle.c
+pcm64_decode_api_oracle_CPPFLAGS = -I$(top_srcdir)/src
+pcm64_decode_api_oracle_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)

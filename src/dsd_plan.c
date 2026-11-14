@@ -1045,7 +1045,7 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
   if (!spec || !p) return;
   p->precision_requested=spec->precision;
   p->precision_compiled_capable=spec->arithmetic_compiled_capable;
-  p->precision_runner_available=0; /* Set only for the PCM-only 05A shape. */
+  p->precision_runner_available=0; /* 05A PCM or 05B DSD decode only. */
   for (i=0;i<spec->input_count;i++) {
     if (spec->inputs[i].encoding==SOX_ENCODING_DSD) has_dsd=1;
     else pcm=1;
@@ -1193,14 +1193,25 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
         (!p->steps[i].plain_fixed_gain || p->steps[i].gain_factor!=1.))
       arithmetic=1;
   p->precision_exact_identity=!arithmetic && !permuted;
-  p->precision_runner_available=!why && !has_dsd &&
-      p->output_domain==LSX_PCM_AUDIO && spec->output_pcm64_wav_capable &&
-      spec->input_count==1 && !p->input_decode_count &&
-      !p->graph_decode_count && !p->encode_count &&
-      (spec->arithmetic_compiled_capable || !arithmetic);
+  /* Two qualified shapes share the native WAV sink: unchanged PCM (05A),
+   * and exactly one public DSD64/128 reconstruction (05B). Neither shape
+   * permits a conventional PCM SRC, effect, or terminal modulator. */
+  {
+    int pcm_only=!has_dsd && !p->input_decode_count && !p->graph_decode_count;
+    int dsd_decode=has_dsd && spec->input_count==1 &&
+        spec->inputs[0].encoding==SOX_ENCODING_DSD &&
+        (p->input_decode_count+p->graph_decode_count)==1 &&
+        !p->encode_count &&
+        (p->inputs[0].native_rate==2822400. ||
+         p->inputs[0].native_rate==5644800.);
+    p->precision_runner_available=!why && (pcm_only || dsd_decode) &&
+        p->output_domain==LSX_PCM_AUDIO && spec->output_pcm64_wav_capable &&
+        spec->input_count==1 && !p->encode_count &&
+        (spec->arithmetic_compiled_capable || !arithmetic);
+  }
   p->precision_reason=why?why:!p->precision_runner_available?
       "native binary64 runner or required arithmetic capability is unavailable":
-      "native binary64 PCM identity/fixed-gain runner available";
+      "native binary64 PCM/fixed-gain or DSD decode runner available";
   /* Legacy-auto is a deliberate product policy, not a failed native attempt.
    * No owner-approved release activation or executable native runner exists. */
   if (spec->precision==LSX_PRECISION_AUTO)
@@ -1267,7 +1278,9 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
     if (p->precision_refused)
       json_string(fp,"not executed (pre-output refusal); native reader capability only");
     else if (p->precision_engine && !strcmp(p->precision_engine,"ieee754.binary64"))
-      json_string(fp,in->source_encoding==SOX_ENCODING_FLOAT ?
+      json_string(fp,in->native_domain==LSX_DSD_NATIVE ?
+          "qualified public DSD reconstruction direct to binary64, without signed-int32 PCM" :
+          in->source_encoding==SOX_ENCODING_FLOAT ?
           "native IEEE float binary64 words (FLOAT32 exactly widened)" :
           "native integer code normalized once by exact power-of-two scaling");
     else if (!p->precision_pcm_present)
@@ -1284,7 +1297,7 @@ void lsx_dsd_precision_json(FILE *fp, const lsx_dsd_plan *p,
     if (p->precision_refused || !p->precision_pcm_present)
       fputs("null",fp);
     else if (p->precision_engine && !strcmp(p->precision_engine,"ieee754.binary64"))
-      fputs("true",fp);
+      fputs(in->native_domain==LSX_DSD_NATIVE?"false":"true",fp);
     else if (in->native_domain==LSX_DSD_NATIVE ||
              in->source_encoding==SOX_ENCODING_FLOAT)
       fputs("false",fp);

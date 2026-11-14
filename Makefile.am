@@ -868,6 +868,8 @@ EXTRA_DIST += \
   src/resonator/dsd128/proofs/certificate.json src/resonator/dsd128/proofs/check_certificate.py \
   src/resonator/dsd128/proofs/emit_header.py src/resonator/dsd128/results/proof.json
 
+EXTRA_DIST += tests/pcm64/decode/api_oracle.c tests/pcm64/decode.py
+
 EXTRA_DIST += tests/pcm64/output_formats.py tests/pcm64/routing.py \
   tests/pcm64/return_acceptance.py \
   tests/pcm64/fixtures/phase04/short-dsd64-stereo.dsf \
@@ -885,12 +887,13 @@ PCM64_SUITE = foundation
 PCM64_RESULTS = $(abs_top_builddir)/evidence/phase01
 .PHONY: check-pcm64
 check-pcm64: all
-	$(MAKE) -C test pcm64_probe pcm64_coordinator_probe pcm64_wav_probe pcm64_flac_probe
+	$(MAKE) -C test pcm64_probe pcm64_coordinator_probe pcm64_wav_probe pcm64_flac_probe pcm64_decode_api_oracle
 	python3 '$(abs_top_srcdir)/tests/pcm64/test_io_wav_harness.py'
 	python3 '$(abs_top_srcdir)/tests/pcm64/test_binary_receipts.py'
 	python3 '$(abs_top_srcdir)/tests/pcm64/run.py' --suite '$(PCM64_SUITE)' \
 	  --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' \
 	  --probe '$(abs_top_builddir)/test/pcm64_probe$(EXEEXT)' \
+	  --decode-oracle '$(abs_top_builddir)/test/pcm64_decode_api_oracle$(EXEEXT)' \
 	  --results '$(PCM64_RESULTS)'
 
 # Small, dependency-free receipt self-test runs in ordinary make check too.

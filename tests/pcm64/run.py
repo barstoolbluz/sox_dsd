@@ -376,13 +376,19 @@ def main():
     parser.add_argument("--sox", type=Path, required=True)
     parser.add_argument("--probe", type=Path, required=True)
     parser.add_argument("--results", type=Path, required=True)
+    parser.add_argument("--decode-oracle", type=Path)
     args = parser.parse_args()
     results = args.results.resolve()
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats", "return-acceptance"):
+    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats", "return-acceptance", "decode"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
+    if args.suite == "decode":
+        from decode import main as decode_main
+        if args.decode_oracle is None:
+            parser.error("decode requires --decode-oracle built against this source")
+        return decode_main(args.sox.resolve(), args.decode_oracle.resolve(), results)
     if args.suite == "output-formats":
         from output_formats import main as output_formats_main
         previous=sys.argv

@@ -25,6 +25,7 @@
 #include "sox_ng.h"
 #include "sox_dsd.h"
 #include "dsd.h"
+#include "dsd_f64_decode.h"
 #include "pcmdsd.h"
 #include "sdm.h"
 #include "dsd_stats.h"
@@ -269,6 +270,7 @@ static FILE *dsd_report_retained_stream = NULL;
 static lsx_dsd_report_context *dsd_report_ctx;
 static lsx_dsd_plan dsd_report_plan; /* NATIVE-mode plan, not active routing. */
 static sox_bool dsd_report_active, dsd_report_published;
+static sox_bool dsd_report_destination_checked;
 /* A certified refusal is distinct from an I/O or DSP failure after commit. */
 static sox_bool dsd_report_refused;
 static uint64_t dsd_adapter_clips_total, dsd_output_clip_total;
@@ -3629,11 +3631,67 @@ static void dsd_report_preflight_writable(void)
 
 static void dsd_report_preflight_destination(void)
 {
-  if (!dsd_report_path || dsd_report_active) return;
-  dsd_report_validate_destination();
-  if (!dsd_plan_only) dsd_report_preflight_writable();
+  if (!dsd_report_path) return;
+  if (!dsd_report_destination_checked) {
+    dsd_report_validate_destination();
+    if (!dsd_plan_only) dsd_report_preflight_writable();
+    dsd_report_destination_checked=sox_true;
+  }
+  if (!dsd_report_active) {
+    dsd_report_ctx=lsx_dsd_report_create();
+    if (!dsd_report_ctx) {lsx_fail("cannot allocate --report context");exit(2);}
+    lsx_dsd_report_enable(dsd_report_ctx);
+    dsd_report_active=sox_true;
+    dsd_report_previous_message_handler=sox_get_globals()->output_message_handler;
+    sox_get_globals()->output_message_handler=dsd_report_message;
+  }
+}
+
+/* Capture option-parser diagnostics even when an invalid argument precedes
+ * either --precision or --report. This read-only argv discovery does NOT
+ * interpret filenames or replace the ordinary parser; it installs only the
+ * observer, while final destination/alias checks remain after parsing. */
+static void dsd_report_prepare_cli_errors(int argc, char **argv)
+{
+  const char *path=NULL;
+  sox_bool strict64=sox_false, plan_only=sox_false;
+  int i;
+  for (i=1;i<argc;i++) {
+    const char *a=argv[i];
+    if (!strcmp(a,"--")) break;
+    if (!strcmp(a,"--precision") && i+1<argc)
+      strict64=!strcmp(argv[++i],"64");
+    else if (!strncmp(a,"--precision=",12))
+      strict64=!strcmp(a+12,"64");
+    else if (!strcmp(a,"--report") && i+1<argc)
+      path=argv[++i];
+    else if (!strncmp(a,"--report=",9))
+      path=a+9;
+    else if (!strcmp(a,"--plan")) plan_only=sox_true;
+  }
+  if (!strict64 || !path || !*path || plan_only) return;
+  /* An early getopts failure leaves file_count at zero. Never allow the
+   * observer to truncate an unparsed source or destination, even when the
+   * report pathname reaches it through an existing hard/symbolic link. */
+  if (strcmp(path,"-")) {
+    struct stat a,b;
+    for (i=1;i<argc;i++) {
+      const char *candidate=argv[i];
+      if (!strcmp(candidate,"--report")) {i++;continue;}
+      if (!strncmp(candidate,"--report=",9)) continue;
+      if (!strcmp(path,candidate) ||
+          (!lsx_stat(path,&a) && !lsx_stat(candidate,&b) &&
+           a.st_dev==b.st_dev && a.st_ino==b.st_ino)
+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
+          || dsd_report_missing_paths_alias(path,candidate)
+#endif
+          ) return;
+    }
+  }
+  free(dsd_report_path);
+  dsd_report_path=lsx_strdup(path);
   dsd_report_ctx=lsx_dsd_report_create();
-  if (!dsd_report_ctx) {lsx_fail("cannot allocate --report context");exit(2);}
+  if (!dsd_report_ctx) return;
   lsx_dsd_report_enable(dsd_report_ctx);
   dsd_report_active=sox_true;
   dsd_report_previous_message_handler=sox_get_globals()->output_message_handler;
@@ -3692,7 +3750,23 @@ static int dsd_report_publish(char const *status)
         layouts[i]=copy;
     }
   }
-  if (ofile->ft) writer_clips=ofile->ft->clips;
+  if (file_count && ofile->ft) writer_clips=ofile->ft->clips;
+  /* Aborted option parsing has not classified input/output yet. Never
+   * publish JSON into any successfully parsed audio pathname or its inode. */
+  if (!dsd_report_destination_checked && dsd_report_path &&
+      strcmp(dsd_report_path,"-")) {
+    struct stat report_stat, audio_stat;
+    for (i=0;i<file_count;i++)
+      if (files[i]->filename &&
+          (!strcmp(dsd_report_path,files[i]->filename) ||
+           (!lsx_stat(dsd_report_path,&report_stat) &&
+            !lsx_stat(files[i]->filename,&audio_stat) &&
+            report_stat.st_dev==audio_stat.st_dev &&
+            report_stat.st_ino==audio_stat.st_ino))) {
+        free(stats);free(infos);free(layouts);free(source_formats);
+        return SOX_EOF;
+      }
+  }
   out=dsd_report_retained_stream ? dsd_report_retained_stream :
       !strcmp(dsd_report_path,"-")?stdout:lsx_fopen(dsd_report_path,"w");
   if (!out) {
@@ -3730,16 +3804,80 @@ static int dsd_run_native_pcm(void)
   lsx_pcm_f64_flac_facts flac_facts;
   pcm_f64_format input_format;
   lsx_dsd_f64_stream engine={0};
+  lsx_dsd_f64_decode decoder={0};
   lsx_dsd_plan const *plan=&dsd_runtime_plan;
   sox_dsd_layout_t *layout=NULL;
   double *input=NULL,*output=NULL,*factors=NULL;
+  sox_sample_t *native=NULL;
+  sox_dsd_packed_block_t packed;
+  sox_dsd_decode_options_t decode_opt;
+  sox_dsd_stream_info_t info={0};
+  lsx_dsd_decode selected_profile=LSX_DSD_PROFILE_MASTERING_V2;
+  uint32_t native_hz=0;
+  int use_packed=0, dsd_input=source->encoding.encoding==SOX_ENCODING_DSD;
   size_t factor_count=0, max_factors, i, capacity=4096, words, bytes;
   unsigned channels, map[64], composed[64];
-  uint64_t nominal_clips=0;
+  uint64_t nominal_clips=0, decoder_nominal_clips=0;
+  double decoder_peak=0.;
   int wav_input, finished=0, rc=LSX_EFF_FATAL;
   pcm_f64_status status;
   struct timeval status_then={0};
-  if (lsx_pcm_f64_wav_query(source,&wav_facts)==PCM_F64_OK) {
+  if (dsd_input) {
+    uint64_t total=0, expected_pcm=0;
+    unsigned k;
+    const lsx_dsd_decode choices[] = {
+      LSX_DSD_PROFILE_MASTERING, LSX_DSD_PROFILE_WIDEBAND,
+      LSX_DSD_PROFILE_MASTERING_V2
+    };
+    sox_bool matched=sox_false;
+    info.size=sizeof(info);info.version=1;
+    if (sox_dsd_get_stream_info(source,&info)!=SOX_DSD_OK ||
+        !lsx_dsd_integer_rate(source->signal.rate,&native_hz) ||
+        (native_hz!=2822400 && native_hz!=5644800) ||
+        info.native_hz!=native_hz || info.channels!=source->signal.channels ||
+        !lsx_dsd_integer_rate(plan->output_rate,&input_format.rate_hz)) {
+      lsx_fail("native PCM64: actual native DSD handler, clock or metadata is unsupported");
+      return rc;
+    }
+    for (k=0;k<sizeof(choices)/sizeof(choices[0]);k++) {
+      const lsx_dsd_frontend_profile *profile=
+          lsx_dsd_frontend_profile_find(native_hz,choices[k]);
+      if (profile && plan->decoder_id &&
+          !strcmp(plan->decoder_id,profile->canonical_id)) {
+        matched=sox_true;selected_profile=choices[k];break;
+      }
+    }
+    if (!matched || (plan->decoder_gain!=1. && plan->decoder_gain!=2.) ||
+        source->signal.channels==0 || source->signal.channels>64 ||
+        (source->signal.length!=SOX_UNKNOWN_LEN &&
+         source->signal.length!=SOX_UNSPEC &&
+         source->signal.length%source->signal.channels)) {
+      lsx_fail("native PCM64: unresolved DSD decode profile, level or frame count");
+      return rc;
+    }
+    input_format.channels=source->signal.channels;
+    input_format.length_known=source->signal.length!=SOX_UNKNOWN_LEN &&
+        source->signal.length!=SOX_UNSPEC;
+    if (input_format.length_known) {
+      total=source->signal.length/input_format.channels;
+      if (!lsx_dsd_count_convert(total,native_hz,input_format.rate_hz,
+            &expected_pcm)) {
+        lsx_fail("native PCM64: source sample-count conversion overflow");
+        return rc;
+      }
+    }
+    input_format.total_frames=expected_pcm;
+    wav_input=-1;
+    sox_dsd_decode_options_init_extended(&decode_opt);
+    decode_opt.native_hz=native_hz;
+    decode_opt.output_hz=input_format.rate_hz;
+    decode_opt.channels=input_format.channels;
+    decode_opt.profile=(sox_dsd_decode_profile_t)selected_profile;
+    decode_opt.level=plan->decoder_gain==2. ? SOX_DSD_LEVEL_SACD :
+        SOX_DSD_LEVEL_PRESERVE;
+    decode_opt.bandwidth=(sox_dsd_decode_bandwidth_t)dsd_policy.bandwidth;
+    decode_opt.kernel_fir=dsd_policy.kernel_fir;
+  } else if (lsx_pcm_f64_wav_query(source,&wav_facts)==PCM_F64_OK) {
     input_format=wav_facts.stream;
     wav_input=1;
   } else if (lsx_pcm_f64_flac_query(source,&flac_facts)==PCM_F64_OK) {
@@ -3754,7 +3892,9 @@ static int dsd_run_native_pcm(void)
       plan->output_rate!=(double)input_format.rate_hz ||
       plan->output_channels!=channels ||
       plan->output_domain!=LSX_PCM_AUDIO ||
-      plan->encode_count || plan->graph_decode_count || plan->input_decode_count ||
+      plan->encode_count ||
+      ((plan->graph_decode_count+plan->input_decode_count)!=
+       (dsd_input?1:0)) ||
       pcm_f64_frame_storage(capacity,channels,&words,&bytes)!=PCM_F64_OK ||
       plan->step_count>SIZE_MAX/sizeof(double)-1) {
     lsx_fail("native PCM64: resolved shape or frame arithmetic is invalid");
@@ -3764,7 +3904,14 @@ static int dsd_run_native_pcm(void)
   factors=calloc(max_factors,sizeof(*factors));
   input=malloc(bytes);
   output=malloc(bytes);
-  if (!factors || !input || !output) {
+  if (dsd_input) {
+    use_packed=getenv("SOX_DSD_PACKED_INPUT") &&
+        !strcmp(getenv("SOX_DSD_PACKED_INPUT"),"1") &&
+        sox_dsd_packed_supported(source) && !dsd_report_active;
+    sox_dsd_packed_block_init(&packed);
+    if (!use_packed) native=malloc(capacity*channels*sizeof(*native));
+  }
+  if (!factors || !input || !output || (dsd_input && !use_packed && !native)) {
     lsx_fail("native PCM64: bounded stream allocation failed");
     goto done;
   }
@@ -3791,14 +3938,17 @@ static int dsd_run_native_pcm(void)
         composed[k]=map[step->native_map[k]];
       }
       memcpy(map,composed,channels*sizeof(*map));
-    } else if (strcmp(step->name,"channels")) {
+    } else if (strcmp(step->name,"channels") &&
+        !(dsd_input && (!strcmp(step->name,"dsdpcm") ||
+          !strcmp(step->name,"implicit_dsdpcm") ||
+          !strcmp(step->name,"input_dsdpcm")))) {
       lsx_fail("native PCM64: unsupported effect escaped eligibility: %s",step->name);
       goto done;
     }
   }
   /* Phase 01's runtime arithmetic guard is precommit for ALL numerical
    * operations. FLOAT64 identity without arithmetic accepts hostile fenv. */
-  if ((!wav_input || wav_facts.encoding!=SOX_ENCODING_FLOAT ||
+  if ((dsd_input || !wav_input || wav_facts.encoding!=SOX_ENCODING_FLOAT ||
        wav_facts.container_bits!=64 ||
        plan->output_encoding!=SOX_ENCODING_FLOAT || plan->output_bits!=64) &&
       lsx_pcm_f64_check_dsp_env()!=PCM_F64_OK) {
@@ -3824,6 +3974,16 @@ static int dsd_run_native_pcm(void)
   free(dsd_output_permutation);
   dsd_output_permutation=NULL;
   dsd_output_permutation_count=0;
+  if (dsd_input) {
+    sox_dsd_status_t decode_status=lsx_dsd_f64_decode_init(&decoder,&decode_opt,
+        input_format.length_known,
+        input_format.length_known?source->signal.length/channels:0);
+    if (decode_status!=SOX_DSD_OK) {
+      lsx_fail("native PCM64: DSD decoder initialization failed (%d)",
+          (int)decode_status);
+      goto done;
+    }
+  }
   status=lsx_dsd_f64_init(&engine,&input_format,factors,factor_count,map);
   if (status!=PCM_F64_OK) {
     lsx_fail("native PCM64: stream init: %s",pcm_f64_status_name(status));
@@ -3840,7 +4000,9 @@ static int dsd_run_native_pcm(void)
     ofile->ft=lsx_pcm_f64_wav_open_write(ofile->filename,&input_format,
       plan->output_encoding,plan->output_bits,
       ofile->encoding.reverse_bytes==MACHINE_IS_LITTLEENDIAN,
-      subtype,layout,source,NULL,dsd_report_path,overwrite_permitted);
+      subtype,layout,dsd_input?NULL:source,
+      dsd_input?(FILE *)source->fp:NULL,
+      dsd_report_path,overwrite_permitted);
   }
   if (!ofile->ft) goto done;
   /* A retained output has crossed the native writer's commit boundary.
@@ -3856,7 +4018,128 @@ static int dsd_run_native_pcm(void)
   /* SIGTERM/SIGINT are sampled between bounded frame blocks. */
   setsig(SIGTERM,sigint);
   setsig(SIGINT,sigint);
-  for (;;) {
+  if (dsd_input) {
+    size_t cursor=0,pending=0;
+    uint64_t native_seen=0;
+    int eof=0;
+    for (;;) {
+      sox_dsd_status_t dec_rc;
+      size_t used=0,made=capacity;
+      pcm_f64_progress compute,write;
+      size_t frame,ch;
+      if (user_abort || user_skip) {
+        lsx_fail("native PCM64: DSD decode cancelled");goto done;
+      }
+      if (!eof && cursor==pending) {
+        size_t got;
+        if (use_packed) {
+          dec_rc=sox_dsd_read_packed(source,capacity,&packed);
+          if (dec_rc!=SOX_DSD_OK && dec_rc!=SOX_DSD_DONE) {
+            lsx_fail("native PCM64: packed DSD source read failed (%d)",
+                (int)dec_rc);goto done;
+          }
+          got=dec_rc==SOX_DSD_DONE?0:packed.frames*channels;
+        } else {
+          got=sox_read(source,native,capacity*channels);
+          if (!dsd_observe_input(files[0],native,got)) {
+            lsx_fail("native PCM64: DSD source observation failed");goto done;
+          }
+        }
+        if (got%channels || (!got && source->sox_errno)) {
+          lsx_fail("native PCM64: DSD source read failed: %s",
+              source->sox_errno?sox_strerror(source->sox_errno):
+              "incomplete channel frame");goto done;
+        }
+        pending=got/channels;
+        cursor=0;
+        if ((uint64_t)pending>UINT64_MAX-native_seen ||
+            (decoder.length_known &&
+             (uint64_t)pending>decoder.native_expected-native_seen)) {
+          lsx_fail("native PCM64: DSD source exceeded declared count");goto done;
+        }
+        native_seen+=pending;
+        if (!pending) eof=1;
+      }
+      if (eof) {
+        dec_rc=lsx_dsd_f64_decode_finish(&decoder,input,&made);
+      } else {
+        used=pending-cursor;
+        dec_rc=use_packed ? lsx_dsd_f64_decode_process_packed(
+            &decoder,&packed,cursor,&used,input,&made) :
+            lsx_dsd_f64_decode_process(&decoder,native+cursor*channels,
+                &used,input,&made);
+        cursor+=used;
+      }
+      if (dec_rc!=SOX_DSD_NEED_INPUT && dec_rc!=SOX_DSD_NEED_OUTPUT &&
+          dec_rc!=SOX_DSD_DONE) {
+        lsx_fail("native PCM64: DSD decoder failed (%d)",(int)dec_rc);
+        goto done;
+      }
+      if (!eof && !used && !made) {
+        lsx_fail("native PCM64: DSD decoder made no progress");goto done;
+      }
+      if (made) {
+        if (dsd_report_active) {
+          size_t word;
+          for (word=0;word<made*channels;word++) {
+            double magnitude=fabs(input[word]);
+            if (magnitude>decoder_peak) decoder_peak=magnitude;
+            if (magnitude>=1. && decoder_nominal_clips!=UINT64_MAX)
+              decoder_nominal_clips++;
+          }
+        }
+        compute=lsx_dsd_f64_process(&engine,(pcm_f64_input){input,made},
+            (pcm_f64_output){output,capacity});
+        if (pcm_f64_is_failure(compute.status) ||
+            compute.consumed_frames!=made ||
+            compute.produced_frames!=made) {
+          lsx_fail("native PCM64: decoded PCM stage failed: %s",
+              pcm_f64_status_name(compute.status));goto done;
+        }
+        if (plan->output_encoding!=SOX_ENCODING_FLOAT) {
+          for (frame=0;frame<made;frame++)
+            for (ch=0;ch<channels;ch++) {
+              double v=output[frame*channels+ch];
+              if (v>=1. || v < -1.) {
+                if (dsd_policy.clip==LSX_DSD_CLIP_ERROR) {
+                  lsx_fail("native PCM64: --dsd-clip error, nominal PCM excursion at frame %" PRIu64 " channel %zu",
+                      engine.output_frames-made+frame,ch);
+                  goto done;
+                }
+                if (nominal_clips!=UINT64_MAX)++nominal_clips;
+              }
+            }
+        }
+        write=lsx_pcm_f64_wav_write(ofile->ft,(pcm_f64_input){output,made});
+        if (write.consumed_frames!=made || pcm_f64_is_failure(write.status)) {
+          lsx_fail("native PCM64: failed decoded WAV write (%zu/%zu): %s",
+              write.consumed_frames,made,pcm_f64_status_name(write.status));
+          goto done;
+        }
+        if (UINT64_MAX-output_samples<made) {
+          lsx_fail("native PCM64: decoded output frame counter overflow");
+          goto done;
+        }
+        output_samples+=made;
+        read_wide_samples+=made;
+      }
+      if (show_progress && since(&status_then,.1,sox_false)) {
+        fprintf(stderr,"\rNative PCM64 DSD: %.1f%%, %" PRIu64 " frames written",
+            input_wide_samples?100.*read_wide_samples/input_wide_samples:0.,
+            (uint64_t)output_samples);
+        fflush(stderr);
+      }
+      if (eof && dec_rc==SOX_DSD_DONE) {
+        pcm_f64_progress end=lsx_dsd_f64_finish(&engine,
+            (pcm_f64_output){NULL,0});
+        if (end.status!=PCM_F64_DONE || end.produced_frames) {
+          lsx_fail("native PCM64: decoded PCM stage finish failed: %s",
+              pcm_f64_status_name(end.status));goto done;
+        }
+        finished=1;break;
+      }
+    }
+  } else for (;;) {
     pcm_f64_progress read_result;
     size_t consumed=0;
     if (user_abort || user_skip) {
@@ -3952,9 +4235,15 @@ done:
     output_eof=sox_true;
     rc=LSX_EFF_FATAL;
   }
+  if (dsd_input && decoder.api && decoder.finished)
+    lsx_dsd_report_note_decode(decoder.api,selected_profile,
+        decode_opt.level==SOX_DSD_LEVEL_SACD?
+            LSX_DSD_LEVEL_SACD:LSX_DSD_LEVEL_PRESERVE,
+        decoder_nominal_clips,decoder_peak);
+  lsx_dsd_f64_decode_destroy(&decoder);
   lsx_dsd_f64_destroy(&engine);
   sox_dsd_layout_free(layout);
-  free(factors);free(input);free(output);
+  free(factors);free(input);free(output);free(native);
   return rc;
 }
 
@@ -5503,6 +5792,7 @@ int main(int argc, char **argv)
   if (sox_mode == sox_soxi)
     exit(soxi(argc, argv));
 
+  dsd_report_prepare_cli_errors(argc, argv);
   parse_options_and_filenames(argc, argv);
 
 #if _OPENMP && HAVE_GETENV && HAVE_SETENV && HAVE_EXECVP
