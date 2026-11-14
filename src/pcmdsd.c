@@ -9,8 +9,6 @@
 #include "dsd_stats.h"
 #include "pcmdsd_coeffs.h"
 #include "pcmdsd_guards.h"
-#include "pcmdsd_v2_guards.h"
-#include "pcmdsd_p20_guards.h"
 #include "rate_internal.h"
 #include "dsd_kernels.h"
 #include <inttypes.h>
@@ -21,74 +19,42 @@
 
 #define PCMDSD_BATCH 256
 #define PCMDSD_NATIVE_BATCH 512
-/* The original 0.5 reference-scale limit is an interpolation overload
- * limit, not a promise of sustained stability for the P10 v1 modulator.
- * Sustained loud input tripped the state guard at DSD128/256; every rate
- * uses the same lower warn-and-clip ceiling so the default behaves alike
- * at all clocks.  Qualification paths retain their original input and
- * guards; strict mode retains this gain only for the default high-rate v1
- * profile (see lsx_pcmdsd_strict_keeps_default_gain). */
+/* The 0.5 interpolation envelope does not certify sustained SDM-8
+ * stability. The mastering route applies a fixed 0.9 gain at every clock;
+ * warn mode separately clips any residual interpolation overshoot at 0.45.
+ * Strict mode retains that gain without clipping. Qualification callers and
+ * the legacy sdm effect do not acquire an implicit gain. */
 double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz)
 {
   (void)native_hz;
   return .45;
 }
-/* A one-pass stream has no programme-wide interpolated peak available before
- * it commits DSD decisions.  Use a constant linear gain rather than deforming
- * valid PCM samples at the lower clipping limit.  The residual clip-and-warn
- * path still handles larger overshoots.  This gain is specific to the
- * implicit default, not an explicit --headroom cut. */
-double lsx_pcmdsd_default_warn_gain(uint32_t native_hz)
+/* One-pass encoding cannot know the whole interpolated peak in advance.
+ * Preserve waveform shape with a fixed default gain. Explicit --headroom or
+ * --auto-headroom replaces it, including under --dsd-clip error. */
+double lsx_pcmdsd_default_gain(uint32_t native_hz)
 {
   return lsx_pcmdsd_warn_clip_ceiling(native_hz)/.5;
-}
-/* The eighth-order v1 encoder at DSD512/1024 was qualified with the
- * default 0.9 gain. Exact v2 pins retain 1.1.0 strict unity-gain behavior.
- * Key this policy to the selected immutable profile, not the native clock. */
-int lsx_pcmdsd_strict_keeps_default_gain(const lsx_pcmdsd_profile *profile)
-{
-  return profile && profile->native_hz>=22579200 &&
-      profile==lsx_pcmdsd_profile_find(profile->native_hz);
 }
 /* qualified=1 as of 2026-10-20: the design authority recorded its P15
  * engineering acceptance on 2026-10-19 and withdrew the outstanding
  * formal-proof obligation as a release blocker. Coefficients, guards and
  * certificate digests are unchanged. */
 static const lsx_pcmdsd_profile profiles[] = {
-  {"encode.mastering.v1.dsd64",2822400,88200,20000,40000,
+  {"encode.mastering.dsd64",2822400,88200,20000,40000,
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[0],1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  {"encode.mastering.v1.dsd128",5644800,176400,30000,60000,
+  {"encode.mastering.dsd128",5644800,176400,30000,60000,
     lsx_pcmdsd_coeff_master128,77,lsx_pcmdsd_guards[1],1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  {"encode.mastering.v1.dsd256",11289600,176400,40000,80000,
+  {"encode.mastering.dsd256",11289600,176400,40000,80000,
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  /* 2026-11-07: v1 (eighth order) binds DSD512 and DSD1024 again. It was
-   * held back because v1.dsd512 failed the sustained nominal gate at min28 6
-   * and v1.dsd1024 ran away on full-scale DC, both at the old 0.5 mapping.
-   * Under the 1.1.0 default (0.9 gain, 0.45 clip) it passes both: P17 DC
-   * fixtures and 60 s of DC at source levels 0.7-1.0 (mapped to
-   * modulator levels 0.315-0.45) complete at both clocks, and the
-   * 3,600-second nominal soak passes p17_soak_assess at both clocks
-   * (min28 7, max 21). The controls at 0.5 still reproduce both failures.
-   * See docs/dsd/V1_HIGH_RATE_ENCODE_2026-11-07.md.
-   *
-   * v1 is ordered FIRST at each clock deliberately: lsx_pcmdsd_profile_find()
-   * returns the first row matching a rate, so this is what binds the rate and
-   * what lsx_pcmdsd_create() will build.
-   *
-   * The v2 CLANS-7 rows that P21 bound on 2026-10-23 stay qualified and
-   * can be selected by exact CLI ID through dsd_rates, without changing
-   * the v1 default. Their old 1.1.0 strict unity gain remains intact.
-   *
-   * certificate_sha256 names the coefficient manifest, not the modulator;
-   * all four profiles use the already-certified 61-tap master64_256 bank. */
-  {"encode.mastering.v1.dsd512",22579200,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  {"encode.mastering.v2.dsd512",22579200,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_p20_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  {"encode.mastering.v1.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  {"encode.mastering.v2.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_v2_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256}
+  /* High-rate mastering uses the retained SDM-8 guard bounds and FIR,
+   * but rate-specific zeros (sdm_mastering_highrate.h). The P10 certificate
+   * hashes the earlier profile and cannot authenticate these new tables.
+   * Keep the historical certificate intact; expose no false certificate. */
+  {"encode.mastering.dsd512",22579200,176400,40000,80000,
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],1,NULL},
+  {"encode.mastering.dsd1024",45158400,176400,40000,80000,
+    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],1,NULL}
 };
 
 struct lsx_pcmdsd {
@@ -504,9 +470,7 @@ static int effect_start(sox_effect_t *e,int candidate)
   {
     const lsx_dsd_rate *rate=lsx_dsd_rate_find(p->options.rate_hz);
     const char *id=p->options.profile==(lsx_dsd_decode)LSX_DSD_ENCODE_MASTERING?
-        (rate?rate->encode_mastering_id:NULL):
-        p->options.profile==(lsx_dsd_decode)LSX_DSD_ENCODE_MASTERING_V2?
-        (rate?rate->encode_mastering_v2_id:NULL):NULL;
+        (rate?rate->encode_mastering_id:NULL):NULL;
     profile=id?lsx_pcmdsd_profile_find_id(p->options.rate_hz,id):NULL;
   }
   if (!profile || !profile->qualified ||
@@ -531,10 +495,8 @@ static int effect_start(sox_effect_t *e,int candidate)
   }
   p->applied_gain=p->options.headroom==LSX_DSD_HEADROOM_FIXED?
       pow(10.,-p->options.headroom_db/20.):
-      !candidate && p->options.headroom==LSX_DSD_HEADROOM_NONE &&
-      (p->options.clip==LSX_DSD_CLIP_WARN ||
-       lsx_pcmdsd_strict_keeps_default_gain(profile))?
-      lsx_pcmdsd_default_warn_gain(profile->native_hz):1.;
+      !candidate && p->options.headroom==LSX_DSD_HEADROOM_NONE?
+      lsx_pcmdsd_default_gain(profile->native_hz):1.;
   if (p->options.headroom==LSX_DSD_HEADROOM_AUTO && !candidate) {
     p->scan_file=lsx_tmpfile();
     if (!p->scan_file) {
@@ -666,8 +628,7 @@ static int start_headroom_replay(sox_effect_t *e)
     uint32_t source;
     sox_dsd_status_t rc;
     if (!lsx_dsd_integer_rate(f->in_signal.rate,&source)) return LSX_EFF_FATAL;
-    /* Preserve the actual v1/v2 selection across the measured-headroom
-     * scan/replay boundary; never silently fall back to the rate default. */
+    /* Preserve the exact mastering identity across headroom replay. */
     const lsx_pcmdsd_profile *selected=lsx_pcmdsd_profile_of(p->encoder);
     const char *id;
     if (!selected || !selected->qualified || !selected->id) {

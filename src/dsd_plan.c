@@ -69,7 +69,7 @@ static int resolve_decode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
   double pass, stop, intermediate, effective;
   lsx_dsd_rate const *rate=lsx_dsd_rate_find(native_rate);
   if (policy->decode_pinned_native_hz && policy->decode_pinned_native_hz != native_rate)
-    return fail(error,n,"versioned --decode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
+    return fail(error,n,"exact --decode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
         native_rate,policy->decode_pinned_native_hz);
   if (!rate || !(rate->capabilities & LSX_DSD_RECONSTRUCT))
     return fail(error,n,"no qualified decoder rate for native DSD %u Hz",native_rate);
@@ -102,15 +102,14 @@ static int resolve_encode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
 {
   lsx_dsd_rate const *r=lsx_dsd_rate_find(hz);
   if (policy->encode_pinned_native_hz && policy->encode_pinned_native_hz != hz)
-    return fail(error,n,"versioned --encode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
+    return fail(error,n,"exact --encode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
         hz,policy->encode_pinned_native_hz);
   if (!r || !(r->capabilities & LSX_DSD_MODULATE))
     return fail(error,n,"no supported composite DSD encoder at %u Hz",hz);
   if (profile == LSX_DSD_ENCODE_MASTERING) p->encoder_id=r->encode_mastering_id;
-  else if (profile == LSX_DSD_ENCODE_MASTERING_V2) p->encoder_id=r->encode_mastering_v2_id;
-  else if (profile == LSX_DSD_ENCODE_LEGACY) p->encoder_id="encode.legacy.explicit";
-  else p->encoder_id="encode.experimental.explicit";
-  if (profile==LSX_DSD_ENCODE_MASTERING || profile==LSX_DSD_ENCODE_MASTERING_V2) {
+  else if (profile == LSX_DSD_ENCODE_LEGACY) p->encoder_id="encode.legacy.requires-sdm";
+  else return fail(error,n,"unknown DSD encoder selection");
+  if (profile==LSX_DSD_ENCODE_MASTERING) {
     const lsx_pcmdsd_profile *enc=p->encoder_id?
         lsx_pcmdsd_profile_find_id(hz,p->encoder_id):NULL;
     if (!enc || !enc->qualified) {
@@ -119,7 +118,7 @@ static int resolve_encode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
     }
   } else {
     p->needs_unimplemented_dsp=1;
-    p->unavailable_reason="no qualified composite for legacy/experimental selection; explicit sdm remains available";
+    p->unavailable_reason="legacy encoding requires explicit rate and sdm effects";
   }
   return 1;
 }
@@ -150,7 +149,7 @@ static int decoder_selection(lsx_dsd_plan_spec const *spec,
     return fail(error,n,"conflicting --decode and dsdpcm -p selections");
   if (e->dsd.pinned_native_hz && spec->policy.decode_pinned_native_hz &&
       e->dsd.pinned_native_hz != spec->policy.decode_pinned_native_hz)
-    return fail(error,n,"conflicting versioned --decode and dsdpcm -p native clocks");
+    return fail(error,n,"conflicting exact --decode and dsdpcm -p native clocks");
   if (e->dsd.level_specified && spec->policy.level_specified &&
       e->dsd.level!=spec->policy.level)
     return fail(error,n,"conflicting --dsd-level and dsdpcm -l selections");
@@ -366,7 +365,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
       if (e->dsd.pinned_native_hz) for (i=0;i<spec->input_count;i++)
         if (p->inputs[i].native_domain==LSX_DSD_NATIVE &&
             p->inputs[i].native_rate!=e->dsd.pinned_native_hz)
-          return fail(error,n,"versioned decoder ID is for a different native DSD clock at input %lu",
+          return fail(error,n,"exact decoder ID is for a different native DSD clock at input %lu",
               (unsigned long)i);
       if (any_pcm && e->dsd.rate_hz && e->dsd.rate_hz!=common_pcm_rate)
         return fail(error,n,"leading dsdpcm rate conflicts with the mixed PCM input clock");
@@ -465,7 +464,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         return fail(error,n,"native mode forbids explicit dsdpcm");
       if (!decoder_selection(spec,e,&decoder,&level,error,n)) return 0;
       if (e->dsd.pinned_native_hz && e->dsd.pinned_native_hz!=(uint32_t)rate)
-        return fail(error,n,"versioned decoder ID is for a different native DSD clock");
+        return fail(error,n,"exact decoder ID is for a different native DSD clock");
       if (level==LSX_DSD_LEVEL_SACD &&
           (spec->policy.guarded || spec->policy.normalizing))
         return fail(error,n,"sacd reconstruction cannot be combined with automatic guard or normalization");
@@ -492,18 +491,19 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
       if (spec->policy.mode==LSX_DSD_MODE_NATIVE)
         return fail(error,n,"native mode forbids PCM-to-DSD modulation");
       if (e->dsd.pinned_native_hz && e->dsd.pinned_native_hz!=target)
-        return fail(error,n,"versioned encoder ID is for a different native DSD clock");
+        return fail(error,n,"exact encoder ID is for a different native DSD clock");
       if (is(e->name,"pcmdsd") && e->dsd.pinned_native_hz &&
           spec->policy.encode_pinned_native_hz &&
           e->dsd.pinned_native_hz != spec->policy.encode_pinned_native_hz)
-        return fail(error,n,"conflicting versioned --encode and pcmdsd -p native clocks");
+        return fail(error,n,"conflicting exact --encode and pcmdsd -p native clocks");
       if (is(e->name,"pcmdsd") && e->dsd.profile_specified &&
           spec->policy.encode_specified && (lsx_dsd_encode)e->dsd.profile!=spec->policy.encode)
         return fail(error,n,"conflicting --encode and pcmdsd -p selections");
       if (lowlevel) {
         uint32_t current;
-        if (spec->policy.encode_specified)
-          return fail(error,n,"--encode selects a composite encoder; low-level %s uses its own unqualified modulator. Remove --encode or use pcmdsd",e->name);
+        if (spec->policy.encode_specified &&
+            (spec->policy.encode!=LSX_DSD_ENCODE_LEGACY || !is(e->name,"sdm")))
+          return fail(error,n,"--encode mastering requires pcmdsd; select legacy for an explicit sdm effect");
         if (!lsx_dsd_integer_rate(rate,&current) || current!=target)
           return fail(error,n,"%s is a rate-preserving one-bit modulator: input %.9g Hz differs from native %u Hz; use an explicit rate effect",
               e->name,rate,target);
@@ -775,9 +775,8 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   p->dsd_amplitude_per_pcm_unit=ref;
   if (p->encode_count && !p->modulator_input_scale)
     p->modulator_input_scale=ref;
-  /* Composite mastering v1 and selected high-rate v2 are qualified. The
-   * legacy decoder and unqualified low-level routes must not be mistaken for
-   * a qualified mastering processing path. */
+  /* The composite mastering encoder is qualified. Explicit legacy sdm
+   * remains a separate low-level route with its own original noise shapers. */
   if (p->needs_unimplemented_dsp) {
     const lsx_pcmdsd_profile *selected=p->native_output_hz && p->encoder_id?
         lsx_pcmdsd_profile_find_id(p->native_output_hz,p->encoder_id):NULL;
@@ -835,10 +834,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   fprintf(fp,",\n  \"policy\": {\"decode\": ");
   json_string(fp,spec->policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":"mastering");
   fprintf(fp,", \"encode\": ");
-  json_string(fp,spec->policy.encode==LSX_DSD_ENCODE_LEGACY?"legacy":
-      spec->policy.encode==LSX_DSD_ENCODE_EXPERIMENTAL?"experimental":
-      spec->policy.encode==LSX_DSD_ENCODE_MASTERING_V2?
-          (p->encoder_id?p->encoder_id:"unavailable") : "mastering");
+  json_string(fp,spec->policy.encode==LSX_DSD_ENCODE_LEGACY?"legacy":"mastering");
   fprintf(fp,", \"level\": ");
   json_string(fp,spec->policy.level==LSX_DSD_LEVEL_SACD?"sacd":"preserve");
   fprintf(fp,", \"clip\": ");
@@ -881,8 +877,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
   {
     const lsx_pcmdsd_profile *enc=p->native_output_hz?
         lsx_pcmdsd_profile_find_id(p->native_output_hz,p->encoder_id):NULL;
-    /* A nonexecutable legacy/experimental plan must not advertise an
-     * applied mastering ceiling merely because its native rate is supported. */
+    /* Do not advertise mastering's ceiling for the legacy sdm route. */
     if (enc && enc->qualified && p->encoder_id &&
         !strcmp(enc->id,p->encoder_id) && spec->policy.clip==LSX_DSD_CLIP_WARN)
       fprintf(fp,"%.17g",lsx_pcmdsd_warn_clip_ceiling(p->native_output_hz));
@@ -898,10 +893,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
       fputs("null",fp);
     else if (spec->policy.headroom==LSX_DSD_HEADROOM_FIXED)
       fprintf(fp,"%.17g",pow(10.,-spec->policy.headroom_db/20.));
-    else if (spec->policy.clip==LSX_DSD_CLIP_WARN ||
-             lsx_pcmdsd_strict_keeps_default_gain(enc))
-      fprintf(fp,"%.17g",lsx_pcmdsd_default_warn_gain(p->native_output_hz));
-    else fputs("1",fp);
+    else fprintf(fp,"%.17g",lsx_pcmdsd_default_gain(p->native_output_hz));
   }
   fputs(", \"lowlevel_filter\": ",fp);
   /* Current low-level SDM/dither filters have no certified mastering ID. */
@@ -912,7 +904,8 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
     if (enc && !strcmp(enc->id,p->encoder_id)) {
       fprintf(fp,", \"qualified\": %s, \"working_hz\": %u, \"prefilter_design_hz\": %u, \"pass_hz\": %.9g, \"stop_hz\": %.9g, \"certificate_sha256\": ",
           enc->qualified?"true":"false",enc->working_hz,enc->working_hz,enc->pass_hz,enc->stop_hz);
-      json_string(fp,enc->certificate_sha256);
+      if (enc->certificate_sha256) json_string(fp,enc->certificate_sha256);
+      else fputs("null",fp);
     }
   }
   fputs("},\n",fp);

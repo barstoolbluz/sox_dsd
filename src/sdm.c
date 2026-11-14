@@ -687,9 +687,7 @@ static const sdm_filter_t sdm_filters[] = {
   },
 };
 
-#include "sdm_p17_candidates.h"
-#include "sdm_p19_candidates.h"
-#include "sdm_p20_candidates.h"
+#include "sdm_mastering_highrate.h"
 
 /* Exact-rate entries are independent of the legacy array search order.
  * Deliberately refer to the original literal coefficient tables: copying or
@@ -702,26 +700,22 @@ struct sdm_profile {
 };
 
 static const sdm_profile_t sdm_profiles[] = {
-  {"encode.legacy.v1.dsd64",     &sdm_filters[20],  88200},
-  {"encode.legacy.v1.dsd128",    &sdm_filters[10], 176400},
-  {"encode.legacy.v1.dsd256",    &sdm_filters[0],  176400},
-  {"encode.mastering.v1.dsd64",  &sdm_filters[29],  88200},
-  {"encode.mastering.v1.dsd128", &sdm_filters[19], 176400},
-  {"encode.mastering.v1.dsd256", &sdm_filters[9],  176400},
-  /* P17 unit-delay SDM coefficients use the SAME normalized NTF/STF, but
-   * are bound to NEW sample-clock identities. They were qualified at the
-   * 1.1.0 default gain on 2026-11-07 (docs/dsd/V1_HIGH_RATE_ENCODE_2026-11-07.md).
-   * The legacy <=rate lookup never sees these records. */
-  {"encode.mastering.v1.dsd512", &lsx_sdm_p17_candidates[0], 176400},
-  {"encode.mastering.v2.dsd512", &lsx_sdm_p20_dsd512, 176400},
-  {"encode.mastering.v1.dsd1024", &lsx_sdm_p17_candidates[1], 176400},
-  {"encode.mastering.v2.dsd1024", &lsx_sdm_p19_dsd1024, 176400},
-  {"encode.diagnostic.sdm6.v1.dsd64",   &sdm_filters[25],  88200},
-  {"encode.diagnostic.sdm6.v1.dsd128",  &sdm_filters[15], 176400},
-  {"encode.diagnostic.sdm6.v1.dsd256",  &sdm_filters[5],  176400},
-  {"encode.diagnostic.clans8.v1.dsd64", &sdm_filters[28],  88200},
-  {"encode.diagnostic.clans8.v1.dsd128",&sdm_filters[18], 176400},
-  {"encode.diagnostic.clans8.v1.dsd256",&sdm_filters[8],  176400},
+  {"encode.legacy.dsd64",     &sdm_filters[20],  88200},
+  {"encode.legacy.dsd128",    &sdm_filters[10], 176400},
+  {"encode.legacy.dsd256",    &sdm_filters[0],  176400},
+  {"encode.mastering.dsd64",  &sdm_filters[29],  88200},
+  {"encode.mastering.dsd128", &sdm_filters[19], 176400},
+  {"encode.mastering.dsd256", &sdm_filters[9],  176400},
+  /* Rate-specific SDM-8 zeros, selected after round03; the original
+   * low-level noise shapers and their rate lookup are unchanged. */
+  {"encode.mastering.dsd512", &lsx_sdm_mastering_highrate[0], 176400},
+  {"encode.mastering.dsd1024", &lsx_sdm_mastering_highrate[1], 176400},
+  {"encode.diagnostic.sdm6.dsd64",   &sdm_filters[25],  88200},
+  {"encode.diagnostic.sdm6.dsd128",  &sdm_filters[15], 176400},
+  {"encode.diagnostic.sdm6.dsd256",  &sdm_filters[5],  176400},
+  {"encode.diagnostic.clans8.dsd64", &sdm_filters[28],  88200},
+  {"encode.diagnostic.clans8.dsd128",&sdm_filters[18], 176400},
+  {"encode.diagnostic.clans8.dsd256",&sdm_filters[8],  176400},
 };
 
 const sdm_profile_t *sdm_profile_find(const char *id, unsigned native_hz)

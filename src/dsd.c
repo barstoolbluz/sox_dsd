@@ -11,15 +11,15 @@
 #define CAPS_QUALIFIED (LSX_DSD_READ_NATIVE | LSX_DSD_WRITE_NATIVE | LSX_DSD_RECONSTRUCT | LSX_DSD_MODULATE | LSX_DSD_DOP)
 static lsx_dsd_rate const dsd_rates[] = {
   {2822400, 64, "DSD64", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd64", "decode.wideband.v1.dsd64", "encode.mastering.v1.dsd64", NULL},
+   "decode.mastering.dsd64", "decode.wideband.dsd64", "encode.mastering.dsd64"},
   {5644800, 128, "DSD128", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd128", "decode.wideband.v1.dsd128", "encode.mastering.v1.dsd128", NULL},
+   "decode.mastering.dsd128", "decode.wideband.dsd128", "encode.mastering.dsd128"},
   {11289600, 256, "DSD256", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd256", "decode.wideband.v1.dsd256", "encode.mastering.v1.dsd256", NULL},
+   "decode.mastering.dsd256", "decode.wideband.dsd256", "encode.mastering.dsd256"},
   {22579200, 512, "DSD512", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd512", "decode.wideband.v1.dsd512", "encode.mastering.v1.dsd512", "encode.mastering.v2.dsd512"},
+   "decode.mastering.dsd512", "decode.wideband.dsd512", "encode.mastering.dsd512"},
   {45158400, 1024, "DSD1024", CAPS_QUALIFIED,
-   "decode.mastering.v1.dsd1024", "decode.wideband.v1.dsd1024", "encode.mastering.v1.dsd1024", "encode.mastering.v2.dsd1024"}
+   "decode.mastering.dsd1024", "decode.wideband.dsd1024", "encode.mastering.dsd1024"}
 };
 
 /* P21: the operator declared the evidence satisfied and opened all twelve
@@ -168,19 +168,19 @@ int lsx_dsd_count_convert(uint64_t frames, uint32_t input_hz,
  * These values are derived from the actual emitted bank lengths in the
  * separate P06 coefficient manifest, not the earlier feasibility probe. */
 static const lsx_dsd_frontend_profile dsd_frontends[] = {
-  { 2822400,  88200, LSX_DSD_PROFILE_MASTERING,  20000,  40000, 5, LSX_DSD_BANK_MASTER64_256, 1348, "decode.mastering.v1.dsd64"},
-  { 5644800, 176400, LSX_DSD_PROFILE_MASTERING,  30000,  60000, 5, LSX_DSD_BANK_MASTER128, 1636, "decode.mastering.v1.dsd128"},
-  {11289600, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 6, LSX_DSD_BANK_MASTER64_256, 2724, "decode.mastering.v1.dsd256"},
-  { 2822400,  88200, LSX_DSD_PROFILE_WIDEBAND,  35280,  44100, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd64"},
-  { 5644800, 176400, LSX_DSD_PROFILE_WIDEBAND,  70560,  88200, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd128"},
-  {11289600, 352800, LSX_DSD_PROFILE_WIDEBAND, 141120, 176400, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd256"},
-  /* The v1 high-rate frontends reuse the P06 banks. Mastering retains its
+  { 2822400,  88200, LSX_DSD_PROFILE_MASTERING,  20000,  40000, 5, LSX_DSD_BANK_MASTER64_256, 1348, "decode.mastering.dsd64"},
+  { 5644800, 176400, LSX_DSD_PROFILE_MASTERING,  30000,  60000, 5, LSX_DSD_BANK_MASTER128, 1636, "decode.mastering.dsd128"},
+  {11289600, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 6, LSX_DSD_BANK_MASTER64_256, 2724, "decode.mastering.dsd256"},
+  { 2822400,  88200, LSX_DSD_PROFILE_WIDEBAND,  35280,  44100, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.dsd64"},
+  { 5644800, 176400, LSX_DSD_PROFILE_WIDEBAND,  70560,  88200, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.dsd128"},
+  {11289600, 352800, LSX_DSD_PROFILE_WIDEBAND, 141120, 176400, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.dsd256"},
+  /* The high-rate frontends reuse the P06 banks. Mastering retains its
    * 176400-Hz clock; wideband scales its intermediate clock with the native
    * rate. P21 authorizes the associated file and transport read operations. */
-  {22579200, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 7, LSX_DSD_BANK_MASTER64_256,  5476, "decode.mastering.v1.dsd512"},
-  {45158400, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 8, LSX_DSD_BANK_MASTER64_256, 10980, "decode.mastering.v1.dsd1024"},
-  {22579200, 705600, LSX_DSD_PROFILE_WIDEBAND, 282240, 352800, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd512"},
-  {45158400,1411200, LSX_DSD_PROFILE_WIDEBAND, 564480, 705600, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.v1.dsd1024"}
+  {22579200, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 7, LSX_DSD_BANK_MASTER64_256,  5476, "decode.mastering.dsd512"},
+  {45158400, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 8, LSX_DSD_BANK_MASTER64_256, 10980, "decode.mastering.dsd1024"},
+  {22579200, 705600, LSX_DSD_PROFILE_WIDEBAND, 282240, 352800, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.dsd512"},
+  {45158400,1411200, LSX_DSD_PROFILE_WIDEBAND, 564480, 705600, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.dsd1024"}
 };
 
 const lsx_dsd_frontend_profile *lsx_dsd_frontend_profile_find(
@@ -214,7 +214,7 @@ double lsx_dsd_effective_bandwidth(double pass, double intermediate, double outp
 
 int lsx_dsd_pcm_rate_supported(uint32_t hz)
 {
-  /* P21: 1411200 added. decode.wideband.v1.dsd1024 declares a 1411200 Hz
+  /* P21: 1411200 added. decode.wideband.dsd1024 declares a 1411200 Hz
    * intermediate, so without it that profile could never initialize and
    * wideband decode at DSD1024 failed with BAD_ARGUMENT no matter what
    * output rate was asked for. The list has never been strictly paired
@@ -248,24 +248,16 @@ int lsx_dsd_profile_parse(char const *text, int encode, int *out, uint32_t *nati
     char const *master=encode?dsd_rates[i].encode_mastering_id:dsd_rates[i].decode_mastering_id;
     char const *w=dsd_rates[i].decode_wideband_id;
     if (master && !strcmp(text,master)) {*out=0;*native=dsd_rates[i].hz;return 1;}
-    if (encode && dsd_rates[i].encode_mastering_v2_id &&
-        !strcmp(text,dsd_rates[i].encode_mastering_v2_id)) {
-      *out=LSX_DSD_ENCODE_MASTERING_V2;
-      *native=dsd_rates[i].hz;
-      return 1;
-    }
     if (!encode && w && !strcmp(text,w)) {*out=1;*native=dsd_rates[i].hz;return 1;}
   }
 
-  /* Human `mastering` always denotes the standard v1 decoder (or v1
-   * encoder); exact versioned v1 IDs retain native-clock pinning. */
+  /* Exact IDs pin a native clock; human profile names select the route. */
   if (!strcmp(text,"mastering")) {
     *out=encode?LSX_DSD_ENCODE_MASTERING:LSX_DSD_PROFILE_MASTERING;
     return 1;
   }
   if (!encode && !strcmp(text,"wideband")) { *out=1; return 1; }
   if (encode && !strcmp(text,"legacy")) { *out=LSX_DSD_ENCODE_LEGACY; return 1; }
-  if (encode && !strcmp(text,"experimental")) { *out=2; return 1; }
   return 0;
 }
 static int parse_rate(char const *text, uint32_t *rate)
@@ -283,8 +275,7 @@ static int dsd_getopts(sox_effect_t *eff, int argc, char **argv)
   int i, is_encode=!strcmp(eff->handler.name,"pcmdsd"), profile;
   int seen_profile=0, seen_level=0, seen_reference=0, seen_rate=0;
   memset(opt,0,sizeof(*opt));
-  /* Decode defaults to standard mastering v1; the encoder's own v2
-   * selection is independent and still requires an exact high-rate ID. */
+  /* Decode and encode default to the mastering profile. */
   opt->profile=is_encode?LSX_DSD_ENCODE_MASTERING:LSX_DSD_PROFILE_MASTERING;
   opt->level=LSX_DSD_LEVEL_PRESERVE;
   opt->reference=LSX_DSD_REF_AUTO;
@@ -293,6 +284,7 @@ static int dsd_getopts(sox_effect_t *eff, int argc, char **argv)
   for (i=1;i<argc;++i) {
     if (!strcmp(argv[i],"-p") && i+1<argc) {
       if (seen_profile++ || !lsx_dsd_profile_parse(argv[++i],is_encode,&profile,&opt->pinned_native_hz)) goto invalid;
+      if (is_encode && profile!=LSX_DSD_ENCODE_MASTERING) goto invalid;
       opt->profile=(lsx_dsd_decode)profile; opt->profile_specified=1;
     } else if (!is_encode && !strcmp(argv[i],"-l") && i+1<argc) {
       if (seen_level++ || (strcmp(argv[++i],"preserve") && strcmp(argv[i],"sacd"))) goto invalid;
@@ -372,14 +364,14 @@ void lsx_dsd_effect_apply_policy(sox_effect_t *effect, const lsx_dsd_policy *pol
 
 const sox_effect_handler_t *lsx_dsdpcm_effect_fn(void)
 {
-  static sox_effect_handler_t h={"dsdpcm", "[-p mastering|wideband|decode.<profile>.v1.dsdNNN] [-l preserve|sacd] [rate]",
+  static sox_effect_handler_t h={"dsdpcm", "[-p mastering|wideband|decode.<profile>.dsdNNN] [-l preserve|sacd] [rate]",
     SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, lsx_dsdpcm_start,
     lsx_dsdpcm_flow, lsx_dsdpcm_drain, lsx_dsdpcm_stop, NULL, sizeof(lsx_dsdpcm_private), NULL, NULL, NULL};
   return &h;
 }
 const sox_effect_handler_t *lsx_pcmdsd_effect_fn(void)
 {
-  static sox_effect_handler_t h={"pcmdsd", "[-p mastering|encode.mastering.v1.dsdNNN|encode.mastering.v2.dsd512|encode.mastering.v2.dsd1024|legacy|experimental] [--reference auto|pcm|dsd] rate",
+  static sox_effect_handler_t h={"pcmdsd", "[-p mastering|encode.mastering.dsdNNN] [--reference auto|pcm|dsd] rate",
     SOX_EFF_RATE | SOX_EFF_PREC, dsd_getopts, lsx_pcmdsd_start,
     lsx_pcmdsd_flow, lsx_pcmdsd_drain, lsx_pcmdsd_stop, NULL, sizeof(lsx_pcmdsd_private), NULL, NULL, NULL};
   return &h;

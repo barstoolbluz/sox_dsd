@@ -245,7 +245,7 @@ static char *dsd_layout_assignment = NULL;
 static sox_bool dsd_layout_loss_warn = sox_false;
 static lsx_dsd_policy dsd_policy = {
   .mode=LSX_DSD_MODE_AUTO,
-  /* Mastering v1 is both the default and the named standard decoder. */
+  /* Mastering is both the default and the named standard decoder. */
   .decode=LSX_DSD_PROFILE_MASTERING,
   .encode=LSX_DSD_ENCODE_MASTERING,
   .level=LSX_DSD_LEVEL_PRESERVE,
@@ -3380,7 +3380,7 @@ static void display_dsd_help(void)
        "  sox --plan input.dsf output.wav       Inspect the processing graph\n"
        "  sox --report run.json input.dsf output.wav  Convert and report\n"
        "\n"
-       "Automatic decoding uses the qualified v1 filters. For advanced\n"
+       "Automatic decoding uses the mastering filters. For advanced\n"
        "controls: --decode PROFILE, --encode PROFILE, --dsd-bandwidth adapt|strict,\n"
        "--dsd-level preserve|sacd, --dsd-clip warn|error, --dsd-mode auto|native.\n"
        "Use --help-effect dsdpcm or pcmdsd for explicit effects.\n"
@@ -3421,13 +3421,13 @@ static void usage(void)
 "--dsd-layout-loss error|warn  Reject channel-identity loss (default), or warn",
 "--dsd-mode auto|native|legacy  DSD planning is mandatory in all modes; native forbids PCM",
 "--sdm-guard on|off       Fail-closed legacy 1-bit modulator check; costs CPU (default off)",
-"--decode mastering|wideband|decode.<profile>.v1.dsdNNN",
-"                         DSD reconstruction profile (default mastering v1)",
-"--encode mastering|encode.mastering.v1.dsdNNN  DSD modulation profile",
-"                         High-rate v2 IDs: encode.mastering.v2.dsd512|dsd1024",
-"                         Mastering is v1 at all native rates; profile guards remain enforced",
+"--decode mastering|wideband|decode.<profile>.dsdNNN",
+"                         DSD reconstruction profile (default mastering)",
+"--encode mastering|legacy|encode.mastering.dsdNNN  DSD modulation route",
+"                         Legacy requires explicit rate and sdm effects",
+"                         Mastering uses SDM-8 at every native clock",
 "--dsd-level preserve|sacd  Decoder level convention",
-"--dsd-clip warn|error    Decode: clip/warn at PCM limits or fail; encode: 0.45 warn-clip or strict 0.5; high-rate v1 strict gain 0.9",
+"--dsd-clip warn|error    Decode: clip/warn at PCM limits or fail; encode: mastering gain 0.9 in both modes; warn clips at 0.45, error refuses",
 "--headroom DB            Replace implicit gain with fixed PCM-to-DSD cut (0..120 dB, no normalization)",
 "--auto-headroom          Measure peak and cut to warning ceiling (two passes)",
 "--dsd-bandwidth adapt|strict  PCM reconstruction passband policy",
@@ -4007,7 +4007,7 @@ static char parse_gopts_and_fopts(file_t * f)
           int profile;
           if (!lsx_dsd_profile_parse(optstate.arg,0,&profile,
                 &dsd_policy.decode_pinned_native_hz)) {
-            lsx_fail("--decode: choose mastering, wideband, or an exact decode.<profile>.v1.dsdNNN ID");
+            lsx_fail("--decode: choose mastering, wideband, or an exact decode.<profile>.dsdNNN ID");
             exit(1);
           }
           dsd_policy.decode=(lsx_dsd_decode)profile;
@@ -4020,7 +4020,7 @@ static char parse_gopts_and_fopts(file_t * f)
           int profile;
           if (!lsx_dsd_profile_parse(optstate.arg,1,&profile,
                 &dsd_policy.encode_pinned_native_hz)) {
-            lsx_fail("--encode: choose mastering, an exact encode.mastering.v1.dsdNNN ID, or encode.mastering.v2.dsd512|dsd1024");
+            lsx_fail("--encode: choose mastering, legacy, or an exact encode.mastering.dsdNNN ID");
             exit(1);
           }
           dsd_policy.encode=(lsx_dsd_encode)profile;

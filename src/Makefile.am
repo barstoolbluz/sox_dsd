@@ -87,7 +87,7 @@ sox_sample_test_DEPENDENCIES = $(SPARSE_FILE_TEST)
 libsox_ng_la_SOURCES = adpcms.c adpcms.h aiff.c aiff.h cvsd.c cvsd.h cvsdfilt.h \
 	g711.c g711.h g721.c g723_24.c g723_40.c g72x.c g72x.h vox.c vox.h \
 	mod.c mod.h mod-tabs.c msupcm.c mul.c raw.c raw.h \
-	formats.c formats.h formats_i.c sox_i.h dsd.h dsd.c dsd_packed.c dsd_packed.h dsd_plan.c dsd_stats.c dsd_stats.h dsdstat.c dsd_decode.c dsd_decode.h dsd_public.c dsdpcm.c pcmdsd.c pcmdsd.h pcmdsd_coeffs.h pcmdsd_guards.h pcmdsd_v2_guards.h pcmdsd_p20_guards.h rate_internal.h dsd_kernels_scalar.c dsd_dispatch.c dsd_kernels.h sdm_normal_commit_i.h dsd_coeffs.h sox_dsd.h dsd_layout_i.h dsd_layout_query.h dsd_layout.c wav-size.h keymap.c \
+	formats.c formats.h formats_i.c sox_i.h dsd.h dsd.c dsd_packed.c dsd_packed.h dsd_plan.c dsd_stats.c dsd_stats.h dsdstat.c dsd_decode.c dsd_decode.h dsd_public.c dsdpcm.c pcmdsd.c pcmdsd.h pcmdsd_coeffs.h pcmdsd_guards.h rate_internal.h dsd_kernels_scalar.c dsd_dispatch.c dsd_kernels.h sdm_normal_commit_i.h dsd_coeffs.h sox_dsd.h dsd_layout_i.h dsd_layout_query.h dsd_layout.c wav-size.h keymap.c \
 	xmalloc.c xmalloc.h getopt.c util.c util.h libsox_ng.c libsox_i.c \
 	sox-fmt.c soxomp.h win32-unicode.c win32-unicode.h
 
@@ -106,7 +106,7 @@ libsox_ng_la_SOURCES += \
         output.c overdrive.c pad.c phaser.c \
         rate.c rate_filters.h rate_half_fir.h rate_poly_fir0.h rate_poly_fir.h \
 	remix.c repeat.c reverb.c reverse.c \
-        saturation.c silence.c sinc.c sdm.c sdm.h sdm_p19_candidates.h sdm_p20_candidates.h sdm_x86.h \
+        saturation.c silence.c sinc.c sdm.c sdm.h sdm_mastering_highrate.h sdm_x86.h \
         softvol.c softvol.h speed.c speexdsp.c splice.c stat.c stats.c \
         stretch.c swap.c synth.c \
         tempo.c tremolo.c trim.c upsample.c vad.c vol.c \

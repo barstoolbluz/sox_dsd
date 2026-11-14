@@ -29,16 +29,12 @@ typedef struct {
   unsigned capabilities;
   char const *decode_mastering_id, *decode_wideband_id;
   char const *encode_mastering_id;
-  char const *encode_mastering_v2_id; /* NULL except qualified high-rate v2 */
 } lsx_dsd_rate;
 
 typedef enum {LSX_DSD_MODE_LEGACY, LSX_DSD_MODE_AUTO, LSX_DSD_MODE_NATIVE} lsx_dsd_mode;
-/* Only mastering v1 and wideband are available reconstruction profiles.
- * Encoder version numbers describe a separate algorithm family. */
+/* One mastering decoder, with wideband as its alternative. */
 typedef enum {LSX_DSD_PROFILE_MASTERING=0, LSX_DSD_PROFILE_WIDEBAND=1} lsx_dsd_decode;
-typedef enum {LSX_DSD_ENCODE_MASTERING, LSX_DSD_ENCODE_LEGACY,
-              LSX_DSD_ENCODE_EXPERIMENTAL,
-              LSX_DSD_ENCODE_MASTERING_V2} lsx_dsd_encode;
+typedef enum {LSX_DSD_ENCODE_MASTERING, LSX_DSD_ENCODE_LEGACY} lsx_dsd_encode;
 typedef enum {LSX_DSD_LEVEL_PRESERVE, LSX_DSD_LEVEL_SACD} lsx_dsd_level;
 typedef enum {LSX_DSD_CLIP_WARN, LSX_DSD_CLIP_ERROR} lsx_dsd_clip;
 typedef enum {LSX_DSD_HEADROOM_NONE, LSX_DSD_HEADROOM_FIXED,
@@ -55,7 +51,7 @@ typedef struct {
   uint32_t rate_hz;
   lsx_dsd_reference reference;
   int profile_specified, level_specified, reference_specified;
-  uint32_t pinned_native_hz; /* Versioned profile ID, or 0 for alias. */
+  uint32_t pinned_native_hz; /* Exact rate-specific ID, or 0 for alias. */
   lsx_dsd_clip clip;
   lsx_dsd_headroom headroom;
   double headroom_db;     /* Positive attenuation, never PCM amplification. */
@@ -76,8 +72,7 @@ typedef struct {
   int normalizing;             /* --norm always inserts an automatic PCM gain. */
   int dither_disabled;
   int decode_specified, encode_specified, level_specified;
-  /* Explicit versioned CLI selections are tied to a native clock.  Zero
-   * denotes a human profile alias, not a versioned selection. */
+  /* Exact CLI profile IDs are tied to a native clock. Zero denotes an alias. */
   uint32_t decode_pinned_native_hz, encode_pinned_native_hz;
   char const *kernel_fir, *kernel_sdm;
 } lsx_dsd_policy;

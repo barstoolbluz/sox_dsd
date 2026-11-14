@@ -35,7 +35,7 @@ struct sox_dsd_decoder {
 static void init_options_defaults(sox_dsd_decode_options_t *options)
 {
   options->version = 1;
-  /* Mastering v1 is the sole standard DSD reconstruction profile. */
+  /* Mastering is the sole standard DSD reconstruction profile. */
   options->profile = SOX_DSD_DECODE_MASTERING;
   options->level = SOX_DSD_LEVEL_PRESERVE;
   options->bandwidth = SOX_DSD_BANDWIDTH_ADAPT;
