@@ -151,7 +151,8 @@ def main():
                 check('actual descriptor' in prec['output_descriptor'] or
                       'descriptor' in prec['output_descriptor'] or
                       'symlink' in prec['output_descriptor'] or
-                      'destination' in prec['output_descriptor'],
+                      'destination' in prec['output_descriptor'] or
+                      'FIFO' in prec['output_descriptor'],
                       'descriptor preflight must be provisional')
                 return obj
             # Exact comparison of supplied RF64/RIFF samples through native

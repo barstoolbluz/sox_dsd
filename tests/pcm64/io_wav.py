@@ -1018,11 +1018,14 @@ class CaseRunner:
             b''.join(struct.pack('<f',v) for v in (0.25,-0.25,0.5,0.0)),
             channels=2,rate=48000,code='f32'))
         truncated=self.file('preopen-truncated-f32.wav',f32.read_bytes()[:-10])
-        # Legacy accepts certain metadata variants which private native
-        # access must refuse.  A copy must not create output for such input.
-        invalid_header=self.file('preopen-bad-extensible.wav',wave_bytes(
+        # A mismatched speaker-mask population is advisory and valid. Use
+        # an actually malformed extensible GUID to exercise a precommit
+        # native reader refusal without touching an existing destination.
+        invalid_bytes=bytearray(wave_bytes(
             struct.pack('<d',0.25)*2,channels=2,code='f64',
             extensible=True,mask=0x4))
+        invalid_bytes[20+26] ^= 0xff  # Subformat GUID tail, after RIFF/fmt.
+        invalid_header=self.file('preopen-bad-extensible.wav',bytes(invalid_bytes))
         cases=[
             ('copy-zero-block',['copy',source,'DEST','f64','L','0'],2,None),
             ('copy-large-block',['copy',source,'DEST','f64','L','300'],2,None),
