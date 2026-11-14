@@ -50,7 +50,8 @@ static int create_delay(sox_effect_t * effp, int argc, char * * argv)
 
   --argc, ++argv;
   p->argc = argc;
-  p->args = lsx_calloc(p->argc, sizeof(*p->args));
+  /* lsx_vcalloc assigns a new allocation. Allocating p->args twice
+   * leaked the first block on every invocation, including parse failure. */
   lsx_vcalloc(p->args, p->argc);
   lsx_valloc(p->max_delay, 1);
   for (i = 0; i < p->argc; ++i) {
