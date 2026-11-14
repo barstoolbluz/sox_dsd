@@ -242,6 +242,123 @@ class Case:
                 f'getopts failure report claims a plan or loses error: {doc}')
         self.gate('preplan_getopts_failure_report',1)
 
+    def early_input_failure_reports(self):
+        src=self.root/'early-report-input.wav';wav(src,[100,-200,300,-400],16)
+        missing=self.root/'early-report-absent.wav';missing.unlink(missing_ok=True)
+        malformed=self.root/'early-report-malformed.wav'
+        malformed.write_bytes(b'RIFF\x0c\x00\x00\x00WAVEfmt BAD\x00\x00\x00')
+        for tag,inputs,cause in [('missing-first',[missing],'No such file'),
+                                  ('malformed',[malformed],'truncated'),
+                                  ('missing-second',[src,missing],'No such file')]:
+            report=self.root/f'early-{tag}.json';report.unlink(missing_ok=True)
+            output=self.root/f'early-{tag}-output.wav';output.write_bytes(b'SENTINEL')
+            cp=self.call(['--precision','64','--report',report,*inputs,output],
+                         success=False)
+            require(cp.returncode==2 and report.is_file(),
+                    f'{tag}: input open failed without a report: {cp.stderr}')
+            doc=json.loads(report.read_text());reason=doc.get('failure_reason') or ''
+            require(doc['status']=='failed' and doc['executable'] is False and
+                    doc['precision'] is None and cause.lower() in reason.lower() and
+                    inputs[-1].name in reason and output.read_bytes()==b'SENTINEL',
+                    f'{tag}: missing or inaccurate early failure: {doc}')
+            if tag=='missing-second':
+                sources=doc['source']
+                require(len(sources)==2 and sources[0]['sample_rate_hz']==48000 and
+                        sources[1]['sample_rate_hz'] is None,
+                        f'second input failure lost partial acquisition: {sources}')
+        self.gate('input_open_failure_reports_and_untouched_output',3)
+
+    def missing_report_aliases(self):
+        src=self.root/'alias-report-source.wav';wav(src,[200,-300,400,-500],16)
+        sub=self.root/'alias-report-subdir';sub.mkdir(exist_ok=True)
+        cases=[('relative',self.root/'link-relative.json',
+                self.root/'alias-output-relative.wav','alias-output-relative.wav'),
+               ('absolute',self.root/'link-absolute.json',
+                self.root/'alias-output-absolute.wav',
+                str(self.root/'alias-output-absolute.wav')),
+               ('normalized',sub/'link-normalized.json',
+                sub/'..'/'alias-output-normalized.wav','../alias-output-normalized.wav')]
+        for tag,link,output,destination in cases:
+            link.unlink(missing_ok=True);output.unlink(missing_ok=True)
+            link.symlink_to(destination)
+            for plan in (True,False):
+                cp=self.call(['--precision','64',*(['--plan'] if plan else []),
+                              '--report',link,src,output],success=False)
+                require(cp.returncode==2 and b'--report' in cp.stderr and
+                        b'audio output' in cp.stderr and not output.exists() and
+                        link.is_symlink() and not cp.stdout,
+                        f'{tag} plan={plan}: report alias accepted or audio touched: {cp.stderr}')
+        self.gate('dangling_report_symlink_audio_alias_plan_and_run',6)
+
+        for tag,absolute in [('relative',False),('absolute',True)]:
+            link=self.root/f'valid-{tag}-link.json'
+            target=self.root/f'valid-{tag}-target.json'
+            output=self.root/f'valid-{tag}-audio.wav'
+            for path in (link,target,output):path.unlink(missing_ok=True)
+            link.symlink_to(str(target) if absolute else target.name)
+            self.call(['--precision','64','--plan','--report',link,src,output])
+            require(not output.exists() and
+                    json.loads(target.read_text())['precision']['actual_route']==
+                    'native-binary64-pcm',
+                    f'{tag}: valid report link was rejected or plan opened audio')
+            self.call(['--precision','64','--report',link,src,output])
+            require(link.is_symlink() and output.is_file() and
+                    json.loads(target.read_text())['status']=='complete',
+                    f'{tag}: valid dangling report link failed during run')
+        self.gate('separate_missing_report_targets_plan_and_run',4)
+
+        hard=self.root/'report-input-hardlink.json';hard.unlink(missing_ok=True)
+        os.link(src,hard);before=src.read_bytes()
+        sentinel=self.root/'report-input-alias-output.wav';sentinel.write_bytes(b'SENTINEL')
+        cp=self.call(['--precision','64','--report',hard,src,sentinel],success=False)
+        require(cp.returncode==2 and b'input carrier' in cp.stderr and
+                src.read_bytes()==before and sentinel.read_bytes()==b'SENTINEL',
+                'early report validation missed an input hardlink')
+        self.gate('unopened_input_report_identity_alias',1)
+
+    def quiet_failure_reports(self):
+        src=self.root/'quiet-overflow-in.wav'
+        wav(src,[1.5e38,-1.5e38,0.,1.],64,3)
+        reasons=[]
+        for quiet in (False,True):
+            tag='quiet' if quiet else 'normal'
+            report=self.root/f'overflow-{tag}-report.json'
+            output=self.root/f'overflow-{tag}-out.wav';report.unlink(missing_ok=True)
+            cp=self.call([*(['-V0'] if quiet else []),'--precision','64',
+                          '--report',report,src,'-e','floating-point','-b','32',
+                          output,'gain','12'],success=False)
+            doc=json.loads(report.read_text());reason=doc.get('failure_reason') or ''
+            require(cp.returncode==2 and doc['status']=='failed' and
+                    'numeric' in reason.lower() and 'represent' in reason.lower(),
+                    f'{tag}: numeric failure absent from report: {doc}')
+            if quiet:require(not cp.stderr and not cp.stdout,
+                             f'-V0 leaked terminal diagnostics: {cp.stderr}')
+            else:require(b'numeric' in cp.stderr.lower(),
+                         'normal verbosity lost numeric diagnostic')
+            reasons.append(reason)
+        require(reasons[0]==reasons[1],
+                f'verbosity changed reported failure cause: {reasons}')
+        self.gate('quiet_numeric_failure_reason_matches_normal',2)
+
+        valid=self.root/'quiet-success-report.json'
+        self.call(['-V0','--precision','64','--report',valid,
+                   self.root/'alias-report-source.wav',
+                   self.root/'quiet-success-audio.wav'])
+        doc=json.loads(valid.read_text())
+        require(doc['status']=='complete' and doc['failure_reason'] is None,
+                'quiet successful run invented a failure reason')
+        self.gate('quiet_success_no_false_failure',1)
+
+        refused=self.root/'quiet-refusal-report.json'
+        cp=self.call(['-V0','--precision','64','--report',refused,
+                      self.root/'alias-report-source.wav',
+                      self.root/'quiet-refusal-audio.wav','vol','0.5'],success=False)
+        doc=json.loads(refused.read_text())
+        require(cp.returncode==2 and not cp.stderr and doc['status']=='refused' and
+                'unsupported effect' in (doc.get('failure_reason') or ''),
+                'quiet refusal lost its actual cause')
+        self.gate('quiet_refusal_has_failure_reason',1)
+
     def run(self):
         self.ordinary_effect_lifetimes()
         if not native_dsp_compiled(self.exe):
@@ -364,6 +481,9 @@ class Case:
                 'successful streaming report advertises a provisional descriptor')
         self.gate('stdout_execution_descriptor',1)
         self.returned_regressions()
+        self.early_input_failure_reports()
+        self.missing_report_aliases()
+        self.quiet_failure_reports()
 
 
 def wav_contents_bytes(data):
