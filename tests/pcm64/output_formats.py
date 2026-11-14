@@ -272,7 +272,8 @@ class Test:
                 classic=self.root/'known-mask-wavpcm-native.wav'
                 legacy_classic=self.root/'known-mask-wavpcm-legacy.wav'
                 opts=['-t','wavpcm','-e','signed-integer','-b','24']
-                native_plan=self.plan(['--precision','64',src,*opts,classic])
+                native_plan=json.loads(self.run(['--plan','--precision','64',
+                                                   src,*opts,classic]).stdout)
                 require(native_plan['precision']['actual_route']=='native-binary64-pcm',
                         'classic WAV masked source incorrectly refused during plan')
                 self.run(['--precision','64',src,*opts,classic])
