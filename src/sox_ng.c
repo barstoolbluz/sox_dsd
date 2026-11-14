@@ -2858,9 +2858,14 @@ static void preflight_dsd(void)
     struct stat link_st, target;
     const char *path=ofile->filename;
     if (lstat(path,&link_st)==0) {
-      if (stat(path,&target) || !S_ISREG(target.st_mode)) {
+      if (stat(path,&target)) {
         spec.output_path_native_eligible=0;
-        spec.output_path_status="destination is not an existing regular file (or symlink is dangling)";
+        spec.output_path_status="dangling symlink or inaccessible output destination";
+      } else if (!S_ISREG(target.st_mode)) {
+        spec.output_path_native_eligible=0;
+        spec.output_path_status=S_ISFIFO(target.st_mode)?
+            "named FIFO output is native-ineligible":
+            "native output requires a regular-file destination";
       } else {
         size_t source_index;
         /* The real writer retains an O_RDWR descriptor, not O_WRONLY. */
