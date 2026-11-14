@@ -46,6 +46,14 @@ static int create(sox_effect_t * effp, int argc, char * * argv)
   return argc? lsx_usage(effp) : SOX_SUCCESS;
 }
 
+static int kill_fir(sox_effect_t *effp)
+{
+  priv_t *p=(priv_t *)effp->priv;
+  free(p->h); /* getopts coefficients, if start did not consume them */
+  p->h=NULL;
+  return SOX_SUCCESS;
+}
+
 static int start(sox_effect_t * effp)
 {
   priv_t        * p = (priv_t *)effp->priv;
@@ -85,9 +93,11 @@ static int start(sox_effect_t * effp)
       lsx_plot_fir(p->h, p->n, effp->in_signal.rate,
           effp->global_info->plot, title, -30., 30.);
       free(p->h);
+      p->h=NULL;
       return SOX_EOF;
     }
     lsx_set_dft_filter(f, p->h, p->n, p->n >> 1);
+    p->h=NULL; /* lsx_set_dft_filter consumes the allocation */
   }
   return lsx_dft_filter_effect_fn()->start(effp);
 }
@@ -100,6 +110,7 @@ sox_effect_handler_t const * lsx_fir_effect_fn(void)
   handler.usage = "[coefs-file | coef <coef>]";
   handler.getopts = create;
   handler.start = start;
+  handler.kill = kill_fir;
   handler.priv_size = sizeof(priv_t);
   return &handler;
 }

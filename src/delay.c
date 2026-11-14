@@ -36,6 +36,10 @@ static int kill_delay(sox_effect_t * effp)
     free(p->args[i].str);
   free(p->args);
   free(p->max_delay);
+  /* getopts can invoke kill on a parse error; atexit invokes it again. */
+  p->argc=0;
+  p->args=NULL;
+  p->max_delay=NULL;
   return SOX_SUCCESS;
 }
 

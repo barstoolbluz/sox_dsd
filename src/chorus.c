@@ -604,6 +604,8 @@ static int sox_chorus_stop (sox_effect_t * effp)
                 free(stage->delay_line);
         }
         free(chorus->stage);
+        chorus->stage = NULL;
+        chorus->stage_count = 0;
 
         return (SOX_SUCCESS);
 }
@@ -657,7 +659,7 @@ const sox_effect_handler_t *lsx_chorus_effect_fn(void)
                 sox_chorus_flow,
                 sox_chorus_drain,
                 sox_chorus_stop,
-                NULL,
+                sox_chorus_stop, /* release parsed stage options if never started */
                 sizeof(chorus_priv_t),
                 extra_usage,
                 get_chorus,

@@ -384,6 +384,18 @@ static sox_bool stdin_is_a_tty, is_player, is_guarded, do_guarded_norm, no_dithe
 
 struct timeval load_timeofday;
 
+/* User-effect shells have not transferred ownership to the effects chain.
+ * getopts may have run, and a start callback may even have entered before
+ * exiting on an allocation error, but the shell is never a flows[] array.
+ * Releasing it as one would an initialized chain causes stop callbacks to
+ * access uninitialized state and can index past the single shell object. */
+static void discard_user_effect(sox_effect_t *effect)
+{
+  if (!effect) return;
+  effect->flows=0;
+  sox_delete_effect(effect);
+}
+
 static void cleanup(void)
 {
   size_t i;
@@ -454,7 +466,7 @@ already_closed:
    * Both successful paths null entries as ownership transfers or ends. */
   for (i = 0; i < user_effects_created; ++i)
     if (user_efftab[i])
-      sox_delete_effect(user_efftab[i]);
+      discard_user_effect(user_efftab[i]);
   free(user_efftab);
 
   free(sox_globals.tmp_path);
@@ -3754,7 +3766,7 @@ static int process(void)
     int result=dsd_run_native_pcm();
     size_t i;
     for (i=0;i<nuser_effects[current_eff_chain];i++) {
-      sox_delete_effect(user_efftab[i]);
+      discard_user_effect(user_efftab[i]);
       user_efftab[i]=NULL;
     }
     return result;

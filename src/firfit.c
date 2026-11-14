@@ -199,6 +199,14 @@ more:
   return result;
 }
 
+static int kill_firfit(sox_effect_t *effp)
+{
+  priv_t *p=(priv_t *)effp->priv;
+  free(p->knots); /* parsed options live outside the DFT filter state */
+  p->knots=NULL;
+  return SOX_SUCCESS;
+}
+
 static int start(sox_effect_t * effp)
 {
   priv_t * p = (priv_t *) effp->priv;
@@ -233,6 +241,7 @@ sox_effect_handler_t const * lsx_firfit_effect_fn(void)
   handler.extra_usage = extra_usage;
   handler.getopts = create;
   handler.start = start;
+  handler.kill = kill_firfit;
   handler.priv_size = sizeof(priv_t);
   return &handler;
 }

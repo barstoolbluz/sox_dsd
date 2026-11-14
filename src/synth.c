@@ -274,6 +274,7 @@ static int getopts_synth(sox_effect_t * effp, int argc, char **argv)
     if (!n || *n) {
       lsx_fail("cannot parse length `%s'", p->length_str);
       free(p->length_str);
+      p->length_str = NULL; /* cleanup also calls kill after getopts fails */
       return SOX_EOF;
     }
     argn++;
