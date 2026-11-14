@@ -543,11 +543,15 @@ class CaseRunner:
             else:
                 self.reject(['query',dst],label=title)
             self.tick('invalid_headers_or_nonfinite_inputs')
-        invalid_mask=self.file('mismatched-speaker-mask.wav',wave_bytes(
+        # WAVEFORMATEXTENSIBLE speaker assignment is advisory. The count
+        # of set bits may differ from channel count, while the channel data
+        # and frame extent remain valid. Phase05A must accept this input.
+        advisory_mask=self.file('advisory-speaker-mask.wav',wave_bytes(
             struct.pack('<d',1.0)*2,channels=2,code='f64',
             extensible=True,mask=0x4))
-        self.reject(['query',invalid_mask],label='mismatched-speaker-mask')
-        self.tick('invalid_headers_or_nonfinite_inputs')
+        self.query(advisory_mask,frames=1,channels=2,bits=64,ext=True,mask=0x4)
+        self.dump(advisory_mask,2,[ieee_f64_bits(1.0)]*2)
+        self.tick('advisory_speaker_mask_accepted')
         # Native read reports zero frames for an invalid block: no earlier
         # valid channel/frame may leak into the borrowed output buffer.
         # The C probe also verifies that the error latches on the next read.
