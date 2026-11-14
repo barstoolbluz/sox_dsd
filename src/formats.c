@@ -1678,6 +1678,8 @@ const char *lsx_pcm_f64_source_precommit_issue(const sox_format_t *source)
   lsx_pcm_f64_wav_facts wav;
   lsx_pcm_f64_flac_facts flac;
   struct stat st;
+  if (source && source->signal.channels>64)
+    return "native binary64 PCM reader supports at most 64 channels";
   if (lsx_pcm_f64_wav_query(source,&wav)==PCM_F64_OK)
     return native_source_extent_complete(source,&wav)?NULL:
         "WAV source needs a complete, regular input descriptor";

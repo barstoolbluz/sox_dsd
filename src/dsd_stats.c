@@ -571,7 +571,8 @@ void lsx_dsd_report_json(FILE *f,const lsx_dsd_report_context *r,
   jstr(f,version);
   fputs(",\"source_baseline\":\"d940cc93\",\"build_source_digest\":null,\"build_digest_note\":\"unavailable from source-only archive without git\"},\n  \"status\":",f);
   jstr(f,status);
-  fputs(",\"executable\":true,\n  \"source\":[",f);
+  fprintf(f,",\"executable\":%s,\n  \"source\":[",
+      status && !strcmp(status,"refused") ? "false" : "true");
   for(i=0;i<nsrc;i++) {
     const sox_dsd_stream_info_t *si=infos?infos+i:NULL;
     const sox_dsd_layout_t *layout=layouts?layouts[i]:NULL;

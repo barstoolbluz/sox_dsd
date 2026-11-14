@@ -266,6 +266,8 @@ static char *dsd_report_path = NULL;
 static lsx_dsd_report_context *dsd_report_ctx;
 static lsx_dsd_plan dsd_report_plan; /* NATIVE-mode plan, not active routing. */
 static sox_bool dsd_report_active, dsd_report_published;
+/* A certified refusal is distinct from an I/O or DSP failure after commit. */
+static sox_bool dsd_report_refused;
 static uint64_t dsd_adapter_clips_total, dsd_output_clip_total;
 static sox_output_message_handler_t dsd_report_previous_message_handler;
 static char dsd_report_actual_descriptor[160];
@@ -408,7 +410,8 @@ static void cleanup(void)
   /* Effect stop has already captured graph conversion identities. Input
    * adapters are retired first, while native stream metadata is still live. */
   for (i=0;i<input_count;i++) dsd_adapter_destroy(files[i]);
-  if (dsd_report_publish(user_abort?"cancelled":success?"complete":"failed")!=SOX_SUCCESS)
+  if (dsd_report_publish(user_abort?"cancelled":success?"complete":
+      dsd_report_refused?"refused":"failed")!=SOX_SUCCESS)
     lsx_fail("--report publication failed");
   lsx_dsd_report_disable();
   if (dsd_report_previous_message_handler) {
@@ -2845,23 +2848,60 @@ static void preflight_dsd(void)
   }
   spec.output_native_capable=!strcmp(kind,"dsf") || !strcmp(kind,"dff") || !strcmp(kind,"wsd");
   spec.output_native64_dsd_capable=!strcmp(kind,"dsf") || !strcmp(kind,"dff");
+  /* A plan is forbidden to open the audio output. Match the native writer's
+   * static path/descriptor constraints using existing source fds and metadata.
+   * The writer still revalidates atomically when it acquires O_RDWR. */
   spec.output_path_native_eligible=1;
   spec.output_path_status="actual output descriptor not acquired";
 #if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
   if (ofile->filename && strcmp(ofile->filename,"-")) {
-    struct stat lst, target;
-    if (lstat(ofile->filename,&lst)==0) {
-      if (stat(ofile->filename,&target) || !S_ISREG(target.st_mode)) {
+    struct stat link_st, target;
+    const char *path=ofile->filename;
+    if (lstat(path,&link_st)==0) {
+      if (stat(path,&target) || !S_ISREG(target.st_mode)) {
         spec.output_path_native_eligible=0;
-        spec.output_path_status="existing destination is not a regular file (or symlink is dangling)";
-      } else spec.output_path_status=S_ISLNK(lst.st_mode)?
-          "symlink to regular file: target and descriptor still unresolved":
-          "existing regular file: actual descriptor still unresolved";
+        spec.output_path_status="destination is not an existing regular file (or symlink is dangling)";
+      } else {
+        size_t source_index;
+        /* The real writer retains an O_RDWR descriptor, not O_WRONLY. */
+        if (!(target.st_mode & 0222) || access(path,R_OK|W_OK)) {
+          spec.output_path_native_eligible=0;
+          spec.output_path_status="destination is not readable and writable";
+        }
+        for (source_index=0;source_index<input_count;source_index++) {
+          struct stat source_st;
+          const sox_format_t *source=files[source_index]->ft;
+          if (source && source->fp &&
+              !fstat(fileno((FILE *)source->fp),&source_st) &&
+              source_st.st_dev==target.st_dev && source_st.st_ino==target.st_ino) {
+            spec.output_path_native_eligible=0;
+            spec.output_path_status="output destination aliases input descriptor";
+            break;
+          }
+        }
+        if (spec.output_path_native_eligible)
+          spec.output_path_status=S_ISLNK(link_st.st_mode)?
+              "symlink to writable regular file: descriptor not yet acquired":
+              "writable regular file: descriptor not yet acquired";
+      }
     } else if (errno==ENOENT) {
-      spec.output_path_status="new regular-file candidate: actual descriptor unresolved";
+      char *parent=lsx_strdup(path), *slash=strrchr(parent,'/');
+      struct stat dir;
+      if (slash) {
+        if (slash==parent) slash[1]='\0';
+        else *slash='\0';
+      } else {free(parent);parent=lsx_strdup(".");}
+      if (stat(parent,&dir) || !S_ISDIR(dir.st_mode)) {
+        spec.output_path_native_eligible=0;
+        spec.output_path_status="output parent directory does not exist or is not a directory";
+      } else if (!(dir.st_mode & 0222) || access(parent,W_OK|X_OK)) {
+        spec.output_path_native_eligible=0;
+        spec.output_path_status="output parent directory is not writable";
+      } else spec.output_path_status="new regular-file candidate: descriptor not yet acquired";
+      free(parent);
     } else {
       spec.output_path_native_eligible=0;
-      spec.output_path_status="destination pathname could not be inspected";
+      spec.output_path_status="destination pathname cannot be inspected";
     }
   }
 #endif
@@ -3220,6 +3260,14 @@ static void preflight_dsd(void)
     else lsx_dsd_plan_free(&plan);
     free(input);free(effect);
     success=1;exit(0);
+  }
+  /* Plans rejected before output have no runtime owner. Retain their
+   * owned annotations in the report until cleanup publishes the refusal. */
+  if (dsd_report_active && !dsd_plan_only &&
+      (active->precision_refused || !active->executable)) {
+    dsd_report_plan=*active;
+    memset(active,0,sizeof(*active));
+    active=&dsd_report_plan;
   }
   if (active->precision_refused) {
     lsx_fail("--precision 64 unavailable: %s; no output created",
@@ -3697,6 +3745,9 @@ static int dsd_run_native_pcm(void)
       subtype,layout,source,NULL,dsd_report_path,overwrite_permitted);
   }
   if (!ofile->ft) goto done;
+  /* A retained output has crossed the native writer's commit boundary.
+   * Subsequent errors are failures, not pre-output refusals. */
+  dsd_report_refused=sox_false;
   dsd_report_observe_output(ofile->ft);
   if (show_progress==sox_option_default) show_progress=sox_option_no;
   if (show_progress) {
@@ -3813,6 +3864,13 @@ static int process(void)
 {         /* Input(s) -> Balancing -> Combiner -> Effects -> Output */
   int flow_status;
 
+  /* Activate report capture before effect parsing/preflight so a rejected
+   * strict64 graph produces a truthful refusal receipt. Report preflight
+   * never touches the audio output, and remains idempotent below. */
+  if (precision_requested==LSX_PRECISION_64 && dsd_report_path && !dsd_plan_only) {
+    dsd_report_refused=sox_true;
+    dsd_report_preflight_destination();
+  }
   create_user_effects();
 
   calculate_combiner_signal_parameters();

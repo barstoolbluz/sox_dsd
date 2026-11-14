@@ -1126,7 +1126,8 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
   else if (p->output_domain==LSX_PCM_AUDIO && !spec->output_wav_header_feasible)
     why="native WAV header/rate/layout or output encoding is unsupported";
   else if (!spec->output_path_native_eligible)
-    why="named FIFO, device, dangling symlink or unreadable destination is native-ineligible";
+    why=spec->output_path_status?spec->output_path_status:
+        "native output destination is unavailable";
   else if (p->output_domain==LSX_DSD_NATIVE &&
       !spec->output_native64_dsd_capable)
     why="native binary64 DSD output requires DSF or DFF";
