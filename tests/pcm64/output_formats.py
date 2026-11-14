@@ -266,13 +266,23 @@ class Test:
                         legacy_fmt[2]==n and rd==legacy_payload and rd!=payload,
                         'known-role remix did not reorder samples as legacy SoX does')
                 self.count('known_role_permutation_cases')
-                sentinel=self.root/'known-mask-wavpcm-sentinel.wav'
-                sentinel.write_bytes(b'PRESERVE KNOWN LAYOUT' * 7)
-                blocked=self.run(['--precision','64',src,'-t','wavpcm',
-                                  '-e','signed-integer','-b','24',sentinel],expect=False)
-                require(blocked.returncode!=0 and sentinel.read_bytes()==b'PRESERVE KNOWN LAYOUT'*7,
-                        'classic WAV silently discarded known mask or modified sentinel')
-                self.count('precommit_sentinels')
+                # An explicit classic WAV request intentionally drops the
+                # extensible speaker mask, just like the ordinary writer.
+                # It cannot refuse a valid input solely for that metadata.
+                classic=self.root/'known-mask-wavpcm-native.wav'
+                legacy_classic=self.root/'known-mask-wavpcm-legacy.wav'
+                opts=['-t','wavpcm','-e','signed-integer','-b','24']
+                native_plan=self.plan(['--precision','64',src,*opts,classic])
+                require(native_plan['precision']['actual_route']=='native-binary64-pcm',
+                        'classic WAV masked source incorrectly refused during plan')
+                self.run(['--precision','64',src,*opts,classic])
+                self.run([src,*opts,legacy_classic])
+                _,cf,cp=wav_contents(classic)
+                _,lf,lp=wav_contents(legacy_classic)
+                require(cf[0]==lf[0]==1 and cf[5] is None and
+                        cf[2:5]==lf[2:5] and cp==lp,
+                        'classic WAV did not match the ordinary mask-dropping route')
+                self.count('masked_source_to_classic_wav_parity')
         self.gates['unknown_layout_zero_mask_and_legacy_unchanged']='PASS'
         self.gates['known_masks_and_role_permutation']='PASS'
 
