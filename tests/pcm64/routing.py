@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Phase 04 routing and Phase 05A native PCM compatibility regression.
+"""Phase 04/05A routing plus Phase 05B qualified DSD decoder regression.
 
-Prove precise plan/execution routing: the new native PCM identity/gain path
-is limited to supported required64 shapes, while the legacy, DSD, RF64,
-and approved compatibility-exception behavior remains intact.
+Prove exact native identity/gain or qualified DSD reconstruction shapes, and
+preserve legacy/auto, bitstream and approved compatibility exemptions.
 """
 from __future__ import annotations
 import argparse
@@ -138,12 +137,15 @@ def main():
                           prec['actual_pcm_engine']=='ieee754.binary64' and
                           prec['binary64_pcm_processing'] is True and
                           prec['refused'] is False and
-                          obj['combiner']['domain']=='PCM_AUDIO' and
+                          obj['combiner']['domain'] in ('PCM_AUDIO','DSD_NATIVE') and
                           obj['output']['domain']=='PCM_AUDIO' and
                           obj['encoder_count']==0 and
-                          obj['input_decoder_count']==0 and
-                          obj['graph_decoder_count']==0,
-                          f'{name}: unexpected native runner or hidden DSD: {prec}')
+                          obj['input_decoder_count']+obj['graph_decoder_count']
+                              in (0, 1) and
+                          (obj['input_decoder_count']+obj['graph_decoder_count'] == 0 or
+                           (len(obj['inputs'])==1 and
+                            obj['inputs'][0]['native_domain']=='DSD_NATIVE')),
+                          f'{name}: native runner escaped qualified PCM/DSD shapes: {prec}')
                 else:
                     check(prec['actual_pcm_engine']!='ieee754.binary64' and
                           prec['binary64_pcm_processing'] is False,
@@ -254,9 +256,15 @@ def main():
                        reason=None if eligible else 'decoder qualified only at DSD64 and DSD128')
                 check(p['input_decoder_count']+p['graph_decoder_count']==1,
                       'decoder not present: '+label)
-                check(p['precision']['refused'] and
-                      p['precision']['actual_pcm_engine']=='none',
-                      'strict64 PCM route must still refuse: '+label)
+                if eligible:
+                    check(not p['precision']['refused'] and
+                          p['precision']['actual_route']=='native-binary64-pcm' and
+                          p['precision']['binary64_pcm_processing'] is True,
+                          'qualified DSD64/128 must acquire Phase05B runner: '+label)
+                else:
+                    check(p['precision']['refused'] and
+                          p['precision']['actual_pcm_engine']=='none',
+                          'unqualified DSD256+ PCM route must still refuse: '+label)
                 checks['dsd_decoder_input_rate_'+label]='PASS'
             for label,src in [('512',rate_cases[3][1]),('1024',rate_cases[4][1])]:
                 dest=work/('pure-high-rate-'+label+'.dff')
@@ -533,10 +541,12 @@ def main():
                 run('legacy-dsd-audio-'+label,argv,0)
                 check(rpt.exists() and dest.exists(), 'DSD report/audio missing')
                 r=json.loads(rpt.read_text())
+                # 05B may *offer* the decoder runner even when auto/32 does
+                # not select it. Only the executed engine/route is decisive.
                 check(r['precision']['actual_pcm_engine']=='sox_sample_t.int32'
-                      and r['precision']['binary64_pcm_processing'] is False and
-                      r['precision']['runner_available'] is False,
-                      'DSD execution report falsely identifies native binary64')
+                      and r['precision']['actual_route']=='legacy-effects' and
+                      r['precision']['binary64_pcm_processing'] is False,
+                      'DSD auto/32 execution report falsely identifies native binary64')
                 check(r['precision']['requested']==(policy[1] if policy else 'auto'),
                       'report policy does not match CLI request')
                 commands[-1]['parsed_report']=r

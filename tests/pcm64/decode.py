@@ -103,7 +103,10 @@ def write_source(path: Path, n: int, ch: int, rate: int,
 def decode_case(sox: Path, oracle: Path, folder: Path, ident: str,
                 source: Path, rate: int, profile: str, level: str,
                 kernel: str = "auto", report: bool = True,
-                other_options: tuple[str, ...] = ()) -> dict[str, Any]:
+                other_options: tuple[str, ...] = (),
+                speaker_mask: int | None = None,
+                output_order: tuple[int, ...] = (),
+                packed: bool = False) -> dict[str, Any]:
     wav = folder / f"{ident}.wav"
     raw = folder / f"{ident}.oracle.f64"
     report_path = folder / f"{ident}.report.json"
@@ -125,7 +128,7 @@ def decode_case(sox: Path, oracle: Path, folder: Path, ident: str,
         "mastering-v1": f"decode.mastering.v1.dsd{native // fixtures.DSD64 * 64}", "wideband": "wideband",
         "mastering-v2": f"decode.mastering.v2.dsd{native // fixtures.DSD64 * 64}",
     }[profile]
-    env = {"SOX_DSD_KERNEL_FIR": kernel, "SOX_DSD_PACKED_INPUT": "0"}
+    env = {"SOX_DSD_KERNEL_FIR": kernel, "SOX_DSD_PACKED_INPUT": "1" if packed else "0"}
     argv = [str(sox), "--precision", "64", "--decode", profile_arg,
             "--dsd-level", level, "--dsd-bandwidth", "adapt"]
     if report:
@@ -142,6 +145,18 @@ def decode_case(sox: Path, oracle: Path, folder: Path, ident: str,
     receipt = dict(field.split("=", 1) for field in api.stdout.decode().strip().split())
     actual, mask = parse_wav(wav, int(receipt["pcm"]), int(receipt["channels"]), rate)
     expected = raw.read_bytes()
+    if output_order:
+        demand(sorted(output_order) == list(range(int(receipt["channels"]))),
+               f"{ident}: invalid independent speaker order")
+        # Compute the speaker permutation from the independent decoder words,
+        # without asking either production planner or WAV writer for a map.
+        words = [expected[i:i+8] for i in range(0, len(expected), 8)]
+        expected = b"".join(words[f*len(output_order)+ch]
+                            for f in range(len(words)//len(output_order))
+                            for ch in output_order)
+    if speaker_mask is not None:
+        demand(mask == speaker_mask,
+               f"{ident}: WAV speaker identity {mask:#x} != {speaker_mask:#x}")
     demand(actual == expected,
            f"{ident}: API oracle binary64 mismatch first byte " +
            str(next((i for i, (a, b) in enumerate(zip(actual,expected)) if a!=b),
@@ -181,7 +196,8 @@ def decode_case(sox: Path, oracle: Path, folder: Path, ident: str,
             "native_frames": receipt["native"], "intermediate_frames": receipt["intermediate"],
             "kernel": actual_report["processing"]["decoder"][0]["fir_kernel_actual"] if report else kernel,
             "channels": int(receipt["channels"]), "profile": profile,
-            "level": level, "wav_mask": hex(mask), "words_identical": True}
+            "level": level, "wav_mask": hex(mask), "words_identical": True,
+            "packed_native_input": packed, "speaker_permutation": output_order}
 
 
 def negative_tests(sox: Path, folder: Path, source: Path) -> dict[str, Any]:
@@ -343,7 +359,16 @@ def run_suite(sox: Path, oracle: Path, work: Path) -> dict[str, Any]:
         roles = (("--dsd-layout", "FL,FR,FC,LFE,BL,BR") if channels == 6 else
                  ("--dsd-layout", "FC" if channels == 1 else "FL,FR") if kind == "wsd" else ())
         cases.append(decode_case(sox, oracle, work, idx, src, 96000,
-                                 "mastering-v2", "sacd", other_options=roles))
+                                 "mastering-v2", "sacd", other_options=roles,
+                                 speaker_mask=0x3f if channels == 6 else None))
+    # Exercise the original channel order and canonical WAV speaker-order
+    # permutation separately: a six-channel DFF with named surround channels.
+    src = work / "role-permutation-dff-6.dff"
+    write_source(src, 8193, 6, fixtures.DSD64, "dff", "distinct")
+    cases.append(decode_case(sox, oracle, work, "role-permutation-dff6", src,
+                             96000, "mastering-v2", "preserve",
+                             other_options=("--dsd-layout", "FC,FL,FR,LFE,SL,SR"),
+                             speaker_mask=0x60f,output_order=(1,2,0,3,4,5)))
     # Selected scalar, auto and SSE2 paths, chosen by the same P11 dispatcher.
     src = work / "kernel-identical-source.dsf"
     write_source(src, 8193, 2, fixtures.DSD64, "dsf", "random")
@@ -377,6 +402,24 @@ def run_suite(sox: Path, oracle: Path, work: Path) -> dict[str, Any]:
            with_report["wav_sha256"] == without_report["wav_sha256"],
            "enabling report changed actual DSD audio")
     negatives["report_on_off_equal"] = "PASS"
+    # An optional packed DSF reader route must return the *same* full WAV
+    # binary64 words as expanded reading, and still match the API oracle.
+    packed = decode_case(sox, oracle, work, "packed-no-report", source,
+                         96000, "mastering-v2", "preserve", report=False,
+                         packed=True)
+    cases.append(packed)
+    demand(packed["wav_sha256"] == without_report["wav_sha256"],
+           "native packed/expanded input changes output words")
+    negatives["packed_expanded_exact"] = "PASS"
+    # A fake int32 intermediary cannot pass the exact-word oracle: quantify
+    # the numerical mutant on an actual independently produced float64 file.
+    raw = (work / "report-on.oracle.f64").read_bytes()
+    fmt = "<d" if sys.byteorder == "little" else ">d"
+    mutant_words = sum(1 for (x,) in struct.iter_unpack(fmt,raw)
+                       if x != max(-(1 << 31),min((1 << 31)-1,
+                                                  round(x*(1 << 31)))) / float(1 << 31))
+    demand(mutant_words>0, "signed-int32 bridge mutant escaped the exact-word oracle")
+    negatives["int32_bridge_mutant_rejected_words"] = mutant_words
     return {"suite": "decode", "status": "PASS", "utc": dt.datetime.now(dt.timezone.utc).isoformat(),
             "source_git_commit": safe_git_head(ROOT), "source_sha256": identity,
             "executed_binary_sha256": binaries,
