@@ -3390,18 +3390,83 @@ static void dsd_report_validate_destination(void)
   }
 }
 
+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
+/* Follow dangling report symlinks without ever creating/truncating the
+ * requested destination. A plain sibling probe of the symlink itself tests
+ * the wrong directory when its target is elsewhere. */
+static char *dsd_report_missing_target(const char *name)
+{
+  char *path=lsx_strdup(name);
+  unsigned depth;
+  for (depth=0;depth<40;depth++) {
+    struct stat st;
+    char *target, *next, *slash;
+    size_t size, length;
+    ssize_t got;
+    if (lstat(path,&st)) {
+      if (errno==ENOENT) return path;
+      free(path);return NULL;
+    }
+    if (!S_ISLNK(st.st_mode)) {free(path);errno=EEXIST;return NULL;}
+    size=st.st_size>0 ? (size_t)st.st_size+1 : 256;
+    for (;;) {
+      if (size>1024*1024) {free(path);errno=ENAMETOOLONG;return NULL;}
+      target=lsx_malloc(size+1);
+      got=readlink(path,target,size);
+      if (got<0) {int saved=errno;free(target);free(path);errno=saved;return NULL;}
+      if ((size_t)got<size) break;
+      free(target);size*=2;
+    }
+    target[got]=0;
+    slash=strrchr(path,'/');
+    length=target[0]=='/' || !slash ? 0 : (size_t)(slash-path)+1;
+    next=lsx_malloc(length+(size_t)got+1);
+    if (length) memcpy(next,path,length);
+    memcpy(next+length,target,(size_t)got+1);
+    free(target);free(path);path=next;
+  }
+  free(path);errno=ELOOP;return NULL;
+}
+
+static void dsd_report_probe_parent(const char *name)
+{
+  char *missing=dsd_report_missing_target(name);
+  char *probe, *slash;
+  size_t size;
+  int fd;
+  if (!missing) {
+    lsx_fail("--report destination cannot be resolved: %s",strerror(errno));exit(2);
+  }
+  /* mkstemp exercises the target directory's creation permissions, not the
+   * symlink's containing directory, without modifying either target. */
+  size=strlen(missing)+40;
+  probe=lsx_malloc(size);
+  strcpy(probe,missing);
+  slash=strrchr(probe,'/');
+  if (slash) strcpy(slash+1,".sox-report-XXXXXX");
+  else strcpy(probe,".sox-report-XXXXXX");
+  fd=mkstemp(probe);
+  if (fd<0) {
+    lsx_fail("--report parent directory cannot create report: %s",strerror(errno));
+    free(probe);free(missing);exit(2);
+  }
+  close(fd);unlink(probe);free(probe);free(missing);
+}
+#endif
+
 static void dsd_report_preflight_writable(void)
 {
 #if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
   struct stat st;
   int fd;
-  char *probe, *slash;
-  size_t size;
   if (!dsd_report_path || !strcmp(dsd_report_path,"-")) return;
-  if (!lstat(dsd_report_path,&st)) {
-    if (stat(dsd_report_path,&st) || !S_ISREG(st.st_mode) ||
-        !(st.st_mode & 0222)) {
-      lsx_fail("--report destination is not a writable regular file"); exit(2);
+  if (!stat(dsd_report_path,&st)) {
+    /* /dev/stdout into a pipe, writable FIFOs and character devices can
+     * carry JSON. Restrict regular files by permissions, and prove that the
+     * real destination accepts a nontruncating write descriptor. */
+    if (!(S_ISREG(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISCHR(st.st_mode)) ||
+        (S_ISREG(st.st_mode) && !(st.st_mode & 0222))) {
+      lsx_fail("--report destination cannot be written");exit(2);
     }
     fd=open(dsd_report_path,O_WRONLY|O_NONBLOCK);
     if (fd<0) {
@@ -3414,21 +3479,7 @@ static void dsd_report_preflight_writable(void)
   if (errno!=ENOENT) {
     lsx_fail("--report destination cannot be inspected: %s",strerror(errno));exit(2);
   }
-  /* A missing report is checked by creating an unrelated sibling and
-   * unlinking it immediately. Never touch the requested report pathname. */
-  size=strlen(dsd_report_path)+40;
-  probe=malloc(size);
-  if (!probe) {lsx_fail("--report preflight allocation failed");exit(2);}
-  strcpy(probe,dsd_report_path);
-  slash=strrchr(probe,'/');
-  if (slash) strcpy(slash+1,".sox-report-XXXXXX");
-  else strcpy(probe,".sox-report-XXXXXX");
-  fd=mkstemp(probe);
-  if (fd<0) {
-    lsx_fail("--report parent directory cannot create report: %s",strerror(errno));
-    free(probe);exit(2);
-  }
-  close(fd);unlink(probe);free(probe);
+  dsd_report_probe_parent(dsd_report_path);
 #endif
 }
 
