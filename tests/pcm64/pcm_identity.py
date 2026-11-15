@@ -317,6 +317,60 @@ class Suite:
         self.gates['pure_remix_and_channels_noop']='PASS'
         self.gates['known_and_unknown_speaker_masks']='PASS'
 
+    def portable_remix_layout(self):
+        """Exercise the legacy/32 channel controls when native DSP is off.
+
+        The native F64 word-retention assertions remain unavailable, but
+        basic channel permutation, no-op conversion and speaker-mask behavior
+        are independent of the binary64 coordinator and must still run.
+        """
+        for tag,mask in (('unmasked',None),('known',0x3),('unknown',0x80000000)):
+            source=self.root/f'portable-{tag}.wav'
+            codes=[120,-1700,350,-450,780,-930,12345,-23456]
+            pack_wav(source,struct.pack('<8h',*codes),16,PCM,channels=2,mask=mask)
+            _,raw=parse_wav_bytes(source.read_bytes())
+            swapped=b''.join(raw[i+2:i+4]+raw[i:i+2] for i in range(0,len(raw),4))
+            for policy in ([],['--precision','32']):
+                label='default' if not policy else '32'
+                remix=self.root/f'portable-{tag}-{label}-remix.wav'
+                noop=self.root/f'portable-{tag}-{label}-noop.wav'
+                self.run([*policy,'-D',source,'-b','16',remix,'remix','2','1'],
+                         f'portable-{tag}-{label}-remix')
+                self.run([*policy,'-D',source,'-b','16',noop,'channels','2'],
+                         f'portable-{tag}-{label}-channels-noop')
+                check(parse_wav_bytes(remix.read_bytes())[1]==swapped,
+                      f'{tag}/{label}: portable remix changed sample order')
+                check(parse_wav_bytes(noop.read_bytes())[1]==raw,
+                      f'{tag}/{label}: no-op channel conversion changed PCM')
+                self.count('portable_remix_and_mask_commands',2)
+        self.gates['pure_remix_and_channels_noop']='PASS'
+        self.gates['known_and_unknown_speaker_masks']='PASS'
+        self.gates['native_f64_remix_word_retention']='NOT_RUN: --disable-native-f64'
+
+    def portable_throughput(self):
+        """Keep the ordinary streaming/RSS smoke test in the disabled build.
+
+        This cannot claim native F64 throughput; that separate numerical
+        endpoint remains unrun without the actual binary64 coordinator.
+        """
+        source=self.root/'portable-throughput.wav'
+        destination=self.root/'portable-throughput-out.wav'
+        pattern=struct.pack('<4h',-32768,32767,1234,-5678)
+        raw=pattern*(1<<17)
+        pack_wav(source,raw,16,PCM,channels=2)
+        before=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+        self.run(['-D',source,destination], 'portable-streaming-throughput',timeout=90)
+        got=parse_wav_bytes(destination.read_bytes())[1]
+        check(got==raw,'portable streaming changed PCM samples')
+        after=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+        elapsed=self.commands[-1]['elapsed_seconds']
+        self.time_checks['portable_pcm_mib_per_sec']=round(len(raw)/(1<<20)/max(elapsed,1e-6),1)
+        self.time_checks['portable_child_maxrss_kib']=after
+        self.time_checks['portable_child_rss_before_kib']=before
+        self.gates['bounded_memory_practical_throughput']='PASS'
+        self.gates['native_f64_throughput']='NOT_RUN: --disable-native-f64'
+        self.count('portable_streaming_throughput_commands',1)
+
     def narrowing_and_quantization(self):
         src=self.root/'narrow-input.wav'
         vals=[-0.,0.,1e-40,-1e-40,0.1,-0.1,0.5,-0.5,1.1,-1.1]
@@ -744,6 +798,8 @@ def main():
             suite.count('disabled_refusal_commands',2)
             before=len(suite.commands)
             suite.compatibility_plans(src=source,native=False)
+            suite.portable_remix_layout()
+            suite.portable_throughput()
             suite.count('portable_compatibility_and_plan_commands',len(suite.commands)-before)
             # These precommit alias, sentinel and plan guards operate before
             # the binary64 coordinator. Run the existing checks with an
@@ -761,14 +817,12 @@ def main():
                 'direct_caller_stream_state_machine', 'f64_word_exact_payload',
                 'plan_executed_engine_agreement',
                 'integer_wav_exact_normalization', 'source_volume_and_ordered_gains',
-                'zero_db_signed_zero', 'pure_remix_and_channels_noop',
-                'known_and_unknown_speaker_masks', 'f32_one_round',
+                'zero_db_signed_zero', 'f32_one_round',
                 'target_integer_quantization', 'stdout_pipe_and_regular',
                 'native_report_truthfulness', 'target_saturation_and_nominal_clip_policy',
                 'built_in_flac_pcm64_ingress', 'runtime_fenv_and_injected_io',
                 'hostile_copy_and_numeric_refusal', 'short_write_close_errors_no_success',
-                'sigint_after_commit_no_success',
-                'bounded_memory_practical_throughput'):
+                'sigint_after_commit_no_success'):
                 suite.gates[gate]='NOT_RUN: --disable-native-f64'
             record=suite.receipt('PASS_WITH_NOT_RUN')
             print(f'{record["status"]} pcm-identity: {record["actual_checks"]}, '+

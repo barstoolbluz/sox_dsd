@@ -1015,6 +1015,15 @@ def return5_report_carrier_gate(sox, root):
             demand(cp.returncode!=0 and not cp.stdout.startswith(b'{'),
                    f'implicit effect wrote report JSON to stdout: {options} {content}')
 
+    # Explicit descriptor aliases are the same stdout carrier as report '-'.
+    # They must not become an escape hatch for option/effect-owned output.
+    for effect in (['noiseprof','/dev/stdout'],
+                   ['noiseprof','/dev/fd/1'],
+                   ['spectrogram','-o','/dev/stdout']):
+        cp=execute(['--prec','64','--repo=-',source,'-n',*effect])
+        demand(cp.returncode!=0 and not cp.stdout.startswith(b'{'),
+               f'explicit stdout alias reached report carrier: {effect}')
+
     # A bare '-' is not necessarily stdout. remix interprets it as a channel
     # selector, and noisered/fir read stdin, not stdout.
     prof=root/'return5-valid-noise.prof'

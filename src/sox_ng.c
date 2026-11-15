@@ -5116,6 +5116,9 @@ static sox_bool dsd_report_path_alias(const char *report,const char *other)
 {
   struct stat a,b;
   if (!other || !strcmp(other,"-")) return sox_false;
+  /* '-' names the report's stdout, not a filesystem entry.  Compare other
+   * explicit descriptor aliases against that same live output carrier. */
+  if (dsd_path_is_stdout(report) && dsd_path_is_stdout(other)) return sox_true;
   return !strcmp(report,other) ||
       (!lsx_stat(report,&a) && !lsx_stat(other,&b) &&
        a.st_dev==b.st_dev && a.st_ino==b.st_ino)
@@ -5222,7 +5225,7 @@ static sox_bool dsd_report_cli_path_conflict(int argc, char **argv,
     int option;
     while ((option=lsx_getopt(&scan))!=-1) {
       if (option==0 && (scan.lngind==3 ||
-          (scan.lngind==15 && effects && !strcmp(scan.arg,effects))) &&
+          (scan.lngind==15 && scan.arg && effects && !strcmp(scan.arg,effects))) &&
           scan.arg && dsd_report_path_alias(report,scan.arg)) return sox_true;
     }
     if (scan.ind>=argc || sox_find_effect(argv[scan.ind])) break;
@@ -5248,7 +5251,7 @@ static sox_bool dsd_report_cli_audio_on_stdout(int argc, char **argv,
     int option;
     while ((option=lsx_getopt(&scan))!=-1) {
       if (option==0 && (scan.lngind==3 ||
-          (scan.lngind==15 && effects && !strcmp(scan.arg,effects))) &&
+          (scan.lngind==15 && scan.arg && effects && !strcmp(scan.arg,effects))) &&
           scan.arg && dsd_path_is_stdout(scan.arg)) return sox_true;
       if (option=='p' && shared_standard_stream) return sox_true;
       if (option=='n' || option=='d' || option=='p') {
