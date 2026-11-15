@@ -3514,6 +3514,17 @@ static void dsd_report_validate_destination(void)
     dsd_report_active=sox_false;
     exit(2);
   }
+  /* Explicit input pathnames may name descriptor 1 too. A report to the
+   * same descriptor would overwrite the source even when audio output is a
+   * separate file. A bare "-" denotes stdin and is not such an alias. */
+  if (dsd_path_is_stdout(dsd_report_path))
+    for (i=0;i<input_count;i++)
+      if (files[i]->filename && strcmp(files[i]->filename,"-") &&
+          dsd_path_is_stdout(files[i]->filename)) {
+        lsx_fail("--report conflicts with an input on stdout; select a separate file");
+        dsd_report_active=sox_false;
+        exit(2);
+      }
   if (!strcmp(dsd_report_path,"-")) return; /* JSON to stdout. */
   for (i=0;i<input_count;i++)
     if (files[i]->filename && !strcmp(dsd_report_path,files[i]->filename)) {
@@ -3870,6 +3881,13 @@ static int dsd_report_publish(char const *status)
     lsx_fail("cannot open --report destination: %s",strerror(errno));
     ok=SOX_EOF;
   } else {
+#ifndef _WIN32
+    /* Early option errors publish before the ordinary post-input-open
+     * SIGPIPE policy takes effect. Suppress a disconnected report reader
+     * here, not before popen() can spawn an ordinary |command input: that
+     * producer must inherit SIGPIPE's normal disposition. */
+    setsig(SIGPIPE, SIG_IGN);
+#endif
     lsx_dsd_report_json(out,dsd_report_ctx,
         dsd_runtime_active?&dsd_runtime_plan:
         dsd_report_plan.output_channels?&dsd_report_plan:NULL,stats,input_count,
@@ -5947,12 +5965,6 @@ int main(int argc, char **argv)
   if (sox_mode == sox_soxi)
     exit(soxi(argc, argv));
 
-#ifndef _WIN32
-  /* A --report FIFO can be published during option-error cleanup, before
-   * the normal input-open path ignores SIGPIPE.  A disconnected reader is
-   * a report I/O error, not a signal termination. */
-  setsig(SIGPIPE, SIG_IGN);
-#endif
   dsd_report_prepare_cli_errors(argc, argv);
   parse_options_and_filenames(argc, argv);
 
