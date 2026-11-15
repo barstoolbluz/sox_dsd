@@ -5078,6 +5078,8 @@ static sox_bool dsd_report_cli_audio_on_stdout(int argc, char **argv)
           (dsd_path_is_stdout(scan.arg) &&
            (strcmp(scan.arg,"-") || shared_standard_stream)))
         return sox_true;
+      if (option=='p' && shared_standard_stream)
+        return sox_true; /* -p also names stdin when used as an input. */
       if (option=='n' || option=='d' || option=='p') {
         /* These options add file operands.  -n is a null sink and -d a
          * device; neither uses stdout.  -p can be stdin or stdout. */

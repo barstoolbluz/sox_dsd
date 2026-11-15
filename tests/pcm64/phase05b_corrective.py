@@ -651,6 +651,25 @@ def return4_stdout_report_gate(sox, root):
                 demand(result.returncode != 0 and source.read_bytes() == original
                        and not output.exists(),
                        'stdin/stdout same inode leaked JSON or changed the audio input')
+        # -p (SoX format over stdin) can also be the input operand, and
+        # must not write a failure report back into that same file.
+        sox_stream = call(sox, ['-R', '-n', '-p', 'synth', '0.01', 'sine', '440'])
+        demand(sox_stream.returncode == 0 and sox_stream.stdout,
+               'could not construct the SoX-pipe input fixture')
+        pipe_source = root / 'return4-pipe-input.sox'
+        pipe_source.write_bytes(sox_stream.stdout)
+        for target in aliases:
+            for option in ('-p', '--pipe'):
+                original = pipe_source.read_bytes()
+                with pipe_source.open('r+b') as shared:
+                    result = subprocess.run([str(sox), '--precision', '64',
+                        '--report', target, option, '-r', 'abc',
+                        str(root / 'return4-pipe-dest.wav')],
+                        stdin=shared, stdout=shared, stderr=subprocess.PIPE,
+                        timeout=7)
+                demand(result.returncode != 0 and
+                       pipe_source.read_bytes() == original,
+                       f'{option} input shared with stdout was overwritten')
         # Distinct stdin/stdout is legitimate: stdout may carry JSON, even
         # when the native runner subsequently refuses the stdin WAV reader.
         result = subprocess.run([str(sox), '--precision', '64', '--report', '-',
