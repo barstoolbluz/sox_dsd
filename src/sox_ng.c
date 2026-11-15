@@ -299,6 +299,10 @@ static void dsd_report_preflight_destination(void);
 static int dsd_report_preflight_writable(void);
 static void dsd_report_check_open_output_alias(void);
 static sox_bool dsd_report_cli_audio_on_stdout(int argc, char **argv);
+static void dsd_report_discover_options(int, char **, sox_bool *, char **,
+    sox_bool *);
+static sox_bool dsd_report_cli_path_conflict(int, char **, const char *);
+static sox_bool dsd_report_stdin_shares_stdout(void);
 static int dsd_observe_input(file_t *f,const sox_sample_t *samples,size_t n);
 
 /* Automatic planning is limited to DSD endpoints and DSD controls;
@@ -3502,6 +3506,13 @@ static int dsd_path_is_stdout(const char *path)
       stream.st_dev==path_stat.st_dev && stream.st_ino==path_stat.st_ino;
 }
 
+static sox_bool dsd_report_stdin_shares_stdout(void)
+{
+  struct stat in,out;
+  return !fstat(fileno(stdin),&in) && !fstat(fileno(stdout),&out) &&
+      in.st_dev==out.st_dev && in.st_ino==out.st_ino;
+}
+
 /* Destination validation is shared by P05 plan-only JSON and P14 execution
  * JSON.  It deliberately does not activate a runtime observer or open files. */
 #if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
@@ -3526,13 +3537,16 @@ static void dsd_report_validate_destination(void)
     dsd_report_active=sox_false;
     exit(2);
   }
-  /* Explicit input pathnames may name descriptor 1 too. A report to the
-   * same descriptor would overwrite the source even when audio output is a
-   * separate file. A bare "-" denotes stdin and is not such an alias. */
+  /* A parsed input '-' (also supplied by -p) reads descriptor 0.  If it
+   * names the same underlying carrier as descriptor 1, a stdout report
+   * would overwrite input bytes. This backstop also covers early-scan gaps. */
   if (dsd_path_is_stdout(dsd_report_path))
     for (i=0;i<input_count;i++)
-      if (files[i]->filename && strcmp(files[i]->filename,"-") &&
-          dsd_path_is_stdout(files[i]->filename)) {
+      if (files[i]->filename &&
+          ((!strcmp(files[i]->filename,"-") &&
+            dsd_report_stdin_shares_stdout()) ||
+           (strcmp(files[i]->filename,"-") &&
+            dsd_path_is_stdout(files[i]->filename)))) {
         lsx_fail("--report conflicts with an input on stdout; select a separate file");
         dsd_report_active=sox_false;
         exit(2);
@@ -3751,63 +3765,44 @@ static void dsd_report_preflight_destination(void)
   }
 }
 
-/* Capture option-parser diagnostics even when an invalid argument precedes
- * either --precision or --report. This read-only argv discovery does NOT
- * interpret filenames or replace the ordinary parser; it installs only the
- * observer, while final destination/alias checks remain after parsing. */
+/* Capture even early parser errors, using exactly the option spellings and
+ * argument consumption of lsx_getopt. SOX_OPTS is scanned first, as in the
+ * actual parser; the command line can override its report and precision.
+ * This is read-only discovery, never a substitute for validation. */
 static void dsd_report_prepare_cli_errors(int argc, char **argv)
 {
-  const char *path=NULL;
+  char *path=NULL, *env_copy=NULL, **env_argv=NULL;
+  char const *env_opts=getenv(SOX_OPTS);
   sox_bool strict64=sox_false, plan_only=sox_false;
-  int i;
-  for (i=1;i<argc;i++) {
-    const char *a=argv[i];
-    if (!strcmp(a,"--")) break;
-    if (!strcmp(a,"--precision") && i+1<argc)
-      strict64=!strcmp(argv[++i],"64");
-    else if (!strncmp(a,"--precision=",12))
-      strict64=!strcmp(a+12,"64");
-    else if (!strcmp(a,"--report") && i+1<argc)
-      path=argv[++i];
-    else if (!strncmp(a,"--report=",9))
-      path=a+9;
-    else if (!strcmp(a,"--plan")) plan_only=sox_true;
+  int env_argc=0;
+
+  if (env_opts && *env_opts) {
+    env_copy=lsx_malloc(strlen(argv[0])+strlen(env_opts)+2);
+    strcpy(env_copy,argv[0]);strcat(env_copy," ");strcat(env_copy,env_opts);
+    env_argv=strtoargv(env_copy,&env_argc);
+    dsd_report_discover_options(env_argc,env_argv,&strict64,&path,&plan_only);
   }
-  if (path && dsd_path_is_stdout(path))
-    dsd_report_stdout_cli_conflict=dsd_report_cli_audio_on_stdout(argc,argv);
-  if (!strict64 || !path || !*path || plan_only) return;
-  /* File-option parsing can fail before ofile exists. Inspect only filename
-   * positions using the existing getopt grammar, without opening audio.
-   * If stdout is the intended audio sink, never register a JSON observer
-   * that could write onto that stream during early exit cleanup. */
-  if (dsd_path_is_stdout(path) && dsd_report_stdout_cli_conflict)
-    return;
-  /* An early getopts failure leaves file_count at zero. Never allow the
-   * observer to truncate an unparsed source or destination, even when the
-   * report pathname reaches it through an existing hard/symbolic link. */
-  if (strcmp(path,"-")) {
-    struct stat a,b;
-    for (i=1;i<argc;i++) {
-      const char *candidate=argv[i];
-      if (!strcmp(candidate,"--report")) {i++;continue;}
-      if (!strncmp(candidate,"--report=",9)) continue;
-      if (!strcmp(path,candidate) ||
-          (!lsx_stat(path,&a) && !lsx_stat(candidate,&b) &&
-           a.st_dev==b.st_dev && a.st_ino==b.st_ino)
-#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
-          || dsd_report_missing_paths_alias(path,candidate)
-#endif
-          ) return;
-    }
-  }
+  dsd_report_discover_options(argc,argv,&strict64,&path,&plan_only);
+  if (strict64 && !plan_only && path && dsd_path_is_stdout(path))
+    dsd_report_stdout_cli_conflict=dsd_report_cli_audio_on_stdout(argc,argv) ||
+        (env_argv && dsd_report_cli_audio_on_stdout(env_argc,env_argv));
+  if (!strict64 || !path || !*path || plan_only ||
+      (dsd_path_is_stdout(path) && dsd_report_stdout_cli_conflict) ||
+      (strcmp(path,"-") &&
+       (dsd_report_cli_path_conflict(argc,argv,path) ||
+        (env_argv && dsd_report_cli_path_conflict(env_argc,env_argv,path)))))
+    goto done;
+
   free(dsd_report_path);
   dsd_report_path=lsx_strdup(path);
   dsd_report_ctx=lsx_dsd_report_create();
-  if (!dsd_report_ctx) return;
+  if (!dsd_report_ctx) goto done;
   lsx_dsd_report_enable(dsd_report_ctx);
   dsd_report_active=sox_true;
   dsd_report_previous_message_handler=sox_get_globals()->output_message_handler;
   sox_get_globals()->output_message_handler=dsd_report_message;
+done:
+  free(path);free(env_argv);free(env_copy);
 }
 
 /* In an ordinary command the output is opened only after P05 planning.
@@ -3928,6 +3923,10 @@ static int dsd_report_publish(char const *status)
  * report status as cleanup, but propagate its publication result. */
 static void dsd_report_early_success_exit(void)
 {
+  if (dsd_report_stdout_cli_conflict) {
+    lsx_fail("--report conflicts with another stdout operand; select a separate file");
+    exit(2);
+  }
   if (dsd_report_active && dsd_report_publish("failed")!=SOX_SUCCESS) {
     dsd_report_active=sox_false; /* Do not retry a failed FIFO writer. */
     lsx_fail("--report publication failed");
@@ -5052,6 +5051,78 @@ static lsx_option_t const long_options[] = {
   {NULL, 0, NULL, 0}
 };
 
+/* Iterate the real getopt table. In particular, --repo matches report,
+ * --prec matches precision, and exact --rep remains replay-gain.  Parsing
+ * halts at the first effect, just as ordinary file-option parsing does. */
+static void dsd_report_discover_options(int argc, char **argv,
+    sox_bool *strict64, char **path, sox_bool *plan_only)
+{
+  lsx_getopt_t scan;
+  lsx_getopt_init(argc,argv,getoptstr,long_options,0,1,&scan);
+  while (scan.ind<argc && !sox_find_effect(argv[scan.ind])) {
+    int option;
+    while ((option=lsx_getopt(&scan))!=-1) {
+      if (option!=0) continue;
+      switch (scan.lngind) {
+      case 43:
+        if (scan.arg) *strict64=!strcmp(scan.arg,"64");
+        break;
+      case 34:
+        if (scan.arg) {
+          free(*path);
+          *path=lsx_strdup(scan.arg);
+        }
+        break;
+      case 35: *plan_only=sox_true; break;
+      }
+    }
+    if (scan.ind>=argc || sox_find_effect(argv[scan.ind])) break;
+    ++scan.ind; /* filename; parse the next file's options too */
+  }
+}
+
+/* Before file options can fail, do not activate a report whose pathname
+ * aliases any other parsed option, filename, or effect operand.  The report
+ * option's own argument must not count as a competing filename. */
+static sox_bool dsd_report_path_alias(const char *report,const char *other)
+{
+  struct stat a,b;
+  if (!other || !strcmp(other,"-")) return sox_false;
+  return !strcmp(report,other) ||
+      (!lsx_stat(report,&a) && !lsx_stat(other,&b) &&
+       a.st_dev==b.st_dev && a.st_ino==b.st_ino)
+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
+      || dsd_report_missing_paths_alias(report,other)
+#endif
+      ;
+}
+
+static sox_bool dsd_report_cli_path_conflict(int argc, char **argv,
+    const char *report)
+{
+  lsx_getopt_t scan;
+  lsx_getopt_init(argc,argv,getoptstr,long_options,0,1,&scan);
+  while (scan.ind<argc && !sox_find_effect(argv[scan.ind])) {
+    int option;
+    while ((option=lsx_getopt(&scan))!=-1) {
+      if (option==0 && scan.lngind==34) continue;
+      if (scan.arg && dsd_report_path_alias(report,scan.arg))
+        return sox_true;
+    }
+    if (scan.ind>=argc || sox_find_effect(argv[scan.ind])) break;
+    if (dsd_report_path_alias(report,argv[scan.ind])) return sox_true;
+    ++scan.ind;
+  }
+  /* The outer loop stops at the first effect, so its filename operands
+   * must be checked after the file-option scan. */
+  if (scan.ind<argc && sox_find_effect(argv[scan.ind])) {
+    int i;
+    for (i=scan.ind+1;i<argc;i++)
+      if (dsd_report_path_alias(report,argv[i])) return sox_true;
+  }
+  return sox_false;
+}
+
 /* A getopts value error can exit before the main parser identifies ofile.
  * Consult the SAME option grammar, but not its value validators, to find
  * the output filename without creating any format handles or files.  The
@@ -5059,14 +5130,10 @@ static lsx_option_t const long_options[] = {
 static sox_bool dsd_report_cli_audio_on_stdout(int argc, char **argv)
 {
   lsx_getopt_t scan;
-  struct stat in, out;
   sox_bool seen_stdout=sox_false, explicit_stdout_operand=sox_false;
   sox_bool last_is_non_stdout=sox_false;
-  /* A bare input '-' reads stdin. It is a report collision only when the
-   * underlying stream is also stdout; separate stdin remains permitted. */
-  sox_bool shared_standard_stream= !fstat(fileno(stdin),&in) &&
-      !fstat(fileno(stdout),&out) && in.st_dev==out.st_dev &&
-      in.st_ino==out.st_ino;
+  /* A bare input '-' reads stdin. Separate stdin remains permitted. */
+  sox_bool shared_standard_stream=dsd_report_stdin_shares_stdout();
   lsx_getopt_init(argc,argv,getoptstr,long_options,0,1,&scan);
   while (scan.ind<argc && !sox_find_effect(argv[scan.ind])) {
     int option;

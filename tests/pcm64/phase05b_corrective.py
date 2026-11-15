@@ -710,6 +710,207 @@ def return4_stdout_report_gate(sox, root):
     return 'PASS'
 
 
+
+def return4_option_discovery_gate(sox, root):
+    """Accepted getopt prefixes and SOX_OPTS must get the same safe report."""
+    source = root / 'return4-options-source.wav'
+    with wave.open(str(source), 'wb') as sink:
+        sink.setnchannels(1)
+        sink.setsampwidth(2)
+        sink.setframerate(48000)
+        sink.writeframes(b'\x01\x00' * 400)
+    original = source.read_bytes()
+    output = root / 'return4-options-output.wav'
+    missing = root / 'nonexistent-report-directory' / 'report.json'
+
+    def execute(args, *, env_opts='', stdin=None, stdout=subprocess.PIPE):
+        return subprocess.run([str(sox), *map(str, args)], stdin=stdin,
+                              stdout=stdout, stderr=subprocess.PIPE,
+                              env={**os.environ, 'SOX_OPTS': env_opts}, timeout=8)
+
+    # Shared fd 0/fd 1: full spelling, accepted prefixes, and = syntax
+    # must refuse both a complete command and an error before audio opens.
+    for report_args in (['--report', '-'], ['--repo', '-'],
+                        ['--repor', '-'], ['--repo=-']):
+        for bad in ([], ['-r', 'abc']):
+            source.write_bytes(original)
+            output.unlink(missing_ok=True)
+            with source.open('r+b') as stream:
+                cp = execute(['--prec=64', *report_args, '-t', 'wav', '-',
+                              *bad, output], stdin=stream, stdout=stream)
+            demand(cp.returncode != 0 and source.read_bytes() == original
+                   and not output.exists(),
+                   f'accepted report spelling damaged shared input: '
+                   f'{report_args} {bad} {cp.returncode} {cp.stderr[-150:]!r}')
+    for bad in ([], ['-c', 'abc']):
+        source.write_bytes(original)
+        output.unlink(missing_ok=True)
+        with source.open('r+b') as stream:
+            cp = execute(['-t', 'wav', '-', *bad, output],
+                         env_opts='--precision 64 --report -',
+                         stdin=stream, stdout=stream)
+        demand(cp.returncode != 0 and source.read_bytes() == original
+               and not output.exists(),
+               f'SOX_OPTS report damaged shared input: {bad} {cp.stderr[-150:]!r}')
+
+    # Explicit fd 1 input aliases are unsafe even when the audio output is a
+    # separate file. Test their early-error route as well as normal parsing.
+    for alias in ('/dev/stdout', '/dev/fd/1'):
+        if not Path(alias).exists():
+            continue
+        for bad in ([], ['-c', 'abc']):
+            source.write_bytes(original)
+            output.unlink(missing_ok=True)
+            with source.open('r+b') as stream:
+                cp = execute(['--prec', '64', '--repor', '-', '-t', 'wav',
+                              alias, *bad, output], stdout=stream)
+            demand(cp.returncode != 0 and source.read_bytes() == original
+                   and not output.exists(),
+                   f'fd1 input alias accepted: {alias} {bad}')
+
+    if Path('/dev/stdout').exists():
+        for option in ('--comment-file', '--effects-file'):
+            for env_owned in (False, True):
+                comment = root / 'return4-option-keep.txt'
+                comment.write_bytes(b'original comment\n')
+                output.unlink(missing_ok=True)
+                env_opts = ('--prec 64 --repo=- ' + option + ' /dev/stdout'
+                            if env_owned else '')
+                args = ([source, output] if env_owned else
+                        ['--prec=64', '--repo=-', option, '/dev/stdout',
+                         source, output])
+                with comment.open('r+b') as stream:
+                    cp = execute(args, env_opts=env_opts, stdout=stream)
+                demand(cp.returncode != 0 and
+                       comment.read_bytes() == b'original comment\n' and
+                       not output.exists(),
+                       f'{option} via {"environment" if env_owned else "CLI"} '
+                       f'accepted report collision: {cp.stderr[-150:]!r}')
+
+    # noiseprof - owns stdout; options from SOX_OPTS must not publish into it.
+    for env_owned in (False, True):
+        args = ([source, '-n', 'noiseprof', '-'] if env_owned else
+                ['--prec', '64', '--repo=-', source, '-n', 'noiseprof', '-'])
+        cp = execute(args, env_opts='--prec 64 --repo=-' if env_owned else '')
+        demand(cp.returncode != 0 and b'sox.dsd.conversion' not in cp.stdout,
+               f'noiseprof stdout received report JSON: {env_owned}')
+
+    # A refused stdout report must also make early success exits nonzero.
+    if Path('/dev/stdout').exists():
+        for early in ('--help', '--version'):
+            owned = root / 'return4-early-stdout-owned.txt'
+            owned.write_bytes(b'original comment\n')
+            with owned.open('r+b') as stream:
+                cp = execute(['--prec', '64', '--repo=-',
+                              '--comment-file', '/dev/stdout', early],
+                             stdout=stream)
+            demand(cp.returncode != 0 and
+                   b'sox.dsd.conversion' not in owned.read_bytes(),
+                   f'{early} hid a refused stdout report')
+
+    # Early success exits must propagate failed report publication from every
+    # accepted spelling and from either source of option arguments.
+    for prec in (['--precision', '64'], ['--prec', '64'], ['--prec=64']):
+        for report in (['--report', missing], ['--repo', missing],
+                       [f'--repor={missing}']):
+            for early in ('--help', '--version'):
+                cp = execute([*prec, *report, early])
+                demand(cp.returncode != 0 and
+                       b'--report publication failed' in cp.stderr,
+                       f'early {early} lost publication failure: {prec} {report}')
+    for early in ('--help', '--version'):
+        for env_opts, args in (
+                (f'--prec 64 --repo {missing}', [early]),
+                ('--prec=64', ['--repo', missing, early]),
+                (f'--report {missing}', ['--prec', '64', early])):
+            cp = execute(args, env_opts=env_opts)
+            demand(cp.returncode != 0 and
+                   b'--report publication failed' in cp.stderr,
+                   f'{early} ignored report in SOX_OPTS: {env_opts}')
+
+    # Parser diagnostics survive when report discovery follows a bad value.
+    for bad, reason in ((['-r', 'abc'], 'rate'),
+                        (['-c', 'abc'], 'channels'),
+                        (['--comment-file', root / 'missing-comment'], 'comment file')):
+        for report_first in (False, True):
+            report = ['--repo=-']
+            args = (['--prec', '64', *report, source, *bad, output]
+                    if report_first else
+                    ['--prec', '64', source, *bad, *report, output])
+            cp = execute(args)
+            demand(cp.returncode != 0, f'bad option accepted: {bad}')
+            receipt = json.loads(cp.stdout)
+            demand(receipt['status'] == 'failed' and
+                   reason in (receipt.get('failure_reason') or ''),
+                   f'early error report lost: {bad} {report_first} {receipt}')
+
+    # A separately connected stdout may still carry JSON, and command-line
+    # options still override SOX_OPTS. The historical --rep is replay-gain.
+    for env_opts in ('', '--prec=64 --repo=-'):
+        output.unlink(missing_ok=True)
+        cp = execute(['--prec', '64', '--repo=-', source, output], env_opts=env_opts)
+        receipt = json.loads(cp.stdout)
+        demand(receipt['status'] in ('complete', 'failed', 'refused') and
+               source.read_bytes() == original,
+               f'separate stdout incorrectly blocked: {env_opts}')
+    older = root / 'return4-env-report.json'
+    newer = root / 'return4-cli-report.json'
+    cp = execute(['--prec=64', '--repo', newer, source, '-r', 'abc', output],
+                 env_opts=f'--precision 32 --report {older}')
+    demand(cp.returncode != 0 and not older.exists() and newer.exists() and
+           json.loads(newer.read_text())['status'] == 'failed',
+           'command line did not override SOX_OPTS precision/report')
+    cp = execute(['--prec', '64', '--rep', 'track', '--version'])
+    demand(cp.returncode == 0 and b'sox.dsd.conversion' not in cp.stdout,
+           '--rep replay-gain alias was mistaken for --report')
+    return 'PASS'
+
+
+def return4_effect_path_alias_gate(sox, root):
+    """An early parser failure must not overwrite an effect-owned pathname."""
+    source = root / 'return4-effect-source.wav'
+    with wave.open(str(source), 'wb') as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(8000)
+        wav.writeframes(b'\x01\x00' * 300)
+    original = b'original noise profile - preserve these bytes\n'
+    for case in ('same', 'hardlink', 'same-env', 'hardlink-env', 'separate'):
+        profile = root / f'return4-effect-{case}-profile.txt'
+        report = root / f'return4-effect-{case}-report.json'
+        output = root / f'return4-effect-{case}-output.wav'
+        profile.write_bytes(original)
+        if case.startswith('hardlink'):
+            os.link(profile, report)
+        elif case.startswith('same'):
+            report = profile
+        env_report = case.endswith('-env')
+        options = (['-r', 'abc', source, output, 'noiseprof', profile]
+                   if env_report else
+                   ['--precision', '64', '--report', report, '-r', 'abc',
+                    source, output, 'noiseprof', profile])
+        env = {**os.environ, 'SOX_OPTS':
+               f'--precision 64 --report {report}' if env_report else ''}
+        result = subprocess.run([str(sox), *map(str, options)],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                env=env, timeout=8)
+        demand(result.returncode != 0 and not output.exists(),
+               f'effect alias {case} accepted invalid rate or created audio: '
+               f'{result.returncode} {result.stderr[-200:]!r}')
+        demand(profile.read_bytes() == original,
+               f'effect alias {case} overwrote existing profile')
+        if case == 'separate':
+            demand(report.is_file(), 'safe early report was not published')
+            receipt = json.loads(report.read_text())
+            demand(receipt['status'] == 'failed' and
+                   'rate' in (receipt.get('failure_reason') or ''),
+                   f'nonconflicting early report malformed: {receipt}')
+        elif report != profile:
+            demand(report.read_bytes() == original,
+                   f'effect alias {case} overwrote hard-linked report')
+    return 'PASS'
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sox', type=Path, required=True)
@@ -719,7 +920,8 @@ def main():
     with tempfile.TemporaryDirectory(prefix='p05b-corrective-') as tmp:
         root = Path(tmp)
         for gate in (ordinary_pipe_input_gate, stdout_input_alias_gate,
-                     return4_stdout_report_gate):
+                     return4_stdout_report_gate, return4_option_discovery_gate,
+                     return4_effect_path_alias_gate):
             status = gate(args.sox.resolve(), root)
             demand(status in ('PASS',) or status.startswith('NOT_RUN:'),
                    f'{gate.__name__}: {status}')
