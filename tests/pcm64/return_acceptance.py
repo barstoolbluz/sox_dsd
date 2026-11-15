@@ -149,19 +149,6 @@ class Case:
                     f'wavpcm mask={mask}: output payload or classic header wrong')
         self.gate('wavpcm_extensible_sources',2)
 
-        # Known 64-channel bound must be named in the refusal; generic
-        # handler errors obscure the actual Phase 05A native-reader limit.
-        src=self.root/'input-65ch.wav';wav(src,list(range(65*3)),16,1,65)
-        out=self.root/'rejected-65ch.wav';out.write_bytes(b'SENTINEL')
-        args=['--precision','64',src,out]
-        p=self.plan(args)['precision'];reason=p['fallback_or_refusal_reason'] or ''
-        require(p['actual_route']=='refused-before-output' and '64 channels' in reason,
-                f'65-channel limit incorrectly reported: {reason}')
-        cp=self.call(args,success=False)
-        require(reason.encode() in cp.stderr and out.read_bytes()==b'SENTINEL',
-                '65-channel runtime disagreeing with plan or clobbering destination')
-        self.gate('reader_64_channel_limit_diagnostic',1)
-
         # Symlink to an uncreated report target and /dev/stdout into a pipe
         # are valid report destinations, independent from the audio stream.
         src=self.root/'report-valid-in.wav';wav(src,[200,-300,400,-500],16,1,2)
@@ -179,6 +166,27 @@ class Case:
                     '/dev/stdout into a pipe did not receive valid JSON')
         self.gate('report_valid_symlink_and_stdout_pipe',2)
 
+    def portable_native_refusals(self):
+        """Native endpoint refusals and report precommit gates use no F64 math.
+
+        They exercise planner and parser admission before the coordinator, so
+        disabled-native configurations must execute the same assertions.
+        """
+        # Known 64-channel bound must be named in the refusal; generic
+        # handler errors obscure the actual Phase 05A native-reader limit.
+        src=self.root/'input-65ch.wav';wav(src,list(range(65*3)),16,1,65)
+        out=self.root/'rejected-65ch.wav';out.write_bytes(b'SENTINEL')
+        args=['--precision','64',src,out]
+        p=self.plan(args)['precision'];reason=p['fallback_or_refusal_reason'] or ''
+        require(p['actual_route']=='refused-before-output' and '64 channels' in reason,
+                f'65-channel limit incorrectly reported: {reason}')
+        cp=self.call(args,success=False)
+        require(reason.encode() in cp.stderr and out.read_bytes()==b'SENTINEL',
+                '65-channel runtime disagreeing with plan or clobbering destination')
+        self.gate('reader_64_channel_limit_diagnostic',1)
+
+        src=self.root/'portable-return-source.wav'
+        wav(src,[200,-300,400,-500],16,1,2)
         # Planner may inspect metadata but must never open or alter the
         # output; output acquisition repeats the same alias/access checks.
         inp=self.root/'alias-original.wav';wav(inp,[100,-100,200,-200],16,1,2)
@@ -243,6 +251,36 @@ class Case:
                 rout.read_bytes()==b'SENTINEL',
                 f'getopts failure report claims a plan or loses error: {doc}')
         self.gate('preplan_getopts_failure_report',1)
+
+        stereo=self.root/'portable-piped-stereo.wav'
+        wav(stereo,[4000,-12000,-16000,9000,12000,-20000],16,1,2)
+        # A piped WAV may be readable by legacy SoX, but cannot enter the
+        # seekable input-descriptor native reader. Planning must say so.
+        piped=self.root/'piped-destination.wav';piped.write_bytes(b'SENTINEL')
+        incoming=stereo.read_bytes()
+        args=['--precision','64','-t','wav','-',piped]
+        p=self.plan(args,data=incoming)
+        require(p['precision']['actual_route']=='refused-before-output' and
+                'regular' in (p['precision']['fallback_or_refusal_reason'] or '').lower(),
+                'piped WAV plan claims native eligibility or wrong refusal')
+        self.call(args,data=incoming,success=False)
+        require(piped.read_bytes()==b'SENTINEL','piped WAV run clobbered destination')
+        self.gate('piped_wav_plan_and_run_agree',1)
+        # Erroring report paths are tested before touching any audio output.
+        for tag in ('missing-parent','directory','readonly'):
+            target=self.root/f'report-error-{tag}.wav';target.write_bytes(b'SENTINEL')
+            path=(self.root/'missing-subdirectory'/'report.json' if tag=='missing-parent'
+                  else self.root/'report-as-directory' if tag=='directory'
+                  else self.root/'report-readonly.json')
+            if tag=='directory':path.mkdir(exist_ok=True)
+            if tag=='readonly':path.write_text('unchanged');path.chmod(0o444)
+            try:
+                self.call(['--precision','64','--report',path,stereo,target],success=False)
+                require(target.read_bytes()==b'SENTINEL',
+                        f'{tag}: report precommit refusal damaged audio output')
+            finally:
+                if tag=='readonly':path.chmod(0o644)
+        self.gate('report_precommit_sentinels',3)
 
     def early_input_failure_reports(self):
         src=self.root/'early-report-input.wav';wav(src,[100,-200,300,-400],16)
@@ -465,6 +503,7 @@ class Case:
         self.file_option_failure_reports()
         self.early_input_failure_reports()
         self.missing_report_aliases(native_enabled=native_enabled)
+        self.portable_native_refusals()
         if not native_enabled:
             src=self.root/'disabled-in.wav';dst=self.root/'disabled-out.wav'
             wav(src,[0,1,-1],16);dst.write_bytes(b'SENTINEL')
@@ -474,7 +513,15 @@ class Case:
                     p['precision']['actual_route']=='refused-before-output',
                     'disabled runner accepted strict64 or clobbered output')
             self.gate('disabled_strict64_refusal',2)
-            self.gates['native_return_gates']='NOT_RUN: --disable-native-f64'
+            for gate in ('masked_and_33channel_audio_order',
+                         'explicit_role_mapping_matches_legacy_audio',
+                         'wavpcm_extensible_sources',
+                         'report_valid_symlink_and_stdout_pipe',
+                         'negative_volume_gain_then_remix_and_noop_channels',
+                         'success_report_real_descriptor_and_warnings',
+                         'numeric_overflow_truthful_failure_report',
+                         'stdout_execution_descriptor'):
+                self.gates[gate]='NOT_RUN: --disable-native-f64'
             return
         # Exact sample-order comparison for masked signed24 and high-channel
         # inputs. Compare payloads, not RIFF headers, which intentionally vary.
@@ -527,33 +574,6 @@ class Case:
             require(wav_contents(dest)[2]==wav_contents(source)[2],
                     f'{channels}: no-op channels changed sample count or order')
         self.gate('negative_volume_gain_then_remix_and_noop_channels',4)
-        # A piped WAV may be readable by legacy SoX, but cannot enter the
-        # seekable input-descriptor native reader. Planning must say so.
-        piped=self.root/'piped-destination.wav';piped.write_bytes(b'SENTINEL')
-        incoming=stereo.read_bytes()
-        args=['--precision','64','-t','wav','-',piped]
-        p=self.plan(args,data=incoming)
-        require(p['precision']['actual_route']=='refused-before-output' and
-                'regular' in (p['precision']['fallback_or_refusal_reason'] or '').lower(),
-                'piped WAV plan claims native eligibility or wrong refusal')
-        self.call(args,data=incoming,success=False)
-        require(piped.read_bytes()==b'SENTINEL','piped WAV run clobbered destination')
-        self.gate('piped_wav_plan_and_run_agree',1)
-        # Erroring report paths are tested before touching any audio output.
-        for tag in ('missing-parent','directory','readonly'):
-            target=self.root/f'report-error-{tag}.wav';target.write_bytes(b'SENTINEL')
-            path=(self.root/'missing-subdirectory'/'report.json' if tag=='missing-parent'
-                  else self.root/'report-as-directory' if tag=='directory'
-                  else self.root/'report-readonly.json')
-            if tag=='directory':path.mkdir(exist_ok=True)
-            if tag=='readonly':path.write_text('unchanged');path.chmod(0o444)
-            try:
-                self.call(['--precision','64','--report',path,stereo,target],success=False)
-                require(target.read_bytes()==b'SENTINEL',
-                        f'{tag}: report precommit refusal damaged audio output')
-            finally:
-                if tag=='readonly':path.chmod(0o644)
-        self.gate('report_precommit_sentinels',3)
         clip=self.root/'clip-in.wav';wav(clip,[32767,-32768,25000,-25000]*100,16)
         rpt=self.root/'clip-report.json';out=self.root/'clip-out.wav'
         cp=self.call(['--precision','64','--report',rpt,clip,'-b','24',out,'gain','12'])

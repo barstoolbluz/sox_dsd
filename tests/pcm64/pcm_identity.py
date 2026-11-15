@@ -192,11 +192,18 @@ class Suite:
             self.count('exact_f64_words',len(words));self.count('identity_blocks')
         self.gates['f64_word_exact_payload']='PASS'
         self.gates['plan_executed_engine_agreement']='PASS'
-        # If an int32 bridge is inserted, all nonzero 2^-40 samples disappear.
+
+    def negative_int32_bridge_control(self):
+        """The mathematical mutant check does not require native DSP.
+
+        Run it in both configurations; only the actual F64 word-copy and
+        executed-engine parity require the native arithmetic backend.
+        """
         tiny=f64_word(math.ldexp(1.0,-40))
         check(tiny!=f64_word(0.) and int(f64_from_word(tiny)*(1<<31))==0,
               'negative-control int32 bridge must destroy 2^-40')
         self.gates['negative_int32_bridge_control']='PASS'
+        self.count('negative_int32_bridge_control_assertions',1)
 
     def integer_sources(self):
         for bits,encoding in ((8,PCM),(16,PCM),(24,PCM),(32,PCM)):
@@ -719,6 +726,7 @@ def main():
     receipt=results/'pcm-identity.json';receipt.unlink(missing_ok=True)
     suite=Suite(args.sox,args.probe,results)
     try:
+        suite.negative_int32_bridge_control()
         if not native_dsp_compiled(args.sox):
             source=suite.root/'disabled_input.wav'
             destination=suite.root/'disabled_output.wav'
@@ -751,7 +759,7 @@ def main():
             suite.count('portable_source_and_plan_commands',len(suite.commands)-before)
             for gate in (
                 'direct_caller_stream_state_machine', 'f64_word_exact_payload',
-                'plan_executed_engine_agreement', 'negative_int32_bridge_control',
+                'plan_executed_engine_agreement',
                 'integer_wav_exact_normalization', 'source_volume_and_ordered_gains',
                 'zero_db_signed_zero', 'pure_remix_and_channels_noop',
                 'known_and_unknown_speaker_masks', 'f32_one_round',

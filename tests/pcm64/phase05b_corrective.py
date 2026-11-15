@@ -911,6 +911,165 @@ def return4_effect_path_alias_gate(sox, root):
     return 'PASS'
 
 
+
+def return5_report_carrier_gate(sox, root):
+    """Report publication cannot borrow any option/effect/audio carrier.
+
+    The same cases run with and without native arithmetic; they exercise
+    admission and early errors, not the native PCM processing path.
+    """
+    source=root/'return5-source.wav'
+    with wave.open(str(source),'wb') as sink:
+        sink.setnchannels(1);sink.setsampwidth(2);sink.setframerate(48000)
+        sink.writeframes(b'\x11\x00'*500)
+    original=b'original file owned by an option or effect\n'
+
+    def execute(args, *, env='', stdin=None, stdout=subprocess.PIPE):
+        return subprocess.run([str(sox),*map(str,args)],stdin=stdin,stdout=stdout,
+                              stderr=subprocess.PIPE,timeout=10,
+                              env={**os.environ,'SOX_OPTS':env})
+
+    # File-valued options and effects, direct aliases, hardlinks and symlinks.
+    for family in ('comment', 'effects', 'noisered', 'noiseprof',
+                   'spectrogram'):
+        for alias in ('same', 'hardlink', 'symlink'):
+            owned=root/f'return5-{family}-{alias}.txt'
+            owned.write_bytes(original)
+            report=owned
+            if alias!='same':
+                report=root/f'return5-report-{family}-{alias}.json'
+                report.unlink(missing_ok=True)
+                if alias=='hardlink':os.link(owned,report)
+                else:report.symlink_to(owned.name)
+            output=root/f'return5-{family}-{alias}-out.wav'
+            output.unlink(missing_ok=True)
+            if family=='comment':
+                args=[source,'--comment-file',owned,output]
+            elif family=='effects':
+                args=['--effects-file',owned,source,output]
+            elif family=='noisered':
+                args=[source,output,'noisered',owned,'0.2']
+            elif family=='noiseprof':
+                args=[source,'-n','noiseprof',owned]
+            else:
+                args=[source,'-n','spectrogram','-o',owned]
+            cp=execute(['--prec','64','--repo',report,*args])
+            demand(cp.returncode!=0 and owned.read_bytes()==original and
+                   not output.exists(),
+                   f'{family}/{alias} damaged an owned file or opened audio: '
+                   f'{cp.returncode} {cp.stderr[-180:]!r}')
+
+    # Option precedence and file references carried through SOX_OPTS.
+    for owner in ('comment','effects','noisered'):
+        owned=root/f'return5-env-{owner}.txt';owned.write_bytes(original)
+        output=root/f'return5-env-{owner}-out.wav';output.unlink(missing_ok=True)
+        if owner=='comment':
+            env=f'--precision 64 --report {owned} --comment-file {owned}'
+            args=[source,output]
+        elif owner=='effects':
+            owned.write_text('noiseprof -\n')
+            env='--precision 64 --report - --effects-file '+str(owned)
+            args=[source,'-n']
+        else:
+            env='--precision 64 --report '+str(owned)
+            args=['-r','abc',source,output,'noisered',owned,'0.2']
+        cp=execute(args,env=env)
+        demand(cp.returncode!=0 and not output.exists() and
+               owned.read_bytes()==(b'noiseprof -\n' if owner=='effects' else original) and
+               b'sox.dsd.conversion' not in cp.stdout,
+               f'SOX_OPTS {owner} collision was not refused')
+
+    # Failure before the effect starts must not write the report into it.
+    for alias in ('same','hardlink','env'):
+        owned=root/f'return5-early-{alias}.prof';owned.write_bytes(original)
+        report=owned
+        if alias=='hardlink':
+            report=root/'return5-early-hardlink-report.json'
+            report.unlink(missing_ok=True);os.link(owned,report)
+        output=root/f'return5-early-{alias}-out.wav';output.unlink(missing_ok=True)
+        env=f'--prec 64 --repo {report}' if alias=='env' else ''
+        head=[] if alias=='env' else ['--prec','64','--repo',report]
+        cp=execute([*head,'-r','abc',source,output,'noiseprof',owned],env=env)
+        demand(cp.returncode!=0 and owned.read_bytes()==original and
+               not output.exists(),f'early {alias} report overwrote effect file')
+
+    # Nonconflicting early error is still reported, with its real reason.
+    profile=root/'return5-nonconflicting-profile.prof';profile.write_bytes(original)
+    report=root/'return5-safe-failure.json';report.unlink(missing_ok=True)
+    output=root/'return5-safe-error-out.wav';output.unlink(missing_ok=True)
+    cp=execute(['--prec','64','--repo',report,'-r','abc',source,output,
+                'noiseprof',profile])
+    demand(cp.returncode!=0 and not output.exists() and
+           profile.read_bytes()==original and
+           json.loads(report.read_text())['status']=='failed',
+           'nonconflicting early report failed or altered profile')
+
+    # Implicit stdout and effects-file stdout must not carry report JSON.
+    effectfile=root/'return5-implicit-effects.txt'
+    for content in ('noiseprof -\n','noiseprof\n','spectrogram -o -\n'):
+        effectfile.write_text(content)
+        for options in ([source,'-n','noiseprof'],
+                        ['--effects-file',effectfile,source,'-n']):
+            if options[-1]=='noiseprof' and content!='noiseprof -\n':continue
+            cp=execute(['--prec','64','--repo=-',*options])
+            demand(cp.returncode!=0 and not cp.stdout.startswith(b'{'),
+                   f'implicit effect wrote report JSON to stdout: {options} {content}')
+
+    # A bare '-' is not necessarily stdout. remix interprets it as a channel
+    # selector, and noisered/fir read stdin, not stdout.
+    prof=root/'return5-valid-noise.prof'
+    cp=execute([source,'-n','noiseprof',prof]);demand(cp.returncode==0,'noise profile fixture failed')
+    for effect,stdin in ((['remix','-'],None),(['noisered','-','0.2'],prof.open('rb'))):
+        try:
+            output=root/'return5-safe-effect-out.wav';output.unlink(missing_ok=True)
+            cp=execute(['--precision','64','--report','-',source,output,*effect],stdin=stdin)
+            receipt=json.loads(cp.stdout)
+            demand(b'--report conflicts' not in cp.stderr and
+                   receipt['status'] in ('complete','refused','failed') and
+                   (output.exists() if cp.returncode==0 else not output.exists()),
+                   f'non-stdout effect operand was incorrectly rejected: {effect} {cp.stderr[-200:]!r}')
+        finally:
+            if stdin:stdin.close()
+
+    # A file input borrowed by stdin (even through effect '-') must be
+    # protected when stdout and stdin are the same underlying regular file.
+    before=prof.read_bytes()
+    with prof.open('r+b') as stream:
+        cp=execute(['--prec','64','--repo=-',source,'-n','noisered','-','0.2'],
+                   stdin=stream,stdout=stream)
+    demand(cp.returncode!=0 and prof.read_bytes()==before,
+           'effect stdin/stdout shared descriptor was overwritten')
+
+    # SOX_OPTS --effects-file may be overridden; do not treat inactive effect
+    # arguments as carriers. The report may use stdout independently.
+    safe_effects=root/'return5-override-effective.txt'
+    safe_effects.write_text('vol 0.5\n')
+    risky_effects=root/'return5-override-inactive.txt'
+    risky_effects.write_text('noiseprof -\n')
+    cp=execute(['--prec','64','--repo=-','--effects-file',safe_effects,source,
+                root/'return5-override-out.wav'],env=f'--effects-file {risky_effects}')
+    demand(b'--report conflicts' not in cp.stderr and cp.stdout.startswith(b'{'),
+           'overridden SOX_OPTS effects-file caused false stdout collision')
+
+    # Ordinary --plan retains pre-Phase05B exit behavior; strict64 plan and
+    # report retain the publication-failure obligation.
+    for closed in (False,True):
+        if closed:
+            cp=subprocess.run([str(sox),'--plan',str(source),str(root/'return5-plan.wav')],
+                              stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,
+                              preexec_fn=lambda:os.close(1),timeout=10,
+                              env={**os.environ,'SOX_OPTS':''})
+        else:
+            with open('/dev/full','wb') as full:
+                cp=execute(['--plan',source,root/'return5-plan.wav'],stdout=full)
+        demand(cp.returncode==0,
+               f'ordinary --plan changed its stdout error exit: {closed} {cp.returncode}')
+    with open('/dev/full','wb') as full:
+        cp=execute(['--precision','64','--plan',source,root/'return5-strict-plan.wav'],stdout=full)
+    demand(cp.returncode!=0,'strict64 plan concealed a publication failure')
+    return 'PASS'
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sox', type=Path, required=True)
@@ -921,7 +1080,8 @@ def main():
         root = Path(tmp)
         for gate in (ordinary_pipe_input_gate, stdout_input_alias_gate,
                      return4_stdout_report_gate, return4_option_discovery_gate,
-                     return4_effect_path_alias_gate):
+                     return4_effect_path_alias_gate,
+                     return5_report_carrier_gate):
             status = gate(args.sox.resolve(), root)
             demand(status in ('PASS',) or status.startswith('NOT_RUN:'),
                    f'{gate.__name__}: {status}')
