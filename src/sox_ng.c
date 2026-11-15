@@ -293,7 +293,9 @@ static void dsd_report_message(unsigned level,const char *file,
 static int dsd_report_publish(char const *status);
 static void dsd_report_validate_destination(void);
 static void dsd_report_preflight_destination(void);
+static int dsd_report_preflight_writable(void);
 static void dsd_report_check_open_output_alias(void);
+static sox_bool dsd_report_cli_audio_on_stdout(int argc, char **argv);
 static int dsd_observe_input(file_t *f,const sox_sample_t *samples,size_t n);
 
 /* Automatic planning is limited to DSD endpoints and DSD controls;
@@ -2467,6 +2469,15 @@ static sox_dsd_layout_t *dsd_plan_output(char const *path,
       }
       if (has_identity)
         lsx_warn("writing WAV with unspecified channel mask (--dsd-layout-loss warn)");
+      /* Strict64 DSD output follows the same accepted unspecified-mask
+       * policy as the classic writer.  The native writer interprets NULL
+       * as an unassigned WAV layout, without changing audio sample order.
+       * Do not relax the native writer's PCM masked-source contract. */
+      if (dsd_native_pcm_active && native_input) {
+        free(order);
+        sox_dsd_layout_free(layout);
+        return NULL;
+      }
     } else {
       for (i=0;i<channels;++i)if(order[i]!=i)break;
       if (i<channels) {
@@ -2864,7 +2875,55 @@ static void preflight_dsd(void)
   spec.output_path_native_eligible=1;
   spec.output_path_status="actual output descriptor not acquired";
 #if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
-  if (ofile->filename && strcmp(ofile->filename,"-")) {
+  if (ofile->filename && !strcmp(ofile->filename,"-")) {
+    struct stat descriptor;
+    int fd=fileno(stdout), flags=fd<0?-1:fcntl(fd,F_GETFL);
+    sox_bool streaming=sox_false;
+    size_t source_index;
+    if (fd<0 || fstat(fd,&descriptor) || flags<0) {
+      spec.output_path_native_eligible=0;
+      spec.output_path_status="stdout has no inspectable descriptor";
+    } else {
+      streaming=S_ISFIFO(descriptor.st_mode) || S_ISCHR(descriptor.st_mode);
+      if (flags & O_APPEND) {
+        spec.output_path_native_eligible=0;
+        spec.output_path_status="native stdout descriptor is in append mode";
+      } else if ((flags & O_ACCMODE)==O_RDONLY) {
+        spec.output_path_native_eligible=0;
+        spec.output_path_status="native stdout descriptor is read-only";
+      } else if (!S_ISREG(descriptor.st_mode) && !streaming) {
+        spec.output_path_native_eligible=0;
+        spec.output_path_status="native stdout descriptor type is unsupported";
+      } else if (S_ISREG(descriptor.st_mode) && descriptor.st_size!=0) {
+        spec.output_path_native_eligible=0;
+        spec.output_path_status="native stdout regular file is not empty";
+      } else if (streaming) {
+        /* The native WAV writer needs a known final frame count when it
+         * cannot seek back to update a streaming header. */
+        for (source_index=0;source_index<input_count;source_index++) {
+          sox_format_t const *source=files[source_index]->ft;
+          if (source->signal.length==SOX_UNSPEC ||
+              source->signal.length==SOX_UNKNOWN_LEN) {
+            lsx_pcm_f64_wav_facts wav_facts;
+            lsx_pcm_f64_flac_facts flac_facts;
+            /* A zero-length WAV can be an exactly known empty stream.
+             * signal.length alone cannot distinguish it from unknown. */
+            if ((lsx_pcm_f64_wav_query(source,&wav_facts)==PCM_F64_OK &&
+                 wav_facts.stream.length_known) ||
+                (lsx_pcm_f64_flac_query(source,&flac_facts)==PCM_F64_OK &&
+                 flac_facts.stream.length_known))
+              continue;
+            spec.output_path_native_eligible=0;
+            spec.output_path_status="native stdout stream requires known input length";
+            break;
+          }
+        }
+      }
+      if (spec.output_path_native_eligible)
+        spec.output_path_status=streaming?
+            "known-length native stdout stream":"empty non-appending stdout regular file";
+    }
+  } else if (ofile->filename) {
     struct stat link_st, target;
     const char *path=ofile->filename;
     if (lstat(path,&link_st)==0) {
@@ -3261,7 +3320,11 @@ static void preflight_dsd(void)
      * write: apply the same input/overwrite policy as execution reports. */
     dsd_report_validate_destination();
     if (dsd_report_path && strcmp(dsd_report_path,"-")) {
-      report=lsx_fopen(dsd_report_path,"w");
+      /* The plan writes JSON too. Admit its FIFO without waiting for a
+       * reader, and keep the admitted descriptor until publication. */
+      if (dsd_report_preflight_writable()!=SOX_SUCCESS) exit(2);
+      report=dsd_report_retained_stream ? dsd_report_retained_stream :
+          lsx_fopen(dsd_report_path,"w");
       if (!report) {lsx_fail("cannot open --report destination");exit(2);}
     } else report=stdout;
     if (series) {
@@ -3274,7 +3337,11 @@ static void preflight_dsd(void)
       }
       fputs("  ]\n}\n",report);
     } else lsx_dsd_plan_json(report,&spec,active);
-    if (report!=stdout && fclose(report)) {lsx_fail("cannot write --report");exit(2);}
+    if (report!=stdout) {
+      /* fclose transfers ownership from preflight before atexit cleanup. */
+      if (report==dsd_report_retained_stream) dsd_report_retained_stream=NULL;
+      if (fclose(report)) {lsx_fail("cannot write --report");exit(2);}
+    }
   }
   if (dsd_plan_only) {
     if (series) dsd_free_sequence(series,segments);
@@ -3439,10 +3506,12 @@ static void dsd_report_validate_destination(void)
   struct stat target,source;
   size_t i;
   if (!dsd_report_path) return;
-  if (!dsd_plan_only && dsd_path_is_stdout(dsd_report_path) &&
+  if (dsd_path_is_stdout(dsd_report_path) &&
       (!ofile->filename || dsd_path_is_stdout(ofile->filename) ||
        (ofile->ft && dsd_path_is_stdout(ofile->ft->filename)))) {
     lsx_fail("--report conflicts with audio on stdout; select a separate file");
+    /* Cleanup must not turn a refused audio stream into a JSON stream. */
+    dsd_report_active=sox_false;
     exit(2);
   }
   if (!strcmp(dsd_report_path,"-")) return; /* JSON to stdout. */
@@ -3565,14 +3634,15 @@ static sox_bool dsd_report_missing_paths_alias(const char *report,
   return alias;
 }
 
-static void dsd_report_probe_parent(const char *name)
+static int dsd_report_probe_parent(const char *name)
 {
   char *missing=dsd_report_missing_target(name);
   char *probe, *slash;
   size_t size;
   int fd;
   if (!missing) {
-    lsx_fail("--report destination cannot be resolved: %s",strerror(errno));exit(2);
+    lsx_fail("--report destination cannot be resolved: %s",strerror(errno));
+    return SOX_EOF;
   }
   /* mkstemp exercises the target directory's creation permissions, not the
    * symlink's containing directory, without modifying either target. */
@@ -3585,30 +3655,35 @@ static void dsd_report_probe_parent(const char *name)
   fd=mkstemp(probe);
   if (fd<0) {
     lsx_fail("--report parent directory cannot create report: %s",strerror(errno));
-    free(probe);free(missing);exit(2);
+    free(probe);free(missing);return SOX_EOF;
   }
   close(fd);unlink(probe);free(probe);free(missing);
+  return SOX_SUCCESS;
 }
 #endif
 
-static void dsd_report_preflight_writable(void)
+/* Failure publication can run inside atexit cleanup. Keep this admission
+ * nonfatal so a refused FIFO cannot recursively exit or block in cleanup. */
+static int dsd_report_preflight_writable(void)
 {
 #if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
   struct stat st;
   int fd;
-  if (!dsd_report_path || !strcmp(dsd_report_path,"-")) return;
+  if (!dsd_report_path || !strcmp(dsd_report_path,"-")) return SOX_SUCCESS;
   if (!stat(dsd_report_path,&st)) {
     /* /dev/stdout into a pipe, writable FIFOs and character devices can
      * carry JSON. Restrict regular files by permissions, and prove that the
      * real destination accepts a nontruncating write descriptor. */
     if (!(S_ISREG(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISCHR(st.st_mode)) ||
         (S_ISREG(st.st_mode) && !(st.st_mode & 0222))) {
-      lsx_fail("--report destination cannot be written");exit(2);
+      lsx_fail("--report destination cannot be written");return SOX_EOF;
     }
     fd=open(dsd_report_path,O_WRONLY|O_NONBLOCK);
     if (fd<0) {
       lsx_fail("--report destination cannot be opened for writing: %s",strerror(errno));
-      exit(2);
+      /* An unread FIFO fails ENXIO here, including during early-error
+       * publication. Never fall back to a blocking fopen on failure. */
+      return SOX_EOF;
     }
     if (S_ISFIFO(st.st_mode) || S_ISCHR(st.st_mode)) {
       int flags=fcntl(fd,F_GETFL);
@@ -3617,16 +3692,18 @@ static void dsd_report_preflight_writable(void)
         int saved=errno;
         close(fd);
         lsx_fail("--report destination cannot retain writer: %s",strerror(saved));
-        exit(2);
+        return SOX_EOF;
       }
     } else close(fd);
-    return;
+    return SOX_SUCCESS;
   }
   if (errno!=ENOENT) {
-    lsx_fail("--report destination cannot be inspected: %s",strerror(errno));exit(2);
+    lsx_fail("--report destination cannot be inspected: %s",strerror(errno));
+    return SOX_EOF;
   }
-  dsd_report_probe_parent(dsd_report_path);
+  return dsd_report_probe_parent(dsd_report_path);
 #endif
+  return SOX_SUCCESS;
 }
 
 static void dsd_report_preflight_destination(void)
@@ -3634,7 +3711,11 @@ static void dsd_report_preflight_destination(void)
   if (!dsd_report_path) return;
   if (!dsd_report_destination_checked) {
     dsd_report_validate_destination();
-    if (!dsd_plan_only) dsd_report_preflight_writable();
+    if (!dsd_plan_only && dsd_report_preflight_writable()!=SOX_SUCCESS) {
+      /* A normal precommit refusal must not publish through cleanup. */
+      dsd_report_active=sox_false;
+      exit(2);
+    }
     dsd_report_destination_checked=sox_true;
   }
   if (!dsd_report_active) {
@@ -3670,6 +3751,12 @@ static void dsd_report_prepare_cli_errors(int argc, char **argv)
     else if (!strcmp(a,"--plan")) plan_only=sox_true;
   }
   if (!strict64 || !path || !*path || plan_only) return;
+  /* File-option parsing can fail before ofile exists. Inspect only filename
+   * positions using the existing getopt grammar, without opening audio.
+   * If stdout is the intended audio sink, never register a JSON observer
+   * that could write onto that stream during early exit cleanup. */
+  if (dsd_path_is_stdout(path) && dsd_report_cli_audio_on_stdout(argc,argv))
+    return;
   /* An early getopts failure leaves file_count at zero. Never allow the
    * observer to truncate an unparsed source or destination, even when the
    * report pathname reaches it through an existing hard/symbolic link. */
@@ -3766,6 +3853,16 @@ static int dsd_report_publish(char const *status)
         free(stats);free(infos);free(layouts);free(source_formats);
         return SOX_EOF;
       }
+  }
+  /* Early option errors reach this path from atexit, before normal
+   * destination preflight. Admit their report using the same nonblocking
+   * FIFO check, with an error return rather than a recursive exit. */
+  if (!dsd_report_destination_checked && dsd_report_path &&
+      strcmp(dsd_report_path,"-") &&
+      dsd_report_preflight_writable()!=SOX_SUCCESS) {
+    for(i=0;i<input_count;i++)sox_dsd_layout_free((sox_dsd_layout_t *)layouts[i]);
+    free(stats);free(infos);free(layouts);free(source_formats);
+    return SOX_EOF;
   }
   out=dsd_report_retained_stream ? dsd_report_retained_stream :
       !strcmp(dsd_report_path,"-")?stdout:lsx_fopen(dsd_report_path,"w");
@@ -3907,7 +4004,10 @@ static int dsd_run_native_pcm(void)
   if (dsd_input) {
     use_packed=getenv("SOX_DSD_PACKED_INPUT") &&
         !strcmp(getenv("SOX_DSD_PACKED_INPUT"),"1") &&
-        sox_dsd_packed_supported(source) && !dsd_report_active;
+        sox_dsd_packed_supported(source) && !dsd_report_active &&
+        source->signal.length!=0 &&
+        source->signal.length!=SOX_UNSPEC &&
+        source->signal.length!=SOX_UNKNOWN_LEN;
     sox_dsd_packed_block_init(&packed);
     if (!use_packed) native=malloc(capacity*channels*sizeof(*native));
   }
@@ -4079,13 +4179,32 @@ static int dsd_run_native_pcm(void)
         lsx_fail("native PCM64: DSD decoder made no progress");goto done;
       }
       if (made) {
-        if (dsd_report_active) {
+        /* Clip-error is a property of reconstruction, not of the final
+         * container precision or a gain applied after the decoder.  The
+         * ordinary dsdpcm adapter checks these pre-gain values for every
+         * output encoding, including floating-point WAV. */
+        if (dsd_report_active || dsd_policy.clip==LSX_DSD_CLIP_ERROR) {
           size_t word;
           for (word=0;word<made*channels;word++) {
-            double magnitude=fabs(input[word]);
+            /* The ordinary DSD input adapter checks the reconstructed
+             * sample AFTER the per-input -v/replay gain, before effects.
+             * The native coordinator applies that gain in its first stage;
+             * mirror the adapter here without changing the PCM words. */
+            double adapted=input[word]*factors[0];
+            double magnitude=fabs(adapted);
+            if (!isfinite(adapted)) {
+              lsx_fail("native PCM64: nonfinite sample in DSD input adapter");
+              goto done;
+            }
             if (magnitude>decoder_peak) decoder_peak=magnitude;
-            if (magnitude>=1. && decoder_nominal_clips!=UINT64_MAX)
-              decoder_nominal_clips++;
+            if (adapted>=1. || adapted< -1.) {
+              if (decoder_nominal_clips!=UINT64_MAX) decoder_nominal_clips++;
+              if (dsd_policy.clip==LSX_DSD_CLIP_ERROR) {
+                lsx_fail("native PCM64: --dsd-clip error, reconstructed PCM excursion at frame %" PRIu64 " channel %zu (magnitude %.9g)",
+                    decoder.pcm_seen-made+word/channels,word%channels,magnitude);
+                goto done;
+              }
+            }
           }
         }
         compute=lsx_dsd_f64_process(&engine,(pcm_f64_input){input,made},
@@ -4101,11 +4220,8 @@ static int dsd_run_native_pcm(void)
             for (ch=0;ch<channels;ch++) {
               double v=output[frame*channels+ch];
               if (v>=1. || v < -1.) {
-                if (dsd_policy.clip==LSX_DSD_CLIP_ERROR) {
-                  lsx_fail("native PCM64: --dsd-clip error, nominal PCM excursion at frame %" PRIu64 " channel %zu",
-                      engine.output_frames-made+frame,ch);
-                  goto done;
-                }
+                /* This is after gain effects. --dsd-clip error applies at
+                 * the DSD input adapter, not at integer serialization. */
                 if (nominal_clips!=UINT64_MAX)++nominal_clips;
               }
             }
@@ -4235,7 +4351,10 @@ done:
     output_eof=sox_true;
     rc=LSX_EFF_FATAL;
   }
-  if (dsd_input && decoder.api && decoder.finished)
+  /* On a clip-error refusal the public decoder has already produced the
+   * offending frames but finish() is intentionally not called.  Preserve
+   * its actual partial-decode record in the failed report. */
+  if (dsd_input && decoder.api && (decoder.finished || decoder.pcm_seen))
     lsx_dsd_report_note_decode(decoder.api,selected_profile,
         decode_opt.level==SOX_DSD_LEVEL_SACD?
             LSX_DSD_LEVEL_SACD:LSX_DSD_LEVEL_PRESERVE,
@@ -4887,6 +5006,42 @@ static lsx_option_t const long_options[] = {
 
   {NULL, 0, NULL, 0}
 };
+
+/* A getopts value error can exit before the main parser identifies ofile.
+ * Consult the SAME option grammar, but not its value validators, to find
+ * the output filename without creating any format handles or files.  The
+ * caller only needs this when the report itself resolves to stdout. */
+static sox_bool dsd_report_cli_audio_on_stdout(int argc, char **argv)
+{
+  lsx_getopt_t scan;
+  sox_bool seen_stdout=sox_false, explicit_stdout_operand=sox_false;
+  sox_bool last_is_non_stdout=sox_false;
+  lsx_getopt_init(argc,argv,getoptstr,long_options,0,1,&scan);
+  while (scan.ind<argc && !sox_find_effect(argv[scan.ind])) {
+    int option;
+    while ((option=lsx_getopt(&scan))!=-1) {
+      if (option=='n' || option=='d' || option=='p') {
+        /* These options add file operands.  -n is a null sink and -d a
+         * device; neither uses stdout.  -p can be stdin or stdout. */
+        if (option=='p') seen_stdout=sox_true;
+        last_is_non_stdout=option!='p';
+      }
+    }
+    if (scan.ind>=argc || sox_find_effect(argv[scan.ind])) break;
+    if (dsd_path_is_stdout(argv[scan.ind])) {
+      seen_stdout=sox_true;
+      /* Explicit aliases are unsafe regardless of operand position: an
+       * input naming /dev/stdout can share the report descriptor. */
+      if (strcmp(argv[scan.ind],"-")) explicit_stdout_operand=sox_true;
+      last_is_non_stdout=sox_false;
+    } else last_is_non_stdout=sox_true;
+    ++scan.ind;
+  }
+  /* Bare - and -p may be stdin if followed by a distinct audio output,
+   * including -n.  Keep the final stdout operand ambiguous when an invalid
+   * option consumed a filename, but never clear an explicit stdout alias. */
+  return explicit_stdout_operand || (seen_stdout && !last_is_non_stdout);
+}
 
 static int opt_index(int val)
 {
@@ -5792,6 +5947,12 @@ int main(int argc, char **argv)
   if (sox_mode == sox_soxi)
     exit(soxi(argc, argv));
 
+#ifndef _WIN32
+  /* A --report FIFO can be published during option-error cleanup, before
+   * the normal input-open path ignores SIGPIPE.  A disconnected reader is
+   * a report I/O error, not a signal termination. */
+  setsig(SIGPIPE, SIG_IGN);
+#endif
   dsd_report_prepare_cli_errors(argc, argv);
   parse_options_and_filenames(argc, argv);
 
@@ -6052,6 +6213,9 @@ int main(int argc, char **argv)
   /* Final status is published only after the output writer closes cleanly.
    * A reporting failure is a command failure, not a completed conversion. */
   if (dsd_report_publish("complete")!=SOX_SUCCESS) {
+    /* The failed publication has closed its stream. Do not retry through
+     * cleanup: reopening a FIFO with no reader would block indefinitely. */
+    dsd_report_active=sox_false;
     cleanup();
     return 2;
   }

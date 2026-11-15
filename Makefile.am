@@ -868,7 +868,9 @@ EXTRA_DIST += \
   src/resonator/dsd128/proofs/certificate.json src/resonator/dsd128/proofs/check_certificate.py \
   src/resonator/dsd128/proofs/emit_header.py src/resonator/dsd128/results/proof.json
 
-EXTRA_DIST += tests/pcm64/decode/api_oracle.c tests/pcm64/decode.py tests/pcm64/bench_phase05b.py
+EXTRA_DIST += tests/pcm64/decode/api_oracle.c tests/pcm64/decode.py \
+  tests/pcm64/phase05b_corrective.py tests/pcm64/fifo_report_stop.c \
+  tests/pcm64/bench_phase05b.py
 
 EXTRA_DIST += tests/pcm64/output_formats.py tests/pcm64/routing.py \
   tests/pcm64/return_acceptance.py \

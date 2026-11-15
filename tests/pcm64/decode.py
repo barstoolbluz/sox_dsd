@@ -11,6 +11,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import random
@@ -318,6 +319,164 @@ def negative_tests(sox: Path, folder: Path, source: Path) -> dict[str, Any]:
     demand(cp.returncode == 0 and json.loads(fifo_result.read_text())["status"] == "complete",
            "FIFO report endpoint hung, discarded receipt or misreported run")
     results["fifo_report"] = "PASS"
+
+    # A FIFO with no reader must be rejected immediately. In particular,
+    # cleanup may not retry a nonblocking ENXIO probe with blocking fopen().
+    for label, carrier in (("pcm", folder / "fifo-source-pcm.wav"),
+                           ("dsd", source)):
+        if label == "pcm":
+            import wave
+            with wave.open(str(carrier), "wb") as sink:
+                sink.setnchannels(1)
+                sink.setsampwidth(2)
+                sink.setframerate(48000)
+                sink.writeframes(b"\0\0" * 24)
+        output = folder / f"unread-fifo-{label}.wav"
+        cp = call([str(sox), "--precision", "64", "--report", str(fifo),
+                   str(carrier), "-r", "96000", "-b", "64", "-e", "floating-point",
+                   str(output)], timeout=4)
+        demand(cp.returncode != 0 and not output.exists() and
+               b"report destination" in cp.stderr,
+               f"unread report FIFO blocked or committed audio: {label}")
+    results["unread_fifo_never_blocks"] = "PASS"
+
+    # The output stream is reserved for audio. An explicitly conflicting
+    # report must not be published there during a normal refusal OR an early
+    # parser error before the output file has been classified.
+    for target in ("-", "/dev/stdout") if Path("/dev/stdout").exists() else ("-",):
+        for bad_rate in (False, True):
+            argv = [str(sox), "--precision", "64", "--report", target,
+                    str(source), "-r", "abc" if bad_rate else "96000",
+                    "-b", "64", "-e", "floating-point", "-t", "wav", "-"]
+            cp = call(argv)
+            demand(cp.returncode != 0 and not cp.stdout,
+                   f"report leaked into audio stdout: {target}, bad_rate={bad_rate}")
+        # Positive control: JSON is permitted on stdout when audio has a
+        # separate destination, including for early option-value failures.
+        for bad_rate in (False, True):
+            dest = folder / ("separate-early.wav" if bad_rate else "separate-ok.wav")
+            cp = call([str(sox), "--precision", "64", "--report", target,
+                       str(source), "-r", "abc" if bad_rate else "96000",
+                       "-b", "64", "-e", "floating-point", str(dest)])
+            receipt = json.loads(cp.stdout)
+            demand((cp.returncode != 0 if bad_rate else cp.returncode == 0) and
+                   receipt["status"] == ("failed" if bad_rate else "complete"),
+                   f"legitimate stdout report missing: {target}, bad_rate={bad_rate}")
+    results["report_never_contaminates_audio_stdout"] = "PASS"
+
+    # Clip-error belongs to the decoded DSD input adapter, after -v but
+    # before ordinary gain effects and output serialization. Test the same
+    # over-unity DSD material at integer and floating-point endpoints.
+    all_ones = folder / "nominal-overs.dsf"
+    write_source(all_ones, 40000 * 8, 2, fixtures.DSD64, "dsf", "ones")
+    for name, opts in (("integer24", ["-b", "24"]),
+                       ("float32", ["-e", "floating-point", "-b", "32"]),
+                       ("float64", ["-e", "floating-point", "-b", "64"])):
+        dest = folder / f"clip-{name}.wav"
+        report = folder / f"clip-{name}.json"
+        args = ["--dsd-clip", "error", str(all_ones),
+                *opts, "-r", "96000", str(dest)]
+        default = call([str(sox), *args])
+        native = call([str(sox), "--precision", "64", "--report", str(report), *args])
+        receipt = json.loads(report.read_text())
+        demand(default.returncode != 0 and native.returncode != 0 and
+               receipt["status"] == "failed" and
+               "dsd-clip error" in receipt["failure_reason"] and
+               not dest.exists(),
+               f"decoded clipping must fail before WAV commit: {name}")
+        demand(receipt.get("processing", {}).get("decoder"),
+               f"partial decoder clipping evidence omitted: {name}")
+    results["dsd_clip_error_all_encodings"] = "PASS"
+
+    # The decoder's clip policy is independent of --report, and its input
+    # adapter observes the already-applied -v/--dsd-level gain. Compare the
+    # strict64 and default routes with no observer, at both DSD64 PCM rates.
+    # This detects mutations which accidentally restrict the native clip
+    # check to report-enabled runs, or check before per-input volume.
+    def sd_sine(phase: float) -> bytes:
+        bits = bytearray()
+        acc = 0.0
+        for k in range(40000 * 8):
+            value = 0.5 * math.sin(2 * math.pi * 1000 * k / fixtures.DSD64 + phase)
+            quantized = 1 if acc >= 0.0 else 0
+            acc += value - (1.0 if quantized else -1.0)
+            bits.append(quantized)
+        return bytes(bits)
+
+    sine = folder / 'clip-volume-sine.dsf'
+    sine.write_bytes(fixtures.make_dsf((sd_sine(0), sd_sine(1)), fixtures.DSD64))
+    gain_cases = [
+        ('ones-unity', all_ones, [], True),
+        ('ones-attenuated', all_ones, ['-v', '0.5'], False),
+        ('sine-boosted', sine, ['-v', '3'], True),
+        ('sine-sacd-attenuated', sine, ['--dsd-level', 'sacd', '-v', '0.5'], False),
+    ]
+    no_report_checks = 0
+    for rate in (88200, 96000):
+        for tag, carrier, input_options, clips in gain_cases:
+            # With -v, default-rate DSD decoding may already occur before
+            # the output SRC.  Phase05B does not admit that native SRC graph;
+            # compare the existing native routes, not a new graph feature.
+            if rate != 88200 and input_options:
+                continue
+            for encoding_tag, output_options in (
+                    ('int24', ['-b', '24']),
+                    ('float32', ['-e', 'floating-point', '-b', '32']),
+                    ('float64', ['-e', 'floating-point', '-b', '64'])):
+                native_output = folder / f'clip-noreport-{tag}-{rate}-{encoding_tag}.wav'
+                legacy_output = folder / f'clip-default-{tag}-{rate}-{encoding_tag}.wav'
+                args = [*input_options, '--dsd-clip', 'error', str(carrier),
+                        *output_options, '-r', str(rate)]
+                plan = call([str(sox), '--precision', '64', '--plan',
+                             *args, str(native_output)])
+                demand(plan.returncode == 0 and
+                       json.loads(plan.stdout)['precision']['actual_route'] ==
+                       'native-binary64-pcm',
+                       f'{tag}/{rate}/{encoding_tag}: native route not admitted')
+                default = call([str(sox), *args, str(legacy_output)])
+                native = call([str(sox), '--precision', '64', *args,
+                               str(native_output)])
+                if clips:
+                    demand(default.returncode != 0 and native.returncode != 0 and
+                           b'dsd-clip error' in default.stderr and
+                           b'dsd-clip error' in native.stderr and
+                           not native_output.exists(),
+                           f'{tag}/{rate}/{encoding_tag}: unreported clip did not fail '
+                           f'({default.returncode}, {native.returncode}) '
+                           f'{native.stderr[-200:]!r}')
+                else:
+                    demand(default.returncode == 0 and native.returncode == 0 and
+                           legacy_output.is_file() and native_output.is_file(),
+                           f'{tag}/{rate}/{encoding_tag}: permitted volume failed '
+                           f'({default.returncode}, {native.returncode}) '
+                           f'{native.stderr[-200:]!r}')
+                no_report_checks += 1
+    # Post-decode gain effects may clip the integer endpoint. They must not
+    # be misidentified as a DSD input-adapter clip-error refusal.
+    for encoding_tag, output_options in (
+            ('int24', ['-b', '24']),
+            ('float32', ['-e', 'floating-point', '-b', '32'])):
+        native_output = folder / f'clip-posteffect-{encoding_tag}.wav'
+        default_output = folder / f'clip-default-posteffect-{encoding_tag}.wav'
+        args = ['-v', '0.5', '--dsd-clip', 'error', str(sine),
+                *output_options, '-r', '88200']
+        native_cmd = [str(sox), '--precision', '64', *args,
+                      str(native_output), 'gain', '12']
+        plan = call([str(sox), '--precision', '64', '--plan', *args,
+                     str(native_output), 'gain', '12'])
+        demand(plan.returncode == 0 and
+               json.loads(plan.stdout)['precision']['actual_route'] ==
+               'native-binary64-pcm',
+               'post-effect gain should remain on the existing native route')
+        default = call([str(sox), *args, str(default_output), 'gain', '12'])
+        native = call(native_cmd)
+        demand(default.returncode == 0 and native.returncode == 0 and
+               default_output.is_file() and native_output.is_file(),
+               f'post-effect gain incorrectly treated as DSD clip error: '
+               f'{encoding_tag}: {default.returncode}/{native.returncode} '
+               f'{native.stderr[-200:]!r}')
+        no_report_checks += 1
+    results['dsd_clip_no_report_volume_parity'] = no_report_checks
     return results
 
 
@@ -433,6 +592,48 @@ def main(sox: Path, oracle: Path, results: Path) -> int:
     results.mkdir(parents=True, exist_ok=True)
     receipt = results / "decode.json"
     receipt.unlink(missing_ok=True)
+    # The P05B corrective script is an actual make-suite gate, not an
+    # unregistered handoff command. In a native-disabled build, run the CLI
+    # checks which still apply and skip only the decoder-dependent cases.
+    from binary_receipts import native_dsp_compiled
+    native_enabled = native_dsp_compiled(sox)
+    corrective = ROOT / 'tests/pcm64/phase05b_corrective.py'
+    command = [sys.executable, str(corrective), '--sox', str(sox)]
+    if native_enabled:
+        command += ['--oracle', str(oracle)]
+    else:
+        command.append('--preflight-only')
+    try:
+        registered = subprocess.run(command, capture_output=True, text=True,
+                                    timeout=180, check=False)
+        if registered.returncode or not registered.stdout.startswith('PASS:'):
+            raise AssertionError(f'Phase05B corrective gates: {registered.stderr[-1200:]!r} '
+                                 f'{registered.stdout[-600:]!r}')
+    except Exception as exc:
+        record = {"suite": "decode", "status": "FAIL",
+                  "utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+                  "error": f"registered Phase05B corrective gates: {exc}",
+                  "source_git_commit": safe_git_head(ROOT),
+                  "executed_binary_sha256": {str(sox): sha(sox), str(oracle): sha(oracle)}}
+        receipt.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+        print(f"FAIL decode: {record['error']}", file=sys.stderr)
+        return 1
+    # Compile-time capability is independent of the source-side qualified
+    # decoder.  A --disable-native-f64 build must still pass its refusal
+    # gates, but cannot execute the F64 sample-word oracle.
+    if not native_enabled:
+        record = {"suite": "decode", "status": "PASS_WITH_NOT_RUN",
+                  "utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+                  "source_git_commit": safe_git_head(ROOT),
+                  "executed_binary_sha256": {str(sox): sha(sox),
+                                               str(oracle): sha(oracle)},
+                  "gate_execution": {"phase05b_cli_preflight_and_fifo": "PASS",
+                                     "binary64_decoder_oracle":
+                                     "NOT_RUN: --disable-native-f64"},
+                  "case_count": 0}
+        receipt.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+        print("PASS_WITH_NOT_RUN decode: native F64 disabled at configure time")
+        return 0
     scratch = results / "decode-fixtures"
     # This directory is exclusively suite-owned and may contain FIFO, output
     # symlinks and hardlinks from a prior or interrupted run. Rebuild it from
@@ -451,6 +652,8 @@ def main(sox: Path, oracle: Path, results: Path) -> int:
         receipt.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
         print(f"FAIL decode: {record['error']}", file=sys.stderr)
         return 1
+    record['gate_execution'] = {'phase05b_cumulative_corrective': 'PASS',
+                                'binary64_decoder_oracle': 'PASS'}
     receipt.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
     print(f"PASS decode: {record['case_count']} API word-oracle cases; "
           f"{len(record['negative_gates'])} negative/lifecycle gates")

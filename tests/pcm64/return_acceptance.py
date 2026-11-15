@@ -13,6 +13,8 @@ from pathlib import Path
 import struct
 import subprocess
 import sys
+import time
+import wave
 from binary_receipts import safe_git_head, native_dsp_compiled
 from output_formats import wav, wav_contents
 
@@ -346,6 +348,67 @@ class Case:
                 'early report validation missed an input hardlink')
         self.gate('unopened_input_report_identity_alias',1)
 
+    def disconnected_fifo_report(self):
+        """An already-failed FIFO publication must not reopen during cleanup.
+
+        Keep audio stdout unread until the report writer is connected, then
+        close its reader while audio is still stalled. This controls event
+        order without relying on the conversion's wall-clock duration.
+        """
+        if not hasattr(os,'mkfifo'):
+            self.gates['disconnected_report_fifo_fails_without_retry']='NOT_RUN: no FIFO support'
+            return
+        fifo=self.root/'reader-disconnect.fifo'
+        fifo.unlink(missing_ok=True)
+        os.mkfifo(fifo)
+        src=self.root/'reader-disconnect-input.wav'
+        frames=100000
+        with wave.open(str(src),'wb') as stream:
+            stream.setnchannels(2)
+            stream.setsampwidth(2)
+            stream.setframerate(96000)
+            stream.writeframes(b'\0\0\0\0'*frames)
+        reader=os.open(fifo,os.O_RDONLY|os.O_NONBLOCK)
+        proc=None
+        try:
+            proc=subprocess.Popen(
+                [str(self.exe),'--precision','64','--report',str(fifo),
+                 str(src),'-r','96000','-b','64','-e','floating-point',
+                 '-t','wav','-'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            self.commands+=1
+            deadline=time.monotonic()+5
+            while time.monotonic()<deadline:
+                try:
+                    received=os.read(reader,1)
+                except BlockingIOError:
+                    break  # FIFO writer is connected but has not published.
+                require(not received,'report published before reader disconnect')
+                require(proc.poll() is None,
+                        'conversion exited before report FIFO writer connected')
+                time.sleep(.005)
+            else:
+                raise AssertionError('report FIFO writer did not connect')
+            os.close(reader)
+            reader=-1
+            try:
+                audio,stderr=proc.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.communicate()
+                raise AssertionError('failed FIFO publication reopened and blocked in cleanup')
+            require(proc.returncode==2 and
+                    b'failed to write --report destination' in stderr and
+                    wav_contents_bytes(audio) and len(audio)==94+frames*2*8,
+                    f'failed FIFO report changed audio or diagnostic: '
+                    f'{proc.returncode} {len(audio)} {stderr[-350:]}')
+        finally:
+            if reader>=0:os.close(reader)
+            if proc is not None and proc.poll() is None:
+                proc.kill()
+                proc.communicate()
+            fifo.unlink(missing_ok=True)
+        self.gate('disconnected_report_fifo_fails_without_retry',1)
+
     def quiet_failure_reports(self):
         src=self.root/'quiet-overflow-in.wav'
         wav(src,[1.5e38,-1.5e38,0.,1.],64,3)
@@ -511,6 +574,7 @@ class Case:
                 'successful streaming report advertises a provisional descriptor')
         self.gate('stdout_execution_descriptor',1)
         self.returned_regressions()
+        self.disconnected_fifo_report()
         self.early_input_failure_reports()
         self.file_option_failure_reports()
         self.missing_report_aliases()

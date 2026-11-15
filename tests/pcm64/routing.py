@@ -256,11 +256,21 @@ def main():
                        reason=None if eligible else 'decoder qualified only at DSD64 and DSD128')
                 check(p['input_decoder_count']+p['graph_decoder_count']==1,
                       'decoder not present: '+label)
-                if eligible:
+                if eligible and native_ready:
                     check(not p['precision']['refused'] and
                           p['precision']['actual_route']=='native-binary64-pcm' and
                           p['precision']['binary64_pcm_processing'] is True,
                           'qualified DSD64/128 must acquire Phase05B runner: '+label)
+                elif eligible:
+                    # The decoder remains a qualified graph shape, but this
+                    # build explicitly lacks native F64 arithmetic.  Verify
+                    # the early refusal instead of demanding a nonexistent
+                    # runner; the decode oracle is separately NOT_RUN.
+                    check(p['precision']['refused'] and
+                          p['precision']['actual_route']=='refused-before-output' and
+                          not p['precision']['runner_available'],
+                          'disabled native build falsely advertises decoder: '+label)
+                    gates['phase05b_native_decode']='NOT_RUN: --disable-native-f64'
                 else:
                     check(p['precision']['refused'] and
                           p['precision']['actual_pcm_engine']=='none',
