@@ -737,18 +737,29 @@ def main():
             before=len(suite.commands)
             suite.compatibility_plans(src=source,native=False)
             suite.count('portable_compatibility_and_plan_commands',len(suite.commands)-before)
+            # These precommit alias, sentinel and plan guards operate before
+            # the binary64 coordinator. Run the existing checks with an
+            # independent fixture rather than marking whole gates NOT_RUN.
+            fixture=[f64_word(0.125)]*1022
+            pack_wav(suite.root/'identity-511.wav',f64_payload(fixture),
+                     64,FLOAT32,channels=2)
+            pack_wav(suite.root/'identity-7.wav',f64_payload(fixture[:14]),
+                     64,FLOAT32,channels=2)
+            before=len(suite.commands)
+            suite.faults_and_sentinels()
+            suite.planning_performance()
+            suite.count('portable_source_and_plan_commands',len(suite.commands)-before)
             for gate in (
                 'direct_caller_stream_state_machine', 'f64_word_exact_payload',
                 'plan_executed_engine_agreement', 'negative_int32_bridge_control',
                 'integer_wav_exact_normalization', 'source_volume_and_ordered_gains',
                 'zero_db_signed_zero', 'pure_remix_and_channels_noop',
                 'known_and_unknown_speaker_masks', 'f32_one_round',
-                'target_integer_quantization', 'source_report_symlink_hardlink_alias',
-                'precommit_sentinel_and_nonfinite_failure', 'stdout_pipe_and_regular',
+                'target_integer_quantization', 'stdout_pipe_and_regular',
                 'native_report_truthfulness', 'target_saturation_and_nominal_clip_policy',
                 'built_in_flac_pcm64_ingress', 'runtime_fenv_and_injected_io',
                 'hostile_copy_and_numeric_refusal', 'short_write_close_errors_no_success',
-                'sigint_after_commit_no_success', 'planning_no_output_and_overhead_receipt',
+                'sigint_after_commit_no_success',
                 'bounded_memory_practical_throughput'):
                 suite.gates[gate]='NOT_RUN: --disable-native-f64'
             record=suite.receipt('PASS_WITH_NOT_RUN')

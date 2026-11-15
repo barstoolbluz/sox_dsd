@@ -626,6 +626,71 @@ def cli_preflight_gate(sox, root):
     return 'PASS'
 
 
+
+def return4_stdout_report_gate(sox, root):
+    """No report may overwrite an input, effect sink or option file."""
+    source = root / 'return4-source.wav'
+    with wave.open(str(source), 'wb') as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(48000)
+        wav.writeframes(b'\x02\x01' * 128)
+    aliases = ('-', '/dev/stdout') if Path('/dev/stdout').exists() else ('-',)
+    if os.name == 'posix':
+        for target in aliases:
+            for early in (False, True):
+                original = source.read_bytes()
+                output = root / 'return4-output.wav'
+                output.unlink(missing_ok=True)
+                with source.open('r+b') as shared:
+                    result = subprocess.run([str(sox), '--precision', '64',
+                        '--report', target, '-t', 'wav', '-',
+                        *(['-r', 'abc'] if early else []), str(output)],
+                        stdin=shared, stdout=shared, stderr=subprocess.PIPE,
+                        timeout=7)
+                demand(result.returncode != 0 and source.read_bytes() == original
+                       and not output.exists(),
+                       'stdin/stdout same inode leaked JSON or changed the audio input')
+        # Distinct stdin/stdout is legitimate: stdout may carry JSON, even
+        # when the native runner subsequently refuses the stdin WAV reader.
+        result = subprocess.run([str(sox), '--precision', '64', '--report', '-',
+            '-t', 'wav', '-', str(root / 'return4-stdin-dest.wav')],
+            input=source.read_bytes(), stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, timeout=7)
+        demand(result.stdout.startswith(b'{') and
+               json.loads(result.stdout)['status'] in ('complete','refused','failed'),
+               'separate stdin incorrectly blocks the stdout report')
+
+    # These paths are not audio endpoints. The effect or the file-valued
+    # option owns stdout, so the reporting channel must remain unused.
+    for target in aliases:
+        result = call(sox, ['--precision', '64', '--report', target,
+                            source, '-n', 'noiseprof', '-'])
+        demand(result.returncode != 0 and b'sox.dsd.conversion' not in result.stdout,
+               'noiseprof stdout was contaminated by JSON')
+        if Path('/dev/stdout').exists():
+            for option in (['--comment-file', '/dev/stdout'],
+                           ['--comment-file=/dev/stdout']):
+                comment = root / 'return4-comment.txt'
+                comment.write_bytes(b'comment\n')
+                original = comment.read_bytes()
+                output = root / 'return4-comment-output.wav'
+                output.unlink(missing_ok=True)
+                with comment.open('r+b') as descriptor:
+                    result = call(sox, ['--precision', '64', '--report', target,
+                        *option, source, output], stdout=descriptor)
+                demand(result.returncode != 0 and comment.read_bytes() == original
+                       and not output.exists(),
+                       'file-valued --comment-file consumed report JSON')
+
+    for flag in ('--help', '--version', '--help-dsd'):
+        result = call(sox, ['--precision', '64', '--report',
+                            root / 'missing-dir' / 'report.json', flag])
+        demand(result.returncode != 0 and b'--report publication failed' in result.stderr,
+               f'{flag} reported success after report publication failed')
+    return 'PASS'
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sox', type=Path, required=True)
@@ -634,7 +699,8 @@ def main():
     args = parser.parse_args()
     with tempfile.TemporaryDirectory(prefix='p05b-corrective-') as tmp:
         root = Path(tmp)
-        for gate in (ordinary_pipe_input_gate, stdout_input_alias_gate):
+        for gate in (ordinary_pipe_input_gate, stdout_input_alias_gate,
+                     return4_stdout_report_gate):
             status = gate(args.sox.resolve(), root)
             demand(status in ('PASS',) or status.startswith('NOT_RUN:'),
                    f'{gate.__name__}: {status}')

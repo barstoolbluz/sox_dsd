@@ -230,34 +230,38 @@ def negative_tests(sox: Path, folder: Path, source: Path,
            "early option error before --report was not captured")
     results["report_after_bad_arg"] = "PASS"
 
-    if native_enabled:
-        for ext in ("dsf", "dff", "wsd"):
-            original = folder / f"negative-{ext}.{ext}"
-            write_source(original, 512, 2, fixtures.DSD64, ext, "distinct")
-            truncated = folder / f"truncated-{ext}.{ext}"
-            truncated.write_bytes(original.read_bytes()[:-19])
-            report = folder / f"truncated-{ext}.json"
-            cp = call([str(sox), "--precision", "64", "--report", str(report),
-                       str(truncated), "-b", "64", "-e", "floating-point",
-                       str(folder / f"bad-{ext}.wav")])
-            demand(cp.returncode != 0 and report.exists() and
-                   json.loads(report.read_text())["status"] != "complete",
-                   f"{ext}: truncated source accepted or no failure report")
-            results[f"truncated_{ext}"] = cp.returncode
+    # Container extent and source alias preflight do not use native F64
+    # arithmetic. In disabled builds the source below is an ordinary PCM
+    # fixture, but the same strict64 alias guard still runs before refusal.
+    for ext in ("dsf", "dff", "wsd"):
+        original = folder / f"negative-{ext}.{ext}"
+        write_source(original, 512, 2, fixtures.DSD64, ext, "distinct")
+        truncated = folder / f"truncated-{ext}.{ext}"
+        truncated.write_bytes(original.read_bytes()[:-19])
+        report = folder / f"truncated-{ext}.json"
+        cp = call([str(sox), "--precision", "64", "--report", str(report),
+                   str(truncated), "-b", "64", "-e", "floating-point",
+                   str(folder / f"bad-{ext}.wav")])
+        demand(cp.returncode != 0 and report.exists() and
+               json.loads(report.read_text())["status"] != "complete" and
+               b"invalid " in cp.stderr,
+               f"{ext}: truncated source accepted or no extent failure report")
+        results[f"truncated_{ext}"] = cp.returncode
 
-        # A positional output aliases the source and must never clobber it.
-        before = sha(source)
-        cp = call([str(sox), "--precision", "64", str(source), "-t", "wav",
-                   str(source)])
-        demand(cp.returncode != 0 and sha(source) == before,
-               "native DSD alias overwrote the input")
-        link = folder / "input-alias.wav"
-        link.symlink_to(source)
-        cp = call([str(sox), "--precision", "64", str(source), "-b", "64",
-                   "-e", "floating-point", str(link)])
-        demand(cp.returncode != 0 and sha(source) == before,
-               "symlink output alias overwrote the input")
-        results["source_identity_protection"] = "PASS"
+    before = sha(source)
+    cp = call([str(sox), "--precision", "64", str(source), "-t", "wav",
+               str(source)])
+    demand(cp.returncode != 0 and sha(source) == before and
+           b"aliases input descriptor" in cp.stderr,
+           "strict64 source identity preflight failed to reject an alias")
+    link = folder / "input-alias.wav"
+    link.symlink_to(source)
+    cp = call([str(sox), "--precision", "64", str(source), "-b", "64",
+               "-e", "floating-point", str(link)])
+    demand(cp.returncode != 0 and sha(source) == before and
+           b"aliases input descriptor" in cp.stderr,
+           "strict64 symlink input alias was not recognized")
+    results["source_identity_protection"] = "PASS"
 
     existing = folder / "existing.wav"
     existing.write_bytes(b"SENTINEL\n")
@@ -666,8 +670,7 @@ def main(sox: Path, oracle: Path, results: Path) -> int:
             receipt.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
             print(f"FAIL decode (native disabled): {record['error']}", file=sys.stderr)
             return 1
-        native_only = ("binary64_decoder_oracle", "truncated_dsf", "truncated_dff",
-                       "truncated_wsd", "source_identity_protection", "stdout_device",
+        native_only = ("binary64_decoder_oracle", "stdout_device",
                        "fifo_report", "dsd_clip_error_all_encodings",
                        "dsd_clip_no_report_volume_parity")
         record = {"suite": "decode", "status": "PASS_WITH_NOT_RUN",
