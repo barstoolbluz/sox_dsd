@@ -271,6 +271,8 @@ static lsx_dsd_report_context *dsd_report_ctx;
 static lsx_dsd_plan dsd_report_plan; /* NATIVE-mode plan, not active routing. */
 static sox_bool dsd_report_active, dsd_report_published;
 static sox_bool dsd_report_destination_checked;
+/* Read-only CLI scan, computed before file-option parsing can exit. */
+static sox_bool dsd_report_stdout_cli_conflict;
 /* A certified refusal is distinct from an I/O or DSP failure after commit. */
 static sox_bool dsd_report_refused;
 static uint64_t dsd_adapter_clips_total, dsd_output_clip_total;
@@ -291,6 +293,7 @@ static void dsd_report_message(unsigned level,const char *file,
 }
 
 static int dsd_report_publish(char const *status);
+static void dsd_report_early_success_exit(void);
 static void dsd_report_validate_destination(void);
 static void dsd_report_preflight_destination(void);
 static int dsd_report_preflight_writable(void);
@@ -3337,6 +3340,9 @@ static void preflight_dsd(void)
       }
       fputs("  ]\n}\n",report);
     } else lsx_dsd_plan_json(report,&spec,active);
+    if (report==stdout && (ferror(report) || fflush(report))) {
+      lsx_fail("cannot write --plan JSON to stdout");exit(2);
+    }
     if (report!=stdout) {
       /* fclose transfers ownership from preflight before atexit cleanup. */
       if (report==dsd_report_retained_stream) dsd_report_retained_stream=NULL;
@@ -3506,6 +3512,12 @@ static void dsd_report_validate_destination(void)
   struct stat target,source;
   size_t i;
   if (!dsd_report_path) return;
+  if (dsd_path_is_stdout(dsd_report_path) &&
+      dsd_report_stdout_cli_conflict) {
+    lsx_fail("--report conflicts with another stdout operand; select a separate file");
+    dsd_report_active=sox_false;
+    exit(2);
+  }
   if (dsd_path_is_stdout(dsd_report_path) &&
       (!ofile->filename || dsd_path_is_stdout(ofile->filename) ||
        (ofile->ft && dsd_path_is_stdout(ofile->ft->filename)))) {
@@ -3761,12 +3773,14 @@ static void dsd_report_prepare_cli_errors(int argc, char **argv)
       path=a+9;
     else if (!strcmp(a,"--plan")) plan_only=sox_true;
   }
+  if (path && dsd_path_is_stdout(path))
+    dsd_report_stdout_cli_conflict=dsd_report_cli_audio_on_stdout(argc,argv);
   if (!strict64 || !path || !*path || plan_only) return;
   /* File-option parsing can fail before ofile exists. Inspect only filename
    * positions using the existing getopt grammar, without opening audio.
    * If stdout is the intended audio sink, never register a JSON observer
    * that could write onto that stream during early exit cleanup. */
-  if (dsd_path_is_stdout(path) && dsd_report_cli_audio_on_stdout(argc,argv))
+  if (dsd_path_is_stdout(path) && dsd_report_stdout_cli_conflict)
     return;
   /* An early getopts failure leaves file_count at zero. Never allow the
    * observer to truncate an unparsed source or destination, even when the
@@ -3907,6 +3921,19 @@ static int dsd_report_publish(char const *status)
   free(stats);free(infos);free(layouts);free(source_formats);
   if (ok==SOX_SUCCESS)dsd_report_published=sox_true;
   return ok;
+}
+
+/* Success exits during argument parsing otherwise publish only from atexit,
+ * where a failed report cannot change exit(0). Keep the same early-failure
+ * report status as cleanup, but propagate its publication result. */
+static void dsd_report_early_success_exit(void)
+{
+  if (dsd_report_active && dsd_report_publish("failed")!=SOX_SUCCESS) {
+    dsd_report_active=sox_false; /* Do not retry a failed FIFO writer. */
+    lsx_fail("--report publication failed");
+    exit(2);
+  }
+  exit(0);
 }
 
 /* Phase 05A bridge: one input, an ordered finite PCM64 stream and one native
@@ -5032,12 +5059,25 @@ static lsx_option_t const long_options[] = {
 static sox_bool dsd_report_cli_audio_on_stdout(int argc, char **argv)
 {
   lsx_getopt_t scan;
+  struct stat in, out;
   sox_bool seen_stdout=sox_false, explicit_stdout_operand=sox_false;
   sox_bool last_is_non_stdout=sox_false;
+  /* A bare input '-' reads stdin. It is a report collision only when the
+   * underlying stream is also stdout; separate stdin remains permitted. */
+  sox_bool shared_standard_stream= !fstat(fileno(stdin),&in) &&
+      !fstat(fileno(stdout),&out) && in.st_dev==out.st_dev &&
+      in.st_ino==out.st_ino;
   lsx_getopt_init(argc,argv,getoptstr,long_options,0,1,&scan);
   while (scan.ind<argc && !sox_find_effect(argv[scan.ind])) {
     int option;
     while ((option=lsx_getopt(&scan))!=-1) {
+      /* These global options consume a pathname rather than audio bytes,
+       * but can still refer to the report's stdout descriptor. */
+      if (option==0 && (scan.lngind==3 || scan.lngind==15 ||
+                        scan.lngind==14) && scan.arg &&
+          (dsd_path_is_stdout(scan.arg) &&
+           (strcmp(scan.arg,"-") || shared_standard_stream)))
+        return sox_true;
       if (option=='n' || option=='d' || option=='p') {
         /* These options add file operands.  -n is a null sink and -d a
          * device; neither uses stdout.  -p can be stdin or stdout. */
@@ -5047,6 +5087,7 @@ static sox_bool dsd_report_cli_audio_on_stdout(int argc, char **argv)
     }
     if (scan.ind>=argc || sox_find_effect(argv[scan.ind])) break;
     if (dsd_path_is_stdout(argv[scan.ind])) {
+      if (shared_standard_stream) return sox_true;
       seen_stdout=sox_true;
       /* Explicit aliases are unsafe regardless of operand position: an
        * input naming /dev/stdout can share the report descriptor. */
@@ -5054,6 +5095,13 @@ static sox_bool dsd_report_cli_audio_on_stdout(int argc, char **argv)
       last_is_non_stdout=sox_false;
     } else last_is_non_stdout=sox_true;
     ++scan.ind;
+  }
+  /* Effect filenames come after the first effect token, outside getopts.
+   * A profile destination such as 'noiseprof -' uses stdout itself. */
+  if (scan.ind<argc && sox_find_effect(argv[scan.ind])) {
+    int i;
+    for (i=scan.ind+1;i<argc;i++)
+      if (dsd_path_is_stdout(argv[i])) return sox_true;
   }
   /* Bare - and -p may be stdin if followed by a distinct audio output,
    * including -n.  Keep the final stdout operand ambiguous when an invalid
@@ -5221,15 +5269,21 @@ static char parse_gopts_and_fopts(file_t * f)
         lsx_fail("interactive mode was not enabled at compile time");
         exit(1);
 #endif
-      case 8: exit(usage_effect(optstate.arg) == SOX_SUCCESS ? 0 : 1); break;
-      case 9: exit(usage_format(optstate.arg) == SOX_SUCCESS ? 0 : 1); break;
+      case 8:
+        if (usage_effect(optstate.arg)!=SOX_SUCCESS) exit(1);
+        dsd_report_early_success_exit();
+        break;
+      case 9:
+        if (usage_format(optstate.arg)!=SOX_SUCCESS) exit(1);
+        dsd_report_early_success_exit();
+        break;
       case 10: f->no_glob = sox_true; break;
       case 11:
         sox_effects_globals.plot = enum_option(optstate.arg, optstate.lngind, plot_methods);
         break;
       case 12: case 39:
         replay_gain_mode = enum_option(optstate.arg, optstate.lngind, rg_modes); break;
-      case 13: display_SoX_version(stdout); exit(0); break;
+      case 13: display_SoX_version(stdout); dsd_report_early_success_exit(); break;
       case 14: break;
       case 15: effects_filename = lsx_strdup(optstate.arg); break;
       case 16: sox_globals.tmp_path = lsx_strdup(optstate.arg); break;
@@ -5332,7 +5386,8 @@ static char parse_gopts_and_fopts(file_t * f)
       case 37:dsd_dop_requested=sox_true;break;
       case 38:
         display_dsd_help();
-        exit(0);
+        dsd_report_early_success_exit();
+        break;
       case 41: {
         char *end;
         double cut;
@@ -5384,7 +5439,7 @@ static char parse_gopts_and_fopts(file_t * f)
     case 'h':
       if (optstate.argc < 3) {
         /* Plain -h or --help */
-        usage(); exit(0);
+        usage(); dsd_report_early_success_exit();
       }
       for ( ; optstate.ind < optstate.argc; optstate.ind++) {
         /* --help-effect and --help-format */
@@ -5414,7 +5469,8 @@ static char parse_gopts_and_fopts(file_t * f)
         display_supported_effects();
         exit(1);
       }
-      exit(0);
+      dsd_report_early_success_exit();
+      break;
 
     case '?':
       lsx_fail("invalid option `%s'", optstate.argv[optstate.ind]);
@@ -6128,7 +6184,7 @@ int main(int argc, char **argv)
       ofile->filetype && !strcmp(ofile->filetype, "null")) {
     for (i = 0; i < input_count; i++)
       report_file_info(files[i]);
-    exit(0);
+    dsd_report_early_success_exit();
   }
 
   if (!sox_globals.repeatable) {/* Re-seed PRNG? */
