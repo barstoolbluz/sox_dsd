@@ -450,8 +450,9 @@ class Suite:
         self.gates['native_report_truthfulness']='PASS'
         self.gates['target_saturation_and_nominal_clip_policy']='PASS'
 
-    def compatibility_plans(self):
-        src=self.root/'identity-7.wav'
+    def compatibility_plans(self, src=None, native=True):
+        if src is None:
+            src=self.root/'identity-7.wav'
         for selector in ([],['--precision','auto'],['--precision','32']):
             out=self.root/('compat-' + ('default' if not selector else selector[-1]) + '.wav')
             self.run(selector+[src,'-e','floating-point','-b','64',out],
@@ -486,6 +487,11 @@ class Suite:
             expected='integer PCM' if extension=='.aiff' else 'floating-point'
             check('WAV' not in text and expected in text,
                   f'non-WAV precision plan mislabels endpoint {extension}: {text}')
+        self.gates['ordinary_auto32_and_handler_errors']='PASS'
+        self.gates['plan_unsigned_and_nonwav_float']='PASS'
+        if not native:
+            self.gates['float64_explicit_integer_endpoint_bits']='NOT_RUN: --disable-native-f64'
+            return
         # A FLOAT64 source and an explicit output -b historically caused the
         # Phase04 plan to discard the bit depth when FLOAT64 at that width is
         # unavailable. The declared native quantizer must match real WAV bytes.
@@ -503,8 +509,6 @@ class Suite:
                   declared['output']['encoding']==(2 if bits==8 else 3 if bits==32 else 1) and
                   fmt[0]==(PCM if bits!=32 else FLOAT32),
                   f'WAV output -b {bits} plan disagrees with writer')
-        self.gates['ordinary_auto32_and_handler_errors']='PASS'
-        self.gates['plan_unsigned_and_nonwav_float']='PASS'
         self.gates['float64_explicit_integer_endpoint_bits']='PASS'
 
     def flac_status(self):
@@ -713,33 +717,44 @@ def main():
     args=parser.parse_args()
     results=args.results.resolve();results.mkdir(parents=True,exist_ok=True)
     receipt=results/'pcm-identity.json';receipt.unlink(missing_ok=True)
-    if not native_dsp_compiled(args.sox):
-        source=results/'pcm64_disabled_input.wav'
-        destination=results/'pcm64_disabled_output.wav'
-        source.write_bytes(b'RIFF'+struct.pack('<I',38)+b'WAVEfmt '+
-            struct.pack('<IHHIIHH',16,1,1,48000,96000,2,16)+
-            b'data'+struct.pack('<Ih',2,0))
-        destination.write_bytes(b'SENTINEL')
-        cp=subprocess.run([str(args.sox),'--precision','64',str(source),str(destination)],
-            capture_output=True,text=True)
-        plan=subprocess.run([str(args.sox),'--precision','64','--plan',
-            str(source),str(destination)],capture_output=True,text=True)
-        ok=(cp.returncode!=0 and destination.read_bytes()==b'SENTINEL' and
-            plan.returncode==0 and 'refused-before-output' in plan.stdout)
-        record={'suite':'pcm-identity',
-            'status':'PASS_WITH_NOT_RUN' if ok else 'FAIL',
-            'gate_execution':{
-                'disabled_native_refusal':'PASS' if ok else 'FAIL',
-                'native_numeric_and_stream_gates':'NOT_RUN: --disable-native-f64'},
-            'source_git_commit':safe_git_head(SOURCE),
-            'executed_binary_sha256':{str(args.sox):sha(args.sox)},
-            'actual_checks':{'disabled_refusal_commands':2},
-            'error':None if ok else 'strict64 disabled build did not refuse without output modification'}
-        receipt.write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')
-        print(record['status']+' pcm-identity: disabled native DSP capability')
-        return 0 if ok else 1
     suite=Suite(args.sox,args.probe,results)
     try:
+        if not native_dsp_compiled(args.sox):
+            source=suite.root/'disabled_input.wav'
+            destination=suite.root/'disabled_output.wav'
+            pack_wav(source,struct.pack('<8h',0,1234,-1234,32767,-32768,7,-7,0),
+                     16,PCM,channels=2)
+            destination.write_bytes(b'SENTINEL')
+            suite.run(['--precision','64',source,destination],
+                      'disabled-native-refusal',expect='fail')
+            plan=suite.run(['--precision','64','--plan',source,destination],
+                           'disabled-native-plan')
+            check(destination.read_bytes()==b'SENTINEL' and
+                  b'refused-before-output' in plan.stdout,
+                  'strict64 disabled build did not refuse without output modification')
+            suite.gates['disabled_native_refusal']='PASS'
+            suite.count('disabled_refusal_commands',2)
+            before=len(suite.commands)
+            suite.compatibility_plans(src=source,native=False)
+            suite.count('portable_compatibility_and_plan_commands',len(suite.commands)-before)
+            for gate in (
+                'direct_caller_stream_state_machine', 'f64_word_exact_payload',
+                'plan_executed_engine_agreement', 'negative_int32_bridge_control',
+                'integer_wav_exact_normalization', 'source_volume_and_ordered_gains',
+                'zero_db_signed_zero', 'pure_remix_and_channels_noop',
+                'known_and_unknown_speaker_masks', 'f32_one_round',
+                'target_integer_quantization', 'source_report_symlink_hardlink_alias',
+                'precommit_sentinel_and_nonfinite_failure', 'stdout_pipe_and_regular',
+                'native_report_truthfulness', 'target_saturation_and_nominal_clip_policy',
+                'built_in_flac_pcm64_ingress', 'runtime_fenv_and_injected_io',
+                'hostile_copy_and_numeric_refusal', 'short_write_close_errors_no_success',
+                'sigint_after_commit_no_success', 'planning_no_output_and_overhead_receipt',
+                'bounded_memory_practical_throughput'):
+                suite.gates[gate]='NOT_RUN: --disable-native-f64'
+            record=suite.receipt('PASS_WITH_NOT_RUN')
+            print(f'{record["status"]} pcm-identity: {record["actual_checks"]}, '+
+                  f'{len(record["gate_execution"])} gates')
+            return 0
         suite.record_binary(suite.probe)
         cp=subprocess.run([str(suite.probe)],capture_output=True,text=True)
         check(cp.returncode==0 and 'PASS coordinator' in cp.stdout,

@@ -524,11 +524,19 @@ class Test:
             self.count('cvsd_strict64_precommit_refusals')
         self.gates['CVSD_DVMS_not_eligible_for_native_PCM64']='PASS'
 
-    def execute(self):
+    def execute(self, native=True):
         inputs=self.matrix()
-        self.strict64(inputs[0])
-        self.layout()
-        self.endianness_and_subtype()
+        if native:
+            self.strict64(inputs[0])
+            self.layout()
+            self.endianness_and_subtype()
+        else:
+            for gate in ('strict64_width_and_gain',
+                         'strict64_unsupported_options_precommit_refused',
+                         'unknown_layout_zero_mask_and_legacy_unchanged',
+                         'known_masks_and_role_permutation',
+                         'endian_rifx_riff_and_classic_subtype'):
+                self.gates[gate]='NOT_RUN: --disable-native-f64'
         self.auto32(inputs[1])
         self.implicit_endpoints()
         self.cvsd_writer_endpoints()
@@ -553,28 +561,21 @@ def main():
     test=Test(args.sox,args.results)
     path=args.results/'output-formats.json'
     path.unlink(missing_ok=True)
-    if not native_dsp_compiled(args.sox):
-        source=test.root/'disabled_input.wav'
-        destination=test.root/'disabled_output.wav'
-        wav(source,[0,1234,-1234],bits=16)
-        destination.write_bytes(b'SENTINEL')
-        cp=test.run(['--precision','64',source,destination],expect=False)
-        plan=test.run(['--precision','64','--plan',source,destination],expect=False)
-        ok=(cp.returncode!=0 and destination.read_bytes()==b'SENTINEL' and
-            plan.returncode==0 and b'refused-before-output' in plan.stdout)
-        record={'suite':'output-formats',
-                'status':'PASS_WITH_NOT_RUN' if ok else 'FAIL',
-                'gate_execution':{'disabled_native_refusal':'PASS' if ok else 'FAIL',
-                    'native_output_format_matrix':'NOT_RUN: --disable-native-f64'},
-                'source_git_commit':safe_git_head(SOURCE),
-                'executed_binary_sha256':{str(args.sox):sha256(args.sox)},
-                'actual_checks':{'disabled_refusal_commands':2},
-                'commands_executed':test.commands}
-        path.write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
-        print(record['status']+' output-formats: disabled native DSP capability')
-        return 0 if ok else 1
     try:
-        receipt=test.execute()
+        native=native_dsp_compiled(args.sox)
+        if not native:
+            source=test.root/'disabled_input.wav'
+            destination=test.root/'disabled_output.wav'
+            wav(source,[0,1234,-1234],bits=16)
+            destination.write_bytes(b'SENTINEL')
+            cp=test.run(['--precision','64',source,destination],expect=False)
+            plan=test.run(['--precision','64','--plan',source,destination],expect=False)
+            require(cp.returncode!=0 and destination.read_bytes()==b'SENTINEL' and
+                    plan.returncode==0 and b'refused-before-output' in plan.stdout,
+                    'strict64 disabled build did not refuse without output modification')
+            test.gates['disabled_native_refusal']='PASS'
+            test.count('disabled_refusal_commands',2)
+        receipt=test.execute(native=native)
     except BaseException as exc:
         receipt={'suite':'output-formats','status':'FAIL','error':f'{type(exc).__name__}: {exc}',
                  'actual_checks':test.counters,'gate_execution':test.gates,
