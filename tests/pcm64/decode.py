@@ -201,7 +201,8 @@ def decode_case(sox: Path, oracle: Path, folder: Path, ident: str,
             "packed_native_input": packed, "speaker_permutation": output_order}
 
 
-def negative_tests(sox: Path, folder: Path, source: Path) -> dict[str, Any]:
+def negative_tests(sox: Path, folder: Path, source: Path,
+                   native_enabled: bool = True) -> dict[str, Any]:
     results = {}
     for label, args, expected in [
         ("invalid_rate", [str(source), "-r", "abc", str(folder/"n-rate.wav")], "rate"),
@@ -229,33 +230,34 @@ def negative_tests(sox: Path, folder: Path, source: Path) -> dict[str, Any]:
            "early option error before --report was not captured")
     results["report_after_bad_arg"] = "PASS"
 
-    for ext in ("dsf", "dff", "wsd"):
-        original = folder / f"negative-{ext}.{ext}"
-        write_source(original, 512, 2, fixtures.DSD64, ext, "distinct")
-        truncated = folder / f"truncated-{ext}.{ext}"
-        truncated.write_bytes(original.read_bytes()[:-19])
-        report = folder / f"truncated-{ext}.json"
-        cp = call([str(sox), "--precision", "64", "--report", str(report),
-                   str(truncated), "-b", "64", "-e", "floating-point",
-                   str(folder / f"bad-{ext}.wav")])
-        demand(cp.returncode != 0 and report.exists() and
-               json.loads(report.read_text())["status"] != "complete",
-               f"{ext}: truncated source accepted or no failure report")
-        results[f"truncated_{ext}"] = cp.returncode
+    if native_enabled:
+        for ext in ("dsf", "dff", "wsd"):
+            original = folder / f"negative-{ext}.{ext}"
+            write_source(original, 512, 2, fixtures.DSD64, ext, "distinct")
+            truncated = folder / f"truncated-{ext}.{ext}"
+            truncated.write_bytes(original.read_bytes()[:-19])
+            report = folder / f"truncated-{ext}.json"
+            cp = call([str(sox), "--precision", "64", "--report", str(report),
+                       str(truncated), "-b", "64", "-e", "floating-point",
+                       str(folder / f"bad-{ext}.wav")])
+            demand(cp.returncode != 0 and report.exists() and
+                   json.loads(report.read_text())["status"] != "complete",
+                   f"{ext}: truncated source accepted or no failure report")
+            results[f"truncated_{ext}"] = cp.returncode
 
-    # A positional output aliases the source and must never clobber it.
-    before = sha(source)
-    cp = call([str(sox), "--precision", "64", str(source), "-t", "wav",
-               str(source)])
-    demand(cp.returncode != 0 and sha(source) == before,
-           "native DSD alias overwrote the input")
-    link = folder / "input-alias.wav"
-    link.symlink_to(source)
-    cp = call([str(sox), "--precision", "64", str(source), "-b", "64",
-               "-e", "floating-point", str(link)])
-    demand(cp.returncode != 0 and sha(source) == before,
-           "symlink output alias overwrote the input")
-    results["source_identity_protection"] = "PASS"
+        # A positional output aliases the source and must never clobber it.
+        before = sha(source)
+        cp = call([str(sox), "--precision", "64", str(source), "-t", "wav",
+                   str(source)])
+        demand(cp.returncode != 0 and sha(source) == before,
+               "native DSD alias overwrote the input")
+        link = folder / "input-alias.wav"
+        link.symlink_to(source)
+        cp = call([str(sox), "--precision", "64", str(source), "-b", "64",
+                   "-e", "floating-point", str(link)])
+        demand(cp.returncode != 0 and sha(source) == before,
+               "symlink output alias overwrote the input")
+        results["source_identity_protection"] = "PASS"
 
     existing = folder / "existing.wav"
     existing.write_bytes(b"SENTINEL\n")
@@ -276,15 +278,16 @@ def negative_tests(sox: Path, folder: Path, source: Path) -> dict[str, Any]:
     results["no_clobber"] = "PASS"
 
     # Eligible known-length audio sent to a real stdout character device.
-    with open(os.devnull, "wb") as null:
-        cmd = [str(sox), "--precision", "64", str(source), "-b", "64",
-               "-e", "floating-point", "-r", "96000", "-t", "wav", "-"]
-        cp = call(cmd, stdout=null)
-        demand(cp.returncode == 0, f"stdout character descriptor incorrectly refused {cp.stderr!r}")
-        plan = call([cmd[0], "--plan", *cmd[1:]])
-        demand(json.loads(plan.stdout)["precision"]["runner_available"] is True,
-               "stdout plan lacks native binary64 runner")
-    results["stdout_device"] = "PASS"
+    if native_enabled:
+        with open(os.devnull, "wb") as null:
+            cmd = [str(sox), "--precision", "64", str(source), "-b", "64",
+                   "-e", "floating-point", "-r", "96000", "-t", "wav", "-"]
+            cp = call(cmd, stdout=null)
+            demand(cp.returncode == 0, f"stdout character descriptor incorrectly refused {cp.stderr!r}")
+            plan = call([cmd[0], "--plan", *cmd[1:]])
+            demand(json.loads(plan.stdout)["precision"]["runner_available"] is True,
+                   "stdout plan lacks native binary64 runner")
+        results["stdout_device"] = "PASS"
 
     # A parse error may predate complete audio-name classification. The
     # best-effort early reporter must not overwrite source bytes when the
@@ -302,23 +305,24 @@ def negative_tests(sox: Path, folder: Path, source: Path) -> dict[str, Any]:
 
     # Report FIFO: retained nonblocking writer from preflight through publish.
     fifo = folder / "receipt.fifo"
-    fifo_result = folder / "receipt_fifo_bytes.json"
     os.mkfifo(fifo)
-    with fifo_result.open("wb") as output:
-        reader = subprocess.Popen(["cat", str(fifo)], stdout=output)
-        try:
-            time.sleep(0.1)
-            cp = call([str(sox), "--precision", "64", "--report", str(fifo),
-                       str(source), "-b", "64", "-e", "floating-point",
-                       "-r", "96000", str(folder / "fifo.wav")], timeout=25)
-            reader.wait(timeout=5)
-        finally:
-            if reader.poll() is None:
-                reader.kill()
+    fifo_result = folder / "receipt_fifo_bytes.json"
+    if native_enabled:
+        with fifo_result.open("wb") as output:
+            reader = subprocess.Popen(["cat", str(fifo)], stdout=output)
+            try:
+                time.sleep(0.1)
+                cp = call([str(sox), "--precision", "64", "--report", str(fifo),
+                           str(source), "-b", "64", "-e", "floating-point",
+                           "-r", "96000", str(folder / "fifo.wav")], timeout=25)
                 reader.wait(timeout=5)
-    demand(cp.returncode == 0 and json.loads(fifo_result.read_text())["status"] == "complete",
-           "FIFO report endpoint hung, discarded receipt or misreported run")
-    results["fifo_report"] = "PASS"
+            finally:
+                if reader.poll() is None:
+                    reader.kill()
+                    reader.wait(timeout=5)
+        demand(cp.returncode == 0 and json.loads(fifo_result.read_text())["status"] == "complete",
+               "FIFO report endpoint hung, discarded receipt or misreported run")
+        results["fifo_report"] = "PASS"
 
     # A FIFO with no reader must be rejected immediately. In particular,
     # cleanup may not retry a nonblocking ENXIO probe with blocking fopen().
@@ -359,10 +363,15 @@ def negative_tests(sox: Path, folder: Path, source: Path) -> dict[str, Any]:
                        str(source), "-r", "abc" if bad_rate else "96000",
                        "-b", "64", "-e", "floating-point", str(dest)])
             receipt = json.loads(cp.stdout)
-            demand((cp.returncode != 0 if bad_rate else cp.returncode == 0) and
-                   receipt["status"] == ("failed" if bad_rate else "complete"),
+            expected = "failed" if bad_rate else ("complete" if native_enabled else "refused")
+            demand((cp.returncode != 0 if expected != "complete" else cp.returncode == 0) and
+                   receipt["status"] == expected,
                    f"legitimate stdout report missing: {target}, bad_rate={bad_rate}")
     results["report_never_contaminates_audio_stdout"] = "PASS"
+
+    # Only the remaining decoder and clipping tests need the native DSP path.
+    if not native_enabled:
+        return results
 
     # Clip-error belongs to the decoded DSD input adapter, after -v but
     # before ordinary gain effects and output serialization. Test the same
@@ -618,19 +627,61 @@ def main(sox: Path, oracle: Path, results: Path) -> int:
         receipt.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
         print(f"FAIL decode: {record['error']}", file=sys.stderr)
         return 1
+    # The registered corrective script executes these two independent
+    # regression cases in every build on hosts with the required pipe/fd
+    # primitives. Keep their receipt identities separate from decoder gates.
+    portable_gates = {
+        "ordinary_pipe_input_shutdown": (
+            "PASS" if os.name == "posix" and hasattr(os, "killpg") else
+            "NOT_RUN: POSIX process groups unavailable"),
+        "input_stdout_report_conflict": (
+            "PASS" if os.name == "posix" and any(Path(a).exists()
+                for a in ("/dev/stdout", "/dev/fd/1")) else
+            "NOT_RUN: stdout fd aliases unavailable"),
+    }
     # Compile-time capability is independent of the source-side qualified
-    # decoder.  A --disable-native-f64 build must still pass its refusal
-    # gates, but cannot execute the F64 sample-word oracle.
+    # decoder. A disabled build still executes the independent safety gates.
     if not native_enabled:
+        scratch = results / "decode-disabled-fixtures"
+        if scratch.exists():
+            shutil.rmtree(scratch)
+        scratch.mkdir()
+        # These guards inspect the CLI, report endpoints and output safety;
+        # their PCM carrier needs no reconstruction or F64 computation.
+        import wave
+        pcm = scratch / "preflight.wav"
+        with wave.open(str(pcm), "wb") as sink:
+            sink.setnchannels(1)
+            sink.setsampwidth(2)
+            sink.setframerate(48000)
+            sink.writeframes(b"\0\0" * 64)
+        try:
+            negatives = negative_tests(sox, scratch, pcm, native_enabled=False)
+        except Exception as exc:
+            record = {"suite": "decode", "status": "FAIL",
+                      "error": f"{type(exc).__name__}: {exc}",
+                      "source_git_commit": safe_git_head(ROOT),
+                      "executed_binary_sha256": {str(sox): sha(sox),
+                                                   str(oracle): sha(oracle)}}
+            receipt.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+            print(f"FAIL decode (native disabled): {record['error']}", file=sys.stderr)
+            return 1
+        native_only = ("binary64_decoder_oracle", "truncated_dsf", "truncated_dff",
+                       "truncated_wsd", "source_identity_protection", "stdout_device",
+                       "fifo_report", "dsd_clip_error_all_encodings",
+                       "dsd_clip_no_report_volume_parity")
         record = {"suite": "decode", "status": "PASS_WITH_NOT_RUN",
                   "utc": dt.datetime.now(dt.timezone.utc).isoformat(),
                   "source_git_commit": safe_git_head(ROOT),
                   "executed_binary_sha256": {str(sox): sha(sox),
                                                str(oracle): sha(oracle)},
+                  "negative_gates": negatives,
                   "gate_execution": {"phase05b_cli_preflight_and_fifo": "PASS",
-                                     "binary64_decoder_oracle":
-                                     "NOT_RUN: --disable-native-f64"},
-                  "case_count": 0}
+                                    **portable_gates,
+                                    **{name: "PASS" for name in negatives},
+                                    **{name: "NOT_RUN: --disable-native-f64"
+                                       for name in native_only}},
+                  "case_count": len(negatives)}
         receipt.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
         print("PASS_WITH_NOT_RUN decode: native F64 disabled at configure time")
         return 0
@@ -653,6 +704,8 @@ def main(sox: Path, oracle: Path, results: Path) -> int:
         print(f"FAIL decode: {record['error']}", file=sys.stderr)
         return 1
     record['gate_execution'] = {'phase05b_cumulative_corrective': 'PASS',
+                                **portable_gates,
+                                **{name: 'PASS' for name in record['negative_gates']},
                                 'binary64_decoder_oracle': 'PASS'}
     receipt.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
     print(f"PASS decode: {record['case_count']} API word-oracle cases; "

@@ -300,7 +300,7 @@ class Case:
                     f'{tag}: wrong failure reason or output changed: {doc}')
         self.gate('file_option_failure_reports',len(cases))
 
-    def missing_report_aliases(self):
+    def missing_report_aliases(self, native_enabled=True):
         src=self.root/'alias-report-source.wav';wav(src,[200,-300,400,-500],16)
         sub=self.root/'alias-report-subdir';sub.mkdir(exist_ok=True)
         cases=[('relative',self.root/'link-relative.json',
@@ -322,22 +322,27 @@ class Case:
                         f'{tag} plan={plan}: report alias accepted or audio touched: {cp.stderr}')
         self.gate('dangling_report_symlink_audio_alias_plan_and_run',6)
 
-        for tag,absolute in [('relative',False),('absolute',True)]:
-            link=self.root/f'valid-{tag}-link.json'
-            target=self.root/f'valid-{tag}-target.json'
-            output=self.root/f'valid-{tag}-audio.wav'
-            for path in (link,target,output):path.unlink(missing_ok=True)
-            link.symlink_to(str(target) if absolute else target.name)
-            self.call(['--precision','64','--plan','--report',link,src,output])
-            require(not output.exists() and
-                    json.loads(target.read_text())['precision']['actual_route']==
-                    'native-binary64-pcm',
-                    f'{tag}: valid report link was rejected or plan opened audio')
-            self.call(['--precision','64','--report',link,src,output])
-            require(link.is_symlink() and output.is_file() and
-                    json.loads(target.read_text())['status']=='complete',
-                    f'{tag}: valid dangling report link failed during run')
-        self.gate('separate_missing_report_targets_plan_and_run',4)
+        if native_enabled:
+            for tag,absolute in [('relative',False),('absolute',True)]:
+                link=self.root/f'valid-{tag}-link.json'
+                target=self.root/f'valid-{tag}-target.json'
+                output=self.root/f'valid-{tag}-audio.wav'
+                for path in (link,target,output):path.unlink(missing_ok=True)
+                link.symlink_to(str(target) if absolute else target.name)
+                self.call(['--precision','64','--plan','--report',link,src,output])
+                require(not output.exists() and
+                        json.loads(target.read_text())['precision']['actual_route']==
+                        'native-binary64-pcm',
+                        f'{tag}: valid report link was rejected or plan opened audio')
+                self.call(['--precision','64','--report',link,src,output])
+                require(link.is_symlink() and output.is_file() and
+                        json.loads(target.read_text())['status']=='complete',
+                        f'{tag}: valid dangling report link failed during run')
+            self.gate('separate_missing_report_targets_plan_and_run',4)
+
+        else:
+            self.gates['separate_missing_report_targets_plan_and_run'] = (
+                'NOT_RUN: --disable-native-f64')
 
         hard=self.root/'report-input-hardlink.json';hard.unlink(missing_ok=True)
         os.link(src,hard);before=src.read_bytes()
@@ -454,7 +459,13 @@ class Case:
 
     def run(self):
         self.ordinary_effect_lifetimes()
-        if not native_dsp_compiled(self.exe):
+        native_enabled = native_dsp_compiled(self.exe)
+        # These are parser, source-acquisition and report-path guards. They
+        # remain executable when the native arithmetic runner is disabled.
+        self.file_option_failure_reports()
+        self.early_input_failure_reports()
+        self.missing_report_aliases(native_enabled=native_enabled)
+        if not native_enabled:
             src=self.root/'disabled-in.wav';dst=self.root/'disabled-out.wav'
             wav(src,[0,1,-1],16);dst.write_bytes(b'SENTINEL')
             p=self.plan(['--precision','64',src,dst])
@@ -575,9 +586,6 @@ class Case:
         self.gate('stdout_execution_descriptor',1)
         self.returned_regressions()
         self.disconnected_fifo_report()
-        self.early_input_failure_reports()
-        self.file_option_failure_reports()
-        self.missing_report_aliases()
         self.quiet_failure_reports()
 
 

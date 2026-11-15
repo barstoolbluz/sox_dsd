@@ -32,6 +32,94 @@ def call(sox, args, *, env=None, stdout=subprocess.PIPE, timeout=45):
                           timeout=timeout)
 
 
+def ordinary_pipe_input_gate(sox, root):
+    """Trimmed libc popen inputs must keep their ordinary SIGPIPE semantics.
+
+    A finite producer should exit cleanly rather than complain of a broken
+    pipe. A producer which loops despite write errors must not hold pclose
+    after the requested trim has completed. Bound and reap the entire test
+    process group if a regression returns.
+    """
+    if os.name != 'posix' or not hasattr(os, 'killpg'):
+        return 'NOT_RUN: POSIX process-group signals unavailable'
+    large = root / 'pipe-cat-source.wav'
+    with wave.open(str(large), 'wb') as sink:
+        sink.setnchannels(1)
+        sink.setsampwidth(2)
+        sink.setframerate(8000)
+        sink.writeframes(b'\0\0' * 300000)
+
+    def bounded(args):
+        child = subprocess.Popen([str(sox), *args], cwd=root,
+                                 stdin=subprocess.DEVNULL,
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                 start_new_session=True)
+        try:
+            return child.communicate(timeout=6), child.returncode
+        except subprocess.TimeoutExpired as exc:
+            os.killpg(child.pid, signal.SIGKILL)
+            child.communicate()
+            raise AssertionError(f'pipe input failed to stop after trim: {args!r}') from exc
+
+    for explicit32 in (False, True):
+        options = ['--precision', '32'] if explicit32 else []
+        out = root / f'pipe-endless-{explicit32}.wav'
+        (stdout, stderr), rc = bounded([
+            *options, '-t', 'raw', '-r', '8000', '-e', 'signed',
+            '-b', '16', '-c', '1',
+            '|while :; do printf AAAAAAAA 2>/dev/null; done',
+            str(out), 'trim', '0', '0.1'])
+        demand(rc == 0 and not stdout and out.is_file(),
+               f'endless pipe did not exit normally: {rc} {stderr[-250:]!r}')
+        with wave.open(str(out), 'rb') as source:
+            demand(source.getnframes() == 800,
+                   'trimmed pipe produced an incorrect number of frames')
+
+        target = root / f'pipe-finite-{explicit32}.wav'
+        (stdout, stderr), rc = bounded([
+            *options, '|cat pipe-cat-source.wav', str(target),
+            'trim', '0', '0.01'])
+        demand(rc == 0 and not stdout and target.is_file() and
+               b'cat: write error' not in stderr and b'Broken pipe' not in stderr,
+               f'pipe producer inherited ignored SIGPIPE: {rc} {stderr[-250:]!r}')
+    return 'PASS'
+
+
+def stdout_input_alias_gate(sox, root):
+    """An input opened via fd 1 may not become a JSON report destination."""
+    if os.name != 'posix':
+        return 'NOT_RUN: POSIX descriptor aliases unavailable'
+    aliases = [path for path in ('/dev/stdout', '/dev/fd/1')
+               if Path(path).exists()]
+    if not aliases:
+        return 'NOT_RUN: no /dev/stdout or /dev/fd/1'
+    source = root / 'stdout-input-keep.wav'
+    with wave.open(str(source), 'wb') as sink:
+        sink.setnchannels(1)
+        sink.setsampwidth(2)
+        sink.setframerate(48000)
+        sink.writeframes(b'\x02\x01' * 400)
+    original = source.read_bytes()
+    for alias in aliases:
+        for report in ('-', *aliases):
+            for bad_options in ([], ['-r', 'abc'],
+                                ['--comment-file', str(root / 'no-comment.txt')]):
+                output = root / 'stdout-input-output.wav'
+                output.unlink(missing_ok=True)
+                with source.open('r+b') as sink:
+                    result = subprocess.run([
+                        str(sox), '--precision', '64', '--report', report,
+                        '-t', 'wav', alias, *bad_options, str(output)],
+                        stdin=subprocess.DEVNULL, stdout=sink,
+                        stderr=subprocess.PIPE, timeout=7)
+                demand(result.returncode != 0 and
+                       source.read_bytes() == original and not output.exists(),
+                       f'report damaged fd-1 audio input: {alias} {report} '
+                       f'{bad_options} rc={result.returncode} '
+                       f'{result.stderr[-200:]!r}')
+    return 'PASS'
+
+
 def output_args(src, dest):
     return [src, '-r', '96000', '-b', '64', '-e', 'floating-point',
             '-t', 'wav', dest]
@@ -546,6 +634,10 @@ def main():
     args = parser.parse_args()
     with tempfile.TemporaryDirectory(prefix='p05b-corrective-') as tmp:
         root = Path(tmp)
+        for gate in (ordinary_pipe_input_gate, stdout_input_alias_gate):
+            status = gate(args.sox.resolve(), root)
+            demand(status in ('PASS',) or status.startswith('NOT_RUN:'),
+                   f'{gate.__name__}: {status}')
         status = cli_preflight_gate(args.sox.resolve(), root)
         demand(status == 'PASS', status)
         if args.preflight_only:
