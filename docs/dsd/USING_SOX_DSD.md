@@ -289,12 +289,12 @@ The 0.9 linear mastering gain is applied at every rate in warn and strict mode, 
 
 ### 4.6 Noise-shaper measurements and their limits
 
-The [historical noise-shaper study](NOISE_SHAPER_BENCH_2026-11-07.md) compares the legacy shapers with earlier mastering tables. The subsequent round03 rerun measured the **selected** mastering tables at DSD512 and DSD1024. Its results are in §2 and finding 5 of that report, which describes the choice of tables in §5, and in the round03 evidence asset of the 1.1.1 release.
+The [historical noise-shaper study](NOISE_SHAPER_BENCH_2026-11-07.md) compares the legacy shapers with earlier mastering tables. The subsequent round03 rerun measured the **selected** mastering tables at DSD512 and DSD1024. Its results are in §2 and finding 5 of that report, which describes the choice of tables in §5, and in the round03 evidence asset of the 1.1.1 release. The table gives the same bench rerun on the 1.1.2 encoder, with its wider input filter.
 
 | Current mastering rate | Unwindowed in-band noise (dBFS) | Music-notch median (dBFS) | 20–50 kHz energy (dBFS) |
 |---|---:|---:|---:|
-| DSD512 | −261.8 | −197.3 (12 excerpts) | −208.1 |
-| DSD1024 | below bench floor | −198.9 (3 excerpts) | −209.4 |
+| DSD512 | −261.8 | −197.4 (12 excerpts) | −208.1 |
+| DSD1024 | below bench floor | −198.9 (3 excerpts) | −209.5 |
 
 The digital reference and finite-bit-depth path limit these measurements. The music-notch numbers especially approach the source/reference floor; they cannot establish an unbounded signal-to-noise advantage or predict the output of a particular DAC. The tables are rate-specific production choices backed by the published screening, DC and corpus evidence; earlier qualification certificates cover the algorithms and test conditions stated in those historical records. They do not independently certify every new coefficient word for arbitrary content. The new high-rate profiles report `certificate_sha256: null` in plans and `coefficient_certificate_sha256: null` in runtime receipts rather than attaching the previous tables' digest.
 
