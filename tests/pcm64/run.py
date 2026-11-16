@@ -382,8 +382,25 @@ def main():
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats", "return-acceptance", "decode", "encode"):
+    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats", "return-acceptance", "decode", "encode", "report-carriers"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
+    if args.suite == "report-carriers":
+        test = Path(__file__).with_name("phase06a_report.py")
+        result = subprocess.run([sys.executable, str(test), str(args.sox.resolve())],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                text=True, timeout=180, check=False)
+        good = result.returncode == 0 and "PASS: 17 Phase06A report-carrier cases" in result.stdout
+        record = {
+            "suite": "report-carriers", "status": "PASS" if good else "FAIL",
+            "source_git_commit": safe_git_head(Path(__file__).resolve().parents[2]),
+            "executed_binary_sha256": {str(args.sox.resolve()): sha256(args.sox.resolve())},
+            "test_script_sha256": sha256(test), "count": 17 if good else 0,
+            "exit_status": result.returncode, "stdout": result.stdout,
+            "stderr": result.stderr,
+        }
+        output.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+        print(record["status"] + " report-carriers: " + result.stdout.strip(), file=sys.stdout)
+        return 0 if good else 1
     if args.suite == "encode":
         from encode import main as encode_main
         return encode_main(args.sox.resolve(), args.probe.resolve().parent / "pcm64_encode_probe", results)
