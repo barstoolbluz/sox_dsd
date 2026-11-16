@@ -1,0 +1,61 @@
+{
+  "evidence": {
+    "baseline_p10_log": {
+      "name": "baseline_p10.log",
+      "sha256": "20161b89d24d297762a6ce49ed15185ee976e25b5ff74ebad108cba7c37e6550"
+    },
+    "baseline_p10_rows": {
+      "name": "P10_CLI.json",
+      "sha256": "bcf996aad426c63369df54eb4779d7acf23781a971303f6ad0d6cb5733e3b89a"
+    },
+    "candidate_p10_log": {
+      "name": "result_p10.log",
+      "sha256": "52152d5e475ea76445e7794a72cc5ec7ba271f6106e8b6765d0356528abe724a"
+    },
+    "candidate_p10_rows": {
+      "name": "P10_CLI.json",
+      "sha256": "258fbc8259900020a5dbc81c58ffa91f89c4a6e2f1b570f48297bce66ba72afd"
+    },
+    "owner_supplied_111_summary": {
+      "name": "summary.txt",
+      "sha256": "58981cbdb1e6d76e7462c0c1d000bd5308074db4a8bd04e20a67aea6d45f3d28"
+    },
+    "p21_independent_reader_receipt": {
+      "name": "independent-reader-evidence.json",
+      "sha256": "e8baef128eeb118506a0036c0dbacd53e5a2b92db0d1444d1d7fb263b1e0aace"
+    }
+  },
+  "owner_p10_discrepancy": {
+    "cause": "not established; do not rewrite P10 to make the runs agree",
+    "local_111": "FAIL",
+    "local_112": "FAIL",
+    "owner_111_recorded": "PASS"
+  },
+  "p10": {
+    "baseline_failures": 8,
+    "candidate_failures": 8,
+    "changed_failure_reasons": {},
+    "inherited_failures": {
+      "DSD_origin_preserve_-3": "('reference scale mismatch', 'preserve', -3)",
+      "DSD_origin_preserve_0": "('reference scale mismatch', 'preserve', 0)",
+      "DSD_origin_sacd_-3": "('reference scale mismatch', 'sacd', -3)",
+      "DSD_origin_sacd_0": "('reference scale mismatch', 'sacd', 0)",
+      "explicit_reference_auto": "auto",
+      "explicit_reference_dsd": "dsd",
+      "explicit_reference_pcm": "pcm",
+      "mixed_DSD_PCM_reference_policy": "mixed-source encoder must use the PCM reference scale"
+    },
+    "interpretation": "same eight failures on both local builds; cause not attributed to 1.1.2",
+    "newly_failing": {},
+    "recovered": [],
+    "total": 64
+  },
+  "p21": {
+    "commercial_media_cases": 0,
+    "overall": "INCOMPLETE",
+    "synthetic_audio_comparisons": 24,
+    "synthetic_status": "PASS"
+  },
+  "schema": "sox-dsd/1.1.2/release-test-comparison/1",
+  "status": "PASS_EVIDENCE_COMPARISON"
+}
