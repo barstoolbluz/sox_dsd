@@ -1,43 +1,56 @@
-# SoX DSD binary64: Phase 02A resume and scope boundary
+# SoX DSD binary64: Phase 06A source checkpoint
 
-**Status: Phase 02A source implementation PASS; Phase 02 (whole) INCOMPLETE.** This file travels inside `source/` in the handoff. The enclosing package's `RESUME.md`, `SOURCE_STATE.json`, checked `SHA256SUMS` and `evidence/phase02a/` provide the authoritative exported-archive and extraction verification.
+**State: implementation and available-environment tests PASS; complete Phase 06A
+acceptance CONDITIONAL.** This file accompanies a full source snapshot; the
+archive-root `RESUME.md`, `HANDOFF.md`, `SOURCE_STATE.json` and `SHA256SUMS` are
+the authority for package identity and exhaustive gate receipts.
 
-## Immutable provenance
+## Provenance and requirements
 
-- Accepted Phase 01 input commit: `f0383d70ee871d10dfaea7042a0bfc0f77054168`, tree `b0222f5215ebdc88a850c8a1bd7b0cbaffd15407`.
-- Original snapshot attribution `4548be78cf8b0be49026dd105f3888b8b2f0c28d` is **not** an imported Git implementation commit.
-- Original snapshot SHA-256: `67beddc61f82b36370bf16038c8d4610d63e4ac2f0fe54d8042692bd6ae96f3b`.
-- Immutable v2 harness SHA-256: `7d64bc18a7839786636c4a45365dd6d3e7ca42f0392b9c56f491bb2897954414`.
-- Owner DSD64/DSD128 unity/no artificial front-end attenuation or clip ceiling decision remains in effect; no DSP kernel, effect, frontend CLI default or DSD profile changed.
+- Required accepted starting commit: `14ee4d738d532a6d41671e65aba575f832064bb4`, carrying the Phase 05B play-wrapper gate correction.
+- Original redacted source input SHA-256: `67beddc61f82b36370bf16038c8d4610d63e4ac2f0fe54d8042692bd6ae96f3b`.
+- Original historical attribution `4548be78cf8b0be49026dd105f3888b8b2f0c28d` is **not** the imported Git implementation commit.
+- Corrected immutable qualification harness SHA-256: `7d64bc18a7839786636c4a45365dd6d3e7ca42f0392b9c56f491bb2897954414`.
+- Frozen DSD64 certificate: `96751b42b30b633e4b0ebc4d65fef4a4ab8988b6642ceef3bc279441bc07ae21`.
+- Frozen DSD128 certificate: `2fcb74eb3974f9cf91a1b0913ed68e2b60df31222f157d41a0dc2fd0691d8010`.
+- `inputs/OWNER_OVERRIDE.md` in the full archive supersedes the old 0.9/0.45 default warn contract for certified DSD64/DSD128. Preserve the accepted unity/0.5 contract and strict post-interpolation admission.
 
-## Completed units
+## Completed engineering units
 
-1. First committed private-handler dispatch and build integration: `b7ae49d`.
-2. Direct private WAV FLOAT64/FLOAT32/integer8/16/24/32 I/O, same-descriptor nontruncating native output acquisition and exact known-length bounded writer: `3305f7a`.
-3. Independent RIFF/RIFX encoder and parser, true byte-level oracle, exact rational quantization and failure-sensitive Linux I/O fault gates: `89dd021`.
-4. Mask/metadata correctness and observed fault hook telemetry: `a91c0c5`.
+1. Explicit `--precision 64` PCM-to-DSD64/128 source path, preserving the native source-rate double words through the existing SRC, interpolation, headroom, and frozen resonator. Gain operations retain their order. No source PCM `sox_sample_t` intermediate.
+2. Existing DSF/DFF packed writers and nontruncating same-descriptor destination acquisition; exact source-derived native bit count, channel-role mapping, bounded working storage, protected report commits, and failure propagation.
+3. Disabled-native PCM identity gates execute and pass; an unavailable native encoder is correctly reported `NOT_RUN`.
+4. Post-clip admission oracle tests over 336,767 assertions, exact DSF/DFF payload comparisons, independent frozen recurrence/recovery state and negative controls.
+5. CLI report-carrier regression tests for mixed-case effect filenames, `-` file operands, `SOX_OPTS`, pipe commands, numbered `newfile` destinations and hardlink/symlink aliases (`PCM64_SUITE=report-carriers`: 17 cases).
+6. Default, native static, no-native static, shared-no-libltdl, no-FLAC static and sanitizer decode verification. Frozen source/proof subtree byte-identical to accepted Phase 05; selected default/32 output matches baseline byte-for-byte in 15 cases.
 
-All of these commits are reachable from the full `git/history.bundle` in the parent archive. Native PCM processing is **not** exposed on the production CLI. Unknown or large WAV growth, large RF64, FLAC and full coordinator are deferred to later phases; no data silently passes through the legacy int32 bridge in the private direct path.
+## Incomplete qualification
 
-## Source-checkout gates (all PASS on this source revision)
+The environment has runtime `libFLAC.so.14` but lacks FLAC development headers (`FLAC/all.h`) and cannot resolve package repositories. The required `--enable-shared --disable-static --with-flac=dyn` configuration consequently has **not** compiled here, nor has real direct FLAC PCM-to-DSD encoding been accepted. This is UNRUN, never PASS. Some non-required ASan suites exhibit existing interposer/LSan issues; preserve actual stdout, exit status and independent accepted baseline instead of labeling them passed.
 
-- `autoreconf -fi`, `./configure --disable-shared --enable-static`, `make -j12 V=1`.
-- `make check-pcm64 PCM64_SUITE=foundation`: **PASS**, 81,539 independently derived stream cases.
-- `make check-pcm64 PCM64_SUITE=io-wav`: **PASS**, 224,027 decoded words, 9,074 finite FLOAT64 inputs, rational quantizer, 39 expected rejections, observed fault hooks, and 350,000 six-channel frames under a 96 MiB process virtual-memory limit.
-- `make check`: **PASS**, including the ordinary WAV regression tests.
-- A separately configured rebuild of parent Phase 01 for further A/B comparison exceeded its allotted process time and **is not a verified gate**. Ordinary CLI WAV smoke and the complete ordinary test suite passed. No assertion about that optional A/B was used for acceptance.
-
-## Continue after interruption
-
-Consult the enclosing archive's root `README-HANDOFF.md`, `RESUME.md`, `SOURCE_STATE.json` and `evidence/phase02a/RESULTS.md`. Check the bundled hashes and restore `git/history.bundle` before editing. A gate interrupted mid-run is UNRUN until its command returns zero and its receipt is checked. Build from this source by running:
+## Continue from the shipped full archive
 
 ```sh
-autoreconf -fi
-./configure --disable-shared --enable-static
-make -j4 V=1
-make check-pcm64 PCM64_SUITE=foundation PCM64_RESULTS="$PWD/evidence/phase02a-foundation"
-make check-pcm64 PCM64_SUITE=io-wav PCM64_RESULTS="$PWD/evidence/phase02a"
+sha256sum -c SHA256SUMS
+./repro/verify-phase06a.sh
+mkdir -p build-flac-dyn
+cd build-flac-dyn
+../source/configure --enable-shared --disable-static --with-flac=dyn
+make -j4
+make check-pcm64 PCM64_SUITE=encode
+make check-pcm64 PCM64_SUITE=io-flac
+make check-pcm64 PCM64_SUITE=pcm-identity
+make check-pcm64 PCM64_SUITE=decode
+make check-pcm64 PCM64_SUITE=report-carriers
 make check
 ```
 
-The next accepted input is the verified **Phase 02A FULL** archive, not the Phase 01 snapshot. Phase 02B must first recheck this safe writer, then add direct FLAC ingress without changing the proven WAV path. A separate Phase 03 handles RF64 and stdout-pipe qualification. A shell's `>` redirection can truncate before SoX starts; this writer does not protect against shell-side effects. After the validated descriptor is explicitly truncated and the header committed, an output error can leave partial bytes and must be reported as failure.
+Run FLAC qualification on a host with real development headers. Record the
+FLAC binary/codec hashes and complete per-case receipts, then repackage and
+make a new acceptance decision. Until then the result is CONDITIONAL.
+
+**Next phase, only after accepted 06A:** Phase 06B consumes the accepted 06A
+revision and composes the binary64 DSD decoder with the certified encoder,
+without modifying frozen kernels. The existing `auto` route stays legacy; no
+DSD-to-DSD transcoding is claimed in this subphase. Interrupted audio jobs
+restart from original inputs rather than resuming partial native state.
