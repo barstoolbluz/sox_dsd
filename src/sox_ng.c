@@ -311,6 +311,8 @@ static sox_bool dsd_report_effects_file_conflict(const char *, const char *);
 static sox_bool dsd_report_stdin_shares_stdout(void);
 static sox_bool dsd_report_stdin_alias(const char *);
 static sox_bool dsd_report_effect_args_conflict(int, char **, int, const char *);
+static sox_bool dsd_report_file_path_alias(const char *, const char *);
+static sox_bool dsd_report_multiple_output_alias(const char *, const char *);
 static int dsd_observe_input(file_t *f,const sox_sample_t *samples,size_t n);
 
 /* Automatic planning is limited to DSD endpoints and DSD controls;
@@ -3581,6 +3583,12 @@ static void dsd_report_validate_destination(void)
         dsd_report_active=sox_false;
         exit(2);
       }
+  if (output_method==sox_multiple && ofile->filename &&
+      dsd_report_multiple_output_alias(dsd_report_path,ofile->filename)) {
+    lsx_fail("--report conflicts with a numbered audio output");
+    dsd_report_active=sox_false;
+    exit(2);
+  }
   if (!strcmp(dsd_report_path,"-")) {
     if (dsd_report_cli_carrier_conflict) {
       lsx_fail("--report conflicts with a file or stream operand; select a separate destination");
@@ -3891,6 +3899,14 @@ static int dsd_report_publish(char const *status)
   uint64_t writer_clips=dsd_output_clip_total;
   int ok;
   if (!dsd_report_active || dsd_report_published) return SOX_SUCCESS;
+  /* Effects chains are not parsed at the early file-option preflight.
+   * Recheck generated names immediately before report publication, including
+   * failure/atexit publication after the native runner refuses newfile. */
+  if (output_method==sox_multiple && ofile && ofile->filename &&
+      dsd_report_multiple_output_alias(dsd_report_path,ofile->filename)) {
+    lsx_fail("--report conflicts with a numbered audio output");
+    return SOX_EOF;
+  }
   /* An early error must not write through an effects operand that has not
    * been read yet. A pipe cannot be safely consumed by the CLI preflight. */
   if (dsd_report_effects_unverified) return SOX_EOF;
@@ -5176,6 +5192,67 @@ static sox_bool dsd_report_path_alias(const char *report,const char *other)
       ;
 }
 
+/* File-valued --comment-file and --effects-file use fopen("-", "r") in
+ * their real parsers.  Only audio '-' borrows a standard descriptor. */
+static sox_bool dsd_report_file_path_alias(const char *report,const char *other)
+{
+  struct stat a,b;
+  if (!report || !other) return sox_false;
+  if (strcmp(other,"-")) return dsd_report_path_alias(report,other);
+  if (!strcmp(report,"-"))
+    return !fstat(fileno(stdout),&a) && !stat(other,&b) &&
+        a.st_dev==b.st_dev && a.st_ino==b.st_ino;
+  return !strcmp(report,other) ||
+      (!stat(report,&a) && !stat(other,&b) &&
+       a.st_dev==b.st_dev && a.st_ino==b.st_ino)
+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
+      || dsd_report_missing_paths_alias(report,other)
+#endif
+      ;
+}
+
+/* A multiple-output effects chain can create numbered files long after the
+ * initial output path is parsed.  Match the actual fndup_with_count grammar,
+ * then prove the generated name aliases the proposed report target.  This
+ * runs only during CLI admission, never on an audio sample. */
+static sox_bool dsd_report_multiple_output_alias(const char *report,
+    const char *output)
+{
+  const char *marker=strstr(output,"%n"), *p, *end;
+  char *generated;
+  unsigned long index=0;
+  size_t prefix;
+  if (!report || !output || !strcmp(report,"-")) return sox_false;
+  if (!marker) {
+    const char *q=output;
+    while ((q=strchr(q,'%'))!=NULL) {
+      if (q[1]>='1' && q[1]<='9' && q[2]=='n') {marker=q;break;}
+      q++;
+    }
+  }
+  if (marker) prefix=(size_t)(marker-output);
+  else {
+    const char *dot=strrchr(output,'.');
+    prefix=dot?(size_t)(dot-output):strlen(output);
+  }
+  if (strncmp(output,report,prefix)) return sox_false;
+  p=report+prefix;
+  if (*p<'0' || *p>'9') return sox_false;
+  for (end=p;*end>='0' && *end<='9';end++) {
+    unsigned digit=(unsigned)(*end-'0');
+    if (index>(ULONG_MAX-digit)/10) return sox_false;
+    index=index*10+digit;
+  }
+  if (!index || index>INT_MAX) return sox_false;
+  generated=fndup_with_count(output,index);
+  if (!generated) return sox_false;
+  {
+    sox_bool alias=dsd_report_path_alias(report,generated);
+    free(generated);
+    return alias;
+  }
+}
+
 static sox_bool dsd_report_stdin_alias(const char *report)
 {
   struct stat a,b;
@@ -5197,19 +5274,19 @@ static sox_bool dsd_report_effect_args_conflict(int argc, char **argv,
     int begin=i,k;
     while (i<argc && !sox_find_effect(argv[i]) &&
            !is_pseudo_effect(argv[i])) ++i;
-    if (!strcmp(name,"noiseprof")) {
+    if (!strcasecmp(name,"noiseprof")) {
       file=begin<i?argv[begin]:"-";
       if (!strcmp(file,"-") ? dsd_path_is_stdout(report) :
           dsd_report_path_alias(report,file)) return sox_true;
-    } else if (!strcmp(name,"noisered") || !strcmp(name,"fir") ||
-               !strcmp(name,"firfit")) {
+    } else if (!strcasecmp(name,"noisered") || !strcasecmp(name,"fir") ||
+               !strcasecmp(name,"firfit")) {
       /* Multiple coefficients/knots for fir/firfit are not file operands. */
-      if ((!strcmp(name,"noisered") && begin<i) ||
-          (strcmp(name,"noisered") && i-begin==1)) file=argv[begin];
+      if ((!strcasecmp(name,"noisered") && begin<i) ||
+          (strcasecmp(name,"noisered") && i-begin==1)) file=argv[begin];
       else if (begin==i) file="-";
       if (file && (!strcmp(file,"-") ? dsd_report_stdin_alias(report) :
                    dsd_report_path_alias(report,file))) return sox_true;
-    } else if (!strcmp(name,"spectrogram")) {
+    } else if (!strcasecmp(name,"spectrogram")) {
       file="spectrogram.png";
       for (k=begin;k<i;k++) {
         if (!strcmp(argv[k],"-o") && k+1<i) file=argv[++k];
@@ -5235,7 +5312,7 @@ static sox_bool dsd_report_effects_file_conflict(const char *filename,
   /* Preview only independent, seekable files. /dev/fd/N can share an open
    * description even if it currently refers to a regular file; FIFOs and
    * pipes would lose their bytes before read_user_effects() sees them. */
-  if (!strcmp(filename,"-") || !strcmp(filename,"/dev/stdin") ||
+  if (!strcmp(filename,"/dev/stdin") ||
       !strncmp(filename,"/dev/fd/",8) ||
       !strncmp(filename,"/proc/self/fd/",14)) {
     dsd_report_effects_unverified=sox_true;
@@ -5294,7 +5371,7 @@ static sox_bool dsd_report_cli_path_conflict(int argc, char **argv,
     while ((option=lsx_getopt(&scan))!=-1) {
       if (option==0 && (scan.lngind==3 ||
           (scan.lngind==15 && scan.arg && effects && !strcmp(scan.arg,effects))) &&
-          scan.arg && dsd_report_path_alias(report,scan.arg)) return sox_true;
+          scan.arg && dsd_report_file_path_alias(report,scan.arg)) return sox_true;
       if (option=='p' || option=='n' || option=='d') {
         if (preceding_stdin && dsd_report_stdin_alias(report)) return sox_true;
         preceding_stdin=option=='p';
@@ -5302,6 +5379,9 @@ static sox_bool dsd_report_cli_path_conflict(int argc, char **argv,
     }
     if (scan.ind>=argc || sox_find_effect(argv[scan.ind])) break;
     if (dsd_report_path_alias(report,argv[scan.ind])) return sox_true;
+    /* Arbitrary shell commands may open any source pathname.  A file-backed
+     * report cannot be proven independent from a pipe-command reader. */
+    if (argv[scan.ind][0]=='|' && strcmp(report,"-")) return sox_true;
     /* A previous '-' or -p is now known to be an audio input, rather than
      * an output that merely follows an unused stdin descriptor. */
     if (preceding_stdin && dsd_report_stdin_alias(report)) return sox_true;
@@ -5332,7 +5412,7 @@ static sox_bool dsd_report_cli_audio_on_stdout(int argc, char **argv,
     while ((option=lsx_getopt(&scan))!=-1) {
       if (option==0 && (scan.lngind==3 ||
           (scan.lngind==15 && scan.arg && effects && !strcmp(scan.arg,effects))) &&
-          scan.arg && dsd_path_is_stdout(scan.arg)) return sox_true;
+          scan.arg && dsd_report_file_path_alias(report,scan.arg)) return sox_true;
       if (option=='p' && shared_standard_stream) return sox_true;
       if (option=='n' || option=='d' || option=='p') {
         /* play supplies its output device: -p reads stdin, not stdout. */

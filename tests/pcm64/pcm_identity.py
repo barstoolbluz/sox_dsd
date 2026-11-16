@@ -801,29 +801,24 @@ def main():
             suite.portable_remix_layout()
             suite.portable_throughput()
             suite.count('portable_compatibility_and_plan_commands',len(suite.commands)-before)
-            # These precommit alias, sentinel and plan guards operate before
-            # the binary64 coordinator. Run the existing checks with an
-            # independent fixture rather than marking whole gates NOT_RUN.
-            fixture=[f64_word(0.125)]*1022
-            pack_wav(suite.root/'identity-511.wav',f64_payload(fixture),
-                     64,FLOAT32,channels=2)
-            pack_wav(suite.root/'identity-7.wav',f64_payload(fixture[:14]),
-                     64,FLOAT32,channels=2)
+            # The disabled arithmetic backend still permits an exact F64
+            # word copy. Exercise that real path, including I/O fault and
+            # cancellation checks, rather than disguising it as NOT_RUN.
+            suite.word_identity()
             before=len(suite.commands)
             suite.faults_and_sentinels()
+            suite.native_fenv()
+            suite.signal_cancellation()
             suite.planning_performance()
             suite.count('portable_source_and_plan_commands',len(suite.commands)-before)
             for gate in (
-                'direct_caller_stream_state_machine', 'f64_word_exact_payload',
-                'plan_executed_engine_agreement',
+                'direct_caller_stream_state_machine',
                 'integer_wav_exact_normalization', 'source_volume_and_ordered_gains',
                 'zero_db_signed_zero', 'f32_one_round',
                 'target_integer_quantization', 'stdout_pipe_and_regular',
                 'native_report_truthfulness', 'target_saturation_and_nominal_clip_policy',
-                'built_in_flac_pcm64_ingress', 'runtime_fenv_and_injected_io',
-                'hostile_copy_and_numeric_refusal', 'short_write_close_errors_no_success',
-                'sigint_after_commit_no_success'):
-                suite.gates[gate]='NOT_RUN: --disable-native-f64'
+                'built_in_flac_pcm64_ingress', 'runtime_fenv_and_injected_io'):
+                suite.gates.setdefault(gate,'NOT_RUN: --disable-native-f64')
             record=suite.receipt('PASS_WITH_NOT_RUN')
             print(f'{record["status"]} pcm-identity: {record["actual_checks"]}, '+
                   f'{len(record["gate_execution"])} gates')
