@@ -118,9 +118,8 @@ static void unit(void)
     const sdm_profile_t *sdm=sdm_profile_find(encoder?encoder->id:NULL,hz);
     lsx_dsd_reconstruction *d=NULL;lsx_dsd_reconstruction_info info;
     /* P21, 2026-10-23: both clocks are authorized. Through P20 this block
-     * asserted zero capabilities and an unqualified encoder. The DSP facts
-     * below it are unchanged and still checked, which is the point of
-     * keeping this case: enabling a rate must not have moved a filter. */
+     * asserted zero capabilities and an unqualified encoder. The DSP bank
+     * facts here assert 1.1.2 mastering and unchanged wideband behavior. */
     CHECK(rate && rate->capabilities!=0);
     CHECK(rate->decode_mastering_id && rate->decode_wideband_id && rate->encode_mastering_id);
     CHECK(master && wide && encoder && sdm);
@@ -135,18 +134,20 @@ static void unit(void)
         "encode.mastering.v2.dsd1024":"encode.mastering.v2.dsd512"));
     CHECK(encoder->bounds!=NULL);
     CHECK(lsx_pcmdsd_qualified(hz));
-    CHECK(master->intermediate_hz==176400 && master->pass_hz==40000 && master->stop_hz==80000);
+    CHECK(master->intermediate_hz==(i?705600u:352800u) &&
+          master->pass_hz==(i?120000u:88200u) &&
+          master->stop_hz==(i?200000u:148200u));
     CHECK(wide->intermediate_hz==hz/32 && wide->pass_hz==wide->intermediate_hz*.4);
     CHECK(wide->stop_hz==wide->intermediate_hz*.5);
-    CHECK(master->stages==(i?8u:7u) && master->delay_native_frames==(i?10980u:5476u));
+    CHECK(master->stages==6u && master->delay_native_frames==(i?4516u:3300u));
     CHECK(wide->stages==5 && wide->delay_native_frames==2468);
     /* The v2 decoder is retired; its former enum value cannot resolve. */
     CHECK(!lsx_dsd_frontend_profile_find(hz,(lsx_dsd_decode)3));
     CHECK(lsx_dsd_reconstruction_create(hz,LSX_DSD_PROFILE_MASTERING,1,&d)==SOX_DSD_OK);
     CHECK(lsx_dsd_reconstruction_info_get(d,&info)==SOX_DSD_OK);
-    CHECK(info.stages==master->stages && info.factor==hz/176400);
+    CHECK(info.stages==master->stages && info.factor==hz/master->intermediate_hz);
     CHECK(info.delay_native_frames==master->delay_native_frames);
-    CHECK(info.allocated_bytes>0 && info.taps[info.stages-1]==117);
+    CHECK(info.allocated_bytes>0 && info.taps[info.stages-1]==(i?229u:153u));
     for(unsigned j=0;j<info.stages;j++)
       CHECK(info.phases[j]==((info.delay_native_frames>>j)&1u));
     lsx_dsd_reconstruction_destroy(d);

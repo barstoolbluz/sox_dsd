@@ -41,8 +41,8 @@ static void envelope(void)
      * developmental test must assert current positive qualification, not
      * resurrect its pre-P15 unavailable-profile assumption. */
     CHECK(d && d->native_hz==rates[i] && d->qualified && d->bounds);
-    CHECK(d->working_hz==(i?176400:88200));
-    CHECK(d->pass_hz==(i==0?20000:i==1?30000:40000));
+    CHECK(d->working_hz==(i==0?88200u:i==1?176400u:352800u));
+    CHECK(d->pass_hz==(i==0?20000u:i==1?30000u:60000u));
     p=(void *)1;
     CHECK(lsx_pcmdsd_create(48000,rates[i],.5,0,&p)==SOX_DSD_OK && p);
     lsx_pcmdsd_destroy(p);p=NULL;

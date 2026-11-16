@@ -51,11 +51,12 @@ ANALYSIS_BAND_HZ = (0, 20000)
 REFERENCE_OFFSET_NATIVE_FRAMES = -40.5
 MAX_REFERENCE_ERROR_NATIVE_FRAMES = 1.0
 REFERENCE_SEARCH_NATIVE_FRAMES = 48.0
-# The default is mastering v1; wideband is the only alternative. Explicit
-# `--decode mastering` equivalence is checked by the unified-decoder gate.
+# Runtime IDs were unversioned in 1.1.1 and remain unversioned in 1.1.2.
+# Mastering default PCM rates changed in 1.1.2; wideband did not.
+# Historical P21 evidence retains its original v1 receipt fields and claims.
 PROFILES = (
-    (None, 'decode.mastering.v1', {22579200: 176400, 45158400: 176400}),
-    ('wideband', 'decode.wideband.v1', {22579200: 705600, 45158400: 1411200}),
+    (None, 'decode.mastering', {22579200: 352800, 45158400: 705600}),
+    ('wideband', 'decode.wideband', {22579200: 705600, 45158400: 1411200}),
 )
 SELF_RATES = (22579200, 45158400)
 # Containers this gate covers. WSD is read-only by construction: src/dsd.c

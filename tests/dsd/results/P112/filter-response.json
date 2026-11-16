@@ -1,0 +1,248 @@
+{
+  "banks": {
+    "decoder": {
+      "master256_1024": {
+        "grid_worst_db": -188.65923885015417,
+        "pass_abs_peak_db": 4.547047016510505e-09,
+        "pass_extrema": 26,
+        "pass_peak_hz": 56772.89711663797,
+        "passes": true,
+        "sha256": "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569",
+        "stop_edge_db": -188.6592403984989,
+        "stop_extrema": 88,
+        "stop_worst_db": -188.6592403984989,
+        "stop_worst_hz": 100000.0,
+        "taps": 229
+      },
+      "master512": {
+        "grid_worst_db": -189.1628674120318,
+        "pass_abs_peak_db": 3.3104310816144282e-09,
+        "pass_extrema": 26,
+        "pass_peak_hz": 87255.92284380869,
+        "passes": true,
+        "sha256": "1d48e838b5a0183d903322e1970ca8a4a6658fc122ce1daf4dfcb8155e9c1cfd",
+        "stop_edge_db": -189.32004623803908,
+        "stop_extrema": 50,
+        "stop_worst_db": -189.1628068595057,
+        "stop_worst_hz": 149150.7213722746,
+        "taps": 153
+      }
+    },
+    "encoder": {
+      "master256_1024": {
+        "grid_worst_db": -188.95542917261895,
+        "pass_abs_peak_db": 3.344046572783886e-09,
+        "pass_extrema": 26,
+        "pass_peak_hz": 57122.76423645996,
+        "passes": true,
+        "sha256": "62822139a5aa222b2f296867b4ab05046846f4f24192243e43c30b489f341dc9",
+        "stop_edge_db": -195.2406948959086,
+        "stop_extrema": 31,
+        "stop_worst_db": -188.95542656187277,
+        "stop_worst_hz": 100284.62631321485,
+        "taps": 117
+      },
+      "master512": {
+        "grid_worst_db": -187.18010310573464,
+        "pass_abs_peak_db": 4.792339134355554e-09,
+        "pass_extrema": 26,
+        "pass_peak_hz": 82446.1085562404,
+        "passes": true,
+        "sha256": "bebf23d899b37c79757c619bccd0aafd6b40a36090ff8c0f61e0bb31e43f1019",
+        "stop_edge_db": -200.90361545944464,
+        "stop_extrema": 11,
+        "stop_worst_db": -187.18010137491694,
+        "stop_worst_hz": 151213.77724595758,
+        "taps": 81
+      }
+    }
+  },
+  "limitation": "numerical search with refined sampled extrema; not a rigorous interval-arithmetic global bound",
+  "method": "derivative-bracket FIR extrema, adaptive full-native-Nyquist cascade extrema, all coherent image sums, separate sampled incoherent/weighted image powers, 75-digit reevaluation",
+  "profiles": {
+    "dsd1024": {
+      "alias_peak_base_hz": 119999.9941049256,
+      "coherent_alias_sum_db": -191.77407611584638,
+      "delay_native_frames": 4516,
+      "factor": 64,
+      "high_precision_at_alias_peak_db": -191.77408484884404,
+      "high_precision_at_pass_peak_db": 4.02669784208973e-09,
+      "high_precision_at_stop_worst_db": -188.65924039766057,
+      "incoherent_flat_alias_power_db": -199.28506143005532,
+      "intermediate_hz": 705600,
+      "native_hz": 45158400,
+      "noise_diagnostic_baseband_samples": 1025,
+      "pass_abs_peak_db": 4.02669784208973e-09,
+      "pass_hz": 120000,
+      "pass_peak_hz": 120000.0,
+      "passes": true,
+      "search": {
+        "aliases": {
+          "grid_max": 2.5780757602714896e-10,
+          "grid_points": 2049,
+          "localized_extrema": 17,
+          "optimized_candidates": 20
+        },
+        "passband": {
+          "grid_max": 4.02669784208973e-09,
+          "grid_points": 8193,
+          "localized_extrema": 23,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.690099337561927e-10,
+          "grid_points": 8193,
+          "localized_extrema": 2542,
+          "optimized_candidates": 20
+        }
+      },
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master256_1024"
+      ],
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        57,
+        229
+      ],
+      "stop_edge_db": -188.65924039766057,
+      "stop_hz": 200000,
+      "stop_worst_db": -188.65923884931584,
+      "stop_worst_hz": 200000.0,
+      "synthetic_f4_weighted_image_db": -189.41715250415595
+    },
+    "dsd256": {
+      "alias_peak_base_hz": 59999.99701903861,
+      "coherent_alias_sum_db": -191.9260340001507,
+      "delay_native_frames": 2244,
+      "factor": 32,
+      "high_precision_at_alias_peak_db": -191.92603639529307,
+      "high_precision_at_pass_peak_db": 3.9878643750295445e-09,
+      "high_precision_at_stop_worst_db": -188.65924039776743,
+      "incoherent_flat_alias_power_db": -199.2361072137078,
+      "intermediate_hz": 352800,
+      "native_hz": 11289600,
+      "noise_diagnostic_baseband_samples": 1025,
+      "pass_abs_peak_db": 3.9878643750295445e-09,
+      "pass_hz": 60000,
+      "pass_peak_hz": 60000.0,
+      "passes": true,
+      "search": {
+        "aliases": {
+          "grid_max": 2.533367974941512e-10,
+          "grid_points": 2049,
+          "localized_extrema": 17,
+          "optimized_candidates": 20
+        },
+        "passband": {
+          "grid_max": 3.9878643750295445e-09,
+          "grid_points": 8193,
+          "localized_extrema": 23,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.6900993375165306e-10,
+          "grid_points": 8193,
+          "localized_extrema": 1440,
+          "optimized_candidates": 20
+        }
+      },
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master256_1024"
+      ],
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        229
+      ],
+      "stop_edge_db": -188.65924039776743,
+      "stop_hz": 100000,
+      "stop_worst_db": -188.6592388494227,
+      "stop_worst_hz": 100000.0,
+      "synthetic_f4_weighted_image_db": -190.37901163929504
+    },
+    "dsd512": {
+      "alias_peak_base_hz": 69223.94686286683,
+      "coherent_alias_sum_db": -186.81349942482765,
+      "delay_native_frames": 3300,
+      "factor": 64,
+      "high_precision_at_alias_peak_db": -186.8135044232002,
+      "high_precision_at_pass_peak_db": 5.2426395592222245e-09,
+      "high_precision_at_stop_worst_db": -189.1628068557125,
+      "incoherent_flat_alias_power_db": -193.77788501467276,
+      "intermediate_hz": 352800,
+      "native_hz": 22579200,
+      "noise_diagnostic_baseband_samples": 1025,
+      "pass_abs_peak_db": 5.242641487877156e-09,
+      "pass_hz": 88200,
+      "pass_peak_hz": 74281.64525907677,
+      "passes": true,
+      "search": {
+        "aliases": {
+          "grid_max": 4.5637435484122616e-10,
+          "grid_points": 2049,
+          "localized_extrema": 22,
+          "optimized_candidates": 20
+        },
+        "passband": {
+          "grid_max": 5.242631844602497e-09,
+          "grid_points": 8193,
+          "localized_extrema": 17,
+          "optimized_candidates": 20
+        },
+        "stopband": {
+          "grid_max": 3.4197761316930627e-10,
+          "grid_points": 8193,
+          "localized_extrema": 1638,
+          "optimized_candidates": 20
+        }
+      },
+      "stage_banks": [
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "halfband",
+        "master512"
+      ],
+      "stage_taps": [
+        57,
+        57,
+        57,
+        57,
+        57,
+        153
+      ],
+      "stop_edge_db": -189.3200462310552,
+      "stop_hz": 148200,
+      "stop_worst_db": -189.16280578863078,
+      "stop_worst_hz": 149150.7094389546,
+      "synthetic_f4_weighted_image_db": -182.65703101869934
+    }
+  },
+  "schema": "sox-dsd/1.1.2/fir-cascade-measurement/1",
+  "source": "parsed binary64 production C hex words (not generated design samples)",
+  "summary": {
+    "banks_pass": 4,
+    "profiles_pass": 3
+  },
+  "thresholds": {
+    "decoder_coherent_alias_sum_max_db": -160,
+    "decoder_composite_stop_max_db": -160,
+    "individual_fir_stop_max_db": -185,
+    "pass_abs_max_db": 0.0001
+  }
+}

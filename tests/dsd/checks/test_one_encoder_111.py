@@ -77,7 +77,7 @@ def test(sox, root):
             require(selected['policy']['encode'] == 'mastering',
                     f'DSD{suffix}: wrong user-facing encoder choice')
             certificate=selected['encoder']['certificate_sha256']
-            require((certificate is None) if hz>=22579200 else
+            require((certificate is None) if hz>=11289600 else
                     (isinstance(certificate,str) and len(certificate)==64),
                     f'DSD{suffix}: unsupported or missing coefficient certificate')
             require(abs(selected['encoder']['planned_linear_gain']-.9) < 1e-14,
@@ -96,7 +96,7 @@ def test(sox, root):
                 require(len(encoder)==1 and encoder[0]['profile_id']==ident,
                         f'DSD{suffix}/{clip}/{kind}: wrong runtime profile')
                 certificate=encoder[0]['coefficient_certificate_sha256']
-                require((certificate is None) if hz>=22579200 else
+                require((certificate is None) if hz>=11289600 else
                         (isinstance(certificate,str) and len(certificate)==64),
                         f'DSD{suffix}/{clip}/{kind}: incorrect reported certificate')
                 require(abs(encoder[0]['headroom_applied_db']-EXPECTED_DB)<1e-10,

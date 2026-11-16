@@ -2,7 +2,7 @@
 """Independent finite-composite DSD->F64 validation across 48-kHz rates.
 
 The intermediate FIR is rebuilt as direct equivalent polynomial convolution
-from the certified P06 coefficient *values*, not production ring/filter state.
+from actual shipped decoder coefficient *values*, not production ring/filter state.
 The final SRC uses independently designed 180dB Kaiser-windowed-sinc FIR.
 No LSB proof is transferred from the FIR stage to the final SRC.
 """
@@ -25,6 +25,7 @@ try:
     import numpy as np
     from scipy.signal import firwin,resample_poly,fftconvolve
     from certify_filters import load_coefficients
+    from current_mastering_112 import active_p06_master256
 except ImportError as error:
     print(f"UNRUN required P07 composite reference (missing {error.name})", file=__import__("sys").stderr)
     raise SystemExit(2) from None
@@ -68,6 +69,7 @@ def main():
     a=ap.parse_args()
     manifest=json.loads((Path(__file__).parents[1]/'reference'/'p06_coefficients.json').read_text())
     banks=load_coefficients()
+    manifest,banks=active_p06_master256(manifest,banks)
     rows=[]
     for key,output in CASES:
         meta=manifest['profiles'][key]
@@ -90,7 +92,7 @@ def main():
                  interior_abs_max=float(interior.max(initial=0)),
                  rms=float(np.sqrt(np.mean(err*err))),
                  interior_rms=float(np.sqrt(np.mean(interior*interior))),
-                 comparator='independent finite P06 equivalent FIR convolution; separate windowed-sinc SRC')
+                 comparator='independent finite equivalent FIR convolution of current shipped coefficients; separate windowed-sinc SRC')
         # A separate composite tolerance (two independently designed
         # finite-window SRCs differ at the boundaries). Compare *all*
         # endpoints and report them; do not apply the P06 FIR LSB envelope.

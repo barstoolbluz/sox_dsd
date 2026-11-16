@@ -1,0 +1,521 @@
+{
+  "cases": [
+    {
+      "baseline_identity": "bit-exact encode and decode",
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "76749b06a43bb529207e68abc8d71631d21013f547de74ecd7837638d6506139",
+      "default_frames": 6174,
+      "dsd": 64,
+      "encoded_sha256": "a4d8d9e5ebf4b2079732b18eda28a1d7587b88cf837bf1dd209b93d16c5418ce",
+      "input_sha256": "fa5445a42a242f6f200a2d1b3992b28cbd085e2b03335141d19402d7a3de36b8",
+      "output_hz": 88200,
+      "output_sha256": "01bcd38ef5cc8a57ffe20c9c2f1a0c7f5282110863940110e3d8828e90e2eb8f",
+      "reconstructed_tone_amplitude": 0.05850003953323137,
+      "stimulus": "low",
+      "tone_hz": 1000
+    },
+    {
+      "baseline_identity": "bit-exact encode and decode",
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "76749b06a43bb529207e68abc8d71631d21013f547de74ecd7837638d6506139",
+      "default_frames": 6174,
+      "dsd": 64,
+      "encoded_sha256": "cf840c38f71ba46694901d364cc17f55e1015bee7ba14c659f87ba7668df74e4",
+      "input_sha256": "fc1e348fd51c8b969dcc7a7294c303422452b498d7b8cf70494b208f4a9ca91d",
+      "measured_decoded_spectrum": {
+        "audible_0_20k_rms_dbfs": -156.43317405752646,
+        "fft_bin_hz": 28.571428571428573,
+        "pass_to_output_nyquist_rms_dbfs": -111.91051375370878,
+        "time_domain_rms_dbfs": -111.95251683539928,
+        "ultrasonic_20_40k_rms_dbfs": -111.91051375500543,
+        "window": "Hann; middle half of decoded stream; sample-power normalization"
+      },
+      "output_hz": 88200,
+      "output_sha256": "9ac0e781d3e19e8abe22303f95ed8115028282b89ff6d5f7254982f1d080ea0c",
+      "stimulus": "silence",
+      "tone_hz": null
+    },
+    {
+      "baseline_identity": "bit-exact encode and decode",
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "76749b06a43bb529207e68abc8d71631d21013f547de74ecd7837638d6506139",
+      "default_frames": 6174,
+      "dsd": 64,
+      "encoded_sha256": "d9b248deadf148603e300a99da164bb0964ee08b11af57148b8be975902e4023",
+      "input_sha256": "a69b4e2f60eb4eb474f1d549b745dcc0934b27cd0e99fbf66f0f28853f4180c9",
+      "measured_decoded_spectrum": {
+        "audible_0_20k_rms_dbfs": -54.09269923223164,
+        "fft_bin_hz": 28.571428571428573,
+        "pass_to_output_nyquist_rms_dbfs": -58.4967014870325,
+        "time_domain_rms_dbfs": -52.85535289772454,
+        "ultrasonic_20_40k_rms_dbfs": -58.49670148703251,
+        "window": "Hann; middle half of decoded stream; sample-power normalization"
+      },
+      "output_hz": 88200,
+      "output_sha256": "da03bb38afd9412431a985015d979e9d148acb4fdfea61966b3a75b10b7fb478",
+      "stimulus": "noise",
+      "tone_hz": null
+    },
+    {
+      "baseline_identity": "bit-exact decode",
+      "dsd": 64,
+      "output_hz": 88200,
+      "output_sha256": "e3e3a581d566d5e5bd7dc5a0f3de271bb247f6e0b80a0eafa2191755d547e32b",
+      "stimulus": "wideband-unchanged"
+    },
+    {
+      "dsd": 64,
+      "expected_frames": 12348,
+      "output_frames": 12348,
+      "output_hz": 176400,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 64,
+      "expected_frames": 13440,
+      "output_frames": 13440,
+      "output_hz": 192000,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 64,
+      "expected_frames": 24696,
+      "output_frames": 24696,
+      "output_hz": 352800,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 64,
+      "expected_frames": 49392,
+      "output_frames": 49392,
+      "output_hz": 705600,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "baseline_identity": "bit-exact encode and decode",
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "306a836d730b97b8f8f8e82d01ea2fc87eeec7efc70939c76558ab8e8fc44673",
+      "default_frames": 12348,
+      "dsd": 128,
+      "encoded_sha256": "8d833d76018dbc8a574de1aac8d8c9bc4576f74bcc81d28ccf6f091e9a1e494a",
+      "input_sha256": "fa5445a42a242f6f200a2d1b3992b28cbd085e2b03335141d19402d7a3de36b8",
+      "output_hz": 176400,
+      "output_sha256": "1584521f0b22350a585066203fae053a983705bf4aca5e6a6a6c0f7dc3aded2e",
+      "reconstructed_tone_amplitude": 0.05850000016662138,
+      "stimulus": "low",
+      "tone_hz": 1000
+    },
+    {
+      "baseline_identity": "bit-exact encode and decode",
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "306a836d730b97b8f8f8e82d01ea2fc87eeec7efc70939c76558ab8e8fc44673",
+      "default_frames": 12348,
+      "dsd": 128,
+      "encoded_sha256": "d95e653652c82fb7be488eb460922ea5473abf06381a3edf5ae98fc68ff55390",
+      "input_sha256": "fc1e348fd51c8b969dcc7a7294c303422452b498d7b8cf70494b208f4a9ca91d",
+      "measured_decoded_spectrum": {
+        "audible_0_20k_rms_dbfs": -202.31862062469452,
+        "fft_bin_hz": 28.571428571428573,
+        "pass_to_output_nyquist_rms_dbfs": -124.64075692293645,
+        "time_domain_rms_dbfs": -124.84697222601197,
+        "ultrasonic_20_40k_rms_dbfs": -134.57229930473258,
+        "window": "Hann; middle half of decoded stream; sample-power normalization"
+      },
+      "output_hz": 176400,
+      "output_sha256": "a065dba0618a3cd468a56037afbb5d9254cd9ce14fbf4ef390454473daada63b",
+      "stimulus": "silence",
+      "tone_hz": null
+    },
+    {
+      "baseline_identity": "bit-exact encode and decode",
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "306a836d730b97b8f8f8e82d01ea2fc87eeec7efc70939c76558ab8e8fc44673",
+      "default_frames": 12348,
+      "dsd": 128,
+      "encoded_sha256": "064b20ed1d3d648bdb64da31101a15a449538bb6dbd3b2e26d708e623f7d2164",
+      "input_sha256": "a69b4e2f60eb4eb474f1d549b745dcc0934b27cd0e99fbf66f0f28853f4180c9",
+      "measured_decoded_spectrum": {
+        "audible_0_20k_rms_dbfs": -54.09337800062295,
+        "fft_bin_hz": 28.571428571428573,
+        "pass_to_output_nyquist_rms_dbfs": -56.46816955778846,
+        "time_domain_rms_dbfs": -51.098891702513654,
+        "ultrasonic_20_40k_rms_dbfs": -54.487077540403554,
+        "window": "Hann; middle half of decoded stream; sample-power normalization"
+      },
+      "output_hz": 176400,
+      "output_sha256": "3b874cbc0d76903ef82ce24232c9d14085886af7599ef3ca100836a023789800",
+      "stimulus": "noise",
+      "tone_hz": null
+    },
+    {
+      "baseline_identity": "bit-exact decode",
+      "dsd": 128,
+      "output_hz": 176400,
+      "output_sha256": "997d8072bfa751c7c04288cbd43359356ac186dcb467a361469f91d84094444f",
+      "stimulus": "wideband-unchanged"
+    },
+    {
+      "dsd": 128,
+      "expected_frames": 12348,
+      "output_frames": 12348,
+      "output_hz": 176400,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 128,
+      "expected_frames": 13440,
+      "output_frames": 13440,
+      "output_hz": 192000,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 128,
+      "expected_frames": 24696,
+      "output_frames": 24696,
+      "output_hz": 352800,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 128,
+      "expected_frames": 49392,
+      "output_frames": 49392,
+      "output_hz": 705600,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569",
+      "default_frames": 24696,
+      "dsd": 256,
+      "encoded_sha256": "d88690bfb05b148c84caf15b62a42025bb4c144536b81a539c1b160c1652e0cd",
+      "input_sha256": "fa5445a42a242f6f200a2d1b3992b28cbd085e2b03335141d19402d7a3de36b8",
+      "output_hz": 352800,
+      "output_sha256": "47ab49bd800fddf9eaa2238347ca3bcec63deb60f7cdc96b1c8089f26a3bd881",
+      "reconstructed_tone_amplitude": 0.05849999998481222,
+      "stimulus": "low",
+      "tone_hz": 1000
+    },
+    {
+      "baseline_decoder_tone_amplitude": 0.05799771243453816,
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569",
+      "default_frames": 24696,
+      "dsd": 256,
+      "encoded_sha256": "c41ab5023102ec3d2591e49da13c4278e347c42ab574bea380a24812a3dc0409",
+      "input_sha256": "ca6f915cb8e63084c7c1796b0a0945a43c603c8d5a50240e399cf9588baaa1a7",
+      "new_vs_baseline_decoder_db": 0.07490441665925854,
+      "output_hz": 352800,
+      "output_sha256": "58d838617465ce75f136167289bd0530d7a94dbbbbc73f5a701473fe1bb3ac50",
+      "reconstructed_tone_amplitude": 0.058500029507812655,
+      "stimulus": "wide",
+      "tone_hz": 50000
+    },
+    {
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569",
+      "default_frames": 24696,
+      "dsd": 256,
+      "encoded_sha256": "9a70c71275db5d6b3845a3174ea1702bdfedb8048e2e5dc26d7671a3a684930f",
+      "input_sha256": "fc1e348fd51c8b969dcc7a7294c303422452b498d7b8cf70494b208f4a9ca91d",
+      "measured_decoded_spectrum": {
+        "above_40k_to_pass_rms_dbfs": -151.2194964973122,
+        "audible_0_20k_rms_dbfs": -206.75781814815605,
+        "fft_bin_hz": 28.571428571428573,
+        "pass_to_output_nyquist_rms_dbfs": -130.20431500848838,
+        "time_domain_rms_dbfs": -130.19812123800602,
+        "ultrasonic_20_40k_rms_dbfs": -184.70293049027205,
+        "window": "Hann; middle half of decoded stream; sample-power normalization"
+      },
+      "output_hz": 352800,
+      "output_sha256": "3ef11e9a9fd58dec8da4777a155b2d58a14e75baaec0f5e5f34c1138a08ed99a",
+      "stimulus": "silence",
+      "tone_hz": null
+    },
+    {
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569",
+      "default_frames": 24696,
+      "dsd": 256,
+      "encoded_sha256": "96681b890ea29379f7e84a4e61feed29b3016e91c72906aa07842e8635569ada",
+      "input_sha256": "a69b4e2f60eb4eb474f1d549b745dcc0934b27cd0e99fbf66f0f28853f4180c9",
+      "measured_decoded_spectrum": {
+        "above_40k_to_pass_rms_dbfs": -54.37102767198759,
+        "audible_0_20k_rms_dbfs": -54.09349325420663,
+        "fft_bin_hz": 28.571428571428573,
+        "pass_to_output_nyquist_rms_dbfs": -54.90984510535278,
+        "time_domain_rms_dbfs": -48.498616742413574,
+        "ultrasonic_20_40k_rms_dbfs": -54.405832903440945,
+        "window": "Hann; middle half of decoded stream; sample-power normalization"
+      },
+      "output_hz": 352800,
+      "output_sha256": "4b6fe6e28aa5c89fcca5cfba027a2dbd7977d6f2b24099ef29bff7d8e82bc6bd",
+      "stimulus": "noise",
+      "tone_hz": null
+    },
+    {
+      "baseline_identity": "bit-exact decode",
+      "dsd": 256,
+      "output_hz": 352800,
+      "output_sha256": "d4206aa49d012f323e4cec91c81ebe8318b1e2e59d9e46a8d03aba7547e4d425",
+      "stimulus": "wideband-unchanged"
+    },
+    {
+      "dsd": 256,
+      "expected_frames": 12348,
+      "output_frames": 12348,
+      "output_hz": 176400,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 256,
+      "expected_frames": 13440,
+      "output_frames": 13440,
+      "output_hz": 192000,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 256,
+      "expected_frames": 24696,
+      "output_frames": 24696,
+      "output_hz": 352800,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 256,
+      "expected_frames": 49392,
+      "output_frames": 49392,
+      "output_hz": 705600,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "1d48e838b5a0183d903322e1970ca8a4a6658fc122ce1daf4dfcb8155e9c1cfd",
+      "default_frames": 24696,
+      "dsd": 512,
+      "encoded_sha256": "4c4fde27dacc2acb3bb6cb38a5eb0406b630ffddb121323e074c9fa7ed1e44ac",
+      "input_sha256": "fa5445a42a242f6f200a2d1b3992b28cbd085e2b03335141d19402d7a3de36b8",
+      "output_hz": 352800,
+      "output_sha256": "a6e45fd429e0bc1fe5f29f443d49f3f461e700e16b16e0490bc0e4f6ad6b3261",
+      "reconstructed_tone_amplitude": 0.05849999999491846,
+      "stimulus": "low",
+      "tone_hz": 1000
+    },
+    {
+      "baseline_decoder_tone_amplitude": 0.00010368235036580359,
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "1d48e838b5a0183d903322e1970ca8a4a6658fc122ce1daf4dfcb8155e9c1cfd",
+      "default_frames": 24696,
+      "dsd": 512,
+      "encoded_sha256": "65a0d370ebc35d7be53f4d84e1aa1790d2482074f15945307b23c44914009580",
+      "input_sha256": "817418d3b4473437a85a8b641eecf0cf20305869b68bc819b23f943b8024bc6a",
+      "new_vs_baseline_decoder_db": 55.029021037723126,
+      "output_hz": 352800,
+      "output_sha256": "7495553343655a0dab7f03ce0a0278d2338d1689bde677abd02f1f5fb3b9c537",
+      "reconstructed_tone_amplitude": 0.058500002616481535,
+      "stimulus": "wide",
+      "tone_hz": 72000
+    },
+    {
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "1d48e838b5a0183d903322e1970ca8a4a6658fc122ce1daf4dfcb8155e9c1cfd",
+      "default_frames": 24696,
+      "dsd": 512,
+      "encoded_sha256": "fe3520819b672d38615ab1d547fa92f7e741acf2a71467fffc84cef47b68b33c",
+      "input_sha256": "fc1e348fd51c8b969dcc7a7294c303422452b498d7b8cf70494b208f4a9ca91d",
+      "measured_decoded_spectrum": {
+        "above_40k_to_pass_rms_dbfs": -175.20614633581832,
+        "audible_0_20k_rms_dbfs": -206.51664144732229,
+        "fft_bin_hz": 28.571428571428573,
+        "pass_to_output_nyquist_rms_dbfs": -153.17972326878385,
+        "time_domain_rms_dbfs": -152.94369489499425,
+        "ultrasonic_20_40k_rms_dbfs": -207.1797926349787,
+        "window": "Hann; middle half of decoded stream; sample-power normalization"
+      },
+      "output_hz": 352800,
+      "output_sha256": "91c3c6a19087c0fa8a304dc97412d4f9262cdf43d5994527a7c8058d0749a3eb",
+      "stimulus": "silence",
+      "tone_hz": null
+    },
+    {
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "1d48e838b5a0183d903322e1970ca8a4a6658fc122ce1daf4dfcb8155e9c1cfd",
+      "default_frames": 24696,
+      "dsd": 512,
+      "encoded_sha256": "86a14cb9d7b33b1cd221d638293089f5ac99fce543f19b357e8d5313ce3a8f6a",
+      "input_sha256": "a69b4e2f60eb4eb474f1d549b745dcc0934b27cd0e99fbf66f0f28853f4180c9",
+      "measured_decoded_spectrum": {
+        "above_40k_to_pass_rms_dbfs": -50.41926518278224,
+        "audible_0_20k_rms_dbfs": -54.093489812679614,
+        "fft_bin_hz": 28.571428571428573,
+        "pass_to_output_nyquist_rms_dbfs": -53.39727844112545,
+        "time_domain_rms_dbfs": -46.78873304565947,
+        "ultrasonic_20_40k_rms_dbfs": -54.405833992098025,
+        "window": "Hann; middle half of decoded stream; sample-power normalization"
+      },
+      "output_hz": 352800,
+      "output_sha256": "2d1120e740947e9c4ad80160748904c8d99d499be2736f44bfd5ce24bc01cb2c",
+      "stimulus": "noise",
+      "tone_hz": null
+    },
+    {
+      "baseline_identity": "bit-exact decode",
+      "dsd": 512,
+      "output_hz": 705600,
+      "output_sha256": "2a758e80f6b3af5e7362fcd1c6890acb932f459974665b9301f4c693e6947a32",
+      "stimulus": "wideband-unchanged"
+    },
+    {
+      "dsd": 512,
+      "expected_frames": 12348,
+      "output_frames": 12348,
+      "output_hz": 176400,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 512,
+      "expected_frames": 13440,
+      "output_frames": 13440,
+      "output_hz": 192000,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 512,
+      "expected_frames": 24696,
+      "output_frames": 24696,
+      "output_hz": 352800,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 512,
+      "expected_frames": 49392,
+      "output_frames": 49392,
+      "output_hz": 705600,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 512,
+      "rate": 176400,
+      "refused": true,
+      "stimulus": "strict-rate-refusal"
+    },
+    {
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569",
+      "default_frames": 49392,
+      "dsd": 1024,
+      "encoded_sha256": "183fd534b33fd90d26637c26ea3ad7dc7c679bbe33826011acfec7eb6080506f",
+      "input_sha256": "fa5445a42a242f6f200a2d1b3992b28cbd085e2b03335141d19402d7a3de36b8",
+      "output_hz": 705600,
+      "output_sha256": "4ed325302415766326f512fc1ae94fbcac681f2c62b4eb4c559d5925eacf1a04",
+      "reconstructed_tone_amplitude": 0.058499999989220765,
+      "stimulus": "low",
+      "tone_hz": 1000
+    },
+    {
+      "baseline_decoder_tone_amplitude": 0.0,
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569",
+      "default_frames": 49392,
+      "dsd": 1024,
+      "encoded_sha256": "f29b1791b0a29a6107903da3714829a74614a8bbea2e573bf79bb323841337c1",
+      "input_sha256": "306ac7d83db8b31c8ee1c1cc69259832c78dc48d980945c5ba1d313cf85d32b5",
+      "new_vs_baseline_decoder_db": 5975.343117394696,
+      "output_hz": 705600,
+      "output_sha256": "9afe49e1d15ce684b8eaf62f6b6424b97d448bb8a77a8fc8dffc4ef93a1166e1",
+      "reconstructed_tone_amplitude": 0.05850000049201013,
+      "stimulus": "wide",
+      "tone_hz": 110000
+    },
+    {
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569",
+      "default_frames": 49392,
+      "dsd": 1024,
+      "encoded_sha256": "023825115b3b3b5b7be10048e557605ece0a6b627a6473abcb516d26ce455217",
+      "input_sha256": "fc1e348fd51c8b969dcc7a7294c303422452b498d7b8cf70494b208f4a9ca91d",
+      "measured_decoded_spectrum": {
+        "above_40k_to_pass_rms_dbfs": -199.6475751024008,
+        "audible_0_20k_rms_dbfs": -210.15559983170544,
+        "fft_bin_hz": 28.571428571428573,
+        "pass_to_output_nyquist_rms_dbfs": -180.5713778265081,
+        "time_domain_rms_dbfs": -180.44480559203063,
+        "ultrasonic_20_40k_rms_dbfs": -209.35287384222244,
+        "window": "Hann; middle half of decoded stream; sample-power normalization"
+      },
+      "output_hz": 705600,
+      "output_sha256": "b8320b2446353169ad62affe35dd55290e988c891a2e90980e9aa7394d4e5054",
+      "stimulus": "silence",
+      "tone_hz": null
+    },
+    {
+      "clipped_samples": "0",
+      "decoder_bank_sha256": "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569",
+      "default_frames": 49392,
+      "dsd": 1024,
+      "encoded_sha256": "efbb4cab2428cd4d3dc9f05328edbef790e67f404a7cd97e68380a1098f5eab1",
+      "input_sha256": "a69b4e2f60eb4eb474f1d549b745dcc0934b27cd0e99fbf66f0f28853f4180c9",
+      "measured_decoded_spectrum": {
+        "above_40k_to_pass_rms_dbfs": -48.174811944165214,
+        "audible_0_20k_rms_dbfs": -54.093549163216686,
+        "fft_bin_hz": 28.571428571428573,
+        "pass_to_output_nyquist_rms_dbfs": -52.67033462712591,
+        "time_domain_rms_dbfs": -45.529555491443894,
+        "ultrasonic_20_40k_rms_dbfs": -54.40581113358756,
+        "window": "Hann; middle half of decoded stream; sample-power normalization"
+      },
+      "output_hz": 705600,
+      "output_sha256": "923d07b83860ef0c8341b1ab6ab6e76fb2a6d53705f87e870b38e07f41a5ad4d",
+      "stimulus": "noise",
+      "tone_hz": null
+    },
+    {
+      "baseline_identity": "bit-exact decode",
+      "dsd": 1024,
+      "output_hz": 1411200,
+      "output_sha256": "b9100e21b7718a42ca201d8a0c6d52f01d32c5b8e62fce4a4a974fc2cbfe37a6",
+      "stimulus": "wideband-unchanged"
+    },
+    {
+      "dsd": 1024,
+      "expected_frames": 12348,
+      "output_frames": 12348,
+      "output_hz": 176400,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 1024,
+      "expected_frames": 13440,
+      "output_frames": 13440,
+      "output_hz": 192000,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 1024,
+      "expected_frames": 24696,
+      "output_frames": 24696,
+      "output_hz": 352800,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 1024,
+      "expected_frames": 49392,
+      "output_frames": 49392,
+      "output_hz": 705600,
+      "stimulus": "explicit-rate"
+    },
+    {
+      "dsd": 1024,
+      "rate": 176400,
+      "refused": true,
+      "stimulus": "strict-rate-refusal"
+    }
+  ],
+  "nonlinear_warning": "SDM output/noise is not a linear FIR transfer function",
+  "schema": "sox-dsd/1.1.2/cli-integration/1",
+  "source_duration_seconds": 0.07,
+  "source_rate": 705600,
+  "summary": {
+    "failed": 0,
+    "passed": 45
+  }
+}

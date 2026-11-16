@@ -177,11 +177,11 @@ def main() -> int:
         run('pcm_only_plan',[w88,'@OUT@'],inspect=expect(
             executable=True,output__domain='PCM_AUDIO',graph_decoder_count=0))
 
-        # Both the unpinned default and named mastering use the v1 decoder.
+        # Both the unpinned default and named mastering use the current decoder.
         # P08 activates the existing binary64 decoder for planned graph boundaries.
         for name,src,expected,clock in (('master64',ds,88200,64),
                                         ('master128',ds128,176400,128),
-                                        ('master256',ds256,176400,256)):
+                                        ('master256',ds256,352800,256)):
             run(name,[src,'@OUT@'],inspect=expect(executable=True,needs_unimplemented_dsp=False,
                 decoder__intermediate_hz=expected,
                 decoder__id=f'decode.mastering.dsd{clock}',

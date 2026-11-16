@@ -29,6 +29,7 @@ try:
     import mpmath as mp
     import numpy as np
     from certify_filters import load_coefficients
+    from current_mastering_112 import active_p06_master256
 except ImportError as error:
     print(f"UNRUN required P06/P07 numerical oracle (missing {error.name})", file=sys.stderr)
     raise SystemExit(2) from None
@@ -79,8 +80,11 @@ def main():
     if vector.returncode:
         raise RuntimeError('compiled C vector probe failed: '+vector.stderr)
     (args.results/'vectors.jsonl').write_text(vector.stdout)
+    # Frozen P06 references identify the original banks only. Load actual
+    # shipped 1.1.2 words for the changed active DSD256 mastering oracle.
     manifest=json.loads((ROOT/'tests/dsd/reference/p06_coefficients.json').read_text())
     banks=load_coefficients()
+    manifest,banks=active_p06_master256(manifest,banks)
     eq_cache={}
     bound_cache={}
     for prof,meta in manifest['profiles'].items():
