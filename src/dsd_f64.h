@@ -3,6 +3,7 @@
 #define LSX_DSD_F64_H
 #include "sox_ng.h"
 #include "pcm_f64.h"
+#include "sox_dsd.h"
 typedef enum {
   LSX_PRECISION_AUTO = 0, LSX_PRECISION_64, LSX_PRECISION_32
 } lsx_precision_policy;
@@ -36,4 +37,39 @@ pcm_f64_progress lsx_dsd_f64_process(lsx_dsd_f64_stream *stream,
 pcm_f64_progress lsx_dsd_f64_finish(lsx_dsd_f64_stream *stream,
     pcm_f64_output output);
 void lsx_dsd_f64_destroy(lsx_dsd_f64_stream *stream);
+
+/* Phase 06A: bounded, channel-synchronous, direct PCM64 -> composite DSD.
+ * The caller owns finite, source-rate interleaved double frames. The output
+ * consists solely of interleaved one-bit sign symbols for DSF/DFF writers.
+ * No PCM sample traverses sox_sample_t, even transiently. */
+typedef struct lsx_pcmdsd lsx_pcmdsd;
+#define LSX_DSD_F64_ENCODE_INPUT 256u
+#define LSX_DSD_F64_ENCODE_OUTPUT 512u
+typedef struct {
+  lsx_pcmdsd *channel[64];
+  double *planar;
+  sox_sample_t *bits;
+  uint32_t source_hz, native_hz;
+  unsigned channels;
+  uint64_t source_frames, encoded_frames;
+  bool finishing, done;
+  sox_dsd_status_t error;
+} lsx_dsd_f64_encoder;
+
+sox_dsd_status_t lsx_dsd_f64_encode_init(lsx_dsd_f64_encoder *encoder,
+    uint32_t source_hz, uint32_t native_hz, unsigned channels,
+    double reference_scale, double attenuation, bool warn_and_clip);
+sox_dsd_status_t lsx_dsd_f64_encode_process(lsx_dsd_f64_encoder *encoder,
+    const double *interleaved_pcm, size_t *input_frames,
+    sox_sample_t *interleaved_dsd, size_t *output_frames);
+sox_dsd_status_t lsx_dsd_f64_encode_finish(lsx_dsd_f64_encoder *encoder,
+    sox_sample_t *interleaved_dsd, size_t *output_frames);
+const lsx_pcmdsd *lsx_dsd_f64_encode_channel(const lsx_dsd_f64_encoder *,
+    unsigned channel);
+/* Test-only admission instrumentation, never enabled in normal encoding. */
+typedef void (*lsx_dsd_f64_admission_observer)(void *opaque,
+    const double *words, size_t frames);
+void lsx_dsd_f64_encode_observe_admitted(lsx_dsd_f64_encoder *,
+    unsigned channel, lsx_dsd_f64_admission_observer, void *opaque);
+void lsx_dsd_f64_encode_destroy(lsx_dsd_f64_encoder *encoder);
 #endif

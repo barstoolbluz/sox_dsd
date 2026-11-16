@@ -53,6 +53,12 @@ typedef enum {
 typedef void (*lsx_pcmdsd_stage_observer)(void *opaque, lsx_pcmdsd_stage,
     const double *samples, size_t frames);
 void lsx_pcmdsd_observe(lsx_pcmdsd *, lsx_pcmdsd_stage_observer, void *opaque);
+/* A separate opt-in probe for exact post-clip words; keeps the existing
+ * stage-observer count and P10 audit protocol unchanged. */
+typedef void (*lsx_pcmdsd_admission_observer)(void *opaque,
+    const double *samples, size_t frames);
+void lsx_pcmdsd_observe_admitted(lsx_pcmdsd *,
+    lsx_pcmdsd_admission_observer, void *opaque);
 /* Effect-only controls. Core qualification callers retain strict overload
  * refusal and exact unmodified modulation unless they opt in. */
 double lsx_pcmdsd_warn_clip_ceiling(uint32_t native_hz);

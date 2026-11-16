@@ -78,6 +78,16 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path,
     const sox_format_t *source, FILE *raw_source, const char *report_path,
     sox_bool (*overwrite_permitted)(const char *filename));
 
+/* Phase 06A: native DSF/DFF open on the SAME nontruncating inspected
+ * descriptor. The returned standard SoX writer owns the descriptor and its
+ * existing bit packing. Unlike legacy open_write, an ineligible destination
+ * never sees fopen(w+b). Requires POSIX regular-file seekability. */
+sox_format_t *lsx_pcm_f64_dsd_open_write(const char *path,
+    const sox_signalinfo_t *signal, const sox_encodinginfo_t *encoding,
+    const char *filetype, const sox_dsd_layout_t *layout,
+    const sox_format_t *source, const char *report_path,
+    sox_bool (*overwrite_permitted)(const char *filename));
+
 /* WAV handler-private calls. Used only by the same-identity dispatch above
  * and the format-layer, descriptor-preserving native open implementation. */
 pcm_f64_status lsx_wav_native_facts(const sox_format_t *,

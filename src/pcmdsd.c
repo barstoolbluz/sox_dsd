@@ -106,6 +106,8 @@ struct lsx_pcmdsd {
   sox_dsd_status_t error;
   lsx_pcmdsd_stage_observer observer;
   void *observer_opaque;
+  lsx_pcmdsd_admission_observer admitted;
+  void *admitted_opaque;
 };
 
 const lsx_pcmdsd_profile *lsx_pcmdsd_profile_of(const lsx_pcmdsd *p)
@@ -122,6 +124,11 @@ const char *lsx_pcmdsd_kernel_name(const lsx_pcmdsd *p)
 void lsx_pcmdsd_observe(lsx_pcmdsd *p, lsx_pcmdsd_stage_observer callback, void *opaque)
 {
   if (p) {p->observer=callback;p->observer_opaque=opaque;}
+}
+void lsx_pcmdsd_observe_admitted(lsx_pcmdsd *p,
+    lsx_pcmdsd_admission_observer callback, void *opaque)
+{
+  if (p) {p->admitted=callback;p->admitted_opaque=opaque;}
 }
 void lsx_pcmdsd_set_clip(lsx_pcmdsd *p, int warn_and_clip)
 {
@@ -435,6 +442,9 @@ static sox_dsd_status_t pump(lsx_pcmdsd *p,const double *input,size_t *input_n,
             if (p->report.clipped_native_samples<UINT64_MAX)
               ++p->report.clipped_native_samples;
           }
+        /* Diagnostic-only post-clip, pre-modulation words: this observer
+         * sees the actual certified resonator admission input. */
+        if (p->admitted) p->admitted(p->admitted_opaque,native,got);
         if (lsx_pcmdsd_modulate(p,native,output+produced,got)!=SOX_DSD_OK)
           goto failed;
         produced+=got;

@@ -2009,6 +2009,189 @@ failure:
   }
   return NULL;
 }
+sox_format_handler_t const *lsx_dsf_format_fn(void);
+sox_format_handler_t const *lsx_dsdiff_format_fn(void);
+
+/* Phase 06A: the existing DSF/DFF writer gets a same-descriptor, validated
+ * regular-file stream. The legacy open_write() path is intentionally intact.
+ * No pathname is reopened between admission and the first header byte. */
+sox_format_t *lsx_pcm_f64_dsd_open_write(const char *path,
+    const sox_signalinfo_t *signal, const sox_encodinginfo_t *encoding,
+    const char *filetype, const sox_dsd_layout_t *layout,
+    const sox_format_t *source, const char *report_path,
+    sox_bool (*overwrite_permitted)(const char *filename))
+{
+  const sox_format_handler_t *handler;
+  sox_format_t *ft=NULL;
+  struct stat before_link={0},before={0},after={0},current_link={0},current={0};
+  const char *resolved_type=NULL;
+  sox_bool stdout_path,existed=sox_false,created=sox_false,committed=sox_false;
+  int fd=-1,flags;
+  FILE *stream=NULL;
+  uint32_t native_hz;
+  if (!path || !signal || !encoding || !source ||
+      !lsx_dsd_integer_rate(signal->rate,&native_hz) ||
+      !signal->channels ||
+      encoding->encoding!=SOX_ENCODING_DSD ||
+      encoding->bits_per_sample!=1) {
+    /* A known exactly empty source is valid; the writer will finalize a
+     * zero-bit header. An unknown input length is also valid via EOF. */
+    lsx_fail("native DSD: malformed endpoint or encoding");
+    return NULL;
+  }
+  handler=sox_write_handler(path,filetype,&resolved_type);
+  if (!handler || (strcmp(handler->names[0],"dsf") &&
+                   strcmp(handler->names[0],"dff")) ||
+      (!strcmp(handler->names[0],"dsf") &&
+       signal->channels>LSX_DSD_DSF_MAX_CHANNELS) ||
+      (!strcmp(handler->names[0],"dff") &&
+       signal->channels>LSX_DSD_DFF_MAX_CHANNELS)) {
+    lsx_fail("native DSD: only eligible DSF/DFF writers are supported");return NULL;
+  }
+  {
+    const sox_format_handler_t *builtin=!strcmp(handler->names[0],"dsf")?
+        lsx_dsf_format_fn():lsx_dsdiff_format_fn();
+    if (!builtin || handler->startwrite!=builtin->startwrite ||
+        handler->write!=builtin->write ||
+        handler->stopwrite!=builtin->stopwrite ||
+        handler->priv_size!=builtin->priv_size) {
+      lsx_fail("native DSD: selected handler is not the built-in writer");
+      return NULL;
+    }
+  }
+  {
+    lsx_dsd_endpoint endpoint=!strcmp(handler->names[0],"dsf")?
+        LSX_DSD_ENDPOINT_DSF:LSX_DSD_ENDPOINT_DFF;
+    if (lsx_dsd_capability_check(native_hz,endpoint,
+          LSX_DSD_OPERATION_WRITE)!=LSX_DSD_CAP_OK) {
+      lsx_fail("native DSD: output rate/profile is not authorized");return NULL;
+    }
+  }
+  if (layout && (layout->channels!=signal->channels ||
+      (!strcmp(handler->names[0],"dsf") &&
+       !lsx_dsd_layout_resolve_dsf(layout)))) {
+    lsx_fail("native DSD: output channel roles are unrepresentable");return NULL;
+  }
+  stdout_path=!strcmp(path,"-");
+  ft=lsx_calloc(1,sizeof(*ft));
+  ft->handler=*handler;
+  ft->mode='w';
+  ft->filename=lsx_strdup(path);
+  ft->filetype=lsx_strdup(resolved_type);
+  ft->signal=*signal;
+  ft->encoding=*encoding;
+  set_endiannesses(ft);
+  set_output_format(ft);
+  if (ft->signal.rate!=signal->rate ||
+      ft->signal.channels!=signal->channels ||
+      ft->signal.length!=signal->length ||
+      ft->encoding.encoding!=SOX_ENCODING_DSD ||
+      ft->encoding.bits_per_sample!=1 ||
+      sox_checkformat(ft)!=SOX_SUCCESS) {
+    lsx_fail("native DSD: selected writer changed the admitted format");
+    goto fail;
+  }
+  ft->priv=lsx_calloc(1,ft->handler.priv_size);
+  if (layout) {
+    lsx_dsd_layout_state_t *state=lsx_dsd_layout_state(ft);
+    if (!state || !(state->layout=sox_dsd_layout_copy(layout))) goto fail;
+  }
+  /* PATH admission: reject unusable entries before any potentially blocking
+   * I/O. The opened O_NONBLOCK descriptor is then the only I/O authority. */
+  if (stdout_path) {
+    if (sox_globals.stdout_in_use_by) {
+      lsx_fail("native DSD: stdout already in use");goto fail;
+    }
+    fd=fileno(stdout);
+    flags=fd>=0?fcntl(fd,F_GETFL):-1;
+    if (fd<0 || fstat(fd,&after) || flags<0 ||
+        !S_ISREG(after.st_mode) || (flags&O_APPEND) ||
+        (flags&O_ACCMODE)==O_RDONLY || after.st_size!=0) {
+      lsx_fail("native DSD: stdout must be an empty, seekable regular file");
+      goto fail;
+    }
+    stream=stdout;
+    ft->fp=stream;
+  } else {
+    if (!lstat(path,&before_link)) {
+      existed=sox_true;
+      if (stat(path,&before) || !S_ISREG(before.st_mode)) {
+        lsx_fail("native DSD: destination is not an existing regular file");
+        goto fail;
+      }
+      if (overwrite_permitted && !overwrite_permitted(path)) {
+        lsx_fail("native DSD: overwrite refused");goto fail;
+      }
+    } else if (errno!=ENOENT) {
+      lsx_fail("native DSD: cannot inspect output path: %s",strerror(errno));
+      goto fail;
+    }
+    flags=O_RDWR|O_NONBLOCK;
+#ifdef O_CLOEXEC
+    flags|=O_CLOEXEC;
+#endif
+    if (!existed) flags|=O_CREAT|O_EXCL;
+    fd=open(path,flags,0666);
+    if (fd<0) {lsx_fail("native DSD: nontruncating open: %s",strerror(errno));goto fail;}
+    created=!existed;
+    if (fstat(fd,&after) || !S_ISREG(after.st_mode) ||
+        (existed && !same_object(&before,&after))) {
+      lsx_fail("native DSD: acquired descriptor differs from inspected target");
+      goto fail;
+    }
+    stream=fdopen(fd,"r+b");
+    if (!stream) {lsx_fail("native DSD: fdopen: %s",strerror(errno));goto fail;}
+    fd=-1; /* FILE owns this exact inspected descriptor. */
+    ft->fp=stream;
+  }
+  if (!S_ISREG(after.st_mode) ||
+      aliases_descriptor(&after,source) ||
+      aliases_report(&after,report_path) ||
+      !is_seekable(ft) || fseeko(stream,0,SEEK_SET)) {
+    lsx_fail("native DSD: output descriptor aliases an input/report or cannot seek");
+    goto fail;
+  }
+  if (setvbuf(stream,NULL,_IOFBF,sox_globals.bufsiz)) {
+    lsx_fail("native DSD: unable to configure output buffer");goto fail;
+  }
+  ft->seekable=sox_true;
+  if (!stdout_path &&
+      (lstat(path,&current_link) || stat(path,&current) ||
+       !same_object(&current,&after) ||
+       (existed && !same_object(&current_link,&before_link)) ||
+       (!existed && (!S_ISREG(current_link.st_mode) ||
+                     !same_object(&current_link,&after))))) {
+    lsx_fail("native DSD: pathname changed during output acquisition");
+    goto fail;
+  }
+  /* DESTRUCTIVE COMMIT: all metadata, alias, descriptor and seek checks
+   * above have succeeded. Existing regular files are truncated via exactly
+   * the descriptor that the DSF/DFF writer will use. */
+  if (!stdout_path && existed && ftruncate(fileno(stream),0)) {
+    lsx_fail("native DSD: checked truncate failed: %s",strerror(errno));
+    goto fail;
+  }
+  committed=sox_true;
+  if (ft->handler.startwrite && ft->handler.startwrite(ft)!=SOX_SUCCESS) {
+    lsx_fail("native DSD: cannot write header: %s",ft->sox_errstr);
+    goto fail;
+  }
+  if (stdout_path) sox_globals.stdout_in_use_by="native DSD output";
+  return ft;
+fail:
+  if (stream && stream!=stdout) {fclose(stream);stream=NULL;ft->fp=NULL;}
+  else if (fd>=0 && !stdout_path) close(fd);
+  if (created && !committed && !lstat(path,&current_link) &&
+      S_ISREG(current_link.st_mode) && same_object(&current_link,&after))
+    unlink(path);
+  if (ft) {
+    lsx_dsd_layout_state_t *state=lsx_dsd_layout_state(ft);
+    if (state) sox_dsd_layout_free(state->layout);
+    free(ft->priv);free(ft->filename);free(ft->filetype);free(ft);
+  }
+  return NULL;
+}
+
 #else
 sox_format_t *lsx_pcm_f64_wav_open_write(const char *path UNUSED,
     const pcm_f64_format *format UNUSED, sox_encoding_t encoding UNUSED,
@@ -2019,6 +2202,16 @@ sox_format_t *lsx_pcm_f64_wav_open_write(const char *path UNUSED,
     sox_bool (*overwrite_permitted)(const char *filename) UNUSED)
 {
   lsx_fail("native WAV safe descriptor acquisition is unavailable on this platform");
+  return NULL;
+}
+sox_format_t *lsx_pcm_f64_dsd_open_write(const char *path UNUSED,
+    const sox_signalinfo_t *signal UNUSED,
+    const sox_encodinginfo_t *encoding UNUSED,
+    const char *filetype UNUSED, const sox_dsd_layout_t *layout UNUSED,
+    const sox_format_t *source UNUSED, const char *report_path UNUSED,
+    sox_bool (*overwrite_permitted)(const char *filename) UNUSED)
+{
+  lsx_fail("native DSD same-descriptor output unavailable on this platform");
   return NULL;
 }
 #endif

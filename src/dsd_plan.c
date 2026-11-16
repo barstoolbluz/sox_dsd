@@ -1045,7 +1045,7 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
   if (!spec || !p) return;
   p->precision_requested=spec->precision;
   p->precision_compiled_capable=spec->arithmetic_compiled_capable;
-  p->precision_runner_available=0; /* 05A PCM or 05B DSD decode only. */
+  p->precision_runner_available=0; /* 05A PCM, 05B decode or 06A encode. */
   for (i=0;i<spec->input_count;i++) {
     if (spec->inputs[i].encoding==SOX_ENCODING_DSD) has_dsd=1;
     else pcm=1;
@@ -1136,6 +1136,12 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
   else if (p->encode_count && p->native_output_hz!=2822400u &&
       p->native_output_hz!=5644800u)
     why="binary64 composite encoder is qualified only at DSD64 and DSD128";
+  else if (p->encode_count && spec->policy.headroom==LSX_DSD_HEADROOM_AUTO)
+    why="native binary64 auto-headroom requires the later scan/replay phase";
+  else if (p->encode_count &&
+      (!p->encoder_id ||
+       strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id)))
+    why="native binary64 requires the certified composite mastering encoder";
   else if (p->output_domain==LSX_DSD_NATIVE && !p->encode_count)
     why="native DSD output requires a terminal composite encoder";
   else if (p->output_channels!=p->inputs[0].channels)
@@ -1151,7 +1157,8 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
       why="gain factor is not finite and nonnegative";
     else if (is(name,"remix") || is(name,"channels")) {
       /* Only output-role mapping, and only as the final user operation. */
-      if (i+1<p->step_count && !is(p->steps[i+1].name,"implicit_pcmdsd"))
+      if (i+1<p->step_count && !is(p->steps[i+1].name,"implicit_pcmdsd") &&
+          !is(p->steps[i+1].name,"pcmdsd"))
         why="channel operations require the terminal output-role mapping";
       else if (step->channels_before!=step->channels_after)
         why="binary64 channel remixing is not supported";
@@ -1193,25 +1200,39 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
         (!p->steps[i].plain_fixed_gain || p->steps[i].gain_factor!=1.))
       arithmetic=1;
   p->precision_exact_identity=!arithmetic && !permuted;
-  /* Two qualified shapes share the native WAV sink: unchanged PCM (05A),
-   * and exactly one public DSD64/128 reconstruction (05B). Neither shape
-   * permits a conventional PCM SRC, effect, or terminal modulator. */
+  /* Eligible native shapes use exactly one real coordinator, not a
+   * guessed bridge. DSD->DSD is deliberately left for Phase 06B. */
   {
-    int pcm_only=!has_dsd && !p->input_decode_count && !p->graph_decode_count;
+    int pcm_only=!has_dsd && !p->input_decode_count &&
+        !p->graph_decode_count && !p->encode_count;
     int dsd_decode=has_dsd && spec->input_count==1 &&
         spec->inputs[0].encoding==SOX_ENCODING_DSD &&
         (p->input_decode_count+p->graph_decode_count)==1 &&
         !p->encode_count &&
         (p->inputs[0].native_rate==2822400. ||
          p->inputs[0].native_rate==5644800.);
-    p->precision_runner_available=!why && (pcm_only || dsd_decode) &&
-        p->output_domain==LSX_PCM_AUDIO && spec->output_pcm64_wav_capable &&
-        spec->input_count==1 && !p->encode_count &&
+    int pcm_to_dsd=spec->input_count==1 &&
+        spec->inputs[0].encoding!=SOX_ENCODING_DSD &&
+        !p->input_decode_count && !p->graph_decode_count &&
+        p->encode_count==1 && p->output_domain==LSX_DSD_NATIVE &&
+        spec->output_native64_dsd_capable &&
+        (p->native_output_hz==2822400u || p->native_output_hz==5644800u) &&
+        p->encoder_id &&
+        !strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id) &&
+        spec->policy.headroom!=LSX_DSD_HEADROOM_AUTO;
+    p->precision_runner_available=!why &&
+        (pcm_to_dsd || ((pcm_only || dsd_decode) &&
+         p->output_domain==LSX_PCM_AUDIO && spec->output_pcm64_wav_capable)) &&
+        spec->input_count==1 &&
         (spec->arithmetic_compiled_capable || !arithmetic);
+    if (spec->precision==LSX_PRECISION_64 && p->precision_runner_available) {
+      p->precision_route=pcm_to_dsd?"native-binary64-encode":"native-binary64-pcm";
+      p->precision_engine="ieee754.binary64";
+    }
   }
   p->precision_reason=why?why:!p->precision_runner_available?
       "native binary64 runner or required arithmetic capability is unavailable":
-      "native binary64 PCM/fixed-gain or DSD decode runner available";
+      "native binary64 PCM, DSD decoder or composite encoder runner available";
   /* Legacy-auto is a deliberate product policy, not a failed native attempt.
    * No owner-approved release activation or executable native runner exists. */
   if (spec->precision==LSX_PRECISION_AUTO)
@@ -1226,8 +1247,7 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
       p->precision_route="refused-before-output";
       p->precision_engine="none";
     } else {
-      p->precision_route="native-binary64-pcm";
-      p->precision_engine="ieee754.binary64";
+      /* The shape-selected route above is authoritative. */
       p->precision_reason=NULL;
     }
   }

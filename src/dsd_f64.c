@@ -5,8 +5,10 @@
 #include "soxconfig.h"
 #endif
 #include "dsd_f64.h"
+#include "pcmdsd.h"
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 static pcm_f64_progress failure(lsx_dsd_f64_stream *s, pcm_f64_status code)
 {
@@ -141,4 +143,156 @@ void lsx_dsd_f64_destroy(lsx_dsd_f64_stream *s)
   if (!s) return;
   free(s->gains);
   memset(s,0,sizeof(*s));
+}
+
+/* Source input and DSD outputs are frame-interleaved; the existing composite
+ * is mono and owns its state. Keep its per-channel input and bit buffers
+ * separate, then submit output only after every channel agrees on progress. */
+sox_dsd_status_t lsx_dsd_f64_encode_init(lsx_dsd_f64_encoder *e,
+    uint32_t source_hz, uint32_t native_hz, unsigned channels,
+    double reference_scale, double attenuation, bool warn_and_clip)
+{
+  size_t i;
+  if (!e || !source_hz || !channels || channels>64 ||
+      (reference_scale!=.5 && reference_scale!=1.) ||
+      !isfinite(attenuation) || attenuation<=0. || attenuation>1. ||
+      (native_hz!=2822400 && native_hz!=5644800))
+    return SOX_DSD_BAD_ARGUMENT;
+  memset(e,0,sizeof(*e));
+  e->channels=channels;e->native_hz=native_hz;e->source_hz=source_hz;
+  e->planar=malloc((size_t)channels*LSX_DSD_F64_ENCODE_INPUT*sizeof(double));
+  e->bits=malloc((size_t)channels*LSX_DSD_F64_ENCODE_OUTPUT*sizeof(sox_sample_t));
+  if (!e->planar || !e->bits) goto failure;
+  for (i=0;i<channels;i++) {
+    sox_dsd_status_t rc=lsx_pcmdsd_create(source_hz,native_hz,
+        reference_scale,(unsigned)i,&e->channel[i]);
+    if (rc!=SOX_DSD_OK) goto failure;
+    lsx_pcmdsd_set_gain(e->channel[i],attenuation);
+    lsx_pcmdsd_set_clip(e->channel[i],warn_and_clip);
+  }
+  return SOX_DSD_OK;
+failure:
+  lsx_dsd_f64_encode_destroy(e);
+  return SOX_DSD_UNSUPPORTED;
+}
+
+static sox_dsd_status_t encoder_failure(lsx_dsd_f64_encoder *e,
+    sox_dsd_status_t status)
+{
+  if (!e->error) e->error=status;
+  return e->error;
+}
+
+sox_dsd_status_t lsx_dsd_f64_encode_process(lsx_dsd_f64_encoder *e,
+    const double *input, size_t *input_frames,
+    sox_sample_t *output, size_t *output_frames)
+{
+  size_t available, capacity, used=0, produced=0, frame, c;
+  sox_dsd_status_t rc=SOX_DSD_NEED_INPUT;
+  if (!e || !input_frames || !output_frames) return SOX_DSD_BAD_ARGUMENT;
+  available=*input_frames;capacity=*output_frames;
+  *input_frames=*output_frames=0;
+  if (e->error) return e->error;
+  if (e->finishing || e->done) return encoder_failure(e,SOX_DSD_BAD_ARGUMENT);
+  if (!capacity) return SOX_DSD_NEED_OUTPUT;
+  if (!output || (available && !input))
+    return encoder_failure(e,SOX_DSD_BAD_ARGUMENT);
+  if (pcm_f64_check_dsp_env()!=PCM_F64_OK)
+    return encoder_failure(e,SOX_DSD_UNSUPPORTED);
+  if (available>LSX_DSD_F64_ENCODE_INPUT) available=LSX_DSD_F64_ENCODE_INPUT;
+  if (capacity>LSX_DSD_F64_ENCODE_OUTPUT) capacity=LSX_DSD_F64_ENCODE_OUTPUT;
+  if ((uint64_t)available>UINT64_MAX-e->source_frames)
+    return encoder_failure(e,SOX_DSD_NUMERIC_ERROR);
+  /* Whole-block finite admission precedes any per-channel state changes.
+   * This is a metadata/word test, not a source amplitude limiter. */
+  for (frame=0;frame<available;frame++) for (c=0;c<e->channels;c++) {
+    pcm_f64_word_class kind;
+    const double *word=input+frame*e->channels+c;
+    if (pcm_f64_classify(word,&kind)!=PCM_F64_OK ||
+        kind!=PCM_F64_WORD_FINITE)
+      return encoder_failure(e,SOX_DSD_NUMERIC_ERROR);
+    e->planar[c*LSX_DSD_F64_ENCODE_INPUT+frame]=*word;
+  }
+  for (c=0;c<e->channels;c++) {
+    size_t n=available, m=capacity;
+    sox_dsd_status_t status=lsx_pcmdsd_process(e->channel[c],
+        e->planar+c*LSX_DSD_F64_ENCODE_INPUT,&n,
+        e->bits+c*LSX_DSD_F64_ENCODE_OUTPUT,&m);
+    if (status!=SOX_DSD_NEED_INPUT && status!=SOX_DSD_NEED_OUTPUT)
+      return encoder_failure(e,status);
+    if (c && (n!=used || m!=produced))
+      return encoder_failure(e,SOX_DSD_NUMERIC_ERROR);
+    used=n;produced=m;rc=status;
+  }
+  if ((uint64_t)produced>UINT64_MAX-e->encoded_frames)
+    return encoder_failure(e,SOX_DSD_NUMERIC_ERROR);
+  for (frame=0;frame<produced;frame++) for (c=0;c<e->channels;c++)
+    output[frame*e->channels+c]=e->bits[c*LSX_DSD_F64_ENCODE_OUTPUT+frame];
+  e->source_frames+=used;e->encoded_frames+=produced;
+  *input_frames=used;*output_frames=produced;
+  return rc;
+}
+
+sox_dsd_status_t lsx_dsd_f64_encode_finish(lsx_dsd_f64_encoder *e,
+    sox_sample_t *output, size_t *output_frames)
+{
+  size_t capacity,produced=0,frame,c;
+  sox_dsd_status_t rc=SOX_DSD_DONE;
+  uint64_t expected;
+  if (!e || !output_frames) return SOX_DSD_BAD_ARGUMENT;
+  capacity=*output_frames;*output_frames=0;
+  if (e->error) return e->error;
+  if (e->done) return SOX_DSD_DONE;
+  e->finishing=true; /* Latch EOF even when the caller has zero capacity. */
+  if (!capacity) return SOX_DSD_NEED_OUTPUT;
+  if (!output) return encoder_failure(e,SOX_DSD_BAD_ARGUMENT);
+  if (pcm_f64_check_dsp_env()!=PCM_F64_OK)
+    return encoder_failure(e,SOX_DSD_UNSUPPORTED);
+  if (capacity>LSX_DSD_F64_ENCODE_OUTPUT) capacity=LSX_DSD_F64_ENCODE_OUTPUT;
+  for (c=0;c<e->channels;c++) {
+    size_t n=capacity;
+    sox_dsd_status_t status=lsx_pcmdsd_finish(e->channel[c],
+        e->bits+c*LSX_DSD_F64_ENCODE_OUTPUT,&n);
+    if (status!=SOX_DSD_DONE && status!=SOX_DSD_NEED_OUTPUT)
+      return encoder_failure(e,status);
+    if (c && (n!=produced || status!=rc))
+      return encoder_failure(e,SOX_DSD_NUMERIC_ERROR);
+    produced=n;rc=status;
+  }
+  if ((uint64_t)produced>UINT64_MAX-e->encoded_frames)
+    return encoder_failure(e,SOX_DSD_NUMERIC_ERROR);
+  for (frame=0;frame<produced;frame++) for (c=0;c<e->channels;c++)
+    output[frame*e->channels+c]=e->bits[c*LSX_DSD_F64_ENCODE_OUTPUT+frame];
+  e->encoded_frames+=produced;
+  *output_frames=produced;
+  if (rc==SOX_DSD_DONE) {
+    if (!lsx_dsd_count_convert(e->source_frames,e->source_hz,e->native_hz,&expected) ||
+        expected!=e->encoded_frames)
+      return encoder_failure(e,SOX_DSD_NUMERIC_ERROR);
+    e->done=true;
+  }
+  return rc;
+}
+
+const lsx_pcmdsd *lsx_dsd_f64_encode_channel(const lsx_dsd_f64_encoder *e,
+    unsigned channel)
+{
+  return e && channel<e->channels ? e->channel[channel] : NULL;
+}
+
+void lsx_dsd_f64_encode_observe_admitted(lsx_dsd_f64_encoder *e,
+    unsigned channel, lsx_dsd_f64_admission_observer callback, void *opaque)
+{
+  if (e && channel<e->channels)
+    lsx_pcmdsd_observe_admitted(e->channel[channel],callback,opaque);
+}
+
+void lsx_dsd_f64_encode_destroy(lsx_dsd_f64_encoder *e)
+{
+  unsigned channel;
+  if (!e) return;
+  for (channel=0;channel<64;channel++)
+    lsx_pcmdsd_destroy(e->channel[channel]);
+  free(e->planar);free(e->bits);
+  memset(e,0,sizeof(*e));
 }
