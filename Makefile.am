@@ -868,7 +868,9 @@ EXTRA_DIST += \
   src/resonator/dsd128/proofs/certificate.json src/resonator/dsd128/proofs/check_certificate.py \
   src/resonator/dsd128/proofs/emit_header.py src/resonator/dsd128/results/proof.json
 
-EXTRA_DIST += tests/pcm64/decode/api_oracle.c tests/pcm64/decode.py \
+EXTRA_DIST += tests/pcm64/encode_probe.c tests/pcm64/encode.py \
+  tests/pcm64/phase06a_report.py \
+  tests/pcm64/decode/api_oracle.c tests/pcm64/decode.py \
   tests/pcm64/phase05b_corrective.py tests/pcm64/fifo_report_stop.c \
   tests/pcm64/bench_phase05b.py
 
@@ -889,7 +891,7 @@ PCM64_SUITE = foundation
 PCM64_RESULTS = $(abs_top_builddir)/evidence/phase01
 .PHONY: check-pcm64
 check-pcm64: all
-	$(MAKE) -C test pcm64_probe pcm64_coordinator_probe pcm64_wav_probe pcm64_flac_probe pcm64_decode_api_oracle
+	$(MAKE) -C test pcm64_probe pcm64_coordinator_probe pcm64_wav_probe pcm64_flac_probe pcm64_decode_api_oracle pcm64_encode_probe
 	python3 '$(abs_top_srcdir)/tests/pcm64/test_io_wav_harness.py'
 	python3 '$(abs_top_srcdir)/tests/pcm64/test_binary_receipts.py'
 	python3 '$(abs_top_srcdir)/tests/pcm64/run.py' --suite '$(PCM64_SUITE)' \

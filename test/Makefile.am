@@ -231,6 +231,9 @@ EXTRA_PROGRAMS += pcm64_coordinator_probe
 pcm64_coordinator_probe_SOURCES = ../tests/pcm64/coordinator_probe.c ../src/dsd_f64.c ../src/pcm_f64.c
 pcm64_coordinator_probe_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src
 pcm64_coordinator_probe_CFLAGS = $(WARN_CFLAGS) $(PCM_F64_STRICT_CFLAGS)
+# The Phase06A coordinator now includes the live composite encoder; retain
+# direct compilation of the Phase05A path and link its private DSP dependencies.
+pcm64_coordinator_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)
 
 # Phase 02A, private only. Link actual compiled WAV handler through libSoX.
 EXTRA_PROGRAMS += pcm64_wav_probe
@@ -251,3 +254,9 @@ EXTRA_PROGRAMS += pcm64_decode_api_oracle
 pcm64_decode_api_oracle_SOURCES = ../tests/pcm64/decode/api_oracle.c
 pcm64_decode_api_oracle_CPPFLAGS = -I$(top_srcdir)/src
 pcm64_decode_api_oracle_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)
+
+# Phase 06A exact composite, admitted-double and bitstream oracle.
+EXTRA_PROGRAMS += pcm64_encode_probe
+pcm64_encode_probe_SOURCES = ../tests/pcm64/encode_probe.c
+pcm64_encode_probe_CPPFLAGS = -I$(top_srcdir)/src
+pcm64_encode_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)

@@ -4529,7 +4529,7 @@ static int dsd_run_native_encode(void)
   } else if (lsx_pcm_f64_flac_query(source,&flac_facts)==PCM_F64_OK) {
     format=flac_facts.stream;wav_input=0;
   } else {
-    lsx_fail("native DSD64: source must use the built-in WAV or FLAC PCM reader");
+    lsx_fail("native PCM-to-DSD: source must use the built-in WAV or FLAC PCM reader");
     return rc;
   }
   source_hz=format.rate_hz;channels=format.channels;
@@ -4546,24 +4546,24 @@ static int dsd_run_native_encode(void)
       pcm_f64_frame_storage(LSX_DSD_F64_ENCODE_OUTPUT,channels,
           &bit_words,&bit_bytes)!=PCM_F64_OK ||
       plan->step_count>SIZE_MAX/sizeof(double)-1) {
-    lsx_fail("native DSD64: executable graph shape or buffer count is invalid");
+    lsx_fail("native PCM-to-DSD: executable graph shape or buffer count is invalid");
     return rc;
   }
   if (lsx_pcm_f64_source_precommit_issue(source)) {
-    lsx_fail("native DSD64: source fails precommit extent check: %s",
+    lsx_fail("native PCM-to-DSD: source fails precommit extent check: %s",
         lsx_pcm_f64_source_precommit_issue(source));
     return rc;
   }
   if (format.length_known &&
       (!lsx_dsd_count_convert(format.total_frames,source_hz,native_hz,&expected) ||
        expected>UINT64_MAX/channels)) {
-    lsx_fail("native DSD64: source to native frame count overflows");
+    lsx_fail("native PCM-to-DSD: source to native frame count overflows");
     return rc;
   }
   /* The certified encoder always performs floating-point DSP, even for
    * exact binary64 source words and unity gain. Require a supported FENV. */
   if (lsx_pcm_f64_check_dsp_env()!=PCM_F64_OK) {
-    lsx_fail("native DSD64: unsupported arithmetic model before output commit");
+    lsx_fail("native PCM-to-DSD: unsupported arithmetic model before output commit");
     return rc;
   }
   if (dsd_policy.headroom==LSX_DSD_HEADROOM_FIXED)
@@ -4571,14 +4571,14 @@ static int dsd_run_native_encode(void)
   else if (dsd_policy.clip==LSX_DSD_CLIP_WARN)
     headroom=lsx_pcmdsd_default_warn_gain(native_hz);
   if (!isfinite(headroom) || headroom<=0. || headroom>1.) {
-    lsx_fail("native DSD64: invalid explicit headroom multiplier");
+    lsx_fail("native PCM-to-DSD: invalid explicit headroom multiplier");
     return rc;
   }
   max_factors=plan->step_count+1;
   factors=calloc(max_factors,sizeof(*factors));
   input=malloc(bytes);converted=malloc(bytes);bits=malloc(bit_bytes);
   if (!factors || !input || !converted || !bits) {
-    lsx_fail("native DSD64: bounded input/output allocation failed");
+    lsx_fail("native PCM-to-DSD: bounded input/output allocation failed");
     goto done;
   }
   factors[factor_count++]=plan->inputs[0].volume;
@@ -4587,13 +4587,13 @@ static int dsd_run_native_encode(void)
     const lsx_dsd_plan_step *step=&plan->steps[i];
     if (!strcmp(step->name,"gain")) {
       if (!step->plain_fixed_gain || factor_count>=max_factors) {
-        lsx_fail("native DSD64: non-fixed source gain escaped planning");goto done;
+        lsx_fail("native PCM-to-DSD: non-fixed source gain escaped planning");goto done;
       }
       factors[factor_count++]=step->gain_factor;
     } else if (!strcmp(step->name,"remix")) {
       size_t k;
       if (!step->native_permutation || step->native_map_count!=channels) {
-        lsx_fail("native DSD64: unqualified channel remapping");goto done;
+        lsx_fail("native PCM-to-DSD: unqualified channel remapping");goto done;
       }
       for (k=0;k<channels;k++) {
         if (step->native_map[k]>=channels) goto done;
@@ -4603,14 +4603,14 @@ static int dsd_run_native_encode(void)
     } else if (strcmp(step->name,"channels") &&
                strcmp(step->name,"pcmdsd") &&
                strcmp(step->name,"implicit_pcmdsd")) {
-      lsx_fail("native DSD64: unsupported effect reached encoder: %s",step->name);
+      lsx_fail("native PCM-to-DSD: unsupported effect reached encoder: %s",step->name);
       goto done;
     }
   }
   layout=dsd_plan_output(ofile->filename,ofile->filetype);
   if (dsd_output_permutation_count) {
     if (dsd_output_permutation_count!=channels) {
-      lsx_fail("native DSD64: output role map size mismatch");goto done;
+      lsx_fail("native PCM-to-DSD: output role map size mismatch");goto done;
     }
     for (i=0;i<channels;i++) {
       if (dsd_output_permutation[i]>=channels) goto done;
@@ -4622,7 +4622,7 @@ static int dsd_run_native_encode(void)
   dsd_output_permutation=NULL;dsd_output_permutation_count=0;
   status=lsx_dsd_f64_init(&pcm,&format,factors,factor_count,map);
   if (status!=PCM_F64_OK) {
-    lsx_fail("native DSD64: ordered PCM stage failed: %s",pcm_f64_status_name(status));
+    lsx_fail("native PCM-to-DSD: ordered PCM stage failed: %s",pcm_f64_status_name(status));
     goto done;
   }
   {
@@ -4630,7 +4630,7 @@ static int dsd_run_native_encode(void)
         native_hz,channels,plan->modulator_input_scale,headroom,
         dsd_policy.clip==LSX_DSD_CLIP_WARN);
     if (init!=SOX_DSD_OK) {
-      lsx_fail("native DSD64: certified encoder could not start (%d)",(int)init);
+      lsx_fail("native PCM-to-DSD: certified encoder could not start (%d)",(int)init);
       goto done;
     }
   }
@@ -4659,14 +4659,14 @@ static int dsd_run_native_encode(void)
     pcm_f64_progress read_result;
     size_t consumed=0;
     if (user_abort || user_skip) {
-      lsx_fail("native DSD64: conversion cancelled");goto done;
+      lsx_fail("native PCM-to-DSD: conversion cancelled");goto done;
     }
     read_result=wav_input?
         lsx_pcm_f64_wav_read(source,(pcm_f64_output){input,capacity}):
         lsx_pcm_f64_flac_read(source,(pcm_f64_output){input,capacity});
     if (pcm_f64_is_failure(read_result.status) ||
         read_result.produced_frames>capacity) {
-      lsx_fail("native DSD64: source read: %s",
+      lsx_fail("native PCM-to-DSD: source read: %s",
           pcm_f64_status_name(read_result.status));goto done;
     }
     if (read_result.produced_frames) {
@@ -4676,7 +4676,7 @@ static int dsd_run_native_encode(void)
       if (pcm_f64_is_failure(gain.status) ||
           gain.consumed_frames!=read_result.produced_frames ||
           gain.produced_frames!=read_result.produced_frames) {
-        lsx_fail("native DSD64: PCM stage failed: %s",
+        lsx_fail("native PCM-to-DSD: PCM stage failed: %s",
             pcm_f64_status_name(gain.status));goto done;
       }
     }
@@ -4686,28 +4686,28 @@ static int dsd_run_native_encode(void)
       sox_dsd_status_t status=lsx_dsd_f64_encode_process(&encoder,
           converted+consumed*channels,&taken,bits,&produced);
       if (status!=SOX_DSD_NEED_INPUT && status!=SOX_DSD_NEED_OUTPUT) {
-        lsx_fail("native DSD64: composite failure (%d) at source frame %" PRIu64,
+        lsx_fail("native PCM-to-DSD: composite failure (%d) at source frame %" PRIu64,
             (int)status,encoder.source_frames);
         goto done;
       }
       if (produced) {
         size_t n=sox_write(ofile->ft,bits,produced*channels);
         if (n!=produced*channels) {
-          lsx_fail("native DSD64: short/failed physical bit write (%zu/%zu)",
+          lsx_fail("native PCM-to-DSD: short/failed physical bit write (%zu/%zu)",
               n,produced*channels);goto done;
         }
         if (produced>UINT64_MAX-committed) {
-          lsx_fail("native DSD64: committed frame counter overflow");goto done;
+          lsx_fail("native PCM-to-DSD: committed frame counter overflow");goto done;
         }
         committed+=produced;output_samples+=produced;
       }
       consumed+=taken;
       if (!taken && !produced) {
-        lsx_fail("native DSD64: composite made no progress with pending input");
+        lsx_fail("native PCM-to-DSD: composite made no progress with pending input");
         goto done;
       }
       if (user_abort || user_skip) {
-        lsx_fail("native DSD64: conversion cancelled after commit");goto done;
+        lsx_fail("native PCM-to-DSD: conversion cancelled after commit");goto done;
       }
     }
     if (show_progress && since(&status_then,.1,sox_false)) {
@@ -4717,40 +4717,40 @@ static int dsd_run_native_encode(void)
     }
     if (read_result.status==PCM_F64_DONE) break;
     if (!read_result.produced_frames) {
-      lsx_fail("native DSD64: reader stalled without EOF");goto done;
+      lsx_fail("native PCM-to-DSD: reader stalled without EOF");goto done;
     }
   }
   {
     pcm_f64_progress end=lsx_dsd_f64_finish(&pcm,(pcm_f64_output){NULL,0});
     if (end.status!=PCM_F64_DONE || end.produced_frames) {
-      lsx_fail("native DSD64: PCM upstream did not finish");goto done;
+      lsx_fail("native PCM-to-DSD: PCM upstream did not finish");goto done;
     }
   }
   for (;;) {
     size_t produced=LSX_DSD_F64_ENCODE_OUTPUT;
     sox_dsd_status_t status;
     if (user_abort || user_skip) {
-      lsx_fail("native DSD64: cancellation during final interpolation");goto done;
+      lsx_fail("native PCM-to-DSD: cancellation during final interpolation");goto done;
     }
     status=lsx_dsd_f64_encode_finish(&encoder,bits,&produced);
     if (status!=SOX_DSD_NEED_OUTPUT && status!=SOX_DSD_DONE) {
-      lsx_fail("native DSD64: composite finish failure (%d)",(int)status);
+      lsx_fail("native PCM-to-DSD: composite finish failure (%d)",(int)status);
       goto done;
     }
     if (produced) {
       size_t n=sox_write(ofile->ft,bits,produced*channels);
       if (n!=produced*channels) {
-        lsx_fail("native DSD64: short final bit write (%zu/%zu)",
+        lsx_fail("native PCM-to-DSD: short final bit write (%zu/%zu)",
             n,produced*channels);goto done;
       }
       if (produced>UINT64_MAX-committed) {
-        lsx_fail("native DSD64: output bit count overflow");goto done;
+        lsx_fail("native PCM-to-DSD: output bit count overflow");goto done;
       }
       committed+=produced;output_samples+=produced;
     }
     if (status==SOX_DSD_DONE) break;
     if (!produced) {
-      lsx_fail("native DSD64: EOF interpolation made no progress");goto done;
+      lsx_fail("native PCM-to-DSD: EOF interpolation made no progress");goto done;
     }
   }
   if ((format.length_known && pcm.input_frames!=format.total_frames) ||
@@ -4758,7 +4758,7 @@ static int dsd_run_native_encode(void)
       encoder.encoded_frames!=committed ||
       !lsx_dsd_count_convert(pcm.input_frames,source_hz,native_hz,&expected) ||
       committed!=expected) {
-    lsx_fail("native DSD64: source-derived bit-count invariant failed");
+    lsx_fail("native PCM-to-DSD: source-derived bit-count invariant failed");
     goto done;
   }
   if (show_progress)
@@ -4774,7 +4774,7 @@ done:
     if (lsx_pcmdsd_report_get(core,&record)==SOX_DSD_OK) {
       lsx_dsd_report_note_encode(core);
       if (record.clipped_native_samples)
-        lsx_warn("native DSD64: clipped %" PRIu64 " admitted native samples on channel %zu",
+        lsx_warn("native PCM-to-DSD: clipped %" PRIu64 " admitted native samples on channel %zu",
             record.clipped_native_samples,i+1);
     }
   }
@@ -5221,6 +5221,7 @@ static void usage_format1(sox_format_handler_t const * f)
     for (namep = names; *namep; ++namep)
       printf(" %s", *namep);
     putchar('\n');
+    free((void *)names);  /* lsx_valloc allocates heap storage. */
   }
   if (f->flags & SOX_FILE_CHANS) {
     printf("Channels restricted to:");

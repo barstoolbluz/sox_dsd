@@ -382,8 +382,11 @@ def main():
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats", "return-acceptance", "decode"):
+    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats", "return-acceptance", "decode", "encode"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
+    if args.suite == "encode":
+        from encode import main as encode_main
+        return encode_main(args.sox.resolve(), args.probe.resolve().parent / "pcm64_encode_probe", results)
     if args.suite == "decode":
         from decode import main as decode_main
         if args.decode_oracle is None:

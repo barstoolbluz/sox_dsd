@@ -560,12 +560,28 @@ def cli_preflight_gate(sox, root):
                                   capture_output=True, timeout=20)
         demand(compiled.returncode == 0,
                f'FIFO disconnect test shim failed to compile: {compiled.stderr!r}')
+        # An ASan-instrumented executable needs its dynamically linked
+        # sanitizer runtime ahead of the test-only interposer in LD_PRELOAD.
+        # Otherwise the loader exits before fdopen and the FIFO gate reports
+        # a false failure. Preserve the default sanitizer and leak options.
+        preload = str(shim)
+        linked = subprocess.run(['ldd', str(sox)], text=True,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, check=False)
+        for line in linked.stdout.splitlines():
+            if line.lstrip().startswith(('libasan.so', 'libclang_rt.asan')):
+                fields = line.split('=>', 1)
+                if len(fields) == 2:
+                    runtime = fields[1].strip().split()[0]
+                    if os.path.isabs(runtime):
+                        preload = runtime + ':' + preload
+                break
         reader = os.open(fifo, os.O_RDONLY | os.O_NONBLOCK)
         child = subprocess.Popen([str(sox), '--precision', '64',
                                   '--report', str(fifo), str(pcm),
                                   '-r', 'abc', str(dest)],
                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                 env={**os.environ, 'LD_PRELOAD': str(shim),
+                                 env={**os.environ, 'LD_PRELOAD': preload,
                                       'SOX_PCM64_STOP_REPORT_FIFO': '1'})
         try:
             deadline = time.monotonic() + 5

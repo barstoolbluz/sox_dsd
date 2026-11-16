@@ -535,6 +535,8 @@ static void json_enc(FILE *f,const encode_record *r)
   fprintf(f,",\"failure_code\":%u,\"channel_index\":%u,\"peak_modulator_input\":",
       r->base.failure,r->base.channel);
   jnumber(f,r->base.peak);
+  fputs(",\"recovery_entries\":",f);jint(f,r->base.recovery_entries);
+  fputs(",\"recovery_steps\":",f);jint(f,r->base.recovery_steps);
   fputs(",\"monitor\":{\"frames\":",f);jint(f,m->frames);
   fputs(",\"windows_28\":",f);jint(f,m->windows28);
   fputs(",\"excursions_28\":",f);jint(f,m->excursions28);
