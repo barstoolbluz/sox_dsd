@@ -305,7 +305,7 @@ def main():
         print(name,out['status'],flush=True)
     summary=dict(schema='P17/numeric-qualification-status/1',
         result='PASS_DEVELOPMENT_TESTS_UNQUALIFIED' if all(x['status']=='PASS' for x in records) else 'FAILED',
-        rate_specific_profile_certificates_qualified=False,
+        rate_specific_profile_certificates_qualified=False,writer_enabled=False,
         writer_authorized_by_this_development_gate=False,
         elapsed_seconds=time.monotonic()-t0,host=dict(node=platform.node(),
         python=platform.python_version(),numpy=np.__version__,machine=platform.machine()),
