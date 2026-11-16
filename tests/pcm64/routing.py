@@ -146,6 +146,21 @@ def main():
                            (len(obj['inputs'])==1 and
                             obj['inputs'][0]['native_domain']=='DSD_NATIVE')),
                           f'{name}: native runner escaped qualified PCM/DSD shapes: {prec}')
+                elif prec['actual_route']=='native-binary64-encode':
+                    # Phase 06A enables only source PCM -> frozen DSD64/128;
+                    # preserve the strict route boundary for every other graph.
+                    check(prec['runner_available'] and prec['requested']=='64' and
+                          prec['actual_pcm_engine']=='ieee754.binary64' and
+                          prec['binary64_pcm_processing'] is True and
+                          prec['refused'] is False and
+                          obj['output']['domain']=='DSD_NATIVE' and
+                          obj['encoder_count']==1 and
+                          obj['input_decoder_count']==0 and
+                          obj['graph_decoder_count']==0 and
+                          len(obj['inputs'])==1 and
+                          obj['inputs'][0]['native_domain']=='PCM_AUDIO' and
+                          obj['output']['rate_hz'] in (2822400,5644800),
+                          f'{name}: unqualified native encoder graph admitted: {prec}')
                 else:
                     check(prec['actual_pcm_engine']!='ieee754.binary64' and
                           prec['binary64_pcm_processing'] is False,
@@ -565,8 +580,8 @@ def main():
             check(len(set(dsd_outputs))==1,
                   'DSD auto / explicit32 outputs or report enabled routes differ')
             checks['legacy_dsd_default_auto_32_audio_and_reports_equal']='PASS'
-            # Encoder + decoder remain structurally visible, but still no
-            # executable PCM64 coordinator, and old graph executes on auto/32.
+            # Source PCM -> certified DSD64/128 is native in Phase 06A;
+            # auto/32 retain the accepted ordinary effects graph.
             enc=plan('dsd-encoder',['--precision','64','-D',wav,work/'encode.dsf'],policy='64',pcm=True)
             check(enc['encoder_count']>=1,'encoder missing from plan')
             dec=plan('dsd-implicit-decoder',['--precision','64','-D',dsd,'-b','24',output],policy='64')
