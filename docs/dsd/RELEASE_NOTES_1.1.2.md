@@ -127,6 +127,15 @@ encoding was essentially unchanged; some decoder paths cost 6–9% more CPU.
 Default-rate decoder measurements are recorded separately because they
 produce more PCM samples than 1.1.1.
 
-The music-library corpus, extended SOAK tests, hardware playback and native
-qualification on other platforms require the owner's facilities. This
-release note does not treat synthetic signals as a substitute for that work.
+The 100 hi-res tracks (96 and 192 kHz sources) of the project's 200-track
+corpus were encoded at DSD256, DSD512 and DSD1024, each as decoded and
+raised to a 0 dBFS sample peak, in the default warn mode and with
+`--dsd-clip error`. All 1,200 encodes completed, with no guard or numeric
+failure, and strict mode refused none. Raised to 0 dBFS, 93 of the 100
+tracks clipped at DSD256 and 98 at DSD512 and DSD1024, against 86 on 1.1.1;
+at their original level 14 clipped, as on 1.1.1. The CD tracks were not
+rerun, because 44.1 kHz content does not reach the widened band. The
+noise-shaper bench rerun at DSD512 and DSD1024 is in §4.6 of
+[Using SoX DSD](USING_SOX_DSD.md). Both are in the release's evidence asset.
+Extended SOAK tests, hardware playback and native qualification on other
+platforms were not run.
