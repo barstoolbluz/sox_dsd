@@ -3,8 +3,10 @@
 **Current state:** The previously unrun FLAC qualification has now been
 performed with genuine FLAC 1.5.0 and libogg 1.3.6 built offline from the
 Nixpkgs-pinned upstream source tarballs. The production PCM64/DSD implementation
-and the frozen certified DSD64/DSD128 kernel code are unchanged. This revision
-only corrects `tests/pcm64/encode.py` and updates this checkpoint.
+and the frozen certified DSD64/DSD128 kernel code are unchanged. The
+corrections are restricted to test infrastructure: `tests/pcm64/encode.py`,
+`tests/dsd/check_p11_isa.py`, `check_p12_isa.py`, `check_p13_isa.py`,
+`tests/dsd/test_isa_object_layout.py`, and this checkpoint.
 
 - `--enable-shared --disable-static --with-flac=dyn` configures and builds.
   The actual FLAC plugin can read/write ordinary FLAC, but must refuse native
@@ -22,11 +24,14 @@ only corrects `tests/pcm64/encode.py` and updates this checkpoint.
   `decode`, `report-carriers`, `return-acceptance`, and ordinary `make check`.
   Individual additional PCM64 component suites have been run in the dynamic
   build; see the new archive-root evidence for exact receipts and statuses.
-- Some additional, very long DSD regression targets exceeded the command
-  runner's time limit in FLAC-enabled builds. Do not relabel interrupted runs
-  as successful. The source implementation they exercise is unchanged from
-  the previously qualified native build, but those extra FLAC-build runs
-  remain unverified.
+- The shared libtool build places actual ISA audit objects under `src/.libs/`;
+  the original P11/P12/P13 disassembly harness expected static-build paths.
+  The harness now resolves both authentic layouts, preferring the direct
+  static object when present. A three-case regression covers both layouts
+  and missing-object refusal. No object is fabricated or copied for the test.
+- Long independent DSD regression targets have separate logs and receipts.
+  A timed-out or failed target must not be relabeled PASS; see the archive-root
+  acceptance matrix for the final results and their scope.
 - Offline dependency kit SHA-256:
   `3a5082945d0e92560da3a730160a2223dcbdc2791a276c9ff63739f485abcdff`.
   Archive-root `inputs/` and `evidence/phase06a/flac-qualification/` retain
