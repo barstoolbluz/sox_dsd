@@ -50,6 +50,8 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt libsox_ng.txt \
   docs/dsd/USING_SOX_DSD.md \
   docs/dsd/CLI_USABILITY_DESIGN.md docs/dsd/RELEASE_NOTES_1.1.1.md \
   docs/dsd/RELEASE_NOTES_1.1.2.md tests/dsd/checks/test_passband_112.py \
+  tests/dsd/checks/test_full_path_112.py \
+  tests/dsd/qualification/compare_112_tests.py \
   tests/dsd/generators/generate_112_passbands.py \
   tests/dsd/generators/generate_coeffs.py \
   tests/dsd/qualification/certify_112_passbands.py \
@@ -60,6 +62,9 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt libsox_ng.txt \
   tests/dsd/results/P112/filter-response.json \
   tests/dsd/results/P112/integration.json \
   tests/dsd/results/P112/performance.json \
+  tests/dsd/results/P112/full-path.json \
+  tests/dsd/results/P112/test-comparison.json \
+  tests/dsd/results/P112/BASELINE_VS_112.md \
   docs/dsd/UNIFIED_DECODER_2026-11-09.md docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md
 
 # Repository cleanup tools are distributed beside the evidence archive, not in-tree.
@@ -268,6 +273,16 @@ check-dsd-release-112: all
 check-dsd-qualification-112: check-dsd-release-112
 	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/qualification/certify_112_passbands.py" \
 	  --output "$(abs_builddir)/.dsd-check-results/P112/filter-response.json"
+	$(MAKE) -C test dsd_test_p07_reference$(EXEEXT) dsd_test_p10$(EXEEXT) \
+	  dsd_test_p17$(EXEEXT) dsd_test_p15_src_stage_export$(EXEEXT)
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/checks/test_full_path_112.py" \
+	  --sox "$(abs_builddir)/src/sox" \
+	  --p07-unit "$(abs_builddir)/test/dsd_test_p07_reference$(EXEEXT)" \
+	  --p10-unit "$(abs_builddir)/test/dsd_test_p10$(EXEEXT)" \
+	  --p17-unit "$(abs_builddir)/test/dsd_test_p17$(EXEEXT)" \
+	  --stage-exporter "$(abs_builddir)/test/dsd_test_p15_src_stage_export$(EXEEXT)" \
+	  --results "$(abs_builddir)/.dsd-check-results/P112/full-path.json" \
+	  --snapshots "$(abs_builddir)/.dsd-check-results/P112/src-snapshots"
 
 # Deterministic strict-mode regression including actual high-rate runtimes.
 .PHONY: check-dsd-release-111

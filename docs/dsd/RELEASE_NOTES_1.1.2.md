@@ -62,6 +62,24 @@ resampling, unchanged low-rate master output and unchanged wideband decode, are 
 Those end-to-end tests corroborate that the new paths run as intended; they
 do not replace the frequency-domain FIR and SRC contracts.
 
+The follow-up `tests/dsd/results/P112/full-path.json` additionally measures
+all three changed mastering chains at their default PCM rates and at explicit
+176.4 and 192 kHz. It reuses P07's independent finite convolution/SRC,
+P17's native FIR oracle, the P10 read-only pre-SDM stage observer, and
+source-bound P15 SRC design-stage capture. The 266-point SRC scans measure
+sampled passband transfer, folded-tone alias and total-output rejection.
+DSD512's 72 kHz tone survives 176.4 kHz output; DSD1024's 110 kHz tone is
+rejected by the final SRC when 176.4 or 192 kHz is requested. This is
+numerical **sampled** evidence, not a claimed global bound for the final SRC.
+The nonlinear SDM-8 output is not used as a filter transfer measurement.
+
+The baseline-versus-1.1.2 release test inventory, including eight identical
+P10 CLI failures in both local builds, is
+`tests/dsd/results/P112/BASELINE_VS_112.md`. The owner's original 1.1.1
+summary reports P10 as passing on its host; the cause of the local difference
+is not established. P21 passes 24 synthetic comparisons but its independent
+commercial-media gate remains incomplete.
+
 ## Compatibility, old certificates and historical evidence
 
 The P10 coefficient certificate covers the **unchanged DSD64/DSD128**

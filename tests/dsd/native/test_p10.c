@@ -499,24 +499,36 @@ static int stage_probe(int argc,char **argv)
   p10_audit a={0};
   double input[4096];sox_sample_t output[8192];
   uint64_t count,accepted=0;int rc=SOX_DSD_NEED_INPUT;
+  /* P112 diagnostic only: observe a deterministic sine through the actual
+   * linear SRC/FIR handoffs before the unchanged nonlinear SDM-8. */
+  int tone_probe=!strncmp(kind,"tone:",5);
+  double tone_hz=0;
+  char *tone_end=NULL;
+  if(tone_probe)tone_hz=strtod(kind+5,&tone_end);
   if(argc!=6||!profile||!source||!isfinite(seconds)||seconds<=0||seconds>90||
-      (strcmp(kind,"dc")&&strcmp(kind,"original-noise")&&
-       strcmp(kind,"nominal-noise")&&strcmp(kind,"attenuated-original-noise")))return 2;
-  if(strcmp(kind,"dc") && source!=profile->working_hz)return 2;
+      (tone_probe?(!tone_end||tone_end==kind+5||*tone_end||
+        !isfinite(tone_hz)||tone_hz<=0||tone_hz>=source/2.||
+        tone_hz>=profile->working_hz/2.):
+       (strcmp(kind,"dc")&&strcmp(kind,"original-noise")&&
+        strcmp(kind,"nominal-noise")&&strcmp(kind,"attenuated-original-noise"))))return 2;
+  if(!tone_probe && strcmp(kind,"dc") && source!=profile->working_hz)return 2;
   count=(uint64_t)nearbyint(seconds*source);
   a.source_hz=source;a.native_hz=native;a.working_hz=profile->working_hz;
-  a.warmup_seconds=.2;a.steady_stop_seconds=!strcmp(kind,"dc")?1.:seconds;
+  a.warmup_seconds=tone_probe?.01:.2;
+  a.steady_stop_seconds=tone_probe?.06:(!strcmp(kind,"dc")?1.:seconds);
   if(lsx_pcmdsd_candidate_create(source,native,.5,0,NULL,profile->bounds,&p)!=SOX_DSD_OK)return 2;
   lsx_pcmdsd_observe(p,audit_observer,&a);
   while(accepted<count) {
     size_t i,used=0,available=(size_t)min((uint64_t)array_length(input),count-accepted);
     for(i=0;i<available;i++) {
       uint64_t frame=accepted+i+UINT64_C(240)*source;
-      double val=!strcmp(kind,"dc")?.6:
+      double val=tone_probe?.13*sin(6.283185307179586*tone_hz*(double)(accepted+i)/source):
+          !strcmp(kind,"dc")?.6:
           soak_source_version(frame,source,!strcmp(kind,"nominal-noise"));
       if(!strcmp(kind,"attenuated-original-noise"))
         val=nearbyint((val*(.45/.7))*SOX_SAMPLE_MAX)/SOX_SAMPLE_MAX;
-      input[i]=!strcmp(kind,"dc")?nearbyint(val*SOX_SAMPLE_MAX)/SOX_SAMPLE_MAX:val;
+      input[i]=(!strcmp(kind,"dc")||tone_probe)?
+          nearbyint(val*SOX_SAMPLE_MAX)/SOX_SAMPLE_MAX:val;
     }
     while(used<available) {
       size_t n=available-used,m=array_length(output);
