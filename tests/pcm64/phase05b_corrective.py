@@ -1079,6 +1079,442 @@ def return5_report_carrier_gate(sox, root):
     return 'PASS'
 
 
+
+def return5_stdin_audio_identity_gate(sox, root):
+    """An input '-' or -p borrows fd 0, not fd 1; guard both admission paths."""
+    pcm = root / 'return5-stdin-audio.wav'
+    with wave.open(str(pcm), 'wb') as out:
+        out.setnchannels(1)
+        out.setsampwidth(2)
+        out.setframerate(48000)
+        out.writeframes(struct.pack('<256h', *([9000, -9000] * 128)))
+    sox_stream = root / 'return5-stdin-audio.sox'
+    cp = call(sox, ['-D', pcm, '-t', 'sox', sox_stream])
+    demand(cp.returncode == 0, f'could not generate -p input: {cp.stderr[-250:]!r}')
+
+    for source, input_args in ((pcm, ['-t', 'wav', '-']),
+                               (sox_stream, ['-p'])):
+        original = source.read_bytes()
+        for alias in ('same', 'hardlink', 'symlink'):
+            report = source
+            if alias != 'same':
+                report = root / f'stdin-{source.suffix[1:]}-{alias}.json'
+                report.unlink(missing_ok=True)
+                if alias == 'hardlink':
+                    os.link(source, report)
+                else:
+                    report.symlink_to(source)
+            for early in (False, True):
+                for env_report in (False, True):
+                    output = root / 'stdin-audio-conflicted-output.wav'
+                    output.unlink(missing_ok=True)
+                    head = [] if env_report else ['--precision', '64', '--report', report]
+                    env = {**os.environ, 'SOX_OPTS':
+                           f'--precision 64 --report {report}' if env_report else ''}
+                    with source.open('rb') as fd:
+                        cp = subprocess.run([str(sox), *map(str, head), *input_args,
+                            *(['-r', 'abc'] if early else []), str(output)],
+                            stdin=fd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            env=env, timeout=10)
+                    demand(cp.returncode != 0 and source.read_bytes() == original and
+                           not output.exists(),
+                           f'stdin audio overwritten: {source} {alias} '
+                           f'early={early} env={env_report}, rc={cp.returncode}, '
+                           f'stderr={cp.stderr[-220:]!r}')
+                    demand(b'sox.dsd.conversion' not in source.read_bytes(),
+                           'failure JSON entered stdin audio')
+
+        # Explicit fd-0 names also refer to the same input, not an output.
+        if os.name == 'posix':
+            for descriptor in ('/dev/stdin', '/dev/fd/0'):
+                if not Path(descriptor).exists():
+                    continue
+                output = root / 'stdin-descriptor-output.wav'
+                output.unlink(missing_ok=True)
+                with source.open('rb') as fd:
+                    cp = subprocess.run([str(sox), '--precision', '64', '--report',
+                        str(source), '-t', ('wav' if source == pcm else 'sox'),
+                        descriptor, str(output)], stdin=fd,
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10,
+                        env={**os.environ, 'SOX_OPTS': ''})
+                demand(cp.returncode != 0 and source.read_bytes() == original and
+                       not output.exists(),
+                       f'fd-0 alias damaged audio: {descriptor} {cp.returncode}')
+
+    # Both negative controls must remain valid: a separate report destination
+    # for consumed stdin, and an unconsumed stdin naming the report destination.
+    report = root / 'stdin-independent-report.json'
+    output = root / 'stdin-independent-output.wav'
+    with pcm.open('rb') as fd:
+        cp = subprocess.run([str(sox), '--precision', '32', '--report', str(report),
+            '-t', 'wav', '-', str(output)], stdin=fd,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10,
+            env={**os.environ, 'SOX_OPTS': ''})
+    demand(b'--report conflicts' not in cp.stderr and
+           (cp.returncode != 0 or
+            (output.exists() and json.loads(report.read_text())['status'] == 'complete')),
+           f'valid independent report was treated as a collision: '
+           f'{cp.returncode} {cp.stderr[-200:]!r}')
+    output = root / 'stdin-unused-output.wav'
+    output.unlink(missing_ok=True)
+    with pcm.open('rb') as unused_stdin:
+        cp = subprocess.run([str(sox), '--precision', '32', '--report', str(pcm),
+            str(root / 'return5-stdin-audio.sox'), str(output)],
+            stdin=unused_stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            timeout=10, env={**os.environ, 'SOX_OPTS': ''})
+    demand(b'--report conflicts' not in cp.stderr and
+           (cp.returncode != 0 or
+            (output.exists() and json.loads(pcm.read_text())['status'] == 'complete')),
+           f'unused stdin falsely refused: {cp.returncode} {cp.stderr[-220:]!r}')
+    return 'PASS'
+
+
+
+def return5_play_stdin_audio_identity_gate(sox, root):
+    """A terminal '-' or -p is stdin in play, whose output is implicit."""
+    if os.name != 'posix' or not hasattr(os, 'symlink'):
+        return 'NOT_RUN: play symlink not available'
+    play = root / 'play'
+    play.symlink_to(sox)
+    pcm = root / 'return5-play-input.wav'
+    with wave.open(str(pcm), 'wb') as out:
+        out.setnchannels(1)
+        out.setsampwidth(2)
+        out.setframerate(48000)
+        out.writeframes(struct.pack('<256h', *([9000, -9000] * 128)))
+    sox_stream = root / 'return5-play-input.sox'
+    cp = call(sox, ['-D', pcm, '-t', 'sox', sox_stream],
+              env={'SOX_OPTS': ''})
+    demand(cp.returncode == 0,
+           f'could not prepare play -p fixture: {cp.stderr[-250:]!r}')
+
+    for name, source, args in (('wav', pcm, ['-t', 'wav', '-']),
+                               ('sox', sox_stream, ['-p'])):
+        original = source.read_bytes()
+        for from_env in (False, True):
+            for abbreviated in (False, True):
+                options = [] if from_env else ['--precision', '64',
+                    '--repo' if abbreviated else '--report', source]
+                opts = (f'--precision 64 --repo={source}' if abbreviated else
+                        f'--precision 64 --report {source}') if from_env else ''
+                for error_args, error_env in ((['-r', 'abc'], {}),
+                                              ([], {'AUDIODRIVER': 'invalid_audio_output_type'})):
+                    with source.open('rb') as fd:
+                        cp = subprocess.run([str(play), *map(str, options),
+                            *args, *error_args], stdin=fd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, timeout=10,
+                            env={**os.environ, 'SOX_OPTS': opts, **error_env})
+                    demand(cp.returncode != 0 and source.read_bytes() == original,
+                           f'play stdin source overwritten: {name} env={from_env} '
+                           f'abbreviated={abbreviated} err={error_args}, '
+                           f'rc={cp.returncode} stderr={cp.stderr[-220:]!r}')
+                    demand(b'sox.dsd.conversion' not in source.read_bytes(),
+                           'report JSON entered play stdin audio')
+
+            # An independent destination is permitted to publish a failure
+            # report for the same malformed rate, even without an audio device.
+            report = root / f'return5-play-independent-{name}-{from_env}.json'
+            report.unlink(missing_ok=True)
+            options = [] if from_env else ['--precision', '64', '--report', report]
+            opts = f'--precision 64 --report {report}' if from_env else ''
+            with source.open('rb') as fd:
+                cp = subprocess.run([str(play), *map(str, options), *args,
+                    '-r', 'abc'], stdin=fd, stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE, timeout=10,
+                    env={**os.environ, 'SOX_OPTS': opts})
+            demand(cp.returncode != 0 and source.read_bytes() == original and
+                   report.exists() and json.loads(report.read_text())['status'] == 'failed',
+                   f'play independent early error did not report: {name} '
+                   f'env={from_env} rc={cp.returncode} {cp.stderr[-200:]!r}')
+
+    # In ordinary sox mode, a terminal '-' names output stdout. The report
+    # may name an otherwise unused stdin descriptor without a false refusal.
+    report = root / 'return5-play-unused-stdin-report.json'
+    report.write_bytes(b'unused stdin carrier\n')
+    with report.open('rb') as fd:
+        cp = subprocess.run([str(sox), '--precision', '64', '--report', report,
+            str(pcm), '-t', 'wav', '-'], stdin=fd, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, timeout=10,
+            env={**os.environ, 'SOX_OPTS': ''})
+    demand(b'--report conflicts' not in cp.stderr and
+           b'--report cannot overwrite an input carrier' not in cp.stderr,
+           f'ordinary sox stdout was mistaken for stdin: {cp.stderr[-250:]!r}')
+    if cp.returncode == 0:
+        demand(cp.stdout.startswith((b'RIFF', b'RF64')) and
+               json.loads(report.read_text())['status'] == 'complete',
+               'ordinary sox stdout/report control failed')
+    return 'PASS'
+
+def return5_play_independent_stdout_report_gate(sox, root):
+    """play's terminal stdin operand must not claim independent report stdout."""
+    if os.name != 'posix' or not hasattr(os, 'symlink'):
+        return 'NOT_RUN: play symlink not available'
+    play = root / 'play'
+    if not play.exists():
+        play.symlink_to(sox)
+    pcm = root / 'play-stdout-input.wav'
+    with wave.open(str(pcm), 'wb') as dst:
+        dst.setnchannels(1)
+        dst.setsampwidth(2)
+        dst.setframerate(48000)
+        dst.writeframes(struct.pack('<256h', *([9000, -9000] * 128)))
+    sox_stream = root / 'play-stdout-input.sox'
+    prepared = call(sox, ['-D', pcm, '-t', 'sox', sox_stream],
+                    env={'SOX_OPTS': ''})
+    demand(prepared.returncode == 0, 'cannot prepare play -p stream')
+
+    sources = (('named', pcm, [str(pcm)]),
+               ('wav-stdin', pcm, ['-t', 'wav', '-']),
+               ('sox-stdin', sox_stream, ['-p']))
+    report_forms = (('full', ['--report', '-']),
+                    ('abbrev', ['--repo', '-']),
+                    ('equals', ['--repo=-']),
+                    ('descriptor', ['--report', '/dev/stdout']))
+    for name, source, audio_args in sources:
+        original = source.read_bytes()
+        for form, report_options in report_forms:
+            if form == 'descriptor' and not Path('/dev/stdout').exists():
+                continue
+            for from_env in (False, True):
+                env = {**os.environ, 'SOX_OPTS':
+                       ' '.join(['--precision', '64', *report_options])
+                       if from_env else ''}
+                options = [] if from_env else ['--precision', '64', *report_options]
+                with source.open('rb') as fd:
+                    cp = subprocess.run([str(play), *options, *audio_args,
+                        '-r', 'abc'], stdin=(subprocess.DEVNULL if name == 'named' else fd),
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        timeout=10, env=env)
+                demand(cp.returncode != 0 and source.read_bytes() == original,
+                       f'play {name}/{form}/env={from_env} changed audio source: '
+                       f'{cp.returncode} {cp.stderr[-220:]!r}')
+                demand(bool(cp.stdout),
+                       f'play {name}/{form}/env={from_env} lost failure report: '
+                       f'{cp.stderr[-220:]!r}')
+                try:
+                    report = json.loads(cp.stdout)
+                except (ValueError, UnicodeDecodeError) as exc:
+                    raise AssertionError(
+                        f'play {name}/{form}/env={from_env} emitted non-JSON: '
+                        f'{cp.stdout[-220:]!r}') from exc
+                demand(report.get('status') == 'failed',
+                       f'play {name}/{form}/env={from_env} wrong report: {report!r}')
+
+    # The same descriptor is a genuine collision even though play inputs
+    # come from stdin. Reporting must not damage the WAV or SoX stream.
+    for name, source, audio_args in sources[1:]:
+        original = source.read_bytes()
+        for report_options in (['--report', '-'], ['--report', '/dev/stdout']):
+            with source.open('r+b') as shared:
+                cp = subprocess.run([str(play), '--precision', '64',
+                    *report_options, *audio_args, '-r', 'abc'],
+                    stdin=shared, stdout=shared, stderr=subprocess.PIPE,
+                    timeout=10, env={**os.environ, 'SOX_OPTS': ''})
+            demand(cp.returncode != 0 and source.read_bytes() == original,
+                   f'play {name} shared descriptors damaged input: '
+                   f'{cp.returncode} {cp.stderr[-220:]!r}')
+
+    # Ordinary sox has an explicit output, so terminal '-' owns stdout.
+    ordinary = call(sox, ['--precision', '64', '--report', '-',
+                          pcm, '-t', 'wav', '-'], env={'SOX_OPTS': ''})
+    demand(ordinary.returncode != 0 and not ordinary.stdout,
+           'ordinary sox stdout output accepted a conflicting report')
+    effect_output = root / 'play-stdout-effect-output.wav'
+    effect = call(sox, ['--precision', '64', '--report', '-',
+                        pcm, effect_output, 'noiseprof', '-'],
+                  env={'SOX_OPTS': ''})
+    demand(effect.returncode != 0 and not effect.stdout and
+           not effect_output.exists(),
+           'stdout-owning noiseprof effect accepted a conflicting report')
+    return 'PASS'
+
+
+def return5_informational_stdout_report_gate(sox, root):
+    """Early informational stdout must never mix with or become report JSON."""
+    commands = (
+        ('version', ['--version']),
+        ('format', ['--help-format', 'wav']),
+        ('effect', ['--help-effect', 'gain']),
+        ('dsd', ['--help-dsd']),
+    )
+    for name, args in commands:
+        plain = call(sox, args, env={'SOX_OPTS': ''})
+        demand(plain.returncode == 0 and plain.stdout,
+               f'{name}: normal informational command failed')
+        for from_env in (False, True):
+            for form in ('dash', 'dev-stdout', 'named', 'fd1'):
+                if form == 'dev-stdout' and not Path('/dev/stdout').exists():
+                    continue
+                if form == 'fd1' and not Path('/dev/fd/1').exists():
+                    continue
+                named = root / f'info-{name}-{from_env}-stdout.txt'
+                report_path = {'dash': '-', 'dev-stdout': '/dev/stdout',
+                               'named': str(named), 'fd1': '/dev/fd/1'}[form]
+                opts = ['--precision', '64', '--report', report_path]
+                env = {**os.environ,
+                       'SOX_OPTS': ' '.join(opts) if from_env else ''}
+                argv = args if from_env else opts + args
+                if form == 'named':
+                    original = b'existing informational stdout file\n'
+                    named.write_bytes(original)
+                    # Append avoids shell-style truncation before SoX starts;
+                    # the report writer would still truncate the same inode.
+                    with named.open('ab') as out:
+                        cp = subprocess.run([str(sox), *argv], stdout=out,
+                            stderr=subprocess.PIPE, env=env, timeout=10)
+                    demand(named.read_bytes() == original,
+                           f'{name}/{form}/env={from_env}: stdout carrier changed')
+                else:
+                    cp = subprocess.run([str(sox), *argv],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        env=env, timeout=10)
+                    demand(cp.stdout == b'',
+                           f'{name}/{form}/env={from_env}: mixed informational output and report')
+                demand(cp.returncode != 0,
+                       f'{name}/{form}/env={from_env}: stdout/report collision accepted')
+
+            # Separate destinations are safe and must preserve the ordinary
+            # informational output while publishing a standalone JSON report.
+            report = root / f'info-{name}-{from_env}-independent.json'
+            report.unlink(missing_ok=True)
+            opts = ['--precision', '64', '--report', str(report)]
+            env = {'SOX_OPTS': ' '.join(opts) if from_env else ''}
+            cp = call(sox, args if from_env else opts + args, env=env)
+            demand(cp.returncode == 0 and cp.stdout == plain.stdout,
+                   f'{name}/env={from_env}: independent informational output changed')
+            try:
+                recorded = json.loads(report.read_text())
+            except (OSError, ValueError) as exc:
+                raise AssertionError(
+                    f'{name}/env={from_env}: separate report missing or invalid') from exc
+            demand(recorded.get('status') == 'failed',
+                   f'{name}/env={from_env}: unexpected early-exit report status')
+
+    # Publication failure on an independent report path remains nonzero.
+    missing = root / 'nonexistent-info-report-parent' / 'report.json'
+    cp = call(sox, ['--precision', '64', '--report', str(missing), '--version'],
+              env={'SOX_OPTS': ''})
+    demand(cp.returncode != 0 and not missing.exists(),
+           'unwritable informational report destination exited successfully')
+    return 'PASS'
+
+
+def return5_one_shot_effects_file_gate(sox, root):
+    """A piped effects file may be consumed only by the real effects parser."""
+    source = root / 'one-shot-source.wav'
+    with wave.open(str(source), 'wb') as out:
+        out.setnchannels(1)
+        out.setsampwidth(2)
+        out.setframerate(48000)
+        out.writeframes(struct.pack('<1000h', *([22000, -16000] * 500)))
+    effects = root / 'one-shot-effects.txt'
+    effects.write_bytes(b'gain -6\n')
+
+    def execute(options, name, *, stream=None, data=None, env=''):
+        output = root / f'one-shot-{name}.wav'
+        report = root / f'one-shot-{name}.json'
+        args = ['-D', '--precision', '64' if options else '32',
+                *(['--report', report] if options else []),
+                '--effects-file', str(stream or effects), source, output]
+        with effects.open('rb') as regular_stdin:
+            stdin = regular_stdin if stream == '/dev/stdin-regular' else None
+            if stream == '/dev/stdin-regular':
+                args[args.index('/dev/stdin-regular')] = '/dev/stdin'
+            cp = subprocess.run([str(sox), *map(str, args)], stdin=stdin,
+                input=data, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                env={**os.environ, 'SOX_OPTS': env}, timeout=10)
+        demand(cp.returncode == 0 and output.exists(),
+               f'one-shot effects failed ({name}): {cp.returncode} {cp.stderr[-250:]!r}')
+        if options:
+            demand(json.loads(report.read_text())['status'] == 'complete',
+                   f'one-shot {name} did not report completion')
+        with wave.open(str(output), 'rb') as wav:
+            return wav.readframes(wav.getnframes())
+
+    native_probe_report = root / 'one-shot-probe.json'
+    native_probe_output = root / 'one-shot-probe.wav'
+    probe = call(sox, ['-D', '--precision', '64', '--report', native_probe_report,
+                       source, native_probe_output], env={'SOX_OPTS': ''})
+    native_report_available = probe.returncode == 0
+    baseline = execute(native_report_available, 'regular-file')
+    for with_report in ((False, True) if native_report_available else (False,)):
+        variants = (
+            ('regular', None, None),
+            ('regular-stdin', '/dev/stdin-regular', None),
+            ('pipe-stdin', '/dev/stdin', b'gain -6\n'),
+            ('pipe-fd0', '/dev/fd/0', b'gain -6\n'),
+        )
+        for name, stream, data in variants:
+            if name == 'pipe-fd0' and not Path('/dev/fd/0').exists():
+                continue
+            sample_bytes = execute(with_report, f'{name}-{with_report}',
+                                   stream=stream, data=data)
+            demand(sample_bytes == baseline,
+                   f'one-shot effects lost or changed gain: {name} '
+                   f'report={with_report}')
+
+    # The report itself may be a named effect output. Its existing content
+    # cannot be truncated, even when discovery cannot preview a pipe.
+    for descriptor in ('/dev/stdin', '/dev/fd/0'):
+        if not Path(descriptor).exists():
+            continue
+        for early in (False, True):
+            report = root / f'one-shot-owned-{early}-{descriptor[-1]}.json'
+            report.write_bytes(b'original owner data\n')
+            output = root / 'one-shot-owned-output.wav'
+            output.unlink(missing_ok=True)
+            cmd = [str(sox), '--precision', '64', '--report', str(report),
+                   '--effects-file', descriptor, *(['-r', 'abc'] if early else []),
+                   str(source), str(output)]
+            cp = subprocess.run(cmd, input=f'noiseprof {report}\n'.encode(),
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10,
+                env={**os.environ, 'SOX_OPTS': ''})
+            demand(cp.returncode != 0 and report.read_bytes() == b'original owner data\n'
+                   and not output.exists(),
+                   f'one-shot effects wrote to its report carrier: {descriptor} '
+                   f'early={early} rc={cp.returncode} {cp.stderr[-200:]!r}')
+
+    # A one-shot effect may also take the report's stdout carrier. It must
+    # be refused before producing audio or publishing JSON there.
+    output = root / 'one-shot-stdout-owned.wav'
+    output.unlink(missing_ok=True)
+    cp = subprocess.run([str(sox), '--precision', '64', '--report', '-',
+        '--effects-file', '/dev/stdin', str(source), str(output)],
+        input=b'noiseprof -\n', stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        timeout=10, env={**os.environ, 'SOX_OPTS': ''})
+    demand(cp.returncode != 0 and not output.exists() and
+           b'sox.dsd.conversion' not in cp.stdout,
+           'one-shot noiseprof borrowed stdout report carrier')
+
+    # --version must fail rather than pretend that an uninspected one-shot
+    # effects stream allowed successful report publication.
+    early_report = root / 'one-shot-uninspected-version.json'
+    cp = subprocess.run([str(sox), '--precision', '64', '--report', str(early_report),
+        '--effects-file', '/dev/stdin', '--version'], input=b'gain -6\n',
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10,
+        env={**os.environ, 'SOX_OPTS': ''})
+    demand(cp.returncode != 0 and not early_report.exists(),
+           'early version exit published without verifying piped effects')
+
+    # The same nonseekable stream is valid when the report is independent,
+    # including when SOX_OPTS supplies the report and effects file.
+    report = root / 'one-shot-env-report.json'
+    output = root / 'one-shot-env-output.wav'
+    cp = subprocess.run([str(sox), '-D', '--precision',
+        '64' if native_report_available else '32', str(source), str(output)],
+        input=b'gain -6\n', stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        timeout=10, env={**os.environ, 'SOX_OPTS':
+        (f'--report {report} ' if native_report_available else '') +
+        '--effects-file /dev/stdin'})
+    demand(cp.returncode == 0 and output.exists() and
+           (not native_report_available or
+            json.loads(report.read_text())['status'] == 'complete'),
+           f'SOX_OPTS piped effects refused or lost report: {cp.stderr[-200:]!r}')
+    with wave.open(str(output), 'rb') as wav:
+        demand(wav.readframes(wav.getnframes()) == baseline,
+               'SOX_OPTS piped effects did not execute')
+    return 'PASS'
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sox', type=Path, required=True)
@@ -1090,7 +1526,12 @@ def main():
         for gate in (ordinary_pipe_input_gate, stdout_input_alias_gate,
                      return4_stdout_report_gate, return4_option_discovery_gate,
                      return4_effect_path_alias_gate,
-                     return5_report_carrier_gate):
+                     return5_report_carrier_gate,
+                     return5_stdin_audio_identity_gate,
+                     return5_play_stdin_audio_identity_gate,
+                     return5_play_independent_stdout_report_gate,
+                     return5_informational_stdout_report_gate,
+                     return5_one_shot_effects_file_gate):
             status = gate(args.sox.resolve(), root)
             demand(status in ('PASS',) or status.startswith('NOT_RUN:'),
                    f'{gate.__name__}: {status}')
