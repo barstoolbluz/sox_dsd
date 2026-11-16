@@ -100,6 +100,7 @@ def main():
     sox=opts.sox.resolve()
     base=opts.baseline_sox.resolve() if opts.baseline_sox else None
     records=[]
+    manifest=json.loads((Path(__file__).resolve().parents[1]/'reference'/'mastering_passband_112.json').read_text())
     with tempfile.TemporaryDirectory(prefix='dsd112-') as d:
         root=Path(d)
         for rate,(native,internal,ultra) in RATES.items():
@@ -126,6 +127,9 @@ def main():
                 assert decoder['intermediate_pcm_hz']==internal,decoder
                 assert decoder['coefficients']['bank_last_sha256'],decoder
                 if rate in EXPECTED:
+                    bank=manifest['profiles']['dsd'+str(rate)]['bank']
+                    expected_digest=manifest['banks']['decoder'][bank]['sha256_float_hex']
+                    assert decoder['coefficients']['bank_last_sha256']==expected_digest,decoder
                     assert (decoder['guaranteed_passband_hz'],decoder['guaranteed_stopband_hz'])==EXPECTED[rate],decoder
                 row=dict(dsd=rate,stimulus=test,tone_hz=tone,
                          input_sha256=original,encoded_sha256=hashlib.sha256(dsd.read_bytes()).hexdigest(),
