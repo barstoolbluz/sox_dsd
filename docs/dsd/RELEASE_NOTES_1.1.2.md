@@ -73,12 +73,21 @@ rejected by the final SRC when 176.4 or 192 kHz is requested. This is
 numerical **sampled** evidence, not a claimed global bound for the final SRC.
 The nonlinear SDM-8 output is not used as a filter transfer measurement.
 
-The baseline-versus-1.1.2 release test inventory, including eight identical
-P10 CLI failures in both local builds, is
-`tests/dsd/results/P112/BASELINE_VS_112.md`. The owner's original 1.1.1
-summary reports P10 as passing on its host; the cause of the local difference
-is not established. P21 passes 24 synthetic comparisons but its independent
-commercial-media gate remains incomplete.
+The baseline-versus-1.1.2 release test inventory is
+`tests/dsd/results/P112/BASELINE_VS_112.md`. `make check-dsd DSD_PHASE=P10`
+passes on the default shared build of 1.1.1 and 1.1.2. A `--disable-shared`
+build of either fails the same eight P10 CLI cases. Only in a static build does
+the link-time start wrapper of the test-only `sox_p10_candidate` take effect: SoX's
+`pcmdsd` effect then runs the candidate encoder start, which applies gain 1
+instead of the default 0.9 and does not clip, while these eight cases expect
+the default path. In a shared build the wrapper is inert. The 1.1.2 filter
+changes are not involved.
+
+P21 passes 24 synthetic comparisons but its independent commercial-media gate
+remains incomplete. On 1.1.1 all 24 synthetic comparisons failed, because the
+gate still expected the retired `.v1` profile IDs in SoX's runtime report; the
+1.1.1 tag message described that result as incomplete by design, which was
+wrong.
 
 ## Compatibility, old certificates and historical evidence
 
