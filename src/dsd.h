@@ -192,7 +192,8 @@ int lsx_dsd_count_convert(uint64_t frames, uint32_t input_hz, uint32_t output_hz
  * compose these with a separate final-rate adapter. Bank codes are immutable
  * internal identities, never user-selectable kernel implementations. */
 typedef enum {LSX_DSD_BANK_MASTER64_256, LSX_DSD_BANK_MASTER128,
-              LSX_DSD_BANK_WIDEBAND} lsx_dsd_last_bank;
+              LSX_DSD_BANK_WIDEBAND, LSX_DSD_BANK_MASTER112_256_1024,
+              LSX_DSD_BANK_MASTER112_512} lsx_dsd_last_bank;
 typedef struct {
   uint32_t native_hz, intermediate_hz;
   lsx_dsd_decode kind;

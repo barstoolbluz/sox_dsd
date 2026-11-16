@@ -8,6 +8,7 @@
 #include "pcmdsd.h"
 #include "dsd_stats.h"
 #include "pcmdsd_coeffs.h"
+#include "pcmdsd_coeffs_112.h"
 #include "pcmdsd_guards.h"
 #include "rate_internal.h"
 #include "dsd_kernels.h"
@@ -45,16 +46,16 @@ static const lsx_pcmdsd_profile profiles[] = {
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[0],1,LSX_PCMDSD_CERTIFICATE_SHA256},
   {"encode.mastering.dsd128",5644800,176400,30000,60000,
     lsx_pcmdsd_coeff_master128,77,lsx_pcmdsd_guards[1],1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  {"encode.mastering.dsd256",11289600,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256},
-  /* High-rate mastering uses the retained SDM-8 guard bounds and FIR,
-   * but rate-specific zeros (sdm_mastering_highrate.h). The P10 certificate
-   * hashes the earlier profile and cannot authenticate these new tables.
-   * Keep the historical certificate intact; expose no false certificate. */
-  {"encode.mastering.dsd512",22579200,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],1,NULL},
-  {"encode.mastering.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],1,NULL}
+  /* DSD256+ is a changed 1.1.2 filter profile. Historical P10
+   * certificates remain valid only for the untouched DSD64/128 paths;
+   * never present their digest as proof for one of the new paths. SDM-8
+   * coefficients, rate-specific zeros and runtime guard bounds are retained. */
+  {"encode.mastering.dsd256",11289600,352800,60000,100000,
+    lsx_dsd112_encoder_master256_1024,117,lsx_pcmdsd_guards[2],1,NULL},
+  {"encode.mastering.dsd512",22579200,352800,88200,148200,
+    lsx_dsd112_encoder_master512,81,lsx_pcmdsd_guards[3],1,NULL},
+  {"encode.mastering.dsd1024",45158400,705600,120000,200000,
+    lsx_dsd112_encoder_master256_1024,117,lsx_pcmdsd_guards[4],1,NULL}
 };
 
 struct lsx_pcmdsd {

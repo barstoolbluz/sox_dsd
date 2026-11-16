@@ -170,15 +170,14 @@ int lsx_dsd_count_convert(uint64_t frames, uint32_t input_hz,
 static const lsx_dsd_frontend_profile dsd_frontends[] = {
   { 2822400,  88200, LSX_DSD_PROFILE_MASTERING,  20000,  40000, 5, LSX_DSD_BANK_MASTER64_256, 1348, "decode.mastering.dsd64"},
   { 5644800, 176400, LSX_DSD_PROFILE_MASTERING,  30000,  60000, 5, LSX_DSD_BANK_MASTER128, 1636, "decode.mastering.dsd128"},
-  {11289600, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 6, LSX_DSD_BANK_MASTER64_256, 2724, "decode.mastering.dsd256"},
+  {11289600, 352800, LSX_DSD_PROFILE_MASTERING,  60000, 100000, 5, LSX_DSD_BANK_MASTER112_256_1024, 2244, "decode.mastering.dsd256"},
   { 2822400,  88200, LSX_DSD_PROFILE_WIDEBAND,  35280,  44100, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.dsd64"},
   { 5644800, 176400, LSX_DSD_PROFILE_WIDEBAND,  70560,  88200, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.dsd128"},
   {11289600, 352800, LSX_DSD_PROFILE_WIDEBAND, 141120, 176400, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.dsd256"},
-  /* The high-rate frontends reuse the P06 banks. Mastering retains its
-   * 176400-Hz clock; wideband scales its intermediate clock with the native
-   * rate. P21 authorizes the associated file and transport read operations. */
-  {22579200, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 7, LSX_DSD_BANK_MASTER64_256,  5476, "decode.mastering.dsd512"},
-  {45158400, 176400, LSX_DSD_PROFILE_MASTERING,  40000,  80000, 8, LSX_DSD_BANK_MASTER64_256, 10980, "decode.mastering.dsd1024"},
+  /* 1.1.2 mastering uses wider replacement FIRs at 256/512/1024.
+   * Wideband remains the same as 1.1.1; P21 endpoint rules are unchanged. */
+  {22579200, 352800, LSX_DSD_PROFILE_MASTERING,  88200, 148200, 6, LSX_DSD_BANK_MASTER112_512, 3300, "decode.mastering.dsd512"},
+  {45158400, 705600, LSX_DSD_PROFILE_MASTERING, 120000, 200000, 6, LSX_DSD_BANK_MASTER112_256_1024, 4516, "decode.mastering.dsd1024"},
   {22579200, 705600, LSX_DSD_PROFILE_WIDEBAND, 282240, 352800, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.dsd512"},
   {45158400,1411200, LSX_DSD_PROFILE_WIDEBAND, 564480, 705600, 5, LSX_DSD_BANK_WIDEBAND, 2468, "decode.wideband.dsd1024"}
 };

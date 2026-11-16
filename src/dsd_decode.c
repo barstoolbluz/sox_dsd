@@ -11,6 +11,7 @@
 #include "dsd_decode.h"
 #include "dsd_packed.h"
 #include "dsd_coeffs.h"
+#include "dsd_coeffs_112.h"
 #include "dsd_kernels.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -48,6 +49,8 @@ struct lsx_dsd_reconstruction {
 static const bank hb = {lsx_dsd_coeff_halfband, 57, 1};
 static const bank m64 = {lsx_dsd_coeff_master64_256, 117, 0};
 static const bank m128 = {lsx_dsd_coeff_master128, 153, 0};
+static const bank m112_256_1024 = {lsx_dsd112_decoder_master256_1024, 229, 0};
+static const bank m112_512 = {lsx_dsd112_decoder_master512, 153, 0};
 static const bank wide = {lsx_dsd_coeff_wideband, 257, 0};
 
 /* Every individual channel/stage ring begins on a 64-byte boundary. The
@@ -92,6 +95,8 @@ sox_dsd_status_t lsx_dsd_reconstruction_create_kernel(
   switch (desc->last_bank) {
     case LSX_DSD_BANK_MASTER64_256: last = &m64; break;
     case LSX_DSD_BANK_MASTER128: last = &m128; break;
+    case LSX_DSD_BANK_MASTER112_256_1024: last = &m112_256_1024; break;
+    case LSX_DSD_BANK_MASTER112_512: last = &m112_512; break;
     case LSX_DSD_BANK_WIDEBAND: last = &wide; break;
     default: return SOX_DSD_UNSUPPORTED;
   }

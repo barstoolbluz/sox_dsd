@@ -414,15 +414,17 @@ void lsx_dsd_report_note_encode(const lsx_pcmdsd *encoder)
   snprintf(r->kernel,sizeof(r->kernel),"%s",name?name:"unknown");
 }
 
-/* The frontend banks are immutable and certified by the P06 manifest.
- * P14 reports the actual selected last-stage bank together with the
- * unchanged halfband bank identity; the P06 reference file is the authority. */
+/* Report the byte identity of the actually selected last-stage bank.
+ * Historical P06 banks retain their hashes; 1.1.2 replacement-bank hashes
+ * are recorded separately in the 1.1.2 manifest. A digest is not proof. */
 static const char *bank_hash(lsx_dsd_last_bank bank)
 {
   switch (bank) {
     case LSX_DSD_BANK_MASTER64_256:return "76749b06a43bb529207e68abc8d71631d21013f547de74ecd7837638d6506139";
     case LSX_DSD_BANK_MASTER128:return "306a836d730b97b8f8f8e82d01ea2fc87eeec7efc70939c76558ab8e8fc44673";
     case LSX_DSD_BANK_WIDEBAND:return "658f940a7fbc529a6f927e05c36b9d3c4b5858f001d2b21759e7a6e36ed658d0";
+    case LSX_DSD_BANK_MASTER112_256_1024:return "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569";
+    case LSX_DSD_BANK_MASTER112_512:return "1d48e838b5a0183d903322e1970ca8a4a6658fc122ce1daf4dfcb8155e9c1cfd";
     default:return NULL;
   }
 }
