@@ -157,8 +157,8 @@ def main():
             # offline test gate. Never claim this is real SoX DSP evidence.
             profile = (argv[argv.index('--decode') + 1]
                        if '--decode' in argv else 'mastering')
-            family = {'mastering': 'decode.mastering.v1',
-                      'wideband': 'decode.wideband.v1'}[profile]
+            family = {'mastering': 'decode.mastering',
+                      'wideband': 'decode.wideband'}[profile]
             native = fake_native_clock(source)
             profile_id = f'{family}.dsd{native // 44100}'
             report = {'processing': {'decoder': [

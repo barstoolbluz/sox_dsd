@@ -367,7 +367,7 @@ def test_licensed_path_redacted_from_decoder_errors(tmp_path):
 
 def test_incomplete_profile_set_cannot_qualify_row():
     c = {'source_sha256': 'a'*64, 'media_provenance': 'self-encoded',
-         'capability_row': 'dff-read-45158400', 'profile_id': 'decode.mastering.v1',
+         'capability_row': 'dff-read-45158400', 'profile_id': 'decode.mastering',
          'status': 'PASS'}
     cases = [c, {**c, 'source_sha256': 'b'*64}]
     rows, _, _, _ = gate.summarize_cases(cases)
@@ -460,7 +460,7 @@ def test_end_to_end_and_collector_validation(full_run):
     commercial = {gate.sha(path) for path in media.glob('*.dsf')}
     loaded, rows, cr, profiles = collector.validate_reader_evidence(report_path, commercial, sox, ref)
     assert loaded == report and cr['dsf-read-22579200']
-    assert profiles['dsf-read-22579200']['decode.mastering.v1']
+    assert profiles['dsf-read-22579200']['decode.mastering']
 
     # A summary-only forgery must not turn an incomplete case set into a PASS.
     wrong = copy.deepcopy(report)
@@ -591,8 +591,8 @@ def test_p17_collector_fail_closed_and_profile_scope(tmp_path, full_run):
     assert good['full_file_functional_gate'] == 'PASS'
     assert good['independent_reader_and_audio_reference_gate'] == 'PASS'
     q = good['decoder_profile_qualified']
-    assert q['decode.mastering.v1.dsd512']
-    assert q['decode.wideband.v1.dsd512']
+    assert q['decode.mastering.dsd512']
+    assert q['decode.wideband.dsd512']
     # Neither retired mastering v2 nor any wideband v2 decode profile may
     # appear in current qualification results.
     assert 'decode.mastering.v2.dsd512' not in q
