@@ -15,6 +15,12 @@ This report describes two pieces of work on SoX DSD 1.1.0 (commit `27b17b93e`, t
 - The bench's default route was rerun at DSD512 and DSD1024 with the new tables (§2, "Round03 rerun"). Its rows are added to the DSD512 and DSD1024 tables as "1.1.1 default, round03 tables", and finding 5 covers them. The rows labelled "1.1.1 default encoder (v1)" now describe the first 1.1.1 tables, which the revised source no longer uses.
 - Nothing else in the encoder paths measured here changed. The patch leaves the legacy filter tables untouched, and on our identity checks the default at DSD64, DSD128 and DSD256 produces the same bits as before (§5).
 
+**Updated 2026-11-16 for SoX DSD 1.1.2.**
+- 1.1.2 widens the default encoder's input filter at DSD256, DSD512 and DSD1024, to 60/100, 88.2/148.2 and 120/200 kHz pass/stop from 40/80 kHz, and runs it at 352.8, 352.8 and 705.6 kHz instead of 176.4 kHz. The SDM-8 tables, the gain and the legacy shapers are unchanged.
+- The bench's default route was rerun at those three rates on 1.1.2 (§2, "1.1.2 rerun"). Its rows are added to the DSD256, DSD512 and DSD1024 tables as "1.1.2 default". They are identical to the rows above them at the table's 0.1 dB rounding except in four cells: the music notch median at DSD256 and DSD512 (−197.4 against −197.3) and the 20–50 kHz figure at DSD256 (−151.9 against −152.0) and DSD1024 (−209.5 against −209.4).
+- At DSD512 and DSD1024 the 20–50 kHz column, measured on the −20 dBFS sine, sits at the 32-bit input's own floor: `ref` reads −209.0 and −209.1 dBFS there. The modulator's own 20–50 kHz noise shows on silence, where the 1.1.2 default reads −218.7 dBFS at DSD512 and −277.3 dBFS at DSD1024 (`results-112/results.jsonl`).
+- The findings in §3 are not revised; they cite the earlier rows.
+
 ## Background: what SoX DSD 1.1.0 uses at each rate
 
 - `sox in.wav -r RATE out.dsf` uses the qualified `pcmdsd` encoder: `encode.mastering.v1.*` (the sdm-8 filter) at DSD64, DSD128 and DSD256, and `encode.mastering.v2.*` (a CLANS-7 recurrence) at DSD512 and DSD1024. It scales input by 0.9 (−0.915 dB) and clips interpolated overs at 0.45 in modulator units (0.5 = 0 dBFS), with a warning.
@@ -65,6 +71,10 @@ This report describes two pieces of work on SoX DSD 1.1.0 (commit `27b17b93e`, t
 - **What ran:** the same 27 default-route jobs, on a local test build of `main` at `e38519b94` with the two round03 tables bound (`results-r03/command.txt`; the build is described in `results-r03/identity-final/README.txt`).
 - **The revised 1.1.1 source gives the same bits.** We encoded all 27 jobs' inputs with that build and with the revised source (git tree `88a27418…`), and the DSF files were identical in every case (§5).
 - **Outcome:** all 27 exited 0, with only the WAV-header warning.
+
+**1.1.2 rerun (2026-11-16).**
+- **What ran:** the default route on a build of the 1.1.2 source, whose `src/` is identical to the `sox_dsd-1.1.2` tag: the same 27 jobs at DSD512 and DSD1024 (`results-112/command.txt`), and the 18 default-route jobs at DSD256 (`results-112-256/command.txt`).
+- **Outcome:** all 45 exited 0, with only the WAV-header warning.
 
 **Inputs.**
 - Synthetic signals, 44.1 kHz mono, 8 s, analysed from 1 s to 7 s:
@@ -146,10 +156,15 @@ This report describes two pieces of work on SoX DSD 1.1.0 (commit `27b17b93e`, t
   - `derived.txt` and `tables.txt` come from the unmodified `derive.py` and `report.py` run on `combined.jsonl`. `report.py` prints values below −299 dBFS as `<fl`; the table below gives the value from `results.jsonl`.
   - The log is `../logs/bench-r03.log`, and the one-job smoke run is in `../smoke-r03/results.jsonl`.
   - Figures cited as `results-r03/derived.txt` come from there.
+- **1.1.2 rerun** (`results-112/`, `results-112-256/`):
+  - `results-112/results.jsonl` (sha256 6e0c7098f20db52f…) holds the 27 DSD512 and DSD1024 rows, and `results-112-256/results.jsonl` (sha256 09eae0bbfa53f193…) the 18 DSD256 rows.
+  - `results-112/combined.jsonl` is `results-r03/combined.jsonl` with its DSD512 and DSD1024 default rows renamed `default-r03`, plus the 27 new rows. `derived.txt` and `tables.txt` there come from the unmodified `derive.py` and `report.py`.
+  - The logs are `../logs/bench-112.log` and `../logs/bench-112-256.log`, and the one-input smoke run is in `../smoke-112/results.jsonl`.
+  - Both result sets are release assets of `sox_dsd-1.1.2`.
 
 ### Results
 
-At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 default (unchanged profiles). At DSD512 and DSD1024 the 1.1.0 row describes the CLANS-7 encoder, which the revised 1.1.1 source no longer has. The "1.1.1 default encoder (v1)" row describes the first 1.1.1 tables, and the "1.1.1 default, round03 tables" row is the current default.
+At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 default (unchanged profiles). At DSD512 and DSD1024 the 1.1.0 row describes the CLANS-7 encoder, which the revised 1.1.1 source no longer has. The "1.1.1 default encoder (v1)" row describes the first 1.1.1 tables, and the "1.1.1 default, round03 tables" row is the revised 1.1.1 default. At DSD256, DSD512 and DSD1024 the "1.1.2 default" row is the current default; at DSD64 and DSD128 the "1.1.0 default encoder" row still is.
 
 ### DSD64 (2822400 Hz)
 
@@ -200,6 +215,7 @@ At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 de
 | clans-5 | -164.9 | -164.6 | 12 | -172.8 | -165.3 | -170.8 | -195.4 | -168.8 | -160.3 | -111.1 | -80.0 | -14.7 |
 | clans-4 | -152.4 | -151.7 | 12 | -152.3 | -154.7 | -156.6 | -171.7 | -154.5 | -161.2 | -109.7 | -81.1 | -14.9 |
 | 1.1.0 default encoder | -197.3 | -195.7 | 12 | -248.8 | -195.5 | -204.4 | -215.7 | -217.9 | -194.0 | -152.0 | -97.8 | -11.2 |
+| 1.1.2 default | -197.4 | -195.7 | 12 | -248.8 | -195.5 | -204.4 | -215.7 | -217.9 | -194.0 | -151.9 | -97.8 | -11.2 |
 | no shaper (32-bit chain floor) | -196.5 | -194.8 | 12 | — | -194.6 | -204.5 | -215.2 | -220.9 | -193.9 | -208.7 | -215.0 | -202.0 |
 
 ### DSD512 (22579200 Hz)
@@ -219,6 +235,7 @@ At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 de
 | 1.1.0 default encoder (v2) | -195.1 | -194.0 | 12 | -203.1 | -194.0 | -200.7 | -214.7 | -206.3 | -187.1 | -176.9 | -118.7 | -26.7 |
 | 1.1.1 default encoder (v1) | -197.3 | -195.7 | 12 | -252.3 | -195.5 | -204.4 | -215.7 | -217.9 | -194.0 | -209.2 | -151.9 | -15.5 |
 | 1.1.1 default, round03 tables | -197.3 | -195.7 | 12 | -261.8 | -195.5 | -204.4 | -215.7 | -218.0 | -194.0 | -208.1 | -150.8 | -15.6 |
+| 1.1.2 default | -197.4 | -195.7 | 12 | -261.8 | -195.5 | -204.4 | -215.7 | -218.0 | -194.0 | -208.1 | -150.8 | -15.6 |
 | no shaper (32-bit chain floor) | -196.5 | -194.8 | 12 | — | -194.6 | -204.4 | -215.1 | -220.4 | -193.9 | -209.0 | -217.9 | -204.6 |
 
 ### DSD1024 (45158400 Hz)
@@ -238,6 +255,7 @@ At DSD64, DSD128 and DSD256 the "1.1.0 default encoder" row is also the 1.1.1 de
 | 1.1.0 default encoder (v2) | -197.4 | -194.9 | 3 | -205.5 | -194.5 | -202.9 | -216.0 | -198.4 | -189.9 | -199.5 | -177.5 | -43.8 |
 | 1.1.1 default encoder (v1) | -198.9 | -195.8 | 3 | -256.7 | -195.5 | -204.4 | -215.7 | -217.9 | -194.0 | -209.4 | -221.7 | -28.1 |
 | 1.1.1 default, round03 tables | -198.9 | -195.8 | 3 | -302.8 | -195.5 | -204.4 | -215.7 | -218.0 | -194.0 | -209.4 | -202.5 | -28.2 |
+| 1.1.2 default | -198.9 | -195.8 | 3 | -302.8 | -195.5 | -204.4 | -215.7 | -218.0 | -194.0 | -209.5 | -202.5 | -28.2 |
 | no shaper (32-bit chain floor) | -198.2 | -194.9 | 3 | — | -194.6 | -204.4 | -215.4 | -220.5 | -193.9 | -209.1 | -221.0 | -206.8 |
 
 "silence noise" for `ref` is "—" because the 32-bit path carries digital silence as exact zeros.
