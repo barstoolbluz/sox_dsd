@@ -491,7 +491,8 @@ class Suite:
         self.gates['nonfinite_fail_closed_and_truthful_report']='PASS'
 
     def flac_ingress(self):
-        # This is an OPTIONAL library, not a reason to fail a no-FLAC build.
+        # The native FLAC reader is available only in a built-in FLAC build.
+        # A working plugin codec can still write/read FLAC via legacy PCM.
         values=[[int(12000*math.sin(.2*i+ch)) for ch in range(2)] for i in range(113)]
         src=self.tmp/'flac-input.wav';make_wav(src,values,2,44100,'i16')
         flac=self.tmp/'integer.flac'
@@ -500,21 +501,60 @@ class Suite:
         if check.returncode!=0:
             self.gates['builtin_integer_FLAC_ingress']='NOT_RUN: FLAC codec not built/available'
             return
-        wav=self.tmp/'wav-comparison.dsf';dst=self.tmp/'flac-encoded.dsf'
-        wrep=self.tmp/'wav-comparison.json'
-        self.cli(src,wav,RATES[0],report=wrep)
-        rep=self.tmp/'flac.json'
-        self.cli(flac,dst,RATES[0],report=rep)
-        expected=113*64
-        demand(dsf_bits(wav.read_bytes(),expected,2,RATES[0])==
-               dsf_bits(dst.read_bytes(),expected,2,RATES[0]),
-               'FLAC integer normalization differs from the exact WAV source')
-        j=json.loads(rep.read_text())
-        demand(j['precision']['actual_route']=='native-binary64-encode' and
-               j['source'][0]['container']=='flac',
-               'FLAC was decoded through a wrong route')
+        flac_probe=self.probe.with_name('pcm64_flac_probe')
+        demand(flac_probe.is_file(),'actual FLAC handler linkage probe missing')
+        capability=subprocess.run([str(flac_probe),'capabilities'],
+                         capture_output=True,text=True,timeout=30)
+        demand(capability.returncode==0,
+               f'FLAC handler capability probe failed: {capability.stderr}')
+        lines=[line.split('=',1) for line in capability.stdout.splitlines()]
+        demand(len(lines)==2 and all(len(x)==2 for x in lines) and
+               set(k for k,_ in lines)=={'linkage','native_dsp'},
+               f'unexpected FLAC capability receipt: {capability.stdout!r}')
+        linkage=dict(lines)['linkage']
+        demand(linkage in ('builtin','plugin','absent'),
+               f'unknown FLAC handler linkage: {linkage!r}')
+        if linkage!='builtin':
+            # Verify a plugin cannot be mistaken for native binary64 ingress.
+            if linkage=='plugin':
+                plan=json.loads(self.command(['--precision','64','--plan',flac,
+                    '-r','dsd64',self.tmp/'plugin-not-native.dsf'],
+                    label='plugin-flac-native-plan').stdout)
+                demand(not plan['precision']['runner_available'] and
+                       plan['precision']['actual_route']=='refused-before-output',
+                       'FLAC plugin incorrectly admitted to the native DSD runner')
+                self.gates['plugin_FLAC_native_route_refusal']='PASS'
+            self.gates['builtin_integer_FLAC_ingress']=(
+                f'NOT_RUN: actual FLAC handler linkage={linkage}; native requires built-in')
+            return
+        # Both DSD clocks and writer formats must preserve the independent
+        # integer WAV reference, channel order and source-derived bit counts.
+        for rate in RATES:
+            expected=113*(rate//44100)
+            for ext in ('dsf','dff'):
+                wav=self.tmp/f'wav-{rate}.{ext}'
+                dst=self.tmp/f'flac-{rate}.{ext}'
+                wrep=self.tmp/f'wav-{rate}.{ext}.json'
+                rep=self.tmp/f'flac-{rate}.{ext}.json'
+                self.cli(src,wav,rate,report=wrep)
+                self.cli(flac,dst,rate,report=rep)
+                parse=dsf_bits if ext=='dsf' else dff_bits
+                demand(parse(wav.read_bytes(),expected,2,rate)==
+                       parse(dst.read_bytes(),expected,2,rate),
+                       f'{rate} {ext}: FLAC integer bits differ from exact WAV source')
+                j=json.loads(rep.read_text())
+                demand(j['precision']['actual_route']=='native-binary64-encode' and
+                       j['source'][0]['container']=='flac' and
+                       int(j['output']['frames_written'])==expected and
+                       int(j['output']['native_completed_frames'])==expected and
+                       len(j['processing']['encoder'])==2 and
+                       all(int(c['source_frames'])==113 and
+                           int(c['committed_native_frames'])==expected
+                           for c in j['processing']['encoder']),
+                       f'{rate} {ext}: wrong FLAC route, channel order or bit count')
+                self.record('FLAC_integer_bits_compared',expected*2)
+                self.record('FLAC_integer_container_cases')
         self.gates['builtin_integer_FLAC_ingress']='PASS'
-        self.record('FLAC_integer_bits_compared',expected*2)
 
     def receipt(self,status):
         head=subprocess.run(['git','-C',str(SOURCE),'rev-parse','HEAD'],
