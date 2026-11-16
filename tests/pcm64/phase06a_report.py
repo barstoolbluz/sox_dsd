@@ -65,6 +65,22 @@ def main():
         assert_protected(target, ("--precision", "64", "--report", "out002.wav",
                                   "in.wav", "out.wav", "trim", "0", "0.05", ":",
                                   "newfile", ":", "trim", "0", "0.05"))
+        # Other directory entries may point at a numbered output inode.
+        # Those must be protected even when the report has another name.
+        for alias_kind in ("hardlink", "symlink"):
+            numbered = root / "out002.wav"
+            numbered.write_bytes(b"PRESERVE NUMBERED HARD/SYMLINK CARRIER")
+            alias = root / "report-elsewhere.json"
+            if alias_kind == "hardlink":
+                os.link(numbered, alias)
+            else:
+                alias.symlink_to(numbered)
+            assert_protected(numbered, ("--precision", "64", "--report",
+                                      alias.name, "in.wav", "out.wav", "trim",
+                                      "0", "0.05", ":", "newfile", ":",
+                                      "trim", "0", "0.05"))
+            alias.unlink()
+            numbered.unlink()
         target = root / "in2.wav"
         target.write_bytes((root / "in.wav").read_bytes())
         assert_protected(target, ("--precision", "64", "--report", "in2.wav",

@@ -49,6 +49,10 @@
 #include <sys/stat.h>
 #endif
 
+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
+#include <dirent.h>
+#endif
+
 /* The Linux FD_ISSET() manual says that newer POSIX systems need sys/select.h
  * but older systems did not. */
 #ifdef HAVE_SYS_SELECT_H
@@ -5504,14 +5508,14 @@ static sox_bool dsd_report_file_path_alias(const char *report,const char *other)
  * initial output path is parsed.  Match the actual fndup_with_count grammar,
  * then prove the generated name aliases the proposed report target.  This
  * runs only during CLI admission, never on an audio sample. */
-static sox_bool dsd_report_multiple_output_alias(const char *report,
+static sox_bool dsd_report_numbered_name(const char *candidate,
     const char *output)
 {
   const char *marker=strstr(output,"%n"), *p, *end;
   char *generated;
   unsigned long index=0;
   size_t prefix;
-  if (!report || !output || !strcmp(report,"-")) return sox_false;
+  if (!candidate || !output) return sox_false;
   if (!marker) {
     const char *q=output;
     while ((q=strchr(q,'%'))!=NULL) {
@@ -5524,8 +5528,9 @@ static sox_bool dsd_report_multiple_output_alias(const char *report,
     const char *dot=strrchr(output,'.');
     prefix=dot?(size_t)(dot-output):strlen(output);
   }
-  if (strncmp(output,report,prefix)) return sox_false;
-  p=report+prefix;
+  if (strlen(candidate)<prefix || strncmp(output,candidate,prefix))
+    return sox_false;
+  p=candidate+prefix;
   if (*p<'0' || *p>'9') return sox_false;
   for (end=p;*end>='0' && *end<='9';end++) {
     unsigned digit=(unsigned)(*end-'0');
@@ -5536,10 +5541,58 @@ static sox_bool dsd_report_multiple_output_alias(const char *report,
   generated=fndup_with_count(output,index);
   if (!generated) return sox_false;
   {
-    sox_bool alias=dsd_report_path_alias(report,generated);
+    sox_bool same=!strcmp(generated,candidate);
     free(generated);
+    return same;
+  }
+}
+
+/* Newfile can number an output under a name distinct from the report path.
+ * An existing report hard-link or an output symlink can still alias that
+ * numbered file. Scan only the generated-output directory at CLI admission;
+ * never enumerate it while processing audio. A report symlink is refused
+ * conservatively, including when its target does not exist yet. */
+static sox_bool dsd_report_multiple_output_alias(const char *report,
+    const char *output)
+{
+  if (!report || !output || !strcmp(report,"-")) return sox_false;
+  if (dsd_report_numbered_name(report,output)) return sox_true;
+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYS_STAT_H) && !defined(_WIN32)
+  {
+    struct stat target,entry,link;
+    const char *slash=strrchr(output,'/');
+    char *directory=NULL,*entry_name=NULL;
+    DIR *dir;
+    struct dirent *d;
+    sox_bool alias=sox_false;
+    size_t prefix=slash?(size_t)(slash-output+1):0;
+    if (!lstat(report,&link) && S_ISLNK(link.st_mode))
+      return sox_true;
+    if (stat(report,&target)) return sox_false;
+    directory=lsx_malloc(prefix?prefix+1:2);
+    if (prefix) {memcpy(directory,output,prefix);directory[prefix]=0;}
+    else strcpy(directory,".");
+    dir=opendir(directory);
+    if (!dir) {free(directory);return sox_true;}
+    while ((d=readdir(dir))) {
+      size_t name_len=strlen(d->d_name);
+      if (name_len>SIZE_MAX-prefix-1) {alias=sox_true;break;}
+      entry_name=lsx_malloc(prefix+name_len+1);
+      if (prefix) memcpy(entry_name,output,prefix);
+      memcpy(entry_name+prefix,d->d_name,name_len+1);
+      if (dsd_report_numbered_name(entry_name,output) &&
+          !stat(entry_name,&entry) &&
+          target.st_dev==entry.st_dev && target.st_ino==entry.st_ino)
+        alias=sox_true;
+      free(entry_name);entry_name=NULL;
+      if (alias) break;
+    }
+    closedir(dir);
+    free(directory);
     return alias;
   }
+#endif
+  return sox_false;
 }
 
 static sox_bool dsd_report_stdin_alias(const char *report)
