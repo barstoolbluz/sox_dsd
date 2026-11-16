@@ -4,7 +4,7 @@
 
 SoX DSD is an independently versioned fork of [SoX-NG](https://codeberg.org/sox_ng/sox_ng), itself a continuation of [SoX](https://sox.sourceforge.net/). It keeps SoX's general-purpose audio conversion, effects, formats, command-line model, and library interfaces. The additional work concentrates on native DSD, controlled DSD/PCM conversion, and measurable numerical quality.
 
-**Current version: 1.1.2**, based on **SoX-NG 14.8.1**. This describes the 1.1.2 source and the current `main` branch as of November 2026.
+**Current version: 1.1.2**, based on **SoX-NG 14.8.1**. This is the behavior of the 1.1.2 release and the current `main` branch as of November 2026.
 
 ## Why this fork exists
 
