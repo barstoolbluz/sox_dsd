@@ -1,3 +1,47 @@
+# Phase 06A: FLAC qualification update (2026-11-16)
+
+**Current state:** The previously unrun FLAC qualification has now been
+performed with genuine FLAC 1.5.0 and libogg 1.3.6 built offline from the
+Nixpkgs-pinned upstream source tarballs. The production PCM64/DSD implementation
+and the frozen certified DSD64/DSD128 kernel code are unchanged. This revision
+only corrects `tests/pcm64/encode.py` and updates this checkpoint.
+
+- `--enable-shared --disable-static --with-flac=dyn` configures and builds.
+  The actual FLAC plugin can read/write ordinary FLAC, but must refuse native
+  binary64 DSD ingress. The encoder suite now inspects the real FLAC handler
+  linkage using `pcm64_flac_probe capabilities`, verifies planner refusal,
+  and records the built-in-only gate as `NOT_RUN` rather than failing on a
+  correctly refused plugin. `io-flac` separately verifies plugin behavior.
+- `--enable-shared --disable-static --with-flac=yes` configures and builds.
+  Built-in integer-FLAC source audio produces bit-identical DSD64 and DSD128
+  packed outputs to equivalent WAV integer audio, in both DSF and DFF. Each
+  comparison checks channel identities and source-derived bit/frame counts.
+  The native FLAC ingress gate is `PASS`, with 4 physical container comparisons
+  and 86,784 compared interleaved one-bit decisions.
+- Both FLAC configurations pass `encode`, `io-flac`, `pcm-identity`, `routing`,
+  `decode`, `report-carriers`, `return-acceptance`, and ordinary `make check`.
+  Individual additional PCM64 component suites have been run in the dynamic
+  build; see the new archive-root evidence for exact receipts and statuses.
+- Some additional, very long DSD regression targets exceeded the command
+  runner's time limit in FLAC-enabled builds. Do not relabel interrupted runs
+  as successful. The source implementation they exercise is unchanged from
+  the previously qualified native build, but those extra FLAC-build runs
+  remain unverified.
+- Offline dependency kit SHA-256:
+  `3a5082945d0e92560da3a730160a2223dcbdc2791a276c9ff63739f485abcdff`.
+  Archive-root `inputs/` and `evidence/phase06a/flac-qualification/` retain
+  the kit, commands, extracted-version identity, receipts, and logs.
+
+For the complete prior 06A engineering record, the historical checkpoint below
+is preserved verbatim. Its original missing-FLAC/CONDITIONAL status is
+superseded by this dated update. The archive-root `HANDOFF.md`, `RESUME.md`,
+`SOURCE_STATE.json` and `ACCEPTANCE_MATRIX.json` supply the current release
+status and continuation commands.
+
+---
+
+## Historical checkpoint before FLAC dependency delivery
+
 # SoX DSD binary64: Phase 06A source checkpoint
 
 **State: implementation and available-environment tests PASS; complete Phase 06A
