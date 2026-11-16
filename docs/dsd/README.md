@@ -1,14 +1,14 @@
 # SoX DSD documentation
 
-SoX DSD 1.1.1 extends SoX-NG with native DSD processing while retaining the
+SoX DSD 1.1.2 extends SoX-NG with native DSD processing while retaining the
 upstream audio formats, effects, libraries and build system.
 
 ## Start here
 
 - [Using SoX DSD](USING_SOX_DSD.md): formats, native rates, conversion examples,
   profile selection and limitations.
-- [1.1.1 release notes](RELEASE_NOTES_1.1.1.md): defaults, compatibility and
-  version-specific behavior.
+- [1.1.2 release notes](RELEASE_NOTES_1.1.2.md): new mastering passbands and updated defaults.
+- [1.1.1 release notes](RELEASE_NOTES_1.1.1.md): previous release and historical evidence.
 - [CLI migration reference](MIGRATION_P15.md): options and renamed profiles.
 - [Unified decoder](UNIFIED_DECODER_2026-11-09.md): mastering and wideband
   reconstruction, and independent high-rate encoder selection.

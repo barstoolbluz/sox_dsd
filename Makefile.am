@@ -49,6 +49,17 @@ EXTRA_DIST = sox.txt soxi.txt soxeffect_ng.txt soxformat_ng.txt libsox_ng.txt \
   tests/dsd/checks/test_mastering_baseline_identity_111.py \
   docs/dsd/USING_SOX_DSD.md \
   docs/dsd/CLI_USABILITY_DESIGN.md docs/dsd/RELEASE_NOTES_1.1.1.md \
+  docs/dsd/RELEASE_NOTES_1.1.2.md tests/dsd/checks/test_passband_112.py \
+  tests/dsd/generators/generate_112_passbands.py \
+  tests/dsd/generators/generate_coeffs.py \
+  tests/dsd/qualification/certify_112_passbands.py \
+  tests/dsd/qualification/certify_filters.py \
+  tests/dsd/benchmarks/bench_passband_112.py \
+  tests/dsd/support/current_mastering_112.py \
+  tests/dsd/reference/mastering_passband_112.json \
+  tests/dsd/results/P112/filter-response.json \
+  tests/dsd/results/P112/integration.json \
+  tests/dsd/results/P112/performance.json \
   docs/dsd/UNIFIED_DECODER_2026-11-09.md docs/dsd/NOISE_SHAPER_BENCH_2026-11-07.md
 
 # Repository cleanup tools are distributed beside the evidence archive, not in-tree.
@@ -242,7 +253,21 @@ check-dsd-cli: all
 	  python3 "$(abs_srcdir)/tests/dsd/checks/test_cli_usability.py" \
 	  --sox "$(abs_builddir)/src/sox"
 	$(MAKE) check-dsd-loud-encode
+	$(MAKE) check-dsd-release-112
+
+# Release 1.1.2 functional and content-identity checks; the expensive
+# high-precision full-stopband numerical search is opt-in below.
+.PHONY: check-dsd-release-112
+check-dsd-release-112: all
 	$(MAKE) check-dsd-release-111
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/checks/test_passband_112.py" \
+	  --sox "$(abs_builddir)/src/sox"
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/generators/generate_112_passbands.py" --check
+
+.PHONY: check-dsd-qualification-112
+check-dsd-qualification-112: check-dsd-release-112
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(abs_srcdir)/tests/dsd/qualification/certify_112_passbands.py" \
+	  --output "$(abs_builddir)/.dsd-check-results/P112/filter-response.json"
 
 # Deterministic strict-mode regression including actual high-rate runtimes.
 .PHONY: check-dsd-release-111

@@ -1,8 +1,8 @@
-# Using SoX DSD 1.1.1
+# Using SoX DSD 1.1.2
 
 **A practical guide to native DSD, reconstruction, mastering encoding, DoP, and DSD diagnostics**
 
-> **Scope.** This guide covers the DSD-specific behavior of **SoX DSD 1.1.1**, as implemented in the approved 1.1.1 source (tag `sox_dsd-1.1.1`). It assumes the ordinary SoX command structure and does not repeat general SoX-NG documentation for PCM editing, resampling, audio devices, or codecs. Examples use a POSIX-style shell. The source code and 1.1.1 release notes govern operational behavior; a separate, historical noise-shaper bench provides measured comparisons with stated limits.
+> **Scope.** This guide covers the DSD-specific behavior of **SoX DSD 1.1.2**, as implemented in the 1.1.2 source. It assumes the ordinary SoX command structure and does not repeat general SoX-NG documentation for PCM editing, resampling, audio devices, or codecs. Examples use a POSIX-style shell. The source code and 1.1.2 release notes govern operational behavior; a separate, historical noise-shaper bench provides measured comparisons with stated limits.
 >
 > **Important:** A DSD output file can contain clipped or otherwise altered audio even when the command succeeds. In particular, the normal PCM-to-DSD encoder warns and clips excess interpolated peaks. Read the [headroom chapter](#5-encoding-levels-clipping-and-headroom) before encoding a loud master.
 
@@ -118,9 +118,9 @@ The following table shows each native DSD bit clock, its default decoded PCM out
 |---|---:|---:|---:|
 | DSD64 | 2,822,400 Hz | 88,200 Hz | 176,400 Hz |
 | DSD128 | 5,644,800 Hz | 176,400 Hz | 352,800 Hz |
-| DSD256 | 11,289,600 Hz | 176,400 Hz | 705,600 Hz |
-| DSD512 | 22,579,200 Hz | 176,400 Hz | 1,411,200 Hz |
-| DSD1024 | 45,158,400 Hz | 176,400 Hz | 2,822,400 Hz |
+| DSD256 | 11,289,600 Hz | 352,800 Hz | 705,600 Hz |
+| DSD512 | 22,579,200 Hz | 352,800 Hz | 1,411,200 Hz |
+| DSD1024 | 45,158,400 Hz | 705,600 Hz | 2,822,400 Hz |
 
 **When you omit `-r`:**
 
@@ -150,14 +150,14 @@ SoX DSD supports three native DSD file formats. All three store one-bit DSD audi
 
 SoX DSD can produce DoP WAV files using `--dop`. See [Section 6](#6-preserve-native-dsd-change-rates-or-use-dop) for commands, carrier rates, and playback restrictions.
 
-The read/write rates in the table describe SoX DSD 1.1.1 capabilities, not guaranteed compatibility with every DSD player or DAC.
+The read/write rates in the table describe SoX DSD 1.1.2 capabilities, not guaranteed compatibility with every DSD player or DAC.
 
 ## 3. Reconstruct DSD to PCM
 
 A normal DSD-to-PCM command inserts the source-matched qualified reconstruction filter automatically. You do not need to name `dsdpcm` or a particular profile unless you want to override the default.
 
 ```bash
-# Default output: 88.2 kHz for DSD64, 176.4 kHz for higher DSD rates.
+# Default: 88.2 kHz at DSD64, 176.4 at DSD128, 352.8 at DSD256/512, 705.6 at DSD1024.
 sox source64.dsf decoded.wav
 
 # Explicit PCM output format.
@@ -199,15 +199,15 @@ A one-bit DSD signal carries shaped quantization noise, much of it ultrasonic. T
 |---|---:|---:|---:|
 | DSD64 | 20 kHz | 40 kHz | 88.2 kHz |
 | DSD128 | 30 kHz | 60 kHz | 176.4 kHz |
-| DSD256 | 40 kHz | 80 kHz | 176.4 kHz |
-| DSD512 | 40 kHz | 80 kHz | 176.4 kHz |
-| DSD1024 | 40 kHz | 80 kHz | 176.4 kHz |
+| DSD256 | 60 kHz | 100 kHz | 352.8 kHz |
+| DSD512 | 88.2 kHz | 148.2 kHz | 352.8 kHz |
+| DSD1024 | 120 kHz | 200 kHz | 705.6 kHz |
 
 The passband edge marks the last frequency covered by the specified flat-response region; the stopband edge marks where specified attenuation begins. Neither is a brick-wall cutoff or a listening-quality ranking. The design's transfer-function targets are described in [DSD design](DSD_DESIGN.md).
 
 Compared with earlier releases, the default reconstruction filter may have a different passband. Record the product release and the selected decoder when comparing rendered PCM.
 
-### 4.2 Selecting a decoder in 1.1.1
+### 4.2 Selecting a decoder in 1.1.2
 
 | Request | Result |
 |---|---|
@@ -585,23 +585,24 @@ For encoding, choose the clipping/headroom policy **before** running the convers
 
 ### Authoritative references and scope of validation
 
-The source of truth for 1.1.1 behavior is the checked-in implementation. The key files and supporting documents are:
+The source of truth for 1.1.2 behavior is the checked-in implementation. The key files and supporting documents are:
 
 - `src/sox_ng.c`: CLI syntax, selector defaults, headroom, plans, and reporting.
 - `src/dsd.c`: **mastering and wideband decoder banks**, passband/stopband edges and clocks.
 - `src/pcmdsd.c`: **mastering encoder profiles at all five rates**, rate-specific high-rate SDM-8 tables, and the default 0.9 gain in both clip modes.
 - `src/dsd_plan.c`, `src/dsdpcm.c`, `src/sdm.c`, `src/dsdstat.c`: route planning, explicit reconstruction, low-level legacy modulation, and native statistics.
-- [1.1.1 release notes](RELEASE_NOTES_1.1.1.md): current defaults, strict-mode behavior, and release-evidence limits.
+- [1.1.2 release notes](RELEASE_NOTES_1.1.2.md): current bandwidths, default-rate changes, and evidence limits.
+- [1.1.1 release notes](RELEASE_NOTES_1.1.1.md): historical strict-mode behavior and qualification.
 - [High-rate qualification history](V1_HIGH_RATE_ENCODE_2026-11-07.md): earlier table testing and the 0.9/0.45 operating point.
 - [Decoder consolidation history](UNIFIED_DECODER_2026-11-09.md): prior decoder-profile changes.
 - [DSD design](DSD_DESIGN.md) and [qualification](QUALIFICATION.md): architecture, response design, and test context. Historical design proposals do not override current release behavior.
 - [Real-chain noise-shaper benchmark (2026-11-07; updated 2026-11-10)](NOISE_SHAPER_BENCH_2026-11-07.md): experimental methods, measured in-band and ultrasonic performance, results, and limitations. It is a measurement study, not part of the release specification.
 
-**Validation boundary:** This guide describes the updated 1.1.1 source and distinguishes the new round03 high-rate measurements from older research. The original benchmark inputs and detailed outputs are provided separately in the handoff; the dated noise-shaper report remains unchanged. No listening tests, analog output measurements, every-device DoP checks, or exhaustive level-stability proof are claimed.
+**Validation boundary:** This guide describes the updated 1.1.2 source and distinguishes the new round03 high-rate measurements from older research. The original benchmark inputs and detailed outputs are provided separately in the handoff; the dated noise-shaper report remains unchanged. No listening tests, analog output measurements, every-device DoP checks, or exhaustive level-stability proof are claimed.
 
 For ordinary PCM operations, consult the existing SoX/SoX-NG manuals. This document deliberately covers **only SoX DSD-specific functionality**.
 
 
 ---
 
-*Guide: SoX DSD 1.1.1. DSD-focused edition, updated November 10, 2026.*
+*Guide: SoX DSD 1.1.2. DSD-focused edition, updated November 15, 2026.*

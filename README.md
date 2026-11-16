@@ -4,7 +4,7 @@
 
 SoX DSD is an independently versioned fork of [SoX-NG](https://codeberg.org/sox_ng/sox_ng), itself a continuation of [SoX](https://sox.sourceforge.net/). It keeps SoX's general-purpose audio conversion, effects, formats, command-line model, and library interfaces. The additional work concentrates on native DSD, controlled DSD/PCM conversion, and measurable numerical quality.
 
-**Current version: 1.1.1**, based on **SoX-NG 14.8.1**. This is the behavior of the 1.1.1 release and the current `main` branch as of November 2026.
+**Current version: 1.1.2**, based on **SoX-NG 14.8.1**. This describes the 1.1.2 source and the current `main` branch as of November 2026.
 
 ## Why this fork exists
 
@@ -21,7 +21,7 @@ SoX already handles a wide range of audio tasks. SoX DSD builds on that foundati
 
 The project also pursues better numerical results in conventional PCM processing. That is an engineering direction, **not** a claim that every inherited SoX effect has already been replaced or that more computation automatically produces better audio.
 
-## What works in 1.1.1
+## What works in 1.1.2
 
 ### Native rates, files, and transport
 
@@ -29,9 +29,9 @@ The project also pursues better numerical results in conventional PCM processing
 | --- | ---: | ---: | ---: |
 | DSD64 | 2,822,400 Hz | 88,200 Hz | 176,400 Hz |
 | DSD128 | 5,644,800 Hz | 176,400 Hz | 352,800 Hz |
-| DSD256 | 11,289,600 Hz | 176,400 Hz | 705,600 Hz |
-| DSD512 | 22,579,200 Hz | 176,400 Hz | 1,411,200 Hz |
-| DSD1024 | 45,158,400 Hz | 176,400 Hz | 2,822,400 Hz |
+| DSD256 | 11,289,600 Hz | 352,800 Hz | 705,600 Hz |
+| DSD512 | 22,579,200 Hz | 352,800 Hz | 1,411,200 Hz |
+| DSD1024 | 45,158,400 Hz | 705,600 Hz | 2,822,400 Hz |
 
 - **DSF (`.dsf`) and DSDIFF (`.dff`)** support native DSD reading and writing at all five rates. **WSD is read-only.** DST-compressed DSDIFF is not supported.
 - **Native repacking** between DSF and DSDIFF at the same bit clock preserves the one-bit audio stream when no PCM-domain operation is requested. Changing the DSD clock, applying gain or effects, or resampling requires a processing path.
@@ -40,13 +40,13 @@ The project also pursues better numerical results in conventional PCM processing
 
 ### Reconstruction and modulation profiles
 
-- **DSD to PCM:** the default is the qualified **mastering decoder** at every native clock. `--decode mastering` selects the same bank. Its rated passband is 20 kHz for DSD64, 30 kHz for DSD128, and 40 kHz for DSD256 and above. `--decode wideband` selects the qualified **wideband** alternative, subject to the selected PCM output rate and bandwidth policy.
+- **DSD to PCM:** the default is the qualified **mastering decoder** at every native clock. `--decode mastering` selects the same bank. Its rated passband is 20 kHz for DSD64, 30 kHz for DSD128, 60 kHz for DSD256, 88.2 kHz for DSD512, and 120 kHz for DSD1024. `--decode wideband` selects the qualified **wideband** alternative, subject to the selected PCM output rate and bandwidth policy.
 - **PCM to DSD:** the default is the qualified **eighth-order mastering encoder** at all five rates, with its own coefficient tables at DSD512 and DSD1024. `--encode mastering` selects it explicitly.
 - **Exact IDs** such as `decode.mastering.dsd64` and `encode.mastering.dsd256` pin a qualified profile to a native rate. An incompatible pin is rejected rather than silently substituted.
 
-Compared with **1.1.0**, 1.1.1 uses a different standard decoder, so default decoded PCM can differ between those releases. It also replaces 1.1.0's seventh-order CLANS-7 encoder at DSD512 and DSD1024 with the eighth-order mastering encoder. The older `--decode conservative` and `--decode legacy` aliases, the CLANS-7 encoder, and the versioned profile IDs of earlier releases are no longer supported.
+Compared with **1.1.1**, 1.1.2 widens the default encoder and decoder passbands at DSD256, DSD512, and DSD1024. At those clocks, default encoded DSD and decoded PCM can change; DSD64/128 and the wideband and legacy routes retain their settings. Compared with **1.1.0**, 1.1.1 uses a different standard decoder, so default decoded PCM can differ between those releases. It also replaces 1.1.0's seventh-order CLANS-7 encoder at DSD512 and DSD1024 with the eighth-order mastering encoder. The older `--decode conservative` and `--decode legacy` aliases, the CLANS-7 encoder, and the versioned profile IDs of earlier releases are no longer supported.
 
-A *qualified* profile has passed the project's release-authorization checks for its stated scope. The term does not promise universal hardware compatibility, unconditional modulator stability, or superiority for every recording. See the [1.1.1 release notes](docs/dsd/RELEASE_NOTES_1.1.1.md).
+A *qualified* profile has passed the project's release-authorization checks for its stated scope. The term does not promise universal hardware compatibility, unconditional modulator stability, or superiority for every recording. See the [1.1.2 release notes](docs/dsd/RELEASE_NOTES_1.1.2.md).
 
 ### Level conventions and conversion gain
 
@@ -187,7 +187,7 @@ The ordinary SoX tests and DSD-specific checks coexist:
 ```sh
 make check                     # inherited SoX regression suite
 make check-dsd-cli             # DSD CLI, release, and loud-encode acceptance
-make check-dsd-release-111     # 1.1.1 profile and compatibility regressions
+make check-dsd-release-112     # 1.1.2 profile and compatibility regressions
 make check-dsd-optimization    # DSD numerical and optimization checks
 make check-dsd                # DSD phase runner (defaults to P18)
 ```
@@ -201,7 +201,8 @@ The repository cleanup after 1.1.1 also restored the original identities of unto
 ## Documentation
 
 - [Using SoX DSD](docs/dsd/USING_SOX_DSD.md): practical commands and behavior.
-- [1.1.1 release notes](docs/dsd/RELEASE_NOTES_1.1.1.md): exact defaults, changed behavior, and compatibility limits.
+- [1.1.2 release notes](docs/dsd/RELEASE_NOTES_1.1.2.md): revised default bandwidths and release evidence limits.
+- [1.1.1 release notes](docs/dsd/RELEASE_NOTES_1.1.1.md): prior release behavior and historical evidence.
 - [DSD documentation index](docs/dsd/README.md): engine design, API-related behavior, profiles, and technical contracts.
 - [CLI migration table](docs/dsd/MIGRATION_P15.md): earlier SoX DSD option spellings.
 - [Qualification](docs/dsd/QUALIFICATION.md): executable checks and the boundaries of the historical evidence.
