@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
-from check_p11_isa import ROOT, OBJECTS, inspect_objdump
+from check_p11_isa import ROOT, OBJECTS, inspect_objdump, resolve_built_object
 
 
 def main():
@@ -24,11 +24,13 @@ def main():
           'avx512':'src/libdsd_kernels_avx512_la-dsd_kernels_avx512.o'}
     report=dict(schema='P13/ISA-isolation/1',objects={},checks={},errors=[],
         limitations='Object ISA inspection; executable CPU/XCR0 and hardware tests are separate')
+    resolved={}
     for name,rel in objs.items():
-        p=build/rel
-        if not p.is_file():
-            report['errors'].append(f'missing {rel}')
+        p=resolve_built_object(build, rel)
+        if p is None:
+            report['errors'].append(f'missing {rel} (also checked libtool .libs/)')
             continue
+        resolved[name]=p
         try:
             v=inspect_objdump(p)
             cp=subprocess.run(['objdump','-drwC',str(p)],capture_output=True,text=True)
@@ -36,18 +38,18 @@ def main():
             if name=='avx512':
                 args.results.mkdir(parents=True,exist_ok=True)
                 (args.results/'avx512-disassembly.txt').write_text(cp.stdout)
-            report['objects'][name]=dict(path=rel,sha256=hashlib.sha256(p.read_bytes()).hexdigest(),
+            report['objects'][name]=dict(path=p.relative_to(build).as_posix(),sha256=hashlib.sha256(p.read_bytes()).hexdigest(),
                                          **v)
         except Exception as exc:
             report['errors'].append(f'{name}: {exc}')
     if len(report['objects'])==len(objs):
         checks=report['checks']
         for name in ('baseline_dispatch','baseline_scalar','sse2','avx1','avx2'):
-            cp=subprocess.run(['objdump','-d',str(build/objs[name])],capture_output=True,text=True)
+            cp=subprocess.run(['objdump','-d',str(resolved[name])],capture_output=True,text=True)
             checks[name+'_no_zmm']=not bool(re.search(r'%zmm\d+|%k[1-7]\b',cp.stdout))
         for name in objs:
             checks[name+'_no_fma']=not report['objects'][name]['fma_mnemonics']
-        cp=subprocess.run(['objdump','-d',str(build/objs['avx512'])],capture_output=True,text=True)
+        cp=subprocess.run(['objdump','-d',str(resolved['avx512'])],capture_output=True,text=True)
         asm=cp.stdout
         checks['avx512_no_unrequested_x86_extensions']=not bool(report['objects']['avx512']['untargeted_extension_mnemonics'])
         checks['avx512_zmm_execution']=bool(re.search(r'%zmm\d+',asm))

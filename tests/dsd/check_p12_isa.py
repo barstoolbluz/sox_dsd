@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
-from check_p11_isa import ROOT,OBJECTS,inspect_objdump
+from check_p11_isa import ROOT,OBJECTS,inspect_objdump,resolve_built_object
 
 
 def main():
@@ -20,15 +20,15 @@ def main():
         'limits':'Static disassembly alone does not establish executable ISA compatibility or throughput'}
     objects=dict(OBJECTS,avx2='src/libdsd_kernels_avx2_la-dsd_kernels_avx2.o')
     for name,path in objects.items():
-        full=build/path
-        if not full.is_file():
-            report['errors'].append('missing object: '+path)
+        full=resolve_built_object(build, path)
+        if full is None:
+            report['errors'].append('missing object: '+path+' (also checked libtool .libs/)')
             continue
         cp=subprocess.run(['objdump','-drwC',str(full)],capture_output=True,text=True)
         if cp.returncode:
             report['errors'].append('objdump failed: '+path)
             continue
-        report['objects'][name]={'path':path,**inspect_objdump(full)}
+        report['objects'][name]={'path':full.relative_to(build).as_posix(),**inspect_objdump(full)}
         if name=='avx2':
             a.results.mkdir(parents=True,exist_ok=True)
             (a.results/'avx2-disassembly.txt').write_text(cp.stdout)

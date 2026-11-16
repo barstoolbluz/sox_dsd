@@ -22,6 +22,15 @@ OBJECTS={
 }
 
 
+def resolve_built_object(build: Path, relative: str) -> Path | None:
+    """Find the same compiled object in static or libtool shared-build layouts."""
+    direct = build / relative
+    if direct.is_file():
+        return direct
+    shared = direct.parent / '.libs' / direct.name
+    return shared if shared.is_file() else None
+
+
 def inspect_objdump(path):
     p=subprocess.run(['objdump','-d',str(path)],capture_output=True,text=True,cwd=ROOT)
     if p.returncode:raise RuntimeError(f'objdump failure on {path}: {p.stderr[-500:]}')
@@ -80,12 +89,13 @@ def main():
     report=dict(schema='P11/ISA-audit/1',objects={},checks={},errors=[],
        note='Static audit of built objects only; execution tests and AVX1-only hardware are independent gates')
     for tier,source in OBJECTS.items():
-        obj=build/source
-        if not obj.is_file():
-            report['errors'].append(f'missing built object {source}')
+        obj=resolve_built_object(build, source)
+        if obj is None:
+            report['errors'].append(f'missing built object {source} (also checked libtool .libs/)')
             continue
         try:
-            report['objects'][tier]=dict(path=source,**inspect_objdump(obj))
+            report['objects'][tier]=dict(path=obj.relative_to(build).as_posix(),
+                                        **inspect_objdump(obj))
         except (OSError,RuntimeError) as exc:report['errors'].append(str(exc))
     d=report['objects']
     if len(d)==len(OBJECTS):
