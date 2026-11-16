@@ -1170,12 +1170,22 @@ def return5_stdin_audio_identity_gate(sox, root):
 
 
 
+def play_target(sox):
+    """A libtool wrapper execs .libs/sox under its own name; play needs the real binary."""
+    real = sox.parent / '.libs' / sox.name
+    if real.is_file() and sox.read_bytes()[:2] == b'#!':
+        os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(
+            filter(None, (str(real.parent), os.environ.get('LD_LIBRARY_PATH'))))
+        return real
+    return sox
+
+
 def return5_play_stdin_audio_identity_gate(sox, root):
     """A terminal '-' or -p is stdin in play, whose output is implicit."""
     if os.name != 'posix' or not hasattr(os, 'symlink'):
         return 'NOT_RUN: play symlink not available'
     play = root / 'play'
-    play.symlink_to(sox)
+    play.symlink_to(play_target(sox))
     pcm = root / 'return5-play-input.wav'
     with wave.open(str(pcm), 'wb') as out:
         out.setnchannels(1)
@@ -1251,7 +1261,7 @@ def return5_play_independent_stdout_report_gate(sox, root):
         return 'NOT_RUN: play symlink not available'
     play = root / 'play'
     if not play.exists():
-        play.symlink_to(sox)
+        play.symlink_to(play_target(sox))
     pcm = root / 'play-stdout-input.wav'
     with wave.open(str(pcm), 'wb') as dst:
         dst.setnchannels(1)
