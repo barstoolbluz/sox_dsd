@@ -418,8 +418,6 @@ class Suite:
         target.write_bytes(sentinel)
         cases=[
             ('no_clobber',['--no-clobber',src,'-r',f'dsd{rate//44100}',target,'dsdpcm','96000']),
-            ('auto_headroom',['--auto-headroom',src,'-r',f'dsd{rate//44100}',
-                self.work/'auto-refuse.dff','dsdpcm','96000']),
             ('unsupported_gain',[src,'-r',f'dsd{rate//44100}',
                 self.work/'bad-gain.dff','dsdpcm','96000','gain','-n']),
         ]
@@ -429,6 +427,22 @@ class Suite:
             demand(target.read_bytes()==sentinel,
                    f'{label}: failed strict64 transcode changed existing destination')
             self.count('rejected_precommit_cases')
+        # Phase 07 makes the former refusal a valid strict64 conversion.
+        # Keep it distinct from the remaining negative precommit cases.
+        auto_dest=self.work/'auto-accepted.dff'
+        auto_report=self.work/'auto-accepted.json'
+        auto=run([self.sox,'--precision','64','--auto-headroom',
+                  '--report',auto_report,src,'-r',f'dsd{rate//44100}',
+                  auto_dest,'dsdpcm','96000'])
+        demand(auto.returncode==0 and auto_dest.stat().st_size>100,
+               f'Phase 07 AUTO transcode failed: {auto.stderr[-500:]!r}')
+        j=json.loads(auto_report.read_text())
+        demand(j['status']=='complete' and
+               j['precision']['actual_route']=='native-binary64-transcode' and
+               j['processing']['headroom_scan']['method']==
+                   'source-rate-interleaved-binary64-two-pass',
+               'Phase 07 AUTO transcode or scan receipt missing')
+        self.count('phase07_auto_native_transcode')
         for linkkind in ('hardlink','symlink'):
             path=self.work/f'source-alias-{linkkind}.dff'
             if linkkind=='hardlink':os.link(src,path)

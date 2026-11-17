@@ -445,9 +445,22 @@ class Suite:
 
     def strict_refusals(self):
         src=self.tmp/'refusal-source.wav';make_wav(src,source_samples(7,1,44100),1,44100)
-        for opt in (['--auto-headroom'],['--encode','encode.mastering.v2.dsd512'],
-                    ['--dsd-clip','error']):
-            if opt[-1]=='error':continue
+        # Phase 07 promotes AUTO from a negative admission case to a
+        # supported strict-binary64 two-pass encode. Retain the unsupported
+        # profile refusal and independently verify the new positive route.
+        auto_dest=self.tmp/'auto-supported.dsf'
+        auto_report=self.tmp/'auto-supported.json'
+        self.command(['--precision','64','--auto-headroom','--report',auto_report,
+                      src,'-r','dsd64',auto_dest],label='phase07-auto-encode')
+        auto=json.loads(auto_report.read_text())
+        demand(auto['status']=='complete' and
+               auto['precision']['actual_route']=='native-binary64-encode' and
+               auto['processing']['headroom_scan']['method']==
+                   'source-rate-interleaved-binary64-two-pass' and
+               auto_dest.stat().st_size>100,
+               'Phase 07 native AUTO encode or scan receipt missing')
+        self.record('phase07_auto_native_encode')
+        for opt in (['--encode','encode.mastering.v2.dsd512'],):
             dst=self.tmp/f'refused-{len(opt)}-{opt[0][2:]}.dsf'
             destdata=b'REFUSAL-KEEP';dst.write_bytes(destdata)
             args=['--precision','64',*opt,src,'-r','dsd64',dst]
@@ -457,7 +470,7 @@ class Suite:
                 j=json.loads(plan.stdout)
                 demand(j['precision']['actual_route']=='refused-before-output' and
                        not j['precision']['runner_available'],
-                       'plan wrongly promises unsupported profile/AUTO')
+                       'plan wrongly promises unsupported encoder profile')
             self.command(args,expect='fail',label='strict64-execution-refusal')
             demand(dst.read_bytes()==destdata,'unsupported graph clobbered output')
         # Phase 06B changes precisely this formerly unsupported shape. Verify
