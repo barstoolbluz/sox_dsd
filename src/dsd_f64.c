@@ -296,3 +296,222 @@ void lsx_dsd_f64_encode_destroy(lsx_dsd_f64_encoder *e)
   free(e->planar);free(e->bits);
   memset(e,0,sizeof(*e));
 }
+
+/* Phase 06B coordinator. Keep the source-matched reconstruction and the
+ * certified interpolation/modulator untouched. This scheduler never stores
+ * more than one bounded, complete interleaved PCM block; a partially drained
+ * block always has priority over further decoder input. */
+static sox_dsd_status_t transcode_error(lsx_dsd_f64_transcode *t,
+    sox_dsd_status_t status)
+{
+  if (!t->error) t->error=status;
+  return t->error;
+}
+
+void lsx_dsd_f64_transcode_destroy(lsx_dsd_f64_transcode *t)
+{
+  if (!t) return;
+  lsx_dsd_f64_decode_destroy(&t->decoder);
+  lsx_dsd_f64_encode_destroy(&t->encoder);
+  lsx_dsd_f64_destroy(&t->pcm);
+  free(t->decoded);free(t->fifo);
+  memset(t,0,sizeof(*t));
+}
+
+sox_dsd_status_t lsx_dsd_f64_transcode_init(lsx_dsd_f64_transcode *t,
+    const sox_dsd_decode_options_t *options, bool known, uint64_t native_frames,
+    const double *gains, size_t gain_count, const unsigned *map,
+    uint32_t output_hz, double reference, double attenuation,
+    bool warn_clip, bool clip_error, size_t fifo_capacity)
+{
+  pcm_f64_format format={0};
+  sox_dsd_status_t st;
+  if (!t || !options || !options->channels || options->channels>64 ||
+      !fifo_capacity || fifo_capacity>LSX_DSD_F64_TRANSCODE_FIFO_MAX ||
+      (gain_count && !gains) ||
+      fifo_capacity>SIZE_MAX/options->channels/sizeof(double))
+    return SOX_DSD_BAD_ARGUMENT;
+  memset(t,0,sizeof(*t));
+  t->fifo_capacity=fifo_capacity;
+  t->clip_error=clip_error;
+  t->adapter_volume=gain_count?gains[0]:1.;
+  if (!isfinite(t->adapter_volume)) return SOX_DSD_NUMERIC_ERROR;
+  t->decoded=malloc(fifo_capacity*options->channels*sizeof(double));
+  t->fifo=malloc(fifo_capacity*options->channels*sizeof(double));
+  if (!t->decoded || !t->fifo) goto error;
+  if (lsx_dsd_f64_decode_init(&t->decoder,options,known,native_frames)!=SOX_DSD_OK)
+    goto error;
+  if (pcm_f64_format_init(&format,options->output_hz,options->channels,
+        known,t->decoder.pcm_expected)!=PCM_F64_OK) goto error;
+  if (lsx_dsd_f64_init(&t->pcm,&format,gains,gain_count,map)!=PCM_F64_OK)
+    goto error;
+  st=lsx_dsd_f64_encode_init(&t->encoder,options->output_hz,output_hz,
+      options->channels,reference,attenuation,warn_clip);
+  if (st!=SOX_DSD_OK) goto error;
+  return SOX_DSD_OK;
+error:
+  lsx_dsd_f64_transcode_destroy(t);
+  return SOX_DSD_UNSUPPORTED;
+}
+
+/* Reconstruction adapter clipping is evaluated at the exact legacy boundary:
+ * after input volume, before subsequent user gains. The single multiplication
+ * here is diagnostic only; the PCM stage applies the gain exactly once. */
+static sox_dsd_status_t transcode_enqueue(lsx_dsd_f64_transcode *t,
+    size_t frames)
+{
+  size_t i,words;
+  pcm_f64_progress p;
+  if (t->fifo_frames || t->fifo_at || frames>t->fifo_capacity)
+    return transcode_error(t,SOX_DSD_BAD_ARGUMENT);
+  words=frames*t->encoder.channels; /* init has already bounded this product */
+  for (i=0;i<words;i++) {
+    double v=t->decoded[i]*t->adapter_volume;
+    if (!isfinite(v)) return transcode_error(t,SOX_DSD_NUMERIC_ERROR);
+    if (fabs(v)>t->decoder_peak) t->decoder_peak=fabs(v);
+    if (v>=1. || v< -1.) {
+      if (t->decoder_nominal_clips!=UINT64_MAX) ++t->decoder_nominal_clips;
+      if (t->clip_error) return transcode_error(t,SOX_DSD_NUMERIC_ERROR);
+    }
+  }
+  p=lsx_dsd_f64_process(&t->pcm,(pcm_f64_input){t->decoded,frames},
+      (pcm_f64_output){t->fifo,t->fifo_capacity});
+  if (pcm_f64_is_failure(p.status) || p.consumed_frames!=frames ||
+      p.produced_frames!=frames)
+    return transcode_error(t,SOX_DSD_NUMERIC_ERROR);
+  if (t->pcm_observer)
+    t->pcm_observer(t->pcm_observer_opaque,t->fifo,frames,t->encoder.channels);
+  t->fifo_frames=frames;
+  return SOX_DSD_OK;
+}
+
+/* Submit at most one qualified encoder work step per invocation. No bits from
+ * a failed cross-channel work step can reach the physical writer. */
+static sox_dsd_status_t transcode_drain(lsx_dsd_f64_transcode *t,
+    sox_sample_t *bits, size_t *capacity, size_t *produced)
+{
+  size_t used=t->fifo_frames, made=*capacity;
+  sox_dsd_status_t st;
+  *produced=0;
+  st=lsx_dsd_f64_encode_process(&t->encoder,
+      t->fifo+t->fifo_at*t->encoder.channels,&used,bits,&made);
+  if (st!=SOX_DSD_NEED_INPUT && st!=SOX_DSD_NEED_OUTPUT)
+    return transcode_error(t,st);
+  if (used>t->fifo_frames || made>*capacity || (!used && !made))
+    return transcode_error(t,SOX_DSD_NUMERIC_ERROR);
+  t->fifo_at+=used;t->fifo_frames-=used;
+  if (!t->fifo_frames) t->fifo_at=0;
+  *capacity-=made;
+  *produced=made;
+  return st;
+}
+
+void lsx_dsd_f64_transcode_observe_pcm(lsx_dsd_f64_transcode *t,
+    void (*observer)(void *, const double *, size_t, unsigned), void *opaque)
+{
+  if (t) {t->pcm_observer=observer;t->pcm_observer_opaque=opaque;}
+}
+
+sox_dsd_status_t lsx_dsd_f64_transcode_process(lsx_dsd_f64_transcode *t,
+    const sox_sample_t *expanded, const sox_dsd_packed_block_t *packed,
+    size_t start, size_t *nf, sox_sample_t *bits, size_t *bf)
+{
+  size_t remaining,cap,used_total=0,made_total=0;
+  if (!t || !nf || !bf) return SOX_DSD_BAD_ARGUMENT;
+  remaining=*nf;cap=*bf;
+  *nf=*bf=0;
+  if (t->error) return t->error;
+  if (t->finishing || t->done) return transcode_error(t,SOX_DSD_BAD_ARGUMENT);
+  if ((remaining && !expanded && !packed) || (expanded && packed) ||
+      (cap && !bits)) return transcode_error(t,SOX_DSD_BAD_ARGUMENT);
+  if (!cap) return SOX_DSD_NEED_OUTPUT;
+  for (;;) {
+    if (t->fifo_frames) {
+      size_t made=0;
+      sox_dsd_status_t st=transcode_drain(t,bits+made_total*t->encoder.channels,
+          &cap,&made);
+      if (t->error) return t->error;
+      made_total+=made;
+      if (!cap) break;
+      if (t->fifo_frames) continue;
+      (void)st;
+    }
+    if (!remaining) break;
+    {
+      size_t used=remaining, made=t->fifo_capacity;
+      sox_dsd_status_t st=packed?
+          lsx_dsd_f64_decode_process_packed(&t->decoder,packed,start+used_total,
+              &used,t->decoded,&made):
+          lsx_dsd_f64_decode_process(&t->decoder,
+              expanded+used_total*t->encoder.channels,&used,t->decoded,&made);
+      if (st!=SOX_DSD_NEED_INPUT && st!=SOX_DSD_NEED_OUTPUT)
+        return transcode_error(t,st);
+      if (used>remaining || made>t->fifo_capacity || (!used && !made))
+        return transcode_error(t,SOX_DSD_NUMERIC_ERROR);
+      remaining-=used;used_total+=used;
+      if (made && transcode_enqueue(t,made)!=SOX_DSD_OK) return t->error;
+    }
+  }
+  *nf=used_total;*bf=made_total;
+  return cap?SOX_DSD_NEED_INPUT:SOX_DSD_NEED_OUTPUT;
+}
+
+sox_dsd_status_t lsx_dsd_f64_transcode_finish(lsx_dsd_f64_transcode *t,
+    sox_sample_t *bits,size_t *bf)
+{
+  size_t cap,made_total=0;
+  if (!t || !bf) return SOX_DSD_BAD_ARGUMENT;
+  cap=*bf;*bf=0;
+  if (t->error) return t->error;
+  if (t->done) return SOX_DSD_DONE;
+  t->finishing=true;
+  if (!cap) return SOX_DSD_NEED_OUTPUT;
+  if (!bits) return transcode_error(t,SOX_DSD_BAD_ARGUMENT);
+  for (;;) {
+    if (t->fifo_frames) {
+      size_t made=0;
+      transcode_drain(t,bits+made_total*t->encoder.channels,&cap,&made);
+      if (t->error) return t->error;
+      made_total+=made;
+      if (!cap) break;
+      if (t->fifo_frames) continue;
+    }
+    if (!t->decoder_done) {
+      size_t made=t->fifo_capacity;
+      sox_dsd_status_t st=lsx_dsd_f64_decode_finish(&t->decoder,t->decoded,&made);
+      if (st!=SOX_DSD_DONE && st!=SOX_DSD_NEED_OUTPUT)
+        return transcode_error(t,st);
+      if (made>t->fifo_capacity || (st==SOX_DSD_NEED_OUTPUT && !made))
+        return transcode_error(t,SOX_DSD_NUMERIC_ERROR);
+      if (st==SOX_DSD_DONE) t->decoder_done=true;
+      if (made) {
+        if (transcode_enqueue(t,made)!=SOX_DSD_OK) return t->error;
+        continue;
+      }
+    }
+    if (!t->pcm_done) {
+      pcm_f64_progress p=lsx_dsd_f64_finish(&t->pcm,(pcm_f64_output){NULL,0});
+      if (p.status!=PCM_F64_DONE || p.produced_frames)
+        return transcode_error(t,SOX_DSD_NUMERIC_ERROR);
+      t->pcm_done=true;
+    }
+    {
+      size_t made=cap;
+      sox_dsd_status_t st=lsx_dsd_f64_encode_finish(&t->encoder,
+          bits+made_total*t->encoder.channels,&made);
+      if (st!=SOX_DSD_DONE && st!=SOX_DSD_NEED_OUTPUT)
+        return transcode_error(t,st);
+      if (made>cap || (st==SOX_DSD_NEED_OUTPUT && !made))
+        return transcode_error(t,SOX_DSD_NUMERIC_ERROR);
+      made_total+=made;
+      if (t->encoder.source_frames!=t->pcm.output_frames && st==SOX_DSD_DONE)
+        return transcode_error(t,SOX_DSD_NUMERIC_ERROR);
+      if (st==SOX_DSD_DONE) {
+        t->done=true;*bf=made_total;return SOX_DSD_DONE;
+      }
+      break;
+    }
+  }
+  *bf=made_total;
+  return SOX_DSD_NEED_OUTPUT;
+}

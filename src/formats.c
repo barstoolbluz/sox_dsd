@@ -2070,7 +2070,9 @@ sox_format_t *lsx_pcm_f64_dsd_open_write(const char *path,
   if (layout && (layout->channels!=signal->channels ||
       (!strcmp(handler->names[0],"dsf") &&
        !lsx_dsd_layout_resolve_dsf(layout)))) {
-    lsx_fail("native DSD: output channel roles are unrepresentable");return NULL;
+    lsx_fail(!strcmp(handler->names[0],"dsf")?
+        "DSF cannot encode this channel identity":
+        "native DSD: output channel roles are unrepresentable");return NULL;
   }
   stdout_path=!strcmp(path,"-");
   ft=lsx_calloc(1,sizeof(*ft));

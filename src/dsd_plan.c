@@ -1045,7 +1045,7 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
   if (!spec || !p) return;
   p->precision_requested=spec->precision;
   p->precision_compiled_capable=spec->arithmetic_compiled_capable;
-  p->precision_runner_available=0; /* 05A PCM, 05B decode or 06A encode. */
+  p->precision_runner_available=0; /* 05A PCM, 05B decode, 06A encode, 06B transcode. */
   for (i=0;i<spec->input_count;i++) {
     if (spec->inputs[i].encoding==SOX_ENCODING_DSD) has_dsd=1;
     else pcm=1;
@@ -1200,8 +1200,8 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
         (!p->steps[i].plain_fixed_gain || p->steps[i].gain_factor!=1.))
       arithmetic=1;
   p->precision_exact_identity=!arithmetic && !permuted;
-  /* Eligible native shapes use exactly one real coordinator, not a
-   * guessed bridge. DSD->DSD is deliberately left for Phase 06B. */
+  /* Every eligible native shape owns one real, bounded coordinator. A
+   * composed DSD->PCM64->DSD path retains both independent timebases. */
   {
     int pcm_only=!has_dsd && !p->input_decode_count &&
         !p->graph_decode_count && !p->encode_count;
@@ -1220,19 +1220,32 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
         p->encoder_id &&
         !strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id) &&
         spec->policy.headroom!=LSX_DSD_HEADROOM_AUTO;
+    int transcode=spec->input_count==1 &&
+        spec->inputs[0].encoding==SOX_ENCODING_DSD &&
+        (p->input_decode_count+p->graph_decode_count)==1 &&
+        p->encode_count==1 && p->output_domain==LSX_DSD_NATIVE &&
+        spec->output_native64_dsd_capable &&
+        (p->inputs[0].native_rate==2822400. ||
+         p->inputs[0].native_rate==5644800.) &&
+        (p->native_output_hz==2822400u || p->native_output_hz==5644800u) &&
+        p->decoder_id && strcmp(p->decoder_id,"decode.legacy.generic") &&
+        p->encoder_id &&
+        !strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id) &&
+        spec->policy.headroom!=LSX_DSD_HEADROOM_AUTO;
     p->precision_runner_available=!why &&
-        (pcm_to_dsd || ((pcm_only || dsd_decode) &&
+        (transcode || pcm_to_dsd || ((pcm_only || dsd_decode) &&
          p->output_domain==LSX_PCM_AUDIO && spec->output_pcm64_wav_capable)) &&
         spec->input_count==1 &&
         (spec->arithmetic_compiled_capable || !arithmetic);
     if (spec->precision==LSX_PRECISION_64 && p->precision_runner_available) {
-      p->precision_route=pcm_to_dsd?"native-binary64-encode":"native-binary64-pcm";
+      p->precision_route=transcode?"native-binary64-transcode":
+          pcm_to_dsd?"native-binary64-encode":"native-binary64-pcm";
       p->precision_engine="ieee754.binary64";
     }
   }
   p->precision_reason=why?why:!p->precision_runner_available?
       "native binary64 runner or required arithmetic capability is unavailable":
-      "native binary64 PCM, DSD decoder or composite encoder runner available";
+      "native binary64 PCM, decoder, composite encoder or transcode runner available";
   /* Legacy-auto is a deliberate product policy, not a failed native attempt.
    * No owner-approved release activation or executable native runner exists. */
   if (spec->precision==LSX_PRECISION_AUTO)

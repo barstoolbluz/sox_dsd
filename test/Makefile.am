@@ -260,3 +260,9 @@ EXTRA_PROGRAMS += pcm64_encode_probe
 pcm64_encode_probe_SOURCES = ../tests/pcm64/encode_probe.c
 pcm64_encode_probe_CPPFLAGS = -I$(top_srcdir)/src
 pcm64_encode_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)
+
+# Phase 06B production coordinator, varying native/PCM/DSD capacities.
+EXTRA_PROGRAMS += pcm64_transcode_probe
+pcm64_transcode_probe_SOURCES = ../tests/pcm64/transcode_probe.c
+pcm64_transcode_probe_CPPFLAGS = -I$(top_srcdir)/src
+pcm64_transcode_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)

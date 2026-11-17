@@ -4,6 +4,19 @@
 
 Work units: (1) baseline+role parity reproduction; (2) minimal role fix; (3) private decoder–bounded FIFO–encoder composition; (4) planner/CLI route; (5) count/word/layout/failure tests; (6) matrix regression; (7) final full archive. None yet qualified. Never infer PASS from an incomplete command. Resume from `git log` and `evidence/phase06b/`, re-run incomplete gates. Default auto stays legacy; Phase 07 AUTO is not in this phase.
 
+**Active Phase 06B gate checkpoint (continued).** The corrected `transcode` suite
+has completed 10 independent count/bit-oracle cases, 23 FIFO schedules, 18
+physical DSF/DFF comparisons and 9 packed adapter comparisons (PASS; see
+`evidence/phase06b/transcode-gate.log` outside the source tree). The first
+probe failure was a test-only incorrect negative DSD carrier (`SOX_SAMPLE_MIN`
+in place of `-SOX_SAMPLE_MAX`); the second was a Python test-path precedence
+error. Both are corrected. Reproduction `p06b_carried.sh` confirms four
+Phase 06A role and refusal results now match the legacy CLI. This is **not yet
+release acceptance**: build-matrix regressions, failure/lifecycle checks,
+artifact verification, and full source packaging remain pending. If
+interrupted, resume from current Git HEAD plus uncommitted changes (if any)
+and the newest logs under `/mnt/data/phase06b_work/evidence/phase06b/`.
+
 ---
 
 # Phase 06A: FLAC qualification update (2026-11-16)
