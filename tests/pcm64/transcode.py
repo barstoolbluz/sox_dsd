@@ -76,8 +76,17 @@ class Suite:
     def count(self,key,amount=1):
         self.counts[key]=self.counts.get(key,0)+amount
 
-    def prepare(self,label,n,channels,source_hz,kind):
-        bits=fixtures.bits(n,channels,'distinct')
+    def prepare(self,label,n,channels,source_hz,kind,pattern='distinct'):
+        if pattern=='isolated_impulses':
+            # Balanced native signs for all channels, with isolated one-bit
+            # impulses at the first, middle, and last frame on one channel.
+            channel=channels//2
+            original=[bytearray(i&1 for i in range(n)) for _ in range(channels)]
+            for frame in (0,n//2,n-1):
+                original[channel][frame]^=1
+            bits=tuple(bytes(ch) for ch in original)
+        else:
+            bits=fixtures.bits(n,channels,pattern)
         if kind=='dsf':
             physical=fixtures.make_dsf(bits,rate=source_hz,
                 channel_type={1:1,2:2,3:3,4:4,5:6,6:7}.get(channels))
@@ -132,8 +141,8 @@ class Suite:
         return p.stdout,prefix,json.loads(stats[-1])
 
     def check_case(self,label,n,ch,source_hz,pcm_hz,output_hz,kind,schedules,
-                   *,cli=True):
-        src,raw=self.prepare(label,n,ch,source_hz,kind)
+                   *,cli=True,pattern='distinct'):
+        src,raw=self.prepare(label,n,ch,source_hz,kind,pattern)
         pcm_count,bit_count=clocks(n,source_hz,pcm_hz,output_hz)
         oracle_path,_=self.decode_oracle(label,src,pcm_hz,n,ch)
         reference_pcm=oracle_path.read_bytes()
@@ -164,7 +173,7 @@ class Suite:
                     self.count('exact_admitted_kernel_words',bit_count)
                 traces=[digest(traced_pcm),
                     *(sha(Path(trace_prefix+f'.ch{channel}.admitted')) for channel in range(ch))]
-        witness=dict(case=label,native_input_bits=n,channels=ch,source_hz=source_hz,
+        witness=dict(case=label,native_input_bits=n,channels=ch,pattern=pattern,source_hz=source_hz,
             intermediate_hz=pcm_hz,output_hz=output_hz,
             intermediate_pcm_frames=pcm_count,output_native_bits=bit_count,
             direct_ratio_bits=checked_rate(n,source_hz,output_hz),
@@ -513,6 +522,12 @@ def main(sox,probe,encoder,decoder,results):
             ]
             for args in suites:
                 suite.check_case(*args)
+            suite.check_case('dsd64_isolated_impulses',8193,4,2822400,
+                96000,5644800,'dsf',[(1,1,1),(4096,7,511)],
+                pattern='isolated_impulses')
+            suite.check_case('dsd128_random_blocks',8192,2,5644800,
+                176400,2822400,'dff',[(4096,256,511),(7,7,7)],
+                pattern='random')
             src=suite.work/'dsd64_4097.dsf'
             suite.negative(src,5644800)
             suite.ordered_gain_and_roles()

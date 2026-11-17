@@ -20,8 +20,9 @@ and the newest logs under `/mnt/data/phase06b_work/evidence/phase06b/`.
 **Acceptance checkpoint 2026-11-16 (late evening, America/New_York).**
 Phase 06B composition, the four owner-reported Phase 06A role/refusal
 corrections and inherited encoder route test update are implemented.
-`tests/pcm64/transcode.py` now checks 10 source-bound two-clock cases,
-24 FIFO schedules, 18 physical DSF/DFF bit comparisons, 9 packed/expanded
+`tests/pcm64/transcode.py` now checks 12 source-bound two-clock cases
+(including channel-isolated impulses and pseudorandom native signs),
+28 FIFO schedules, 22 physical DSF/DFF bit comparisons, 11 packed/expanded
 input comparisons, an independent binary64 decoder plus certified encoder
 replay, gain and permutation order, four physically injected output failures,
 truncation, source alias/sentinel protection, the owner's 8 role/refusal
