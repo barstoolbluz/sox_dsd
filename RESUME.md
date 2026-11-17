@@ -1,6 +1,6 @@
 # Phase 06B active engineering checkpoint — 2026-11-16
 
-**RUNNING / UNVERIFIED.** Base `7be823a860dea05955c495586e115776d93f6166`, tree `e45aef22f314e56b1a0278b55939293002eb1662`. Original source SHA-256 `67beddc61f82b36370bf16038c8d4610d63e4ac2f0fe54d8042692bd6ae96f3b`, independent harness `7d64bc18a7839786636c4a45365dd6d3e7ca42f0392b9c56f491bb2897954414`. Owner override applies certified unity/0.5 DSD64/128 admission. Source restored from verified 06A bundle; reference original evidence is preserved outside this source tree.
+**IMPLEMENTED, ACCEPTANCE MATRIX RUNNING.** Base `7be823a860dea05955c495586e115776d93f6166`, tree `e45aef22f314e56b1a0278b55939293002eb1662`. Original source SHA-256 `67beddc61f82b36370bf16038c8d4610d63e4ac2f0fe54d8042692bd6ae96f3b`, independent harness `7d64bc18a7839786636c4a45365dd6d3e7ca42f0392b9c56f491bb2897954414`. Owner override applies certified unity/0.5 DSD64/128 admission. Source restored from verified 06A bundle; reference original evidence is preserved outside this source tree.
 
 Work units: (1) baseline+role parity reproduction; (2) minimal role fix; (3) private decoder–bounded FIFO–encoder composition; (4) planner/CLI route; (5) count/word/layout/failure tests; (6) matrix regression; (7) final full archive. None yet qualified. Never infer PASS from an incomplete command. Resume from `git log` and `evidence/phase06b/`, re-run incomplete gates. Default auto stays legacy; Phase 07 AUTO is not in this phase.
 
@@ -16,6 +16,20 @@ release acceptance**: build-matrix regressions, failure/lifecycle checks,
 artifact verification, and full source packaging remain pending. If
 interrupted, resume from current Git HEAD plus uncommitted changes (if any)
 and the newest logs under `/mnt/data/phase06b_work/evidence/phase06b/`.
+
+**Acceptance checkpoint 2026-11-16 (late evening, America/New_York).**
+Phase 06B composition, the four owner-reported Phase 06A role/refusal
+corrections and inherited encoder route test update are implemented.
+`tests/pcm64/transcode.py` now checks 10 source-bound two-clock cases,
+24 FIFO schedules, 18 physical DSF/DFF bit comparisons, 9 packed/expanded
+input comparisons, an independent binary64 decoder plus certified encoder
+replay, gain and permutation order, four physically injected output failures,
+truncation, source alias/sentinel protection, the owner's 8 role/refusal
+commands and a C coordinator lifecycle/sticky-failure selftest (17 assertions).
+The native-static acceptance suite passes. The remaining build variants and
+other regression gates are still being run; **never promote partial matrix
+status to a release verdict**. Receipts are in `evidence/phase06b/` and the
+resumable driver `evidence/phase06b/repro/run-matrix.sh` in the full archive.
 
 ---
 

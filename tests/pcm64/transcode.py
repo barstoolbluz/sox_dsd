@@ -15,6 +15,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -233,6 +234,174 @@ class Suite:
         print('PASS transcode',label,'native',n,'PCM',pcm_count,'bits',bit_count,
               'schedules',len(schedules),flush=True)
 
+    def ordered_gain_and_roles(self):
+        # The actual reconstruction words, not a second reconstruction model,
+        # are the input to independently ordered PCM64 gain/permutation replay.
+        src=self.work/'dsd64_4097.dsf'
+        original=(self.work/'dsd64_4097.pcm-oracle.f64').read_bytes()
+        words=struct.unpack('<'+str(len(original)//8)+'d',original)
+        source_frames=4097
+        pcm_frames,native_bits=clocks(source_frames,2822400,96000,5644800)
+        demand(len(words)==2*pcm_frames,'gain test source has wrong PCM count')
+        dest=self.work/'ordered-gains.dsf'
+        report=self.work/'ordered-gains.json'
+        gains=['gain','-3','gain','4','gain','-1']
+        opts=['-v','0.75']
+        args=[*opts,src,'-r','dsd128',dest,'dsdpcm','96000',*gains]
+        plan=json.loads(run_checked([self.sox,'--precision','64','--plan',*args]).stdout)
+        ordered=[step['gain_factor'] for step in plan['steps']
+                 if step['name']=='gain']
+        demand(plan['precision']['actual_route']=='native-binary64-transcode'
+               and len(ordered)==3 and plan['inputs'][0]['volume']==0.75,
+               'ordered transcode gain no longer has a truthful native plan')
+        transformed=[]
+        for w in words:
+            w*=0.75
+            for gain in ordered:w*=gain
+            transformed.append(w)
+        processed=self.work/'ordered-gains.f64'
+        processed.write_bytes(struct.pack('<'+str(len(words))+'d',*transformed))
+        expected,_,_=self.encode_replay('ordered-gains',processed,96000,5644800,2)
+        run_checked([self.sox,'--precision','64','--report',report,*args])
+        demand(dsf_bits(dest.read_bytes(),native_bits,2,5644800)==expected and
+               json.loads(report.read_text())['precision']['actual_route']=='native-binary64-transcode',
+               'ordered gain changed PCM64 input or the certified output')
+        self.count('ordered_source_volume_and_gain_compositions')
+        # A plain terminal permutation must transform speaker roles AND audio.
+        permuted=self.work/'permuted.dff'
+        rep=self.work/'permuted.json'
+        args=[src,'-r','dsd128',permuted,'dsdpcm','96000','remix','2','1']
+        pp=json.loads(run_checked([self.sox,'--precision','64','--plan',*args]).stdout)
+        demand(pp['precision']['actual_route']=='native-binary64-transcode' and
+               any(t['native_permutation_map']==[1,0] for t in pp['steps']),
+               'native transcode no longer recognizes a proven pure permutation')
+        reordered=[w for i in range(0,len(words),2) for w in (words[i+1],words[i])]
+        orderpath=self.work/'permuted.f64'
+        orderpath.write_bytes(struct.pack('<'+str(len(words))+'d',*reordered))
+        expected,_,_=self.encode_replay('permuted',orderpath,96000,5644800,2)
+        run_checked([self.sox,'--precision','64','--report',rep,*args])
+        demand(dff_bits(permuted.read_bytes(),native_bits,2,5644800)==expected,
+               'terminal channel permutation differs from certified PCM replay')
+        roles=self.read_dff_roles(permuted)
+        demand(roles==['SRGT','SLFT'],f'DFF output roles were not reordered: {roles}')
+        self.count('audio_and_speaker_role_permutation_compositions')
+        # A duplicated gain must be observable on actual intermediate words,
+        # not just on arbitrary constants unrelated to a production stream.
+        mutant=struct.pack('<'+str(len(words))+'d',*(w*ordered[-1] for w in transformed))
+        demand(mutant!=processed.read_bytes() and digest(mutant)!=digest(processed.read_bytes()),
+               'duplicate gain mutation escaped the actual PCM trace comparison')
+        self.count('duplicate_gain_mutant_detected')
+
+    @staticmethod
+    def read_dff_roles(path):
+        data=path.read_bytes()
+        pos=data.find(b'CHNL')
+        demand(pos>=0 and pos+14<=len(data),'missing DFF speaker-role CHNL chunk')
+        nch=int.from_bytes(data[pos+12:pos+14],'big')
+        payload=data[pos+14:pos+14+nch*4]
+        demand(len(payload)==nch*4,'truncated DFF speaker-role CHNL chunk')
+        return [payload[i:i+4].decode('ascii') for i in range(0,len(payload),4)]
+
+    def phase06a_role_parity(self):
+        # Reproduce the owner's four commands, including the 24-bit
+        # extensible three-channel WAV (speaker mask FL/FR/FC = 0x07).
+        for channels,order,expected_roles in ((2,['2','1'],['SRGT','SLFT']),
+                                             (3,['3','1','2'],['C   ','MLFT','MRGT'])):
+            wav=self.work/f'phase06a-{channels}.wav'
+            cmd=[self.sox,'-R','-n','-r','48000','-c',str(channels),'-b','24',
+                 wav,'synth','0.05','sine','440','sine','1000']
+            if channels==3:cmd+=['sine','2000']
+            cmd+=['vol','0.4']
+            run_checked(cmd)
+            if channels==3:
+                with wav.open('r+b') as stream:
+                    stream.seek(40)
+                    stream.write(b'\x07')
+            for suffix in ('dff','dsf'):
+                observations=[]
+                for precision in ('64','legacy-auto'):
+                    out=self.work/f'role-{channels}-{precision}.{suffix}'
+                    prefix=['--precision','64'] if precision=='64' else []
+                    response=run([self.sox,*prefix,wav,'-r','dsd64',out,
+                                  'remix',*order],timeout=40)
+                    if suffix=='dff':
+                        roles=self.read_dff_roles(out) if out.exists() else None
+                        demand(response.returncode==0 and roles==expected_roles,
+                               f'Phase06A {channels}ch DFF role parity: {roles} '
+                               f'{response.stderr[-250:]!r}')
+                    else:
+                        demand(response.returncode==2 and
+                               b'DSF cannot encode this channel identity' in response.stderr,
+                               f'Phase06A {channels}ch DSF role refusal differed: '
+                               f'{response.returncode}, {response.stderr[-250:]!r}')
+                        roles=None
+                    observations.append((response.returncode,roles))
+                demand(observations[0]==observations[1],
+                       'Phase06A native and legacy outcomes diverged')
+                self.count('phase06a_role_parity_commands',2)
+
+    def io_failure_and_stdout(self):
+        src=self.work/'dsd64_4097.dsf'
+        n=4097
+        _,expected_count=clocks(n,2822400,96000,5644800)
+        raw=bytes(fixtures.bits(n,2,'distinct')[c][i] for i in range(n) for c in range(2))
+        expected,_,_=self.probe_run('fault-replay',n,2,2822400,96000,
+                                    5644800,raw,511,7,13)
+        for output_kind in ('dsf','dff'):
+            args=['--precision','64',src,'-r','dsd128','-t',output_kind,
+                  '-','dsdpcm','96000']
+            pipe=run([self.sox,*args],timeout=50)
+            demand(pipe.returncode!=0 and not pipe.stdout,
+                   f'{output_kind}: accepted a native DSD pipe or wrote bytes before refusal')
+            self.count('nonseekable_stdout_refusals')
+            redirected=self.work/f'stdout-regular.{output_kind}'
+            with redirected.open('w+b') as stream:
+                response=subprocess.run([str(self.sox),*map(str,args)],
+                    stdin=subprocess.DEVNULL,stdout=stream,
+                    stderr=subprocess.PIPE,timeout=60)
+            demand(response.returncode==0,
+                   f'{output_kind}: rejected actual seekable stdout: {response.stderr[-500:]!r}')
+            physical=dsf_bits(redirected.read_bytes(),expected_count,2,5644800) if output_kind=='dsf' else \
+                dff_bits(redirected.read_bytes(),expected_count,2,5644800)
+            demand(physical==expected,
+                   f'{output_kind}: redirected regular-file stdout output differs')
+            self.count('seekable_stdout_full_bit_comparisons')
+        # A physically truncated DSD source cannot produce a success receipt.
+        damaged=self.work/'truncated-source.dsf'
+        damaged.write_bytes(src.read_bytes()[:-80])
+        report=self.work/'truncated-report.json'
+        dest=self.work/'truncated-result.dff'
+        failure=run([self.sox,'--precision','64','--report',report,damaged,
+                     '-r','dsd128',dest,'dsdpcm','96000'],timeout=60)
+        demand(failure.returncode!=0 and
+               (not report.exists() or json.loads(report.read_text())['status']!='complete'),
+               'truncated DSD input falsely produced a completed transcode')
+        self.count('truncated_native_input_refusals')
+        if sys.platform!='linux' or not shutil.which('cc'):
+            self.count('io_fault_injection_not_run')
+            return
+        shim=self.work/'libpcm64_fault.so'
+        command=['cc','-shared','-fPIC','-O2','-o',str(shim),
+                 str(SOURCE/'tests/pcm64/wav_fault_shim.c'),'-ldl']
+        run_checked(command,timeout=60)
+        for output_kind in ('dsf','dff'):
+            for flag,letter in (('PCM64_SHORT_WRITE',b'W'),('PCM64_FAIL_FCLOSE',b'C')):
+                dest=self.work/f'fault-{output_kind}-{flag}.{output_kind}'
+                report=self.work/f'fault-{output_kind}-{flag}.json'
+                trace=self.work/f'fault-{output_kind}-{flag}.trace'
+                env={'LD_PRELOAD':str(shim),'PCM64_TEST_TARGET':str(dest),
+                     'PCM64_TRACE':str(trace),flag:'1'}
+                if flag=='PCM64_SHORT_WRITE':env['PCM64_DATA_OFFSET']='0'
+                failure=run([self.sox,'--precision','64','--report',report,src,
+                             '-r','dsd128',dest,'dsdpcm','96000'],
+                             env=env,timeout=60)
+                demand(failure.returncode!=0 and trace.exists() and
+                       letter in trace.read_bytes() and
+                       (not report.exists() or json.loads(report.read_text())['status']!='complete'),
+                       f'{output_kind}/{flag}: injected physical fault not observed or '
+                       f'falsely reported success: {failure.stderr[-500:]!r}')
+                self.count('observable_write_or_close_fault_injections')
+
     def negative(self,src,rate):
         source_before=src.read_bytes()
         target=self.work/'protected.dff'
@@ -278,9 +447,21 @@ class Suite:
             'duplicate gain negative control unexpectedly equals single gain')
         self.count('duplicate_gain_negative_control')
 
+    def coordinator_lifecycle(self):
+        p=run_checked([self.probe,"--lifecycle-selftest"],timeout=40)
+        receipt=[line for line in p.stderr.decode(errors="replace").splitlines()
+                 if "lifecycle_selftest" in line]
+        demand(len(receipt)==1 and json.loads(receipt[0])["lifecycle_selftest"]=="PASS",
+               "coordinator lifecycle check has no PASS receipt")
+        self.count("coordinator_lifecycle_assertions",json.loads(receipt[0])["assertions"])
+
     def finish(self):
+        fault_count=self.counts.get('observable_write_or_close_fault_injections',0)
+        fault_gate='PASS' if fault_count==4 else \
+            'NOT_RUN: no Linux C compiler or LD_PRELOAD fault shim'
         output={
-            'suite':'transcode','status':'PASS',
+            'suite':'transcode',
+            'status':'PASS' if fault_count==4 else 'PASS_WITH_NOT_RUN',
             'timestamp_utc':dt.datetime.now(dt.timezone.utc).isoformat(),
             'source_git_commit':safe_git_head(SOURCE),
             'executed_binary_sha256':{str(p):sha(p) for p in
@@ -294,12 +475,19 @@ class Suite:
                 'bounded_block_backpressure',
                 'packed_expanded_source_parity',
                 'precommit_refusal_and_alias_protection',
-                'negative_controls')},
+                'negative_controls',
+                'ordered_source_volume_and_gains',
+                'channel_audio_and_speaker_roles',
+                'phase06a_legacy_remix_roles',
+                'seekable_stdout_and_pipeline_refusal',
+                'truncated_dsd_input',
+                'coordinator_sticky_failures_and_finish')},
             'counts':self.counts,
             'cases':self.records,
         }
+        output['gate_execution']['physical_write_and_close_fault_injection']=fault_gate
         (self.results/'transcode.json').write_text(json.dumps(output,indent=2,sort_keys=True)+'\n')
-        print('PASS transcode:',len(self.records),'cases',self.counts,flush=True)
+        print(output['status'],'transcode:',len(self.records),'cases',self.counts,flush=True)
 
 
 def main(sox,probe,encoder,decoder,results):
@@ -327,6 +515,10 @@ def main(sox,probe,encoder,decoder,results):
                 suite.check_case(*args)
             src=suite.work/'dsd64_4097.dsf'
             suite.negative(src,5644800)
+            suite.ordered_gain_and_roles()
+            suite.phase06a_role_parity()
+            suite.io_failure_and_stdout()
+            suite.coordinator_lifecycle()
             suite.finish()
             return 0
         except Exception as e:

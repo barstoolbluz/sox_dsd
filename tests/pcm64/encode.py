@@ -460,18 +460,41 @@ class Suite:
                        'plan wrongly promises unsupported profile/AUTO')
             self.command(args,expect='fail',label='strict64-execution-refusal')
             demand(dst.read_bytes()==destdata,'unsupported graph clobbered output')
-        # Prevent DSD -> DSD composition in this phase.
+        # Phase 06B changes precisely this formerly unsupported shape. Verify
+        # the real composed route rather than retaining 06A's old refusal.
         valid=self.tmp/'baseline.dsf'
         self.command([src,'-r','dsd64',valid],label='ordinary-generate-native')
-        target=self.tmp/'unsupported-composition.dff'
-        self.command(['--precision','64',valid,'-r','dsd128',target],
-                     expect='fail',label='dsd-dsd-composition')
-        demand(not target.exists(),'strict64 composed DSD-to-DSD without 06B')
+        target=self.tmp/'composed.dff'
+        composition_report=self.tmp/'composed.json'
+        self.command(['--precision','64','--report',composition_report,
+                      valid,'-r','dsd128',target],label='dsd-dsd-composition')
+        comp=json.loads(composition_report.read_text())
+        source_native=7*64
+        # Default implicit reconstruction chooses a 44.1-kHz family rate
+        # (either 88.2 or 176.4 kHz); use the reported *real* intermediate
+        # clock to recompute both round-half-up boundaries independently.
+        dec=comp['processing']['decoder']
+        demand(comp['status']=='complete' and
+               comp['precision']['actual_route']=='native-binary64-transcode' and
+               len(dec)==1 and len(comp['processing']['encoder'])==1,
+               'native composed route/report missing or incorrect')
+        source_hz=2822400
+        mid_hz=int(dec[0]['output_pcm_hz'])
+        mid=(source_native*mid_hz*2+source_hz)//(2*source_hz)
+        out=(mid*5644800*2+mid_hz)//(2*mid_hz)
+        demand(int(dec[0]['frames_consumed'])==source_native and
+               int(dec[0]['frames_produced'])==mid and
+               int(comp['output']['frames_written'])==out and
+               all(int(c['source_frames'])==mid and
+                   int(c['committed_native_frames'])==out
+                   for c in comp['processing']['encoder']),
+               'native composed route violated independent source clock counts')
+        self.record('phase06b_composed_route_checked')
         # Ordinary path under --precision auto remains available.
         ordinary=self.tmp/'ordinary.dsf'
         self.command([src,'-r','dsd64',ordinary],label='ordinary-auto')
         demand(ordinary.exists(),'ordinary default DSD encode regressed')
-        self.gates['AUTO_and_DSD_to_DSD_fail_closed']='PASS'
+        self.gates['phase06b_DSD_to_DSD_route_and_counts']='PASS'
         self.gates['legacy_default_route_still_available']='PASS'
 
     def nonfinite_and_report_failure(self):

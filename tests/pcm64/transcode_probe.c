@@ -65,6 +65,75 @@ static int emit(const sox_sample_t *bits,size_t frames,unsigned channels)
   return fwrite(raw,1,n,stdout)==n;
 }
 
+/* Lifecycle and sticky-failure acceptance is exercised through the same
+ * coordinator as the bit oracle. No test-only production hooks are added. */
+static int lifecycle_selftest(void)
+{
+  lsx_dsd_f64_transcode t={0};
+  sox_dsd_decode_options_t opts;
+  sox_sample_t output[32]={0},invalid=0,valid=SOX_SAMPLE_MAX;
+  double gain=1.;
+  size_t n,m;
+  unsigned i;
+  int assertions=0,started=0,rc=1;
+#define VERIFY(x) do { ++assertions; if (!(x)) { \
+    fprintf(stderr,"transcode_probe lifecycle assertion %u: %s\n", \
+        (unsigned)__LINE__,#x); goto end; } } while(0)
+  if (sox_init()!=SOX_SUCCESS) return 2;
+  started=1;
+  sox_dsd_decode_options_init_extended(&opts);
+  opts.native_hz=2822400;opts.output_hz=96000;opts.channels=1;
+  opts.profile=SOX_DSD_DECODE_MASTERING_V2;
+  opts.level=SOX_DSD_LEVEL_PRESERVE;
+  opts.bandwidth=SOX_DSD_BANDWIDTH_ADAPT;
+  VERIFY(lsx_dsd_f64_transcode_init(&t,&opts,1,0,&gain,1,NULL,
+      5644800,1.,1.,1,0,1)==SOX_DSD_OK);
+  for (i=0;i<64;i++) {
+    sox_dsd_status_t st;
+    m=32;st=lsx_dsd_f64_transcode_finish(&t,output,&m);
+    VERIFY(m==0 && (st==SOX_DSD_NEED_OUTPUT || st==SOX_DSD_DONE));
+    if (st==SOX_DSD_DONE) break;
+  }
+  VERIFY(i<64 && t.done);
+  m=32;VERIFY(lsx_dsd_f64_transcode_finish(&t,output,&m)==SOX_DSD_DONE && m==0);
+  n=1;m=32;
+  VERIFY(lsx_dsd_f64_transcode_process(&t,&valid,NULL,0,&n,output,&m)==
+      SOX_DSD_BAD_ARGUMENT && n==0 && m==0);
+  m=32;VERIFY(lsx_dsd_f64_transcode_finish(&t,output,&m)==SOX_DSD_BAD_ARGUMENT && m==0);
+  lsx_dsd_f64_transcode_destroy(&t);
+  VERIFY(lsx_dsd_f64_transcode_init(&t,&opts,1,4096,&gain,1,NULL,
+      5644800,1.,1.,1,0,1)==SOX_DSD_OK);
+  n=1;m=32;
+  /* The qualified public decoder maps malformed carrier input to a sticky
+   * NUMERIC_ERROR. The coordinator must propagate it unchanged. */
+  VERIFY(lsx_dsd_f64_transcode_process(&t,&invalid,NULL,0,&n,output,&m)==
+      SOX_DSD_NUMERIC_ERROR && n==0 && m==0 && t.error==SOX_DSD_NUMERIC_ERROR);
+  n=1;m=32;
+  VERIFY(lsx_dsd_f64_transcode_process(&t,&valid,NULL,0,&n,output,&m)==
+      SOX_DSD_NUMERIC_ERROR && n==0 && m==0);
+  m=32;VERIFY(lsx_dsd_f64_transcode_finish(&t,output,&m)==SOX_DSD_NUMERIC_ERROR && m==0);
+  lsx_dsd_f64_transcode_destroy(&t);
+  VERIFY(lsx_dsd_f64_transcode_init(&t,&opts,1,4096,&gain,1,NULL,
+      5644800,1.,1.,1,0,1)==SOX_DSD_OK);
+  m=32;VERIFY(lsx_dsd_f64_transcode_finish(&t,output,&m)==SOX_DSD_IO_ERROR && m==0);
+  m=32;VERIFY(lsx_dsd_f64_transcode_finish(&t,output,&m)==SOX_DSD_IO_ERROR && m==0);
+  lsx_dsd_f64_transcode_destroy(&t);
+  VERIFY(lsx_dsd_f64_transcode_init(&t,&opts,1,0,&gain,1,NULL,
+      5644800,1.,1.,1,0,1)==SOX_DSD_OK);
+  m=0;VERIFY(lsx_dsd_f64_transcode_finish(&t,NULL,&m)==SOX_DSD_NEED_OUTPUT && m==0);
+  n=1;m=32;
+  VERIFY(lsx_dsd_f64_transcode_process(&t,&valid,NULL,0,&n,output,&m)==
+      SOX_DSD_BAD_ARGUMENT && n==0 && m==0);
+  m=32;VERIFY(lsx_dsd_f64_transcode_finish(&t,output,&m)==SOX_DSD_BAD_ARGUMENT && m==0);
+  fprintf(stderr,"{\"lifecycle_selftest\":\"PASS\",\"assertions\":%d}\n",assertions);
+  rc=0;
+end:
+  lsx_dsd_f64_transcode_destroy(&t);
+  if (started && sox_quit()!=SOX_SUCCESS) rc=1;
+  return rc;
+#undef VERIFY
+}
+
 int main(int argc,char **argv)
 {
   lsx_dsd_f64_transcode pipeline={0};
@@ -77,6 +146,8 @@ int main(int argc,char **argv)
   double factors[]={1.};
   unsigned channel;
   int result=1,entered=0;
+  if (argc==2 && !strcmp(argv[1],"--lifecycle-selftest"))
+    return lifecycle_selftest();
   if (argc!=10 || !u32(argv[1],&source_hz) || !u32(argv[2],&pcm_hz) ||
       !u32(argv[3],&target_hz) || !u32(argv[4],&nch) ||
       !u32(argv[5],&inblock) || !u32(argv[6],&fifo) ||
