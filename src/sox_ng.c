@@ -2417,10 +2417,13 @@ static sox_dsd_layout_t *dsd_plan_output(char const *path,
   channels=sox_dsd_layout_channels(layout);
   for (i=0;layout && i<nuser_effects[current_eff_chain];++i) {
     sox_effect_t *effect=user_efftab[i];
-    /* A PCM-only native user remix acts on samples, just as legacy SoX
-     * does. Its source layout is metadata, not an instruction to undo the
-     * requested sample order by canonically sorting speaker roles again. */
-    if (dsd_native_pcm_active && !dsd_layout_assignment) continue;
+    /* PCM-only native WAV preserves the source mask and applies the user
+     * permutation to samples, not to its WAV layout. Native DSD instead
+     * serializes channel identities in sample order: remix must permute
+     * both the PCM signal and its DFF/DSF speaker identities, just as the
+     * legacy writer does. An explicit --dsd-layout still overrides roles. */
+    if (dsd_native_pcm_active && wav_output && !dsd_layout_assignment)
+      continue;
     if (effect->handler.flags & SOX_EFF_CHAN) {
       /* channels N returns SOX_EFF_NULL for input N: there is no map or mix.
        * The effect has not started yet, so the planned channel count is its
