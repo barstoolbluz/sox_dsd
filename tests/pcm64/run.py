@@ -382,7 +382,7 @@ def main():
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats", "return-acceptance", "decode", "encode", "transcode", "report-carriers"):
+    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats", "return-acceptance", "decode", "encode", "transcode", "report-carriers", "headroom"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
     if args.suite == "report-carriers":
         test = Path(__file__).with_name("phase06a_report.py")
@@ -404,6 +404,10 @@ def main():
     if args.suite == "encode":
         from encode import main as encode_main
         return encode_main(args.sox.resolve(), args.probe.resolve().parent / "pcm64_encode_probe", results)
+    if args.suite == "headroom":
+        from headroom import main as headroom_main
+        return headroom_main(args.sox.resolve(),
+            args.probe.resolve().parent / "pcm64_headroom_probe", results)
     if args.suite == "transcode":
         from transcode import main as transcode_main
         if args.decode_oracle is None:

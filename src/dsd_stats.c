@@ -46,6 +46,14 @@ struct lsx_dsd_report_context {
   unsigned out_of_memory;
   char *warnings[64]; size_t nwarnings, warnings_omitted;
   char *failure_reason; /* first emitted cause, not a later cleanup symptom */
+  struct {
+    int present;
+    double peak,gain,scan_seconds,replay_seconds;
+    uint64_t captured,scanned,temp_bytes;
+    uint32_t source_hz;
+    unsigned channels;
+    char profile[96],backend[48];
+  } headroom;
 };
 static lsx_dsd_report_context *current_report;
 
@@ -440,6 +448,30 @@ void lsx_dsd_report_note_encode(const lsx_pcmdsd *encoder)
   snprintf(r->kernel,sizeof(r->kernel),"%s",name?name:"unknown");
 }
 
+/* Phase 07 records facts measured by the actual completed scan and replay.
+ * The numerical stream and output path never consult this report. */
+void lsx_dsd_report_note_headroom(double peak,double gain,
+    uint64_t captured,uint64_t scanned,uint32_t hz,unsigned channels,
+    const char *profile,const char *backend,double scan_sec,double replay_sec)
+{
+  lsx_dsd_report_context *r=current_report;
+  if (!r || !isfinite(peak) || peak<0 || !isfinite(gain) || gain<=0 || gain>1 ||
+      !hz || !channels || channels>64 || !profile || !backend ||
+      strlen(profile)>=sizeof(r->headroom.profile) ||
+      strlen(backend)>=sizeof(r->headroom.backend) ||
+      captured>UINT64_MAX/channels/sizeof(double) ||
+      !isfinite(scan_sec) || scan_sec<0 ||
+      (replay_sec!=-1. && (!isfinite(replay_sec) || replay_sec<0)))return;
+  r->headroom.present=1;
+  r->headroom.peak=peak;r->headroom.gain=gain;
+  r->headroom.captured=captured;r->headroom.scanned=scanned;
+  r->headroom.temp_bytes=captured*channels*sizeof(double);
+  r->headroom.source_hz=hz;r->headroom.channels=channels;
+  r->headroom.scan_seconds=scan_sec;r->headroom.replay_seconds=replay_sec;
+  strcpy(r->headroom.profile,profile);
+  strcpy(r->headroom.backend,backend);
+}
+
 /* The frontend banks are immutable and certified by the P06 manifest.
  * P14 reports the actual selected last-stage bank together with the
  * unchanged halfband bank identity; the P06 reference file is the authority. */
@@ -651,7 +683,25 @@ void lsx_dsd_report_json(FILE *f,const lsx_dsd_report_context *r,
   for(i=0;r && i<r->ndecs;i++){if(i)fputc(',',f);json_dec(f,&r->dec[i]);}
   fputs("],\"encoder\":[",f);
   for(i=0;r && i<r->nencs;i++){if(i)fputc(',',f);json_enc(f,&r->enc[i]);}
-  fputs("]},\n  \"dsdstat\":",f);lsx_dsd_stats_json(f,r?r->effect_stat:NULL);
+  fputs("],\"headroom_scan\":",f);
+  if (r && r->headroom.present) {
+    fputs("{\"method\":\"source-rate-interleaved-binary64-two-pass\",",f);
+    fputs("\"measured_scaled_peak\":",f);jnumber(f,r->headroom.peak);
+    fputs(",\"common_applied_gain\":",f);jnumber(f,r->headroom.gain);
+    fputs(",\"captured_source_frames\":",f);jint(f,r->headroom.captured);
+    fputs(",\"scan_native_frames\":",f);jint(f,r->headroom.scanned);
+    fputs(",\"temporary_pcm_bytes\":",f);jint(f,r->headroom.temp_bytes);
+    fprintf(f,",\"source_rate_hz\":%u,\"channels\":%u,\"profile_id\":",
+        r->headroom.source_hz,r->headroom.channels);
+    jstr(f,r->headroom.profile);
+    fputs(",\"backend\":",f);jstr(f,r->headroom.backend);
+    fputs(",\"scan_seconds\":",f);jnumber(f,r->headroom.scan_seconds);
+    fputs(",\"replay_seconds\":",f);
+    if (r->headroom.replay_seconds<0)fputs("null",f);
+    else jnumber(f,r->headroom.replay_seconds);
+    fputc('}',f);
+  }else fputs("null",f);
+  fputs("},\n  \"dsdstat\":",f);lsx_dsd_stats_json(f,r?r->effect_stat:NULL);
   fputs(",\n  \"clipping\":{\"output_writer\":",f);jint(f,output_clips);
   fputs(",\"input_adapter\":",f);jint(f,adapter_clips);
   fputs(",\"combiner\":",f);jint(f,mixing_clips);

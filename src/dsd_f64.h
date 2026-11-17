@@ -1,6 +1,7 @@
 /* Private fixed-shape PCM64 coordinator; no public libSoX effect ABI. */
 #ifndef LSX_DSD_F64_H
 #define LSX_DSD_F64_H
+#include <stdio.h>
 #include "sox_ng.h"
 #include "pcm_f64.h"
 #include "dsd_f64_decode.h"
@@ -39,6 +40,23 @@ pcm_f64_progress lsx_dsd_f64_finish(lsx_dsd_f64_stream *stream,
     pcm_f64_output output);
 void lsx_dsd_f64_destroy(lsx_dsd_f64_stream *stream);
 
+/* Phase 07: finite interleaved IEEE754 binary64 source-rate spool. One
+ * temporary file, checked offsets, bounded buffers and sticky errors.
+ * No sample-rate conversion or gain is applied to stored words. */
+typedef struct {
+  FILE *file;
+  uint32_t source_hz;
+  unsigned channels;
+  uint64_t frames,read_frames;
+  pcm_f64_status error;
+  bool sealed;
+} lsx_dsd_f64_spool;
+pcm_f64_status lsx_dsd_f64_spool_open(lsx_dsd_f64_spool *,uint32_t,unsigned);
+pcm_f64_status lsx_dsd_f64_spool_append(lsx_dsd_f64_spool *,const double *,size_t);
+pcm_f64_status lsx_dsd_f64_spool_rewind(lsx_dsd_f64_spool *);
+pcm_f64_progress lsx_dsd_f64_spool_read(lsx_dsd_f64_spool *,double *,size_t);
+pcm_f64_status lsx_dsd_f64_spool_close(lsx_dsd_f64_spool *);
+
 /* Phase 06A: bounded, channel-synchronous, direct PCM64 -> composite DSD.
  * The caller owns finite, source-rate interleaved double frames. The output
  * consists solely of interleaved one-bit sign symbols for DSF/DFF writers.
@@ -53,7 +71,7 @@ typedef struct {
   uint32_t source_hz, native_hz;
   unsigned channels;
   uint64_t source_frames, encoded_frames;
-  bool finishing, done;
+  bool finishing, done, peak_only;
   sox_dsd_status_t error;
 } lsx_dsd_f64_encoder;
 
@@ -65,6 +83,10 @@ sox_dsd_status_t lsx_dsd_f64_encode_process(lsx_dsd_f64_encoder *encoder,
     sox_sample_t *interleaved_dsd, size_t *output_frames);
 sox_dsd_status_t lsx_dsd_f64_encode_finish(lsx_dsd_f64_encoder *encoder,
     sox_sample_t *interleaved_dsd, size_t *output_frames);
+/* Run the identical frontend without one-bit generation, including EOF. */
+sox_dsd_status_t lsx_dsd_f64_encode_scan_begin(lsx_dsd_f64_encoder *);
+sox_dsd_status_t lsx_dsd_f64_encode_scan_peak(const lsx_dsd_f64_encoder *,double *);
+sox_dsd_status_t lsx_dsd_f64_headroom_gain(double,uint32_t,double *);
 const lsx_pcmdsd *lsx_dsd_f64_encode_channel(const lsx_dsd_f64_encoder *,
     unsigned channel);
 /* Test-only admission instrumentation, never enabled in normal encoding. */
@@ -89,6 +111,7 @@ typedef struct {
    * Normal CLI conversions leave the callback NULL and incur no I/O. */
   void (*pcm_observer)(void *, const double *, size_t, unsigned);
   void *pcm_observer_opaque;
+  lsx_dsd_f64_spool *spool; /* capture only after all PCM transformations */
   double adapter_volume, decoder_peak;
   uint64_t decoder_nominal_clips;
   sox_dsd_status_t error;
@@ -109,6 +132,7 @@ sox_dsd_status_t lsx_dsd_f64_transcode_process(lsx_dsd_f64_transcode *,
     const sox_sample_t *expanded, const sox_dsd_packed_block_t *packed,
     size_t packed_start, size_t *native_frames,
     sox_sample_t *interleaved_bits, size_t *bit_frames);
+void lsx_dsd_f64_transcode_capture(lsx_dsd_f64_transcode *,lsx_dsd_f64_spool *);
 void lsx_dsd_f64_transcode_observe_pcm(lsx_dsd_f64_transcode *,
     void (*observer)(void *, const double *, size_t, unsigned), void *opaque);
 sox_dsd_status_t lsx_dsd_f64_transcode_finish(lsx_dsd_f64_transcode *,

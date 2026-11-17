@@ -153,7 +153,7 @@ FILE * lsx_tmpfile(void)
   return tmpfile();
 }
 
-void lsx_close_tmpfile(FILE *fp)
+int lsx_close_tmpfile_checked(FILE *fp)
 {
 #ifdef _WIN32
   cell_t *cp;
@@ -165,16 +165,21 @@ void lsx_close_tmpfile(FILE *fp)
   for (cp=tmpfiles; cp != NULL; cp=cp->next) {
     if (fileno(fp) == cp->fd) {
       /* Close before deleting or Windows might refuse */
-      fclose(fp);
+      int result=fclose(fp);
       unlink(cp->name);
       /* Remove the cell from the list */
       free(cp->name);
       *prevptr = cp->next;
       free(cp);
-      return;
+      return result;
     }
     prevptr = &(cp->next);
   }
 #endif
-  fclose(fp);
+  return fclose(fp);
+}
+
+void lsx_close_tmpfile(FILE *fp)
+{
+  (void)lsx_close_tmpfile_checked(fp);
 }

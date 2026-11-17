@@ -33,6 +33,10 @@ void lsx_dsd_report_note_decode(const sox_dsd_decoder_t *,
     lsx_dsd_decode profile, lsx_dsd_level level, uint64_t graph_clips,
     double peak);
 void lsx_dsd_report_note_encode(const lsx_pcmdsd *);
+void lsx_dsd_report_note_headroom(double peak,double gain,
+    uint64_t captured,uint64_t scanned,uint32_t source_hz,unsigned channels,
+    const char *profile,const char *backend,double scan_seconds,
+    double replay_seconds);
 /* Capture messages actually emitted while a CLI report is active, without
  * intercepting, mutating or double-printing the library's message stream. */
 void lsx_dsd_report_note_message(unsigned level,const char *fmt,va_list args);

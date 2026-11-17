@@ -6,6 +6,7 @@
 #endif
 #include "dsd_f64.h"
 #include "pcmdsd.h"
+#include "sox_i.h" /* owned temporary file lifecycle */
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -145,6 +146,92 @@ void lsx_dsd_f64_destroy(lsx_dsd_f64_stream *s)
   memset(s,0,sizeof(*s));
 }
 
+/* One checked source-rate PCM spool. Not a general-purpose transaction.
+ * fseek is only used to rewind to offset zero, but limit total storage to
+ * signed file offsets for portability. All raw words are finite-admitted. */
+static pcm_f64_status spool_latch(lsx_dsd_f64_spool *s,pcm_f64_status code)
+{
+  if (s->error==PCM_F64_OK) s->error=code;
+  return s->error;
+}
+pcm_f64_status lsx_dsd_f64_spool_open(lsx_dsd_f64_spool *s,
+    uint32_t source_hz,unsigned channels)
+{
+  if (!s || !source_hz || !channels || channels>64 || sizeof(double)!=8)
+    return PCM_F64_ARGUMENT;
+  memset(s,0,sizeof(*s));
+  s->source_hz=source_hz;s->channels=channels;
+  s->file=lsx_tmpfile();
+  if (!s->file)return spool_latch(s,PCM_F64_IO);
+  return PCM_F64_OK;
+}
+pcm_f64_status lsx_dsd_f64_spool_append(lsx_dsd_f64_spool *s,
+    const double *words,size_t frames)
+{
+  size_t count,i;
+  if (!s || !s->file)return PCM_F64_ARGUMENT;
+  if (s->error!=PCM_F64_OK)return s->error;
+  if (s->sealed || (frames && !words))return spool_latch(s,PCM_F64_STATE);
+  if (frames>SIZE_MAX/s->channels ||
+      (uint64_t)frames>UINT64_MAX-s->frames ||
+      (uint64_t)frames>(uint64_t)INT64_MAX/(s->channels*sizeof(double))-s->frames)
+    return spool_latch(s,PCM_F64_LIMIT);
+  count=frames*s->channels;
+  for (i=0;i<count;i++) {
+    pcm_f64_word_class cls;
+    if (pcm_f64_classify(words+i,&cls)!=PCM_F64_OK ||
+        cls!=PCM_F64_WORD_FINITE)return spool_latch(s,PCM_F64_NUMERIC);
+  }
+  if (count && fwrite(words,sizeof(double),count,s->file)!=count)
+    return spool_latch(s,PCM_F64_IO);
+  s->frames+=(uint64_t)frames;
+  return PCM_F64_OK;
+}
+pcm_f64_status lsx_dsd_f64_spool_rewind(lsx_dsd_f64_spool *s)
+{
+  if (!s || !s->file)return PCM_F64_ARGUMENT;
+  if (s->error!=PCM_F64_OK)return s->error;
+  if (s->sealed)return spool_latch(s,PCM_F64_STATE);
+  if (fflush(s->file) || fseek(s->file,0,SEEK_SET))
+    return spool_latch(s,PCM_F64_IO);
+  s->read_frames=0;s->sealed=true;
+  return PCM_F64_OK;
+}
+pcm_f64_progress lsx_dsd_f64_spool_read(lsx_dsd_f64_spool *s,
+    double *output,size_t capacity)
+{
+  pcm_f64_progress p={0,0,PCM_F64_ARGUMENT};
+  size_t count,take;
+  if (!s || !s->file)return p;
+  if (s->error!=PCM_F64_OK) {p.status=s->error;return p;}
+  if (!s->sealed || (capacity && !output)) {
+    p.status=spool_latch(s,PCM_F64_STATE);return p;
+  }
+  if (capacity>SIZE_MAX/s->channels) {
+    p.status=spool_latch(s,PCM_F64_LIMIT);return p;
+  }
+  take=(uint64_t)capacity>s->frames-s->read_frames?
+    (size_t)(s->frames-s->read_frames):capacity;
+  count=take*s->channels;
+  if (count && fread(output,sizeof(double),count,s->file)!=count) {
+    p.status=spool_latch(s,PCM_F64_IO);return p;
+  }
+  s->read_frames+=take;
+  p.produced_frames=take;
+  p.status=s->read_frames==s->frames?PCM_F64_DONE:PCM_F64_OK;
+  return p;
+}
+pcm_f64_status lsx_dsd_f64_spool_close(lsx_dsd_f64_spool *s)
+{
+  pcm_f64_status status;
+  if (!s)return PCM_F64_ARGUMENT;
+  status=s->error;
+  if (s->file && lsx_close_tmpfile_checked(s->file)!=0 && status==PCM_F64_OK)
+    status=PCM_F64_IO;
+  memset(s,0,sizeof(*s));
+  return status;
+}
+
 /* Source input and DSD outputs are frame-interleaved; the existing composite
  * is mono and owns its state. Keep its per-channel input and bit buffers
  * separate, then submit output only after every channel agrees on progress. */
@@ -226,8 +313,9 @@ sox_dsd_status_t lsx_dsd_f64_encode_process(lsx_dsd_f64_encoder *e,
   }
   if ((uint64_t)produced>UINT64_MAX-e->encoded_frames)
     return encoder_failure(e,SOX_DSD_NUMERIC_ERROR);
-  for (frame=0;frame<produced;frame++) for (c=0;c<e->channels;c++)
-    output[frame*e->channels+c]=e->bits[c*LSX_DSD_F64_ENCODE_OUTPUT+frame];
+  if (!e->peak_only)
+    for (frame=0;frame<produced;frame++) for (c=0;c<e->channels;c++)
+      output[frame*e->channels+c]=e->bits[c*LSX_DSD_F64_ENCODE_OUTPUT+frame];
   e->source_frames+=used;e->encoded_frames+=produced;
   *input_frames=used;*output_frames=produced;
   return rc;
@@ -261,8 +349,9 @@ sox_dsd_status_t lsx_dsd_f64_encode_finish(lsx_dsd_f64_encoder *e,
   }
   if ((uint64_t)produced>UINT64_MAX-e->encoded_frames)
     return encoder_failure(e,SOX_DSD_NUMERIC_ERROR);
-  for (frame=0;frame<produced;frame++) for (c=0;c<e->channels;c++)
-    output[frame*e->channels+c]=e->bits[c*LSX_DSD_F64_ENCODE_OUTPUT+frame];
+  if (!e->peak_only)
+    for (frame=0;frame<produced;frame++) for (c=0;c<e->channels;c++)
+      output[frame*e->channels+c]=e->bits[c*LSX_DSD_F64_ENCODE_OUTPUT+frame];
   e->encoded_frames+=produced;
   *output_frames=produced;
   if (rc==SOX_DSD_DONE) {
@@ -272,6 +361,48 @@ sox_dsd_status_t lsx_dsd_f64_encode_finish(lsx_dsd_f64_encoder *e,
     e->done=true;
   }
   return rc;
+}
+
+sox_dsd_status_t lsx_dsd_f64_encode_scan_begin(lsx_dsd_f64_encoder *e)
+{
+  unsigned i;
+  if (!e || !e->channels || e->source_frames || e->encoded_frames ||
+      e->finishing || e->done || e->error || e->peak_only)
+    return SOX_DSD_BAD_ARGUMENT;
+  for (i=0;i<e->channels;i++)lsx_pcmdsd_set_peak_scan(e->channel[i]);
+  e->peak_only=true;
+  return SOX_DSD_OK;
+}
+sox_dsd_status_t lsx_dsd_f64_encode_scan_peak(const lsx_dsd_f64_encoder *e,
+    double *peak)
+{
+  unsigned i;double maximum=0.;
+  if (!e || !peak || !e->peak_only || !e->done || e->error)
+    return SOX_DSD_BAD_ARGUMENT;
+  for (i=0;i<e->channels;i++) {
+    lsx_pcmdsd_report r={0};
+    if (lsx_pcmdsd_report_get(e->channel[i],&r)!=SOX_DSD_OK ||
+        r.failure || r.input_frames!=e->source_frames ||
+        r.committed_frames!=e->encoded_frames ||
+        !isfinite(r.peak) || r.peak<0.)return SOX_DSD_NUMERIC_ERROR;
+    if (r.peak>maximum)maximum=r.peak;
+  }
+  *peak=maximum;
+  return SOX_DSD_OK;
+}
+sox_dsd_status_t lsx_dsd_f64_headroom_gain(double peak,uint32_t native_hz,
+    double *gain)
+{
+  double ceiling,attenuation;
+  if (!gain || !isfinite(peak) || peak<0. ||
+      (native_hz!=2822400u && native_hz!=5644800u))
+    return SOX_DSD_BAD_ARGUMENT;
+  ceiling=lsx_pcmdsd_warn_clip_ceiling(native_hz);
+  attenuation=peak>ceiling?(ceiling*(1.-1e-12))/peak:1.;
+  if (!isfinite(attenuation) || attenuation<=0. || attenuation>1.)
+    return SOX_DSD_NUMERIC_ERROR;
+  *gain=attenuation;
+  return SOX_DSD_OK;
 }
 
 const lsx_pcmdsd *lsx_dsd_f64_encode_channel(const lsx_dsd_f64_encoder *e,
@@ -379,6 +510,8 @@ static sox_dsd_status_t transcode_enqueue(lsx_dsd_f64_transcode *t,
   if (pcm_f64_is_failure(p.status) || p.consumed_frames!=frames ||
       p.produced_frames!=frames)
     return transcode_error(t,SOX_DSD_NUMERIC_ERROR);
+  if (t->spool && lsx_dsd_f64_spool_append(t->spool,t->fifo,frames)!=PCM_F64_OK)
+    return transcode_error(t,SOX_DSD_IO_ERROR);
   if (t->pcm_observer)
     t->pcm_observer(t->pcm_observer_opaque,t->fifo,frames,t->encoder.channels);
   t->fifo_frames=frames;
@@ -404,6 +537,13 @@ static sox_dsd_status_t transcode_drain(lsx_dsd_f64_transcode *t,
   *capacity-=made;
   *produced=made;
   return st;
+}
+
+void lsx_dsd_f64_transcode_capture(lsx_dsd_f64_transcode *t,
+    lsx_dsd_f64_spool *spool)
+{
+  if (t && !t->error && !t->finishing && !t->done &&
+      !t->decoder.native_seen)t->spool=spool;
 }
 
 void lsx_dsd_f64_transcode_observe_pcm(lsx_dsd_f64_transcode *t,

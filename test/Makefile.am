@@ -266,3 +266,9 @@ EXTRA_PROGRAMS += pcm64_transcode_probe
 pcm64_transcode_probe_SOURCES = ../tests/pcm64/transcode_probe.c
 pcm64_transcode_probe_CPPFLAGS = -I$(top_srcdir)/src
 pcm64_transcode_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)
+
+# Phase 07 production peak-only frontend and exact replay stage oracle.
+EXTRA_PROGRAMS += pcm64_headroom_probe
+pcm64_headroom_probe_SOURCES = ../tests/pcm64/headroom_probe.c
+pcm64_headroom_probe_CPPFLAGS = -I$(top_srcdir)/src
+pcm64_headroom_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)

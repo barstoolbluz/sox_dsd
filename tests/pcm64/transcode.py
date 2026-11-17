@@ -22,7 +22,7 @@ import tempfile
 import time
 from typing import Any
 
-from binary_receipts import executable_libraries, safe_git_head
+from binary_receipts import executable_libraries, safe_git_head, native_dsp_compiled
 from encode import dff_bits, dsf_bits
 from decode import checked_rate
 
@@ -499,7 +499,71 @@ class Suite:
         print(output['status'],'transcode:',len(self.records),'cases',self.counts,flush=True)
 
 
+def native_disabled_preflight(sox,results):
+    """The native DSP oracle is not executable when compiled out.
+
+    Run actual no-native CLI safety checks and mark only DSP-dependent
+    qualification as NOT_RUN. Never invoke the independent encoder probe.
+    """
+    gate={}
+    receipt=results/'transcode.json'
+    receipt.unlink(missing_ok=True)
+    try:
+        with tempfile.TemporaryDirectory(prefix='p07-disabled-',dir=results) as tmp:
+            work=Path(tmp)
+            wav=work/'test.wav'
+            dff=work/'test.dff'
+            result=run([sox,'-R','-n','-r','48000','-c','2',wav,
+                        'synth','0.015','sine','400','sine','900'])
+            demand(result.returncode==0,
+                'disabled preflight: cannot generate source WAV')
+            result=run([sox,wav,dff])
+            demand(result.returncode==0 and dff.is_file(),
+                'disabled preflight: legacy DSD64 writer failed')
+            gate['legacy_dsd_source_creation']='PASS'
+            target=work/'protected.dff'
+            sentinel=b'P07 existing destination must remain intact'
+            target.write_bytes(sentinel)
+            for label,options in (
+                ('strict64_no_auto',[]),
+                ('strict64_auto',['--auto-headroom']),
+                ('strict64_remix',['--auto-headroom'])):
+                args=[sox,'--precision','64',*options,dff,'-r','dsd128',target]
+                if label=='strict64_remix':args+=['remix','2','1']
+                failed=run(args)
+                demand(failed.returncode!=0 and target.read_bytes()==sentinel,
+                    f'{label}: disabled native F64 accepted conversion or damaged target: '
+                    f'{failed.stderr[-500:]!r}')
+                gate[label]='PASS'
+            legacy=work/'legacy.dff'
+            failed=run([sox,dff,'-r','dsd128',legacy,'remix','2','1'])
+            demand(failed.returncode==0 and legacy.stat().st_size>100,
+                f'disabled preflight: legacy transcode failed {failed.stderr[-500:]!r}')
+            gate['legacy_transcode_still_operational']='PASS'
+        gate.update({k:'NOT_RUN: native binary64 DSP disabled at configure time' for k in (
+            'two_clock_binary64_oracle','composite_encode_probe',
+            'frozen_binary64_replay','coordinator_native_dsp_lifecycle',
+            'native_dsd_writer_and_observer')})
+        record={'suite':'transcode','status':'PASS_WITH_NOT_RUN',
+                'source_git_commit':safe_git_head(SOURCE),
+                'executed_binary_sha256':{str(sox):sha(sox)},
+                'runtime_shared_libraries':executable_libraries(sox),
+                'gate_execution':gate,'case_count':5}
+        receipt.write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')
+        print('PASS_WITH_NOT_RUN transcode: native disabled; '+
+              'CLI refusal, existing destination and legacy path verified',flush=True)
+        return 0
+    except Exception as exc:
+        record={'suite':'transcode','status':'FAIL','error':str(exc),
+                'gate_execution':gate,'source_git_commit':safe_git_head(SOURCE),
+                'executed_binary_sha256':{str(sox):sha(sox)}}
+        receipt.write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')
+        raise
+
+
 def main(sox,probe,encoder,decoder,results):
+    if not native_dsp_compiled(sox):
+        return native_disabled_preflight(sox,results)
     with tempfile.TemporaryDirectory(prefix='p06b-transcode-',dir=results) as tmp:
         suite=Suite(sox,probe,encoder,decoder,results,Path(tmp))
         try:

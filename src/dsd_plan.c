@@ -1136,8 +1136,6 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
   else if (p->encode_count && p->native_output_hz!=2822400u &&
       p->native_output_hz!=5644800u)
     why="binary64 composite encoder is qualified only at DSD64 and DSD128";
-  else if (p->encode_count && spec->policy.headroom==LSX_DSD_HEADROOM_AUTO)
-    why="native binary64 auto-headroom requires the later scan/replay phase";
   else if (p->encode_count &&
       (!p->encoder_id ||
        strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id)))
@@ -1156,9 +1154,15 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
     else if (is(name,"gain") && (!isfinite(step->gain_factor) || step->gain_factor<0))
       why="gain factor is not finite and nonnegative";
     else if (is(name,"remix") || is(name,"channels")) {
-      /* Only output-role mapping, and only as the final user operation. */
+      /* A pure channel permutation may precede the *implicit* decoder:
+       * every certified DSD channel is independently reconstructed and the
+       * same role permutation can be applied at the encoder PCM boundary. */
       if (i+1<p->step_count && !is(p->steps[i+1].name,"implicit_pcmdsd") &&
-          !is(p->steps[i+1].name,"pcmdsd"))
+          !is(p->steps[i+1].name,"pcmdsd") &&
+          !(is(name,"remix") && step->native_permutation &&
+            p->output_domain==LSX_DSD_NATIVE &&
+            spec->inputs[0].encoding==SOX_ENCODING_DSD &&
+            is(p->steps[i+1].name,"implicit_dsdpcm")))
         why="channel operations require the terminal output-role mapping";
       else if (step->channels_before!=step->channels_after)
         why="binary64 channel remixing is not supported";
@@ -1218,8 +1222,7 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
         spec->output_native64_dsd_capable &&
         (p->native_output_hz==2822400u || p->native_output_hz==5644800u) &&
         p->encoder_id &&
-        !strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id) &&
-        spec->policy.headroom!=LSX_DSD_HEADROOM_AUTO;
+        !strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id);
     int transcode=spec->input_count==1 &&
         spec->inputs[0].encoding==SOX_ENCODING_DSD &&
         (p->input_decode_count+p->graph_decode_count)==1 &&
@@ -1230,8 +1233,7 @@ void lsx_dsd_precision_resolve(const lsx_dsd_plan_spec *spec, lsx_dsd_plan *p)
         (p->native_output_hz==2822400u || p->native_output_hz==5644800u) &&
         p->decoder_id && strcmp(p->decoder_id,"decode.legacy.generic") &&
         p->encoder_id &&
-        !strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id) &&
-        spec->policy.headroom!=LSX_DSD_HEADROOM_AUTO;
+        !strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id);
     p->precision_runner_available=!why &&
         (transcode || pcm_to_dsd || ((pcm_only || dsd_decode) &&
          p->output_domain==LSX_PCM_AUDIO && spec->output_pcm64_wav_capable)) &&

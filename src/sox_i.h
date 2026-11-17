@@ -66,6 +66,7 @@ assert_static(sizeof(off_t) == _FILE_OFFSET_BITS >> 3, OFF_T_BUILD_PROBLEM);
 
 FILE * lsx_tmpfile(void);
 void   lsx_close_tmpfile(FILE *);
+int    lsx_close_tmpfile_checked(FILE *);
 
 void lsx_debug_more_impl(char const * fmt, ...) LSX_PRINTF12;
 void lsx_debug_most_impl(char const * fmt, ...) LSX_PRINTF12;
