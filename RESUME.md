@@ -1,3 +1,11 @@
+# Phase 06B active engineering checkpoint — 2026-11-16
+
+**RUNNING / UNVERIFIED.** Base `7be823a860dea05955c495586e115776d93f6166`, tree `e45aef22f314e56b1a0278b55939293002eb1662`. Original source SHA-256 `67beddc61f82b36370bf16038c8d4610d63e4ac2f0fe54d8042692bd6ae96f3b`, independent harness `7d64bc18a7839786636c4a45365dd6d3e7ca42f0392b9c56f491bb2897954414`. Owner override applies certified unity/0.5 DSD64/128 admission. Source restored from verified 06A bundle; reference original evidence is preserved outside this source tree.
+
+Work units: (1) baseline+role parity reproduction; (2) minimal role fix; (3) private decoder–bounded FIFO–encoder composition; (4) planner/CLI route; (5) count/word/layout/failure tests; (6) matrix regression; (7) final full archive. None yet qualified. Never infer PASS from an incomplete command. Resume from `git log` and `evidence/phase06b/`, re-run incomplete gates. Default auto stays legacy; Phase 07 AUTO is not in this phase.
+
+---
+
 # Phase 06A: FLAC qualification update (2026-11-16)
 
 **Current state:** The previously unrun FLAC qualification has now been
