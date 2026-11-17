@@ -176,7 +176,7 @@ static int normal(int argc,char **argv)
 {
   uint32_t source=0,native=0,channels=0,frames=0,scan_step=0,replay_step=0,
       reference_int=0,pattern=0;
-  int ok=0;
+  int ok=0,spool_mismatch=0;
   uint32_t mutation=0;
   size_t scalar_size,i;
   double *words=NULL,*replayed=NULL,gain=0,peak=0,max_observed=0,
@@ -185,8 +185,9 @@ static int normal(int argc,char **argv)
   lsx_dsd_f64_spool spool={0};
   trace a[CH_MAX]={{0}},b[CH_MAX]={{0}};
   uint64_t scan_count=0,replay_count=0,expected=0,trace_count=0;
+  FILE *source_capture=NULL,*spool_capture=NULL;
   unsigned ch;
-  if (argc!=11 || !parse(argv[1],&source) || !parse(argv[2],&native) ||
+  if ((argc!=11 && argc!=13) || !parse(argv[1],&source) || !parse(argv[2],&native) ||
       !parse(argv[3],&channels) || !parse(argv[4],&frames) ||
       !parse(argv[5],&scan_step) || !parse(argv[6],&replay_step) ||
       !parse(argv[7],&reference_int) || !parse(argv[8],&pattern) ||
@@ -202,6 +203,13 @@ static int normal(int argc,char **argv)
   if(!words || !replayed)goto done;
   for(i=0;i<scalar_size;i++)
     words[i]=input_word((uint32_t)(i/channels),(unsigned)(i%channels),frames,(int)pattern);
+  /* Optional, bounded test-only captures. Keep the exact in-memory double
+   * representations, including signed zero and subnormals. */
+  if(argc==13) {
+    source_capture=fopen(argv[11],"wb");
+    spool_capture=fopen(argv[12],"wb");
+    if(!source_capture || !spool_capture)goto done;
+  }
   if(lsx_dsd_f64_spool_open(&spool,source,channels)!=PCM_F64_OK)goto done;
   if(lsx_dsd_f64_encode_init(&scan,source,native,channels,
         reference_int?1.:.5,1.,false)!=SOX_DSD_OK ||
@@ -215,8 +223,15 @@ static int normal(int argc,char **argv)
   for(i=0;i<frames;) {
     size_t amount=frames-i;
     if(amount>scan_step)amount=scan_step;
+    if(source_capture && fwrite(words+i*channels,sizeof(double),amount*channels,
+          source_capture)!=amount*channels)goto done;
     if(lsx_dsd_f64_spool_append(&spool,words+i*channels,amount)!=PCM_F64_OK)goto done;
     i+=amount;
+  }
+  if(source_capture) {
+    FILE *f=source_capture;
+    source_capture=NULL;
+    if(fclose(f))goto done;
   }
   if(!run_encoder(&scan,words,frames,channels,scan_step,17,&scan_count,
          a,&predrain_peak) ||
@@ -252,13 +267,27 @@ static int normal(int argc,char **argv)
     if(pcm_f64_is_failure(p.status) || p.produced_frames>replay_step ||
        p.produced_frames>frames-i ||
        (!p.produced_frames && p.status!=PCM_F64_DONE))goto done;
-    if(p.produced_frames && memcmp(words+i*channels,replayed+i*channels,
-          p.produced_frames*channels*sizeof(double))) {
-      if(mutation==1) {fputs("mutation detected: int32 spool changed binary64 words\n",stderr);goto done;}
-      fputs("source/spool bit mismatch\n",stderr);goto done;
+    if(p.produced_frames) {
+      size_t n=p.produced_frames*channels;
+      /* These bytes are from the real spool read, never from expected words. */
+      if(spool_capture && fwrite(replayed+i*channels,sizeof(double),n,
+            spool_capture)!=n)goto done;
+      if(memcmp(words+i*channels,replayed+i*channels,n*sizeof(double))) {
+        if(mutation==1)spool_mismatch=1; /* Finish capture before rejecting. */
+        else {fputs("source/spool bit mismatch\n",stderr);goto done;}
+      }
     }
     i+=p.produced_frames;
     if(p.status==PCM_F64_DONE)break;
+  }
+  if(spool_capture) {
+    FILE *f=spool_capture;
+    spool_capture=NULL;
+    if(fclose(f))goto done;
+  }
+  if(spool_mismatch) {
+    fputs("mutation detected: int32 spool changed binary64 words\n",stderr);
+    goto done;
   }
   if(i!=frames || !run_encoder(&replay,replayed,frames,channels,replay_step,511,
        &replay_count,NULL,NULL) || scan_count!=replay_count ||
@@ -308,6 +337,8 @@ static int normal(int argc,char **argv)
 done:
   if(!ok)fprintf(stderr,"headroom_probe: FAILURE source=%u native=%u channels=%u "
       "frames=%u pattern=%u mutant=%d\n",source,native,channels,frames,pattern,mutation);
+  if(source_capture)fclose(source_capture);
+  if(spool_capture)fclose(spool_capture);
   (void)lsx_dsd_f64_spool_close(&spool);
   lsx_dsd_f64_encode_destroy(&scan);
   lsx_dsd_f64_encode_destroy(&replay);

@@ -82,17 +82,32 @@ class Suite:
         self.results=Path(results)
         self.work=Path(work)
         self.cases=[]
+        self.mutants=[]
         self.cli=[]
         self.gates={}
         self.raw_perf=[]
 
     def probe_case(self,name,source,native,ch,frames,bs1,bs2,reference,pattern):
         command=[self.probe,source,native,ch,frames,bs1,bs2,reference,pattern,0,'run']
-        p=run(command,timeout=120)
-        demand(p.returncode==0,
-               f'{name}: production scan/replay probe failed rc={p.returncode} '
-               f'{p.stderr[-1400:]!r} {p.stdout[-500:]!r}')
-        record=json.loads(p.stdout)
+        with tempfile.TemporaryDirectory(prefix='pcm64-raw-',dir=self.work) as capture:
+            source_raw=Path(capture)/'submitted.f64'
+            spool_raw=Path(capture)/'recovered.f64'
+            p=run([*command,source_raw,spool_raw],timeout=120)
+            demand(p.returncode==0,
+                   f'{name}: production scan/replay probe failed rc={p.returncode} '
+                   f'{p.stderr[-1400:]!r} {p.stdout[-500:]!r}')
+            record=json.loads(p.stdout)
+            expected_bytes=frames*ch*8
+            demand(source_raw.stat().st_size==expected_bytes and
+                   spool_raw.stat().st_size==expected_bytes,
+                   f'{name}: test-only raw captures are incomplete')
+            source_hash=sha256(source_raw)
+            spool_hash=sha256(spool_raw)
+            demand(source_hash==spool_hash,
+                   f'{name}: recovered spool digest differs from submitted words')
+            record['source_pcm_f64_sha256']=source_hash
+            record['spool_pcm_f64_sha256']=spool_hash
+            record['captured_pcm_f64_bytes']=expected_bytes
         demand(record['status']=='PASS','probe case did not have PASS receipt')
         demand(record['trace_words']==record['native_frames']*ch,
                'native trace omitted channel(s) or samples')
@@ -136,9 +151,16 @@ class Suite:
             for bs1,bs2 in ((1,1),(7,251),(256,3)):
                 self.probe_case(f'{name}-{bs1}-{bs2}',rate,native,ch,n,
                                 bs1,bs2,1,pat)
+            # Identical source words, differently partitioned at both passes.
+            group=[c for c in self.cases if c['name'].startswith(name+'-')]
+            demand(len(group)==3 and
+                   len({c['source_pcm_f64_sha256'] for c in group})==1 and
+                   len({c['spool_pcm_f64_sha256'] for c in group})==1,
+                   f'{name}: raw source/spool digest varied with block partition')
         self.gates['all_channel_native_pregain_tap_bit_exact']='PASS'
         self.gates['frontend_profiles_finite_input_and_EOF_tails']='PASS'
         self.gates['independent_frame_counts_and_gain_formula']='PASS'
+        self.gates['source_and_recovered_spool_sha256_partition_invariance']='PASS'
 
     def mutations_and_faults(self):
         faults=run([self.probe,'--faults'],timeout=20)
@@ -151,10 +173,25 @@ class Suite:
                  'mutation detected: int32 spool'),
                 ('missing_eof_tail',[48000,2822400,2,1,1,7,1,2,2,'run'],
                  'mutation detected: omitted EOF tail')):
-            p=run([self.probe,*args],timeout=35)
-            demand(p.returncode!=0 and diagnostic.encode() in p.stderr,
-                   f'{name}: deliberate mutant escaped or failed for unrelated reason '
-                   f'{p.returncode}: {p.stderr[-900:]!r}')
+            with tempfile.TemporaryDirectory(prefix='pcm64-mutant-',dir=self.work) as capture:
+                source_raw=Path(capture)/'submitted.f64'
+                spool_raw=Path(capture)/'recovered.f64'
+                p=run([self.probe,*args,source_raw,spool_raw],timeout=35)
+                demand(p.returncode!=0 and diagnostic.encode() in p.stderr,
+                       f'{name}: deliberate mutant escaped or failed for unrelated reason '
+                       f'{p.returncode}: {p.stderr[-900:]!r}')
+                expected_bytes=int(args[3])*int(args[2])*8
+                demand(source_raw.stat().st_size==expected_bytes and
+                       spool_raw.stat().st_size==expected_bytes,
+                       f'{name}: mutant raw capture is incomplete')
+                source_hash=sha256(source_raw)
+                spool_hash=sha256(spool_raw)
+                demand((source_hash!=spool_hash)==(name=='int32_quantization'),
+                       f'{name}: mutant spool digest does not reflect its fault')
+                self.mutants.append({'name':name,'status':'REJECTED',
+                    'source_pcm_f64_sha256':source_hash,
+                    'spool_pcm_f64_sha256':spool_hash,
+                    'captured_pcm_f64_bytes':expected_bytes})
             self.gates['mutant_'+name+'_rejected']='PASS'
 
     def cli_case(self,name,source,args,dest,report,*,stream=None,expected_route=None):
@@ -323,7 +360,7 @@ class Suite:
             'test_script_sha256':sha256(Path(__file__)),
             'runtime_shared_libraries':executable_libraries(self.sox),
             'gate_execution':self.gates,'test_cases':self.cases,
-            'cli_executions':self.cli,'error':error,
+            'mutant_cases':self.mutants,'cli_executions':self.cli,'error':error,
         }
         (self.results/'headroom.json').write_text(json.dumps(receipt,indent=2,
                                                 sort_keys=True)+'\n')
