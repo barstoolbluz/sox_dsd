@@ -16,6 +16,7 @@ from pathlib import Path
 import struct
 import subprocess
 import sys
+import tempfile
 
 from collections import Counter
 import numpy as np
@@ -28,7 +29,7 @@ from decode import parse_wav, checked_rate
 from encode import dsf_bits, float_words
 
 
-def check(root,record,source=None,sox=None,probe=None):
+def check(root,record,source=None,sox=None,probe=None,oracle=None):
     source=(Path(source) if source is not None else Path(__file__).resolve().parents[3]).resolve()
     binaries=record.get('executed_binary_sha256',{})
     demand(isinstance(binaries,dict) and binaries and
@@ -48,13 +49,14 @@ def check(root,record,source=None,sox=None,probe=None):
                'stale executable: '+name)
         return path
     bound_binary('/src/sox',sox)
-    bound_binary('/test/pcm64_encode_probe',probe)
+    probe_binary=bound_binary('/test/pcm64_encode_probe',probe)
+    oracle_binary=bound_binary('/test/pcm64_decode_api_oracle',oracle)
     head=subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],
         capture_output=True,text=True,check=False)
     if (source/'.git').exists():
         demand(head.returncode==0 and head.stdout.strip()==record.get('source_git_commit'),
                'stale source revision')
-    demand(record['status']=='PASS' and record['schema']=='sox-native64-qualification/1',
+    demand(record['status']=='PASS' and record['schema']=='sox-native64-qualification/2',
            'receipt status/schema unavailable')
     demand(record['scope']=='FINITE_MEASUREMENTS_ONLY_NOT_RELEASE_CERTIFICATION',
            'false release claim')
@@ -105,6 +107,63 @@ def check(root,record,source=None,sox=None,probe=None):
         payload,_=parse_wav(recon,n_pcm,ch,SOURCE_RATE)
         demand(hashlib.sha256(payload).hexdigest()==case['reconstructed_float64_words_sha256'],
                f'{cid}: actual reconstructed binary64 words changed')
+        # Observe the *actual* CLI's admission trace, not merely the private
+        # probe's forecast. Recompute the independent probe expectation from
+        # the exact physical source WAV words, then demand byte equality for
+        # both channels and native frame order, even when emitted bits match.
+        paths=case['actual_admitted_paths']
+        demand(len(paths)==ch and len(case['post_clip_admitted_sha256'])==ch and
+               len(case['actual_admitted_sha256'])==ch and
+               case['admitted_frames_per_channel']==[n]*ch,
+               f'{cid}: missing real admitted-word counts')
+        traces=[]
+        for channel,relative in enumerate(paths):
+            trace=Path(root)/relative
+            demand(trace.resolve().is_relative_to(root.resolve()) and trace.is_file(),
+                   f'{cid}: real admission trace absent')
+            raw=trace.read_bytes()
+            demand(len(raw)==8*n and
+                   hashlib.sha256(raw).hexdigest()==case['actual_admitted_sha256'][channel],
+                   f'{cid}: actual CLI admission word count/hash changed')
+            traces.append(raw)
+        with tempfile.TemporaryDirectory(prefix='p08-reprobe-') as tmp:
+            prefix=str(Path(tmp)/'expected')
+            args=[str(probe_binary),'--encode',str(SOURCE_RATE),str(hz),str(ch),
+                  '256','512','1','1.0','0.5',prefix]
+            cp=subprocess.run(args,input=source_bytes,capture_output=True,timeout=90)
+            demand(cp.returncode==0 and cp.stdout==physical,
+                   f'{cid}: independent encoder decision stream changed')
+            meta=json.loads(cp.stderr)
+            demand(int(meta['native_frames'])==n and
+                   int(meta['source_frames'])==FRAMES and
+                   int(meta['channels'])==ch,
+                   f'{cid}: independent encoder counts changed')
+            for channel in range(ch):
+                expected_words=Path(prefix+f'.ch{channel}.f64').read_bytes()
+                demand(expected_words==traces[channel] and
+                       hashlib.sha256(expected_words).hexdigest()==
+                           case['post_clip_admitted_sha256'][channel],
+                       f'{cid} channel {channel}: real admitted words differ from independent probe')
+            demand([int(x['recovery_entries']) for x in meta['record']]==
+                   case['recovery_entries'],f'{cid}: independent recovery accounting changed')
+            oracle_raw=Path(root)/case['public_decoder_raw_path']
+            demand(oracle_raw.resolve().is_relative_to(root.resolve()) and
+                   oracle_raw.is_file() and
+                   sha256(oracle_raw)==case['public_decoder_raw_sha256'],
+                   f'{cid}: missing/corrupted independent reconstruction witness')
+            dc=case['public_decoder_config']
+            demand(dc['profile']=='mastering-v2' and dc['level']=='preserve' and
+                   dc['bandwidth']=='adapt' and dc['kernel'] in
+                   ('scalar','sse2','avx1','avx2','avx512'),
+                   f'{cid}: altered public decoder configuration')
+            api_out=Path(tmp)/'oracle.f64'
+            api=subprocess.run([str(oracle_binary),str(dsf),str(api_out),str(SOURCE_RATE),
+                 dc['profile'],dc['level'],dc['bandwidth'],dc['kernel']],
+                 capture_output=True,timeout=90)
+            demand(api.returncode==0 and b'finish=done' in api.stdout and
+                   api_out.is_file() and api_out.read_bytes()==payload and
+                   oracle_raw.read_bytes()==payload,
+                   f'{cid}: CLI FLOAT64 reconstructed words disagree with independent public decoder')
         er=json.loads(report.read_text()); dr=json.loads(decode_report.read_text())
         demand(er['status']=='complete' and dr['status']=='complete' and
                er['precision']['actual_route']=='native-binary64-encode' and
@@ -112,6 +171,17 @@ def check(root,record,source=None,sox=None,probe=None):
                int(er['output']['frames_written'])==n and
                int(dr['output']['frames_written'])==n_pcm,
                f'{cid}: actual route or reported count incorrect')
+        decoder=dr['processing']['decoder'][0]
+        demand(decoder['profile_id']==f'decode.mastering.v2.dsd{hz//44100}' and
+               decoder['gain_mapping']['mode']=='preserve' and
+               decoder['fir_kernel_actual']==case['public_decoder_config']['kernel'],
+               f'{cid}: real decoder report does not bind reference options')
+        encoder=er['processing']['encoder']
+        demand(len(encoder)==ch and all(e['profile_id']==case['profile_id'] and
+               e['sdm_kernel_actual']=='resonator' and
+               int(e['committed_native_frames'])==n and
+               int(e['clipped_interpolated_samples'])==0 for e in encoder),
+               f'{cid}: unexpected real encoder profile, clip or committed count')
         expected_starts=plan_windows(n)
         demand(case['analysis_starts']==expected_starts and
                case['profile_id']==f'encode.mastering.v3.dsd{hz//44100}' and
@@ -155,7 +225,7 @@ def check(root,record,source=None,sox=None,probe=None):
     return len(physical_cache), len(window_keys)
 
 
-def negative_controls(root,record,source=None,sox=None,probe=None):
+def negative_controls(root,record,source=None,sox=None,probe=None,oracle=None):
     """Each control perturbs the signed receipt or physical files in a tmp root.
 
     These are verifier-integrity tests, not replacements for existing
@@ -172,11 +242,15 @@ def negative_controls(root,record,source=None,sox=None,probe=None):
             (shadow/'native64-family').mkdir()
             for case in record['cases']:
                 for key in ('source_path','dsf_path','reconstructed_path',
-                            'encode_report_path','decode_report_path'):
+                            'encode_report_path','decode_report_path',
+                            'public_decoder_raw_path'):
                     p=Path(case[key]);dst=shadow/p
                     if not dst.exists(): os.link((root/p).resolve(),dst)
+                for p in case['actual_admitted_paths']:
+                    dst=shadow/p
+                    if not dst.exists(): os.link((root/p).resolve(),dst)
             mutate(changed,shadow)
-            try: check(shadow,changed,source,sox,probe)
+            try: check(shadow,changed,source,sox,probe,oracle)
             except (AssertionError,KeyError,ValueError,TypeError,IndexError, OSError) as exc:
                 cases.append({'control':name,'status':'REJECTED','detector':str(exc)[:220]})
             else: raise AssertionError(f'{name}: mutation falsely verified')
@@ -209,7 +283,29 @@ def negative_controls(root,record,source=None,sox=None,probe=None):
         original=(root/path).read_bytes()
         dest.unlink();dest.write_bytes(original[:-1]+bytes([original[-1]^1]))
     reject('corrupted_dsf_storage',physical_flip)
-    demand(len(cases)==22,'negative controls missing')
+    reject('altered_probe_admission_hash',
+           lambda d,s:d['cases'][0]['post_clip_admitted_sha256'].__setitem__(0,'0'*64))
+    def quiet_admission_mutant(d,s):
+        # Change a genuinely quiet admitted binary64 word by 2^-40, but
+        # update its own storage hash to test a coherent forged trace.
+        case=d['cases'][0];p=Path(case['actual_admitted_paths'][0]);dest=s/p
+        raw=bytearray((root/p).read_bytes());old=struct.unpack_from('<d',raw,0)[0]
+        struct.pack_into('<d',raw,0,old+2.**-40)
+        dest.unlink();dest.write_bytes(raw)
+        case['actual_admitted_sha256'][0]=hashlib.sha256(raw).hexdigest()
+    reject('coherent_quiet_2pow_minus40_admission_mutation',quiet_admission_mutant)
+    def zero_reconstruction_mutant(d,s):
+        case=next(c for c in d['cases'] if c['id']=='dsd64-dc')
+        p=Path(case['reconstructed_path']);dest=s/p
+        raw=bytearray((root/p).read_bytes());at=raw.index(b'data')+8
+        # Replace the actual WAV payload, retain a valid F64 header and count.
+        length=struct.unpack_from('<I',raw,at-4)[0]
+        raw[at:at+length]=b'\0'*length
+        dest.unlink();dest.write_bytes(raw)
+        case['reconstructed_wav_sha256']=hashlib.sha256(raw).hexdigest()
+        case['reconstructed_float64_words_sha256']=hashlib.sha256(b'\0'*length).hexdigest()
+    reject('zeroed_dc_reconstruction_with_updated_hashes',zero_reconstruction_mutant)
+    demand(len(cases)==25,'negative controls missing')
     return cases
 
 
@@ -220,11 +316,12 @@ def main():
     parser.add_argument('--source',type=Path)
     parser.add_argument('--sox',type=Path)
     parser.add_argument('--probe',type=Path)
+    parser.add_argument('--oracle',type=Path)
     args=parser.parse_args()
     root=args.results.resolve()
     record=json.loads((root/'qualification.json').read_text())
-    a,b=check(root,record,args.source,args.sox,args.probe)
-    negatives=negative_controls(root,record,args.source,args.sox,args.probe) if args.negative_controls else []
+    a,b=check(root,record,args.source,args.sox,args.probe,args.oracle)
+    negatives=negative_controls(root,record,args.source,args.sox,args.probe,args.oracle) if args.negative_controls else []
     print(json.dumps({'status':'PASS','physical_cases':a,'beta_windows':b,
           'negative_controls':len(negatives),'controls':negatives},indent=2))
 

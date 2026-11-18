@@ -124,8 +124,8 @@ def native_window(bits,channels,channel,start,length):
                        dtype=np.float64,count=length)
 
 
-def run_cli(argv,timeout=120):
-    cp=subprocess.run(list(map(str,argv)),capture_output=True,timeout=timeout)
+def run_cli(argv,timeout=120,env=None):
+    cp=subprocess.run(list(map(str,argv)),capture_output=True,timeout=timeout,env=env)
     demand(cp.returncode==0,
            f'{argv}: status {cp.returncode}, stderr {cp.stderr[-1000:]!r}')
     return {'argv':list(map(str,argv)), 'exit_status':cp.returncode,
@@ -133,11 +133,13 @@ def run_cli(argv,timeout=120):
             'stderr_sha256':hashlib.sha256(cp.stderr).hexdigest()}
 
 
-def run_family(sox,probe,results):
+def run_family(sox,probe,decode_oracle,results):
     results=Path(results).resolve()
     receipt=results/'qualification.json'
     receipt.unlink(missing_ok=True)
     sox=Path(sox).resolve();probe=Path(probe).resolve()
+    decode_oracle=Path(decode_oracle).resolve()
+    demand(decode_oracle.is_file(),'independent public decoder API oracle is required')
     family=results/'native64-family'
     family.mkdir(parents=True,exist_ok=True)
     # Never mistake incomplete or previous run outputs for current evidence.
@@ -158,14 +160,28 @@ def run_family(sox,probe,results):
                 dec_report=family/f'{key}.decode.json'
                 original_words=make_wav(wav,frames,CHANNELS,SOURCE_RATE)
                 source_hash=hashlib.sha256(original_words).hexdigest()
+                # This variable works only in an expressly instrumented SoX
+                # build. A plain production binary must fail, not generate an
+                # unobserved admission hash from an independent probe.
+                admission_prefix=family/f'{key}.admitted'
                 commands.append(run_cli([sox,'--precision','64','--report',enc_report,
-                                         wav,'-r',hz,dsf]))
+                                         wav,'-r',hz,dsf],
+                    env={**os.environ,'SOX_P08_ADMITTED_PREFIX':str(admission_prefix)}))
                 expected_frames=(len(frames)*hz*2+SOURCE_RATE)//(2*SOURCE_RATE)
                 physical=dsf_bits(dsf.read_bytes(),expected_frames,CHANNELS,hz)
                 probe_bits,stats,admission=suite.probe_stream(frames,SOURCE_RATE,
                     CHANNELS,hz,ref=.5,clip=True,attenuation=1.)
                 demand(physical==probe_bits,'physical bits differ from actual post-clip oracle')
                 suite.frozen_oracle(hz,physical,stats,admission)
+                actual_trace=[]
+                for channel in range(CHANNELS):
+                    path=Path(f'{admission_prefix}.ch{channel}.f64')
+                    demand(path.is_file(),f'{key} channel {channel}: real CLI admission trace absent')
+                    words=path.read_bytes()
+                    expected_words=struct.pack(f'<{expected_frames}d',*admission[channel])
+                    demand(len(words)==8*expected_frames and words==expected_words,
+                           f'{key} channel {channel}: CLI post-clipping words disagree with probe')
+                    actual_trace.append((path,words,expected_words))
                 enc=json.loads(enc_report.read_text())
                 demand(enc.get('status')=='complete' and
                        enc['precision']['actual_route']=='native-binary64-encode' and
@@ -184,6 +200,18 @@ def run_family(sox,probe,results):
                        dec['precision']['actual_route']=='native-binary64-pcm' and
                        int(dec['output']['frames_written'])==n_recon,
                        f'{key}: decoder did not use genuine binary64 route')
+                decoder=dec['processing']['decoder'][0]
+                demand(decoder['profile_id']==f'decode.mastering.v2.dsd{hz//44100}' and
+                       decoder['gain_mapping']['mode']=='preserve' and
+                       decoder['fir_kernel_actual'] in ('scalar','sse2','avx1','avx2','avx512'),
+                       f'{key}: unexpected decoder level/profile/backend')
+                oracle_raw=family/f'{key}.public-oracle.f64'
+                oracle_args=[decode_oracle,dsf,oracle_raw,SOURCE_RATE,
+                             'mastering-v2','preserve','adapt',decoder['fir_kernel_actual']]
+                commands.append(run_cli(oracle_args))
+                independent=oracle_raw.read_bytes()
+                demand(independent==reconstructed,
+                       f'{key}: real FLOAT64 reconstruction differs from public API oracle')
                 starts=plan_windows(expected_frames)
                 for channel in range(CHANNELS):
                     for start in starts:
@@ -203,9 +231,20 @@ def run_family(sox,probe,results):
                     'reconstructed_wav_sha256':sha256(recon),
                     'encoder_report_sha256':sha256(enc_report),
                     'decoder_report_sha256':sha256(dec_report),
+                    # Expected words from an independent probe are *separate*
+                    # from actual CLI bytes captured at lsx_pcmdsd_modulate.
                     'post_clip_admitted_sha256':[
-                        hashlib.sha256(struct.pack(f'<{len(a)}d',*a)).hexdigest()
-                        for a in admission],
+                        hashlib.sha256(t[2]).hexdigest() for t in actual_trace],
+                    'actual_admitted_sha256':[
+                        hashlib.sha256(t[1]).hexdigest() for t in actual_trace],
+                    'actual_admitted_paths':[
+                        str(t[0].relative_to(results)) for t in actual_trace],
+                    'admitted_frames_per_channel':[len(t[1])//8 for t in actual_trace],
+                    'public_decoder_raw_sha256':hashlib.sha256(independent).hexdigest(),
+                    'public_decoder_raw_path':str(oracle_raw.relative_to(results)),
+                    'public_decoder_config':{
+                        'profile':'mastering-v2','level':'preserve','bandwidth':'adapt',
+                        'kernel':decoder['fir_kernel_actual']},
                     'profile_id':enc['processing']['encoder'][0]['profile_id'],
                     'recovery_entries':[int(e['recovery_entries']) for e in enc['processing']['encoder']],
                     'peak_native':[e['peak_modulator_input'] for e in enc['processing']['encoder']],
@@ -223,13 +262,15 @@ def run_family(sox,probe,results):
                   'tests/pcm64/qualification/verify.py',
                   'tests/pcm64/qualification/fir_reference.py',
                   'tests/pcm64/qualification/independent_fir.py',
-                  'tests/pcm64/qualification/fir_probe.c']
-    record={'schema':'sox-native64-qualification/1',
+                  'tests/pcm64/qualification/fir_probe.c',
+                  'tests/pcm64/decode/api_oracle.c', 'src/pcmdsd.h']
+    record={'schema':'sox-native64-qualification/2',
         'status':'PASS',
         'scope':'FINITE_MEASUREMENTS_ONLY_NOT_RELEASE_CERTIFICATION',
         'source_git_commit':safe_git_head(SOURCE),
         'timestamp':dt.datetime.now(dt.timezone.utc).isoformat(),
         'executed_binary_sha256':{str(sox):sha256(sox),str(probe):sha256(probe),
+                                  str(decode_oracle):sha256(decode_oracle),
                                   **executable_libraries(sox)},
         'source_artifacts_sha256':{f:sha256(SOURCE/f) for f in source_files},
         'source_rate_hz':SOURCE_RATE,
@@ -246,20 +287,21 @@ def run_family(sox,probe,results):
     return record
 
 
-def main(sox,probe,results):
+def main(sox,probe,decode_oracle,results):
     """The selected suite is successful only after each independent gate."""
     results=Path(results).resolve();results.mkdir(parents=True,exist_ok=True)
     receipt=results/'qualification.json'
     receipt.unlink(missing_ok=True)
     try:
-        record=run_family(sox,probe,results)
+        record=run_family(sox,probe,decode_oracle,results)
         # Actual independent bit- and per-window re-reader; deliberate corruptions
         # are mandatory, not optional, in the committed qualification suite.
         gates=(
             ('physical-verifier', [sys.executable,
                 str(SOURCE/'tests/pcm64/qualification/verify.py'),
                 '--results',str(results),'--source',str(SOURCE),
-                '--sox',str(sox),'--probe',str(probe),'--negative-controls']),
+                '--sox',str(sox),'--probe',str(probe),
+                '--oracle',str(decode_oracle),'--negative-controls']),
             ('independent-fir', [sys.executable,
                 str(SOURCE/'tests/pcm64/qualification/fir_reference.py'),
                 '--source',str(SOURCE),'--results',str(results)]),

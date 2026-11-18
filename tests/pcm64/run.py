@@ -386,8 +386,11 @@ def main():
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
     if args.suite == "qualification":
         from qualification import main as qualification_main
+        if args.decode_oracle is None:
+            parser.error("qualification requires the independent public decoder oracle")
         return qualification_main(args.sox.resolve(),
-            args.probe.resolve().parent / "pcm64_encode_probe", results)
+            args.probe.resolve().parent / "pcm64_encode_probe",
+            args.decode_oracle.resolve(),results)
     if args.suite == "all":
         import time
         started=time.time()

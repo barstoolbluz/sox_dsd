@@ -4645,6 +4645,60 @@ static int dsd_p07_replay(lsx_dsd_f64_spool *spool,
   return 1;
 }
 
+/* Phase 08 qualification: absent from ordinary binaries. This callback sees
+ * the actual ordered, post-clip binary64 words at the modulator boundary.
+ * There is no production tracing branch and no per-sample allocation. */
+#ifdef SOX_P08_ADMISSION_TEST_BUILD
+typedef struct {
+  FILE *stream;
+  uint64_t frames;
+  int failed;
+} dsd_p08_admission_channel;
+
+static void dsd_p08_admission_write(void *opaque,const double *words,size_t count)
+{
+  dsd_p08_admission_channel *channel=(dsd_p08_admission_channel *)opaque;
+  if (!channel || !channel->stream || channel->failed)return;
+  if ((uint64_t)count>UINT64_MAX-channel->frames ||
+      fwrite(words,sizeof(*words),count,channel->stream)!=count) {
+    channel->failed=1;return;
+  }
+  channel->frames+=(uint64_t)count;
+}
+
+static int dsd_p08_admission_start(lsx_dsd_f64_encoder *encoder,
+    dsd_p08_admission_channel channels[64])
+{
+  const char *prefix=getenv("SOX_P08_ADMITTED_PREFIX");
+  unsigned i;
+  if (!prefix || !*prefix)return 1;
+  for (i=0;i<encoder->channels;i++) {
+    char path[2048];
+    int n=snprintf(path,sizeof(path),"%s.ch%u.f64",prefix,i);
+    if (n<0 || (size_t)n>=sizeof(path))return 0;
+    channels[i].stream=fopen(path,"wb");
+    if (!channels[i].stream)return 0;
+    lsx_dsd_f64_encode_observe_admitted(encoder,i,dsd_p08_admission_write,
+        &channels[i]);
+  }
+  return 1;
+}
+
+static int dsd_p08_admission_close(dsd_p08_admission_channel channels[64],
+    unsigned count,uint64_t expected,int succeeded)
+{
+  unsigned i;int ok=1;
+  for (i=0;i<count;i++) {
+    dsd_p08_admission_channel *p=&channels[i];
+    if (!p->stream)continue;
+    if (p->failed || (succeeded && p->frames!=expected))ok=0;
+    if (fclose(p->stream))ok=0;
+    p->stream=NULL;
+  }
+  return ok;
+}
+#endif
+
 /* Phase 06A: native binary64 ingress, ordered finite PCM operations, frozen
  * DSD64/128 composite, and original DSF/DFF bit writers. The legacy effects
  * graph never gets a sox_sample_t representation of a PCM value. */
@@ -4657,6 +4711,9 @@ static int dsd_run_native_encode(void)
   lsx_dsd_f64_stream pcm={0};
   lsx_dsd_f64_encoder encoder={0};
   lsx_dsd_f64_spool spool={0};
+#ifdef SOX_P08_ADMISSION_TEST_BUILD
+  dsd_p08_admission_channel p08_admission[64]={{0}};
+#endif
   lsx_dsd_plan const *plan=&dsd_runtime_plan;
   sox_dsd_layout_t *layout=NULL;
   double *input=NULL,*converted=NULL,*factors=NULL;
@@ -4782,6 +4839,11 @@ static int dsd_run_native_encode(void)
       goto done;
     }
   }
+#ifdef SOX_P08_ADMISSION_TEST_BUILD
+  if (!auto_headroom && !dsd_p08_admission_start(&encoder,p08_admission)) {
+    lsx_fail("native PCM-to-DSD: test admission observation open failed");goto done;
+  }
+#endif
   if (auto_headroom) {
     if (lsx_dsd_f64_spool_open(&spool,source_hz,channels)!=PCM_F64_OK ||
         lsx_dsd_f64_encode_scan_begin(&encoder)!=SOX_DSD_OK) {
@@ -4959,6 +5021,11 @@ static int dsd_run_native_encode(void)
         !dsd_p07_same_model(&encoder,scan_profile,scan_backend)) {
       lsx_fail("native PCM-to-DSD: exact replay model changed");goto done;
     }
+#ifdef SOX_P08_ADMISSION_TEST_BUILD
+    if (!dsd_p08_admission_start(&encoder,p08_admission)) {
+      lsx_fail("native PCM-to-DSD: test replay admission observation open failed");goto done;
+    }
+#endif
     {
       sox_signalinfo_t signal=ofile->signal;
       sox_encodinginfo_t encoding=ofile->encoding;
@@ -5003,6 +5070,12 @@ done:
             record.clipped_native_samples,i+1);
     }
   }
+#ifdef SOX_P08_ADMISSION_TEST_BUILD
+  if (!dsd_p08_admission_close(p08_admission,channels,committed,finished)) {
+    lsx_fail("native PCM-to-DSD: test admission trace write/count/close failed");
+    finished=0;
+  }
+#endif
   if (!finished) {output_eof=sox_true;rc=LSX_EFF_FATAL;}
   lsx_dsd_f64_encode_destroy(&encoder);
   if (spool.file)(void)lsx_dsd_f64_spool_close(&spool);
