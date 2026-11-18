@@ -874,6 +874,8 @@ EXTRA_DIST += tests/pcm64/encode_probe.c tests/pcm64/encode.py \
   tests/pcm64/qualification.py \
   tests/pcm64/qualification/cancellation.py \
   tests/pcm64/qualification/verify.py \
+  tests/pcm64/qualification/audited_workcopy.py \
+  tests/pcm64/qualification/AUDITED_WORKING_COPY.md \
   tests/pcm64/qualification/alignment.py \
   tests/pcm64/qualification/fir_probe.c \
   tests/pcm64/qualification/fir_reference.py \
