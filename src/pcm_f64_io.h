@@ -86,7 +86,8 @@ sox_format_t *lsx_pcm_f64_dsd_open_write(const char *path,
     const sox_signalinfo_t *signal, const sox_encodinginfo_t *encoding,
     const char *filetype, const sox_dsd_layout_t *layout,
     const sox_format_t *source, const char *report_path,
-    sox_bool (*overwrite_permitted)(const char *filename));
+    sox_bool (*overwrite_permitted)(const char *filename),
+    sox_bool (*cancel_requested)(void));
 
 /* WAV handler-private calls. Used only by the same-identity dispatch above
  * and the format-layer, descriptor-preserving native open implementation. */

@@ -4508,6 +4508,13 @@ done:
   return rc;
 }
 
+/* Phase 08: the checked DSF/DFF commit path polls the same interrupt
+ * state as the AUTO scan and replay. Do not do I/O in this callback. */
+static sox_bool dsd_p08_cancel_requested(void)
+{
+  return user_abort || user_skip;
+}
+
 /* Phase 07: one source-rate finite spool, one exact encoder frontend model.
  * All physical DSD samples originate in the replay pass. The source reader
  * and native DSD decoder are never consulted after scan. */
@@ -4769,7 +4776,7 @@ static int dsd_run_native_encode(void)
     signal.length=format.length_known?expected*channels:0;
     encoding.encoding=SOX_ENCODING_DSD;encoding.bits_per_sample=1;
     ofile->ft=lsx_pcm_f64_dsd_open_write(ofile->filename,&signal,&encoding,
-        ofile->filetype,layout,source,dsd_report_path,overwrite_permitted);
+        ofile->filetype,layout,source,dsd_report_path,overwrite_permitted,dsd_p08_cancel_requested);
     if (!ofile->ft)goto done;
     dsd_report_refused=sox_false;
     dsd_report_observe_output(ofile->ft);
@@ -4826,7 +4833,8 @@ static int dsd_run_native_encode(void)
         } else {
           size_t n=sox_write(ofile->ft,bits,produced*channels);
           if (n!=produced*channels || produced>UINT64_MAX-committed) {
-            lsx_fail("native PCM-to-DSD: failed streaming bit write");goto done;
+            lsx_fail("native PCM-to-DSD: short/failed physical bit write (%zu/%zu)",
+                n,produced*channels);goto done;
           }
           committed+=produced;output_samples+=produced;
         }
@@ -4837,12 +4845,15 @@ static int dsd_run_native_encode(void)
         goto done;
       }
       if (user_abort || user_skip) {
-        lsx_fail("native PCM-to-DSD: conversion cancelled after commit");goto done;
+        lsx_fail(auto_headroom?
+            "native PCM-to-DSD: conversion cancelled during AUTO scan":
+            "native PCM-to-DSD: conversion cancelled after commit");goto done;
       }
     }
     if (show_progress && since(&status_then,.1,sox_false)) {
-      fprintf(stderr,"\rNative DSD64/128 %s: %.1f%%, %" PRIu64 " DSD frames",
-          auto_headroom?"AUTO scan":"",
+      fprintf(stderr,auto_headroom?
+          "\rNative DSD64/128 AUTO scan: %.1f%%, %" PRIu64 " DSD frames":
+          "\rNative DSD64/128: %.1f%%, %" PRIu64 " DSD frames",
           input_wide_samples?100.*pcm.input_frames/input_wide_samples:0.,
           auto_headroom?scanned:committed);
       fflush(stderr);
@@ -4876,7 +4887,8 @@ static int dsd_run_native_encode(void)
       } else {
         size_t n=sox_write(ofile->ft,bits,produced*channels);
         if (n!=produced*channels || produced>UINT64_MAX-committed) {
-          lsx_fail("native PCM-to-DSD: final bit write failed");goto done;
+            lsx_fail("native PCM-to-DSD: short final bit write (%zu/%zu)",
+                n,produced*channels);goto done;
         }
         committed+=produced;output_samples+=produced;
       }
@@ -4909,8 +4921,14 @@ static int dsd_run_native_encode(void)
       lsx_fail("native PCM-to-DSD: scan peak or frontend identity invalid");goto done;
     }
     strcpy(scan_profile,profile->id);strcpy(scan_backend,backend);
+    if (dsd_p08_cancel_requested()) {
+      lsx_fail("native PCM-to-DSD: cancelled before AUTO replay commit");goto done;
+    }
     if (lsx_dsd_f64_spool_rewind(&spool)!=PCM_F64_OK) {
       lsx_fail("native PCM-to-DSD: cannot rewind source-rate spool");goto done;
+    }
+    if (dsd_p08_cancel_requested()) {
+      lsx_fail("native PCM-to-DSD: cancelled before AUTO replay commit");goto done;
     }
     lsx_dsd_f64_encode_destroy(&encoder);
     if (lsx_dsd_f64_encode_init(&encoder,source_hz,native_hz,channels,
@@ -4926,7 +4944,7 @@ static int dsd_run_native_encode(void)
       signal.length=format.length_known?expected*channels:0;
       encoding.encoding=SOX_ENCODING_DSD;encoding.bits_per_sample=1;
       ofile->ft=lsx_pcm_f64_dsd_open_write(ofile->filename,&signal,&encoding,
-          ofile->filetype,layout,source,dsd_report_path,overwrite_permitted);
+          ofile->filetype,layout,source,dsd_report_path,overwrite_permitted,dsd_p08_cancel_requested);
       if (!ofile->ft)goto done;
       dsd_report_refused=sox_false;
       dsd_report_observe_output(ofile->ft);
@@ -5161,7 +5179,7 @@ static int dsd_run_native_transcode(void)
     signal.length=have_length?bit_total*channels:0;
     encoding.encoding=SOX_ENCODING_DSD;encoding.bits_per_sample=1;
     ofile->ft=lsx_pcm_f64_dsd_open_write(ofile->filename,&signal,&encoding,
-        ofile->filetype,layout,source,dsd_report_path,overwrite_permitted);
+        ofile->filetype,layout,source,dsd_report_path,overwrite_permitted,dsd_p08_cancel_requested);
     if (!ofile->ft)goto cleanup;
     dsd_report_refused=sox_false;
     dsd_report_observe_output(ofile->ft);
@@ -5224,7 +5242,8 @@ static int dsd_run_native_transcode(void)
         } else {
           n=sox_write(ofile->ft,bits,produced*channels);
           if (n!=produced*channels || produced>UINT64_MAX-written) {
-            lsx_fail("native DSD transcode: failed streaming bit write");
+            lsx_fail("native DSD transcode: short or failed native bit write (%zu/%zu)",
+                n,produced*channels);
             goto cleanup;
           }
           written+=produced;output_samples+=produced;
@@ -5235,8 +5254,9 @@ static int dsd_run_native_transcode(void)
         goto cleanup;
       }
       if (show_progress && since(&status_then,.1,sox_false))
-        fprintf(stderr,"\rNative DSD transcode %s: %" PRIu64 " input frames",
-            auto_headroom?"AUTO scan":"",read_total);
+        fprintf(stderr,auto_headroom?
+            "\rNative DSD transcode AUTO scan: %" PRIu64 " input frames":
+            "\rNative DSD transcode: %" PRIu64 " input frames",read_total);
     }
   }
   for (;;) {
@@ -5256,7 +5276,8 @@ static int dsd_run_native_transcode(void)
       } else {
         n=sox_write(ofile->ft,bits,produced*channels);
         if (n!=produced*channels || produced>UINT64_MAX-written) {
-          lsx_fail("native DSD transcode: final write failed");goto cleanup;
+          lsx_fail("native DSD transcode: short final bit write (%zu/%zu)",
+              n,produced*channels);goto cleanup;
         }
         written+=produced;output_samples+=produced;
       }
@@ -5296,8 +5317,16 @@ static int dsd_run_native_transcode(void)
       goto cleanup;
     }
     strcpy(scan_profile,profile->id);strcpy(scan_backend,backend);
+    if (dsd_p08_cancel_requested()) {
+      lsx_fail("native DSD transcode: cancelled before AUTO replay commit");
+      goto cleanup;
+    }
     if (lsx_dsd_f64_spool_rewind(&spool)!=PCM_F64_OK) {
       lsx_fail("native DSD transcode: binary64 spool flush/rewind failed");
+      goto cleanup;
+    }
+    if (dsd_p08_cancel_requested()) {
+      lsx_fail("native DSD transcode: cancelled before AUTO replay commit");
       goto cleanup;
     }
     lsx_dsd_f64_encode_destroy(&pipeline.encoder);
@@ -5315,7 +5344,7 @@ static int dsd_run_native_transcode(void)
       signal.length=have_length?bit_total*channels:0;
       encoding.encoding=SOX_ENCODING_DSD;encoding.bits_per_sample=1;
       ofile->ft=lsx_pcm_f64_dsd_open_write(ofile->filename,&signal,&encoding,
-          ofile->filetype,layout,source,dsd_report_path,overwrite_permitted);
+          ofile->filetype,layout,source,dsd_report_path,overwrite_permitted,dsd_p08_cancel_requested);
       if (!ofile->ft)goto cleanup;
       dsd_report_refused=sox_false;
       dsd_report_observe_output(ofile->ft);

@@ -2019,7 +2019,8 @@ sox_format_t *lsx_pcm_f64_dsd_open_write(const char *path,
     const sox_signalinfo_t *signal, const sox_encodinginfo_t *encoding,
     const char *filetype, const sox_dsd_layout_t *layout,
     const sox_format_t *source, const char *report_path,
-    sox_bool (*overwrite_permitted)(const char *filename))
+    sox_bool (*overwrite_permitted)(const char *filename),
+    sox_bool (*cancel_requested)(void))
 {
   const sox_format_handler_t *handler;
   sox_format_t *ft=NULL;
@@ -2073,6 +2074,9 @@ sox_format_t *lsx_pcm_f64_dsd_open_write(const char *path,
     lsx_fail(!strcmp(handler->names[0],"dsf")?
         "DSF cannot encode this channel identity":
         "native DSD: output channel roles are unrepresentable");return NULL;
+  }
+  if (cancel_requested && cancel_requested()) {
+    lsx_fail("native DSD: cancelled before output commit");return NULL;
   }
   stdout_path=!strcmp(path,"-");
   ft=lsx_calloc(1,sizeof(*ft));
@@ -2133,6 +2137,9 @@ sox_format_t *lsx_pcm_f64_dsd_open_write(const char *path,
     flags|=O_CLOEXEC;
 #endif
     if (!existed) flags|=O_CREAT|O_EXCL;
+    if (cancel_requested && cancel_requested()) {
+      lsx_fail("native DSD: cancelled before output commit");goto fail;
+    }
     fd=open(path,flags,0666);
     if (fd<0) {lsx_fail("native DSD: nontruncating open: %s",strerror(errno));goto fail;}
     created=!existed;
@@ -2165,6 +2172,11 @@ sox_format_t *lsx_pcm_f64_dsd_open_write(const char *path,
                      !same_object(&current_link,&after))))) {
     lsx_fail("native DSD: pathname changed during output acquisition");
     goto fail;
+  }
+  /* The scan/replay boundary may be interrupted during descriptor checks.
+   * A cancellation here must not truncate an existing destination. */
+  if (cancel_requested && cancel_requested()) {
+    lsx_fail("native DSD: cancelled before output commit");goto fail;
   }
   /* DESTRUCTIVE COMMIT: all metadata, alias, descriptor and seek checks
    * above have succeeded. Existing regular files are truncated via exactly
@@ -2211,7 +2223,8 @@ sox_format_t *lsx_pcm_f64_dsd_open_write(const char *path UNUSED,
     const sox_encodinginfo_t *encoding UNUSED,
     const char *filetype UNUSED, const sox_dsd_layout_t *layout UNUSED,
     const sox_format_t *source UNUSED, const char *report_path UNUSED,
-    sox_bool (*overwrite_permitted)(const char *filename) UNUSED)
+    sox_bool (*overwrite_permitted)(const char *filename) UNUSED,
+    sox_bool (*cancel_requested)(void) UNUSED)
 {
   lsx_fail("native DSD same-descriptor output unavailable on this platform");
   return NULL;

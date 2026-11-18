@@ -1511,6 +1511,23 @@ rejects a requested PCM rate that cannot preserve the selected
 reconstruction passband.  A higher output clock cannot restore filtered
 ultrasonic content.
 .TP
+.B \-\-precision auto|32|64
+Choose the processing precision.  The default
+.B auto
+retains the established SoX processing path.  An explicit
+.B 64
+selects the qualified native binary64 route only for graphs and formats
+that its planner admits; it does not enable binary64 processing by default.
+For native PCM-to-DSD encoding, binary64 requires a built-in WAV or FLAC
+source whose actual input descriptor is a seekable regular file.  It
+refuses WAV and FLAC fed by a pipe or named FIFO, and WAV with an unknown
+sample length even from a regular file.  Standard input redirected from
+a seekable regular WAV or FLAC file is eligible; a regular FLAC source
+may omit its declared sample count.  Binary64 DSD64-to-DSD128 (or reverse)
+transcoding can read DSF or uncompressed DSDIFF from a pipe; this does not
+relax the separate WAV/FLAC source restrictions.  Ineligible binary64
+graphs and sources fail instead of silently falling back to integer PCM.
+.TP
 .B \-\-dsd\-level preserve|sacd
 Select the reconstruction amplitude convention.  The default
 .B preserve
@@ -1521,43 +1538,70 @@ mode applies a factor of two (+6.0206 dB).  Neither normalizes audio.
 .B \-\-dsd\-clip warn|error
 Choose warning and clipping (default), or fatal rejection, for
 reconstructed PCM graph-boundary overshoots and interpolated PCM-to-DSD
-modulator input overshoots.  In warning mode, the mastering encoder
-applies a fixed 0.9 linear gain (-0.91515 dB) at every DSD rate before
-clamping residual interpolated peaks above 0.45.  Clipped native samples are
-counted and warned about.  The default cut protects normal PCM from
-hard-clipping at the lowered ceiling but changes level even on quiet
-programmes.  This is a constant linear attenuation, not a time-varying
-limiter; it is a tested operational measure, not a proof of indefinite
-modulator stability.  Nonfinite samples and modulator-state guard
-violations remain fatal in either mode.
+modulator input overshoots.  In warning mode, the certified DSD64 and
+DSD128 mastering modulators use unity gain (0 dB default headroom) and a
+0.5 native input warning/clip ceiling, reflecting the owner-approved
+certified input envelope.  DSD256, DSD512 and DSD1024 retain the default
+0.9 linear gain (a 0.91515 dB cut) and the 0.45 warning/clip ceiling.
+Native clipped samples are counted and warned about.  In
+.B error
+mode, the default gain is unity at every DSD rate and clipping is not
+performed: excessive interpolated peaks cause a conversion failure.  An
+explicit
+.B \-\-headroom
+or
+.B \-\-auto\-headroom
+can replace these default gains.  Gain is a constant linear cut, not a
+time-varying limiter.  The policy for DSD256 and higher is an operational
+measure, not a proof of indefinite modulator stability.  Nonfinite
+samples and modulator-state guard violations remain fatal in either mode.
 .TP
 .B \-\-headroom DB
 For PCM-to-DSD encoding, cut the level by the specified nonnegative
 decibel amount (0 through 120), at the interpolated modulator input.
 For example,
 .B --headroom 2
-cuts exactly 2 dB.  Explicit fixed headroom replaces the default
-0.91515 dB attenuation rather than adding to it.
+cuts exactly 2 dB.  Explicit fixed headroom replaces the rate- and
+mode-specific default gain rather than adding to it.
 .B --headroom 0
-requests unity gain and may therefore change output compared to the
-implicit default.  A cut below 0.91515 dB may clip the loudest peaks at
-the 0.45 ceiling, with a warning.  This is not normalization and never changes
-input files.  It is not available for PCM-only
-processing, bit-preserving DSD repacks, or low-level
+requests unity gain: this agrees with the default in warning mode for
+DSD64/128 and in error mode at every rate; for DSD256/512/1024 warning
+mode it instead bypasses the implicit 0.91515 dB cut.  If warn mode is
+selected, residual interpolated peaks are clipped at 0.5 for DSD64/128
+or 0.45 for DSD256/512/1024 with a warning.  Under
+.B --dsd-clip error
+excessive peaks are refused, not clipped.  This option neither
+normalizes audio nor changes input files.  It is unavailable for PCM-only
+processing, bit-preserving DSD repacks or low-level
 .B sdm
 modulation.
 .TP
 .B \-\-auto\-headroom
-Scan the full interpolated PCM-to-DSD signal (including the filter
-tail), then apply the smallest common attenuation that keeps all
-channels inside the 0.45 warning ceiling.  Does not amplify quiet inputs.
-The scan stores PCM-rate samples in a temporary file;
-expect two interpolation passes, extra disk I/O, and a delay before
-DSD output begins.  Works with non-seekable input such as pipes.
-May be combined with
+Scan the entire interpolated PCM-to-DSD signal, including the filter
+tail, then apply the smallest common attenuation needed to avoid the
+rate-specific warning ceiling: 0.5 for certified DSD64/128 or 0.45 for
+DSD256/512/1024.  A quiet input is never amplified.  This scan stores
+source-rate, binary64 PCM in a temporary file (8 bytes per input sample
+per channel), and requires two interpolation passes, extra temporary
+storage and a delay before native DSD output begins.  With
+.B --temp DIR
+the spool is placed in DIR and unlinked after opening on Unix.  Without
+.B --temp
+Unix builds call the system
+.B tmpfile()
+function; its directory is selected by the C library/platform (commonly
+/tmp on Linux), not by SoX's
+.B TMPDIR
+environment handling.  A memory-backed temporary filesystem consumes
+memory or swap.  Some legacy SoX paths accept non-seekable input, but
+.B --precision 64
+still refuses piped WAV/FLAC inputs and WAV with unknown sample length;
+see the
+.B --precision
+entry above.  Can be combined with
 .B --dsd-clip error
-for strict refusal if a later safety guard fails.  The applied cut
-and clipped-interpolation count are recorded by
+for strict refusal if a subsequent safety guard fails.  The applied
+cut and clipped-interpolation count appear in
 .B --report
 and the selected mode appears in
 .B --plan.
