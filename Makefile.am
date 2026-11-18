@@ -879,7 +879,7 @@ EXTRA_DIST += tests/pcm64/encode_probe.c tests/pcm64/encode.py \
   tests/pcm64/qualification/alignment.py \
   tests/pcm64/qualification/fir_probe.c \
   tests/pcm64/qualification/fir_reference.py \
-  tests/pcm64/qualification/independent_fir.py \
+  tests/pcm64/qualification/independent_fir.py tests/pcm64/qualification/reference_cascade.py tests/pcm64/qualification/cascade_probe.c \
   tests/pcm64/phase06a_report.py \
   tests/pcm64/decode/api_oracle.c tests/pcm64/decode.py \
   tests/pcm64/phase05b_corrective.py tests/pcm64/fifo_report_stop.c \
@@ -902,7 +902,7 @@ PCM64_SUITE = foundation
 PCM64_RESULTS = $(abs_top_builddir)/evidence/phase01
 .PHONY: check-pcm64
 check-pcm64: all
-	$(MAKE) -C test pcm64_probe pcm64_coordinator_probe pcm64_wav_probe pcm64_flac_probe pcm64_decode_api_oracle pcm64_encode_probe pcm64_transcode_probe pcm64_headroom_probe
+	$(MAKE) -C test pcm64_probe pcm64_coordinator_probe pcm64_wav_probe pcm64_flac_probe pcm64_decode_api_oracle pcm64_encode_probe pcm64_transcode_probe pcm64_headroom_probe dsd_test_p15_src_stage_export dsd_test_p07_reference pcm64_cascade_probe
 	python3 '$(abs_top_srcdir)/tests/pcm64/test_io_wav_harness.py'
 	python3 '$(abs_top_srcdir)/tests/pcm64/test_binary_receipts.py'
 	python3 '$(abs_top_srcdir)/tests/pcm64/run.py' --suite '$(PCM64_SUITE)' \

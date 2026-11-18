@@ -72,15 +72,16 @@ def stimulus(kind:str,n:int)->list[float]:
 
 
 def window_at(source:list[float],length:int,received:int,*,mutate=False)->list[float]:
-    """Independent index equation for the actual circular-ring cursor.
+    """True oldest-to-newest ring order at a centered FIR emission.
 
-    feed_fir increments head before selecting ring+head+1. This takes the
-    chronological length-1 recent entries and wraps the oldest to the last
-    slot. Reproduce the actual source order, not a free alignment fit.
+    feed_fir writes at the prior head, increments head, and passes
+    ``ring + prior_head + 1`` to the scalar kernel. The window therefore
+    contains exactly samples [received-length, received). At startup and
+    EOF the missing values are numeric zeros; never rotate the oldest word
+    into the newest slot. The independent C probe consumes this same window.
     """
-    pos=[received-length+1+i for i in range(length-1)]+[received-length]
+    pos=[received-length+i for i in range(length)]
     if mutate:
-        # Negative: wrong one-working-sample phase; must exceed the error bound.
         pos=[j+1 for j in pos]
     return [source[i] if 0<=i<len(source) else 0.0 for i in pos]
 

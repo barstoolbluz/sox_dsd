@@ -272,3 +272,9 @@ EXTRA_PROGRAMS += pcm64_headroom_probe
 pcm64_headroom_probe_SOURCES = ../tests/pcm64/headroom_probe.c
 pcm64_headroom_probe_CPPFLAGS = -I$(top_srcdir)/src
 pcm64_headroom_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)
+
+# Phase 08 reference: existing read-only composite observer, not a new DSP API.
+EXTRA_PROGRAMS += pcm64_cascade_probe
+pcm64_cascade_probe_SOURCES = ../tests/pcm64/qualification/cascade_probe.c
+pcm64_cascade_probe_CPPFLAGS = -I$(top_srcdir)/src
+pcm64_cascade_probe_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)

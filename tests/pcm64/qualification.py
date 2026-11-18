@@ -263,6 +263,8 @@ def run_family(sox,probe,decode_oracle,results):
                   'tests/pcm64/qualification/fir_reference.py',
                   'tests/pcm64/qualification/independent_fir.py',
                   'tests/pcm64/qualification/fir_probe.c',
+                  'tests/pcm64/qualification/reference_cascade.py',
+                  'tests/pcm64/qualification/cascade_probe.c',
                   'tests/pcm64/decode/api_oracle.c', 'src/pcmdsd.h']
     record={'schema':'sox-native64-qualification/2',
         'status':'PASS',
@@ -305,13 +307,20 @@ def main(sox,probe,decode_oracle,results):
             ('independent-fir', [sys.executable,
                 str(SOURCE/'tests/pcm64/qualification/fir_reference.py'),
                 '--source',str(SOURCE),'--results',str(results)]),
+            ('independent-primitive-cascade', [sys.executable,
+                str(SOURCE/'tests/pcm64/qualification/reference_cascade.py'),
+                '--source',str(SOURCE),
+                '--exporter',str(Path(sox).resolve().parents[1]/'test/dsd_test_p15_src_stage_export'),
+                '--src-probe',str(Path(sox).resolve().parents[1]/'test/dsd_test_p07_reference'),
+                '--cascade-probe',str(Path(sox).resolve().parents[1]/'test/pcm64_cascade_probe'),
+                '--results',str(results)]),
             ('alignment', [sys.executable,
                 str(SOURCE/'tests/pcm64/qualification/alignment.py'),
                 '--results',str(results)]),
         )
         gate_results=[]
         for name, command in gates:
-            cp=subprocess.run(command,capture_output=True,text=True,timeout=180,
+            cp=subprocess.run(command,capture_output=True,text=True,timeout=240,
                               check=False,env=dict(os.environ,OPENBLAS_NUM_THREADS='1'))
             gate_results.append({'name':name,'command':command,
                 'exit_status':cp.returncode,'stdout':cp.stdout[-15000:],
