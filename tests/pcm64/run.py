@@ -382,8 +382,47 @@ def main():
     results.mkdir(parents=True, exist_ok=True)
     output = results / (args.suite.replace("/", "_") + ".json")
     output.unlink(missing_ok=True)     # never reuse a stale receipt on failure
-    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats", "return-acceptance", "decode", "encode", "transcode", "report-carriers", "headroom"):
+    if args.suite not in ("foundation", "io-wav", "io-flac", "io", "large-wav", "routing", "pcm-identity", "output-formats", "return-acceptance", "decode", "encode", "transcode", "report-carriers", "headroom", "qualification", "all"):
         parser.error(f"suite {args.suite!r} is not implemented (nonzero selection required)")
+    if args.suite == "qualification":
+        from qualification import main as qualification_main
+        return qualification_main(args.sox.resolve(),
+            args.probe.resolve().parent / "pcm64_encode_probe", results)
+    if args.suite == "all":
+        import time
+        started=time.time()
+        suites=("foundation", "io-wav", "io-flac", "large-wav", "routing",
+                "pcm-identity", "output-formats", "return-acceptance",
+                "decode", "encode", "transcode", "report-carriers",
+                "headroom", "qualification")
+        entries=[]
+        for suite in suites:
+            cp=subprocess.run([sys.executable, str(Path(__file__).resolve()),
+                "--suite", suite, "--sox", str(args.sox.resolve()),
+                "--probe", str(args.probe.resolve()),
+                "--decode-oracle", str(args.decode_oracle.resolve())
+                    if args.decode_oracle is not None else "",
+                "--results", str(results)], capture_output=True, text=True)
+            sub=results/(suite+".json")
+            receipt_status=None
+            if sub.exists():
+                try: receipt_status=json.loads(sub.read_text()).get("status")
+                except (ValueError,OSError): pass
+            entries.append({"suite":suite,"exit_status":cp.returncode,
+                "receipt_status":receipt_status,
+                "stdout_tail":cp.stdout[-1000:],"stderr_tail":cp.stderr[-1000:]})
+            if cp.returncode or receipt_status not in ("PASS","PASS_WITH_NOT_RUN"):
+                break
+        good=len(entries)==len(suites) and all(e["exit_status"]==0 and
+            e["receipt_status"] in ("PASS","PASS_WITH_NOT_RUN") for e in entries)
+        record={"suite":"all","status":"PASS" if good else "FAIL",
+            "source_git_commit":safe_git_head(Path(__file__).resolve().parents[2]),
+            "executed_binary_sha256":{str(args.sox.resolve()):sha256(args.sox.resolve())},
+            "selected_count":len(suites),"executed_count":len(entries),
+            "elapsed_seconds":round(time.time()-started,3),"entries":entries}
+        output.write_text(json.dumps(record,indent=2,sort_keys=True)+"\n")
+        print(record["status"]+f" all: {len(entries)}/{len(suites)} suites")
+        return 0 if good else 1
     if args.suite == "report-carriers":
         test = Path(__file__).with_name("phase06a_report.py")
         result = subprocess.run([sys.executable, str(test), str(args.sox.resolve())],

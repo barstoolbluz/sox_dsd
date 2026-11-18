@@ -871,6 +871,7 @@ EXTRA_DIST += \
 EXTRA_DIST += tests/pcm64/encode_probe.c tests/pcm64/encode.py \
   tests/pcm64/transcode_probe.c tests/pcm64/transcode.py \
   tests/pcm64/headroom_probe.c tests/pcm64/headroom.py \
+  tests/pcm64/qualification.py \
   tests/pcm64/phase06a_report.py \
   tests/pcm64/decode/api_oracle.c tests/pcm64/decode.py \
   tests/pcm64/phase05b_corrective.py tests/pcm64/fifo_report_stop.c \

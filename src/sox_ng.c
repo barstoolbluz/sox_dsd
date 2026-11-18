@@ -4515,6 +4515,23 @@ static sox_bool dsd_p08_cancel_requested(void)
   return user_abort || user_skip;
 }
 
+/* Test build only. Each stage sends a real POSIX signal through SoX's
+ * installed handler. Ordinary binaries contain no test hook or branch. */
+#if defined(SOX_P08_CANCEL_TEST_BUILD) && !defined(_WIN32)
+static void dsd_p08_test_stage(const char *stage)
+{
+  const char *selected=getenv("SOX_P08_CANCEL_AT");
+  const char *signal_name=getenv("SOX_P08_CANCEL_SIGNAL");
+  if (selected && !strcmp(stage,selected) && signal_name) {
+    if (!strcmp(signal_name,"SIGINT"))raise(SIGINT);
+    else if (!strcmp(signal_name,"SIGTERM"))raise(SIGTERM);
+  }
+}
+#define DSD_P08_TEST_STAGE(stage) dsd_p08_test_stage(stage)
+#else
+#define DSD_P08_TEST_STAGE(stage) ((void)0)
+#endif
+
 /* Phase 07: one source-rate finite spool, one exact encoder frontend model.
  * All physical DSD samples originate in the replay pass. The source reader
  * and native DSD decoder are never consulted after scan. */
@@ -4547,6 +4564,7 @@ static int dsd_p07_replay(lsx_dsd_f64_spool *spool,
   if (!spool || !encoder || !pcm || !bits || !written || !ofile->ft ||
       !spool->sealed || spool->channels!=encoder->channels ||
       spool->source_hz!=encoder->source_hz || *written)return 0;
+  DSD_P08_TEST_STAGE("replay");
   for (;;) {
     pcm_f64_progress read;
     size_t consumed=0;
@@ -4592,6 +4610,7 @@ static int dsd_p07_replay(lsx_dsd_f64_spool *spool,
       lsx_fail("native %s: spool reader stalled",kind);return 0;
     }
   }
+  DSD_P08_TEST_STAGE("replay_eof");
   for (;;) {
     size_t made=LSX_DSD_F64_ENCODE_OUTPUT,n;
     sox_dsd_status_t st;
@@ -4786,6 +4805,7 @@ static int dsd_run_native_encode(void)
   if (show_progress)input_wide_samples=format.length_known?format.total_frames:0;
   setsig(SIGTERM,sigint);setsig(SIGINT,sigint);
   if (auto_headroom)gettimeofday(&scan_started,NULL);
+  if (auto_headroom)DSD_P08_TEST_STAGE("scan_capture");
   for (;;) {
     pcm_f64_progress read_result;
     size_t consumed=0;
@@ -4869,6 +4889,7 @@ static int dsd_run_native_encode(void)
       lsx_fail("native PCM-to-DSD: PCM upstream did not finish");goto done;
     }
   }
+  if (auto_headroom)DSD_P08_TEST_STAGE("scan_eof");
   for (;;) {
     size_t produced=LSX_DSD_F64_ENCODE_OUTPUT;
     sox_dsd_status_t status;
@@ -4921,6 +4942,7 @@ static int dsd_run_native_encode(void)
       lsx_fail("native PCM-to-DSD: scan peak or frontend identity invalid");goto done;
     }
     strcpy(scan_profile,profile->id);strcpy(scan_backend,backend);
+    DSD_P08_TEST_STAGE("precommit");
     if (dsd_p08_cancel_requested()) {
       lsx_fail("native PCM-to-DSD: cancelled before AUTO replay commit");goto done;
     }
@@ -5189,6 +5211,7 @@ static int dsd_run_native_transcode(void)
   if (show_progress)input_wide_samples=have_length?native_total:0;
   setsig(SIGTERM,sigint);setsig(SIGINT,sigint);
   if (auto_headroom)gettimeofday(&scan_started,NULL);
+  if (auto_headroom)DSD_P08_TEST_STAGE("scan_capture");
   {
     size_t cursor=0,pending=0;
     int at_eof=0;
@@ -5259,6 +5282,7 @@ static int dsd_run_native_transcode(void)
             "\rNative DSD transcode: %" PRIu64 " input frames",read_total);
     }
   }
+  if (auto_headroom)DSD_P08_TEST_STAGE("scan_eof");
   for (;;) {
     size_t produced=bit_capacity,n;
     if (user_abort || user_skip) {
@@ -5317,6 +5341,7 @@ static int dsd_run_native_transcode(void)
       goto cleanup;
     }
     strcpy(scan_profile,profile->id);strcpy(scan_backend,backend);
+    DSD_P08_TEST_STAGE("precommit");
     if (dsd_p08_cancel_requested()) {
       lsx_fail("native DSD transcode: cancelled before AUTO replay commit");
       goto cleanup;
