@@ -219,7 +219,11 @@ def run_family(sox,probe,results):
     source_files=['src/pcmdsd.c','src/dsd_f64.c','src/sox_ng.c',
                   'src/resonator/dsd64/src/constants.h',
                   'src/resonator/dsd128/src/constants.h',
-                  'tests/pcm64/qualification.py']
+                  'tests/pcm64/qualification.py',
+                  'tests/pcm64/qualification/verify.py',
+                  'tests/pcm64/qualification/fir_reference.py',
+                  'tests/pcm64/qualification/independent_fir.py',
+                  'tests/pcm64/qualification/fir_probe.c']
     record={'schema':'sox-native64-qualification/1',
         'status':'PASS',
         'scope':'FINITE_MEASUREMENTS_ONLY_NOT_RELEASE_CERTIFICATION',
@@ -243,15 +247,48 @@ def run_family(sox,probe,results):
 
 
 def main(sox,probe,results):
+    """The selected suite is successful only after each independent gate."""
     results=Path(results).resolve();results.mkdir(parents=True,exist_ok=True)
     receipt=results/'qualification.json'
     receipt.unlink(missing_ok=True)
     try:
         record=run_family(sox,probe,results)
+        # Actual independent bit- and per-window re-reader; deliberate corruptions
+        # are mandatory, not optional, in the committed qualification suite.
+        gates=(
+            ('physical-verifier', [sys.executable,
+                str(SOURCE/'tests/pcm64/qualification/verify.py'),
+                '--results',str(results),'--source',str(SOURCE),
+                '--sox',str(sox),'--probe',str(probe),'--negative-controls']),
+            ('independent-fir', [sys.executable,
+                str(SOURCE/'tests/pcm64/qualification/fir_reference.py'),
+                '--source',str(SOURCE),'--results',str(results)]),
+            ('alignment', [sys.executable,
+                str(SOURCE/'tests/pcm64/qualification/alignment.py'),
+                '--results',str(results)]),
+        )
+        gate_results=[]
+        for name, command in gates:
+            cp=subprocess.run(command,capture_output=True,text=True,timeout=180,
+                              check=False,env=dict(os.environ,OPENBLAS_NUM_THREADS='1'))
+            gate_results.append({'name':name,'command':command,
+                'exit_status':cp.returncode,'stdout':cp.stdout[-15000:],
+                'stderr':cp.stderr[-4000:]})
+            if cp.returncode:
+                raise AssertionError(f'{name}: rc {cp.returncode} '+cp.stderr[-1000:])
+        (results/'qualification-verification.json').write_text(json.dumps({
+            'suite':'qualification-verification','status':'PASS',
+            'source_git_commit':record['source_git_commit'],
+            'qualification_sha256':sha256(receipt),
+            'gates':gate_results},indent=2,sort_keys=True)+'\n')
     except Exception as e:
-        (results/'qualification.json').unlink(missing_ok=True)
+        # Never leave a PASS qualification receipt after a subsequent gate fails.
+        (results/'qualification-failure.json').write_text(json.dumps({
+            'suite':'qualification','status':'FAIL','error':str(e)},indent=2)+'\n')
+        receipt.unlink(missing_ok=True)
         print(f'FAIL qualification: {type(e).__name__}: {e}',file=sys.stderr)
         return 1
     print(f"PASS qualification: {record['case_count']} physical cases, "
-          f"{record['window_count']} windows, {record['spectral_rows']} spectral measurements")
+          f"{record['window_count']} windows, {record['spectral_rows']} spectral measurements; "
+          "independent verifier, FIR and alignment gates")
     return 0
