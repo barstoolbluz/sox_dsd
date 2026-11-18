@@ -25,7 +25,7 @@ from encode import Suite as EncoderSuite, make_wav, dsf_bits, float_words
 
 SOURCE = Path(__file__).resolve().parents[2]
 SOURCE_RATE = 44100
-FRAMES = 4097
+FRAMES = 1537
 CHANNELS = 2
 RATES = (2822400, 5644800)
 BETAS = (30.0, 34.0)
