@@ -130,18 +130,18 @@ def run(probe,out):
         with mp.workdps(135):
             delta192=abs(mp.mpf(high[192])-mp.mpf(high[384]))
             delta256=abs(mp.mpf(high[256])-mp.mpf(high[384]))
-            reference=float(high[384])
+            reference=mp.mpf(high[384])
+            absolute_error_mp=abs(mp.mpf(actual)-reference)
         demand(delta192<=mp.mpf('1e-54') and delta256<=mp.mpf('1e-74'),
                f'192/256-bit reference failed convergence at {rate}:{name}')
         strict=strict_model(h,x)
         demand(struct.pack('<d',strict)==struct.pack('<d',actual),
                f'actual compiled scalar and separate-rounding model disagree {rate}:{name}')
-        absolute_error=abs(actual-reference)
         error_limit,ops,l1=bound(h,x)
-        demand(absolute_error<=error_limit,
+        demand(absolute_error_mp<=mp.mpf(error_limit),
                f'FIR absolute error above independently justified bound {rate}:{name}')
         if error_limit:
-            max_normalized_error=max(max_normalized_error,absolute_error/error_limit)
+            max_normalized_error=max(max_normalized_error,float(absolute_error_mp/mp.mpf(error_limit)))
         if name=='impulse_center':
             shifted=x[1:]+x[:1]
             negative_wrong_center|=(strict_model(h,shifted)!=actual)
@@ -152,8 +152,8 @@ def run(probe,out):
             negative_precision|=(strict_model(h,shifted)!=actual)
         cases.append({'rate':rate,'name':name,'source_input_sha256':hashlib.sha256(
                      struct.pack('<'+str(len(x))+'d',*x)).hexdigest(),
-                      'output_hex':actual.hex(),'reference_384_hex':reference.hex(),
-                      'absolute_error':absolute_error,
+                      'output_hex':actual.hex(),'reference_384_hex':float(reference).hex(),
+                      'absolute_error_384bit':mp.nstr(absolute_error_mp,65),
                       'upper_absolute_bound':error_limit,
                       'sum_abs_products_l1':l1,'rounding_operations_upper':ops,
                       'reference_192_to_384_abs':str(delta192),
