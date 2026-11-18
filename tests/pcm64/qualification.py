@@ -17,11 +17,13 @@ import struct
 import subprocess
 import tempfile
 import sys
+sys.path.insert(0,str(Path(__file__).with_name('qualification')))
 
 import numpy as np
 from binary_receipts import executable_libraries, safe_git_head
 from decode import parse_wav, checked_rate
 from encode import Suite as EncoderSuite, make_wav, dsf_bits, float_words
+from build_context import read_fenv, build_context
 
 SOURCE = Path(__file__).resolve().parents[2]
 SOURCE_RATE = 44100
@@ -29,8 +31,11 @@ FRAMES = 1537
 CHANNELS = 2
 RATES = (2822400, 5644800)
 BETAS = (30.0, 34.0)
-BANDS = {'20-20k':(20,20000),'20k-100k':(20000,100000),
-         '100k-500k':(100000,500000),'500k-1m':(500000,1000000)}
+BANDS = {'20_20k':(20,20000),'20_30k':(20,30000),
+         '20_40k':(20,40000),'20_50k':(20,50000),
+         '20k_30k':(20000,30000),'30k_50k':(30000,50000),
+         '50k_100k':(50000,100000),'100k_500k':(100000,500000),
+         '500k_1m':(500000,1000000)}
 PATTERNS = ('quiet','tone','near-rail','multitone','dc','silence',
             'impulse','transient','recovery')
 WINDOW_LENGTH = 8192
@@ -146,6 +151,8 @@ def run_family(sox,probe,decode_oracle,results):
     for old in family.iterdir():
         demand(not old.is_file() and not old.is_dir(),
                f'results root must be new and empty: {old}')
+    from attestation import verify as verify_accepted_source
+    verify_accepted_source(SOURCE)
     cases=[];windows=[];commands=[]
     with tempfile.TemporaryDirectory(prefix='q08-private-') as temp:
         suite=EncoderSuite(sox,probe,results,Path(temp))
@@ -164,9 +171,13 @@ def run_family(sox,probe,decode_oracle,results):
                 # build. A plain production binary must fail, not generate an
                 # unobserved admission hash from an independent probe.
                 admission_prefix=family/f'{key}.admitted'
+                encode_fenv=family/f'{key}.encode-fenv.json'
+                decode_fenv=family/f'{key}.decode-fenv.json'
                 commands.append(run_cli([sox,'--precision','64','--report',enc_report,
                                          wav,'-r',hz,dsf],
-                    env={**os.environ,'SOX_P08_ADMITTED_PREFIX':str(admission_prefix)}))
+                    env={**os.environ,'SOX_P08_ADMITTED_PREFIX':str(admission_prefix),
+                         'SOX_P08_FENV_PATH':str(encode_fenv)}))
+                actual_encode_fenv=read_fenv(encode_fenv)
                 expected_frames=(len(frames)*hz*2+SOURCE_RATE)//(2*SOURCE_RATE)
                 physical=dsf_bits(dsf.read_bytes(),expected_frames,CHANNELS,hz)
                 probe_bits,stats,admission=suite.probe_stream(frames,SOURCE_RATE,
@@ -190,7 +201,9 @@ def run_family(sox,probe,decode_oracle,results):
                        f'{key}: invalid real encoder report')
                 commands.append(run_cli([sox,'--precision','64','--report',dec_report,
                                          dsf,'-b','64','-e','floating-point',
-                                         '-r',SOURCE_RATE,recon]))
+                                         '-r',SOURCE_RATE,recon],
+                                         env={**os.environ,'SOX_P08_FENV_PATH':str(decode_fenv)}))
+                actual_decode_fenv=read_fenv(decode_fenv)
                 n_recon=checked_rate(expected_frames,hz,SOURCE_RATE)
                 reconstructed,mask=parse_wav(recon,n_recon,CHANNELS,SOURCE_RATE)
                 demand(n_recon>0 and len(reconstructed)==n_recon*CHANNELS*8,
@@ -217,7 +230,8 @@ def run_family(sox,probe,decode_oracle,results):
                     for start in starts:
                         q=native_window(physical,CHANNELS,channel,start,WINDOW_LENGTH)
                         for beta in BETAS:
-                            dc,metrics=bandpower(q,hz,beta)
+                            x=np.frombuffer(actual_trace[channel][1],dtype='<f8',count=WINDOW_LENGTH,offset=start*8)
+                            dc,metrics=bandpower(q-x,hz,beta)
                             windows.append({'case':key,'channel':channel,'start_frame':start,
                                 'duration_frames':WINDOW_LENGTH,'window_kaiser_beta':beta,
                                 'weighted_dc':dc,'bands':metrics})
@@ -248,6 +262,10 @@ def run_family(sox,probe,decode_oracle,results):
                     'profile_id':enc['processing']['encoder'][0]['profile_id'],
                     'recovery_entries':[int(e['recovery_entries']) for e in enc['processing']['encoder']],
                     'peak_native':[e['peak_modulator_input'] for e in enc['processing']['encoder']],
+                    'same_process_fenv':{'encode':{**actual_encode_fenv,
+                        'path':str(encode_fenv.relative_to(results))},
+                        'decode':{**actual_decode_fenv,
+                        'path':str(decode_fenv.relative_to(results))}},
                     'source_path':str(wav.relative_to(results)),
                     'dsf_path':str(dsf.relative_to(results)),
                     'reconstructed_path':str(recon.relative_to(results)),
@@ -265,11 +283,19 @@ def run_family(sox,probe,decode_oracle,results):
                   'tests/pcm64/qualification/fir_probe.c',
                   'tests/pcm64/qualification/reference_cascade.py',
                   'tests/pcm64/qualification/cascade_probe.c',
-                  'tests/pcm64/decode/api_oracle.c', 'src/pcmdsd.h']
+                  'tests/pcm64/decode/api_oracle.c', 'src/pcmdsd.h',
+                  'tests/pcm64/qualification/build_context.py',
+                  'tests/pcm64/qualification/attestation.py',
+                  'tests/pcm64/qualification/audited_spectrum.py',
+                  'tests/pcm64/qualification/long_metrology.py',
+                  'tests/pcm64/qualification/mutation_regression.py',
+                  'tests/pcm64/qualification/sox_fenv_wrapper.c']
     record={'schema':'sox-native64-qualification/2',
         'status':'PASS',
         'scope':'FINITE_MEASUREMENTS_ONLY_NOT_RELEASE_CERTIFICATION',
         'source_git_commit':safe_git_head(SOURCE),
+        'build_and_host':build_context(SOURCE),
+        'accepted_production_revision':verify_accepted_source(SOURCE)['accepted_production_revision'],
         'timestamp':dt.datetime.now(dt.timezone.utc).isoformat(),
         'executed_binary_sha256':{str(sox):sha256(sox),str(probe):sha256(probe),
                                   str(decode_oracle):sha256(decode_oracle),
@@ -277,6 +303,8 @@ def run_family(sox,probe,decode_oracle,results):
         'source_artifacts_sha256':{f:sha256(SOURCE/f) for f in source_files},
         'source_rate_hz':SOURCE_RATE,
         'full_scale':'nominal DSD = +/-0.5; sinusoidal full-scale RMS power 0.125',
+        'measurement_signal':'native q minus actual post-clip modulator input x; no signal fitting',
+        'spectrum_reference':'Audited harness dsdqual/analysis.py (nine bands; matched q-x)',
         'betas':BETAS,'bands_half_open_hz':BANDS,
         'no_free_gain_or_shift_fits':True,
         'analysis_note':'Direct physical native DSD bit windows; not a matched legacy residual. '
@@ -317,6 +345,18 @@ def main(sox,probe,decode_oracle,results):
             ('alignment', [sys.executable,
                 str(SOURCE/'tests/pcm64/qualification/alignment.py'),
                 '--results',str(results)]),
+            ('cancellation', [sys.executable,
+                str(SOURCE/'tests/pcm64/qualification/cancellation.py'),
+                '--sox',str(sox), '--results',str(results/'cancellation')]),
+            ('receiver-mutations', [sys.executable,
+                str(SOURCE/'tests/pcm64/qualification/mutation_regression.py'),
+                '--mutants',str(SOURCE/'tests/pcm64/qualification/mutants'),
+                '--results',str(results)]),
+            ('long-metrology', [sys.executable,
+                str(SOURCE/'tests/pcm64/qualification/long_metrology.py'),
+                '--sox',str(sox),
+                '--unit',str(Path(sox).resolve().parents[1]/'test/dsd_test_p10'),
+                '--results',str(results)]),
         )
         gate_results=[]
         for name, command in gates:
@@ -341,5 +381,5 @@ def main(sox,probe,decode_oracle,results):
         return 1
     print(f"PASS qualification: {record['case_count']} physical cases, "
           f"{record['window_count']} windows, {record['spectral_rows']} spectral measurements; "
-          "independent verifier, FIR and alignment gates")
+          "independent verifier, FIR, alignment and 20 cancellation cases")
     return 0

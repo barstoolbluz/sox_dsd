@@ -1,0 +1,11 @@
+--- a/src/dsd_f64.c
++++ b/src/dsd_f64.c
+@@ -298,7 +298,7 @@
+     if (pcm_f64_classify(word,&kind)!=PCM_F64_OK ||
+         kind!=PCM_F64_WORD_FINITE)
+       return encoder_failure(e,SOX_DSD_NUMERIC_ERROR);
+-    e->planar[c*LSX_DSD_F64_ENCODE_INPUT+frame]=*word;
++    { double x_=*word; if (x_>1.) x_=1.; if (x_<-1.) x_=-1.; long long v_=llrint(x_*2147483648.0); if (v_>2147483647LL) v_=2147483647LL; e->planar[c*LSX_DSD_F64_ENCODE_INPUT+frame]=(double)(int32_t)v_/2147483648.0; }
+   }
+   for (c=0;c<e->channels;c++) {
+     size_t n=available, m=capacity;

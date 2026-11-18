@@ -1,0 +1,11 @@
+--- a/tests/pcm64/qualification.py
++++ b/tests/pcm64/qualification.py
+@@ -90,7 +90,7 @@
+     dc=float(np.sum(values*w2,dtype=np.float64)/np.sum(w2,dtype=np.float64))
+     y=(values-dc)*w
+     z=np.fft.rfft(y)
+-    power=(z.real*z.real+z.imag*z.imag)/(n*float(np.sum(w2,dtype=np.float64)))
++    power=(z.real*z.real+z.imag*z.imag)/(float(np.sum(w,dtype=np.float64))**2)
+     power[1:-1]*=2
+     freqs=np.fft.rfftfreq(n,1/rate)
+     bands={}

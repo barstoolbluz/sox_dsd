@@ -1,0 +1,20 @@
+--- a/tests/pcm64/qualification/reference_cascade.py
++++ b/tests/pcm64/qualification/reference_cascade.py
+@@ -64,7 +64,7 @@
+ def oracle_src(stage,n:int,source:dict[int,float],bits:int,*,shift=0):
+     # Same discrete phase schedule as the existing independent P15 operator.
+     # Input zeros outside [0,FRAMES); exact stored coefficient words.
+-    with mp.workprec(bits):
++    with mp.workprec(min(bits,53)):
+         row=stage.taps_to_previous(n+shift)
+         return mp.fsum(mp.mpf(coef)*mp.mpf(source.get(j,0.))
+                        for j,coef in row if 0<=j<FRAMES and source.get(j,0.)!=0.)
+@@ -76,7 +76,7 @@
+     received=n+half+1
+     pos=[received-taps+j for j in range(taps)]
+     if wrong_phase:pos=[k+1 for k in pos]
+-    with mp.workprec(bits):
++    with mp.workprec(min(bits,53)):
+         w=[oracle_src(stage,k,source,bits) if 0<=k<working_frames
+            else mp.mpf(0) for k in pos]
+         total=mp.mpf(bank[half])*w[half]

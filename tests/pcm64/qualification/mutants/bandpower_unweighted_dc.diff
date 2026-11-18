@@ -1,0 +1,11 @@
+--- a/tests/pcm64/qualification.py
++++ b/tests/pcm64/qualification.py
+@@ -87,7 +87,7 @@
+     demand(n==WINDOW_LENGTH,'wrong analysis window')
+     w=np.kaiser(n,beta)
+     w2=w*w
+-    dc=float(np.sum(values*w2,dtype=np.float64)/np.sum(w2,dtype=np.float64))
++    dc=float(np.mean(values))
+     y=(values-dc)*w
+     z=np.fft.rfft(y)
+     power=(z.real*z.real+z.imag*z.imag)/(n*float(np.sum(w2,dtype=np.float64)))

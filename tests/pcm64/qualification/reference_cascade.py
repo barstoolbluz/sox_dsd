@@ -12,6 +12,7 @@ working-to-native SRC; those remain covered by the existing named SRC tests.
 from __future__ import annotations
 
 import argparse
+from fractions import Fraction
 import hashlib
 import json
 import math
@@ -26,7 +27,8 @@ import mpmath as mp
 SOURCE=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(SOURCE/'tests/dsd'))
 from p15_src_bound_operator import load_snapshot
-from fir_reference import BANKS, read_bank, sha256, window_at
+from fir_reference import BANKS, sha256, window_at
+from attestation import verify as verify_accepted_source, REFERENCE
 
 PRECISIONS=(192,256,384)
 FRAMES=1537
@@ -59,6 +61,25 @@ def expected_length(frames,hz):
 
 def nonzero_source(anchor,dual):
     return {anchor:0.5,**({anchor+1:-0.25,anchor+3:0.125} if dual else {})}
+
+
+def exact_rational_src(stage,n,source):
+    # The mapping comes from a frozen accepted-stage fixture, not the exporter
+    # under test. Fraction.from_float retains every stored coefficient bit.
+    return sum((Fraction.from_float(coef)*Fraction.from_float(source[j])
+                for j,coef in stage.taps_to_previous(n)
+                if 0<=j<FRAMES and j in source),Fraction(0))
+
+
+def check_exact_reference(observed,expected,scale,where):
+    with mp.workprec(384):
+        reference=mp.mpf(expected.numerator)/mp.mpf(expected.denominator)
+        delta=abs(observed-reference)
+        maximum=mp.power(2,-155)*max(mp.mpf(1),mp.mpf(scale))
+        demand(delta<=maximum,
+               f'{where}: nominal 192-bit reference is low-precision or wrong phase: '
+               f'{mp.nstr(delta,28)}')
+    return mp.nstr(delta,48)
 
 
 def oracle_src(stage,n:int,source:dict[int,float],bits:int,*,shift=0):
@@ -128,6 +149,7 @@ def checked_disagreement(actual,ideal,budget,where):
 def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
     for binary in (exporter,src_probe,cascade):demand(binary.is_file(),f'absent: {binary}')
     results.mkdir(parents=True,exist_ok=True)
+    att=verify_accepted_source(source)
     rows=[];controls=[];snapshots={};max_src_err=0.;max_cascade_err=0.
     with tempfile.TemporaryDirectory(prefix='p08-cascade-',dir=results) as d:
         tmp=Path(d)
@@ -135,7 +157,10 @@ def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
             working=SOURCE_RATE*multiplier
             snap=tmp/f'stage-{multiplier}.json'
             invoke([exporter,SOURCE_RATE,working,snap])
-            stage_op=load_snapshot(snap)
+            accepted=REFERENCE/f'stage-{multiplier}.json'
+            demand(snap.read_bytes()==accepted.read_bytes(),
+                   f'{multiplier}: production SRC coefficients or clock changed')
+            stage_op=load_snapshot(accepted)
             demand(stage_op.input_hz==SOURCE_RATE and stage_op.output_hz==working
                    and len(stage_op.stages)==1,
                    f'unexpected actual SRC stage decomposition at {working} Hz')
@@ -151,7 +176,7 @@ def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
                                         'dft_taps':stage.dft_taps,
                                         'phase':{'L':stage.L,'M':stage.M,'post_peak':stage.dft_post_peak,
                                                  'preload':stage.preload,'remL':stage.remL}}
-            bank=read_bank(source/'src/pcmdsd_coeffs.h',*BANKS[native//44100])
+            bank=[float.fromhex(x) for x in att['fir_bank_f64_hex'][str(native//44100)]]
             actual_working=expected_length(FRAMES,working)
             actual_native=expected_length(FRAMES,native)
             demand(actual_working==FRAMES*multiplier,
@@ -178,6 +203,10 @@ def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
                 idx=sampled_indices(actual_working,anchor,multiplier)
                 for j in idx:
                     values={b:oracle_src(stage,j,source_signal,b) for b in PRECISIONS}
+                    if label=='composed' and j in (anchor*multiplier, anchor*multiplier+1,anchor*multiplier+3):
+                        check_exact_reference(values[192],
+                            exact_rational_src(stage,j,source_signal),l1src,
+                            f'{key}/source-SRC/{j}')
                     c1,c2=convergence(values,mp.mpf(l1src),f'{key}/src/{j}')
                     max_conv1=max(max_conv1,float(mp.mpf(c1)))
                     max_conv2=max(max_conv2,float(mp.mpf(c2)))

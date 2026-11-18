@@ -1,0 +1,11 @@
+--- a/src/sox_ng.c
++++ b/src/sox_ng.c
+@@ -4990,6 +4990,8 @@
+     lsx_fail("native PCM-to-DSD: source-derived bit-count invariant failed");
+     goto done;
+   }
++  if (!auto_headroom && ofile->ft && ofile->ft->filetype && !strcmp(ofile->ft->filetype,"dff"))
++    output_samples=(output_samples+7)&~(uint64_t)7;
+   if (auto_headroom) {
+     const lsx_pcmdsd *core=lsx_dsd_f64_encode_channel(&encoder,0);
+     const lsx_pcmdsd_profile *profile=lsx_pcmdsd_profile_of(core);

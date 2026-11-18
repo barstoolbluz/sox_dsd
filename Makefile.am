@@ -875,6 +875,15 @@ EXTRA_DIST += tests/pcm64/encode_probe.c tests/pcm64/encode.py \
   tests/pcm64/qualification/cancellation.py \
   tests/pcm64/qualification/verify.py \
   tests/pcm64/qualification/audited_workcopy.py \
+  tests/pcm64/qualification/attestation.py \
+  tests/pcm64/qualification/audited_spectrum.py \
+  tests/pcm64/qualification/reference/accepted-8005f35.json \
+  tests/pcm64/qualification/reference/stage-2.json \
+  tests/pcm64/qualification/reference/stage-4.json \
+  tests/pcm64/qualification/long_metrology.py \
+  tests/pcm64/qualification/mutation_regression.py \
+  tests/pcm64/qualification/reference/accepted-dsd64-constants.h \
+  tests/pcm64/qualification/reference/accepted-dsd128-constants.h \
   tests/pcm64/qualification/AUDITED_WORKING_COPY.md \
   tests/pcm64/qualification/alignment.py \
   tests/pcm64/qualification/fir_probe.c \
@@ -902,11 +911,14 @@ PCM64_SUITE = foundation
 PCM64_RESULTS = $(abs_top_builddir)/evidence/phase01
 .PHONY: check-pcm64
 check-pcm64: all
-	$(MAKE) -C test pcm64_probe pcm64_coordinator_probe pcm64_wav_probe pcm64_flac_probe pcm64_decode_api_oracle pcm64_encode_probe pcm64_transcode_probe pcm64_headroom_probe dsd_test_p15_src_stage_export dsd_test_p07_reference pcm64_cascade_probe
+	$(MAKE) -C test pcm64_probe pcm64_coordinator_probe pcm64_wav_probe pcm64_flac_probe pcm64_decode_api_oracle pcm64_encode_probe pcm64_transcode_probe pcm64_headroom_probe dsd_test_p15_src_stage_export dsd_test_p07_reference pcm64_cascade_probe dsd_test_p10
+	@if test '$(PCM64_SUITE)' = qualification -o '$(PCM64_SUITE)' = all; then \
+	  $(MAKE) -C src sox_p08_qualification || exit $$?; fi
 	python3 '$(abs_top_srcdir)/tests/pcm64/test_io_wav_harness.py'
 	python3 '$(abs_top_srcdir)/tests/pcm64/test_binary_receipts.py'
 	python3 '$(abs_top_srcdir)/tests/pcm64/run.py' --suite '$(PCM64_SUITE)' \
 	  --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' \
+	  --qualification-sox '$(abs_top_builddir)/src/sox_p08_qualification$(EXEEXT)' \
 	  --probe '$(abs_top_builddir)/test/pcm64_probe$(EXEEXT)' \
 	  --decode-oracle '$(abs_top_builddir)/test/pcm64_decode_api_oracle$(EXEEXT)' \
 	  --results '$(PCM64_RESULTS)'
@@ -914,3 +926,29 @@ check-pcm64: all
 # Small, dependency-free receipt self-test runs in ordinary make check too.
 check-local:
 	python3 '$(abs_top_srcdir)/tests/pcm64/test_binary_receipts.py'
+
+# Frozen, independent receiver mutation fixtures (do not modify source DSP).
+EXTRA_DIST += tests/pcm64/qualification/mutants/bandpower_no_onesided_x2.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/bandpower_norm_sumw.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/bandpower_unweighted_dc.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/cascade_prec53.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/cert_header_bit.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/clamp_cli.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/clamp_lib.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/close_suppress_cli.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/close_suppress_core.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/decoder_core_halfgain.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/dffpad_cli.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/dupgain_core.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/dupgain_file.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/fenv_guard_off.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/fir_coeff_center_2m20.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/fir_coeff_center_ulp.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/fir_ref_prec53.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/fir_ref_window_shift.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/int32_src_lib.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/naive_round.diff
+EXTRA_DIST += tests/pcm64/qualification/mutants/shift_native_core.diff
+
+EXTRA_DIST += tests/pcm64/qualification/sox_fenv_wrapper.c
+EXTRA_DIST += tests/pcm64/qualification/build_context.py

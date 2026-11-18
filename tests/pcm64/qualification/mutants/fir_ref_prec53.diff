@@ -1,0 +1,11 @@
+--- a/tests/pcm64/qualification/fir_reference.py
++++ b/tests/pcm64/qualification/fir_reference.py
+@@ -88,7 +88,7 @@
+ 
+ def evaluate(bank:list[float],source:list[float],bits:int,*,mutate=False):
+     length=len(bank);mid=length//2
+-    with mp.workprec(bits):
++    with mp.workprec(min(bits,53)):
+         coeff=[mp.mpf(x) for x in bank]
+         results=[]
+         for out in range(len(source)):

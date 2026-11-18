@@ -374,6 +374,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--suite", required=True)
     parser.add_argument("--sox", type=Path, required=True)
+    parser.add_argument("--qualification-sox", type=Path)
     parser.add_argument("--probe", type=Path, required=True)
     parser.add_argument("--results", type=Path, required=True)
     parser.add_argument("--decode-oracle", type=Path)
@@ -388,7 +389,9 @@ def main():
         from qualification import main as qualification_main
         if args.decode_oracle is None:
             parser.error("qualification requires the independent public decoder oracle")
-        return qualification_main(args.sox.resolve(),
+        if args.qualification_sox is None or not args.qualification_sox.is_file():
+            parser.error('qualification needs test-only sox_p08_qualification')
+        return qualification_main(args.qualification_sox.resolve(),
             args.probe.resolve().parent / "pcm64_encode_probe",
             args.decode_oracle.resolve(),results)
     if args.suite == "all":
@@ -402,6 +405,7 @@ def main():
         for suite in suites:
             cp=subprocess.run([sys.executable, str(Path(__file__).resolve()),
                 "--suite", suite, "--sox", str(args.sox.resolve()),
+                *(["--qualification-sox", str(args.qualification_sox.resolve())] if args.qualification_sox else []),
                 "--probe", str(args.probe.resolve()),
                 "--decode-oracle", str(args.decode_oracle.resolve())
                     if args.decode_oracle is not None else "",

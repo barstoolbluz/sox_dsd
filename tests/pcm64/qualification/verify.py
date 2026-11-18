@@ -12,6 +12,7 @@ import hashlib
 import json
 import math
 import os
+import shutil
 from pathlib import Path
 import struct
 import subprocess
@@ -23,14 +24,19 @@ import numpy as np
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from qualification import (PATTERNS, RATES, SOURCE_RATE, CHANNELS, FRAMES, BETAS,
-    BANDS, WINDOW_LENGTH, stimulus, sha256, bandpower, native_window, plan_windows,
+    BANDS, WINDOW_LENGTH, stimulus, sha256, native_window, plan_windows,
     demand)
+from audited_spectrum import BANDS as REFERENCE_BANDS, analyze as reference_bandpower, compare as compare_spectrum
+from attestation import verify as verify_accepted_source
+from build_context import read_fenv
 from decode import parse_wav, checked_rate
 from encode import dsf_bits, float_words
 
 
 def check(root,record,source=None,sox=None,probe=None,oracle=None):
     source=(Path(source) if source is not None else Path(__file__).resolve().parents[3]).resolve()
+    pin=verify_accepted_source(source)
+    demand(BANDS==REFERENCE_BANDS, 'measurement bands differ from audited reference')
     binaries=record.get('executed_binary_sha256',{})
     demand(isinstance(binaries,dict) and binaries and
            isinstance(record.get('source_artifacts_sha256'),dict) and
@@ -48,12 +54,17 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
         demand(path.is_file() and sha256(path)==binaries[str(matches[0])],
                'stale executable: '+name)
         return path
-    bound_binary('/src/sox',sox)
+    bound_binary('/src/sox_p08_qualification',sox)
     probe_binary=bound_binary('/test/pcm64_encode_probe',probe)
     oracle_binary=bound_binary('/test/pcm64_decode_api_oracle',oracle)
     head=subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],
         capture_output=True,text=True,check=False)
-    if (source/'.git').exists():
+    if not (source/'.git').exists():
+        # Provenance without Git must still be tied to the accepted source
+        # inventory; the pin check above covers all 286 tracked src/ C/H files.
+        demand(record.get('accepted_production_revision')==pin['accepted_production_revision'],
+               'missing accepted revision in source-free receipt')
+    else:
         demand(head.returncode==0 and head.stdout.strip()==record.get('source_git_commit'),
                'stale source revision')
     demand(record['status']=='PASS' and record['schema']=='sox-native64-qualification/2',
@@ -61,7 +72,7 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
     demand(record['scope']=='FINITE_MEASUREMENTS_ONLY_NOT_RELEASE_CERTIFICATION',
            'false release claim')
     demand(record['case_count']==18 and record['window_count']==108 and
-           record['spectral_rows']==864 and len(record['cases'])==18 and
+           record['spectral_rows']==1944 and len(record['cases'])==18 and
            len(record['windows'])==216,'missing/extra physical cases or windows')
     demand(tuple(record['betas'])==BETAS and
            {k:tuple(v) for k,v in record['bands_half_open_hz'].items()}==BANDS,
@@ -92,6 +103,14 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
                            (report,'encoder_report_sha256'),
                            (decode_report,'decoder_report_sha256')):
             demand(sha256(path)==case[field],f'{cid}: corrupted {field}')
+        for stage in ('encode','decode'):
+            witness=case['same_process_fenv'][stage]
+            p=Path(root)/witness['path']
+            demand(p.resolve().is_relative_to(root.resolve()) and p.is_file(),
+                   f'{cid}: escaped/missing CLI process FENV witness')
+            fresh=read_fenv(p)
+            demand(all(fresh[k]==witness[k] for k in fresh if k!='path'),
+                   f'{cid}: altered CLI process FENV data')
         source_bytes,_=parse_wav(source,FRAMES,CHANNELS,SOURCE_RATE)
         expected_bytes=float_words(stimulus(pattern))
         demand(source_bytes==expected_bytes and
@@ -188,7 +207,7 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
                case['recovery_entries']==[int(e['recovery_entries'])
                                          for e in er['processing']['encoder']],
                f'{cid}: wrong physical profile, window plan, recovery counters')
-        physical_cache[cid]=(physical,n,hz,expected_starts)
+        physical_cache[cid]=(physical,n,hz,expected_starts,traces)
     demand(observed==expected,'missing synthetic signal classes')
     window_keys=set()
     for rec in record['windows']:
@@ -200,27 +219,10 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
                start in physical_cache[cid][3] and key not in window_keys,
                f'wrong/repeated window {key}')
         window_keys.add(key)
-        bits,n,hz,_=physical_cache[cid]
+        bits,n,hz,_,traces=physical_cache[cid]
         q=native_window(bits,CHANNELS,channel,start,WINDOW_LENGTH)
-        dc, bands=bandpower(q,hz,beta)
-        demand(math.isclose(rec['weighted_dc'],dc,abs_tol=1e-14),
-               f'{cid} window {start}: weighted DC mutated')
-        demand(rec['bands'].keys()==bands.keys(),f'{cid}: missing band')
-        for name, value in bands.items():
-            have=rec['bands'][name]
-            # Recorded dBFS must match the recorded power, independently of
-            # the host's FFT power-reduction order. The measured worst-case
-            # cross-host delta was 2.643e-7 relative power (~1.15e-6 dB).
-            # Allow 5e-7 relative power (<2x observed), without an absolute
-            # floor that could mask errors in tiny quiet-signal bands.
-            power=have['power']
-            demand(isinstance(power,(int,float)) and math.isfinite(power)
-                   and power>=0, f'{cid}: invalid recorded power')
-            derived=10*math.log10(max(power/0.125,1e-300))
-            demand(have['bins']==value['bins'] and
-                   math.isclose(have['dbfs'],derived,rel_tol=0,abs_tol=1e-11) and
-                   math.isclose(power,value['power'],rel_tol=5e-7,abs_tol=0),
-                   f'{cid} window {start}: altered band {name}')
+        x=np.frombuffer(traces[channel],dtype='<f8',count=WINDOW_LENGTH,offset=start*8)
+        compare_spectrum(rec,reference_bandpower(q-x,hz,beta),f'{cid} window {start}')
     demand(len(window_keys)==18*2*3*2,'zero or missing window combinations')
     return len(physical_cache), len(window_keys)
 
@@ -245,10 +247,15 @@ def negative_controls(root,record,source=None,sox=None,probe=None,oracle=None):
                             'encode_report_path','decode_report_path',
                             'public_decoder_raw_path'):
                     p=Path(case[key]);dst=shadow/p
-                    if not dst.exists(): os.link((root/p).resolve(),dst)
+                    if not dst.exists(): shutil.copyfile((root/p).resolve(),dst)
+                    # A copy works even when TMPDIR is a distinct filesystem.
+                for stage in ('encode','decode'):
+                    p=Path(case['same_process_fenv'][stage]['path']);dst=shadow/p
+                    if not dst.exists():shutil.copyfile((root/p).resolve(),dst)
                 for p in case['actual_admitted_paths']:
                     dst=shadow/p
-                    if not dst.exists(): os.link((root/p).resolve(),dst)
+                    if not dst.exists(): shutil.copyfile((root/p).resolve(),dst)
+                    # A copy works even when TMPDIR is a distinct filesystem.
             mutate(changed,shadow)
             try: check(shadow,changed,source,sox,probe,oracle)
             except (AssertionError,KeyError,ValueError,TypeError,IndexError, OSError) as exc:
@@ -262,9 +269,9 @@ def negative_controls(root,record,source=None,sox=None,probe=None,oracle=None):
     reject('duplicate_analysis_window',lambda d,s:d['windows'].__setitem__(1,copy.deepcopy(d['windows'][0])))
     reject('wrong_alignment_window_start',lambda d,s:d['windows'][0].__setitem__('start_frame',d['windows'][0]['start_frame']+1))
     reject('mutated_window_dc',lambda d,s:d['windows'][0].__setitem__('weighted_dc',.123))
-    reject('wrong_window_normalization',lambda d,s:d['windows'][0]['bands']['20-20k'].__setitem__('dbfs',d['windows'][0]['bands']['20-20k']['dbfs']+3.01029995664))
-    reject('reduced_precision_power',lambda d,s:d['windows'][0]['bands']['20-20k'].__setitem__('power',d['windows'][0]['bands']['20-20k']['power']*1.01))
-    reject('band_endpoint_overlap',lambda d,s:d['bands_half_open_hz'].__setitem__('20-20k',[20,20001]))
+    reject('wrong_window_normalization',lambda d,s:d['windows'][0]['bands']['20_20k'].__setitem__('dbfs',d['windows'][0]['bands']['20_20k']['dbfs']+3.01029995664))
+    reject('reduced_precision_power',lambda d,s:d['windows'][0]['bands']['20_20k'].__setitem__('power',d['windows'][0]['bands']['20_20k']['power']*1.01))
+    reject('band_endpoint_overlap',lambda d,s:d['bands_half_open_hz'].__setitem__('20_20k',[20,20001]))
     reject('beta_sensitivity_suppressed',lambda d,s:d.__setitem__('betas',[30.,30.]))
     reject('false_complete',lambda d,s:d.__setitem__('status','RUNNING'))
     reject('stale_output_hash',lambda d,s:d['cases'][0].__setitem__('physical_dsf_sha256','f'*64))
@@ -275,7 +282,7 @@ def negative_controls(root,record,source=None,sox=None,probe=None,oracle=None):
     reject('altered_fir_certificate',lambda d,s:d['source_artifacts_sha256'].__setitem__('src/pcmdsd.c','0'*64))
     reject('changed_qualification_source',lambda d,s:d['source_artifacts_sha256'].__setitem__('tests/pcm64/qualification.py','f'*64))
     def stale_binary(d,s):
-        key=next(k for k in d['executed_binary_sha256'] if k.endswith('/src/sox'))
+        key=next(k for k in d['executed_binary_sha256'] if k.endswith('/src/sox_p08_qualification'))
         d['executed_binary_sha256'][key]='f'*64
     reject('stale_sox_binary',stale_binary)
     def physical_flip(d,s):

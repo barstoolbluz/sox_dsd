@@ -9,6 +9,7 @@ current deployed coefficient banks and actual scalar rounding order.
 from __future__ import annotations
 
 import argparse
+from fractions import Fraction
 import datetime as dt
 import hashlib
 import json
@@ -22,6 +23,7 @@ import sys
 import tempfile
 
 import mpmath as mp
+from attestation import verify as verify_accepted_source
 
 BANKS = {64:("lsx_pcmdsd_coeff_master64_256",61),
          128:("lsx_pcmdsd_coeff_master128",77)}
@@ -102,6 +104,28 @@ def evaluate(bank:list[float],source:list[float],bits:int,*,mutate=False):
         return results
 
 
+def exact_rational_fir(bank,source,out):
+    """Exact dyadic coefficients/PCM with independently indexed zero extension."""
+    half=len(bank)//2
+    return sum((Fraction.from_float(bank[j])*Fraction.from_float(source[k])
+                for j in range(len(bank))
+                for k in (out-half+j,)
+                if 0<=k<len(source) and source[k]!=0),Fraction(0))
+
+
+def reject_reduced_reference(actual,fraction,scale,label):
+    # At 192-bit precision the sum of a short, exactly dyadic FIR is
+    # unambiguous at 2^-155 even if its correctly rounded binary64 is not.
+    with mp.workprec(384):
+        reference=mp.mpf(fraction.numerator)/mp.mpf(fraction.denominator)
+        delta=abs(actual-reference)
+        bound=mp.power(2,-155)*max(mp.mpf(1),mp.mpf(scale))
+        check(delta<bound,
+              f'{label}: purported 192-bit reference uses reduced precision '
+              f'or incorrect centering (error={mp.nstr(delta,24)})')
+    return mp.nstr(delta,48)
+
+
 def error_budget(bank:list[float],source:list[float],out:int)->mp.mpf:
     length=len(bank);mid=length//2
     w=window_at(source,length,out+mid+1)
@@ -137,7 +161,10 @@ def run_probe(path:Path,rate:int,signal:list[float])->list[float]:
     half=taps//2
     lines=[]
     for output in range(len(signal)):
-        window=window_at(signal,taps,output+half+1)
+        # Independent physical probe indexing, NOT the reference window_at()
+        # being verified. This separates a shifted reference from its witness.
+        window=[signal[j] if 0<=j<len(signal) else 0.0
+                for j in range(output-half,output-half+taps)]
         lines.append(str(rate)+" "+" ".join(x.hex() for x in window))
     cp=subprocess.run([str(path)],input=("\n".join(lines)+"\n").encode(),
                       capture_output=True,timeout=30)
@@ -149,13 +176,18 @@ def run_probe(path:Path,rate:int,signal:list[float])->list[float]:
 
 def execute(source:Path,results:Path)->dict:
     source=source.resolve();results.mkdir(parents=True,exist_ok=True)
+    att=verify_accepted_source(source)
     coeff=source/'src/pcmdsd_coeffs.h'
     with tempfile.TemporaryDirectory(prefix='phase08-fir-',dir=results) as scratch:
         probe=Path(scratch)/'fir_probe'
         command=compile_probe(source,probe)
         cases=[];controls=[]
         for rate,(name,count) in BANKS.items():
-            bank=read_bank(coeff,name,count)
+            # Coefficients used by the reference come from a separately
+            # committed acceptance fixture, NOT the mutated C header.
+            bank=[float.fromhex(x) for x in att['fir_bank_f64_hex'][str(rate)]]
+            check(bank==read_bank(coeff,name,count),
+                  f'{rate}: production FIR coefficient differs from fixed reference')
             for pattern in ('one','zero','alternating','impulse_head','impulse_tail',
                             'longwave','quiet','subnormal'):
                 length=1 if pattern=='one' else 127
@@ -165,6 +197,7 @@ def execute(source:Path,results:Path)->dict:
                 max_error=mp.mpf(0);max_ratio=mp.mpf(0)
                 max_convergence=mp.mpf(0)
                 max_spot=mp.mpf(0)
+                independent_exact_error=None
                 with mp.workprec(384):
                     for i,x in enumerate(actual):
                         ideal=res[384][i]
@@ -181,6 +214,12 @@ def execute(source:Path,results:Path)->dict:
                         check(abs(res[192][i]-res[256][i])<=reliable and
                               abs(res[256][i]-res[384][i])<=reliable,
                               f'{rate}/{pattern}/{i}: high-precision reference not converged')
+                if pattern=='longwave':
+                    j=length//2
+                    independent_exact_error=reject_reduced_reference(
+                        res[192][j],exact_rational_fir(bank,data,j),
+                        math.fsum(abs(x) for x in bank)*max(map(abs,data)),
+                        f'{rate}/{pattern}/{j}')
                 cases.append({
                     'rate':rate,'pattern':pattern,'input_words':len(data),
                     'input_f64_sha256':doubles_digest(data),
@@ -192,6 +231,7 @@ def execute(source:Path,results:Path)->dict:
                     'max_bound_ratio':mp.nstr(max_ratio,30),
                     'max_ref192_vs256':mp.nstr(max_convergence,36),
                     'max_ref256_vs384':mp.nstr(max_spot,36),
+                    'independent_exact_rational_error':independent_exact_error,
                     'status':'PASS'})
                 if pattern=='longwave':
                     with mp.workprec(384):

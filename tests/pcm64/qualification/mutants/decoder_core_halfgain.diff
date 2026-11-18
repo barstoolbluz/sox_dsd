@@ -1,0 +1,11 @@
+--- a/src/dsd_public.c
++++ b/src/dsd_public.c
+@@ -182,7 +182,7 @@
+   unsigned c;
+   if (!ctx->qlen || ctx->delivered >= ctx->target) return 0;
+   for (c = 0; c < ctx->cfg.channels; ++c)
+-    output[c] = ctx->gain * ctx->queue[(size_t)c * DSD_QUEUE + ctx->qhead];
++    output[c] = .5 * ctx->gain * ctx->queue[(size_t)c * DSD_QUEUE + ctx->qhead];
+   ctx->qhead = (ctx->qhead + 1) % DSD_QUEUE;
+   --ctx->qlen;
+   ++ctx->delivered;

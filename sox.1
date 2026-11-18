@@ -1546,7 +1546,13 @@ certified input envelope.  DSD256, DSD512 and DSD1024 retain the default
 Native clipped samples are counted and warned about.  In
 .B error
 mode, the default gain is unity at every DSD rate and clipping is not
-performed: excessive interpolated peaks cause a conversion failure.  An
+performed.  At DSD64, DSD128, DSD256, DSD512 and DSD1024 alike,
+interpolated peaks above 0.5 nominal modulator-input units are refused,
+subject only to a two-source-int32-LSB admission tolerance (at 0.5 scale:
+2/2147483647 times 0.5, approximately 4.66e-10).  A peak within that
+tolerance is still checked against the selected kernel's safety guards;
+it is not silently clamped.  At DSD256/512/1024, the error-mode refusal
+threshold is therefore higher than the warning-mode 0.45 ceiling.  An
 explicit
 .B \-\-headroom
 or

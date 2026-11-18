@@ -1,0 +1,11 @@
+--- a/src/pcmdsd.c
++++ b/src/pcmdsd.c
+@@ -430,7 +430,7 @@
+       if (got) {
+         size_t j;
+         observe(p,LSX_PCMDSD_STAGE_NATIVE,native,got);
+-        for (j=0;j<got;++j) native[j]*=p->scale*p->gain;
++        for (j=0;j<got;++j) native[j]*=p->scale*p->gain*p->scale;
+         observe(p,LSX_PCMDSD_STAGE_SCALED,native,got);
+         /* A clipped interpolated overshoot is a recoverable user-level
+          * amplitude condition. Keep certified SDM state/nonfinite guards

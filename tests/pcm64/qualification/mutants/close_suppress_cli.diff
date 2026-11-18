@@ -1,0 +1,11 @@
+--- a/src/sox_ng.c
++++ b/src/sox_ng.c
+@@ -395,7 +395,7 @@
+       !lsx_stat(ft->filename, &st) && IS_REGULAR_FILE(st) ?
+       lsx_strdup(ft->filename) : NULL;
+   dsd_output_clip_total=ft->clips;
+-  int result = sox_close(ft);
++  int result = sox_close(ft); result = SOX_SUCCESS;
+   ofile->ft = NULL; /* sox_close frees the handle, even on failure. */
+   if (result != SOX_SUCCESS) {
+     lsx_fail("P07: output finalization failed");

@@ -1,0 +1,10 @@
+--- a/src/dsd_f64.c
++++ b/src/dsd_f64.c
+@@ -98,6 +98,7 @@
+     if (pcm_f64_check_dsp_env()!=PCM_F64_OK)
+       return failure(s,PCM_F64_NUMERIC);
+     rc=pcm_f64_fixed_gain(out.data,out.data,words,s->gains[k],NULL);
++    rc=pcm_f64_fixed_gain(out.data,out.data,words,s->gains[k],NULL);
+     if (rc!=PCM_F64_OK) return failure(s,rc);
+   }
+   /* Fixed-size stack scratch: no per-frame/per-sample heap operations. */

@@ -66,6 +66,13 @@ endif
 lib_LTLIBRARIES = libsox_ng.la
 include_HEADERS = sox_ng.h sox_dsd.h
 sox_SOURCES = sox_ng.c
+# Phase08: private admission and cancellation driver linked against the same
+# production libsox. Uninstalled; only check-pcm64 asks to build it. Ordinary
+# src/sox never compiles either diagnostic callback or cancellation hooks.
+EXTRA_PROGRAMS += sox_p08_qualification
+sox_p08_qualification_SOURCES = sox_ng.c ../tests/pcm64/qualification/sox_fenv_wrapper.c
+sox_p08_qualification_CFLAGS = @WARN_CFLAGS@ -DSOX_P08_ADMISSION_TEST_BUILD -DSOX_P08_CANCEL_TEST_BUILD -Dmain=sox_p08_original_main
+sox_p08_qualification_LDADD = libsox_ng.la -lm
 if HAVE_WIN32_GLOB
 sox_SOURCES += win32-glob.c win32-glob.h
 endif

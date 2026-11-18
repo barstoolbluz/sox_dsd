@@ -1,0 +1,11 @@
+--- a/src/pcm_f64.c
++++ b/src/pcm_f64.c
+@@ -173,7 +173,7 @@
+         (mxcsr & (0x6000u | 0x8000u | 0x0040u)) != 0 ||
+         (x87_cw & 0x003fu) != 0x003fu ||
+         (x87_cw & 0x0c00u) != 0)
+-      return PCM_F64_NUMERIC;
++      return PCM_F64_OK;
+     return PCM_F64_OK;
+   }
+ #elif defined(__aarch64__) && (defined(__GNUC__) || defined(__clang__))

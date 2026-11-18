@@ -1,0 +1,14 @@
+--- a/src/pcm_f64.c
++++ b/src/pcm_f64.c
+@@ -346,9 +346,8 @@
+     /* Multiplication by a positive power of two is exact here. modf splits
+      * that exact dyadic value without the false half-tie caused by adding
+      * 0.5 before floor. The integer is at most 2^31, exactly represented. */
+-    fraction = modf(ldexp(abs_value, (int)bits - 1), &whole);
+-    magnitude = (uint64_t)whole;
+-    if (fraction >= 0.5) ++magnitude;  /* ties go AWAY from zero */
++    (void)fraction; (void)whole;
++    magnitude = (uint64_t)floor(ldexp(abs_value, (int)bits - 1) + 0.5);
+     if (!negative && magnitude >= limit) {
+       magnitude = limit - 1;
+       *saturated = true;

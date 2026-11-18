@@ -1,0 +1,11 @@
+--- a/src/formats.c
++++ b/src/formats.c
+@@ -2392,7 +2392,7 @@
+   sox_delete_comments(&ft->oob.comments);
+ 
+   free(ft);
+-  return result;
++  (void)result; return SOX_SUCCESS;
+ }
+ 
+ int sox_seek(sox_format_t * ft, sox_uint64_t offset, int whence)

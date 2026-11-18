@@ -1,0 +1,11 @@
+--- a/tests/pcm64/qualification/fir_reference.py
++++ b/tests/pcm64/qualification/fir_reference.py
+@@ -80,7 +80,7 @@
+     EOF the missing values are numeric zeros; never rotate the oldest word
+     into the newest slot. The independent C probe consumes this same window.
+     """
+-    pos=[received-length+i for i in range(length)]
++    pos=[received-length+1+i for i in range(length)]
+     if mutate:
+         pos=[j+1 for j in pos]
+     return [source[i] if 0<=i<len(source) else 0.0 for i in pos]
