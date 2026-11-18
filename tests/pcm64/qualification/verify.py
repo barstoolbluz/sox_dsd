@@ -138,9 +138,18 @@ def check(root,record,source=None,sox=None,probe=None):
         demand(rec['bands'].keys()==bands.keys(),f'{cid}: missing band')
         for name, value in bands.items():
             have=rec['bands'][name]
+            # Recorded dBFS must match the recorded power, independently of
+            # the host's FFT power-reduction order. The measured worst-case
+            # cross-host delta was 2.643e-7 relative power (~1.15e-6 dB).
+            # Allow 5e-7 relative power (<2x observed), without an absolute
+            # floor that could mask errors in tiny quiet-signal bands.
+            power=have['power']
+            demand(isinstance(power,(int,float)) and math.isfinite(power)
+                   and power>=0, f'{cid}: invalid recorded power')
+            derived=10*math.log10(max(power/0.125,1e-300))
             demand(have['bins']==value['bins'] and
-                   math.isclose(have['power'],value['power'],rel_tol=5e-12,abs_tol=1e-20) and
-                   math.isclose(have['dbfs'],value['dbfs'],rel_tol=0,abs_tol=5e-8),
+                   math.isclose(have['dbfs'],derived,rel_tol=0,abs_tol=1e-11) and
+                   math.isclose(power,value['power'],rel_tol=5e-7,abs_tol=0),
                    f'{cid} window {start}: altered band {name}')
     demand(len(window_keys)==18*2*3*2,'zero or missing window combinations')
     return len(physical_cache), len(window_keys)
