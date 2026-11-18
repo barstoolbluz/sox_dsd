@@ -206,9 +206,16 @@ def check(results):
            'stale accepted-source attestation')
     demand(record['source_git_commit']==git_head(SELF.parents[2]),
            'different source git commit')
-    for name,h in record['executed_binary_sha256'].items():
-        demand(Path(name).is_file() and sha256(name)==h,
-               'stale CLI/modulator binary')
+    # Receipt paths name the producer's machine, but the *hashes* name the
+    # executables. Bind them to this extracted checkout so verification works
+    # after relocation without trusting or even accessing the old paths.
+    source=SELF.parents[2]
+    for suffix, local in (('/src/sox_p08_qualification',source/'src/sox_p08_qualification'),
+                          ('/test/dsd_test_p10',source/'test/dsd_test_p10')):
+        matches=[h for path,h in record['executed_binary_sha256'].items()
+                 if path.endswith(suffix)]
+        demand(len(matches)==1 and local.is_file() and sha256(local)==matches[0],
+               'stale or missing relocated CLI/modulator binary: '+suffix)
     found={}; expected={f'dsd{hz//44100}-{p}' for hz in RATES for p in LONG_PATTERNS}
     for case in record['cases']:
         key=case['id']; demand(key in expected and key not in found,'duplicate/unknown long case')
