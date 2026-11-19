@@ -877,6 +877,9 @@ EXTRA_DIST += tests/pcm64/encode_probe.c tests/pcm64/encode.py \
   tests/pcm64/qualification/audited_workcopy.py \
   tests/pcm64/qualification/attestation.py \
   tests/pcm64/qualification/behavioral.py \
+  tests/pcm64/qualification/reconstruction_reference.py \
+  tests/pcm64/qualification/reference/accepted-reconstruction-sse2.zlib \
+  tests/pcm64/qualification/reference/RECONSTRUCTION_REFERENCE.md \
   tests/pcm64/qualification/reference/accepted-physical-behavior.json \
   tests/pcm64/qualification/audited_spectrum.py \
   tests/pcm64/qualification/reference/accepted-8005f35.json \

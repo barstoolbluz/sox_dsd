@@ -32,6 +32,7 @@ from attestation import (digest as sha256, verify as verify_accepted_source,
 from build_context import read_fenv
 from decode import parse_wav, checked_rate
 from encode import dsf_bits
+from reconstruction_reference import check_reconstruction
 
 
 def demand(ok,message):
@@ -162,8 +163,11 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
         payload,_=parse_wav(recon,n_pcm,ch,source_rate)
         demand(hashlib.sha256(payload).hexdigest()==case['reconstructed_float64_words_sha256'],
                f'{cid}: actual reconstructed binary64 words changed')
-        demand(hashlib.sha256(payload).hexdigest()==want_words['reconstructed_float64_words_sha256'],
-               f'{cid}: actual reconstructed FLOAT64 payload deviates from accepted independent words')
+        # Preserve exact receipt/file integrity above; compare the *values*
+        # to accepted SSE2 words with a bound only for other selected kernels.
+        dr=json.loads(decode_report.read_text())
+        selected_backend=dr['processing']['decoder'][0]['fir_kernel_actual']
+        check_reconstruction(payload,cid,selected_backend)
         # Observe the *actual* CLI's admission trace, not merely the private
         # probe's forecast. Recompute the independent probe expectation from
         # the exact physical source WAV words, then demand byte equality for
@@ -223,7 +227,7 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
                    api_out.is_file() and api_out.read_bytes()==payload and
                    oracle_raw.read_bytes()==payload,
                    f'{cid}: CLI FLOAT64 reconstructed words disagree with independent public decoder')
-        er=json.loads(report.read_text()); dr=json.loads(decode_report.read_text())
+        er=json.loads(report.read_text())
         demand(er['status']=='complete' and dr['status']=='complete' and
                er['precision']['actual_route']=='native-binary64-encode' and
                dr['precision']['actual_route']=='native-binary64-pcm' and

@@ -24,6 +24,7 @@ from binary_receipts import executable_libraries, safe_git_head
 from decode import parse_wav, checked_rate
 from encode import Suite as EncoderSuite, make_wav, dsf_bits, float_words
 from build_context import read_fenv, build_context
+from reconstruction_reference import check_reconstruction
 
 SOURCE = Path(__file__).resolve().parents[2]
 SOURCE_RATE = 44100
@@ -155,7 +156,9 @@ def run_family(sox,probe,decode_oracle,results):
     verify_accepted_source(SOURCE)
     cases=[];windows=[];commands=[]
     with tempfile.TemporaryDirectory(prefix='q08-private-') as temp:
-        suite=EncoderSuite(sox,probe,results,Path(temp))
+        from attestation import REFERENCE
+        suite=EncoderSuite(sox,probe,results,Path(temp),
+                           phase08_frozen_constants=REFERENCE)
         for hz in RATES:
             for pattern in PATTERNS:
                 key=f'dsd{hz//44100}-{pattern}'
@@ -214,6 +217,10 @@ def run_family(sox,probe,decode_oracle,results):
                        int(dec['output']['frames_written'])==n_recon,
                        f'{key}: decoder did not use genuine binary64 route')
                 decoder=dec['processing']['decoder'][0]
+                # The public API is an observed compatibility witness, not a
+                # second independent FIR implementation. Numerical correctness
+                # is checked against retained, pre-R4 accepted sample words.
+                check_reconstruction(reconstructed,key,decoder['fir_kernel_actual'])
                 demand(decoder['profile_id']==f'decode.mastering.v2.dsd{hz//44100}' and
                        decoder['gain_mapping']['mode']=='preserve' and
                        decoder['fir_kernel_actual'] in ('scalar','sse2','avx1','avx2','avx512'),
@@ -292,6 +299,11 @@ def run_family(sox,probe,decode_oracle,results):
                   'tests/pcm64/qualification/mutation_regression.py',
                   'tests/pcm64/qualification/sox_fenv_wrapper.c',
                   'tests/pcm64/qualification/behavioral.py',
+                  'tests/pcm64/encode.py',
+                  'tests/pcm64/qualification/reconstruction_reference.py',
+                  'tests/pcm64/qualification/reference/accepted-reconstruction-sse2.zlib',
+                  'tests/pcm64/qualification/reference/accepted-dsd64-constants.h',
+                  'tests/pcm64/qualification/reference/accepted-dsd128-constants.h',
                   'tests/pcm64/qualification/reference/accepted-physical-behavior.json']
     record={'schema':'sox-native64-qualification/2',
         'status':'PASS',

@@ -125,13 +125,20 @@ def dff_bits(raw,nframes,nch,rate):
 
 
 class Suite:
-    def __init__(self,sox,probe,results,tmp):
+    def __init__(self,sox,probe,results,tmp,*,phase08_frozen_constants=None):
         self.sox=Path(sox).resolve();self.probe=Path(probe).resolve()
         self.results=Path(results);self.tmp=Path(tmp)
         self.gates={};self.commands=[];self.counts={};self.witness={}
         self.timings={};self.start=time.perf_counter()
-        self.constants={hz:load_constants(SOURCE/f'src/resonator/dsd{hz//44100}/src/constants.h')
-                        for hz in RATES}
+        # Phase 06A preserves its existing source-header behavior. Phase 08
+        # explicitly supplies accepted, separately frozen recurrence headers.
+        if phase08_frozen_constants is None:
+            self.constants={hz:load_constants(SOURCE/f'src/resonator/dsd{hz//44100}/src/constants.h')
+                            for hz in RATES}
+        else:
+            reference=Path(phase08_frozen_constants)
+            self.constants={hz:load_constants(reference/f'accepted-dsd{hz//44100}-constants.h')
+                            for hz in RATES}
 
     def record(self,name,delta=1):self.counts[name]=self.counts.get(name,0)+delta
 

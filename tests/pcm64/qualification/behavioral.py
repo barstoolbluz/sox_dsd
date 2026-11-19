@@ -29,6 +29,7 @@ SOURCE=HERE.parents[2]
 sys.path.insert(0,str(HERE.parent))
 from encode import make_wav, dsf_bits, dff_bits
 from decode import parse_wav
+from reconstruction_reference import check_reconstruction
 
 REF=HERE/'reference'/'accepted-physical-behavior.json'
 RATE=2822400
@@ -143,13 +144,14 @@ def run_audio(sox,folder,golden):
                    f'{name}: real decoder count/route differs from approved output')
             decoder_payload,_=parse_wav(decoded,len(frames),CHANNELS,rate)
             decoder_words=digest(decoder_payload)
-            insist(decoder_words==reference['reconstructed_float64_words_sha256'],
-                   f'{name}: actual CLI reconstructed binary64 payload differs from frozen words')
+            backend=decoder_record['processing']['decoder'][0]['fir_kernel_actual']
+            reconstructed_numeric=check_reconstruction(decoder_payload,name,backend)
         rows.append({'case':name,'cli_command':relative_command(argv,folder),
             'cli_exit':result.returncode,'source_pcm_words_sha256':digest(raw),
             'physical_dsd_bits_sha256':measured,'actual_postclip_sha256':actual,
             'native_frames':n,'clipped_samples':clipped,
             'reconstructed_float64_words_sha256':decoder_words,
+            'reconstruction_numerical_check':reconstructed_numeric if decoder_words else None,
             'report_sha256':digest(report.read_bytes()),
             'executed_executable_sha256':digest(Path(sox).read_bytes())})
     return rows
