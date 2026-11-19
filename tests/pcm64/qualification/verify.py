@@ -19,24 +19,49 @@ import subprocess
 import sys
 import tempfile
 
-from collections import Counter
 import numpy as np
 
+# Decode/encode are sibling qualification drivers, not the physical stimulus
+# or expected-signal recipe. Keep their import path independent of the cwd.
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from qualification import (PATTERNS, RATES, SOURCE_RATE, CHANNELS, FRAMES, BETAS,
-    BANDS, WINDOW_LENGTH, stimulus, sha256, native_window, plan_windows,
-    demand)
-from audited_spectrum import BANDS as REFERENCE_BANDS, analyze as reference_bandpower, compare as compare_spectrum
-from attestation import verify as verify_accepted_source
+from audited_spectrum import (BANDS as REFERENCE_BANDS, BETAS as REFERENCE_BETAS,
+                              FS_POWER as REFERENCE_FS_POWER,
+                              analyze as reference_bandpower, compare as compare_spectrum)
+from attestation import (digest as sha256, verify as verify_accepted_source,
+                         physical_contract)
 from build_context import read_fenv
 from decode import parse_wav, checked_rate
-from encode import dsf_bits, float_words
+from encode import dsf_bits
+
+
+def demand(ok,message):
+    if not ok:raise AssertionError(message)
+
+
+def native_window(bits,channels,channel,start,length):
+    """Interpret observed physical decisions using the audited +/-0.5 scale.
+
+    Never import the producer's native_window(), which is itself one of the
+    semantics this independent physical verifier is meant to protect.
+    """
+    values=np.frombuffer(bits,dtype=np.uint8)
+    demand(values.size%channels==0 and np.all(values<=1),
+           'non-binary physical DSD stream')
+    chunk=values.reshape(-1,channels)[start:start+length,channel]
+    demand(chunk.size==length,'missing physical DSD window bits')
+    return chunk.astype('float64')-.5
 
 
 def check(root,record,source=None,sox=None,probe=None,oracle=None):
     source=(Path(source) if source is not None else Path(__file__).resolve().parents[3]).resolve()
     pin=verify_accepted_source(source)
-    demand(BANDS==REFERENCE_BANDS, 'measurement bands differ from audited reference')
+    contract=physical_contract()
+    fixed_cases=contract['short']['cases']
+    source_rate=contract['source_rate_hz']
+    channels=contract['channels']
+    window_n=contract['short']['window_length_frames']
+    demand(window_n==8192 and REFERENCE_FS_POWER==.125,
+           'changed audited short-window duration or nominal DSD full scale')
     binaries=record.get('executed_binary_sha256',{})
     demand(isinstance(binaries,dict) and binaries and
            isinstance(record.get('source_artifacts_sha256'),dict) and
@@ -71,24 +96,29 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
            'receipt status/schema unavailable')
     demand(record['scope']=='FINITE_MEASUREMENTS_ONLY_NOT_RELEASE_CERTIFICATION',
            'false release claim')
+    demand(record['full_scale']==
+           'nominal DSD = +/-0.5; sinusoidal full-scale RMS power 0.125',
+           'changed nominal one-bit full-scale convention')
     demand(record['case_count']==18 and record['window_count']==108 and
            record['spectral_rows']==1944 and len(record['cases'])==18 and
            len(record['windows'])==216,'missing/extra physical cases or windows')
-    demand(tuple(record['betas'])==BETAS and
-           {k:tuple(v) for k,v in record['bands_half_open_hz'].items()}==BANDS,
+    demand(tuple(record['betas'])==REFERENCE_BETAS and
+           {k:tuple(v) for k,v in record['bands_half_open_hz'].items()}==REFERENCE_BANDS,
            'changed beta or spectral band contract')
     demand(record['no_free_gain_or_shift_fits'] is True,
            'free gain/shift compensation silently enabled')
-    observed=set(); expected={(f'dsd{hz//44100}-{p}') for hz in RATES for p in PATTERNS}
+    observed=set(); expected=set(fixed_cases)
     physical_cache={}
     for case in record['cases']:
         cid=case['id']
         demand(cid not in observed and cid in expected,'extra/duplicate case: '+cid)
         observed.add(cid)
+        frozen=fixed_cases[cid]
         hz=case['rate_hz']; pattern=case['pattern']; ch=case['channels']
         demand(cid==f'dsd{hz//44100}-{pattern}' and
-               case['source_rate_hz']==SOURCE_RATE and
-               case['source_frames']==FRAMES and ch==CHANNELS,
+               case['source_rate_hz']==source_rate and
+               case['source_frames']==frozen['source_frames'] and
+               hz==frozen['rate_hz'] and ch==channels,
                'case identity/rate/channel metadata changed')
         source=Path(root)/case['source_path']
         dsf=Path(root)/case['dsf_path']
@@ -111,19 +141,20 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
             fresh=read_fenv(p)
             demand(all(fresh[k]==witness[k] for k in fresh if k!='path'),
                    f'{cid}: altered CLI process FENV data')
-        source_bytes,_=parse_wav(source,FRAMES,CHANNELS,SOURCE_RATE)
-        expected_bytes=float_words(stimulus(pattern))
-        demand(source_bytes==expected_bytes and
-               hashlib.sha256(source_bytes).hexdigest()==case['source_pcm_words_sha256'],
-               f'{cid}: source words differ from independently generated recipe')
-        n=(2*FRAMES*hz+SOURCE_RATE)//(2*SOURCE_RATE)
-        demand(case['native_frames']==n,'native rate/count mismatch')
+        source_bytes,_=parse_wav(source,frozen['source_frames'],channels,source_rate)
+        words_sha=hashlib.sha256(source_bytes).hexdigest()
+        demand(words_sha==frozen['source_pcm_words_sha256'] and
+               words_sha==case['source_pcm_words_sha256'],
+               f'{cid}: source words differ from frozen accepted physical contract')
+        n=(2*frozen['source_frames']*hz+source_rate)//(2*source_rate)
+        demand(case['native_frames']==n==frozen['native_frames'],
+               f'{cid}: native rate/count mismatch')
         physical=dsf_bits(dsf.read_bytes(),n,ch,hz)
         demand(hashlib.sha256(physical).hexdigest()==case['physical_dsd_bits_sha256'],
                f'{cid}: physical bits corrupted or remapped')
-        n_pcm=checked_rate(n,hz,SOURCE_RATE)
+        n_pcm=checked_rate(n,hz,source_rate)
         demand(case['reconstructed_frames']==n_pcm,'reconstructed rate/count mismatch')
-        payload,_=parse_wav(recon,n_pcm,ch,SOURCE_RATE)
+        payload,_=parse_wav(recon,n_pcm,ch,source_rate)
         demand(hashlib.sha256(payload).hexdigest()==case['reconstructed_float64_words_sha256'],
                f'{cid}: actual reconstructed binary64 words changed')
         # Observe the *actual* CLI's admission trace, not merely the private
@@ -147,14 +178,14 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
             traces.append(raw)
         with tempfile.TemporaryDirectory(prefix='p08-reprobe-') as tmp:
             prefix=str(Path(tmp)/'expected')
-            args=[str(probe_binary),'--encode',str(SOURCE_RATE),str(hz),str(ch),
+            args=[str(probe_binary),'--encode',str(source_rate),str(hz),str(ch),
                   '256','512','1','1.0','0.5',prefix]
             cp=subprocess.run(args,input=source_bytes,capture_output=True,timeout=90)
             demand(cp.returncode==0 and cp.stdout==physical,
                    f'{cid}: independent encoder decision stream changed')
             meta=json.loads(cp.stderr)
             demand(int(meta['native_frames'])==n and
-                   int(meta['source_frames'])==FRAMES and
+                   int(meta['source_frames'])==frozen['source_frames'] and
                    int(meta['channels'])==ch,
                    f'{cid}: independent encoder counts changed')
             for channel in range(ch):
@@ -176,7 +207,7 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
                    ('scalar','sse2','avx1','avx2','avx512'),
                    f'{cid}: altered public decoder configuration')
             api_out=Path(tmp)/'oracle.f64'
-            api=subprocess.run([str(oracle_binary),str(dsf),str(api_out),str(SOURCE_RATE),
+            api=subprocess.run([str(oracle_binary),str(dsf),str(api_out),str(source_rate),
                  dc['profile'],dc['level'],dc['bandwidth'],dc['kernel']],
                  capture_output=True,timeout=90)
             demand(api.returncode==0 and b'finish=done' in api.stdout and
@@ -201,7 +232,10 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
                int(e['committed_native_frames'])==n and
                int(e['clipped_interpolated_samples'])==0 for e in encoder),
                f'{cid}: unexpected real encoder profile, clip or committed count')
-        expected_starts=plan_windows(n)
+        expected_starts=frozen['window_starts']
+        demand(len(expected_starts)==3 and len(set(expected_starts))==3 and
+               all(0<=s<=n-window_n for s in expected_starts),
+               f'{cid}: invalid accepted window starts')
         demand(case['analysis_starts']==expected_starts and
                case['profile_id']==f'encode.mastering.v3.dsd{hz//44100}' and
                case['recovery_entries']==[int(e['recovery_entries'])
@@ -215,13 +249,13 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
         beta=rec['window_kaiser_beta']
         key=(cid,channel,start,beta)
         demand(cid in physical_cache and channel in (0,1) and
-               rec['duration_frames']==WINDOW_LENGTH and beta in BETAS and
+               rec['duration_frames']==window_n and beta in REFERENCE_BETAS and
                start in physical_cache[cid][3] and key not in window_keys,
                f'wrong/repeated window {key}')
         window_keys.add(key)
         bits,n,hz,_,traces=physical_cache[cid]
-        q=native_window(bits,CHANNELS,channel,start,WINDOW_LENGTH)
-        x=np.frombuffer(traces[channel],dtype='<f8',count=WINDOW_LENGTH,offset=start*8)
+        q=native_window(bits,channels,channel,start,window_n)
+        x=np.frombuffer(traces[channel],dtype='<f8',count=window_n,offset=start*8)
         compare_spectrum(rec,reference_bandpower(q-x,hz,beta),f'{cid} window {start}')
     demand(len(window_keys)==18*2*3*2,'zero or missing window combinations')
     return len(physical_cache), len(window_keys)
@@ -236,7 +270,7 @@ def negative_controls(root,record,source=None,sox=None,probe=None,oracle=None):
     import tempfile
     import shutil
     cases=[]
-    def reject(name,mutate):
+    def reject(name,mutate,detector=None):
         changed=copy.deepcopy(record)
         with tempfile.TemporaryDirectory(prefix='p08-neg-') as temp:
             shadow=Path(temp)
@@ -256,10 +290,16 @@ def negative_controls(root,record,source=None,sox=None,probe=None,oracle=None):
                     dst=shadow/p
                     if not dst.exists(): shutil.copyfile((root/p).resolve(),dst)
                     # A copy works even when TMPDIR is a distinct filesystem.
-            mutate(changed,shadow)
+            fault=mutate(changed,shadow)
             try: check(shadow,changed,source,sox,probe,oracle)
             except (AssertionError,KeyError,ValueError,TypeError,IndexError, OSError) as exc:
-                cases.append({'control':name,'status':'REJECTED','detector':str(exc)[:220]})
+                seen=str(exc)
+                if detector is not None:
+                    demand(detector in seen,
+                           f'{name}: wrong detector ({seen!r}); physical fault unproven')
+                case={'control':name,'status':'REJECTED','detector':seen[:220]}
+                if fault is not None:case['physical_fault']=fault
+                cases.append(case)
             else: raise AssertionError(f'{name}: mutation falsely verified')
     reject('deleted_case',lambda d,s:d['cases'].pop())
     reject('duplicate_case',lambda d,s:d['cases'].__setitem__(1,copy.deepcopy(d['cases'][0])))
@@ -276,6 +316,9 @@ def negative_controls(root,record,source=None,sox=None,probe=None,oracle=None):
     reject('false_complete',lambda d,s:d.__setitem__('status','RUNNING'))
     reject('stale_output_hash',lambda d,s:d['cases'][0].__setitem__('physical_dsf_sha256','f'*64))
     reject('false_reconstruction',lambda d,s:d['cases'][0].__setitem__('reconstructed_float64_words_sha256','a'*64))
+    # Retain the original 25 receipt/physical-storage corruptions, and add
+    # three genuine physical-stream mutations below. These two are deliberately
+    # labeled *metadata* faults, not evidence of altered channel/tail audio.
     reject('tail_frame_miscount',lambda d,s:d['cases'][0].__setitem__('native_frames',d['cases'][0]['native_frames']-1))
     reject('channel_swapped_metadata',lambda d,s:d['cases'][0].__setitem__('channels',1))
     reject('stale_case_recovery',lambda d,s:d['cases'][0].__setitem__('recovery_entries',[9,9]))
@@ -312,7 +355,113 @@ def negative_controls(root,record,source=None,sox=None,probe=None,oracle=None):
         case['reconstructed_wav_sha256']=hashlib.sha256(raw).hexdigest()
         case['reconstructed_float64_words_sha256']=hashlib.sha256(b'\0'*length).hexdigest()
     reject('zeroed_dc_reconstruction_with_updated_hashes',zero_reconstruction_mutant)
-    demand(len(cases)==25,'negative controls missing')
+
+    def physical_native_mutant(d,s,kind):
+        case=next(c for c in d['cases'] if c['id']=='dsd64-tone')
+        p=Path(case['dsf_path']);raw=bytearray((root/p).read_bytes())
+        n=case['native_frames'];hz=case['rate_hz'];ch=case['channels']
+        demand(ch==2 and n>2,'need distinct, nonempty stereo native stream')
+        before=dsf_bits(raw,n,ch,hz)
+        if kind=='channel_swap':
+            demand(before[::2]!=before[1::2], 'channel-swap stimulus is symmetric')
+            for offset in range(92,len(raw),8192):
+                left=bytes(raw[offset:offset+4096]);right=bytes(raw[offset+4096:offset+8192])
+                raw[offset:offset+4096]=right
+                raw[offset+4096:offset+8192]=left
+            new_n=n
+            wanted=bytes(v for i in range(0,len(before),2)
+                         for v in (before[i+1],before[i]))
+        else:
+            delta=-1 if kind=='drop_tail' else 1
+            new_n=n+delta
+            demand((new_n+32767)//32768==(n+32767)//32768,
+                   'DSF mutation needs only the existing storage blocks')
+            struct.pack_into('<Q',raw,64,new_n)  # coherent logical native count
+            wanted=before[:-ch] if delta<0 else before+before[-ch:]
+            if delta>0:
+                # Write a *real* additional logical native bit for both channels.
+                for channel,bit in enumerate(before[-ch:]):
+                    offset=92+(n//32768)*ch*4096+channel*4096+(n//8)%4096
+                    mask=1<<(n%8)
+                    raw[offset]=(raw[offset]&~mask)|(mask if bit else 0)
+            else:
+                # The frame removed from the logical stream is padding now.
+                for channel in range(ch):
+                    f=n-1
+                    offset=92+(f//32768)*ch*4096+channel*4096+(f//8)%4096
+                    raw[offset]&=~(1<<(f%8))
+        after=dsf_bits(raw,new_n,ch,hz)
+        demand(after==wanted and after!=before,
+               f'{kind}: actual physical native payload did not change as intended')
+        (s/p).write_bytes(raw)
+        case['native_frames']=new_n
+        case['physical_dsf_sha256']=hashlib.sha256(raw).hexdigest()
+        case['physical_dsd_bits_sha256']=hashlib.sha256(after).hexdigest()
+        return {'before_native_frames':n,'mutated_native_frames':new_n,
+                'mutated_bits_sha256':case['physical_dsd_bits_sha256'],
+                'mutated_storage_sha256':case['physical_dsf_sha256']}
+
+    reject('physical_stereo_channel_swap',
+           lambda d,s:physical_native_mutant(d,s,'channel_swap'),
+           detector='independent encoder decision stream changed')
+    reject('physical_dropped_native_tail',
+           lambda d,s:physical_native_mutant(d,s,'drop_tail'),
+           detector='native rate/count mismatch')
+    reject('physical_duplicated_native_tail',
+           lambda d,s:physical_native_mutant(d,s,'duplicate_tail'),
+           detector='native rate/count mismatch')
+
+    # Coherent generator/receipt revisions: recompute the affected numerical
+    # readings and update the mutated file's own checksums. The independent
+    # reviewed contract, rather than the generator or a stale hash, must fail.
+    def reread_window(d,w,beta,start):
+        case=next(c for c in d['cases'] if c['id']==w['case'])
+        n=case['native_frames'];hz=case['rate_hz'];ch=w['channel']
+        bits=dsf_bits((root/case['dsf_path']).read_bytes(),n,case['channels'],hz)
+        trace=(root/case['actual_admitted_paths'][ch]).read_bytes()
+        size=d['windows'][0]['duration_frames']
+        q=native_window(bits,case['channels'],ch,start,size)
+        x=np.frombuffer(trace,dtype='<f8',count=size,offset=start*8)
+        dc,bands=reference_bandpower(q-x,hz,beta)
+        w.update(start_frame=start,window_kaiser_beta=beta,
+                 weighted_dc=dc,bands=bands)
+
+    def changed_beta_family(d,s):
+        d['betas']=[30.,33.]
+        for w in d['windows']:
+            if w['window_kaiser_beta']==34.:
+                reread_window(d,w,33.,w['start_frame'])
+        demand(sum(w['window_kaiser_beta']==33. for w in d['windows'])==108,
+               'beta-mutant observations not regenerated')
+    reject('coherent_beta_34_to_33_remeasured',changed_beta_family,
+           detector='changed beta or spectral band contract')
+
+    def changed_quiet_source(d,s):
+        case=next(c for c in d['cases'] if c['id']=='dsd64-quiet')
+        p=Path(case['source_path'])
+        raw=bytearray((root/p).read_bytes());start=raw.index(b'data')+8
+        old=struct.unpack_from('<d',raw,start)[0]
+        struct.pack_into('<d',raw,start,old+2.**-40)
+        (s/p).write_bytes(raw)
+        case['source_wav_sha256']=hashlib.sha256(raw).hexdigest()
+        size=struct.unpack_from('<I',raw,start-4)[0]
+        case['source_pcm_words_sha256']=hashlib.sha256(raw[start:start+size]).hexdigest()
+    reject('coherent_quiet_source_2pow_minus40',changed_quiet_source,
+           detector='source words differ from frozen accepted physical contract')
+
+    def changed_window_plan(d,s):
+        case=next(c for c in d['cases'] if c['id']=='dsd64-quiet')
+        old=case['analysis_starts'][0];new=old+1
+        case['analysis_starts'][0]=new
+        for w in d['windows']:
+            if w['case']==case['id'] and w['start_frame']==old:
+                reread_window(d,w,w['window_kaiser_beta'],new)
+        demand(sum(w['case']==case['id'] and w['start_frame']==new
+                   for w in d['windows'])==4,
+               'window-plan-mutant readings not regenerated')
+    reject('coherent_window_start_remeasured',changed_window_plan,
+           detector='wrong physical profile, window plan, recovery counters')
+    demand(len(cases)==31,'physical/receipt/contract negative controls missing')
     return cases
 
 

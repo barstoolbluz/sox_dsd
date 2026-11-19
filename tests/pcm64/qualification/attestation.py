@@ -22,6 +22,23 @@ def digest(p):
 def expected():
     return json.loads((REFERENCE/'accepted-8005f35.json').read_text())
 
+
+def physical_contract():
+    """Frozen accepted WAV-word and window identities, never a producer recipe.
+
+    The fixture was transcribed once from the independently reviewed physical
+    source WAVs at 1ca8702. Generating fresh audio or updating a receipt must
+    not update it. Any change to this fixture requires separate human review.
+    """
+    contract=json.loads((REFERENCE/'physical-source-contract.json').read_text())
+    if (contract.get('schema')!='phase08-independent-physical-input-contract/1' or
+            contract.get('source_rate_hz')!=44100 or
+            contract.get('channels')!=2 or
+            len(contract.get('short',{}).get('cases',{}))!=18 or
+            len(contract.get('long',{}).get('cases',{}))!=20):
+        raise AssertionError('missing/changed accepted physical input contract')
+    return contract
+
 def verify(source):
     source=Path(source).resolve()
     p=expected()

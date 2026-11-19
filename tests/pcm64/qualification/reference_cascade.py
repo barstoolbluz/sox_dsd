@@ -257,18 +257,14 @@ def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
                         fir_diff=abs(correct-shifted)
                         demand(fir_diff>mp.mpf(prim_budget)*10,
                                f'{key}: wrong FIR centering escaped')
-                    # Tail mutation must fail count gates, even if a
-                    # different endpoint contains numeric zeros.
-                    mutant_native_count=actual_native-1
-                    demand(mutant_native_count!=stage_result['native_frames'],
-                           f'{key}: mutated tail count escaped')
+                    # Actual physical tail loss/duplication is injected and
+                    # read back in qualification/verify.py. A bare inequality
+                    # between n and n-1 would not be an observed stage fault.
                     controls.extend([{'rate_hz':native,'kind':'wrong-SRC-phase',
                         'difference':mp.nstr(difference,24),'status':'REJECTED'},
                         {'rate_hz':native,'kind':'wrong-FIR-centering',
-                         'difference':mp.nstr(fir_diff,24),'status':'REJECTED'},
-                        {'rate_hz':native,'kind':'dropped-native-tail',
-                         'mutated_count':mutant_native_count,'status':'REJECTED'}])
-        demand(len(rows)==8 and len(controls)==6,'missing primitive/cascade cases or mutants')
+                         'difference':mp.nstr(fir_diff,24),'status':'REJECTED'}])
+        demand(len(rows)==8 and len(controls)==4,'missing primitive/cascade cases or mutants')
     return {'schema':'phase08-src-fir-short-reference/1','status':'PASS',
         'scope':'BOUNDED_SOURCE_SRC_PRIMITIVE_AND_SRC_TO_CENTERED_FIR_NOT_NATIVE_SRC_NOISE_FLOOR',
         'precision_bits':[192,256,384],

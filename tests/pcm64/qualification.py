@@ -286,6 +286,7 @@ def run_family(sox,probe,decode_oracle,results):
                   'tests/pcm64/decode/api_oracle.c', 'src/pcmdsd.h',
                   'tests/pcm64/qualification/build_context.py',
                   'tests/pcm64/qualification/attestation.py',
+                  'tests/pcm64/qualification/reference/physical-source-contract.json',
                   'tests/pcm64/qualification/audited_spectrum.py',
                   'tests/pcm64/qualification/long_metrology.py',
                   'tests/pcm64/qualification/mutation_regression.py',

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Phase 08 physical 0.5s audio metrology and *separate* recovery proof.
+"""Phase 08 physical 0.5s audio metrology and recovery-active kernel metrology.
 
 The nine analysis bands, weighted DC, one-sided spectrum, half-open bins,
 Kaiser 30/34, and nominal 0.5 one-bit amplitude match the audited historical
 harness. Audio metrics are measurements, not universal release thresholds.
-A physically clipped case is deliberately isolated from primitive recovery.
+Physical CLI clipping remains separate from actual certified-kernel recovery.
 """
 from __future__ import annotations
 import argparse
@@ -27,10 +27,10 @@ sys.path.insert(0,str(SELF.parent))
 sys.path.insert(0,str(SELF))
 sys.path.insert(0,str(SELF.parents[2]/'tests/dsd'))
 from qualification import stimulus, sha256, demand, SOURCE_RATE, RATES, CHANNELS, PATTERNS
-from encode import make_wav, dsf_bits, float_words
+from encode import make_wav, dsf_bits
 from decode import parse_wav
 from audited_spectrum import analyze, compare, BANDS, BETAS
-from attestation import verify as accepted, REFERENCE
+from attestation import verify as accepted, REFERENCE, physical_contract
 from build_context import read_fenv, build_context
 import test_resonator as resmod
 
@@ -189,14 +189,17 @@ def check(results):
     results=Path(results).resolve()
     path=results/'long-metrology.json'
     record=json.loads(path.read_text())
+    contract=physical_contract()
+    frozen=contract['long']['cases']
     demand(record['schema']==LONG_SCHEMA and record['status']=='PASS',
            'missing long physical receipt')
-    demand(record['patterns']==list(LONG_PATTERNS) and
+    demand(set(frozen)=={f'dsd{hz//44100}-{p}' for hz in RATES for p in LONG_PATTERNS} and
+           record['patterns']==list(LONG_PATTERNS) and
            tuple(record['rates_hz'])==RATES and tuple(record['betas'])==BETAS and
            record['bands_half_open_hz']=={k:list(v) for k,v in BANDS.items()},
            'changed historical window contract')
-    demand(record['source_frames_per_case']==LONG_FRAMES and
-           record['window_duration_s']==WIN_SECONDS and
+    demand(record['source_frames_per_case']==contract['long']['source_frames_per_case'] and
+           record['window_duration_s']==contract['long']['window_seconds'] and
            record['case_count']==len(RATES)*len(LONG_PATTERNS) and
            record['spectral_window_count']==len(record['cases'])*CHANNELS*len(BETAS) and
            record['spectral_band_rows']==len(record['windows'])*len(BANDS),
@@ -216,15 +219,21 @@ def check(results):
                  if path.endswith(suffix)]
         demand(len(matches)==1 and local.is_file() and sha256(local)==matches[0],
                'stale or missing relocated CLI/modulator binary: '+suffix)
-    found={}; expected={f'dsd{hz//44100}-{p}' for hz in RATES for p in LONG_PATTERNS}
+    found={}; expected=set(frozen)
     for case in record['cases']:
         key=case['id']; demand(key in expected and key not in found,'duplicate/unknown long case')
         found[key]=case
+        fixed=frozen[key]
         hz=case['rate_hz'];n=case['native_frames']
-        demand(case['window_length_frames']==int(hz*WIN_SECONDS) and
-               case['source_frames']==LONG_FRAMES and
-               n==LONG_FRAMES*hz//SOURCE_RATE and
-               case['window_start_frame']==(n-int(hz*WIN_SECONDS))//2 and
+        source_frames=contract['long']['source_frames_per_case']
+        demand(hz==fixed['rate_hz'] and
+               case['source_rate_hz']==contract['source_rate_hz'] and
+               case['channels']==contract['channels'] and
+               case['pattern']==key.split('-',1)[1] and
+               case['window_length_frames']==fixed['window_length_frames'] and
+               case['source_frames']==source_frames and
+               n==fixed['native_frames']==source_frames*hz//contract['source_rate_hz'] and
+               case['window_start_frame']==fixed['window_start_frame'] and
                case['window_boundary_margin_s']>=.1,
                f'{key}: missing 0.5 second interior window')
         paths=((case['source_path'],'source_sha256'),
@@ -234,11 +243,12 @@ def check(results):
             p=results/rel
             demand(p.resolve().is_relative_to(results) and p.is_file() and
                    sha256(p)==case[hfield],f'{key}: missing/corrupt {rel}')
-        payload,_=parse_wav(results/case['source_path'],LONG_FRAMES,CHANNELS,SOURCE_RATE)
-        expected_words=float_words(finite_frames(case['pattern']))
-        demand(payload==expected_words and
-               hashlib.sha256(payload).hexdigest()==case['source_pcm_words_sha256'],
-               f'{key}: altered source input words')
+        payload,_=parse_wav(results/case['source_path'],source_frames,
+                            contract['channels'],contract['source_rate_hz'])
+        words_sha=hashlib.sha256(payload).hexdigest()
+        demand(words_sha==fixed['source_pcm_words_sha256'] and
+               words_sha==case['source_pcm_words_sha256'],
+               f'{key}: source input words differ from frozen physical contract')
         physical=dsf_bits((results/case['dsf_path']).read_bytes(),n,CHANNELS,hz)
         demand(hashlib.sha256(physical).hexdigest()==case['physical_bits_sha256'],
                f'{key}: changed final physical bits')
@@ -293,13 +303,17 @@ def check(results):
 
 
 def recovery_proof(unit,results):
-    """A separate actual kernel boundary, no clips or floating SRC in proof.
+    """Actual kernel boundary with independent recovery-active 0.5s q-x.
 
     Constants are loaded from accepted external fixtures, not current headers.
     The unaltered independent recurrence from the certified modulator's
-    existing test file is checked against the real compiled modulator.
+    existing test file is checked against the real compiled modulator. The
+    long window centers that same hostile sequence in a 0.5s native stream;
+    it does not pretend a source-PCM-to-DSD CLI path triggered recovery.
     """
     results=Path(results).resolve()
+    family=results/'recovery-active'
+    family.mkdir(parents=True,exist_ok=True)
     rows=[]
     for rate in (64,128):
         hz=SOURCE_RATE*rate
@@ -319,6 +333,51 @@ def recovery_proof(unit,results):
         demand(int(state['recovery_entries'])==entries and
                int(state['recovery_steps'])==steps,
                f'DSD{rate}: real modulator recovery disagreement')
+
+        # The original 54,000-word proof is retained unchanged. Place its
+        # actual hostile words in the center of a separate full half-second
+        # native window; the rest of the window is deterministic silence.
+        window_n=hz//2
+        demand(len(xs)<window_n and window_n==int(hz*.5),
+               'recovery analysis must use the audited half-second duration')
+        lead=(window_n-len(xs))//2
+        window_x=[0.0]*lead+xs+[0.0]*(window_n-lead-len(xs))
+        window_bytes=np.asarray(window_x,dtype='<f8').tobytes()
+        ideal_bits,window_entries,window_steps=resmod.oracle(c,window_x)
+        demand(window_entries>0 and window_steps>0,
+               f'DSD{rate}: measured 0.5s interval has no actual recovery')
+        physical_run=subprocess.run([str(unit),'--modulate',str(hz)],
+            input=window_bytes,capture_output=True,timeout=150)
+        demand(physical_run.returncode==0 and physical_run.stdout==ideal_bits,
+               f'DSD{rate}: recovery-active physical bits differ from frozen recurrence')
+        measured=json.loads(physical_run.stderr.decode().strip().splitlines()[-1])
+        demand(int(measured['recovery_entries'])==window_entries and
+               int(measured['recovery_steps'])==window_steps,
+               f'DSD{rate}: recovery counters disagree inside the measured span')
+        x=np.frombuffer(window_bytes,dtype='<f8')
+        q=np.frombuffer(physical_run.stdout,dtype='u1').astype('float64')-.5
+        demand(q.size==x.size==window_n,'missing real recovery-active physical bit')
+        err=q-x
+        spectra=[]
+        for beta in BETAS:
+            dc,bands=analyze(err,hz,beta)
+            spectra.append({'beta':beta,'weighted_dc':dc,'bands':bands})
+        input_path=family/f'dsd{rate}.admitted-native.f64.zlib'
+        bits_path=family/f'dsd{rate}.physical-decisions.u8.zlib'
+        input_path.write_bytes(zlib.compress(window_bytes,level=3))
+        bits_path.write_bytes(zlib.compress(physical_run.stdout,level=3))
+        active={'native_frames':window_n,'window_start_frame':0,
+            'window_seconds':.5,'nominal_full_scale':.5,
+            'residual':'actual frozen-kernel physical bit q minus admitted native input x',
+            'actual_recovery_entries':window_entries,
+            'actual_recovery_steps':window_steps,
+            'native_input_sha256':hashlib.sha256(window_bytes).hexdigest(),
+            'physical_decisions_sha256':hashlib.sha256(physical_run.stdout).hexdigest(),
+            'native_input_path':str(input_path.relative_to(results)),
+            'native_input_zlib_sha256':sha256(input_path),
+            'physical_decisions_path':str(bits_path.relative_to(results)),
+            'physical_decisions_zlib_sha256':sha256(bits_path),
+            'spectra':spectra}
         rows.append({'rate_hz':hz,'native_input_frames':len(xs),
             'hostile_admitted_native_input_sha256':hashlib.sha256(struct.pack(
                 f'<{len(xs)}d',*xs)).hexdigest(),
@@ -326,11 +385,12 @@ def recovery_proof(unit,results):
             'actual_recovery_entries':entries,'actual_recovery_steps':steps,
             'certified_constants_fixture_sha256':sha256(freeze),
             'actual_unit_sha256':sha256(unit),
-            'unit_exit_status':cp.returncode})
-    receipt={'schema':'sox-p08-certified-recovery/1','status':'PASS',
-        'scope':'isolated actual kernel not SRC/quantization/no-clip WAV',
+            'unit_exit_status':cp.returncode,
+            'recovery_active_window':active})
+    receipt={'schema':'sox-p08-certified-recovery/2','status':'PASS',
+        'scope':'actual isolated certified kernel and half-second q-x; not a PCM SRC/CLI path',
         'source_git_commit':git_head(SELF.parents[2]),
-        'stimulus':'hostile native .5 rails and resumed program; no CLI clipping',
+        'stimulus':'existing hostile native .5 rails and resumed program, centered in 0.5s; no CLI clipping',
         'cases':rows}
     (results/'certified-recovery.json').write_text(json.dumps(receipt,indent=2,
         sort_keys=True)+'\n')
@@ -342,15 +402,50 @@ def verify_recovery(results):
     # binary, rather than accepting counters copied from an earlier JSON.
     p=Path(results)/'certified-recovery.json'
     saved=json.loads(p.read_text())
-    demand(saved['status']=='PASS' and saved['schema']=='sox-p08-certified-recovery/1'
+    demand(saved['status']=='PASS' and saved['schema']=='sox-p08-certified-recovery/2'
            and len(saved['cases'])==2 and
            saved['source_git_commit']==git_head(SELF.parents[2]),
            'stale/incomplete recovered kernel receipt')
     unit=SELF.parents[2]/'test/dsd_test_p10'
     with tempfile.TemporaryDirectory(prefix='p08-recovery-') as t:
         fresh=recovery_proof(unit,Path(t))
+    demand({row['rate_hz'] for row in saved['cases']}=={SOURCE_RATE*64,SOURCE_RATE*128},
+           'missing or duplicated recovery-active rate')
     for row,other in zip(saved['cases'],fresh['cases']):
-        demand(row==other,'kernel recovery counts, provenance or bits changed')
+        demand({k:v for k,v in row.items() if k!='recovery_active_window'}==
+               {k:v for k,v in other.items() if k!='recovery_active_window'},
+               'kernel recovery counts, provenance or bits changed')
+        actual=row['recovery_active_window'];expected=other['recovery_active_window']
+        demand({k:v for k,v in actual.items() if k!='spectra'}==
+               {k:v for k,v in expected.items() if k!='spectra'} and
+               actual['actual_recovery_entries']>0 and
+               actual['native_frames']==row['rate_hz']//2 and
+               actual['window_seconds']==.5 and
+               len(actual['spectra'])==len(BETAS),
+               'changed or absent recovery-active physical window')
+        raw=[]
+        for path_key,compressed_key,digest_key,size in (
+            ('native_input_path','native_input_zlib_sha256','native_input_sha256',
+             8*actual['native_frames']),
+            ('physical_decisions_path','physical_decisions_zlib_sha256',
+             'physical_decisions_sha256',actual['native_frames'])):
+            p=Path(results)/actual[path_key]
+            demand(p.resolve().is_relative_to(Path(results).resolve()) and
+                   p.is_file() and sha256(p)==actual[compressed_key],
+                   'recovery-active physical fixture missing or altered')
+            data=zlib.decompress(p.read_bytes())
+            demand(len(data)==size and hashlib.sha256(data).hexdigest()==actual[digest_key],
+                   'recovery-active input/physical decision bytes changed')
+            raw.append(data)
+        x=np.frombuffer(raw[0],dtype='<f8')
+        q=np.frombuffer(raw[1],dtype='u1')
+        demand(np.all(q<=1),'nonbinary recovery-active decision stream')
+        residual=q.astype('float64')-.5-x
+        for index,beta in enumerate(BETAS):
+            w=actual['spectra'][index]
+            demand(w['beta']==beta,'changed recovery-active Kaiser beta')
+            compare(w,analyze(residual,row['rate_hz'],beta),
+                    f'recovery-active DSD{row["rate_hz"]//SOURCE_RATE}, beta {beta}')
     return 2
 
 
