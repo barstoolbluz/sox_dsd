@@ -28,7 +28,7 @@ from audited_spectrum import (BANDS as REFERENCE_BANDS, BETAS as REFERENCE_BETAS
                               FS_POWER as REFERENCE_FS_POWER,
                               analyze as reference_bandpower, compare as compare_spectrum)
 from attestation import (digest as sha256, verify as verify_accepted_source,
-                         physical_contract)
+                         physical_contract, approved_behavior)
 from build_context import read_fenv
 from decode import parse_wav, checked_rate
 from encode import dsf_bits
@@ -57,6 +57,8 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
     pin=verify_accepted_source(source)
     contract=physical_contract()
     fixed_cases=contract['short']['cases']
+    accepted_words=approved_behavior()['short_cases']
+    demand(set(accepted_words)==set(fixed_cases),'incomplete frozen physical behavioral reference')
     source_rate=contract['source_rate_hz']
     channels=contract['channels']
     window_n=contract['short']['window_length_frames']
@@ -150,6 +152,9 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
         demand(case['native_frames']==n==frozen['native_frames'],
                f'{cid}: native rate/count mismatch')
         physical=dsf_bits(dsf.read_bytes(),n,ch,hz)
+        want_words=accepted_words[cid]
+        demand(hashlib.sha256(physical).hexdigest()==want_words['physical_dsd_bits_sha256'],
+               f'{cid}: actual physical DSD bits deviate from accepted independent decision stream')
         demand(hashlib.sha256(physical).hexdigest()==case['physical_dsd_bits_sha256'],
                f'{cid}: physical bits corrupted or remapped')
         n_pcm=checked_rate(n,hz,source_rate)
@@ -157,6 +162,8 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
         payload,_=parse_wav(recon,n_pcm,ch,source_rate)
         demand(hashlib.sha256(payload).hexdigest()==case['reconstructed_float64_words_sha256'],
                f'{cid}: actual reconstructed binary64 words changed')
+        demand(hashlib.sha256(payload).hexdigest()==want_words['reconstructed_float64_words_sha256'],
+               f'{cid}: actual reconstructed FLOAT64 payload deviates from accepted independent words')
         # Observe the *actual* CLI's admission trace, not merely the private
         # probe's forecast. Recompute the independent probe expectation from
         # the exact physical source WAV words, then demand byte equality for
@@ -175,6 +182,8 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
             demand(len(raw)==8*n and
                    hashlib.sha256(raw).hexdigest()==case['actual_admitted_sha256'][channel],
                    f'{cid}: actual CLI admission word count/hash changed')
+            demand(hashlib.sha256(raw).hexdigest()==want_words['actual_admitted_sha256'][channel],
+                   f'{cid}: actual modulator input words deviate from accepted independent words')
             traces.append(raw)
         with tempfile.TemporaryDirectory(prefix='p08-reprobe-') as tmp:
             prefix=str(Path(tmp)/'expected')
@@ -403,7 +412,7 @@ def negative_controls(root,record,source=None,sox=None,probe=None,oracle=None):
 
     reject('physical_stereo_channel_swap',
            lambda d,s:physical_native_mutant(d,s,'channel_swap'),
-           detector='independent encoder decision stream changed')
+           detector='actual physical DSD bits deviate from accepted independent decision stream')
     reject('physical_dropped_native_tail',
            lambda d,s:physical_native_mutant(d,s,'drop_tail'),
            detector='native rate/count mismatch')

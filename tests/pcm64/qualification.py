@@ -290,7 +290,9 @@ def run_family(sox,probe,decode_oracle,results):
                   'tests/pcm64/qualification/audited_spectrum.py',
                   'tests/pcm64/qualification/long_metrology.py',
                   'tests/pcm64/qualification/mutation_regression.py',
-                  'tests/pcm64/qualification/sox_fenv_wrapper.c']
+                  'tests/pcm64/qualification/sox_fenv_wrapper.c',
+                  'tests/pcm64/qualification/behavioral.py',
+                  'tests/pcm64/qualification/reference/accepted-physical-behavior.json']
     record={'schema':'sox-native64-qualification/2',
         'status':'PASS',
         'scope':'FINITE_MEASUREMENTS_ONLY_NOT_RELEASE_CERTIFICATION',
@@ -324,6 +326,17 @@ def main(sox,probe,decode_oracle,results):
     receipt=results/'qualification.json'
     receipt.unlink(missing_ok=True)
     try:
+        # Behaviour must reject a patched executable even when a maintainer
+        # updates the accepted src/ hash inventory to match its changed files.
+        # This gate observes executable results, not production-source identity.
+        behavioral=[sys.executable,
+            str(SOURCE/'tests/pcm64/qualification/behavioral.py'),
+            '--sox',str(sox),
+            '--primitive',str(Path(sox).resolve().parents[1]/'test/pcm64_probe'),
+            '--results',str(results)]
+        cp=subprocess.run(behavioral,capture_output=True,text=True,timeout=180,
+                          env=dict(os.environ,OPENBLAS_NUM_THREADS='1'))
+        demand(cp.returncode==0,'built-executable-behavior: '+cp.stderr[-1200:])
         record=run_family(sox,probe,decode_oracle,results)
         # Actual independent bit- and per-window re-reader; deliberate corruptions
         # are mandatory, not optional, in the committed qualification suite.
@@ -349,14 +362,18 @@ def main(sox,probe,decode_oracle,results):
             ('cancellation', [sys.executable,
                 str(SOURCE/'tests/pcm64/qualification/cancellation.py'),
                 '--sox',str(sox), '--results',str(results/'cancellation')]),
-            ('receiver-mutations', [sys.executable,
-                str(SOURCE/'tests/pcm64/qualification/mutation_regression.py'),
-                '--mutants',str(SOURCE/'tests/pcm64/qualification/mutants'),
-                '--results',str(results)]),
+            # Run the physical long-family kernel checks before the receiver
+            # mutation fixture suite. A modified certified header must fail
+            # against independent kernel words, not simply because the
+            # receiver's own source patch would no longer apply.
             ('long-metrology', [sys.executable,
                 str(SOURCE/'tests/pcm64/qualification/long_metrology.py'),
                 '--sox',str(sox),
                 '--unit',str(Path(sox).resolve().parents[1]/'test/dsd_test_p10'),
+                '--results',str(results)]),
+            ('receiver-mutations', [sys.executable,
+                str(SOURCE/'tests/pcm64/qualification/mutation_regression.py'),
+                '--mutants',str(SOURCE/'tests/pcm64/qualification/mutants'),
                 '--results',str(results)]),
         )
         gate_results=[]

@@ -2,9 +2,12 @@
 """Apply all 21 receiver mutations to *isolated fixtures* and prove detection.
 
 Never rewrite or compile an altered production source in the delivery tree.
-The 15 production mutants must trip immutable accepted-source attestation,
-including faults shared by real CLI, encoder probe and public decoder oracle.
-The six reference mutants must independently disagree with exact/window oracles.
+The 15 production source mutations in this fixture suite test provenance only;
+they do NOT constitute an executable-behavior rejection. Physical and numeric
+behavior is tested separately in behavioral.py, the independent FIR and
+certified-kernel gates, including a separately documented 15-mutant rebuilt
+executable run with accepted source pins deliberately updated. The six
+reference mutants here test independent numerical/window oracle disagreement.
 """
 from __future__ import annotations
 import argparse
@@ -66,7 +69,7 @@ def production_fault(name,patch,work):
     except AssertionError as e:
         demand('accepted production source changed:' in str(e),
                'rejected for unrelated reason '+str(e))
-        return 'immutable source-word fingerprint: '+str(e)
+        return 'PROVENANCE_ONLY: immutable source-word fingerprint: '+str(e)
     raise AssertionError(name+' escaped production fingerprint')
 
 
@@ -137,10 +140,12 @@ def run_all(mutants,results):
             'class':'production-source' if name in PRODUCTION else 'reference-window'
             if name in BANDPOWER else 'reference-precision-phase',
             'mutant_patch_sha256':hashlib.sha256(patch.read_bytes()).hexdigest(),
-            'detector':reason})
+            'detector':reason, 'evidence_class':('source-provenance-only' if name in PRODUCTION else 'independent-reference-disagreement')})
     return {'suite':'p08-receiver-mutation-matrix','status':'PASS',
             'accepted_source_revision':pinned()['accepted_production_revision'],
             'mutations_expected':len(ALL),'mutations_rejected':len(rows),
+            'production_mutants_provenance_only':len(PRODUCTION),
+            'reference_mutants_numerically_rejected':len(REFERENCE|BANDPOWER),
             'mutations':rows}
 
 

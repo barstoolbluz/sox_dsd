@@ -30,7 +30,7 @@ from qualification import stimulus, sha256, demand, SOURCE_RATE, RATES, CHANNELS
 from encode import make_wav, dsf_bits
 from decode import parse_wav
 from audited_spectrum import analyze, compare, BANDS, BETAS
-from attestation import verify as accepted, REFERENCE, physical_contract
+from attestation import verify as accepted, REFERENCE, physical_contract, approved_behavior
 from build_context import read_fenv, build_context
 import test_resonator as resmod
 
@@ -180,8 +180,15 @@ def run(args,results):
 
 
 def git_head(source):
-    cp=subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],capture_output=True,text=True)
-    demand(cp.returncode==0,'source has no git provenance')
+    # An ordinary git archive is a valid source-only delivery. Without its
+    # .git, accepted-source SHA identities and executable/receipt hashes are
+    # the provenance; do not pretend a Git commit was observed in that export.
+    source=Path(source)
+    if not (source/'.git').exists():
+        return None
+    cp=subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],
+                      capture_output=True,text=True,timeout=10)
+    demand(cp.returncode==0,'declared git checkout has no readable HEAD')
     return cp.stdout.strip()
 
 
@@ -191,6 +198,8 @@ def check(results):
     record=json.loads(path.read_text())
     contract=physical_contract()
     frozen=contract['long']['cases']
+    gold=approved_behavior()['long_cases']
+    demand(set(gold)==set(frozen),'incomplete frozen long physical behavioral reference')
     demand(record['schema']==LONG_SCHEMA and record['status']=='PASS',
            'missing long physical receipt')
     demand(set(frozen)=={f'dsd{hz//44100}-{p}' for hz in RATES for p in LONG_PATTERNS} and
@@ -252,6 +261,8 @@ def check(results):
         physical=dsf_bits((results/case['dsf_path']).read_bytes(),n,CHANNELS,hz)
         demand(hashlib.sha256(physical).hexdigest()==case['physical_bits_sha256'],
                f'{key}: changed final physical bits')
+        demand(hashlib.sha256(physical).hexdigest()==gold[key]['physical_dsd_bits_sha256'],
+               f'{key}: physical bits deviate from frozen independently approved stream')
         witness=case['same_process_fenv']
         fp=results/witness['path']
         demand(fp.resolve().is_relative_to(results) and fp.is_file(),
@@ -282,6 +293,8 @@ def check(results):
                    hashlib.sha256(raw).hexdigest()==rec['window_sha256'] and
                    rec['full_real_cli_admitted_frames']==n,
                    f'{key}: missing/altered admitted words')
+            demand(hashlib.sha256(raw).hexdigest()==gold[key]['admitted_window_sha256'][ch],
+                   f'{key}: actual admitted native words deviate from frozen accepted stream')
             x=np.frombuffer(raw,dtype='<f8')
             q=observe_bits(physical,ch,case['window_start_frame'],len(x))
             found[key,ch]=(q-x,hz,case['window_start_frame'],len(x))

@@ -39,6 +39,23 @@ def physical_contract():
         raise AssertionError('missing/changed accepted physical input contract')
     return contract
 
+def approved_behavior():
+    """Checked-in physical words from the accepted build, not a live probe.
+
+    Source-pin changes never revise these independently reviewed outcomes.
+    The short physical streams were checked with the frozen SDM recurrence
+    and direct CLI admission; the long streams with the audited q-x analyzer.
+    """
+    data=json.loads((REFERENCE/'accepted-physical-behavior.json').read_text())
+    if (data.get('schema')!='phase08-approved-physical-behavior/1' or
+            len(data.get('short_cases',{}))!=18 or
+            len(data.get('long_cases',{}))!=20 or
+            set(data.get('target_cases',{}))!=
+            {'overrange','gain_effect','dff_nonbyte'}):
+        raise AssertionError('missing/incomplete approved independent behavioral words')
+    return data
+
+
 def verify(source):
     source=Path(source).resolve()
     p=expected()
