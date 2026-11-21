@@ -1406,7 +1406,7 @@ before the output filename, as in traditional SoX.  Native DSD is one-bit;
 selects PCM output precision, not a native DSD precision.
 .SP
 Without an explicit PCM output rate, decoding uses the qualified
-mastering-v2 intermediate clock: 88200 Hz for DSD64; 176400 Hz for
+unified mastering intermediate clock: 88200 Hz for DSD64; 176400 Hz for
 DSD128, DSD256, DSD512 and DSD1024.  Where the format supports it,
 the default is signed 24-bit PCM.  For a different PCM clock, specify
 .B \-r
@@ -1459,23 +1459,21 @@ conversions.
 .B \-\-help\-dsd
 Display a short set of DSD examples and commonly used advanced controls.
 .TP
-.B \-\-decode mastering|conservative|wideband|legacy|ID
-Select a reconstruction profile when processing DSD as PCM.  The
+.B \-\-decode mastering|wideband|ID
+Select the unified reconstruction profile when processing DSD as PCM.
+The automatic default and
 .B mastering
-alias and automatic default both select qualified mastering v2,
-matched to the native DSD input rate.
-.B conservative
-selects the original mastering v1; the
+select the former mastering-v1 bank, matched to the native input rate;
 .B wideband
-alias selects wideband v1.  Explicit immutable IDs such as
-.B decode.mastering.v1.dsd64
+is the only alternative.  Unversioned canonical IDs, for example
+.B decode.mastering.dsd64
 or
-.B decode.mastering.v2.dsd128
-pin both the bank and the native input clock, so a clock mismatch
-is an error.  The
+.BR decode.wideband.dsd128 ,
+pin the bank and input clock; a clock mismatch fails.  The historical
+.BR conservative ,
 .B legacy
-selector is a historical unqualified decoder and may be unavailable
-in a planned composite route.
+and versioned decoder IDs (including mastering v2) are not accepted.
+Decoder naming is independent of the versioned mastering encoder IDs.
 .TP
 .B \-\-encode mastering|ID
 Select a qualified PCM-to-DSD modulator.  The default
@@ -1536,9 +1534,17 @@ uses unity gain.  The
 mode applies a factor of two (+6.0206 dB).  Neither normalizes audio.
 .TP
 .B \-\-dsd\-clip warn|error
-Choose warning and clipping (default), or fatal rejection, for
-reconstructed PCM graph-boundary overshoots and interpolated PCM-to-DSD
-modulator input overshoots.  In warning mode, the certified DSD64 and
+Choose warning behavior (default) or fatal rejection for
+reconstructed PCM graph-boundary excursions and interpolated PCM-to-DSD
+modulator input overshoots.  On the native binary64 FLOAT32/FLOAT64
+output route, finite values above unity remain unclipped in warn mode;
+excursions (x >= 1 or x < -1) are counted and a single warning is
+emitted, with or without a report.  Error mode refuses these excursions
+for floating and integer destinations alike, including without a
+report.  No samples from the failed processing block are published.
+A pipe may already contain earlier completed blocks; a failed regular
+file is removed.  The ordinary integer-PCM graph boundary retains the
+standard SoX saturation behavior.  In warning mode, the certified DSD64 and
 DSD128 mastering modulators use unity gain (0 dB default headroom) and a
 0.5 native input warning/clip ceiling, reflecting the owner-approved
 certified input envelope.  DSD256, DSD512 and DSD1024 retain the default
@@ -1662,7 +1668,7 @@ Examples:
    sox --dop input.dsf output.wav
    sox --plan input.dsf output.wav
    sox --report report.json input.dsf output.wav
-   sox --decode decode.mastering.v1.dsd64 input.dsf old-v1.wav
+   sox --decode decode.mastering.dsd64 input.dsf mastering.wav
 .XX
 .SH EFFECTS
 In addition to converting, playing and recording audio files, SoX can

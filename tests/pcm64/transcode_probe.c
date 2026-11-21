@@ -83,7 +83,7 @@ static int lifecycle_selftest(void)
   started=1;
   sox_dsd_decode_options_init_extended(&opts);
   opts.native_hz=2822400;opts.output_hz=96000;opts.channels=1;
-  opts.profile=SOX_DSD_DECODE_MASTERING_V2;
+  opts.profile=SOX_DSD_DECODE_MASTERING;
   opts.level=SOX_DSD_LEVEL_PRESERVE;
   opts.bandwidth=SOX_DSD_BANDWIDTH_ADAPT;
   VERIFY(lsx_dsd_f64_transcode_init(&t,&opts,1,0,&gain,1,NULL,
@@ -167,7 +167,7 @@ int main(int argc,char **argv)
   options.native_hz=source_hz;
   options.output_hz=pcm_hz;
   options.channels=nch;
-  options.profile=SOX_DSD_DECODE_MASTERING_V2;
+  options.profile=SOX_DSD_DECODE_MASTERING;
   options.level=SOX_DSD_LEVEL_PRESERVE;
   options.bandwidth=SOX_DSD_BANDWIDTH_ADAPT;
   if (lsx_dsd_f64_transcode_init(&pipeline,&options,1,expected_native,

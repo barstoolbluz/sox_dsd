@@ -256,7 +256,7 @@ def layout_gate(sox, root, oracle=None):
                'WSD writer invented roles or altered channel count')
         if oracle:
             decode_case(sox, oracle, root, f'oracle-wsd-{channels}', src,
-                        96000, 'mastering-v2', 'preserve',
+                        96000, 'mastering', 'preserve',
                         report=False, speaker_mask=0)
     src = put_source(root, 'dff', 6, 4096)
     args = output_args(src, root / 'dff-loss.wav')
@@ -272,7 +272,7 @@ def layout_gate(sox, root, oracle=None):
     demand(mask == 0, 'permitted DFF layout should have unspecified WAV mask')
     if oracle:
         decode_case(sox, oracle, root, 'oracle-dff-loss-warn', src,
-                    96000, 'mastering-v2', 'preserve', report=False,
+                    96000, 'mastering', 'preserve', report=False,
                     other_options=tuple(opts), speaker_mask=0)
     for roles, expected in [('FL,FR', 0x3), ('FC,FL,FR,LFE,SL,SR', 0x60f)]:
         ch = roles.count(',') + 1

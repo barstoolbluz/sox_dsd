@@ -46,7 +46,7 @@ def vector(path: Path, rate: int, seconds: float, channels: int = 2) -> int:
 
 def measure(sox: Path, source: Path, native: int, policy: str,
             kernel: str, threaded: bool) -> dict:
-    profile = f"decode.mastering.v2.dsd{64 if native==fixtures.DSD64 else 128}"
+    profile = f"decode.mastering.dsd{64 if native==fixtures.DSD64 else 128}"
     argv = [str(sox), "--precision",policy,"--decode",profile,
             "--dsd-level","preserve","--dsd-bandwidth","adapt",
             "--multi-threaded" if threaded else "--single-threaded",

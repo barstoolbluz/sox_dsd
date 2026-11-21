@@ -253,8 +253,8 @@ static char *dsd_layout_assignment = NULL;
 static sox_bool dsd_layout_loss_warn = sox_false;
 static lsx_dsd_policy dsd_policy = {
   .mode=LSX_DSD_MODE_AUTO,
-  /* Qualified mastering v2 applies to automatic and named mastering decode. */
-  .decode=LSX_DSD_PROFILE_MASTERING_V2,
+  /* D7: the unified mastering decoder is the former v1 coefficient bank. */
+  .decode=LSX_DSD_PROFILE_MASTERING,
   .encode=LSX_DSD_ENCODE_MASTERING,
   .level=LSX_DSD_LEVEL_PRESERVE,
   .clip=LSX_DSD_CLIP_WARN,
@@ -1574,17 +1574,7 @@ static void dsd_insert_boundary(sox_effects_chain_t *chain,
     }
     snprintf(rate,sizeof(rate),"%.0f",destination);
     argv[0]="-p";
-    if (dsd_policy.decode==LSX_DSD_PROFILE_MASTERING_V2) {
-      uint32_t native;
-      const lsx_dsd_frontend_profile *profile;
-      if (!lsx_dsd_integer_rate(signal->rate,&native) ||
-          !(profile=lsx_dsd_frontend_profile_find(native,dsd_policy.decode))) {
-        lsx_fail("P15-R3: missing v2 candidate for implicit decoder clock");exit(2);
-      }
-      argv[1]=(char *)profile->canonical_id;
-    } else if (dsd_policy.decode==LSX_DSD_PROFILE_WIDEBAND) argv[1]="wideband";
-    else if (dsd_policy.decode==LSX_DSD_PROFILE_LEGACY) argv[1]="legacy";
-    else argv[1]="conservative"; /* Frozen v1, not the v2 mastering default. */
+    argv[1]=dsd_policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":"mastering";
     argv[2]="-l";
     argv[3]=dsd_policy.level==LSX_DSD_LEVEL_SACD?"sacd":"preserve";
     argv[4]=rate;
@@ -4051,7 +4041,7 @@ static int dsd_run_native_pcm(void)
   sox_dsd_packed_block_t packed;
   sox_dsd_decode_options_t decode_opt;
   sox_dsd_stream_info_t info={0};
-  lsx_dsd_decode selected_profile=LSX_DSD_PROFILE_MASTERING_V2;
+  lsx_dsd_decode selected_profile=LSX_DSD_PROFILE_MASTERING;
   uint32_t native_hz=0;
   int use_packed=0, dsd_input=source->encoding.encoding==SOX_ENCODING_DSD;
   size_t factor_count=0, max_factors, i, capacity=4096, words, bytes;
@@ -4065,8 +4055,7 @@ static int dsd_run_native_pcm(void)
     uint64_t total=0, expected_pcm=0;
     unsigned k;
     const lsx_dsd_decode choices[] = {
-      LSX_DSD_PROFILE_MASTERING, LSX_DSD_PROFILE_WIDEBAND,
-      LSX_DSD_PROFILE_MASTERING_V2
+      LSX_DSD_PROFILE_MASTERING, LSX_DSD_PROFILE_WIDEBAND
     };
     sox_bool matched=sox_false;
     info.size=sizeof(info);info.version=1;
@@ -4325,14 +4314,18 @@ static int dsd_run_native_pcm(void)
          * container precision or a gain applied after the decoder.  The
          * ordinary dsdpcm adapter checks these pre-gain values for every
          * output encoding, including floating-point WAV. */
-        if (dsd_report_active || dsd_policy.clip==LSX_DSD_CLIP_ERROR) {
+        /* The warning is observable even with no --report. Do not gate
+         * finite-value checks, excursion counts or peak tracking on receipt
+         * collection: native binary64 preserves finite over-unity words but
+         * the user must still see their out-of-range reconstruction. */
+        {
           size_t word;
           for (word=0;word<made*channels;word++) {
             /* The ordinary DSD input adapter checks the reconstructed
              * sample AFTER the per-input -v/replay gain, before effects.
              * The native coordinator applies that gain in its first stage;
              * mirror the adapter here without changing the PCM words. */
-            double adapted=input[word]*factors[0];
+            double adapted=factors[0]==1. ? input[word] : input[word]*factors[0];
             double magnitude=fabs(adapted);
             if (!isfinite(adapted)) {
               lsx_fail("native PCM64: nonfinite sample in DSD input adapter");
@@ -4484,6 +4477,9 @@ static int dsd_run_native_pcm(void)
   if (show_progress)
     fprintf(stderr,"\rNative PCM64: 100.0%%, %" PRIu64 " frames written\n",
         (uint64_t)output_samples);
+  if (dsd_input && decoder_nominal_clips && dsd_policy.clip==LSX_DSD_CLIP_WARN)
+    lsx_warn("native PCM64: %" PRIu64 " reconstructed PCM excursions (peak %.9g); finite float values preserved, integer endpoint may clip",
+        decoder_nominal_clips,decoder_peak);
   if (nominal_clips)
     lsx_warn("native PCM64: %" PRIu64 " nominal PCM excursions (clipped/quantized only at integer endpoint)",nominal_clips);
   rc=SOX_EOF;
@@ -5093,9 +5089,9 @@ static int dsd_run_native_transcode(void)
   const lsx_dsd_plan *plan=&dsd_runtime_plan;
   sox_dsd_stream_info_t info={0};
   sox_dsd_decode_options_t options;
-  lsx_dsd_decode selected=LSX_DSD_PROFILE_MASTERING_V2;
+  lsx_dsd_decode selected=LSX_DSD_PROFILE_MASTERING;
   const lsx_dsd_decode choices[]={LSX_DSD_PROFILE_MASTERING,
-      LSX_DSD_PROFILE_WIDEBAND,LSX_DSD_PROFILE_MASTERING_V2};
+      LSX_DSD_PROFILE_WIDEBAND};
   lsx_dsd_f64_transcode pipeline={0};
   lsx_dsd_f64_spool spool={0};
   sox_dsd_packed_block_t packed;
@@ -5729,7 +5725,7 @@ static void display_dsd_help(void)
        "  sox --precision 64 input.dsf output.wav  Require native64 (PCM identity/gain in Phase 05A; DSD in 05B)\n"
        "  sox --report run.json input.dsf output.wav  Convert and report\n"
        "\n"
-       "Automatic decoding uses qualified mastering v2 filters. For advanced\n"
+       "Automatic decoding uses the unified mastering (former v1) filters. Advanced\n"
        "controls: --decode PROFILE, --encode PROFILE, --dsd-bandwidth adapt|strict,\n"
        "--dsd-level preserve|sacd, --dsd-clip warn|error, --dsd-mode auto|native.\n"
        "Use --help-effect dsdpcm or pcmdsd for explicit effects.\n"
@@ -5771,8 +5767,8 @@ static void usage(void)
 "--dsd-mode auto|native|legacy  DSD planning is mandatory in all modes; native forbids PCM",
 "--precision auto|64|32 Native PCM precision policy; -b remains file encoding",
 "--sdm-guard on|off       Fail-closed legacy 1-bit modulator check; costs CPU (default off)",
-"--decode mastering|conservative|wideband|decode.mastering.vN.dsdNNN",
-"                         DSD reconstruction profile (default mastering v2; conservative is v1)",
+"--decode mastering|wideband|decode.<profile>.dsdNNN",
+"                         DSD reconstruction profile (default unified mastering)",
 "--encode mastering|encode.mastering.vN.dsdNNN  DSD modulation profile",
 "                         Mastering encoding is active for native DSD64 to DSD1024; guards remain enforced",
 "--dsd-level preserve|sacd  Decoder level convention",
@@ -6726,7 +6722,7 @@ static char parse_gopts_and_fopts(file_t * f)
           int profile;
           if (!lsx_dsd_profile_parse(optstate.arg,0,&profile,
                 &dsd_policy.decode_pinned_native_hz)) {
-            lsx_fail("--decode: choose mastering, conservative, wideband, or an exact decode.<profile>.vN.dsdNNN ID");
+            lsx_fail("--decode: choose mastering, wideband, or an exact decode.<profile>.dsdNNN ID");
             exit(1);
           }
           dsd_policy.decode=(lsx_dsd_decode)profile;

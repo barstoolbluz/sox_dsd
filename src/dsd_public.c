@@ -35,10 +35,8 @@ struct sox_dsd_decoder {
 static void init_options_defaults(sox_dsd_decode_options_t *options)
 {
   options->version = 1;
-  /* Default promoted from v1 to v2 per the operator decision of 2026-10-15,
-   * on the engineering acceptance of 2026-10-19. v1 remains selectable and
-   * its coefficients are untouched. */
-  options->profile = SOX_DSD_DECODE_MASTERING_V2;
+  /* Unified standard decoder: former v1 mastering coefficient bank. */
+  options->profile = SOX_DSD_DECODE_MASTERING;
   options->level = SOX_DSD_LEVEL_PRESERVE;
   options->bandwidth = SOX_DSD_BANDWIDTH_ADAPT;
 }
@@ -100,8 +98,7 @@ sox_dsd_status_t sox_dsd_decoder_create(
   if (!resolved.channels || resolved.channels > DSD_MAX_CHANNELS ||
       !lsx_dsd_pcm_rate_supported(resolved.output_hz) ||
       (resolved.profile != SOX_DSD_DECODE_MASTERING &&
-       resolved.profile != SOX_DSD_DECODE_WIDEBAND &&
-       resolved.profile != SOX_DSD_DECODE_MASTERING_V2) ||
+       resolved.profile != SOX_DSD_DECODE_WIDEBAND) ||
       resolved.level > SOX_DSD_LEVEL_SACD ||
       resolved.bandwidth > SOX_DSD_BANDWIDTH_STRICT)
     return SOX_DSD_BAD_ARGUMENT;

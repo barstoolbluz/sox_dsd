@@ -35,9 +35,8 @@ MAX_WINDOW_RMS_RESIDUAL = 0.15
 WINDOW_SECONDS = 0.1
 ANALYSIS_BAND_HZ = (0, 20000)
 PROFILES = (
-    ('mastering', 'decode.mastering.v1', {22579200: 176400, 45158400: 176400}),
-    ('wideband', 'decode.wideband.v1', {22579200: 705600, 45158400: 1411200}),
-    (None, 'decode.mastering.v2', {22579200: 176400, 45158400: 176400}),
+    ('mastering', 'decode.mastering', {22579200: 176400, 45158400: 176400}),
+    ('wideband', 'decode.wideband', {22579200: 705600, 45158400: 1411200}),
 )
 SELF_RATES = (22579200, 45158400)
 # Containers this gate covers. WSD is read-only by construction: src/dsd.c

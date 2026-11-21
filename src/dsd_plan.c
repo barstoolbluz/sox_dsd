@@ -98,21 +98,11 @@ static int resolve_decode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
   double pass, stop, intermediate, effective;
   lsx_dsd_rate const *rate=lsx_dsd_rate_find(native_rate);
   if (policy->decode_pinned_native_hz && policy->decode_pinned_native_hz != native_rate)
-    return fail(error,n,"versioned --decode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
+    return fail(error,n,"pinned --decode ID is for a different native DSD clock (%u Hz, expected %u Hz)",
         native_rate,policy->decode_pinned_native_hz);
   if (!rate || !(rate->capabilities & LSX_DSD_RECONSTRUCT))
     return fail(error,n,"no qualified decoder rate for native DSD %u Hz",native_rate);
-  if (profile == LSX_DSD_PROFILE_LEGACY) {
-    /* Generic legacy reconstruction is explicitly unqualified.  It must not
-     * acquire a made-up mastering passband or filter identity.  A mastering R
-     * is only an interoperable default PCM working clock. */
-    if (!lsx_dsd_profile_edges(native_rate,LSX_DSD_PROFILE_MASTERING,
-          &pass,&stop,&intermediate))
-      return fail(error,n,"no PCM working rate for legacy decoder");
-    pass=stop=0;
-    if (bandwidth == LSX_DSD_BANDWIDTH_STRICT)
-      return fail(error,n,"strict bandwidth cannot certify the legacy decoder");
-  } else if (!lsx_dsd_profile_edges(native_rate,profile,&pass,&stop,&intermediate))
+  if (!lsx_dsd_profile_edges(native_rate,profile,&pass,&stop,&intermediate))
     return fail(error,n,"no decoder profile for %u Hz",native_rate);
   if (destination && destination != intermediate) {
     uint32_t requested;
@@ -129,8 +119,7 @@ static int resolve_decode(lsx_dsd_plan *p, const lsx_dsd_policy *policy,
   p->decoder_intermediate_hz=intermediate;
   p->effective_bandwidth_hz=effective;
   p->decoder_gain=level==LSX_DSD_LEVEL_SACD?2.:1.;
-  p->decoder_id=profile==LSX_DSD_PROFILE_LEGACY?"decode.legacy.generic":
-      lsx_dsd_frontend_profile_find(native_rate,profile)->canonical_id;
+  p->decoder_id=lsx_dsd_frontend_profile_find(native_rate,profile)->canonical_id;
   p->needs_unimplemented_dsp=1;
   p->unavailable_reason="DSD reconstruction is scheduled for P06/P07/P08";
   return 1;
@@ -184,7 +173,7 @@ static int decoder_selection(lsx_dsd_plan_spec const *spec,
     return fail(error,n,"conflicting --decode and dsdpcm -p selections");
   if (e->dsd.pinned_native_hz && spec->policy.decode_pinned_native_hz &&
       e->dsd.pinned_native_hz != spec->policy.decode_pinned_native_hz)
-    return fail(error,n,"conflicting versioned --decode and dsdpcm -p native clocks");
+    return fail(error,n,"conflicting pinned --decode and dsdpcm -p native clocks");
   if (e->dsd.level_specified && spec->policy.level_specified &&
       e->dsd.level!=spec->policy.level)
     return fail(error,n,"conflicting --dsd-level and dsdpcm -l selections");
@@ -287,11 +276,9 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
       if (!lsx_dsd_integer_rate(in->native_rate,&exact) ||
           !(d=lsx_dsd_rate_find(exact)) || !(d->capabilities & LSX_DSD_READ_NATIVE))
         return fail(error,n,"native DSD rate %.9g Hz has no enabled profile",in->native_rate);
-      /* A native-only path does not require a decoder profile.  In
-       * particular, selecting the legacy decoder must not inhibit repacking. */
-      if (!lsx_dsd_profile_edges(exact,spec->policy.decode,&pass,&stop,&r) &&
-          spec->policy.decode==LSX_DSD_PROFILE_LEGACY)
-        lsx_dsd_profile_edges(exact,LSX_DSD_PROFILE_MASTERING,&pass,&stop,&r);
+      /* Retain the selected profile's PCM working clock for mixed graphs. */
+      if (!lsx_dsd_profile_edges(exact,spec->policy.decode,&pass,&stop,&r))
+        return fail(error,n,"no decoder profile for native DSD %u Hz",exact);
       largest_r=fmax(largest_r,r);
       any_native=1;
       if (!native_rate) native_rate=exact;
@@ -416,7 +403,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
       if (e->dsd.pinned_native_hz) for (i=0;i<spec->input_count;i++)
         if (p->inputs[i].native_domain==LSX_DSD_NATIVE &&
             p->inputs[i].native_rate!=e->dsd.pinned_native_hz)
-          return fail(error,n,"versioned decoder ID is for a different native DSD clock at input %lu",
+          return fail(error,n,"pinned decoder ID is for a different native DSD clock at input %lu",
               (unsigned long)i);
       if (any_pcm && e->dsd.rate_hz && e->dsd.rate_hz!=common_pcm_rate)
         return fail(error,n,"leading dsdpcm rate conflicts with the mixed PCM input clock");
@@ -427,10 +414,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         for (i=0;i<spec->input_count;i++) {
           double pass,stop,r;
           if (!lsx_dsd_profile_edges((uint32_t)p->inputs[i].native_rate,
-                decoder,&pass,&stop,&r) &&
-              !(decoder==LSX_DSD_PROFILE_LEGACY &&
-                lsx_dsd_profile_edges((uint32_t)p->inputs[i].native_rate,
-                    LSX_DSD_PROFILE_MASTERING,&pass,&stop,&r)))
+                decoder,&pass,&stop,&r))
             return fail(error,n,"no PCM working rate for leading dsdpcm");
           largest_r=fmax(largest_r,r);
         }
@@ -528,16 +512,13 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         return fail(error,n,"native mode forbids explicit dsdpcm");
       if (!decoder_selection(spec,e,&decoder,&level,error,n)) return 0;
       if (e->dsd.pinned_native_hz && e->dsd.pinned_native_hz!=(uint32_t)rate)
-        return fail(error,n,"versioned decoder ID is for a different native DSD clock");
+        return fail(error,n,"pinned decoder ID is for a different native DSD clock");
       if (level==LSX_DSD_LEVEL_SACD &&
           (spec->policy.guarded || spec->policy.normalizing))
         return fail(error,n,"sacd reconstruction cannot be combined with automatic guard or normalization");
       if (!e->dsd.rate_hz) {
         double pass,stop,intermediate;
-        if (!lsx_dsd_profile_edges((uint32_t)rate,decoder,&pass,&stop,&intermediate) &&
-            !(decoder==LSX_DSD_PROFILE_LEGACY &&
-              lsx_dsd_profile_edges((uint32_t)rate,LSX_DSD_PROFILE_MASTERING,
-                  &pass,&stop,&intermediate)))
+        if (!lsx_dsd_profile_edges((uint32_t)rate,decoder,&pass,&stop,&intermediate))
           return fail(error,n,"no PCM working rate for explicit dsdpcm");
         rate=intermediate;
       } else rate=e->dsd.rate_hz;
@@ -765,10 +746,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         return fail(error,n,"native mode cannot write reconstructed PCM");
       if (!dest) {
         double pa,st,inter;
-        if (!lsx_dsd_profile_edges((uint32_t)rate,decoder,&pa,&st,&inter) &&
-            !(decoder==LSX_DSD_PROFILE_LEGACY &&
-              lsx_dsd_profile_edges((uint32_t)rate,LSX_DSD_PROFILE_MASTERING,
-                  &pa,&st,&inter)))
+        if (!lsx_dsd_profile_edges((uint32_t)rate,decoder,&pa,&st,&inter))
           return fail(error,n,"no reconstruction working rate for %.0f Hz",rate);
         dest=inter;
       }
@@ -847,9 +825,7 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
         strcmp(p->encoder_id,"encode.legacy.dither-p1") &&
         !(p->native_output_hz && lsx_pcmdsd_qualified(p->native_output_hz) &&
           !strcmp(p->encoder_id,lsx_pcmdsd_profile_find(p->native_output_hz)->id));
-    int unsupported_decoder=p->decoder_id &&
-        !strcmp(p->decoder_id,"decode.legacy.generic");
-    if (!unsupported_encoder && !unsupported_decoder && !p->dop_count &&
+    if (!unsupported_encoder && !p->dop_count &&
         p->executable) {
       p->needs_unimplemented_dsp=0;
       p->unavailable_reason=NULL;
@@ -861,7 +837,6 @@ int lsx_dsd_plan_build(lsx_dsd_plan_spec const *spec, lsx_dsd_plan *p,
   }
   if (p->executable &&
       (p->input_decode_count || p->graph_decode_count) &&
-      (!p->decoder_id || strcmp(p->decoder_id,"decode.legacy.generic")) &&
       !check_kernel(LSX_DSD_FIR,spec->policy.kernel_fir,error,n)) return 0;
   /* Legacy low-level sdm and precision-one dither never instantiate the
    * composite P11 SDM kernel; their overrides must remain inert. */
@@ -898,9 +873,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
       (p->executable && !p->precision_refused)?"true":"false",p->needs_unimplemented_dsp?"true":"false");
   if (p->unavailable_reason) json_string(fp,p->unavailable_reason); else fputs("null",fp);
   fprintf(fp,",\n  \"policy\": {\"decode\": ");
-  json_string(fp,spec->policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":
-      spec->policy.decode==LSX_DSD_PROFILE_LEGACY?"legacy":
-      spec->policy.decode==LSX_DSD_PROFILE_MASTERING_V2?"mastering":"conservative");
+  json_string(fp,spec->policy.decode==LSX_DSD_PROFILE_WIDEBAND?"wideband":"mastering");
   fprintf(fp,", \"encode\": ");
   json_string(fp,spec->policy.encode==LSX_DSD_ENCODE_LEGACY?"legacy":
       spec->policy.encode==LSX_DSD_ENCODE_EXPERIMENTAL?"experimental":"mastering");

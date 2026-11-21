@@ -3685,30 +3685,28 @@ effect or to legacy routing.  See the DSD section of
 .BR sox (1).
 .TP
 .B dsdpcm [\-p PROFILE] [\-l preserve|sacd] [rate]
-Reconstruct native DSD to PCM with the profile's source-rate filter and
+Reconstruct native DSD to PCM with the unified source-rate filter and
 binary64 DSP.  Without
 .BR \-p ,
-mastering v2 is selected according to the input DSD clock.  For DSD64,
-128, 256, 512, and 1024, v2 passbands are respectively 25, 48, 66, 66,
-and 66 kHz.  With no requested
+the former mastering-v1 bank is selected for the native DSD clock.
+Mastering passbands at DSD64, DSD128, and DSD256+ are 20, 30, and
+40 kHz, respectively (the DSD256+ filter/clock follows the pre-1.1.2
+bank).  With no requested
 .IR rate ,
-use the profile's intermediate PCM clock (88200 Hz for DSD64 v2,
-176400 Hz for the other v2 rates).  The effective bandwidth depends
-on both the selected profile and the output PCM rate.
+use the profile's intermediate PCM clock: 88200 Hz at DSD64,
+176400 Hz for mastering at DSD128+; wideband's high-rate clock varies
+with the native input rate.  The output PCM clock cannot broaden the
+selected decoder passband.
 .SP
-Explicit
 .B \-p mastering
-or
-.B \-p conservative
-selects mastering v1; explicit
+selects the same decoder as the default;
 .B \-p wideband
-selects wideband v1.  Pinned IDs such as
-.B decode.mastering.v2.dsd128
+selects the alternative.  Canonical unversioned IDs such as
+.B decode.mastering.dsd128
 and
-.B decode.wideband.v1.dsd256
-select the version and native input clock.  A clock mismatch fails.
-.B \-p legacy
-is parsed but no executable composite legacy decoder is supplied.
+.B decode.wideband.dsd256
+pin bank and native input clock.  A mismatch fails.  Retired versioned
+IDs, mastering v2, conservative, and legacy decoder names are rejected.
 .B \-l sacd
 applies +6.0206 dB; the default
 .B preserve

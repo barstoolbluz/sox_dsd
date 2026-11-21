@@ -101,7 +101,7 @@ class Suite:
 
     def decode_oracle(self,label,source,pcm_hz,n,ch):
         raw=self.work/f'{label}.pcm-oracle.f64'
-        p=run_checked([self.decoder,source,raw,pcm_hz,'mastering-v2',
+        p=run_checked([self.decoder,source,raw,pcm_hz,'mastering',
             'preserve','adapt','auto'],timeout=100)
         demand(raw.exists(),f'{label}: missing independent PCM64 oracle')
         # The binary length is independently checked against the source

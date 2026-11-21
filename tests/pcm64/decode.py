@@ -126,8 +126,8 @@ def decode_case(sox: Path, oracle: Path, folder: Path, ident: str,
     demand(native in (fixtures.DSD64, 2*fixtures.DSD64),
            f"invalid independent native-rate extraction: {native}")
     profile_arg = {
-        "mastering-v1": f"decode.mastering.v1.dsd{native // fixtures.DSD64 * 64}", "wideband": "wideband",
-        "mastering-v2": f"decode.mastering.v2.dsd{native // fixtures.DSD64 * 64}",
+        "mastering": f"decode.mastering.dsd{native // fixtures.DSD64 * 64}",
+        "wideband": f"decode.wideband.dsd{native // fixtures.DSD64 * 64}",
     }[profile]
     env = {"SOX_DSD_KERNEL_FIR": kernel, "SOX_DSD_PACKED_INPUT": "1" if packed else "0"}
     argv = [str(sox), "--precision", "64", "--decode", profile_arg,
@@ -179,9 +179,8 @@ def decode_case(sox: Path, oracle: Path, folder: Path, ident: str,
                dec[0]["frames_consumed"] == receipt["native"] and
                dec[0]["frames_produced"] == receipt["pcm"],
                f"{ident}: actual decoder counter, kernel or rate missing")
-        expected_id = {"mastering-v1": "decode.mastering.v1",
-                       "mastering-v2": "decode.mastering.v2",
-                       "wideband": "decode.wideband.v1"}[profile]
+        expected_id = {"mastering": "decode.mastering.dsd",
+                       "wideband": "decode.wideband.dsd"}[profile]
         demand(dec[0]["profile_id"].startswith(expected_id) and
                dec[0]["fir_kernel_actual"] == ("scalar" if kernel=="scalar" else
                  "sse2" if kernel=="sse2" else dec[0]["fir_kernel_actual"]),
@@ -506,7 +505,7 @@ def run_suite(sox: Path, oracle: Path, work: Path) -> dict[str, Any]:
     # Fully crossed native-rate, profile, PCM-rate and level coverage, with
     # 1/7/256/511/4096 source/output partitions in the independent probe.
     for hz in (fixtures.DSD64, 2*fixtures.DSD64):
-        for profile in ("mastering-v1", "mastering-v2", "wideband"):
+        for profile in ("mastering", "wideband"):
             for rate in (88200, 96000, 176400, 192000):
                 for level in ("preserve", "sacd"):
                     idx = f"matrix-dsf{hz}-p{profile}-r{rate}-l{level}"
@@ -531,14 +530,14 @@ def run_suite(sox: Path, oracle: Path, work: Path) -> dict[str, Any]:
         roles = (("--dsd-layout", "FL,FR,FC,LFE,BL,BR") if channels == 6 else
                  ("--dsd-layout", "FC" if channels == 1 else "FL,FR") if kind == "wsd" else ())
         cases.append(decode_case(sox, oracle, work, idx, src, 96000,
-                                 "mastering-v2", "sacd", other_options=roles,
+                                 "mastering", "sacd", other_options=roles,
                                  speaker_mask=0x3f if channels == 6 else None))
     # Exercise the original channel order and canonical WAV speaker-order
     # permutation separately: a six-channel DFF with named surround channels.
     src = work / "role-permutation-dff-6.dff"
     write_source(src, 8193, 6, fixtures.DSD64, "dff", "distinct")
     cases.append(decode_case(sox, oracle, work, "role-permutation-dff6", src,
-                             96000, "mastering-v2", "preserve",
+                             96000, "mastering", "preserve",
                              other_options=("--dsd-layout", "FC,FL,FR,LFE,SL,SR"),
                              speaker_mask=0x60f,output_order=(1,2,0,3,4,5)))
     # Selected scalar, auto and SSE2 paths, chosen by the same P11 dispatcher.
@@ -548,7 +547,7 @@ def run_suite(sox: Path, oracle: Path, work: Path) -> dict[str, Any]:
         idx = "kernel-" + kernel
         try:
             cases.append(decode_case(sox, oracle, work, idx, src, 96000,
-                                     "mastering-v2", "preserve", kernel=kernel))
+                                     "mastering", "preserve", kernel=kernel))
         except AssertionError:
             if kernel != "sse2":
                 raise
@@ -567,9 +566,9 @@ def run_suite(sox: Path, oracle: Path, work: Path) -> dict[str, Any]:
     negatives = negative_tests(sox, work, source)
     # A positive test run without a report must produce the very same words.
     with_report = decode_case(sox, oracle, work, "report-on", source,
-                              96000, "mastering-v2", "preserve")
+                              96000, "mastering", "preserve")
     without_report = decode_case(sox, oracle, work, "report-off", source,
-                                 96000, "mastering-v2", "preserve", report=False)
+                                 96000, "mastering", "preserve", report=False)
     demand(with_report["api_sha256"] == without_report["api_sha256"] and
            with_report["wav_sha256"] == without_report["wav_sha256"],
            "enabling report changed actual DSD audio")
@@ -577,7 +576,7 @@ def run_suite(sox: Path, oracle: Path, work: Path) -> dict[str, Any]:
     # An optional packed DSF reader route must return the *same* full WAV
     # binary64 words as expanded reading, and still match the API oracle.
     packed = decode_case(sox, oracle, work, "packed-no-report", source,
-                         96000, "mastering-v2", "preserve", report=False,
+                         96000, "mastering", "preserve", report=False,
                          packed=True)
     cases.append(packed)
     demand(packed["wav_sha256"] == without_report["wav_sha256"],

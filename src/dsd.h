@@ -33,10 +33,9 @@ typedef struct {
 } lsx_dsd_rate;
 
 typedef enum {LSX_DSD_MODE_LEGACY, LSX_DSD_MODE_AUTO, LSX_DSD_MODE_NATIVE} lsx_dsd_mode;
-/* Existing numeric values and v1 semantics are frozen. The mastering alias
- * selects v1; unpinned auto reconstruction selects v2. */
-typedef enum {LSX_DSD_PROFILE_MASTERING=0, LSX_DSD_PROFILE_WIDEBAND=1,
-              LSX_DSD_PROFILE_LEGACY=2, LSX_DSD_PROFILE_MASTERING_V2=3} lsx_dsd_decode;
+/* The unified decoder offers the former v1 mastering bank and wideband.
+ * Encoder algorithm versions are independent of decoder profile names. */
+typedef enum {LSX_DSD_PROFILE_MASTERING=0, LSX_DSD_PROFILE_WIDEBAND=1} lsx_dsd_decode;
 typedef enum {LSX_DSD_ENCODE_MASTERING, LSX_DSD_ENCODE_LEGACY,
               LSX_DSD_ENCODE_EXPERIMENTAL} lsx_dsd_encode;
 typedef enum {LSX_DSD_LEVEL_PRESERVE, LSX_DSD_LEVEL_SACD} lsx_dsd_level;
@@ -55,7 +54,7 @@ typedef struct {
   uint32_t rate_hz;
   lsx_dsd_reference reference;
   int profile_specified, level_specified, reference_specified;
-  uint32_t pinned_native_hz; /* Versioned profile ID, or 0 for alias. */
+  uint32_t pinned_native_hz; /* Exact decoder/encoder ID, or 0 for alias. */
   lsx_dsd_clip clip;
   lsx_dsd_headroom headroom;
   double headroom_db;     /* Positive attenuation, never PCM amplification. */
@@ -76,8 +75,8 @@ typedef struct {
   int normalizing;             /* --norm always inserts an automatic PCM gain. */
   int dither_disabled;
   int decode_specified, encode_specified, level_specified;
-  /* Explicit versioned CLI selections are tied to a native clock.  Zero
-   * denotes a human profile alias, not a versioned selection. */
+  /* Explicit profile IDs are tied to a native clock (unversioned decoder,
+   * versioned encoder). Zero denotes a human-readable profile alias. */
   uint32_t decode_pinned_native_hz, encode_pinned_native_hz;
   char const *kernel_fir, *kernel_sdm;
 } lsx_dsd_policy;
@@ -236,8 +235,7 @@ int lsx_dsd_count_convert(uint64_t frames, uint32_t input_hz, uint32_t output_hz
  * compose these with a separate final-rate adapter. Bank codes are immutable
  * internal identities, never user-selectable kernel implementations. */
 typedef enum {LSX_DSD_BANK_MASTER64_256, LSX_DSD_BANK_MASTER128,
-              LSX_DSD_BANK_WIDEBAND, LSX_DSD_BANK_MASTER64_V2,
-              LSX_DSD_BANK_MASTER128_V2, LSX_DSD_BANK_MASTER256_V2} lsx_dsd_last_bank;
+              LSX_DSD_BANK_WIDEBAND} lsx_dsd_last_bank;
 typedef struct {
   uint32_t native_hz, intermediate_hz;
   lsx_dsd_decode kind;

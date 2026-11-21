@@ -1,5 +1,13 @@
 # DSD engine design documentation
 
+**Phase 08 owner override (2026-11-21):** The signed [Phase 08 owner
+record](amendments/PHASE08_OWNER_DECISIONS_2026-11-20.md) and the
+[Phase 08 implementation status](PHASE08_IMPLEMENTATION_STATUS_2026-11-21.md)
+govern decoder identities, encoder defaults, binary64 float treatment, and
+qualification requirements wherever the historical design text below
+conflicts. This record outranks this README's earlier design-over-brief rule;
+legacy versioned decoder ID instructions below describe archived work.
+
 For the implemented end-user command-line interface, start with
 [Using SoX DSD](USING_SOX_DSD.md) or [the CLI migration table](MIGRATION_P15.md).
 The historical phase records below are not release user instructions.

@@ -957,3 +957,35 @@ EXTRA_DIST += tests/pcm64/qualification/mutants/shift_native_core.diff
 
 EXTRA_DIST += tests/pcm64/qualification/sox_fenv_wrapper.c
 EXTRA_DIST += tests/pcm64/qualification/build_context.py
+
+# Phase 08 finite validation is independent of the historical v2 accepted
+# words. These tests fail on unexpected differences and report still-open
+# mathematical/owner gates; they do not issue a release certificate.
+PHASE08_RESULTS ?= $(abs_top_builddir)/.phase08-check-results
+.PHONY: check-phase08
+check-phase08: all
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/immutable_reference_guard.py' --results '$(PHASE08_RESULTS)/reference-lock'
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/unified_reference.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/unified-decoder'
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/float_boundary.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/float-boundary'
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/metrology_parity.py' --results '$(PHASE08_RESULTS)/audited-metrology'
+	python3 '$(abs_top_srcdir)/tests/dsd/reference/analysis-v1/verify.py' --results '$(PHASE08_RESULTS)/frozen-analysis-v1'
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/v3_analysis_v1.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/v3-analysis-v1'
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/phase08_gates.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)'
+
+# Keep the Phase 08 owner override, scoped independent witnesses and exact
+# audited analysis source available in source distributions. The full historic
+# v2 accepted-reference corpus remains in its original, unchanged location.
+EXTRA_DIST += docs/dsd/PHASE08_IMPLEMENTATION_STATUS_2026-11-21.md \
+  docs/dsd/PHASE08_ARITHMETIC_BOUND_PROPOSAL_2026-11-21.md \
+  docs/dsd/amendments/PHASE08_OWNER_DECISIONS_2026-11-20.md \
+  docs/dsd/amendments/PHASE08_CORRECTED_SPEC_2026-11-20.md \
+  tests/pcm64/qualification/unified_reference.py \
+  tests/pcm64/qualification/float_boundary.py \
+  tests/pcm64/qualification/immutable_reference_guard.py \
+  tests/pcm64/qualification/metrology_parity.py \
+  tests/pcm64/qualification/v3_analysis_v1.py \
+  tests/pcm64/qualification/phase08_gates.py \
+  tests/pcm64/qualification/vendor_audited_v2/dsdqual/__init__.py \
+  tests/pcm64/qualification/vendor_audited_v2/dsdqual/analysis.py \
+  tests/pcm64/qualification/vendor_audited_v2/dsdqual/common.py \
+  tests/pcm64/qualification/vendor_audited_v2/dsdqual/dsf.py

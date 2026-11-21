@@ -53,8 +53,7 @@ int main(int argc,char **argv)
   opts.native_hz=(uint32_t)source->signal.rate;
   opts.output_hz=(uint32_t)rate;
   opts.channels=channels;
-  if (!strcmp(argv[4],"mastering-v1")) opts.profile=SOX_DSD_DECODE_MASTERING;
-  else if (!strcmp(argv[4],"mastering-v2")) opts.profile=SOX_DSD_DECODE_MASTERING_V2;
+  if (!strcmp(argv[4],"mastering")) opts.profile=SOX_DSD_DECODE_MASTERING;
   else if (!strcmp(argv[4],"wideband")) opts.profile=SOX_DSD_DECODE_WIDEBAND;
   else {error("unrecognized profile");goto done;}
   if (!strcmp(argv[5],"sacd")) opts.level=SOX_DSD_LEVEL_SACD;

@@ -5,14 +5,16 @@ SoX DSD converts PCM, native DSD, and DSD-over-PCM files with the familiar
 input and output formats decide whether to decode, encode, or simply repack
 DSD. You normally do not need DSD-specific flags.
 
-This guide describes SoX DSD 1.1.0. For all SoX options and effects, consult
+This guide describes the Phase 08 binary64 line as amended on November 21,
+2026.  The historical SoX DSD 1.1.x release line is distinct; its SDM-8
+encoder policy is not adopted here. For all SoX options and effects, consult
 `man sox`, `man soxeffect_ng`, and `man soxformat_ng`. `sox --help-dsd` displays
 short examples.
 
 ## Basic conversions
 
 ```sh
-# DSD to an ordinary WAV. Qualified mastering v2 reconstruction is automatic.
+# DSD to an ordinary WAV. Unified mastering reconstruction (the former v1 bank) is automatic.
 sox music.dsf music.wav
 
 # Specify a PCM output rate and bit depth. File-specific flags precede output.
@@ -206,31 +208,31 @@ DSD conversions; PCM-only commands continue to use normal SoX diagnostics.
 ## Qualified profiles for advanced use
 
 The normal profile is **mastering**; you do not need to specify it. For DSD
-reconstruction, `--decode mastering` and omitting `--decode` select the
-identical qualified mastering-v2 bank matched to the source bit clock.
-`--decode conservative` selects the older mastering-v1 bank, while
-`--decode wideband` selects the qualified wideband-v1 bank. Exact versioned
-identities are available when reproducibility matters:
+reconstruction, `--decode mastering` and omitting `--decode` use the same
+unified mastering bank (formerly v1). `--decode wideband` is the only
+alternative. Canonical decoder IDs are unversioned and pin the native
+input clock. The v2 decoder, `conservative`, `legacy` decoder, and old
+versioned decoder IDs were retired on this line:
 
 ```sh
-# An exact decoder bank, tied to DSD64 input.
-sox --decode decode.mastering.v1.dsd64 source64.dsf older.wav
+# Unified mastering, DSD64 input.
+sox --decode decode.mastering.dsd64 source64.dsf mastering.wav
 
-# An exact decoder bank, tied to DSD128 input.
-sox --decode decode.mastering.v2.dsd128 source128.dsf current.wav
+# Unified mastering, DSD128 input.
+sox --decode decode.mastering.dsd128 source128.dsf mastering.wav
 
 # Wideband reconstruction with explicit bandwidth policy.
 sox --decode wideband --dsd-bandwidth strict source64.dsf \
   -r 176400 wide.wav
 
-# An exact qualified encoder, tied to DSD128 output.
+# The encoder is still versioned: certified v3, DSD128 output.
 sox --encode encode.mastering.v3.dsd128 source.wav -r dsd128 output.dsf
 ```
 
 For encoding, `--encode mastering` selects the certified mastering-v3
 switched-resonator modulator for DSD64/128, mastering-v1 for DSD256 and
 qualified mastering-v2 CLANS-7 for DSD512/1024. The v1 IDs at DSD64/128
-were retired in 2.0.0. A mismatched version-pinned native bit clock causes an error.
+are not selected on this binary64 line; 2.0.0 has not been released. A mismatched version-pinned native bit clock causes an error.
 Unsupported or unqualified legacy composite profiles do not acquire
 qualification through these selectors. Only interpolated samples above the warning ceiling are clipped;
 nonfinite samples and modulator-state guard failures still stop the
@@ -283,9 +285,9 @@ select supported execution tiers for reproducible numerical checks. The traditio
 
 The new interface replaces `--dsd-decode`, `--dsd-encode`, `--dsd-plan`,
 and `--dsd-report` with `--decode`, `--encode`, `--plan`, and `--report`.
-It changes the DSD-routing default from legacy to automatic, and makes
-explicit `--decode mastering` select the same mastering-v2 profile as the
-implicit default. Earlier mastering-v1 behavior remains available using
-`--decode conservative` or an exact `decode.mastering.v1.dsdNNN` ID.
+It changes the DSD-routing default from legacy to automatic. On the
+Phase 08 binary64 line, `--decode mastering` and the automatic default both
+select the unified (former v1) decoder. Use `--decode wideband` for the
+alternative. Versioned decoder IDs and `conservative` are retired.
 These changes affect SoX DSD-specific 1.0.4 controls, not conventional
 SoX/SoX-NG syntax. See [the migration table](MIGRATION_P15.md).

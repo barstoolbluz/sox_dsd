@@ -69,17 +69,12 @@ def decoder_profile_verdicts(profile_bases, rate_complete, reader_gate,
                              commercial_rows, row_profiles):
     """Bind each clock's decode profiles to that clock's own capability row.
 
-    The previous form was a cartesian product over {mastering, wideband} x
-    {v1, v2} x {512, 1024} whose verdict read `rate == 512 and ...`. That had
-    two consequences worth naming. The four DSD1024 entries were false by
-    literal, so they would have stayed false even if independent DSD1024 media
-    had been supplied; the adjacent `missing_media` string read like a measured
-    conclusion but merely restated the hardcode. And the product invented
-    decode.wideband.v2.dsd512 and .dsd1024, which exist at no rate: src/dsd.c
-    defines mastering v1, mastering v2 and wideband v1 only.
+    Historical P21 used a cartesian product over retired decoder versions
+    and treated DSD1024 as false regardless of supplied evidence. Under Phase
+    08, exactly two unified decoder profiles exist at each high rate.
 
     Enumerating the reader gate's own PROFILE_IDS against the rates yields
-    exactly the six decode ids that exist. Each verdict now requires that
+    exactly the four live high-rate decoder ids. Each verdict now requires that
     clock's functional completeness, a passing reader gate, commercial
     provenance on that clock's row, and that row qualifying the profile. A
     clock with no evidence reports false because its evidence is absent, and

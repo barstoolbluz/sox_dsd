@@ -267,7 +267,7 @@ def test_licensed_path_redacted_from_decoder_errors(tmp_path):
 
 def test_incomplete_profile_set_cannot_qualify_row():
     c = {'source_sha256': 'a'*64, 'media_provenance': 'self-encoded',
-         'capability_row': 'dff-read-45158400', 'profile_id': 'decode.mastering.v1',
+         'capability_row': 'dff-read-45158400', 'profile_id': 'decode.mastering',
          'status': 'PASS'}
     cases = [c, {**c, 'source_sha256': 'b'*64}]
     rows, _, _, _ = gate.summarize_cases(cases)
@@ -337,9 +337,9 @@ def test_end_to_end_and_collector_validation(full_run):
     report_path = results / 'independent-reader-evidence.json'
     report = json.loads(report_path.read_text())
     assert report['independent_reader_and_audio_reference_gate'] == 'PASS'
-    # 2 self-encoded sources x 2 clocks x 3 containers x 3 profiles, plus the
-    # commercial source's 3 profiles x 2 rows. WSD added the third container.
-    assert report['case_count'] == 42
+    # 2 self-encoded sources x 2 clocks x 3 containers x 2 unified profiles,
+    # plus the commercial source's 2 profiles x 2 rows. WSD added the third container.
+    assert report['case_count'] == 28
     assert {c['container'] for c in
             (json.loads((results / rel).read_text())
              for rel in report['case_receipts'])} == set(gate.SELF_CONTAINERS)
@@ -350,7 +350,7 @@ def test_end_to_end_and_collector_validation(full_run):
     commercial = {gate.sha(path) for path in media.glob('*.dsf')}
     loaded, rows, cr, profiles = collector.validate_reader_evidence(report_path, commercial, sox, ref)
     assert loaded == report and cr['dsf-read-22579200']
-    assert profiles['dsf-read-22579200']['decode.mastering.v1']
+    assert profiles['dsf-read-22579200']['decode.mastering']
 
     # A summary-only forgery must not turn an incomplete case set into a PASS.
     wrong = copy.deepcopy(report)
@@ -457,14 +457,11 @@ def test_p17_collector_fail_closed_and_profile_scope(tmp_path, full_run):
     assert good['full_file_functional_gate'] == 'PASS'
     assert good['independent_reader_and_audio_reference_gate'] == 'PASS'
     q = good['decoder_profile_qualified']
-    assert q['decode.mastering.v1.dsd512']
-    assert q['decode.mastering.v2.dsd512']
-    assert q['decode.wideband.v1.dsd512']
-    # There is no wideband v2 decode profile at any rate, so the report must not
-    # enumerate one. The old cartesian product emitted it as false, which read
-    # as a real capability that had failed to qualify.
-    assert 'decode.wideband.v2.dsd512' not in q
-    assert 'decode.wideband.v2.dsd1024' not in q
+    assert q['decode.mastering.dsd512']
+    assert q['decode.wideband.dsd512']
+    # Retired versioned mastering/wideband profiles must not reappear.
+    assert 'decode.mastering.v2.dsd512' not in q
+    assert 'decode.wideband.v1.dsd1024' not in q
     assert set(q) == {f'{base}.dsd{rate}' for base in gate.PROFILE_IDS
                       for rate in (512, 1024)}
     assert not any(v for k, v in q.items() if k.endswith('.dsd1024'))

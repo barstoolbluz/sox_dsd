@@ -1,5 +1,19 @@
 # sox_ng DSD engine: implementation specification and refactoring contract
 
+> **Phase 08 binary64 amendment, 2026-11-21:** This historical design is
+> subordinate on disputed points to
+> [the signed owner decisions](amendments/PHASE08_OWNER_DECISIONS_2026-11-20.md),
+> as explained in [the Phase 08 status](PHASE08_IMPLEMENTATION_STATUS_2026-11-21.md).
+> D7 selects the unified mastering (former v1) decoder by default, accepts
+> only the `wideband` alternative, and uses unversioned decoder IDs. Encoders
+> retain their versioned v3/v1/v2 IDs. The D9 native binary64 float route
+> preserves finite over-unity samples in warn mode and refuses them in error
+> mode, irrespective of reports. Text below describing v2 as the default,
+> conservative/legacy decoders, and float graph-boundary clipping is archived
+> history and is superseded. D4 distinguishes required transfer tests,
+> analysis-v1 cross-ISA quality gates, and *report-first* spur targets.
+
+
 **Design revision:** 1.0, 2026-10-07  
 **Source baseline:** `16aa7e17531dd3612f29247da98c8ea570cd905a`  
 **Status:** implementation-ready architecture, algorithms, interfaces, acceptance contracts and phase instructions. This is not an implemented or release-qualified converter.  
