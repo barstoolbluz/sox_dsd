@@ -45,11 +45,11 @@ remains at 0.5 and error remains fail-closed. 0 dB gain uses identity.
 | --- | --- | --- |
 | D7 | Unversioned decoder CLI/API plan/actual identity; no v2/conservative/legacy; existing v1 coefficients and clocks at all rates | PASS on finite tested cases |
 | D2/D3 | Encoder IDs and source/prefilter/certified coefficients unchanged versus `595d401` | PASS on source identity; existing encoder suites run |
-| D9/D10 | Native FLOAT64/FLOAT32 warn/error without report, peak/count, `-v`, `--dsd-level`, pipe prior-block and regular-file failure semantics | PASS on tested physical DSD64 cases |
+| D9/D10 | Physical DSD64 warning/error, pipe/file failure; exact injected adapter +/-1, nextafter neighbors and NaN/Inf on ordinary/native paths, float32/float64/int24, `-v`, `--dsd-level`, report/no-report | PASS for tested Linux/ELF routes |
 | D13 | Hashes of historic accepted source/coefficients and v2 fixtures checked against exact git predecessor; deliberate mutation fails | PASS; predecessor never updated |
-| D11 P3 | 64 finite, independent long-double full-convolution DSD64/128 mastering/wideband checks plus conditional forward-envelope | FINITE PASS; universal P3 and final SRC bound OPEN |
-| D11 P2 | Frozen encoder path and 595d401 coefficient identity, but no universal same-transfer operator/arithmetic derivation yet | OPEN |
-| D6 numeric `pow` | Formula and 0 dB identity defined; runtime-specific `pow` error bound unadopted | OPEN |
+| D11 P3 | 64 native FIR cases plus 32 independent 96 kHz final-SRC cases with exact source-pinned taps and 2 missing-tail mutants | FINITE PASS; universal FIR/FFT4G/SRC bounds OPEN |
+| D11 P2 | Focused 595d401 encoder pins, 8 working-SRC/FIR, 8 source-derived 32x native-SRC and 2 resonator-input headroom witnesses, 4 mutants | FINITE PASS; universal arithmetic/composition OPEN |
+| D6 numeric `pow` | 41 runtime `pow` (headroom) and `exp` (ordinary gain) sample comparisons against high-precision oracle | FINITE PASS; supported worst-case libm limit OPEN |
 | D16 | 19 accepted v2 samples preserved unmodified; no owner-approved unified decoder references exist | OPEN, awaiting owner sign-off |
 | D12 | Audited harness `dsdqual/analysis.py` retained byte-for-byte, numeric parity against independent `audited_spectrum.py`; analysis-v1 frozen self-test | FINITE PASS |
 | D4 spur | Frozen analysis-v1 first measurements of physical v3 DSD64/128, low-level coherent 997 Hz and silence | MEASURED; target reporting only, NOT QUALIFIED |
@@ -87,3 +87,30 @@ qualification is not a valid oracle for the unified decoder.
 pass while reporting outstanding owner proof/approval gates as OPEN. It does
 *not* signal a certified release. Source/binary correspondence and the full
 D11 CPU/OS/format matrix must be established separately before owner sign-off.
+
+## November 21 independent-review corrective (R08-D01/D02)
+
+R08-D02 is addressed by a *qualification-only* ELF interposer placed at the
+public decoder return. Both ordinary and native routes execute their actual
+adapter/clip code with injected exact +1, -1, nextafter neighbors and
+nonfinite values. The existing `float_boundary.py` still verifies physical
+warn/error behavior and no partial failed block; it now also checks 26
+injected ordinary/native parity scenarios and four physical `--dsd-level`
+parity scenarios with and without a report. It tests FLOAT32, FLOAT64, and
+signed-integer 24-bit outputs. The injection mechanism is Linux/ELF-specific;
+this is a scoped pass, not an assertion about an untested macOS ABI.
+
+R08-D01 has **additional finite qualification evidence**, but has **not
+been universally discharged**: the actual 32x encoder native SRC and
+96 kHz decoder final SRC are evaluated through the existing source-bound
+operator snapshots. The independent decoder oracle includes the additional
+finite-tail word that the live SRC consumes before output trimming.
+The bound proposal records the actual operator families and remaining
+arithmetic gaps. A 41-case `libm` witness distinguishes headroom `pow` from
+ordinary gain `exp`. No production DSP source or certified coefficient
+was changed. Owner D11 and D6 universal proof/acceptance remain OPEN;
+D16 and D4 owner gates are unaffected.
+
+The extended `make check-phase08` target executes these new finite cases
+and records their digest-bound results in `phase08-gates.json`. A passing
+target is **not** authorization for 2.0.0 release.

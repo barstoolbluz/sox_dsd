@@ -125,7 +125,7 @@ static int parse_rate(const char *value, uint32_t *result)
   if (!value || !*value || *value == '-' || *value == '+') return 0;
   errno=0;
   rate=strtoull(value,&end,10);
-  if (errno || *end || rate < 8000 || rate > 1000000) return 0;
+  if (errno || *end || rate < 8000 || rate > 12000000) return 0;
   *result=(uint32_t)rate;
   return 1;
 }

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Bounded P08-D02 primitive and source-SRC + centered-FIR references.
+"""Source-operator witnesses for the certified v3 DSD64/128 encoder front end.
 
 The P15 source-bound stage exporter includes the *unchanged* production
 rate.c in a test executable and exposes the exact binary64 coefficients and
 clock. P15's independent stage-index oracle validates those snapshot words.
 This module independently evaluates short primitive and composed-stage
 responses at 192, 256 and 384 bits, and compares to actual composite stage
-observations. It does not certify FFT4G butterfly error or the downstream
-working-to-native SRC; those remain covered by the existing named SRC tests.
+observations. Phase 08 additionally samples the actual working-to-native 32x
+SRC through the same observer and a separate 384-bit source-bound oracle.
+These finite error envelopes are not universal FFT4G roundoff certificates.
 """
 from __future__ import annotations
 
@@ -28,7 +29,7 @@ SOURCE=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(SOURCE/'tests/dsd'))
 from p15_src_bound_operator import load_snapshot
 from fir_reference import BANKS, sha256, window_at
-from attestation import verify as verify_accepted_source, REFERENCE
+from attestation import expected as accepted_manifest, digest as sha_file, REFERENCE
 
 PRECISIONS=(192,256,384)
 FRAMES=1537
@@ -36,6 +37,32 @@ SOURCE_RATE=44100
 INPUTS=(('head',0,False),('middle',FRAMES//2,False),
         ('tail',FRAMES-1,False),('composed',FRAMES//2-3,True))
 
+
+
+FRONTEND_FROZEN_FILES = (
+    'src/pcmdsd.c','src/pcmdsd.h','src/pcmdsd_coeffs.h',
+    'src/pcmdsd_guards.h','src/rate.c','src/rate_internal.h',
+    'src/dsd_kernels_scalar.c',
+)
+
+def verify_frozen_encoder_frontend(source):
+    """Pin exactly the accepted P2 route, not the Phase 08-changed decoder.
+
+    The untouched 286-file predecessor manifest is still the authority. Its
+    full-tree guard correctly rejects the Phase 08 decoder changes and must
+    not be weakened or regenerated as an implementation side effect.
+    """
+    contract=accepted_manifest()
+    demand(contract.get('schema')=='p08-accepted-source-independent-reference/1',
+           'invalid predecessor reference schema')
+    for name in FRONTEND_FROZEN_FILES:
+        want=contract['source_file_sha256'].get(name)
+        demand(want and sha_file(source/name)==want,
+               f'certified encoder front end changed: {name}')
+    for name,want in contract['src_stage_files'].items():
+        demand(sha_file(REFERENCE/name)==want,
+               f'predecessor independent SRC snapshot changed: {name}')
+    return contract
 
 def demand(ok,message):
     if not ok:raise AssertionError(message)
@@ -146,11 +173,61 @@ def checked_disagreement(actual,ideal,budget,where):
         return float(error)
 
 
+
+def finite_native_src(op, filtered, native, where):
+    """Source-derived FFT4G stage allowance; not a universal FFT proof.
+
+    The finite samples are checked against independently composed exact
+    source tap/phase words. 512 log2(N) per FFT stage is a provisional,
+    explicit butterfly allowance, not a licensed error estimate for all
+    FFT4G inputs or all floating point environments.
+    """
+    demand(len(op.stages)==2 and all(st.kind==2 for st in op.stages) and
+           math.prod(st.L for st in op.stages)==32,
+           f'{where}: unsupported actual native SRC decomposition')
+    peak=max(abs(x) for x in filtered)
+    l1=math.prod(st.L*math.fsum(abs(x) for x in st.coeff)
+                 for st in op.stages)
+    fft_steps=sum(math.ceil(math.log2(st.dft_length)) for st in op.stages)
+    bound=512*fft_steps*2**-53*peak*l1+16*2**-1074
+    picked=sorted({0,1,2,len(native)//2-1,len(native)//2,
+                   len(native)//2+1,len(native)-2,len(native)-1})
+    cases=[]
+    for n in picked:
+        row=op.exact_row(n,len(filtered),precision=140)
+        ideal={}
+        for bits in PRECISIONS:
+            with mp.workprec(bits):
+                ideal[bits]=mp.fsum(w*mp.mpf(filtered[k]) for k,w in row.items())
+        convergence(ideal,mp.mpf(l1*peak),f'{where}/native/{n}')
+        error=checked_disagreement(native[n],ideal[384],bound,
+                                   f'{where}/native/{n}')
+        cases.append({'index':n,'effective_source_terms':len(row),
+                      'absolute_error':error,'source_fft_roundoff_screen':bound})
+    return cases,bound
+
+
+def check_scaled(native,scaled,headroom,where):
+    demand(len(native)==len(scaled) and 0.<headroom<=1.,
+           f'{where}: invalid observed scaling extent or factor')
+    # C uses native[j] *= (.5 * gain), not two sequential multiplications.
+    scale=.5*headroom
+    maxerr=0.
+    for j,(actual,observed) in enumerate(zip(native,scaled)):
+        target=actual*scale
+        error=abs(observed-target)
+        bound=6*2**-53*abs(actual)*scale+4*2**-1074
+        demand(error<=bound,
+               f'{where}/resonator-input/{j}: scaling error {error} > {bound}')
+        maxerr=max(maxerr,error)
+    return maxerr
+
 def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
     for binary in (exporter,src_probe,cascade):demand(binary.is_file(),f'absent: {binary}')
     results.mkdir(parents=True,exist_ok=True)
-    att=verify_accepted_source(source)
+    att=verify_frozen_encoder_frontend(source)
     rows=[];controls=[];snapshots={};max_src_err=0.;max_cascade_err=0.
+    native_checks=[];max_native_err=0.;attenuated_checks=[]
     with tempfile.TemporaryDirectory(prefix='p08-cascade-',dir=results) as d:
         tmp=Path(d)
         for multiplier,native in ((2,2822400),(4,5644800)):
@@ -165,6 +242,18 @@ def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
                    and len(stage_op.stages)==1,
                    f'unexpected actual SRC stage decomposition at {working} Hz')
             stage=stage_op.stages[0]
+            native_snap=tmp/f'native-src-{multiplier}.json'
+            invoke([exporter,working,native,native_snap])
+            native_op=load_snapshot(native_snap)
+            demand(native_op.input_hz==working and native_op.output_hz==native,
+                   f'{multiplier}: exported native SRC clock is incorrect')
+            native_store=results/f'native-src-stage-{multiplier}.json'
+            native_store.write_bytes(native_snap.read_bytes())
+            snapshots[f'{multiplier}-native']={
+                'path':native_store.name,'sha256':sha256(native_store),
+                'stage_count':len(native_op.stages),
+                'fft_taps':[x.dft_taps for x in native_op.stages],
+                'fft_lengths':[x.dft_length for x in native_op.stages]}
             demand(stage.kind==2 and stage.L==multiplier and stage.M==1,
                    f'unsupported primitive at {working} Hz: no speculative model')
             snap_store=results/f'src-stage-{multiplier}.json'
@@ -192,6 +281,18 @@ def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
                        f'{key}: incorrect actual finite SRC/FIR/native counts')
                 working_words=unpack_f64(Path(str(p)+'.working.f64'),actual_working)
                 filtered_words=unpack_f64(Path(str(p)+'.filtered.f64'),actual_working)
+                native_words=unpack_f64(Path(str(p)+'.native.f64'),actual_native)
+                scaled_words=unpack_f64(Path(str(p)+'.scaled.f64'),actual_native)
+                max_scale_err=check_scaled(native_words,scaled_words,1.,key)
+                native_rows,native_budget=finite_native_src(native_op,filtered_words,
+                    native_words,key)
+                native_checks.append({'rate_hz':native,'pattern':label,
+                    'input_frames':actual_working,'output_frames':actual_native,
+                    'observed_sha256':sha256(Path(str(p)+'.native.f64')),
+                    'native_src_stage_rows':native_rows,'finite_screen':native_budget,
+                    'resonator_input_scaled_sha256':sha256(Path(str(p)+'.scaled.f64')),
+                    'max_resonator_input_scale_error':max_scale_err})
+                max_native_err=max(max_native_err,max(x['absolute_error'] for x in native_rows))
                 if not dual:
                     independent=invoke([src_probe,'--impulse',SOURCE_RATE,
                                         working,FRAMES,anchor])
@@ -242,6 +343,24 @@ def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
                              'convergence_192_256_max':max_conv1,
                              'convergence_256_384_max':max_conv2})
                 if label=='composed':
+                    gain_p=tmp/(key+'-headroom3')
+                    gain_info=json.loads(invoke([cascade,native,FRAMES,anchor,
+                        gain_p,'dual','headroom3']).stdout)
+                    headroom=float.fromhex(gain_info['headroom_factor'])
+                    demand(0.<headroom<1.,'invalid actual 3dB headroom factor')
+                    gain_native_path=Path(str(gain_p)+'.native.f64')
+                    gain_scaled_path=Path(str(gain_p)+'.scaled.f64')
+                    gain_native=unpack_f64(gain_native_path,actual_native)
+                    gain_scaled=unpack_f64(gain_scaled_path,actual_native)
+                    demand(gain_native_path.read_bytes()==Path(str(p)+'.native.f64').read_bytes(),
+                           f'{key}: headroom altered pre-gain binary64 native interpolator')
+                    gain_error=check_scaled(gain_native,gain_scaled,headroom,key+'/headroom3')
+                    attenuated_checks.append({'rate_hz':native,'headroom_db':3.,
+                         'headroom_factor_hex':headroom.hex(),
+                         'scaled_sha256':sha256(gain_scaled_path),
+                         'max_resonator_input_scale_error':gain_error,
+                         'pre_gain_native_sha256':sha256(gain_native_path),
+                         'comparison':'actual 3dB test factor after prefilter/native SRC, before certified resonator'})
                     mid=anchor*multiplier
                     # Wrong phase perturbs SRC and the FIR, even if DSD bits
                     # themselves might not change for a quiet sample.
@@ -264,10 +383,13 @@ def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
                         'difference':mp.nstr(difference,24),'status':'REJECTED'},
                         {'rate_hz':native,'kind':'wrong-FIR-centering',
                          'difference':mp.nstr(fir_diff,24),'status':'REJECTED'}])
-        demand(len(rows)==8 and len(controls)==4,'missing primitive/cascade cases or mutants')
-    return {'schema':'phase08-src-fir-short-reference/1','status':'PASS',
-        'scope':'BOUNDED_SOURCE_SRC_PRIMITIVE_AND_SRC_TO_CENTERED_FIR_NOT_NATIVE_SRC_NOISE_FLOOR',
+        demand(len(rows)==8 and len(native_checks)==8 and
+               len(attenuated_checks)==2 and len(controls)==4,'missing primitive/cascade cases or mutants')
+    return {'schema':'phase08-src-fir-short-reference/2','status':'PASS',
+        'scope':'FINITE_SOURCE_SRC_PREFILTER_AND_NATIVE_SRC_SAME_OPERATOR_WITNESSES_NOT_UNIVERSAL_FFT_PROOF',
         'precision_bits':[192,256,384],
+        'frozen_encoder_frontend_sha256':{name:sha256(source/name)
+                        for name in FRONTEND_FROZEN_FILES},
         'source_sha256':{name:sha256(source/name) for name in (
            'src/rate.c','src/pcmdsd.c','src/pcmdsd_coeffs.h',
            'src/rate_internal.h','tests/dsd/test_p15_src_stage_export.c',
@@ -277,12 +399,15 @@ def execute(source:Path,exporter:Path,src_probe:Path,cascade:Path,results:Path):
         'binary_sha256':{name:sha256(binary) for name,binary in (
             ('src_exporter',exporter),('src_probe',src_probe),('cascade_probe',cascade))},
         'snapshots':snapshots,'primitive_and_composed_cases':rows,
-        'negative_controls':controls,'max_src_abs_error':max_src_err,
+        'negative_controls':controls,'native_src_witnesses':native_checks,
+        'native_src_witness_count':len(native_checks),
+        'nonzero_headroom_resonator_input_checks':attenuated_checks,
+        'max_native_src_abs_error':max_native_err,'max_src_abs_error':max_src_err,
         'max_cascade_abs_error':max_cascade_err,
         'reference_method':'actual source-bound design tap words; separately computed 192/256/384-bit phase-indexed zero-extended rational LPF and chronological FIR',
         'roundoff_limit':'source FFT butterfly allowance 256 * ceil(log2 FFT size) * 2^-53 * L1, capped at existing P07 5e-10 interior tolerance; centered scalar FIR gamma_(1+3*half) * FIR L1 and source-error L1 propagation',
         'separate_rounding':'FIR center + symmetric pairs, not contracted FMA',
-        'limitations':'Not a complete second/native 32x SRC numerical proof or 256-dB noise floor certificate'}
+        'limitations':'Finite source-bound native 32x and pre-resonator gain inputs checked; no universal FFT4G roundoff proof, platform-wide pow bound, D11 owner acceptance, or 256-dB noise-floor certificate'}
 
 
 def main():

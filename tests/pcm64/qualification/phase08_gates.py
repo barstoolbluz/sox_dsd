@@ -15,6 +15,9 @@ SOURCES={
     'reference-lock':('immutable-reference.json','PASS_LOCKED_PREDECESSOR'),
     'unified-decoder':('unified-reference.json','PASS_FINITE_WITNESSES_ONLY'),
     'float-boundary':('float-boundary.json','PASS'),
+    'p2-encoder-frontend':('independent-primitive-cascade.json','PASS'),
+    'p3-final-src':('final-src-reference.json','PASS_FINITE_WITNESSES_ONLY'),
+    'd6-libm':('gain-libm-reference.json','PASS_FINITE_WITNESSES_ONLY'),
     'audited-metrology':('metrology-parity.json','PASS_FINITE_PARITY'),
     'v3-analysis-v1':('v3-analysis-v1.json','PASS_MEASUREMENT_ONLY'),
 }
@@ -42,7 +45,19 @@ def main():
             if tag=='unified-decoder':
                 assert data['case_count']==64 and data['d16_reference_approval']=='OPEN'
             if tag=='audited-metrology': assert data['case_count']==12
-            if tag=='float-boundary': assert data['case_count']>=8
+            if tag=='float-boundary':
+                assert data['case_count']>=8 and data['injected_adapter_check_count']>=26
+                assert data['physical_level_check_count']>=4
+            if tag=='p2-encoder-frontend':
+                assert data['native_src_witness_count']==8
+                assert len(data['primitive_and_composed_cases'])==8
+                assert len(data['negative_controls'])==4
+            if tag=='p3-final-src':
+                assert data['case_count']==32 and len(data['wrong_tail_mutants'])==2
+                assert data['d11_universal_p3_bound']=='OPEN'
+            if tag=='d6-libm':
+                assert data['sample_count']>=41
+                assert data['d6_pow_universal_error_premise']=='OPEN'
             if tag=='v3-analysis-v1':
                 assert {x['rate_hz'] for x in data['cases']}=={2822400,5644800}
                 assert {x['case'] for x in data['cases']}=={'low_level','silence'}

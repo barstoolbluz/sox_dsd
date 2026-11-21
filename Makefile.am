@@ -964,9 +964,13 @@ EXTRA_DIST += tests/pcm64/qualification/build_context.py
 PHASE08_RESULTS ?= $(abs_top_builddir)/.phase08-check-results
 .PHONY: check-phase08
 check-phase08: all
+	$(MAKE) -C test pcm64_cascade_probe dsd_test_p15_src_stage_export dsd_test_p07_reference
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/immutable_reference_guard.py' --results '$(PHASE08_RESULTS)/reference-lock'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/unified_reference.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/unified-decoder'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/float_boundary.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/float-boundary'
+	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/reference_cascade.py' --source '$(abs_top_srcdir)' --exporter '$(abs_top_builddir)/test/dsd_test_p15_src_stage_export' --src-probe '$(abs_top_builddir)/test/dsd_test_p07_reference' --cascade-probe '$(abs_top_builddir)/test/pcm64_cascade_probe' --results '$(PHASE08_RESULTS)/p2-encoder-frontend'
+	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/final_src_reference.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --exporter '$(abs_top_builddir)/test/dsd_test_p15_src_stage_export' --results '$(PHASE08_RESULTS)/p3-final-src'
+	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/gain_libm_reference.py' --results '$(PHASE08_RESULTS)/d6-libm'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/metrology_parity.py' --results '$(PHASE08_RESULTS)/audited-metrology'
 	python3 '$(abs_top_srcdir)/tests/dsd/reference/analysis-v1/verify.py' --results '$(PHASE08_RESULTS)/frozen-analysis-v1'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/v3_analysis_v1.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/v3-analysis-v1'
@@ -981,6 +985,9 @@ EXTRA_DIST += docs/dsd/PHASE08_IMPLEMENTATION_STATUS_2026-11-21.md \
   docs/dsd/amendments/PHASE08_CORRECTED_SPEC_2026-11-20.md \
   tests/pcm64/qualification/unified_reference.py \
   tests/pcm64/qualification/float_boundary.py \
+  tests/pcm64/qualification/decoder_boundary_inject.c \
+  tests/pcm64/qualification/final_src_reference.py \
+  tests/pcm64/qualification/gain_libm_reference.py \
   tests/pcm64/qualification/immutable_reference_guard.py \
   tests/pcm64/qualification/metrology_parity.py \
   tests/pcm64/qualification/v3_analysis_v1.py \

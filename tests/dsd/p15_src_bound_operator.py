@@ -331,7 +331,7 @@ def load_snapshot(path: Path) -> SRCOperator:
     if type(obj) is not dict or obj.get('schema')!='P15/source-rate-stage-snapshot/1':
         raise UnboundOperator('unknown stage snapshot schema')
     input_hz=_require_int(obj,'input_hz',8000,1000000)
-    output_hz=_require_int(obj,'output_hz',8000,1000000)
+    output_hz=_require_int(obj,'output_hz',8000,12000000)
     stages=obj.get('stages');count=_require_int(obj,'stage_count',1,MAX_STAGES)
     if (input_hz==output_hz or type(stages) is not list or len(stages)!=count):
         raise UnboundOperator('incorrect SRC stage count')
@@ -398,7 +398,7 @@ def load_snapshot(path: Path) -> SRCOperator:
 def capture(executable: Path,input_hz: int,output_hz: int,dest: Path) -> dict:
     """Digest-bound, repeatable staging. No overwrite of conflicting receipts."""
     executable=executable.resolve()
-    if not executable.is_file() or not 8000<=input_hz<=1000000 or not 8000<=output_hz<=1000000:
+    if not executable.is_file() or not 8000<=input_hz<=1000000 or not 8000<=output_hz<=12000000:
         raise UnboundOperator('invalid executable or clock')
     if dest.exists() or dest.is_symlink():
         if dest.is_symlink():raise UnboundOperator('refusing symlink destination')

@@ -62,8 +62,13 @@ def banks() -> dict[str, np.ndarray]:
 
 
 def independent_reconstruction(bits: bytes, rate: int, profile: str,
-                               coeff: dict[str, np.ndarray]):
-    """Causal high-precision full convolution, without a production FIR call."""
+                               coeff: dict[str, np.ndarray], *, tail_frames: int = 0):
+    """Causal high-precision full convolution, without a production FIR call.
+
+    tail_frames exposes the one additional chronological reconstruction word
+    sometimes accepted by the private final SRC before finite output trim.
+    It does not change the public decoder target frame count.
+    """
     tail = ('wideband' if profile == 'wideband' else
             'master64_256' if rate == fixtures.DSD64 else 'master128')
     stages = [coeff['halfband']] * 4 + [coeff[tail]]
@@ -71,7 +76,8 @@ def independent_reconstruction(bits: bytes, rate: int, profile: str,
     # expressed in original native-bit clock units.
     delay = sum((len(h) // 2) * (1 << stage) for stage, h in enumerate(stages))
     factor = 1 << len(stages)
-    frames = (len(bits) + factor // 2) // factor
+    demand(tail_frames in (0,1), 'only the observed one-frame SRC tail is supported')
+    frames = (len(bits) + factor // 2) // factor + tail_frames
     native = np.frombuffer(bits, dtype=np.uint8)
     demand(np.all(native <= 1), 'nonbinary physical bit chronology')
     # Explicit future zero extension, including enough frames for all final

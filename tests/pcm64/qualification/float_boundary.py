@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""D9/D10 observable native DSD float-boundary and failed-block checks.
+"""D9/D10 native DSD float-boundary, parity and failed-block checks.
 
-The file creator is independent of SoX. Native DSD bits are never floats, so
-nonfinite reconstruction is tested only through the existing arithmetic-guard
-suite, not falsely claimed as a produced fixture here.
+Exact adapter values are injected at the public decoder return boundary by
+an uninstalled qualification-only ELF interposer. The actual ordinary/native
+adapters, conversion, clip predicates and writers remain unchanged. A DSF
+file cannot physically encode an exact float or NaN sample.
 """
 from __future__ import annotations
 import argparse
@@ -11,6 +12,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import platform
 import struct
 import subprocess
 import sys
@@ -34,25 +36,139 @@ def wav_data(raw):
 
 
 def run(sox, work, source, mode, *, report=True, level='sacd',
-        volume=None, bits=64, pipe=False, gain=None):
+        volume=None, bits=64, pipe=False, gain=None, precision=64,
+        encoding='floating-point', inject=None, shim=None):
     target = '-' if pipe else str(work / ('out-' + str(len(list(work.iterdir()))) + '.wav'))
     receipt = work / ('report-' + str(len(list(work.iterdir()))) + '.json')
-    cmd = [str(sox), '--precision', '64', '--dsd-clip', mode,
+    cmd = [str(sox), '--precision', str(precision), '--dsd-clip', mode,
            '--dsd-level', level]
     if volume is not None:
         cmd += ['-v', str(volume)]
     if report:
         cmd += ['--report', str(receipt)]
-    cmd += [str(source), '-b', str(bits), '-e', 'floating-point',
+    cmd += [str(source), '-b', str(bits), '-e', encoding,
             '-r', '88200', *(['-t', 'wav'] if pipe else []), target]
     if gain is not None:
         cmd += ['gain', str(gain)]
-    cp = subprocess.run(cmd, capture_output=True, timeout=45)
+    env = os.environ.copy()
+    if inject is not None:
+        demand(shim is not None, 'adapter injection requires the real test interposer')
+        env.update(LD_PRELOAD=str(shim), SOX_DSD_TEST_INJECT=inject,
+                   SOX_DSD_PACKED_INPUT='0')
+    cp = subprocess.run(cmd, capture_output=True, timeout=45, env=env)
     rr = json.loads(receipt.read_text()) if report and receipt.exists() else None
     payload = (cp.stdout if pipe else Path(target).read_bytes()
                if Path(target).exists() else b'')
     return {'rc': cp.returncode, 'stderr': cp.stderr.decode(errors='replace'),
             'payload': payload, 'report': rr, 'target': target, 'argv': cmd}
+
+
+def build_injector(work):
+    """No production files or APIs are changed to synthesize exact samples."""
+    demand(platform.system() == 'Linux',
+           'UNSUPPORTED: exact adapter injection requires Linux/ELF + LD_PRELOAD')
+    source = ROOT / 'tests/pcm64/qualification/decoder_boundary_inject.c'
+    shim = work / 'decoder-boundary-inject.so'
+    cp = subprocess.run(['cc', '-std=c99', '-Wall', '-Wextra', '-Werror',
+                         '-fPIC', '-shared', '-I', str(ROOT / 'src'),
+                         str(source), '-ldl', '-lm', '-o', str(shim)],
+                        capture_output=True, timeout=45)
+    demand(cp.returncode == 0,
+           f'qualification interposer build failed: {cp.stderr.decode()[-900:]}')
+    return shim, hashlib.sha256(source.read_bytes()).hexdigest()
+
+
+def injected_adapter_matrix(sox, work, quiet):
+    shim, source_digest = build_injector(work)
+    rows = []
+
+    # Exact integer endpoints, nextafter neighbours, and nonfinite values
+    # travel through the *real* input-adapter checks, not an idealized Python
+    # predicate. Both CLI routes must actually hit the test interposer.
+    cases = [('positive_one', False, 'clip'),
+             ('negative_one', True, None),
+             ('positive_inside', True, None),
+             ('positive_outside', False, 'clip'),
+             ('negative_inside', True, None),
+             ('negative_outside', False, 'clip'),
+             ('nan', False, 'nonfinite'),
+             ('positive_infinity', False, 'nonfinite')]
+    for name, should_pass, reason in cases:
+        for with_report in (False, True) if name in ('positive_one', 'negative_one', 'nan') else (False,):
+            for bits, encoding in ((64, 'floating-point'), (32, 'floating-point'),
+                                   (24, 'signed-integer')) if name in ('positive_one', 'negative_one', 'nan') else ((64, 'floating-point'),):
+                outcomes = []
+                for precision in (32, 64):
+                    result = run(sox, work, quiet, 'error', level='preserve',
+                                 report=with_report, bits=bits, encoding=encoding,
+                                 precision=precision, inject=name, shim=shim)
+                    ok = result['rc'] == 0
+                    demand(result['stderr'].count(f'qualification hook: injected {name}') == 1,
+                           f'{name}/{precision}: injected boundary never reached exactly once')
+                    demand(ok == should_pass,
+                           f'{name}/{bits}/{precision}: unexpected adapter outcome: '
+                           f'{result["stderr"][-600:]}')
+                    if reason == 'clip':
+                        demand('--dsd-clip error' in result['stderr'],
+                               f'{name}/{precision}: no clip error')
+                    if reason == 'nonfinite':
+                        demand('nonfinite' in result['stderr'],
+                               f'{name}/{precision}: no nonfinite error')
+                    if with_report:
+                        demand(result['report'] is not None and
+                               result['report']['status'] == ('complete' if ok else 'failed'),
+                               f'{name}/{precision}: mismatched report status')
+                    outcomes.append(ok)
+                demand(outcomes[0] == outcomes[1],
+                       f'{name}/{bits}: ordinary/native error parity failed')
+                rows.append({'injection': name, 'bits': bits, 'encoding': encoding,
+                             'with_report': with_report, 'ordinary_and_native_pass':
+                             outcomes, 'expected': should_pass})
+
+    # Check ordering of input -v relative to the adapter predicate, without
+    # allowing the ordinary graph to rescue a sample after it has failed.
+    for name, volume, should_pass in (('positive_one', .25, True),
+                                      ('negative_inside', 2., False),
+                                      ('positive_outside', .25, True)):
+        outcomes = []
+        for precision in (32, 64):
+            result = run(sox, work, quiet, 'error', precision=precision,
+                         volume=volume, inject=name, shim=shim, level='preserve',
+                         report=False)
+            demand(f'qualification hook: injected {name}' in result['stderr'],
+                   'volume-parity injector did not execute')
+            outcomes.append(result['rc'] == 0)
+        demand(outcomes == [should_pass] * 2,
+               f'{name}/volume {volume} ordinary/native mismatch: {outcomes}')
+        rows.append({'injection':name,'volume':volume,'pass':outcomes,
+                     'expected':should_pass,'operation':'input_volume_pre_adapter'})
+    return rows, source_digest
+
+
+def level_parity(sox, work):
+    # An independent physical fixture: enough ones to exceed ±1 with SACD's
+    # factor of two, but not with preserve. No synthetic decoder output here.
+    physical = work / 'quarter-zero.dsf'
+    physical.write_bytes(fixtures.make_dsf((bytes([1, 1, 1, 0]) * 8192,), fixtures.DSD64))
+    rows = []
+    for level, should_pass in (('preserve', True), ('sacd', False)):
+        for with_report in (False, True):
+            outcomes = []
+            for precision in (32, 64):
+                result = run(sox, work, physical, 'error', level=level,
+                             report=with_report, precision=precision)
+                ok = result['rc'] == 0
+                demand(ok == should_pass, f'{level}/{precision}: unexpected level result')
+                if with_report:
+                    demand(result['report'] is not None and
+                           result['report']['status'] == ('complete' if ok else 'failed'),
+                           f'{level}/{precision}: unexpected report status')
+                outcomes.append(ok)
+            demand(outcomes[0] == outcomes[1], f'{level}: ordinary/native parity failed')
+            rows.append({'physical_dsf_sha256':hashlib.sha256(physical.read_bytes()).hexdigest(),
+                         'level':level,'with_report':with_report,
+                         'ordinary_and_native_pass':outcomes})
+    return rows
 
 
 def main(sox, results):
@@ -62,6 +178,10 @@ def main(sox, results):
         source = work / 'constant-one.dsf'
         source.write_bytes(fixtures.make_dsf((bytes([1]) * 65536,), fixtures.DSD64))
         measured = []
+        quiet = work / 'alternating.dsf'
+        quiet.write_bytes(fixtures.make_dsf((bytes([0, 1]) * 32768,), fixtures.DSD64))
+        injected_rows, injected_digest = injected_adapter_matrix(sox, work, quiet)
+        level_rows = level_parity(sox, work)
         warned = run(sox, work, source, 'warn')
         no_report = run(sox, work, source, 'warn', report=False)
         demand(warned['rc'] == no_report['rc'] == 0, 'D9 warning case failed')
@@ -145,8 +265,13 @@ def main(sox, results):
                          'pipe_frames_published_before_failure':observed_written,
                          'full_pipe_frames':len(wav_data(okay['payload']))//8,
                          'regular_failed_file':'absent'})
-        return {'schema':'phase08-d9-d10/1','status':'PASS',
-                'scope':'actual native binary64 DSD64 CLI, signed owner outcomes D9/D10',
+        return {'schema':'phase08-d9-d10/2','status':'PASS',
+                'scope':'actual DSD64 ordinary/native CLI error-parity, plus D9/D10 native fixtures; Linux/ELF boundary injection is test-only',
+                'injected_adapter_checks':injected_rows,
+                'injected_adapter_check_count':len(injected_rows),
+                'physical_level_checks':level_rows,
+                'physical_level_check_count':len(level_rows),
+                'injection_source_sha256':injected_digest,
                 'cases':measured,'case_count':len(measured)}
 
 
