@@ -971,6 +971,8 @@ check-phase08: all
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/reference_cascade.py' --source '$(abs_top_srcdir)' --exporter '$(abs_top_builddir)/test/dsd_test_p15_src_stage_export' --src-probe '$(abs_top_builddir)/test/dsd_test_p07_reference' --cascade-probe '$(abs_top_builddir)/test/pcm64_cascade_probe' --results '$(PHASE08_RESULTS)/p2-encoder-frontend'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/final_src_reference.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --exporter '$(abs_top_builddir)/test/dsd_test_p15_src_stage_export' --results '$(PHASE08_RESULTS)/p3-final-src'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/gain_libm_reference.py' --results '$(PHASE08_RESULTS)/d6-libm'
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d11_bound_accounting.py' --self-test --results '$(PHASE08_RESULTS)'
+	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d11_bound_accounting.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/metrology_parity.py' --results '$(PHASE08_RESULTS)/audited-metrology'
 	python3 '$(abs_top_srcdir)/tests/dsd/reference/analysis-v1/verify.py' --results '$(PHASE08_RESULTS)/frozen-analysis-v1'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/v3_analysis_v1.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/v3-analysis-v1'
@@ -981,6 +983,7 @@ check-phase08: all
 # v2 accepted-reference corpus remains in its original, unchanged location.
 EXTRA_DIST += docs/dsd/PHASE08_IMPLEMENTATION_STATUS_2026-11-21.md \
   docs/dsd/PHASE08_ARITHMETIC_BOUND_PROPOSAL_2026-11-21.md \
+  docs/dsd/PHASE08_D11_OWNER_REVIEW_2026-11-21.md \
   docs/dsd/amendments/PHASE08_OWNER_DECISIONS_2026-11-20.md \
   docs/dsd/amendments/PHASE08_CORRECTED_SPEC_2026-11-20.md \
   tests/pcm64/qualification/unified_reference.py \
@@ -988,6 +991,7 @@ EXTRA_DIST += docs/dsd/PHASE08_IMPLEMENTATION_STATUS_2026-11-21.md \
   tests/pcm64/qualification/decoder_boundary_inject.c \
   tests/pcm64/qualification/final_src_reference.py \
   tests/pcm64/qualification/gain_libm_reference.py \
+  tests/pcm64/qualification/d11_bound_accounting.py \
   tests/pcm64/qualification/immutable_reference_guard.py \
   tests/pcm64/qualification/metrology_parity.py \
   tests/pcm64/qualification/v3_analysis_v1.py \

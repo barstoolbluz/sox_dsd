@@ -114,3 +114,21 @@ D16 and D4 owner gates are unaffected.
 The extended `make check-phase08` target executes these new finite cases
 and records their digest-bound results in `phase08-gates.json`. A passing
 target is **not** authorization for 2.0.0 release.
+
+## November 21 D11 proof-accounting follow-up
+
+A source-pinned, test-only [D11 arithmetic accounting harness](PHASE08_D11_OWNER_REVIEW_2026-11-21.md)
+now computes exact coefficient norms per SRC interpolation phase, the
+remaining FIR/polyphase gamma terms and a conditional P2/P3 composition. It
+reuses the 64 native decoder cases, 32 final-SRC cases, eight working-SRC
+and eight native-SRC cases, 41 libm samples, and six historical negative
+controls. It independently rechecks 41 C `strtod` plus dynamic libm calls,
+288 sampled SRC rows, and refuses mutated receipts or operator digests.
+
+The target adds `d11-accounting` to `phase08-gates.json`. Its PASS means
+only that *conditional numerical accounting and finite checks agree*.
+**D11's all-input FFT4G source-to-binary proof and D6's guaranteed libm
+maximum remain OPEN**; no owner-approved D11 number, reference replacement,
+release or routing authorization is implied. A separate owner decision to
+defer, amend or commission those proofs is documented in the review record.
+Production DSP and the certified encoder are unchanged.

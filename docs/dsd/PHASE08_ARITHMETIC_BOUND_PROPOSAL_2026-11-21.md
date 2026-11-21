@@ -203,3 +203,25 @@ The signed owner record is the arbiter. Do not close universal gates from
 finite receipts; do not modify the certified encoder, historical fixtures,
 or production DSP to paper over a qualification deficiency. Release 2.0.0
 and automatic native routing remain unauthorized.
+
+## November 21 D11 accounting harness and proof boundary
+
+The [D11 owner-review record](PHASE08_D11_OWNER_REVIEW_2026-11-21.md)
+and `tests/pcm64/qualification/d11_bound_accounting.py` add the missing
+*computable source-operator accounting* without claiming a universal
+numerical theorem. The model evaluates per-phase exact binary64 coefficient
+row norms instead of treating every interpolation phase as if it used every
+tap. It composes the five decoder FIRs with the final source-rate converter;
+it composes the encoder working SRC, frozen prefilter, two 32x stages and
+exact 0 dB pre-resonator scale. It checks the independent P2/P3 witness
+receipts against those computed candidate envelopes.
+
+**Still unresolved:** the published `512*log2(N)` FFT4G multiplier is a
+finite-screen assumption, not a derived bound on actual butterflies,
+trigonometric tables or coefficient preparation. The glibc `pow`/`exp`
+error goals cannot serve as a guaranteed maximum over all inputs. Therefore
+no end-to-end universal P2/P3/D6 number is adopted or certified. The
+new nine-group Phase 08 gate reports the additional conditional arithmetic
+accounting explicitly and leaves owner D11/D6 sign-off OPEN. See the owner
+review for narrowly scoped deferral/amendment options; the existing signed
+decisions remain untouched.

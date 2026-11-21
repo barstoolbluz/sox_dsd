@@ -18,6 +18,7 @@ SOURCES={
     'p2-encoder-frontend':('independent-primitive-cascade.json','PASS'),
     'p3-final-src':('final-src-reference.json','PASS_FINITE_WITNESSES_ONLY'),
     'd6-libm':('gain-libm-reference.json','PASS_FINITE_WITNESSES_ONLY'),
+    'd11-accounting':('d11-bound-accounting.json','PASS_CONDITIONAL_ACCOUNTING_OWNER_OPEN'),
     'audited-metrology':('metrology-parity.json','PASS_FINITE_PARITY'),
     'v3-analysis-v1':('v3-analysis-v1.json','PASS_MEASUREMENT_ONLY'),
 }
@@ -58,6 +59,15 @@ def main():
             if tag=='d6-libm':
                 assert data['sample_count']>=41
                 assert data['d6_pow_universal_error_premise']=='OPEN'
+            if tag=='d11-accounting':
+                assert data['fft4g_worst_case_error_bound']=='OPEN'
+                assert data['glibc_pow_exp_maximum_error_bound']=='OPEN'
+                assert data['owner_adoption_of_D11']=='OPEN'
+                assert data['screen_multiplier_512_is_a_theorem'] is False
+                assert len(data['routes'])==6
+                assert data['finite_witness_count']['composed_rows_checked']>=200
+                assert data['finite_witness_count']['C_strtod_and_linked_libm_rechecked']>=41
+                assert data['release_authorized'] is False
             if tag=='v3-analysis-v1':
                 assert {x['rate_hz'] for x in data['cases']}=={2822400,5644800}
                 assert {x['case'] for x in data['cases']}=={'low_level','silence'}
