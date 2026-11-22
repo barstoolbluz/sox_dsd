@@ -18,6 +18,8 @@
 #define LSX_EFF_ALIAS
 #include "sox_i.h"
 #include "dsd_f64.h"
+#include "dsd_coremath_gain.h"
+#include <string.h>
 #include <ctype.h>
 
 typedef struct {
@@ -60,7 +62,7 @@ static int create_gain(sox_effect_t * effp, int argc, char * * argv)
     return SOX_EOF;
   }
   do {NUMERIC_PARAMETER(fixed_gain, -HUGE_VAL, HUGE_VAL)} while (0);
-  p->fixed_gain = dB_to_linear(p->fixed_gain);
+  p->fixed_gain = dsd_coremath_gain_from_db(p->fixed_gain);
   return argc? lsx_usage(effp) : SOX_SUCCESS;
 }
 
@@ -131,6 +133,13 @@ static int flow_gain(sox_effect_t * effp, const sox_sample_t * ibuf,
   else {
     double mult = ((priv_t *)(effp - effp->flow)->priv)->fixed_gain;
     len = *isamp = *osamp = min(*isamp, *osamp);
+    /* Plain unity gain must not round, transform or count clips. The other
+     * gain modes still use their own scan, limiter or headroom semantics. */
+    if (mult == 1.0 && !p->do_limiter && !p->make_headroom) {
+      if (obuf != ibuf)
+        memmove(obuf, ibuf, len * sizeof(*obuf));
+      return SOX_SUCCESS;
+    }
     if (!p->do_limiter) for (; len; --len, ++ibuf)
       *obuf++ = SOX_ROUND_CLIP_COUNT(*ibuf * mult, effp->clips);
     else for (; len; --len, ++ibuf) {

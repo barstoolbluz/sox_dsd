@@ -97,7 +97,7 @@ sox_sample_test_DEPENDENCIES = $(SPARSE_FILE_TEST)
 libsox_ng_la_SOURCES = adpcms.c adpcms.h aiff.c aiff.h cvsd.c cvsd.h cvsdfilt.h \
 	g711.c g711.h g721.c g723_24.c g723_40.c g72x.c g72x.h vox.c vox.h \
 	mod.c mod.h mod-tabs.c msupcm.c mul.c raw.c raw.h \
-	formats.c formats.h formats_i.c sox_i.h pcm_f64.c pcm_f64.h pcm_f64_io.c pcm_f64_io.h dsd_f64.c dsd_f64.h dsd_f64_decode.c dsd_f64_decode.h dsd.h dsd.c dsd_packed.c dsd_packed.h dsd_plan.c dsd_stats.c dsd_stats.h dsdstat.c dsd_decode.c dsd_decode.h dsd_public.c dsdpcm.c pcmdsd.c pcmdsd.h pcmdsd_coeffs.h pcmdsd_guards.h rate_internal.h dsd_kernels_scalar.c dsd_dispatch.c dsd_kernels.h sdm_normal_commit_i.h dsd_coeffs.h sox_dsd.h dsd_layout_i.h dsd_layout_query.h dsd_layout.c wav-size.h keymap.c \
+	formats.c formats.h formats_i.c sox_i.h pcm_f64.c pcm_f64.h pcm_f64_io.c pcm_f64_io.h dsd_coremath_gain.h coremath/exp10.c coremath/README.md dsd_f64.c dsd_f64.h dsd_f64_decode.c dsd_f64_decode.h dsd.h dsd.c dsd_packed.c dsd_packed.h dsd_plan.c dsd_stats.c dsd_stats.h dsdstat.c dsd_decode.c dsd_decode.h dsd_public.c dsdpcm.c pcmdsd.c pcmdsd.h pcmdsd_coeffs.h pcmdsd_guards.h rate_internal.h dsd_kernels_scalar.c dsd_dispatch.c dsd_kernels.h sdm_normal_commit_i.h dsd_coeffs.h sox_dsd.h dsd_layout_i.h dsd_layout_query.h dsd_layout.c wav-size.h keymap.c \
 	xmalloc.c xmalloc.h getopt.c util.c util.h libsox_ng.c libsox_i.c \
 	sox-fmt.c soxomp.h win32-unicode.c win32-unicode.h
 
@@ -190,6 +190,10 @@ $(RESONATOR_KERNEL_OBJECTS): override CFLAGS += $(PCM_F64_STRICT_CFLAGS) -O3
 # Only the private native PCM arithmetic, never rate.c or ordinary effects.
 src_pcm_f64_object = libsox_ng_la-pcm_f64.lo
 $(src_pcm_f64_object) libsox_ng_la-dsd_f64.lo: override CFLAGS += $(PCM_F64_STRICT_CFLAGS)
+# CORE-MATH relies on strict binary64 evaluation for the routine itself and
+# for argument construction at its only two call sites. Setup-time only.
+coremath_gain_objects = coremath/libsox_ng_la-exp10.lo libsox_ng_la-gain.lo libsox_ng_la-pcmdsd.lo
+$(coremath_gain_objects): override CFLAGS += $(PCM_F64_STRICT_CFLAGS)
 
 if NATIVE_F64
 # Catch unsafe flags passed to make *after* configure (configuring safely is

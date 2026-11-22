@@ -14,6 +14,7 @@
 #include "rate_internal.h"
 #include "dsd_kernels.h"
 #include "dsd_resonator.h"
+#include "dsd_coremath_gain.h"
 #include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
@@ -570,7 +571,7 @@ static int effect_start(sox_effect_t *e,int candidate)
     return SOX_EOF;
   }
   p->applied_gain=p->options.headroom==LSX_DSD_HEADROOM_FIXED?
-      pow(10.,-p->options.headroom_db/20.):
+      dsd_coremath_gain_from_db(-p->options.headroom_db):
       !candidate && p->options.headroom==LSX_DSD_HEADROOM_NONE &&
       p->options.clip==LSX_DSD_CLIP_WARN?
       lsx_pcmdsd_default_warn_gain(profile->native_hz):1.;

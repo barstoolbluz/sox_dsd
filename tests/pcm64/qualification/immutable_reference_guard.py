@@ -40,6 +40,28 @@ def validate_pair(path: str, raw: bytes) -> dict:
     return {'path': path, 'sha256': digest(expected), 'size': len(expected)}
 
 
+# D6 authorizes only these two textual source changes; the certified D13
+# predecessor is still compared byte-for-byte after reversing them.
+def validate_d6_pcmdsd(raw: bytes) -> dict:
+    path = 'src/pcmdsd.c'
+    predecessor = baseline_bytes(path)
+    edits = (
+        (b'#include "dsd_resonator.h"\n',
+         b'#include "dsd_resonator.h"\n#include "dsd_coremath_gain.h"\n'),
+        (b'pow(10.,-p->options.headroom_db/20.)',
+         b'dsd_coremath_gain_from_db(-p->options.headroom_db)'),
+    )
+    restored = raw
+    for old, new in edits:
+        if predecessor.count(old) != 1 or raw.count(new) != 1:
+            raise AssertionError('D6 authorized pcmdsd source edit missing or duplicated')
+        restored = restored.replace(new, old, 1)
+    if restored != predecessor:
+        raise AssertionError(f'UNAUTHORIZED REFERENCE CHANGE: {path}; D6 exception covers only fixed headroom')
+    return {'path': path, 'sha256': digest(predecessor), 'size': len(predecessor),
+            'current_sha256': digest(raw), 'authorized_delta': 'D6 private helper include and fixed-headroom expression only'}
+
+
 def run():
     parent = git('rev-parse', BASE).decode().strip()
     if parent != BASE:
@@ -53,7 +75,8 @@ def run():
     # profile identities and the coefficient arrays must never auto-update.
     for name in SOURCE_PINS:
         if (ROOT / name).exists() and git('cat-file', '-e', f'{BASE}:{name}') is not None:
-            checked.append(validate_pair(name, (ROOT / name).read_bytes()))
+            checked.append(validate_d6_pcmdsd((ROOT / name).read_bytes()) if name == 'src/pcmdsd.c'
+                           else validate_pair(name, (ROOT / name).read_bytes()))
     sys.path.insert(0, str(ROOT / 'tests/pcm64/qualification'))
     from reconstruction_reference import accepted_words
     items = accepted_words()
@@ -70,12 +93,22 @@ def run():
         rejected = True
     if not rejected:
         raise AssertionError('D13 mutation check failed: guard did not reject edit')
+    # Mutate a non-D6 byte in the *otherwise authorized* live source.
+    pcmdsd = bytearray((ROOT / 'src/pcmdsd.c').read_bytes())
+    pos = pcmdsd.index(b'#include <math.h>')
+    pcmdsd[pos] ^= 1
+    try:
+        validate_d6_pcmdsd(bytes(pcmdsd))
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError('D13 pcmdsd mutation check failed')
     return {'schema':'phase08-reference-immutability/1',
             'status':'PASS_LOCKED_PREDECESSOR',
             'baseline':BASE,
             'predecessor_type':'historical v2 reconstruction; NOT unified decoder oracle',
             'accepted_v2_fixtures':len(items),
-            'mutation_rejection':'PASS',
+            'mutation_rejection':'PASS', 'pcmdsd_outside_D6_mutation_rejection':'PASS',
             'unified_decoder_reference_approval':'OPEN',
             'files':checked}
 

@@ -971,6 +971,7 @@ check-phase08: all
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/reference_cascade.py' --source '$(abs_top_srcdir)' --exporter '$(abs_top_builddir)/test/dsd_test_p15_src_stage_export' --src-probe '$(abs_top_builddir)/test/dsd_test_p07_reference' --cascade-probe '$(abs_top_builddir)/test/pcm64_cascade_probe' --results '$(PHASE08_RESULTS)/p2-encoder-frontend'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/final_src_reference.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --exporter '$(abs_top_builddir)/test/dsd_test_p15_src_stage_export' --results '$(PHASE08_RESULTS)/p3-final-src'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/gain_libm_reference.py' --results '$(PHASE08_RESULTS)/d6-libm'
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/coremath_gain_reference.py' --source '$(abs_top_srcdir)' --build '$(abs_top_builddir)' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --cc '$(CC)' --results '$(PHASE08_RESULTS)/d6-coremath'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d11_bound_accounting.py' --self-test --results '$(PHASE08_RESULTS)'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d11_bound_accounting.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/metrology_parity.py' --results '$(PHASE08_RESULTS)/audited-metrology'
@@ -991,6 +992,8 @@ EXTRA_DIST += docs/dsd/PHASE08_IMPLEMENTATION_STATUS_2026-11-21.md \
   tests/pcm64/qualification/decoder_boundary_inject.c \
   tests/pcm64/qualification/final_src_reference.py \
   tests/pcm64/qualification/gain_libm_reference.py \
+  tests/pcm64/qualification/coremath_gain_probe.c \
+  tests/pcm64/qualification/coremath_gain_reference.py \
   tests/pcm64/qualification/d11_bound_accounting.py \
   tests/pcm64/qualification/immutable_reference_guard.py \
   tests/pcm64/qualification/metrology_parity.py \

@@ -18,6 +18,7 @@ SOURCES={
     'p2-encoder-frontend':('independent-primitive-cascade.json','PASS'),
     'p3-final-src':('final-src-reference.json','PASS_FINITE_WITNESSES_ONLY'),
     'd6-libm':('gain-libm-reference.json','PASS_FINITE_WITNESSES_ONLY'),
+    'd6-coremath':('coremath-gain-reference.json','PASS_FINITE_WITNESSES_OWNER_OPEN'),
     'd11-accounting':('d11-bound-accounting.json','PASS_CONDITIONAL_ACCOUNTING_OWNER_OPEN'),
     'audited-metrology':('metrology-parity.json','PASS_FINITE_PARITY'),
     'v3-analysis-v1':('v3-analysis-v1.json','PASS_MEASUREMENT_ONLY'),
@@ -59,6 +60,13 @@ def main():
             if tag=='d6-libm':
                 assert data['sample_count']>=41
                 assert data['d6_pow_universal_error_premise']=='OPEN'
+            if tag=='d6-coremath':
+                assert data['finite_normal_cases_verified']>=1000
+                assert data['factor_correctly_rounded_at_x_in_sample'] is True
+                assert data['zero_and_20_db_exact'] is True
+                assert data['identity_graph']['plain_gain_words_identical'] is True
+                assert data['d11_fft4g_all_input_error']=='OPEN'
+                assert data['release_authorized'] is False
             if tag=='d11-accounting':
                 assert data['fft4g_worst_case_error_bound']=='OPEN'
                 assert data['glibc_pow_exp_maximum_error_bound']=='OPEN'
