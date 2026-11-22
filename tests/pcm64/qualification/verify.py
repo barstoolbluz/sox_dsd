@@ -32,7 +32,7 @@ from attestation import (digest as sha256, verify as verify_accepted_source,
 from build_context import read_fenv
 from decode import parse_wav, checked_rate
 from encode import dsf_bits
-from reconstruction_reference import check_reconstruction
+from reconstruction_reference import check_unified_reconstruction_format
 
 
 def demand(ok,message):
@@ -163,11 +163,12 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
         payload,_=parse_wav(recon,n_pcm,ch,source_rate)
         demand(hashlib.sha256(payload).hexdigest()==case['reconstructed_float64_words_sha256'],
                f'{cid}: actual reconstructed binary64 words changed')
-        # Preserve exact receipt/file integrity above; compare the *values*
-        # to accepted SSE2 words with a bound only for other selected kernels.
+        # Retain exact receipt/file integrity. D16 explicitly retires the v2
+        # numerical comparator for this unified decoder; its independent
+        # mathematical reference gate remains OPEN, not silently satisfied.
         dr=json.loads(decode_report.read_text())
         selected_backend=dr['processing']['decoder'][0]['fir_kernel_actual']
-        check_reconstruction(payload,cid,selected_backend)
+        check_unified_reconstruction_format(payload,selected_backend)
         # Observe the *actual* CLI's admission trace, not merely the private
         # probe's forecast. Recompute the independent probe expectation from
         # the exact physical source WAV words, then demand byte equality for
@@ -215,7 +216,7 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
                    sha256(oracle_raw)==case['public_decoder_raw_sha256'],
                    f'{cid}: missing/corrupted independent reconstruction witness')
             dc=case['public_decoder_config']
-            demand(dc['profile']=='mastering-v2' and dc['level']=='preserve' and
+            demand(dc['profile']=='mastering' and dc['level']=='preserve' and
                    dc['bandwidth']=='adapt' and dc['kernel'] in
                    ('scalar','sse2','avx1','avx2','avx512'),
                    f'{cid}: altered public decoder configuration')
@@ -235,7 +236,7 @@ def check(root,record,source=None,sox=None,probe=None,oracle=None):
                int(dr['output']['frames_written'])==n_pcm,
                f'{cid}: actual route or reported count incorrect')
         decoder=dr['processing']['decoder'][0]
-        demand(decoder['profile_id']==f'decode.mastering.v2.dsd{hz//44100}' and
+        demand(decoder['profile_id']==f'decode.mastering.dsd{hz//44100}' and
                decoder['gain_mapping']['mode']=='preserve' and
                decoder['fir_kernel_actual']==case['public_decoder_config']['kernel'],
                f'{cid}: real decoder report does not bind reference options')

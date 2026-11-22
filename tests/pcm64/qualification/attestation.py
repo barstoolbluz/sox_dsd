@@ -12,6 +12,15 @@ import json
 from pathlib import Path
 
 REFERENCE=Path(__file__).with_name('reference')
+# The predecessor manifest is immutable. Phase 08 deliberately changed these
+# files under D7/D6/AM1/AM2; they are checked by their separate owner-scoped
+# and executable Phase 08 gates, not certified as old production bytes.
+# Every other legacy source remains tied to its immutable SHA-256 here.
+PHASE08_CHANGED_SOURCES = frozenset({
+    'src/dsd.c', 'src/dsd.h', 'src/dsd_decode.c', 'src/dsd_plan.c',
+    'src/dsd_public.c', 'src/dsd_stats.c', 'src/gain.c',
+    'src/pcmdsd.c', 'src/sox_dsd.h', 'src/sox_ng.c',
+})
 
 def digest(p):
     h=hashlib.sha256()
@@ -63,9 +72,20 @@ def verify(source):
         raise AssertionError('unrecognized independent qualification baseline')
     for relative,want in p['source_file_sha256'].items():
         path=source/relative
-        if (not path.is_file() or not path.resolve().is_relative_to(source) or
-                digest(path)!=want):
-            raise AssertionError('accepted production source changed: '+relative)
+        if not path.is_file() or not path.resolve().is_relative_to(source):
+            raise AssertionError('missing accepted production source: '+relative)
+        if digest(path) != want and relative not in PHASE08_CHANGED_SOURCES:
+            raise AssertionError('unapproved production source changed: '+relative)
+    # The changed encoder/decoder tables and headers have separate byte-exact
+    # owner-scope verification; do not silently extend the old accepted
+    # source identity to them.
+    from immutable_reference_guard import (owner_approvals,
+        validate_owner_pcmdsd, validate_decoder_table, validate_am1_header)
+    owner_approvals()
+    validate_owner_pcmdsd((source/'src/pcmdsd.c').read_bytes())
+    validate_decoder_table((source/'src/dsd.c').read_bytes())
+    for name in ('src/dsd_coeffs_112.h','src/pcmdsd_coeffs_112.h'):
+        validate_am1_header(name, (source/name).read_bytes())
     for relative,want in p['src_stage_files'].items():
         path=REFERENCE/relative
         if not path.is_file() or digest(path)!=want:

@@ -442,7 +442,8 @@ void lsx_dsd_report_note_encode(const lsx_pcmdsd *encoder)
   if (profile) {
     r->native_hz=profile->native_hz;
     snprintf(r->profile,sizeof(r->profile),"%s",profile->id);
-    snprintf(r->certificate,sizeof(r->certificate),"%s",profile->certificate_sha256);
+    if (profile->certificate_sha256)
+      snprintf(r->certificate,sizeof(r->certificate),"%s",profile->certificate_sha256);
   }
   name=lsx_pcmdsd_kernel_name(encoder);
   snprintf(r->kernel,sizeof(r->kernel),"%s",name?name:"unknown");
@@ -481,6 +482,8 @@ static const char *bank_hash(lsx_dsd_last_bank bank)
     case LSX_DSD_BANK_MASTER64_256:return "76749b06a43bb529207e68abc8d71631d21013f547de74ecd7837638d6506139";
     case LSX_DSD_BANK_MASTER128:return "306a836d730b97b8f8f8e82d01ea2fc87eeec7efc70939c76558ab8e8fc44673";
     case LSX_DSD_BANK_WIDEBAND:return "658f940a7fbc529a6f927e05c36b9d3c4b5858f001d2b21759e7a6e36ed658d0";
+    case LSX_DSD_BANK_MASTER112_256_1024:return "39d7558d2a54895a6268b29086a57961c8b6eedb4df493b581a118fc7f8f5569";
+    case LSX_DSD_BANK_MASTER112_512:return "1d48e838b5a0183d903322e1970ca8a4a6658fc122ce1daf4dfcb8155e9c1cfd";
     default:return NULL;
   }
 }
@@ -548,7 +551,8 @@ static void json_enc(FILE *f,const encode_record *r)
 {
   unsigned i;const sdm_normal_monitor_t *m=&r->base.monitor;
   fputs("{\"profile_id\":",f);jstr(f,r->profile);
-  fputs(",\"coefficient_certificate_sha256\":",f);jstr(f,r->certificate);
+  fputs(",\"coefficient_certificate_sha256\":",f);
+  if (r->certificate[0]) jstr(f,r->certificate); else fputs("null",f);
   fputs(",\"sdm_kernel_actual\":",f);jstr(f,r->kernel);
   fprintf(f,",\"native_hz\":%u,\"source_frames\":",r->native_hz);jint(f,r->base.input_frames);
   fputs(",\"committed_native_frames\":",f);jint(f,r->base.committed_frames);

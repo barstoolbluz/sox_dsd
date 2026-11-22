@@ -65,12 +65,12 @@ sparse_file_test_LDADD = $(sox_LDADD) $(SNDFILE_LIBS)
 endif
 lib_LTLIBRARIES = libsox_ng.la
 include_HEADERS = sox_ng.h sox_dsd.h
-sox_SOURCES = sox_ng.c
+sox_SOURCES = sox_ng.c coremath/exp10.c
 # Phase08: private admission and cancellation driver linked against the same
 # production libsox. Uninstalled; only check-pcm64 asks to build it. Ordinary
 # src/sox never compiles either diagnostic callback or cancellation hooks.
 EXTRA_PROGRAMS += sox_p08_qualification
-sox_p08_qualification_SOURCES = sox_ng.c ../tests/pcm64/qualification/sox_fenv_wrapper.c
+sox_p08_qualification_SOURCES = sox_ng.c coremath/exp10.c ../tests/pcm64/qualification/sox_fenv_wrapper.c
 sox_p08_qualification_CFLAGS = @WARN_CFLAGS@ -DSOX_P08_ADMISSION_TEST_BUILD -DSOX_P08_CANCEL_TEST_BUILD -Dmain=sox_p08_original_main
 sox_p08_qualification_LDADD = libsox_ng.la -lm
 if HAVE_WIN32_GLOB
@@ -97,7 +97,7 @@ sox_sample_test_DEPENDENCIES = $(SPARSE_FILE_TEST)
 libsox_ng_la_SOURCES = adpcms.c adpcms.h aiff.c aiff.h cvsd.c cvsd.h cvsdfilt.h \
 	g711.c g711.h g721.c g723_24.c g723_40.c g72x.c g72x.h vox.c vox.h \
 	mod.c mod.h mod-tabs.c msupcm.c mul.c raw.c raw.h \
-	formats.c formats.h formats_i.c sox_i.h pcm_f64.c pcm_f64.h pcm_f64_io.c pcm_f64_io.h dsd_coremath_gain.h coremath/exp10.c coremath/exp10-llp64.patch coremath/README.md dsd_f64.c dsd_f64.h dsd_f64_decode.c dsd_f64_decode.h dsd.h dsd.c dsd_packed.c dsd_packed.h dsd_plan.c dsd_stats.c dsd_stats.h dsdstat.c dsd_decode.c dsd_decode.h dsd_public.c dsdpcm.c pcmdsd.c pcmdsd.h pcmdsd_coeffs.h pcmdsd_guards.h rate_internal.h dsd_kernels_scalar.c dsd_dispatch.c dsd_kernels.h sdm_normal_commit_i.h dsd_coeffs.h sox_dsd.h dsd_layout_i.h dsd_layout_query.h dsd_layout.c wav-size.h keymap.c \
+	formats.c formats.h formats_i.c sox_i.h pcm_f64.c pcm_f64.h pcm_f64_io.c pcm_f64_io.h dsd_coremath_gain.h coremath/exp10.c coremath/exp10-llp64.patch coremath/README.md dsd_f64.c dsd_f64.h dsd_f64_decode.c dsd_f64_decode.h dsd.h dsd.c dsd_packed.c dsd_packed.h dsd_plan.c dsd_stats.c dsd_stats.h dsdstat.c dsd_decode.c dsd_decode.h dsd_public.c dsdpcm.c pcmdsd.c pcmdsd.h pcmdsd_coeffs.h pcmdsd_coeffs_112.h pcmdsd_guards.h rate_internal.h dsd_kernels_scalar.c dsd_dispatch.c dsd_kernels.h sdm_normal_commit_i.h dsd_coeffs.h dsd_coeffs_112.h sox_dsd.h dsd_layout_i.h dsd_layout_query.h dsd_layout.c wav-size.h keymap.c \
 	xmalloc.c xmalloc.h getopt.c util.c util.h libsox_ng.c libsox_i.c \
 	sox-fmt.c soxomp.h win32-unicode.c win32-unicode.h
 

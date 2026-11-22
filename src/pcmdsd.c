@@ -8,6 +8,7 @@
 #include "pcmdsd.h"
 #include "dsd_stats.h"
 #include "pcmdsd_coeffs.h"
+#include "pcmdsd_coeffs_112.h"
 #include "pcmdsd_guards.h"
 #include "pcmdsd_v2_guards.h"
 #include "pcmdsd_p20_guards.h"
@@ -60,8 +61,11 @@ static const lsx_pcmdsd_profile profiles[] = {
     lsx_pcmdsd_coeff_master64_256,61,NULL,1,LSX_PCMDSD_CERTIFICATE_SHA256,1},
   {"encode.mastering.v3.dsd128",5644800,176400,30000,60000,
     lsx_pcmdsd_coeff_master128,77,NULL,1,LSX_PCMDSD_CERTIFICATE_SHA256,1},
-  {"encode.mastering.v1.dsd256",11289600,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[2],1,LSX_PCMDSD_CERTIFICATE_SHA256,0},
+  /* AM1: at DSD256+ only the FIR/front-end rate and pass/stop edges
+   * change to 1.1.2. The v1/v2 SDM modulators and guards do not change.
+   * P10 front-end certificate authenticates only unchanged DSD64/128. */
+  {"encode.mastering.v1.dsd256",11289600,352800,60000,100000,
+    lsx_dsd112_encoder_master256_1024,117,lsx_pcmdsd_guards[2],1,NULL,0},
   /* P21, 2026-10-23: the operator declared the high-rate evidence satisfied
    * and authorized both clocks. The qualified profile at each is the v2
    * CLANS-7 recurrence, which passed training 17/17, verify 17, holdout
@@ -77,13 +81,13 @@ static const lsx_pcmdsd_profile profiles[] = {
    * defective eighth order. Do not promote either without new evidence.
    *
    * certificate_sha256 names the coefficient manifest, not the modulator;
-   * both v2 profiles use the already-certified 61-tap master64_256 bank. */
-  {"encode.mastering.v2.dsd512",22579200,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_p20_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256,0},
+   * the changed 1.1.2 high-rate FIRs carry no historical P10 certificate. */
+  {"encode.mastering.v2.dsd512",22579200,352800,88200,148200,
+    lsx_dsd112_encoder_master512,81,lsx_pcmdsd_p20_guards,1,NULL,0},
   {"encode.mastering.v1.dsd512",22579200,176400,40000,80000,
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[3],0,NULL,0},
-  {"encode.mastering.v2.dsd1024",45158400,176400,40000,80000,
-    lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_v2_guards,1,LSX_PCMDSD_CERTIFICATE_SHA256,0},
+  {"encode.mastering.v2.dsd1024",45158400,705600,120000,200000,
+    lsx_dsd112_encoder_master256_1024,117,lsx_pcmdsd_v2_guards,1,NULL,0},
   {"encode.mastering.v1.dsd1024",45158400,176400,40000,80000,
     lsx_pcmdsd_coeff_master64_256,61,lsx_pcmdsd_guards[4],0,NULL,0}
 };

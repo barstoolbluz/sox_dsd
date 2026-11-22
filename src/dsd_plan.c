@@ -3,6 +3,7 @@
  * The returned plan owns only its arrays and borrows static effect names.
  */
 #include "dsd.h"
+#include "dsd_coremath_gain.h"
 #include "dsd_kernels.h"
 #include "pcmdsd.h"
 #include <stdlib.h>
@@ -935,7 +936,7 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
         spec->policy.headroom==LSX_DSD_HEADROOM_AUTO)
       fputs("null",fp);
     else if (spec->policy.headroom==LSX_DSD_HEADROOM_FIXED)
-      fprintf(fp,"%.17g",pow(10.,-spec->policy.headroom_db/20.));
+      fprintf(fp,"%.17g",dsd_coremath_gain_from_db(-spec->policy.headroom_db));
     else if (spec->policy.clip==LSX_DSD_CLIP_WARN)
       fprintf(fp,"%.17g",lsx_pcmdsd_default_warn_gain(p->native_output_hz));
     else fputs("1",fp);

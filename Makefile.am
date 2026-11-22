@@ -766,23 +766,12 @@ EXTRA_DIST += docs/dsd/handoffs/P15_CLOSEOUT_ADJUDICATION_2026-10-14.md \
   tests/dsd/results/P15_closeout_adjudication_2026-10-14/review.json \
   tests/dsd/results/P15_closeout_adjudication_2026-10-14/preservation.json
 
-# P15-R3 additive candidate: explicit, opt-in qualification runner.
-# Results go to the build directory; never mutate historical source receipts.
-.PHONY: check-dsd-p15-r3
-check-dsd-p15-r3: all
-	$(MAKE) -C test dsd_test_p15_instrument dsd_test_p07_reference
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/generate_coeffs.py --check
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/generate_p15_r3_coeffs.py --check
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/certify_p15_r3_filters.py --grid 8192 --results $(abs_builddir)/p15-r3-check/numeric
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3_numeric.py --probe $(abs_builddir)/test/dsd_test_p15_instrument --results $(abs_builddir)/p15-r3-check/numeric
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3.py --sox $(abs_builddir)/src/sox --results $(abs_builddir)/p15-r3-check/integration
-	PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 $(srcdir)/tests/dsd/test_p15_r3_src_spot.py --probe $(abs_builddir)/test/dsd_test_p07_reference --results $(abs_builddir)/p15-r3-check/numeric
-
+# The retired P15-R3/v2 reconstruction target is no longer applicable to
+# the unified decoder (owner D7, main e301af6b). Historical receipts remain.
 EXTRA_DIST += docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_HANDOFF.md \
   docs/dsd/handoffs/P15_R3_RECONSTRUCTION_POLICY_CHECKPOINT.md \
   tests/dsd/generate_p15_r3_coeffs.py tests/dsd/certify_p15_r3_filters.py \
-  tests/dsd/test_p15_r3_numeric.py tests/dsd/test_p15_r3.py \
-  tests/dsd/test_p15_r3_src_spot.py tests/dsd/bench_p15_r3_local.py \
+  tests/dsd/bench_p15_r3_local.py \
   tests/dsd/reference/p15_r3_coefficients.json \
   tests/dsd/results/P15_R3/numeric/fir-certificate.json \
   tests/dsd/results/P15_R3/numeric/finite-and-isa.json \
@@ -958,6 +947,26 @@ EXTRA_DIST += tests/pcm64/qualification/mutants/shift_native_core.diff
 EXTRA_DIST += tests/pcm64/qualification/sox_fenv_wrapper.c
 EXTRA_DIST += tests/pcm64/qualification/build_context.py
 
+# AM1/P112: the four 1.1.2 FIR/clock qualifications adapted to the
+# versioned encoder IDs and gain of this line. Keep the expensive numerical
+# SRC qualification opt-in; avoid slowing the ordinary release CLI gate.
+DSD112_RESULTS ?= $(abs_top_builddir)/.dsd-112-check-results
+.PHONY: check-dsd-112
+check-dsd-112: all
+	$(MAKE) -C test dsd_test_p07_reference dsd_test_p10 dsd_test_p17 dsd_test_p15_src_stage_export
+	OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 python3 '$(abs_top_srcdir)/tests/dsd/checks/test_passband_112.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(DSD112_RESULTS)/cli-passband.json'
+	OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 python3 '$(abs_top_srcdir)/tests/dsd/generators/generate_112_passbands.py' --check
+	OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 python3 '$(abs_top_srcdir)/tests/dsd/qualification/certify_112_passbands.py' --grid 8192 --output '$(DSD112_RESULTS)/filter-response.json'
+	OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 python3 '$(abs_top_srcdir)/tests/dsd/checks/test_full_path_112.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --p07-unit '$(abs_top_builddir)/test/dsd_test_p07_reference' --p10-unit '$(abs_top_builddir)/test/dsd_test_p10' --p17-unit '$(abs_top_builddir)/test/dsd_test_p17' --stage-exporter '$(abs_top_builddir)/test/dsd_test_p15_src_stage_export' --results '$(DSD112_RESULTS)/full-path.json'
+
+EXTRA_DIST += src/dsd_coeffs_112.h src/pcmdsd_coeffs_112.h \
+  tests/dsd/checks/test_passband_112.py \
+  tests/dsd/checks/test_full_path_112.py \
+  tests/dsd/generators/generate_112_passbands.py \
+  tests/dsd/qualification/certify_112_passbands.py \
+  tests/dsd/support/current_mastering_112.py \
+  tests/dsd/reference/mastering_passband_112.json
+
 # Phase 08 finite validation is independent of the historical v2 accepted
 # words. These tests fail on unexpected differences and report still-open
 # mathematical/owner gates; they do not issue a release certificate.
@@ -972,6 +981,8 @@ check-phase08: all
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/final_src_reference.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --exporter '$(abs_top_builddir)/test/dsd_test_p15_src_stage_export' --results '$(PHASE08_RESULTS)/p3-final-src'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/gain_libm_reference.py' --results '$(PHASE08_RESULTS)/d6-libm'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/coremath_gain_reference.py' --source '$(abs_top_srcdir)' --build '$(abs_top_builddir)' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --cc '$(CC)' --results '$(PHASE08_RESULTS)/d6-coremath'
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d6_route_bindings.py' --results '$(PHASE08_RESULTS)/d6-routes'
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/gain_dither_policy.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/am4-gain-dither'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d11_bound_accounting.py' --self-test --results '$(PHASE08_RESULTS)'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d11_bound_accounting.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/metrology_parity.py' --results '$(PHASE08_RESULTS)/audited-metrology'
@@ -986,6 +997,8 @@ EXTRA_DIST += docs/dsd/PHASE08_IMPLEMENTATION_STATUS_2026-11-21.md \
   docs/dsd/PHASE08_ARITHMETIC_BOUND_PROPOSAL_2026-11-21.md \
   docs/dsd/PHASE08_D11_OWNER_REVIEW_2026-11-21.md \
   docs/dsd/amendments/PHASE08_OWNER_DECISIONS_2026-11-20.md \
+  docs/dsd/amendments/PHASE08_OWNER_AMENDMENT_1_2026-11-22.md \
+  docs/dsd/amendments/basis/CORE_MATH_D6_gain_dither_verdict_2026-11-22.md \
   docs/dsd/amendments/PHASE08_CORRECTED_SPEC_2026-11-20.md \
   tests/pcm64/qualification/unified_reference.py \
   tests/pcm64/qualification/float_boundary.py \
@@ -994,6 +1007,8 @@ EXTRA_DIST += docs/dsd/PHASE08_IMPLEMENTATION_STATUS_2026-11-21.md \
   tests/pcm64/qualification/gain_libm_reference.py \
   tests/pcm64/qualification/coremath_gain_probe.c \
   tests/pcm64/qualification/coremath_gain_reference.py \
+  tests/pcm64/qualification/d6_route_bindings.py \
+  tests/pcm64/qualification/gain_dither_policy.py \
   tests/pcm64/qualification/d11_bound_accounting.py \
   tests/pcm64/qualification/immutable_reference_guard.py \
   tests/pcm64/qualification/metrology_parity.py \

@@ -25,6 +25,7 @@
 #include "sox_ng.h"
 #include "sox_dsd.h"
 #include "dsd.h"
+#include "dsd_coremath_gain.h"
 #include "dsd_f64_decode.h"
 #include "pcmdsd.h"
 #include "sdm.h"
@@ -4768,7 +4769,7 @@ static int dsd_run_native_encode(void)
     return rc;
   }
   if (dsd_policy.headroom==LSX_DSD_HEADROOM_FIXED)
-    headroom=pow(10.,-dsd_policy.headroom_db/20.);
+    headroom=dsd_coremath_gain_from_db(-dsd_policy.headroom_db);
   else if (!auto_headroom && dsd_policy.clip==LSX_DSD_CLIP_WARN)
     headroom=lsx_pcmdsd_default_warn_gain(native_hz);
   if (!isfinite(headroom) || headroom<=0. || headroom>1.) {
@@ -5205,7 +5206,7 @@ static int dsd_run_native_transcode(void)
     lsx_fail("native DSD transcode: unsupported floating-point controls");goto cleanup;
   }
   if (dsd_policy.headroom==LSX_DSD_HEADROOM_FIXED)
-    headroom=pow(10.,-dsd_policy.headroom_db/20.);
+    headroom=dsd_coremath_gain_from_db(-dsd_policy.headroom_db);
   else if (!auto_headroom && dsd_policy.clip==LSX_DSD_CLIP_WARN)
     headroom=lsx_pcmdsd_default_warn_gain(out_hz);
   if (!isfinite(headroom) || headroom<=0. || headroom>1.) {

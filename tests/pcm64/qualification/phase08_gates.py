@@ -19,6 +19,8 @@ SOURCES={
     'p3-final-src':('final-src-reference.json','PASS_FINITE_WITNESSES_ONLY'),
     'd6-libm':('gain-libm-reference.json','PASS_FINITE_WITNESSES_ONLY'),
     'd6-coremath':('coremath-gain-reference.json','PASS_FINITE_WITNESSES_OWNER_OPEN'),
+    'd6-routes':('d6-route-bindings.json','PASS'),
+    'am4-gain-dither':('gain-dither-policy.json','PASS'),
     'd11-accounting':('d11-bound-accounting.json','PASS_CONDITIONAL_ACCOUNTING_OWNER_OPEN'),
     'audited-metrology':('metrology-parity.json','PASS_FINITE_PARITY'),
     'v3-analysis-v1':('v3-analysis-v1.json','PASS_MEASUREMENT_ONLY'),
@@ -41,6 +43,12 @@ def main():
             data=json.loads(path.read_text())
             observed=data.get('status')
             if observed!=want:raise ValueError(f'wrong or failed status: {observed!r}')
+            if tag=='d6-routes':
+                assert len(data['sites'])==5 and len(data['negative_controls_rejected'])==6
+            if tag=='am4-gain-dither':
+                assert len(data['integer_factors'])==2
+                assert data['noninteger_automatic_differs_from_disabled'] is True
+                assert data['explicit_dither_differs_from_disabled'] is True
             if tag=='reference-lock':
                 assert data['accepted_v2_fixtures']==19 and data['mutation_rejection']=='PASS'
                 assert data['unified_decoder_reference_approval']=='OPEN'
@@ -110,7 +118,7 @@ def main():
         'open_owner_gates':{
             'D11_P2_encoder_frontend_all_inputs':'OPEN',
             'D11_P3_decoder_all_inputs_and_final_SRC':'OPEN',
-            'D6_numeric_pow_error_limit':'OPEN',
+            'D6_CORE_MATH_universal_source_binary_bound':'OPEN',
             'D16_new_owner_accepted_unified_decoder_references':'OPEN',
             'D4_spur_target_qualification':'REPORT_ONLY_OWNER_REVIEW',
             'D4_cross_ISA_full_qualification':'OPEN',

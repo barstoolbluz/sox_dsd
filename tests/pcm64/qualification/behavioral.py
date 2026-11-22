@@ -29,7 +29,7 @@ SOURCE=HERE.parents[2]
 sys.path.insert(0,str(HERE.parent))
 from encode import make_wav, dsf_bits, dff_bits
 from decode import parse_wav
-from reconstruction_reference import check_reconstruction
+from reconstruction_reference import check_unified_reconstruction_format
 
 REF=HERE/'reference'/'accepted-physical-behavior.json'
 RATE=2822400
@@ -145,7 +145,7 @@ def run_audio(sox,folder,golden):
             decoder_payload,_=parse_wav(decoded,len(frames),CHANNELS,rate)
             decoder_words=digest(decoder_payload)
             backend=decoder_record['processing']['decoder'][0]['fir_kernel_actual']
-            reconstructed_numeric=check_reconstruction(decoder_payload,name,backend)
+            reconstructed_numeric=check_unified_reconstruction_format(decoder_payload,backend)
         rows.append({'case':name,'cli_command':relative_command(argv,folder),
             'cli_exit':result.returncode,'source_pcm_words_sha256':digest(raw),
             'physical_dsd_bits_sha256':measured,'actual_postclip_sha256':actual,

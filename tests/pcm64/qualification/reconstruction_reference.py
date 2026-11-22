@@ -88,3 +88,21 @@ def check_reconstruction(raw, name, actual_backend):
     return {'reference_backend':REFERENCE_BACKEND, 'comparison':'absolute_binary64_bound',
             'max_allowed_absolute_error':CROSS_BACKEND_MAX_ABS,
             'max_absolute_error':max_error}
+
+
+def check_unified_reconstruction_format(raw, actual_backend):
+    """D16: validate actual decoded words without comparing them to retired v2.
+
+    Independent numerical validation of the unified decoder lives in the
+    Phase 08 decoder witness. No new reference is approved by this helper.
+    """
+    insist(actual_backend in ('scalar', 'sse2', 'avx1', 'avx2', 'avx512'),
+           f'unknown reconstruction kernel {actual_backend!r}')
+    insist(len(raw) % 8 == 0 and len(raw) > 0,
+           'truncated or empty reconstructed binary64 payload')
+    insist(all(math.isfinite(value) for (value,) in struct.iter_unpack('<d',raw)),
+           'nonfinite binary64 reconstruction')
+    return {'format':'finite-binary64', 'backend':actual_backend,
+            'word_count':len(raw)//8,
+            'historical_v2_comparison':'NOT_APPLICABLE_D7',
+            'unified_decoder_reference_approval':'OPEN_D16'}

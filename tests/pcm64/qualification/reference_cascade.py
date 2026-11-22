@@ -30,7 +30,7 @@ sys.path.insert(0,str(SOURCE/'tests/dsd'))
 from p15_src_bound_operator import load_snapshot
 from fir_reference import BANKS, sha256, window_at
 from attestation import expected as accepted_manifest, digest as sha_file, REFERENCE
-from immutable_reference_guard import validate_d6_pcmdsd
+from immutable_reference_guard import validate_owner_pcmdsd, baseline_bytes
 
 PRECISIONS=(192,256,384)
 FRAMES=1537
@@ -58,11 +58,14 @@ def verify_frozen_encoder_frontend(source):
            'invalid predecessor reference schema')
     for name in FRONTEND_FROZEN_FILES:
         want=contract['source_file_sha256'].get(name)
-        # The only authorized difference from the frozen P2 front end is D6's
-        # helper include and fixed-headroom conversion. Check by restoring
-        # those exact bytes and comparing the whole sealed predecessor.
-        observed = (validate_d6_pcmdsd((source/name).read_bytes())['sha256']
-                    if name == 'src/pcmdsd.c' else sha_file(source/name))
+        # AM1 changes only the DSD256+ encoder rows; AM2 changes the D6
+        # headroom factor. Verify the complete owner-authorized delta via D13,
+        # then compare the pinned *predecessor* for the unchanged v3 rows.
+        if name == 'src/pcmdsd.c':
+            validate_owner_pcmdsd((source/name).read_bytes())
+            observed = hashlib.sha256(baseline_bytes(name)).hexdigest()
+        else:
+            observed = sha_file(source/name)
         demand(want and observed==want,
                f'certified encoder front end changed: {name}')
     for name,want in contract['src_stage_files'].items():

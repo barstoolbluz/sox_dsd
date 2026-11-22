@@ -166,7 +166,7 @@ def main():
         for mult in RATES:
             def dec(mult=mult):
                 src=d/f'dsd{mult}.dsf'; out=d/f'decoded{mult}.wav'
-                expected_hz=88200 if mult==64 else 176400
+                expected_hz={64:88200,128:176400,256:352800,512:352800,1024:705600}[mult]
                 doc=plan(exe, src, out)
                 check(doc['output']['domain']=='PCM_AUDIO', 'decoder route')
                 check(doc['output']['rate_hz']==expected_hz, 'default PCM clock')

@@ -24,7 +24,7 @@ from binary_receipts import executable_libraries, safe_git_head
 from decode import parse_wav, checked_rate
 from encode import Suite as EncoderSuite, make_wav, dsf_bits, float_words
 from build_context import read_fenv, build_context
-from reconstruction_reference import check_reconstruction
+from reconstruction_reference import check_unified_reconstruction_format
 
 SOURCE = Path(__file__).resolve().parents[2]
 SOURCE_RATE = 44100
@@ -217,17 +217,18 @@ def run_family(sox,probe,decode_oracle,results):
                        int(dec['output']['frames_written'])==n_recon,
                        f'{key}: decoder did not use genuine binary64 route')
                 decoder=dec['processing']['decoder'][0]
-                # The public API is an observed compatibility witness, not a
-                # second independent FIR implementation. Numerical correctness
-                # is checked against retained, pre-R4 accepted sample words.
-                check_reconstruction(reconstructed,key,decoder['fir_kernel_actual'])
-                demand(decoder['profile_id']==f'decode.mastering.v2.dsd{hz//44100}' and
+                # CLI/API equality is an interoperability witness, not a second
+                # FIR implementation. D16 keeps the historical v2 sample
+                # words as a predecessor only; independent unified-decoder
+                # numerical checks live in make check-phase08.
+                check_unified_reconstruction_format(reconstructed,decoder['fir_kernel_actual'])
+                demand(decoder['profile_id']==f'decode.mastering.dsd{hz//44100}' and
                        decoder['gain_mapping']['mode']=='preserve' and
                        decoder['fir_kernel_actual'] in ('scalar','sse2','avx1','avx2','avx512'),
                        f'{key}: unexpected decoder level/profile/backend')
                 oracle_raw=family/f'{key}.public-oracle.f64'
                 oracle_args=[decode_oracle,dsf,oracle_raw,SOURCE_RATE,
-                             'mastering-v2','preserve','adapt',decoder['fir_kernel_actual']]
+                             'mastering','preserve','adapt',decoder['fir_kernel_actual']]
                 commands.append(run_cli(oracle_args))
                 independent=oracle_raw.read_bytes()
                 demand(independent==reconstructed,
@@ -264,7 +265,7 @@ def run_family(sox,probe,decode_oracle,results):
                     'public_decoder_raw_sha256':hashlib.sha256(independent).hexdigest(),
                     'public_decoder_raw_path':str(oracle_raw.relative_to(results)),
                     'public_decoder_config':{
-                        'profile':'mastering-v2','level':'preserve','bandwidth':'adapt',
+                        'profile':'mastering','level':'preserve','bandwidth':'adapt',
                         'kernel':decoder['fir_kernel_actual']},
                     'profile_id':enc['processing']['encoder'][0]['profile_id'],
                     'recovery_entries':[int(e['recovery_entries']) for e in enc['processing']['encoder']],
