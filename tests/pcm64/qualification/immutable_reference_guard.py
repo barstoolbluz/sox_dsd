@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Fail closed on unapproved edits to accepted Phase 08 references (D13).
 
-The predecessor is the named, fixed 595d401 Git object, never the candidate
-source, a freshly generated receipt, or an automatically rewritten manifest.
+The predecessor is the content of the R3 corrective (595d401 in the delivery
+history), pinned by Git tree object IDs, never the candidate source, a freshly
+generated receipt, or an automatically rewritten manifest. Tree IDs depend only
+on content, so they are the same in every history that carries it. Commit IDs
+are not: integration re-authors commits, which changes their IDs.
 Owner approval requires a separately reviewed successor reference and an
 explicit predecessor/reason record; this guard intentionally cannot grant it.
 """
@@ -15,7 +18,11 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[3]
-BASE = '595d401a244fd0329fa39229b0a6d1918bcf00ff'
+PREDECESSOR = '595d401 (delivery history)'
+PRED_TREES = {
+    'tests/pcm64/qualification/reference/': '0c6e4628a1545c75f07bdecf1bb979732096875e',
+    'src/': '5acbc0d8dc554ce234e3b4fe5f2b62a890f94c6c',
+}
 TARGET = 'tests/pcm64/qualification/reference/'
 SOURCE_PINS = ('src/dsd_coeffs.h', 'src/pcmdsd.c', 'src/pcmdsd.h',
                'src/pcmdsd_coeffs.h')
@@ -29,14 +36,21 @@ def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def baseline_spec(path: str) -> str:
+    for prefix, tree in PRED_TREES.items():
+        if path.startswith(prefix):
+            return f'{tree}:{path[len(prefix):]}'
+    raise AssertionError(f'no pinned predecessor tree covers {path}')
+
+
 def baseline_bytes(path: str) -> bytes:
-    return git('show', f'{BASE}:{path}')
+    return git('show', baseline_spec(path))
 
 
 def validate_pair(path: str, raw: bytes) -> dict:
     expected = baseline_bytes(path)
     if raw != expected:
-        raise AssertionError(f'UNAUTHORIZED REFERENCE CHANGE: {path}; predecessor preserved at {BASE}')
+        raise AssertionError(f'UNAUTHORIZED REFERENCE CHANGE: {path}; predecessor preserved at {PREDECESSOR}')
     return {'path': path, 'sha256': digest(expected), 'size': len(expected)}
 
 
@@ -63,10 +77,11 @@ def validate_d6_pcmdsd(raw: bytes) -> dict:
 
 
 def run():
-    parent = git('rev-parse', BASE).decode().strip()
-    if parent != BASE:
-        raise AssertionError('source baseline mismatch')
-    names = git('ls-tree', '-r', '--name-only', BASE, TARGET).decode().splitlines()
+    for tree in PRED_TREES.values():
+        if git('cat-file', '-t', tree).decode().strip() != 'tree':
+            raise AssertionError(f'pinned predecessor tree missing: {tree}')
+    names = [TARGET + x for x in
+             git('ls-tree', '-r', '--name-only', PRED_TREES[TARGET]).decode().splitlines()]
     assert names and any(x.endswith('accepted-reconstruction-sse2.zlib') for x in names)
     checked = []
     for name in names:
@@ -74,7 +89,7 @@ def run():
     # Certified encoder front end, unchanged by owner decision D3. Historical
     # profile identities and the coefficient arrays must never auto-update.
     for name in SOURCE_PINS:
-        if (ROOT / name).exists() and git('cat-file', '-e', f'{BASE}:{name}') is not None:
+        if (ROOT / name).exists() and git('cat-file', '-e', baseline_spec(name)) is not None:
             checked.append(validate_d6_pcmdsd((ROOT / name).read_bytes()) if name == 'src/pcmdsd.c'
                            else validate_pair(name, (ROOT / name).read_bytes()))
     sys.path.insert(0, str(ROOT / 'tests/pcm64/qualification'))
@@ -105,7 +120,7 @@ def run():
         raise AssertionError('D13 pcmdsd mutation check failed')
     return {'schema':'phase08-reference-immutability/1',
             'status':'PASS_LOCKED_PREDECESSOR',
-            'baseline':BASE,
+            'baseline':PREDECESSOR, 'baseline_trees':PRED_TREES,
             'predecessor_type':'historical v2 reconstruction; NOT unified decoder oracle',
             'accepted_v2_fixtures':len(items),
             'mutation_rejection':'PASS', 'pcmdsd_outside_D6_mutation_rejection':'PASS',

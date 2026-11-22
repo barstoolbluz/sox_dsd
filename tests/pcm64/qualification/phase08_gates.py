@@ -87,7 +87,11 @@ def main():
             failed.append(tag)
     try:
         version=command('git','-C',str(ROOT),'rev-parse','HEAD')
-        base=command('git','-C',str(ROOT),'rev-parse','595d401')
+        # The predecessor is pinned by tree IDs (see immutable_reference_guard.py);
+        # commit IDs change when integration re-authors commits.
+        base=','.join(command('git','-C',str(ROOT),'rev-parse','--verify',t+'^{tree}')
+                      for t in ('0c6e4628a1545c75f07bdecf1bb979732096875e',
+                                '5acbc0d8dc554ce234e3b4fe5f2b62a890f94c6c'))
         changed=command('git','-C',str(ROOT),'status','--porcelain')
     except Exception as ex:
         version='UNKNOWN';base='UNKNOWN';changed=str(ex);failed.append('provenance')
