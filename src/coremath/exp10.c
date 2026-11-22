@@ -73,7 +73,7 @@ static inline double opolydd(double xh, double xl, int n, const double c[][2], d
 
 static inline double as_ldexp(double x, i64 i){
 #ifdef __x86_64__
-  __m128i sb; sb[0] = i<<52;
+  __m128i sb; sb[0] = ((u64)i)<<52;
 #if defined(__clang__)
   __m128d r = _mm_set_sd(x);
 #else
@@ -83,14 +83,14 @@ static inline double as_ldexp(double x, i64 i){
   return r[0];
 #else
   b64u64_u ix = {.f = x};
-  ix.u += i<<52;
+  ix.u += ((u64)i)<<52;
   return ix.f;
 #endif
 }
 
 static inline double as_todenormal(double x){
 #ifdef __x86_64__
-  __m128i sb; sb[0] = ~0ul>>12;
+  __m128i sb; sb[0] = UINT64_MAX>>12;
 #if defined(__clang__)
   __m128d r = _mm_set_sd(x);
 #else
@@ -100,7 +100,7 @@ static inline double as_todenormal(double x){
   return r[0];
 #else
   b64u64_u ix = {.f = x};
-  ix.u &= ~0ul>>12;
+  ix.u &= UINT64_MAX>>12;
   return ix.f;
 #endif
 }
@@ -241,18 +241,18 @@ static double __attribute__((noinline)) as_exp10_accurate(double x){
       if(!(ix.u<<12)){
 	b64u64_u l = {.f = fl};
 	i64 sfh = ((i64)ix.u>>63)^((i64)l.u>>63);
-	ix.u += (1l<<51)^sfh;
+	ix.u += (UINT64_C(1)<<51)^sfh;
       }
       fh = th + ix.f;
     } else {
       fh = muldd(fh,fl, th,tl, &fl);
       fh = fastsum(th,tl, fh,fl, &fl);
       fh = fasttwosum(fh, fl, &ix.f);
-      if( ((ix.u + 4)&(~0ul>>12)) <= 4 || ((ix.u>>52)&0x7ff)<918 ) fh = as_exp10_database(x, fh);
+      if( ((ix.u + 4)&(UINT64_MAX>>12)) <= 4 || ((ix.u>>52)&0x7ff)<918 ) fh = as_exp10_database(x, fh);
     }
     fh = as_ldexp(fh,ie);
   } else {
-    ix.u = (1-ie)<<52;
+    ix.u = ((u64)(1-ie))<<52;
     fh = muldd(fh,fl, th,tl, &fl);
     fh = fastsum(th,tl, fh,fl, &fl);
     fh = fasttwosum(ix.f, fh, &tl);
@@ -264,7 +264,7 @@ static double __attribute__((noinline)) as_exp10_accurate(double x){
 
 double cr_exp10(double x){
   b64u64_u ix = {.f = x};
-  u64 aix = ix.u & (~0ul>>1);
+  u64 aix = ix.u & (UINT64_MAX>>1);
   if(__builtin_expect(aix>0x40734413509f79feul, 0)){
     if(aix>0x7ff0000000000000ul) return x;
     if(aix==0x7ff0000000000000ul){
@@ -306,7 +306,7 @@ double cr_exp10(double x){
     if(__builtin_expect( lb != ub, 0)) return as_exp10_accurate(x);
     fh = as_ldexp(fh + fl, ie);
   } else {
-    ix.u = (1-ie)<<52;
+    ix.u = ((u64)(1-ie))<<52;
     fh = fasttwosum(ix.f, fh, &tl);
     fl += tl;
     double lb = fh + (fl - eps), ub = fh + (fl + eps);

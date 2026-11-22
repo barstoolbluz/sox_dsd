@@ -102,7 +102,7 @@ def run():
         raise RuntimeError('production CORE-MATH object or sox executable missing')
     test_c = source / 'tests/pcm64/qualification/coremath_gain_probe.c'
     src_c = source / 'src/coremath/exp10.c'
-    expected_blob = 'ebcf7c82b3caed3c7f4f6a10893479ac171bb1da'
+    expected_blob = '94f9f21eec1ea74bbc169bd4937c6792e933f26a'
     actual_blob = command(['git', '-C', str(source), 'hash-object', str(src_c)]).stdout.strip()
     if actual_blob != expected_blob:
         raise AssertionError('CORE-MATH source blob identity mismatch')
@@ -123,6 +123,12 @@ def run():
     entries += [('g', bits(float('inf'))), ('g', bits(float('-inf'))),
                 ('g', bits(float('nan'))), ('h', bits(float('inf'))),
                 ('h', bits(float('-inf'))), ('h', bits(float('nan')))]
+    # Direct calls into the production CORE-MATH object cover the LLP64
+    # mask/shift boundary paths that ordinary admitted dB inputs do not reach.
+    direct_values = [-350.0, -325.0, -324.0, -323.0, -310.0, -308.0,
+                     -1.0, -0.0, 0.0, 1.0, 308.0, 310.0, 350.0,
+                     float('-inf'), float('inf'), float('nan')]
+    entries += [('x', bits(x)) for x in direct_values]
     payload = ''.join(f'{mode} {b:016x}\n' for mode, b in entries)
     with tempfile.TemporaryDirectory(prefix='coremath-d6-') as dirname:
         tmp = Path(dirname)
@@ -142,6 +148,7 @@ def run():
             max_form_rel = mp.mpf(0)
             max_exp10_ulp = mp.mpf(0)
             checks = []
+            direct_checks = []
             for (mode, dbbits), line in zip(entries, results):
                 a, source_bits, x_bits, y_bits = line.split()
                 if a != mode or int(source_bits, 16) != dbbits:
@@ -156,6 +163,22 @@ def run():
                         target = float('inf') if (db > 0) != (mode == 'h') else 0.0
                         if y != target:
                             raise AssertionError('infinity handling mismatch')
+                    continue
+                if mode == 'x':
+                    if bits(x) != bits(db):
+                        raise AssertionError('direct CORE-MATH argument mismatch')
+                    exact_direct = mp.power(10, mp.mpf(x))
+                    expected_direct = float(exact_direct)
+                    if bits(y) != bits(expected_direct):
+                        raise AssertionError(f'direct CORE-MATH mismatch x={db.hex()} '
+                                             f'observed={y.hex()} '
+                                             f'expected={expected_direct.hex()}')
+                    direct_checks.append({'input_hex': db.hex(), 'observed_hex': y.hex(),
+                                          'reference_hex': expected_direct.hex(),
+                                          'kind': ('overflow' if math.isinf(y) else
+                                                   'underflow' if y == 0.0 else
+                                                   'subnormal' if y < 2.0 ** -1022 else
+                                                   'normal')})
                     continue
                 d = -db if mode == 'h' else db
                 expected_arg = d / 20.0
@@ -218,7 +241,10 @@ def run():
                 'architecture': platform.machine(),
                 'fenv_premises': 'FE_TONEAREST, FLT_EVAL_METHOD=0, FMA, gradual underflow; verified by linked probe',
                 'probe_uses_compiled_production_exp10_object': True,
-                'finite_normal_cases_verified': len(entries) - 6,
+                'finite_normal_cases_verified': len(entries) - 6 - len(direct_values),
+                'direct_coremath_finite_cases_verified': len(direct_checks),
+                'direct_coremath_nonfinite_cases_verified': 3,
+                'direct_coremath_representative_results': direct_checks,
                 'nonfinite_cases_verified': 6,
                 'factor_correctly_rounded_at_x_in_sample': True,
                 'max_exp10_output_error_ulp_sample': float(max_exp10_ulp),
@@ -238,7 +264,8 @@ def run():
     target = args.results / 'coremath-gain-reference.json'
     target.write_text(json.dumps(record, indent=2, sort_keys=True) + '\n')
     print(f'D6 CORE-MATH finite qualification PASS: {record["finite_normal_cases_verified"]} normal, '
-          f'6 nonfinite, unity sample-word identity; universal gates OPEN')
+          f'6 nonfinite, {record["direct_coremath_finite_cases_verified"]} direct exp10 '+
+          f'finite boundary cases, 3 direct nonfinite, unity sample-word identity; universal gates OPEN')
 
 
 if __name__ == '__main__':

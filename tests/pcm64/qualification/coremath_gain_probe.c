@@ -46,11 +46,11 @@ int main(void)
   while (scanf(" %c %" SCNx64, &mode, &raw) == 2) {
     double parsed, applied, x, factor;
     memcpy(&parsed, &raw, sizeof(parsed));
-    if (mode != 'g' && mode != 'h')
+    if (mode != 'g' && mode != 'h' && mode != 'x')
       return 3;
     applied = mode == 'h' ? -parsed : parsed;
-    x = applied / 20.0;
-    factor = dsd_coremath_gain_from_db(applied);
+    x = mode == 'x' ? parsed : applied / 20.0;
+    factor = mode == 'x' ? cr_exp10(parsed) : dsd_coremath_gain_from_db(applied);
     printf("%c %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n",
         mode, raw, bits(x), bits(factor));
   }
