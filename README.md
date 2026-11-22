@@ -27,12 +27,18 @@ remain unqualified. File and DoP authorization does not establish support
 on any particular player, DAC or transport device. See
 [the P21 authorization record](docs/dsd/amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md).
 
-The source-aware v2 mastering reconstruction is the default for DSD64,
-DSD128, DSD256, DSD512 and DSD1024. The earlier v1 filters are preserved and remain
-selectable. To ask for v1 explicitly:
+The default DSD-to-PCM decoder is the unified **mastering** profile;
+**wideband** is the only alternative. DSD64/128 retain the former v1
+mastering filters. At DSD256/512/1024, mastering uses the 1.1.2 FIR banks
+and clocks (352.8/352.8/705.6 kHz intermediate rates). Decoder IDs are
+unversioned, for example:
 
-    sox --decode decode.mastering.v1.dsd64 \
+    sox --decode decode.mastering.dsd64 \
       input.dsf -r 176400 -b 24 output.wav
+
+The *encoder* retains its versioned v3/v1/v2 identities and original
+modulators. At DSD256+, only its linear mastering front end changes to
+1.1.2; the v3 DSD64/128 certified front ends are unchanged.
 
 Loud PCM masters may exceed full scale *between* samples. **DSD64 and
 DSD128**, which use the mathematically certified switched-resonator modulators,

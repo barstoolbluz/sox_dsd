@@ -70,14 +70,17 @@ gain, compiler/ISA and stream-domain matrix. The actual resonator's frozen
 binary64 admission check still limits the values that reach its certified
 recurrence; this proof exercise does not relax that check. At 0 dB the
 existing 0.5 factor is exactly representable. For nonzero headroom or ordinary
-`gain`, an additional term for the `pow` or `exp` computation and exponent
-formation must be composed with the pre-resonator error bound.
+`gain`, an additional term for CORE-MATH `cr_exp10` argument formation,
+evaluation, and multiplication must be composed with the pre-resonator error
+bound, across the actual compiled routes.
 
 The harness rechecks all 41 original libm samples through **C `strtod` and
-the currently loaded `libm`**, not Python parsing alone. It reports the
-actual glibc, compiler, architecture, shared-library name and witness-process
-rounding mode. A matching 41-case result establishes runtime continuity,
-**not a maximum libm error over all admitted dB arguments**. The glibc
+the currently loaded `libm`**, not Python parsing alone. This is a
+**historical comparison for the superseded gain/headroom operators**, not
+the deployed D6 calculation, which now uses CORE-MATH `cr_exp10`. It records
+glibc, compiler, architecture, linked library and rounding mode. A matching
+41-case result establishes historical witness continuity, **not a maximum
+libm error over all admitted dB arguments**, and not a CORE-MATH bound. The glibc
 manual explicitly describes `pow`/`exp` accuracy as goals, not guaranteed
 correct rounding; its test-suite error cutoff is not a mathematical
 maximum. See [glibc, Errors in Math Functions](https://sourceware.org/glibc/manual/latest/html_node/Errors-in-Math-Functions.html).
@@ -109,14 +112,15 @@ new qualification record, not silent reuse of this receipt.
 
 **D11(a) is still the governing requirement.** This implementation cannot
 prove universal FFT4G and libm bounds merely by adding more test inputs.
-Completing source-to-binary FFT4G/`pow`/`exp` proofs would require a separate,
-substantial numerical-analysis or vendor-guarantee effort, and could still
-leave architecture-specific exceptions. No algorithm change is warranted
+Completing source-to-binary FFT4G and deployed CORE-MATH `cr_exp10`
+argument/operation bounds would require a separate, substantial numerical-
+analysis or compilation-verification effort, and could still leave
+architecture-specific exceptions. No algorithm change is warranted
 without a demonstrated numerical defect.
 
 Choose one explicit disposition, in a separately signed owner record:
 
-1. **Defer** the universal FFT4G and D6 libm guarantee while keeping finite
+1. **Defer** the universal FFT4G and D6 CORE-MATH guarantee while keeping finite
    gates active and D11/D6 **OPEN**. The delivered computations remain
    engineering evidence only. This is the least disruptive choice.
 2. **Amend D11** to name a narrower set of build targets, input classes,
@@ -124,10 +128,13 @@ Choose one explicit disposition, in a separately signed owner record:
    signed D11(a) requirement; the qualification tool must be updated to
    enforce the amended domain before claiming a bound.
 3. **Commission the missing proof** with independently reviewed FFT4G,
-   platform-libm and compiler/ISA guarantees, plus new cross-target
+   CORE-MATH and compiler/ISA guarantees, plus new cross-target
    qualification. This is separate scope and is not implied by the finite
    pass results.
 
-**No choice has been made on the owner's behalf.** D16 reference adoption,
-D4 cross-ISA qualification and release authorization are independent open
-gates and are unchanged.
+**Owner AM3 has selected option 1: defer the universal D11/D6 proof, with
+finite gates active and D11/D6 OPEN.** This document originally solicited a
+disposition; its alternatives are retained for historical context. AM3 does
+not amend the numerical requirement, grant a universal bound, or authorize
+release. D16 reference adoption and D4 cross-ISA qualification remain
+independent open gates.

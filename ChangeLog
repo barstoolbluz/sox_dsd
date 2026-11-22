@@ -1,6 +1,21 @@
 Change History
 --------------
 
+SoX DSD Phase 08, return 1 (2026-11-22; unreleased)
+-------------------------------------------------
+
+  o Adopt the main 1.1.2 DSD256/512/1024 mastering FIRs, intermediate
+    clocks and encoder front-end rows. DSD64/128 and existing modulators
+    retain their approved DSP behavior.
+  o Route every fixed DSD headroom factor, --plan headroom value and
+    ordinary gain effect through private CORE-MATH cr_exp10.
+  o At correctly rounded integer gain factors, such as +20 dB or +40 dB,
+    SoX can retain input precision and omit the automatic dither previously
+    inserted for nearby noninteger factors. This minor output-byte change
+    is intentional; explicit dither requests continue to be honored.
+  o Retire the obsolete v2 decoder release target and preserve its accepted
+    reconstruction words as historical-only qualification references.
+
 This file contains a list of all changes starting after the release of
 sox-11gamma.
 

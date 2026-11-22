@@ -1539,7 +1539,13 @@ reconstructed PCM graph-boundary excursions and interpolated PCM-to-DSD
 modulator input overshoots.  On the native binary64 FLOAT32/FLOAT64
 output route, finite values above unity remain unclipped in warn mode;
 excursions (x >= 1 or x < -1) are counted and a single warning is
-emitted, with or without a report.  Error mode refuses these excursions
+emitted, with or without a report.  The decoder report's historical
+.B graph_clips
+field counts these reconstructed graph-boundary excursions; it does
+.B not
+mean output-writer saturation.  In particular, the FLOAT32/FLOAT64
+warn path retains finite out-of-range samples rather than clipping them.
+Error mode refuses these excursions
 for floating and integer destinations alike, including without a
 report.  No samples from the failed processing block are published.
 A pipe may already contain earlier completed blocks; a failed regular

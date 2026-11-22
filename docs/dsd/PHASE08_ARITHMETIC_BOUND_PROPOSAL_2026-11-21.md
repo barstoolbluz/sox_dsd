@@ -4,9 +4,10 @@
 [decisions D1-D16](amendments/PHASE08_OWNER_DECISIONS_2026-11-20.md)
 control acceptance. R08-D01 has additional independent *finite* tests of the
 actual DSD64/128 encoder front end and decoder final SRC. The universal
-same-operator P2/P3 bounds and D6's platform `pow` premise **remain OPEN**.
-No implementation arithmetic, certified resonator, or frozen reference was
-changed for this corrective. A finite screen is not a theorem about all
+same-operator P2/P3 bounds and D6's CORE-MATH argument and source-to-binary
+premises **remain OPEN**. This original corrective did not change the
+certified resonator or frozen references; owner AM1 and AM2 subsequently
+changed the high-rate filters and D6 gain/headroom call-site routing. A finite screen is not a theorem about all
 accepted streams.
 
 ## Domain and source-to-binary premises
@@ -161,30 +162,34 @@ includes WAV/FLAC decode rounding, the full stream/block/ISA domain, and
 composing an accepted frontend bound with that certified input contract.
 **Universal P2 remains OPEN.**
 
-## D6: dB argument, headroom `pow`, and ordinary gain `exp`
+## D6: CORE-MATH across all gain and headroom sites
 
-The headroom route actually calls `pow(10., -d/20.)` (`src/pcmdsd.c` and
-`src/sox_ng.c`). The ordinary `gain` effect uses
-`dB_to_linear(d) = exp((d*M_LN10)*0.05)` (`src/gain.c`, `src/util.h`),
-so a `pow`-only argument does **not** cover every admitted gain route.
-For each operator the proposed propagation is
+The deployed D6 factor now comes from `dsd_coremath_gain_from_db` backed by
+`cr_exp10` in the ordinary `gain` effect, `src/pcmdsd.c` default encoder,
+`src/sox_ng.c` 64-bit encoder and transcode, and `src/dsd_plan.c` plan. The
+headroom sign convention differs from positive gain, but all five use the
+same correctly-rounded decimal-exponential implementation. The source-site
+gate checks each routing location independently and rejects six mutations.
+For each numerical composition the proposed error accounting has the form
 
 ```text
-|delta(y)| <= |g|*B_input + |x|*B_libm + u*|x*g| + B_subnormal
+|delta(y)| <= |g|*B_input + |x|*B_cr_exp10 + u*|x*g| + B_subnormal
 ```
 
 conditional on no nonfinite intermediate and on independently bounded
-argument parsing, exponent arithmetic and multiplication. At 0 dB the
-existing identity choices must be preserved, with an exactly representable
-factor 1; `--dsd-level sacd` multiplies by 2 exactly until overflow.
-`gain_libm_reference.py` calls this runtime's actual `libm pow/exp`, uses
-120-decimal-digit references of the **exact binary64 argument**, and
-reports 41 finite tests with observed error measured in ulps. All pass
-an explicitly **sample-only 2-ulp screen**. This is not a documented bound
-on `strtod`, every permitted argument, libc's `pow`/`exp` implementations,
-compiler contraction or rounding-mode variants. The D6 numerical premise
-**remains OPEN** pending a supported target-specific maximum and owner
-adoption. It is not valid to assume correct libm rounding from finite data.
+parsing, `d/20` formation, CORE-MATH's argument rounding and output,
+compiler arithmetic, and the final multiplication. The 0 dB factor is
+exactly 1 and `--dsd-level sacd` multiplies by 2 exactly until overflow.
+A finite numeric oracle checks the implemented CORE-MATH route, including
+zero and integer gain cases, but does not prove a universal bound for every
+accepted input and compilation target. D6 and D11 universal proofs remain
+OPEN under signed owner AM3.
+
+`gain_libm_reference.py` still measures 41 historical runtime `pow` and
+`exp` results against 120-digit references for the prior implementation.
+This is a **historical comparator**, not the current D6 factor or proof.
+Its 2-ulp sample screen cannot bound either libm on every argument, or the
+now-deployed CORE-MATH source-to-binary operation.
 
 ## Qualification gates and stopping rule
 
@@ -193,7 +198,8 @@ adoption. It is not valid to assume correct libm rounding from finite data.
 | D11 P3 native FIR | 64 independent full-convolution cases | FINITE PASS; universal OPEN |
 | D11 P3 96 kHz final SRC | 32 source-bound, high-precision cases; 2 tail mutants | FINITE PASS; universal OPEN |
 | D11 P2 encoder front end | 8 SRC/FIR + 8 native-SRC + 2 gain cases; source pins; 4 mutants | FINITE PASS; universal OPEN |
-| D6 libm | 41 runtime `pow` and `exp` sample cases | FINITE PASS; supported worst-case bound OPEN |
+| D6 CORE-MATH | Five deployed call sites, six negative mutations, finite CORE-MATH numeric oracle | FINITE PASS; universal bound OPEN (AM3) |
+| D6 libm (historical) | 41 runtime `pow` and `exp` sample cases from the prior route | FINITE HISTORICAL COMPARISON |
 | D9/D10 adapters | Exact +/-1, neighbors, NaN/Inf, parity/gain/level/output checks | PASS for supported Linux test target |
 | D13 predecessor | Immutable source/fixture digests and mutation rejection | PASS, do not regenerate |
 | D16 unified accepted words | 19 historical **v2-only** receipts preserved | OPEN, owner selection/approval |
@@ -218,10 +224,9 @@ receipts against those computed candidate envelopes.
 
 **Still unresolved:** the published `512*log2(N)` FFT4G multiplier is a
 finite-screen assumption, not a derived bound on actual butterflies,
-trigonometric tables or coefficient preparation. The glibc `pow`/`exp`
-error goals cannot serve as a guaranteed maximum over all inputs. Therefore
-no end-to-end universal P2/P3/D6 number is adopted or certified. The
-new nine-group Phase 08 gate reports the additional conditional arithmetic
-accounting explicitly and leaves owner D11/D6 sign-off OPEN. See the owner
-review for narrowly scoped deferral/amendment options; the existing signed
-decisions remain untouched.
+trigonometric tables or coefficient preparation. A universal CORE-MATH
+factor/argument bound and source-to-binary proof have also not been adopted.
+Consequently no end-to-end universal P2/P3/D6 number is certified. The
+Phase 08 gate reports conditional arithmetic and separately the five D6
+CORE-MATH route bindings, leaving owner D11/D6 sign-off OPEN under AM3.
+The signed original owner decisions remain unchanged.

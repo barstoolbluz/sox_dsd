@@ -31,12 +31,13 @@ implementation, not a proposed interface.
    case, map to existing qualified DSD clocks. They are allowed only as
    output rates for DSF/DSDIFF. Existing integer and `k`-suffix clocks
    retain their original semantics.
-5. **Unify mastering defaults.** Omitting `--decode` and selecting
-   `--decode mastering` both select the qualified mastering-v2 bank for
-   the actual native input clock. `--decode conservative` selects the
-   older v1 bank. Explicit versioned IDs preserve reproducibility.
-   The encoder selects the existing qualified mastering-v1 low-rate
-   or mastering-v2 high-rate modulator.
+5. **Unify mastering defaults (Phase 08 / AM1).** Omitting `--decode`
+   and selecting `--decode mastering` choose the same unversioned decoder;
+   `wideband` is the only other decoder profile. The historical versioned
+   decoder/conservative selectors have been retired. DSD64/128 keep the
+   former v1 FIRs; DSD256+ use the 1.1.2 mastering front ends. Encoder
+   IDs remain versioned: certified v3 at DSD64/128, v1 at DSD256 and
+   v2 at DSD512/1024, with unchanged modulators.
 6. **Reuse DoP.** `--dop` appends the existing terminal `dop` effect.
    The planner validates input type, exact carrier clock, signed 24-bit
    lossless output, and effect ordering. DoP is not PCM reconstruction.

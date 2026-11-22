@@ -236,7 +236,9 @@ are not selected on this binary64 line; 2.0.0 has not been released. A mismatche
 Unsupported or unqualified legacy composite profiles do not acquire
 qualification through these selectors. Only interpolated samples above the warning ceiling are clipped;
 nonfinite samples and modulator-state guard failures still stop the
-conversion. That ceiling is below the strict 0.5 envelope. Use
+conversion. The warning ceiling is 0.5 at certified DSD64/128, equal to
+the nominal strict-input threshold; the DSD256/512/1024 warning ceiling
+is 0.45, below that threshold. Use
 `--dsd-clip error` to turn input-level overshoots into fatal errors, or
 `--headroom` / `--auto-headroom` to avoid clipping without modifying the
 mastering profile. See [Loud PCM masters](#loud-pcm-masters-clipping-and-headroom).

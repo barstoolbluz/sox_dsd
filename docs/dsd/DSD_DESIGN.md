@@ -1,6 +1,6 @@
 # sox_ng DSD engine: implementation specification and refactoring contract
 
-> **Phase 08 binary64 amendment, 2026-11-21:** This historical design is
+> **Phase 08 binary64 and AM1 amendment, 2026-11-22:** This historical design is
 > subordinate on disputed points to
 > [the signed owner decisions](amendments/PHASE08_OWNER_DECISIONS_2026-11-20.md),
 > as explained in [the Phase 08 status](PHASE08_IMPLEMENTATION_STATUS_2026-11-21.md).
@@ -10,7 +10,10 @@
 > preserves finite over-unity samples in warn mode and refuses them in error
 > mode, irrespective of reports. Text below describing v2 as the default,
 > conservative/legacy decoders, and float graph-boundary clipping is archived
-> history and is superseded. D4 distinguishes required transfer tests,
+> history and is superseded. AM1 adopts the 1.1.2 mastering FIRs and
+> intermediate clocks at DSD256/512/1024, on both linear DSP sides;
+> the certified DSD64/128 front ends and all modulators are unchanged.
+> D4 distinguishes required transfer tests,
 > analysis-v1 cross-ISA quality gates, and *report-first* spur targets.
 
 
@@ -335,7 +338,7 @@ The following names are the specified interface. Add them to CLI help/manpages t
 
 ```text
 --dsd-mode auto|native|legacy
---dsd-decode conservative|mastering|wideband|legacy|decode.mastering.v2.dsd64|128|256
+--dsd-decode mastering|wideband|decode.mastering.dsd64|128|256|512|1024
 --dsd-encode mastering|legacy|experimental
 --dsd-level preserve|sacd
 --dsd-clip warn|error
@@ -344,14 +347,14 @@ The following names are the specified interface. Add them to CLI help/manpages t
 --dsd-layout-loss error|warn
 --dsd-report PATH
 
-dsdpcm [-p conservative|mastering|wideband|legacy|decode.mastering.v2.dsd64|128|256] [-l preserve|sacd] [rate]
+dsdpcm [-p mastering|wideband|decode.mastering.dsd64|128|256|512|1024] [-l preserve|sacd] [rate]
 pcmdsd [-p mastering|legacy|experimental] [--reference auto|pcm|dsd] rate
 dsdstat
 ```
 
 `auto` is the new release domain policy. `native` rejects any requested operation requiring PCM rather than secretly converting. `legacy` restores the old automatic domain ordering/interpolation/selection policy where applicable, but **does not restore format corruption, seek bugs or layout falsification**. Warn that generic effects may act on native DSD pulses in legacy mode. `--dsd-decode legacy` alone selects direct generic reconstruction without restoring unsafe graph ordering; distinguish these two controls in help.
 
-The intended qualified release's defaults are `auto`, **v2** mastering decode, **v1** mastering encode, preserve level, clip warn, bandwidth adapt and layout-loss error. **P15-R3 is a candidate only**: while the P15 first-release gate is blocked, the shipped `mastering` alias and automatic/default decoder choice remain v1; explicit `decode.mastering.v2.dsd*` IDs permit qualification without promotion. `conservative` selects v1 mastering for the matching native rate; `wideband` remains v1; `legacy` remains a separate algorithm. Exact versioned IDs survive future alias migration. Before P15 closes, new domain processing remains opt-in while default migration tests run. Explicit `sdm -f ...` and trellis options remain available as low-level/experimental controls, not synonyms for a qualified mastering profile. Versioned IDs such as `decode.mastering.v1.dsd128` and `encode.mastering.v1.dsd128` are accepted for reproducible selection and emitted in reports; human aliases resolve to those IDs for a release.
+**Current Phase 08 implementation (D7/AM1).** The DSD decoder default is unified `mastering`; its canonical decoder IDs are `decode.mastering.dsdNNN`, with `decode.wideband.dsdNNN` as the sole alternative. `conservative`, `legacy` and versioned decoder selectors are retired. The former v1 mastering FIRs remain at DSD64/128; the 1.1.2 mastering FIRs and clocks apply at DSD256/512/1024. Encoder IDs remain versioned (`encode.mastering.v3.dsd64/128`, `encode.mastering.v1.dsd256`, `encode.mastering.v2.dsd512/1024`), and their existing modulators remain unchanged. Processing defaults retain preserve level, clip warn, bandwidth adapt and layout-loss error. This is an implementation description, not a claim of all-input numerical certification or release authorization. The old pre-D7 promotion text in this section is superseded by the signed owner decisions and amendment.
 
 A terminal DoP request with no explicit output rate chooses native Hz / 16 and a lossless 24-significant-bit transport representation; it does not inherit the native MHz rate as PCM transport.
 
@@ -842,7 +845,7 @@ DoP has hand-derived 1..33-frame vectors, marker continuity across buffers/chann
 
 ## 10.4 DSD-to-PCM numerical matrix
 
-The historical v1 release instrument covers 3 native rates x 9 PCM rates x 2 profiles (v1 mastering and v1 wideband), including 352.8 and 705.6 kHz explicitly. A **v2-promoting release** requires a new 3 x 9 v2 rate matrix plus channel/ISA and full composite SRC/alias coverage; earlier 54-cell records cannot certify new coefficients. Run scalar on every cell; run all available ISA tiers on a representative full grid in qualification and a selected smoke matrix in ordinary CI. Channels 1, 2 and 6 cover throughput/channel isolation; 5 channels cover awkward buffering. Test additional channel counts through format-supported limits with small vectors to exercise indexing, without pretending those counts received the same hardware benchmarks.
+The historical v1 release instrument covers 3 native rates x 9 PCM rates x 2 profiles (v1 mastering and v1 wideband), including 352.8 and 705.6 kHz explicitly. **Current Phase 08/AM1 qualification** covers the unversioned mastering decoder (v1 FIRs at DSD64/128, 1.1.2 FIRs at DSD256+) and wideband separately. The retired v2 reconstruction fixtures do not qualify the unified decoder; D16 independent accepted references remain OPEN. The Phase 08 240-case comparison with main 1.1.2 is finite regression evidence, not a universal proof. Earlier 54-cell historical records cannot certify changed coefficients. Run scalar on every cell; run all available ISA tiers on a representative full grid in qualification and a selected smoke matrix in ordinary CI. Channels 1, 2 and 6 cover throughput/channel isolation; 5 channels cover awkward buffering. Test additional channel counts through format-supported limits with small vectors to exercise indexing, without pretending those counts received the same hardware benchmarks.
 
 Required tests: unity DC/normalization; impulse and delayed impulses; high-precision finite convolution; tone sweeps through pass/transition/stop regions; all alias-image families; output count and fractional-rate ratios; zero/tiny streams; startup/drain; channel isolation; level gain; clipping; buffer invariance; and count/phase invariance under threading. Use internal linear-kernel stimuli for transfer-function tests and independent one-bit streams for full API tests. Do not pass a floating sine to an alleged one-bit converter and call it a DSD end-to-end test.
 
