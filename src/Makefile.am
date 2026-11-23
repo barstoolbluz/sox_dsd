@@ -191,9 +191,9 @@ $(RESONATOR_KERNEL_OBJECTS): override CFLAGS += $(PCM_F64_STRICT_CFLAGS) -O3
 src_pcm_f64_object = libsox_ng_la-pcm_f64.lo
 $(src_pcm_f64_object) libsox_ng_la-dsd_f64.lo: override CFLAGS += $(PCM_F64_STRICT_CFLAGS)
 # CORE-MATH relies on strict binary64 evaluation for the routine itself and
-# for argument construction at its only two call sites. Setup-time only.
-coremath_gain_objects = coremath/libsox_ng_la-exp10.lo libsox_ng_la-gain.lo libsox_ng_la-pcmdsd.lo
-$(coremath_gain_objects): override CFLAGS += $(PCM_F64_STRICT_CFLAGS)
+# for argument construction at all five D6 call sites. Setup-time only.
+coremath_gain_objects = coremath/libsox_ng_la-exp10.lo libsox_ng_la-gain.lo libsox_ng_la-pcmdsd.lo libsox_ng_la-dsd_plan.lo
+$(coremath_gain_objects) sox-sox_ng.o sox-coremath-exp10.o: override CFLAGS += $(PCM_F64_STRICT_CFLAGS)
 
 if NATIVE_F64
 # Catch unsafe flags passed to make *after* configure (configuring safely is

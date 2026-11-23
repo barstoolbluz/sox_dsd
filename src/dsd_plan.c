@@ -950,7 +950,10 @@ void lsx_dsd_plan_json(FILE *fp, lsx_dsd_plan_spec const *spec, lsx_dsd_plan con
     if (enc && !strcmp(enc->id,p->encoder_id)) {
       fprintf(fp,", \"qualified\": %s, \"working_hz\": %u, \"prefilter_design_hz\": %u, \"pass_hz\": %.9g, \"stop_hz\": %.9g, \"certificate_sha256\": ",
           enc->qualified?"true":"false",enc->working_hz,enc->working_hz,enc->pass_hz,enc->stop_hz);
-      json_string(fp,enc->certificate_sha256);
+      if (enc->certificate_sha256) json_string(fp,enc->certificate_sha256);
+      else fputs("null",fp);
+      if (enc->native_hz>=11289600)
+        fputs(", \"front_end_stability\": \"not yet retested with 1.1.2 front end\"",fp);
     }
   }
   fputs("},\n",fp);

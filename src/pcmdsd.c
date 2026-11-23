@@ -45,10 +45,10 @@ double lsx_pcmdsd_default_warn_gain(uint32_t native_hz)
 {
   return lsx_pcmdsd_warn_clip_ceiling(native_hz)/.5;
 }
-/* qualified=1 as of 2026-10-20: the design authority recorded its P15
- * engineering acceptance on 2026-10-19 and withdrew the outstanding
- * formal-proof obligation as a release blocker. Coefficients, guards and
- * certificate digests are unchanged. */
+/* P15 engineering acceptance (2026-10-19) applies to the former front end.
+ * DSD64/128 retain those certified coefficients and their qualification.
+ * DSD256 now uses the 1.1.2 FIR; its old-front-end stability evidence
+ * does not qualify that combination, which has not yet been retested. */
 static const lsx_pcmdsd_profile profiles[] = {
   /* 2.0.0: DSD64 and DSD128 encode with the certified switched-resonator
    * modulators in resonator/, replacing the v1 sdm-8 recurrence outright.
@@ -69,7 +69,9 @@ static const lsx_pcmdsd_profile profiles[] = {
   /* P21, 2026-10-23: the operator declared the high-rate evidence satisfied
    * and authorized both clocks. The qualified profile at each is the v2
    * CLANS-7 recurrence, which passed training 17/17, verify 17, holdout
-   * 36/36, cross-ISA and an uninterrupted 3,600-second nominal soak.
+   * 36/36, cross-ISA and an uninterrupted 3,600-second nominal soak
+   * with the OLD front end. Stability with the 1.1.2 FIR front end is
+   * NOT YET RETESTED; the qualified flag stays for encoder availability.
    *
    * v2 is ordered FIRST at each clock deliberately: lsx_pcmdsd_profile_find()
    * returns the first row matching a rate, so this is what binds the rate and

@@ -975,13 +975,13 @@ PHASE08_RESULTS ?= $(abs_top_builddir)/.phase08-check-results
 check-phase08: all
 	$(MAKE) -C test pcm64_cascade_probe dsd_test_p15_src_stage_export dsd_test_p07_reference
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/immutable_reference_guard.py' --results '$(PHASE08_RESULTS)/reference-lock'
+	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d6_route_bindings.py' --results '$(PHASE08_RESULTS)/d6-routes'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/unified_reference.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/unified-decoder'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/float_boundary.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/float-boundary'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/reference_cascade.py' --source '$(abs_top_srcdir)' --exporter '$(abs_top_builddir)/test/dsd_test_p15_src_stage_export' --src-probe '$(abs_top_builddir)/test/dsd_test_p07_reference' --cascade-probe '$(abs_top_builddir)/test/pcm64_cascade_probe' --results '$(PHASE08_RESULTS)/p2-encoder-frontend'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/final_src_reference.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --exporter '$(abs_top_builddir)/test/dsd_test_p15_src_stage_export' --results '$(PHASE08_RESULTS)/p3-final-src'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/gain_libm_reference.py' --results '$(PHASE08_RESULTS)/d6-libm'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/coremath_gain_reference.py' --source '$(abs_top_srcdir)' --build '$(abs_top_builddir)' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --cc '$(CC)' --results '$(PHASE08_RESULTS)/d6-coremath'
-	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d6_route_bindings.py' --results '$(PHASE08_RESULTS)/d6-routes'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/gain_dither_policy.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)/am4-gain-dither'
 	python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d11_bound_accounting.py' --self-test --results '$(PHASE08_RESULTS)'
 	OPENBLAS_NUM_THREADS=1 python3 '$(abs_top_srcdir)/tests/pcm64/qualification/d11_bound_accounting.py' --sox '$(abs_top_builddir)/src/sox$(EXEEXT)' --results '$(PHASE08_RESULTS)'

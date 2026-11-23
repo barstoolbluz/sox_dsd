@@ -254,7 +254,7 @@ static char *dsd_layout_assignment = NULL;
 static sox_bool dsd_layout_loss_warn = sox_false;
 static lsx_dsd_policy dsd_policy = {
   .mode=LSX_DSD_MODE_AUTO,
-  /* D7: the unified mastering decoder is the former v1 coefficient bank. */
+  /* D7/AM1: DSD64/128 retain v1 FIRs; DSD256+ use 1.1.2 mastering. */
   .decode=LSX_DSD_PROFILE_MASTERING,
   .encode=LSX_DSD_ENCODE_MASTERING,
   .level=LSX_DSD_LEVEL_PRESERVE,
@@ -3963,6 +3963,20 @@ static int dsd_report_publish(char const *status)
     lsx_fail("cannot open --report destination: %s",strerror(errno));
     ok=SOX_EOF;
   } else {
+    /* AM5: the high-rate encoders remain available, but old-front-end
+     * stability data do not qualify the 1.1.2 front end. The report warning
+     * is a factual evidence status, not an encoder failure or DSP mutation.
+     * Keep the D13-pinned reporter/source files unchanged. */
+    {
+      const lsx_dsd_plan *rp=dsd_runtime_active?&dsd_runtime_plan:
+          dsd_report_plan.output_channels?&dsd_report_plan:NULL;
+      if (rp && rp->encoder_id && rp->native_output_hz>=11289600 &&
+          (!strcmp(rp->encoder_id,"encode.mastering.v1.dsd256") ||
+           !strcmp(rp->encoder_id,"encode.mastering.v2.dsd512") ||
+           !strcmp(rp->encoder_id,"encode.mastering.v2.dsd1024")))
+        lsx_warn("encoder %s: stability not yet retested with the 1.1.2 front end",
+            rp->encoder_id);
+    }
 #ifndef _WIN32
     /* Early option errors publish before the ordinary post-input-open
      * SIGPIPE policy takes effect. Suppress a disconnected report reader
@@ -5726,7 +5740,7 @@ static void display_dsd_help(void)
        "  sox --precision 64 input.dsf output.wav  Require native64 (PCM identity/gain in Phase 05A; DSD in 05B)\n"
        "  sox --report run.json input.dsf output.wav  Convert and report\n"
        "\n"
-       "Automatic decoding uses the unified mastering (former v1) filters. Advanced\n"
+       "Automatic decoding uses unified mastering filters (1.1.2 at DSD256+). Advanced\n"
        "controls: --decode PROFILE, --encode PROFILE, --dsd-bandwidth adapt|strict,\n"
        "--dsd-level preserve|sacd, --dsd-clip warn|error, --dsd-mode auto|native.\n"
        "Use --help-effect dsdpcm or pcmdsd for explicit effects.\n"
