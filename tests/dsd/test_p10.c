@@ -46,8 +46,8 @@ static void envelope(void)
     CHECK(d && d->native_hz==rates[i] && d->qualified);
     /* 2.0.0: DSD64/128 are the certified resonators, with no SDM guard. */
     CHECK(d->resonator==(i<2) && (d->resonator?!d->bounds:d->bounds!=NULL));
-    CHECK(d->working_hz==(i?176400:88200));
-    CHECK(d->pass_hz==(i==0?20000:i==1?30000:40000));
+    CHECK(d->working_hz==(i==0?88200u:i==1?176400u:352800u));
+    CHECK(d->pass_hz==(i==0?20000u:i==1?30000u:60000u));
     p=(void *)1;
     CHECK(lsx_pcmdsd_create(48000,rates[i],.5,0,&p)==SOX_DSD_OK && p);
     lsx_pcmdsd_destroy(p);p=NULL;
@@ -71,7 +71,7 @@ static void envelope(void)
     const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(22579200,old_id);
     const sdm_profile_t *old_control=sdm_profile_find(old_id,22579200);
     CHECK(lsx_pcmdsd_profile_find(22579200)==v2);
-    CHECK(v2 && v2->qualified && v2->certificate_sha256 && v2->bounds);
+    CHECK(v2 && v2->qualified && !v2->certificate_sha256 && v2->bounds);
     CHECK(v1 && !v1->qualified && !v1->certificate_sha256 && old_control);
     CHECK(ctl && sdm_profile_rate(ctl)==22579200);
     CHECK(!sdm_profile_coefficients(ctl,&a,&g,&order) && order==7);
@@ -96,7 +96,7 @@ static void envelope(void)
     const lsx_pcmdsd_profile *v1=lsx_pcmdsd_profile_find_id(45158400,old_id);
     const sdm_profile_t *old_control=sdm_profile_find(old_id,45158400);
     CHECK(lsx_pcmdsd_profile_find(45158400)==v2);
-    CHECK(v2 && v2->qualified && v2->certificate_sha256 && v2->bounds);
+    CHECK(v2 && v2->qualified && !v2->certificate_sha256 && v2->bounds);
     CHECK(v1 && !v1->qualified && !v1->certificate_sha256 && old_control);
     CHECK(control && sdm_profile_rate(control)==45158400);
     CHECK(!sdm_profile_coefficients(control,&a,&g,&order) && order==7);

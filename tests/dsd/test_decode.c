@@ -152,11 +152,11 @@ static void test_invalid(void)
     lsx_dsd_reconstruction_destroy(ctx);
   }
   ctx=NULL;
-  /* The v1 high-rate decode profile remains accessible after P21 enablement. */
+  /* 1.1.2 high-rate mastering remains available with its new cascade. */
   CHECK(lsx_dsd_reconstruction_create(45158400,LSX_DSD_PROFILE_MASTERING,1,&ctx)==SOX_DSD_OK);
   {lsx_dsd_reconstruction_info info;
    CHECK(lsx_dsd_reconstruction_info_get(ctx,&info)==SOX_DSD_OK);
-   CHECK(info.stages==8 && info.factor==256);
+   CHECK(info.stages==6 && info.factor==64);
   }
   lsx_dsd_reconstruction_destroy(ctx);ctx=NULL;
   /* Phase 08 rejects both retired enum values as unsupported profiles. */

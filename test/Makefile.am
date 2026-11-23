@@ -149,7 +149,7 @@ dsd_test_p11_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_L
 # Explicit, uninstalled qualification CLI, supported on GNU-linker hosts.
 # Never substitutes for the production binary or its fail-closed certificate.
 EXTRA_PROGRAMS += sox_p10_candidate
-sox_p10_candidate_SOURCES = ../src/sox_ng.c ../tests/dsd/p10_candidate_cli.c
+sox_p10_candidate_SOURCES = ../src/sox_ng.c ../src/coremath/exp10.c ../tests/dsd/p10_candidate_cli.c
 sox_p10_candidate_CPPFLAGS = -I$(top_srcdir)/src
 sox_p10_candidate_LDFLAGS = -Wl,--wrap=lsx_pcmdsd_qualified -Wl,--wrap=lsx_pcmdsd_start
 sox_p10_candidate_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)
@@ -176,7 +176,7 @@ dsd_test_p14_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_L
 # objects are not instrumented; gprof -Q reads samples without call counts.
 # Requires a GNU-compatible profiling toolchain. Not part of the release build.
 EXTRA_PROGRAMS += sox_dsd_profile
-sox_dsd_profile_SOURCES = ../src/sox_ng.c
+sox_dsd_profile_SOURCES = ../src/sox_ng.c ../src/coremath/exp10.c
 sox_dsd_profile_CPPFLAGS = -I$(top_srcdir)/src
 sox_dsd_profile_LDFLAGS = -pg
 sox_dsd_profile_LDADD = $(top_builddir)/src/libsox_ng.la $(PCM64_STATIC_FLAC_TEST_LIBS)

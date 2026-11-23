@@ -16,10 +16,13 @@ import subprocess
 import sys
 import time
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent/'support'))
+
 try:
     import mpmath as mp
     import numpy as np
     from certify_filters import load_coefficients
+    from current_mastering_112 import active_p06_master256
 except ImportError as error:
     print(f"UNRUN required P06/P07 numerical oracle (missing {error.name})", file=sys.stderr)
     raise SystemExit(2) from None
@@ -72,6 +75,7 @@ def main():
     (args.results/'vectors.jsonl').write_text(vector.stdout)
     manifest=json.loads((ROOT/'tests/dsd/reference/p06_coefficients.json').read_text())
     banks=load_coefficients()
+    manifest,banks=active_p06_master256(manifest,banks)
     eq_cache={}
     bound_cache={}
     for prof,meta in manifest['profiles'].items():

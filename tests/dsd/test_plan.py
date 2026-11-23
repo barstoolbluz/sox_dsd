@@ -167,12 +167,22 @@ def main() -> int:
         run('pcm_unchanged_opt_in',['--dsd-mode','auto',w88,'@OUT@'],plan=False)
         run('pcm_only_plan',[w88,'@OUT@'],inspect=expect(
             executable=True,output__domain='PCM_AUDIO',graph_decoder_count=0))
+        # AM5 retains encoder availability without treating P15/P21 stability
+        # evidence obtained with the former FIR front end as current proof.
+        for rate, profile in ((11289600, 'encode.mastering.v1.dsd256'),
+                              (22579200, 'encode.mastering.v2.dsd512'),
+                              (45158400, 'encode.mastering.v2.dsd1024')):
+            run(f'am5_encoder_evidence_{rate}', [w88, '-r', str(rate), '@OUT@'],
+                inspect=expect(encoder__id=profile, encoder__qualified=True,
+                    encoder__certificate_sha256=None,
+                    encoder__front_end_stability='not yet retested with 1.1.2 front end'),
+                suffix='.dsf')
 
         # Phase 08 unifies mastering on the former v1 bank; profile IDs are unversioned.
         # P08 activates the existing binary64 decoder for planned graph boundaries.
         for name,src,expected,clock in (('master64',ds,88200,64),
                                         ('master128',ds128,176400,128),
-                                        ('master256',ds256,176400,256)):
+                                        ('master256',ds256,352800,256)):
             run(name,[src,'@OUT@'],inspect=expect(executable=True,needs_unimplemented_dsp=False,
                 decoder__intermediate_hz=expected,
                 decoder__id=f'decode.mastering.dsd{clock}',

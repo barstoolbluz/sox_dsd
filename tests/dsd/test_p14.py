@@ -350,9 +350,9 @@ def main():
         case('pcm_source_encoding_clock_and_container',pcm_source_representation)
 
         def decoder_latency_breakdown():
-            for native_rate,output_rate,delay in ((fixtures.DSD64,88200,1636),
-                                                 (fixtures.DSD64,44100,1636),
-                                                 (fixtures.DSD64*2,176400,3428)):
+            for native_rate,output_rate,delay in ((fixtures.DSD64,88200,1348),
+                                                 (fixtures.DSD64,44100,1348),
+                                                 (fixtures.DSD64*2,176400,1636)):
                 name=f'lat-{native_rate}-{output_rate}'
                 inp=d/(name+'.dsf')
                 inp.write_bytes(fixtures.make_dsf(
@@ -392,7 +392,7 @@ def main():
                 require(cp2.returncode==0,cp2.stderr[-700:])
                 require(dest.read_bytes()==unreported.read_bytes(),
                         f'report changed decoder payload {name}')
-            return dict(master64_delay=1636,master128_delay=3428,
+            return dict(master64_delay=1348,master128_delay=1636,
                         bypass_src_zero=True,active_src_unknown_explained=True,
                         audio_bit_identical=True)
         case('decoder_latency_components_and_byte_identity',decoder_latency_breakdown)
@@ -447,7 +447,11 @@ def main():
             require(facts['sdm_kernel_actual']=='scalar',
                     f'forced scalar SDM misreported: {facts["sdm_kernel_actual"]}')
             require(facts['profile_id']=='encode.mastering.v1.dsd256','wrong encoder ID')
-            require(len(facts['coefficient_certificate_sha256'])==64,'missing certificate')
+            require(facts['coefficient_certificate_sha256'] is None,
+                    'obsolete high-rate P10 certificate presented as current')
+            require(any('stability not yet retested with the 1.1.2 front end' in warning
+                        for warning in doc['warnings']),
+                    'AM5 high-rate report omitted the front-end evidence status')
             require(facts['committed_native_frames']==str(frames*128),'encoder output count')
             require(facts['monitor']['first_overload_frame'] is None,'fabricated overload')
             return dict(mastering_release_promoted=False,profile=facts['profile_id'],

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """P17 independent high-rate numerical tests; NOT a release certificate.
 
-FIR mathematics is from checked-in immutable C99 hex words, evaluated by
+FIR mathematics is from checked-in immutable production C99 hex words, evaluated by
 independent polynomial composition / FFT sampling / longdouble inner products.
 The exporter only supplies production outputs, never the mathematical oracle.
 Coherent aliases cover ALL D-1 images for each sampled baseband frequency.
@@ -23,6 +23,8 @@ import time
 
 import numpy as np
 from scipy import signal
+sys.path.insert(0, str(Path(__file__).resolve().parent/'support'))
+from current_mastering_112 import read_current_mastering
 
 ROOT=Path(__file__).resolve().parents[2]
 SOURCE=ROOT/'src/dsd_coeffs.h'
@@ -53,7 +55,34 @@ def bank_words():
         assert sha(('\n'.join(words)+'\n').encode())==baseline['banks'][name]['rounded_hex_sha256']
         assert abs(float(np.sum(h,dtype=np.longdouble))-1)<2e-15
         result[name]=h
+    _, current_banks = read_current_mastering()
+    result.update(current_banks)
     return result
+
+def active_reconstruction(original):
+    """Overlay 1.1.2 production mastering without changing frozen P17 oracles."""
+    current, _ = read_current_mastering()
+    derived = dict(original)
+    derived['reconstruction'] = {}
+    for name, item in original['reconstruction'].items():
+        suffix = name.removeprefix('decode.').replace('.v1.', '.')
+        canonical = 'decode.' + suffix
+        row = dict(item)
+        if 'mastering' in name:
+            rate = name.rsplit('dsd', 1)[1]
+            now = current['dsd' + rate]
+            row.update(native_hz=now['native_hz'],intermediate_hz=now['intermediate_hz'],
+                factor=now['factor'],pass_hz=now['pass_hz'],stop_hz=now['stop_hz'],
+                last_bank='master112_' + now['bank'],
+                stage_banks=['halfband']*(now['stages']-1)+['master112_' + now['bank']],
+                delay_native_frames=now['delay_native_frames'],
+                discard_output_frames=now['discard_frames'],
+                phase_native_frames=now['phase_native_frames'],
+                last_stage_input_hz=2*now['intermediate_hz'])
+            row['stage_phases']=[(now['delay_native_frames']>>j)&1 for j in range(now['stages'])]
+        derived['reconstruction'][canonical] = row
+    return derived
+
 
 def fir_fft(banks,names,fft_size):
     """Complex response of upsampled convolutions, NOT production ring FIR."""
@@ -77,8 +106,8 @@ def spectral_cases(banks,manifest,fft_size=1<<19):
         assert [((calculated_delay>>j)&1) for j in range(len(names))]==m['stage_phases']
         assert calculated_delay//D==m['discard_output_frames']
         if 'mastering' in key:
-            assert names[-1]=='master64_256' and 2*R==352800
-            assert (m['pass_hz'],m['stop_hz'])==(40000,80000)
+            assert names[-1]==m['last_bank'] and 2*R==m['last_stage_input_hz']
+            assert (m['pass_hz'],m['stop_hz']) in ((88200,148200),(120000,200000))
         else:
             assert names[-1]=='wideband'
             assert m['pass_hz']==.4*R and m['stop_hz']==.5*R
@@ -116,7 +145,7 @@ def spectral_cases(banks,manifest,fft_size=1<<19):
            strict_705600_supported=(R==705600 or .475*min(R,705600)>=m['pass_hz']),
            status='PASS' if ripple<=THRESHOLD['pass_ripple_db'] and
              stop_max<=THRESHOLD['stop_max_db'] and alias_db<=THRESHOLD['coherent_alias_sum_db'] else 'FAIL')
-        if key=='decode.wideband.v1.dsd1024':
+        if key=='decode.wideband.dsd1024':
             assert result['effective_bandwidth_at_705600_hz']==335160.0
             assert not result['strict_705600_supported']
         rows.append(result)
@@ -253,7 +282,7 @@ def main():
     if args.fft<1<<17 or args.fft>1<<21 or args.fft&(args.fft-1):ap.error('fft size must be a power of two between 2^17 and 2^21')
     if not 256<=args.source_frames<=65536:ap.error('source-frames out of range')
     args.results.mkdir(parents=True,exist_ok=True)
-    manifest=json.loads(MANIFEST.read_text())
+    manifest=active_reconstruction(json.loads(MANIFEST.read_text()))
     t0=time.monotonic()
     records=[]
     for name,producer,file in [('spectral_grid',lambda:spectral_cases(bank_words(),manifest,args.fft),'filter-development-evidence.json'),
@@ -266,7 +295,8 @@ def main():
         print(name,out['status'],flush=True)
     summary=dict(schema='P17/numeric-qualification-status/1',
         result='PASS_DEVELOPMENT_TESTS_UNQUALIFIED' if all(x['status']=='PASS' for x in records) else 'FAILED',
-        rate_specific_profile_certificates_qualified=False,writer_enabled=False,
+        rate_specific_profile_certificates_qualified=False,
+        writer_authorized_by_this_development_gate=False,
         elapsed_seconds=time.monotonic()-t0,host=dict(node=platform.node(),
         python=platform.python_version(),numpy=np.__version__,machine=platform.machine()),
         records=records,host_tiers=args.host_tiers,
