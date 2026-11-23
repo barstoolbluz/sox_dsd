@@ -21,9 +21,12 @@ than treating all DSD-to-PCM conversions as interchangeable.
 
 **DSD512 and DSD1024 file and transport paths are enabled as of P21
 (2026-10-23).** DSF and DSDIFF support native read/write, WSD supports
-native read, and DoP transport is enabled for both clocks. The qualified
-high-rate mastering encoders are v2 CLANS-7; the v1 high-rate encoders
-remain unqualified. File and DoP authorization does not establish support
+native read, and DoP transport is enabled for both clocks. The available
+DSD512/1024 mastering encoders use v2 CLANS-7. Their prior stability
+results were obtained with the old front end; stability with the 1.1.2 FIR
+front end has not yet been retested. The DSD256 mastering encoder has the
+same retest status. The v1 DSD512/1024 encoders remain unqualified. File
+and DoP authorization does not establish support
 on any particular player, DAC or transport device. See
 [the P21 authorization record](docs/dsd/amendments/P21_HIGH_RATE_ENABLEMENT_2026-10-23.md).
 

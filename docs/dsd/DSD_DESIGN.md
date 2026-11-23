@@ -778,9 +778,10 @@ The P15 code-side comparator disposition and criteria are recorded in
 `tests/dsd/reference/p15_src_numerical_criteria.json` and
 `tests/dsd/p15_src_envelope_review.py`; the numerical and transfer limits
 **are defined by this section and §6.1, not duplicated by a new policy
-copy**. The first release remains blocked until both the same-transfer
-arithmetic and complete-chain transfer evidence exist, plus other named
-release gates. This section does not require rerunning 81 already source-bound
+copy**. This historical P15 evidence gate does not itself determine the
+2.0.0 release sequence: the signed D8 owner decision governs sequencing,
+while the D4/D6/D11/D16 owner acceptance gates remain open. This section
+does not require rerunning 81 already source-bound
 scalar measurements merely to reclassify an invalid cross-design comparator.
 
 For SDM, raw bytes need not match. Within one kernel/profile, changing buffer sizes or thread scheduling must not change a channel's bitstream. Across kernels, compare independently reconstructed signal, spectra and stability under section 10. A CPU-wide reproducible-byte mode is not delivered. Forcing scalar helps reproducibility under a pinned build but is not advertised as universal cross-compiler determinism.

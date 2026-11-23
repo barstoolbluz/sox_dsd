@@ -14,7 +14,7 @@ short examples.
 ## Basic conversions
 
 ```sh
-# DSD to an ordinary WAV. Unified mastering reconstruction (the former v1 bank) is automatic.
+# DSD to an ordinary WAV. Unified mastering reconstruction is automatic.
 sox music.dsf music.wav
 
 # Specify a PCM output rate and bit depth. File-specific flags precede output.
@@ -47,8 +47,9 @@ output filename changes **output** format. Existing numeric rates such as
 `-r 5644800` remain valid. Named rates are `dsd64`, `dsd128`, `dsd256`,
 `dsd512`, `dsd1024` (case-insensitive).
 
-Without `-r`, DSD64 decoding produces 88.2 kHz PCM; DSD128/256/512/1024
-decoding produces 176.4 kHz PCM. WAV output defaults to signed 24-bit PCM.
+Without `-r`, mastering DSD64 decoding produces 88.2 kHz PCM, DSD128
+produces 176.4 kHz, DSD256 and DSD512 produce 352.8 kHz, and DSD1024
+produces 705.6 kHz PCM. WAV output defaults to signed 24-bit PCM.
 Other PCM containers use their closest supported conventional lossless depth.
 Specify `-b 24` when a particular output format allows it and you require it.
 Supported explicit reconstruction PCM rates are 44.1, 48, 88.2, 96, 176.4,
@@ -209,7 +210,8 @@ DSD conversions; PCM-only commands continue to use normal SoX diagnostics.
 
 The normal profile is **mastering**; you do not need to specify it. For DSD
 reconstruction, `--decode mastering` and omitting `--decode` use the same
-unified mastering bank (formerly v1). `--decode wideband` is the only
+unified mastering selection (former v1 FIRs at DSD64/128, 1.1.2 FIRs at
+DSD256/512/1024). `--decode wideband` is the only
 alternative. Canonical decoder IDs are unversioned and pin the native
 input clock. The v2 decoder, `conservative`, `legacy` decoder, and old
 versioned decoder IDs were retired on this line:
@@ -231,8 +233,11 @@ sox --encode encode.mastering.v3.dsd128 source.wav -r dsd128 output.dsf
 
 For encoding, `--encode mastering` selects the certified mastering-v3
 switched-resonator modulator for DSD64/128, mastering-v1 for DSD256 and
-qualified mastering-v2 CLANS-7 for DSD512/1024. The v1 IDs at DSD64/128
-are not selected on this binary64 line; 2.0.0 has not been released. A mismatched version-pinned native bit clock causes an error.
+mastering-v2 CLANS-7 for DSD512/1024. These DSD256/512/1024 encoders
+remain usable, but stability with the 1.1.2 front end has **not yet been
+retested**. P15/P21 stability results apply only to their former front end.
+The v1 IDs at DSD64/128 are not selected on this binary64 line; 2.0.0 has
+not been released. A mismatched version-pinned native bit clock causes an error.
 Unsupported or unqualified legacy composite profiles do not acquire
 qualification through these selectors. Only interpolated samples above the warning ceiling are clipped;
 nonfinite samples and modulator-state guard failures still stop the
@@ -289,7 +294,7 @@ The new interface replaces `--dsd-decode`, `--dsd-encode`, `--dsd-plan`,
 and `--dsd-report` with `--decode`, `--encode`, `--plan`, and `--report`.
 It changes the DSD-routing default from legacy to automatic. On the
 Phase 08 binary64 line, `--decode mastering` and the automatic default both
-select the unified (former v1) decoder. Use `--decode wideband` for the
+select the unified mastering decoder (1.1.2 FIRs at DSD256+). Use `--decode wideband` for the
 alternative. Versioned decoder IDs and `conservative` are retired.
 These changes affect SoX DSD-specific 1.0.4 controls, not conventional
 SoX/SoX-NG syntax. See [the migration table](MIGRATION_P15.md).

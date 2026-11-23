@@ -39,13 +39,13 @@ The source was retrieved using GitHub's immutable commit-addressed file API;
 its Git blob was independently checked. Mapping the mirror revision to the
 official GitLab revision remains unverified.
 
-Only `cr_exp10` is used. It is statically included in `libsox_ng` and excluded
-from its public dynamic-symbol export list. There is no runtime download or
-extra library dependency. Callers require binary64, nearest-even rounding, the implementation's
-fused-multiply-add semantics and gradual underflow. The shipped `exp10.c`
-contains its own binary64 helpers; it does not introduce undefined
-`fma` or `roundeven` references that need to be resolved by libm.
-Other SoX code can still link libm for unrelated functions. Unsafe
+Only `cr_exp10` is used. It is compiled into `libsox_ng` and separately
+into the `sox` executable (and the test-only CLI entry points). It is
+excluded from the library's public dynamic-symbol export list. There is
+no runtime download. The CORE-MATH objects use `fma` and `roundeven`
+provided by libm at link time; those symbols are not private implementations.
+Callers require binary64, nearest-even rounding, fused-multiply-add
+semantics and gradual underflow. Unsafe
 floating-point optimizations and whole-program LTO remain forbidden by
 build flags.
 Windows runtime qualification still requires execution on a supported Windows

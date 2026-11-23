@@ -1406,8 +1406,8 @@ before the output filename, as in traditional SoX.  Native DSD is one-bit;
 selects PCM output precision, not a native DSD precision.
 .SP
 Without an explicit PCM output rate, decoding uses the qualified
-unified mastering intermediate clock: 88200 Hz for DSD64; 176400 Hz for
-DSD128, DSD256, DSD512 and DSD1024.  Where the format supports it,
+unified mastering intermediate clock: 88200 Hz for DSD64; 176400 Hz
+for DSD128; 352800 Hz for DSD256 and DSD512; 705600 Hz for DSD1024.  Where the format supports it,
 the default is signed 24-bit PCM.  For a different PCM clock, specify
 .B \-r
 before the output filename.  Supported reconstruction output clocks
@@ -1463,7 +1463,7 @@ Display a short set of DSD examples and commonly used advanced controls.
 Select the unified reconstruction profile when processing DSD as PCM.
 The automatic default and
 .B mastering
-select the former mastering-v1 bank, matched to the native input rate;
+select the unified mastering bank, using 1.1.2 FIRs at DSD256+;
 .B wideband
 is the only alternative.  Unversioned canonical IDs, for example
 .B decode.mastering.dsd64

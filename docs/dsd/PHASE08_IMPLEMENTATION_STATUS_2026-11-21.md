@@ -7,14 +7,15 @@
 
 ## Implemented route
 
-The **default/native DSD decoder** is the unified `mastering` decoder: the
-former v1 bank. `wideband` is the only other decoder. `--decode mastering`,
+The **default/native DSD decoder** is unified `mastering`: the former v1
+FIRs at DSD64/128 and the 1.1.2 FIRs at DSD256+. `wideband` is the only
+other decoder. `--decode mastering`,
 `dsdpcm -p mastering`, and implicit reconstruction choose the same bank.
 Canonical decoder IDs are `decode.mastering.dsdNNN` and
 `decode.wideband.dsdNNN`. Old `mastering.v1`, `mastering.v2`,
 `wideband.v1`, `conservative` and `legacy` decoder selectors are removed.
 DSD64 mastering reconstructs through 20/40 kHz at 88.2 kHz intermediate;
-DSD128 through 30/60 kHz at 176.4 kHz intermediate. DSD256-1024 use the 1.1.2 `main` mastering/wideband filters and clocks
+DSD128 through 30/60 kHz at 176.4 kHz intermediate. DSD256-1024 use the 1.1.2 `main` mastering filters and clocks
 under AM1. The independent 240-case decoder comparison is byte-identical
 to `main` 1.1.2 for the tested high-rate routes; DSD64/128 are unchanged. The manual's profile/clock and phase claims apply to the
 selected frontend and remain subject to bandwidth policy.
@@ -161,20 +162,11 @@ The four upstream 1.1.2 filter checks run from `make check-dsd-112`; the
 retired v2 decoder's `check-dsd-p15-r3` and companion tests are removed.
 `check-phase08` may pass its finite cases while D4/D6/D11/D16 remain OPEN.
 
-## November 22 owner amendment 1 (Return 1)
+## November 22 owner amendment 2 (Return 2)
 
-[AM1-AM4](amendments/PHASE08_OWNER_AMENDMENT_1_2026-11-22.md) control
-this return. D13 validates pinned sources against immutable predecessor tree
-and blob IDs and accepts only the AM1/AM2 owner-authorized deltas; deliberate
-changes to the decoder profile rows fail the guard. D6 takes gain/headroom
-factors from `dsd_coremath_gain_from_db` / `cr_exp10` on all five execution
-and planning call sites; a negative-control test changes each site in turn.
-The source-to-binary universal proof remains OPEN under AM3. AM4 accepts the
-ordinary SoX automatic-dither change for exact integer gain factors: +20 dB
-and +40 dB now match disabled auto-dither; -2.5 dB still uses auto-dither;
-explicit `dither -p 15` still takes effect. This is a reproducible behavior
-change, not an assertion of bit-for-bit equivalence with the old gain effect.
-
-The four upstream 1.1.2 filter checks run from `make check-dsd-112`; the
-retired v2 decoder's `check-dsd-p15-r3` and companion tests are removed.
-`check-phase08` may pass its finite cases while D4/D6/D11/D16 remain OPEN.
+[AM5-AM6](amendments/PHASE08_OWNER_AMENDMENT_2_2026-11-22.md) retain the
+DSD256/512/1024 encoder availability flags but reopen their stability
+qualification with the 1.1.2 front end. Previous P15/P21 results cover
+the older front end only. D13 locks the AM6 set of sources and reference
+files, including file presence and absence. The owner-controlled D4, D6,
+D11 and D16 gates remain OPEN pending further owner approval.
