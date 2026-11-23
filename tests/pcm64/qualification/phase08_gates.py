@@ -44,7 +44,7 @@ def main():
             observed=data.get('status')
             if observed!=want:raise ValueError(f'wrong or failed status: {observed!r}')
             if tag=='d6-routes':
-                assert len(data['sites'])==5 and len(data['negative_controls_rejected'])==6
+                assert len(data['sites'])==5 and len(data['negative_controls_rejected'])==10
             if tag=='am4-gain-dither':
                 assert len(data['integer_factors'])==2
                 assert data['noninteger_automatic_differs_from_disabled'] is True
